@@ -4,7 +4,9 @@ import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
 import { OverworldScene } from './scenes/OverworldScene';
 import { BattleScene } from './scenes/BattleScene';
+import { DialogueScene } from './scenes/DialogueScene';
 import { MenuScene } from './scenes/MenuScene';
+import { ShopScene } from './scenes/ShopScene';
 
 // Referenzauflösung (16:9, Querformat). Skaliert per FIT auf Handy & Desktop.
 export const GAME_WIDTH = 960;
@@ -21,5 +23,5 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BootScene, PreloadScene, TitleScene, OverworldScene, BattleScene, MenuScene]
+  scene: [BootScene, PreloadScene, TitleScene, OverworldScene, BattleScene, MenuScene, DialogueScene, ShopScene]
 });

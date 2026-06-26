@@ -3,6 +3,8 @@ import { ENEMIES } from './enemies';
 import { ITEMS } from './items';
 import { JOBS } from './jobs';
 import { SKILLS } from './skills';
+import { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
+import type { DialogChoiceDefinition } from './world';
 import type {
   CharacterDefinition,
   EnemyDefinition,
@@ -17,6 +19,17 @@ export { ENEMIES } from './enemies';
 export { ITEMS } from './items';
 export { JOBS } from './jobs';
 export { SKILLS } from './skills';
+export { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
+export type {
+  DialogChoiceDefinition,
+  DialogDefinition,
+  DialogNodeDefinition,
+  EncounterDefinition,
+  NpcDefinition,
+  ShopDefinition,
+  WorldEffect,
+  WorldRequirement
+} from './world';
 export type {
   CharacterDefinition,
   ElementType,
@@ -39,7 +52,14 @@ export const GAME_DATA = {
   enemies: ENEMIES,
   items: ITEMS,
   jobs: JOBS,
-  skills: SKILLS
+  skills: SKILLS,
+  world: {
+    dialogs: DIALOGS,
+    encounters: ENCOUNTERS,
+    npcs: NPCS,
+    quests: QUESTS,
+    shops: SHOPS
+  }
 } as const;
 
 export interface DataValidationIssue {
@@ -53,6 +73,7 @@ interface DataSet {
   readonly items: readonly ItemDefinition[];
   readonly jobs: readonly JobDefinition[];
   readonly skills: readonly SkillDefinition[];
+  readonly world: typeof GAME_DATA.world;
 }
 
 export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue[] {
@@ -60,10 +81,18 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   const skillIds = new Set(data.skills.map((skill) => skill.id));
   const itemIds = new Set(data.items.map((item) => item.id));
   const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
+  const dialogIds = new Set(data.world.dialogs.map((dialog) => dialog.id));
+  const questIds = new Set<string>(data.world.quests.map((quest) => quest.id));
 
   validateUniqueIds('skills', data.skills, issues);
   validateUniqueIds('items', data.items, issues);
   validateUniqueIds('jobs', data.jobs, issues);
+  validateUniqueIds('world.dialogs', data.world.dialogs, issues);
+  validateUniqueIds('world.encounters', data.world.encounters, issues);
+  validateUniqueIds('world.npcs', data.world.npcs, issues);
+  validateUniqueIds('world.quests', data.world.quests, issues);
+  validateUniqueIds('world.shops', data.world.shops, issues);
   validateUniqueIds('heroes', data.heroes, issues);
   validateUniqueIds('enemies', data.enemies, issues);
 
@@ -134,6 +163,85 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       }
     }
     validateJobMultipliers(job, issues);
+  }
+
+  for (const npc of data.world.npcs) {
+    if (!dialogIds.has(npc.dialogId)) {
+      issues.push({
+        path: `world.npcs.${npc.id}.dialogId`,
+        message: `NPC verweist auf unbekannten Dialog '${npc.dialogId}'.`
+      });
+    }
+  }
+
+  for (const shop of data.world.shops) {
+    for (const itemId of shop.itemIds) {
+      if (!itemIds.has(itemId)) {
+        issues.push({
+          path: `world.shops.${shop.id}.itemIds.${itemId}`,
+          message: `Shop verweist auf unbekanntes Item '${itemId}'.`
+        });
+      }
+    }
+  }
+
+  for (const encounter of data.world.encounters) {
+    for (const enemyId of encounter.enemyIds) {
+      if (!enemyIds.has(enemyId)) {
+        issues.push({
+          path: `world.encounters.${encounter.id}.enemyIds.${enemyId}`,
+          message: `Encounter verweist auf unbekannten Gegner '${enemyId}'.`
+        });
+      }
+    }
+    if (encounter.chance < 0 || encounter.chance > 1) {
+      issues.push({
+        path: `world.encounters.${encounter.id}.chance`,
+        message: 'Encounter-Chance muss zwischen 0 und 1 liegen.'
+      });
+    }
+  }
+
+  for (const dialog of data.world.dialogs) {
+    const nodeIds = new Set<string>(dialog.nodes.map((node) => node.id));
+    if (!nodeIds.has(dialog.startNodeId)) {
+      issues.push({
+        path: `world.dialogs.${dialog.id}.startNodeId`,
+        message: `Dialog-Startknoten '${dialog.startNodeId}' fehlt.`
+      });
+    }
+    for (const node of dialog.nodes) {
+      for (const choice of node.choices as readonly DialogChoiceDefinition[]) {
+        if (choice.nextNodeId && !nodeIds.has(choice.nextNodeId)) {
+          issues.push({
+            path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.nextNodeId`,
+            message: `Dialogauswahl verweist auf unbekannten Knoten '${choice.nextNodeId}'.`
+          });
+        }
+        for (const effect of choice.effects ?? []) {
+          if ('itemId' in effect && !itemIds.has(effect.itemId)) {
+            issues.push({
+              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects.${effect.itemId}`,
+              message: `Dialogeffekt verweist auf unbekanntes Item '${effect.itemId}'.`
+            });
+          }
+          if ('questId' in effect && !questIds.has(effect.questId)) {
+            issues.push({
+              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects.${effect.questId}`,
+              message: `Dialogeffekt verweist auf unbekannte Quest '${effect.questId}'.`
+            });
+          }
+        }
+        for (const requirement of choice.requirements ?? []) {
+          if (requirement.questStatus && !questIds.has(requirement.questStatus.questId)) {
+            issues.push({
+              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.requirements.${requirement.questStatus.questId}`,
+              message: `Dialoganforderung verweist auf unbekannte Quest '${requirement.questStatus.questId}'.`
+            });
+          }
+        }
+      }
+    }
   }
 
   return issues;

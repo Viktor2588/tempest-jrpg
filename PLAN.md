@@ -128,11 +128,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/menu.test.ts`:** 6 Checks (Ausrüsten/Ablegen verändert Werte und Inventar, Heilitem-Verbrauch, Inventarsortierung, Rollenwerte + Skillzugriff, ungültige Rollenwahl, Touch-Zielgröße ≥44 px).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **29/29** grün (6 Menü + 9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
-[ ] **Phase 5 – Welt: NPCs, Dialoge, Städte, Shops, Begegnungen**
-- Dialogsystem (datengetrieben, Auswahlen, Flags/Quests), NPCs, eine Stadt mit Shop (Kauf/Verkauf), Zufalls-/Trigger-Begegnungen, die in den Kampf führen.
-- Stadt als sicherer Spielraum: Lore-Hub, Quest-Knoten, leichte Puzzle-/Erkundungsinteraktionen und Vorbereitung auf den nächsten Kampfabschnitt.
-- Erste Beziehungspunkte/Bindungsflags aus Dialogen oder Quests setzen; Boni zunächst klein und testbar halten.
-- **Abnahme:** Ein durchgängiger Mini-Spielfluss (Stadt → NPC/Quest → Shop/Puzzle → Begegnung → Kampf → Belohnung/Bindungsfortschritt → Speichern) ist spielbar und in einem Headless-Durchspieltest abgedeckt.
+[x] **Phase 5 – Welt: NPCs, Dialoge, Städte, Shops, Begegnungen (fertig 2026-06-27, Worktree `worktree/tempest-phase-5-world`)**
+- **Datengetriebene Welt `src/data/world.ts`:** NPC `Rigurd`, Dialogbaum mit Auswahl-/Requirement-/Effect-Daten, Quest `first-patrol`, Shop `tempest-supply`, Trigger-Encounter `training-clearing` und Random-Encounter-Zone `east-grass`.
+- **Reine Weltlogik `src/systems/world.ts`** (Phaser-/DOM-frei): Dialogauswertung mit Flags/Quests/Belohnungen, Shop-Kauf/-Verkauf, NPC-/Shop-Nähe, Trigger-/Zufallsbegegnungen, Save-Adapter (`createWorldState`/`applyWorldState`) und Headless-Mini-Flow.
+- **UI-Anbindung:** `OverworldScene` rendert NPC/Shop/Encounter-Marker, Interaktion per **E/Leertaste/Touch-Button**, Encounter führt in `BattleScene`; `DialogueScene` und `ShopScene` sind dünne Overlays, pausieren die Oberwelt und speichern Änderungen per Auto-Save.
+- **Beziehung/Quest:** Dialoge setzen erste Bindungsflags (`bond.rigurd.met`, `bond.rigurd.trust-1`) und Queststatus/Queststeps; Abschlussbelohnung gibt Gold + Item.
+- **Test `test/world.test.ts`:** 7 Checks (Welt-Datenintegrität, Dialog→Quest/Flag, Report-Freischaltung+Belohnung, Shop-Kauf/-Verkauf, Interaktionsnähe, einmaliger Trigger-Encounter, kompletter Headless-Smoke-Flow Stadt → NPC/Quest → Shop → Begegnung → Belohnung → Speichern).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **36/36** grün (7 Welt + 6 Menü + 9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
 [ ] **Phase 6 – Inhalt & Progression: Entwicklung, Namensgebung, Jobs, Beziehungen**
 - Marquee-Feature der Vorlage als Party-Progression: Namensgebung → Entwicklung/Evolution, Skill-Erwerb, Ränge/Level; mehrere Helden-/Monsterlinien, Gegner und Regionen als Inhalt.
