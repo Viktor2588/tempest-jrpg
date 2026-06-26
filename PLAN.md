@@ -103,10 +103,14 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - Touch-Steuerkreuz und Tastatur (WASD/Pfeile); ein begehbares Testgebiet mit Hindernissen und einem Übergang.
 - **Abnahme:** Spieler bewegt sich flüssig auf Handy & Desktop, Kollision/Übergänge funktionieren; Bewegungslogik (Kollisionsprüfung) headless getestet.
 
-[ ] **Phase 2 – Datenmodell & Speichern**
-- Typisierte Daten für Party-Charaktere (Werte, Level, EP, Skills, Ausrüstung) und ein erstes Gegner-/Skill-/Item-Set.
-- `save.ts`: versioniertes Schema, `migrate()`, Export/Import, Reset; Auto-Save.
-- **Abnahme:** Zustand übersteht Speichern→Laden (Roundtrip-Test); Migration eines „alten" Stands getestet; Datenintegrität (eindeutige IDs, gültige Referenzen) als Test.
+[x] **Phase 2 – Datenmodell & Speichern (fertig 2026-06-26)**
+- Typisierte Datenstruktur ergänzt: `src/data/types.ts` plus erstes Content-Set für Helden/Monster, Skills, Items und Gegner (`characters.ts`, `skills.ts`, `items.ts`, `enemies.ts`).
+- Datenintegrität zentral prüfbar: `src/data/index.ts` exportiert `GAME_DATA` und `validateGameData()` für eindeutige IDs, Skill-/Item-/Equipment-Referenzen, Drop-Chancen und Basiswerte.
+- Erste reine Systemmodule ergänzt: `stats.ts` (Level/EP/Werte), `party.ts` (Initialparty/PartyMember-State), `inventory.ts` (Stacks/Startinventar/Normalisierung).
+- `save.ts`: versioniertes Schema `SaveGameV2`, `createNewSave()`, `normalize()`, `migrate()`, `exportSave()`, `importSave()`, `loadSave()`, `writeSave()`, `autoSave()`, `resetSave()` über eine testbare `StorageLike`-Abstraktion.
+- Migration eines alten v1-Formats abgedeckt: alte Party-/Inventar-/Positionsdaten werden ins aktuelle Schema überführt, unbekannte Figuren werden verworfen, ungültige Werte normalisiert.
+- **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **10/10** grün, `npm run build` grün (Phaser-Bundle-Warnung unverändert/unkritisch). Roundtrip, Migration, Auto-Save/Load/Reset und Datenintegrität sind getestet.
+- *Hinweis: `/worktree` war auf dieser Maschine read-only; der Phase-2-Worktree liegt deshalb unter `/private/tmp/worktree/tempest-phase-2-data-save` auf Branch `phase/2-data-save`.*
 
 [ ] **Phase 3 – Rundenkampf-Engine**
 - DOM/Phaser-freie `battle.ts`: Zugreihenfolge (Geschwindigkeit/ATB), Aktionen (Angriff, Skill, Magie, Item, Verteidigen, Fliehen), Elemente/Schwächen, Statuseffekte, einfache Gegner-KI, garantierte Terminierung, seedbar.
