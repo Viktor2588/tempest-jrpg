@@ -1,0 +1,131 @@
+import { describe, expect, it } from 'vitest';
+import {
+  autoSave,
+  createNewSave,
+  exportSave,
+  importSave,
+  loadSave,
+  migrate,
+  resetSave,
+  SAVE_STORAGE_KEY,
+  type StorageLike
+} from '../src/systems/save';
+import { getItemCount } from '../src/systems/inventory';
+
+class MemoryStorage implements StorageLike {
+  readonly values = new Map<string, string>();
+
+  getItem(key: string): string | null {
+    return this.values.get(key) ?? null;
+  }
+
+  setItem(key: string, value: string): void {
+    this.values.set(key, value);
+  }
+
+  removeItem(key: string): void {
+    this.values.delete(key);
+  }
+}
+
+describe('save.ts', () => {
+  it('roundtript einen aktuellen Spielstand über Export und Import', () => {
+    const save = createNewSave({ now: '2026-06-26T10:00:00.000Z', seed: 42 });
+    const changed = {
+      ...save,
+      playtimeSeconds: 90,
+      party: {
+        ...save.party,
+        gold: 250
+      },
+      inventory: {
+        stacks: [
+          ...save.inventory.stacks,
+          { itemId: 'healing-herb', quantity: 2 },
+          { itemId: 'mana-drop', quantity: 0 }
+        ]
+      },
+      flags: {
+        metVillageGuide: true
+      }
+    };
+
+    const loaded = importSave(exportSave(changed), '2026-06-26T10:05:00.000Z');
+
+    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.party.gold).toBe(250);
+    expect(loaded.playtimeSeconds).toBe(90);
+    expect(getItemCount(loaded.inventory.stacks, 'healing-herb')).toBe(7);
+    expect(getItemCount(loaded.inventory.stacks, 'mana-drop')).toBe(2);
+    expect(loaded.flags.metVillageGuide).toBe(true);
+  });
+
+  it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {
+    const migrated = migrate(
+      {
+        schemaVersion: 1,
+        createdAt: '2026-06-01T00:00:00.000Z',
+        seed: 7,
+        mapId: 'old-field',
+        x: 3,
+        y: 9,
+        facing: 'left',
+        gold: 77,
+        activeParty: [
+          {
+            id: 'rimuru',
+            level: 3,
+            xp: 240,
+            learnedSkillIds: ['water-blade']
+          },
+          {
+            id: 'unknown-character',
+            level: 99
+          }
+        ],
+        inventory: {
+          'healing-herb': 4,
+          'mana-drop': 1,
+          broken: -2
+        },
+        flags: {
+          introComplete: true,
+          invalid: 'yes'
+        }
+      },
+      '2026-06-26T12:00:00.000Z'
+    );
+
+    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.createdAt).toBe('2026-06-01T00:00:00.000Z');
+    expect(migrated.updatedAt).toBe('2026-06-26T12:00:00.000Z');
+    expect(migrated.location).toEqual({
+      mapId: 'old-field',
+      x: 3,
+      y: 9,
+      facing: 'left'
+    });
+    expect(migrated.party.active).toHaveLength(1);
+    expect(migrated.party.active[0]!.characterId).toBe('rimuru');
+    expect(migrated.party.active[0]!.level).toBe(3);
+    expect(migrated.party.gold).toBe(77);
+    expect(getItemCount(migrated.inventory.stacks, 'healing-herb')).toBe(4);
+    expect(getItemCount(migrated.inventory.stacks, 'broken')).toBe(0);
+    expect(migrated.flags).toEqual({ introComplete: true });
+  });
+
+  it('speichert, lädt und löscht Auto-Saves über eine Storage-Abstraktion', () => {
+    const storage = new MemoryStorage();
+    const save = createNewSave({ now: '2026-06-26T10:00:00.000Z', seed: 3 });
+
+    const written = autoSave(storage, save, '2026-06-26T10:01:00.000Z');
+    const loaded = loadSave(storage);
+
+    expect(storage.getItem(SAVE_STORAGE_KEY)).not.toBeNull();
+    expect(written.updatedAt).toBe('2026-06-26T10:01:00.000Z');
+    expect(loaded?.updatedAt).toBe('2026-06-26T10:01:00.000Z');
+
+    resetSave(storage);
+    expect(loadSave(storage)).toBeNull();
+  });
+});
