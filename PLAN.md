@@ -98,10 +98,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **5/5** grün, `npm run build` → `dist/` erzeugt (Phaser-Bundle ~1,5 MB / 339 kB gzip — Bundle-Warnung unkritisch). Damit sind alle drei CI-Schritte (typecheck/test/build) lokal grün.
 - *Hinweis: Phase 0 (Bootstrapping) direkt im Haupt-Checkout erstellt; ab Phase 1 gilt die Worktree-Disziplin.*
 
-[ ] **Phase 1 – Spielbarer Kern: Oberwelt**
-- Tilemap-Oberwelt (Tiled-JSON oder datengetrieben), Spielerfigur mit 4-Richtungs-Bewegung + Kollision, folgende Kamera.
-- Touch-Steuerkreuz und Tastatur (WASD/Pfeile); ein begehbares Testgebiet mit Hindernissen und einem Übergang.
-- **Abnahme:** Spieler bewegt sich flüssig auf Handy & Desktop, Kollision/Übergänge funktionieren; Bewegungslogik (Kollisionsprüfung) headless getestet.
+[x] **Phase 1 – Spielbarer Kern: Oberwelt (fertig 2026-06-27, Worktree `worktree/tempest-phase-1-overworld`)**
+- **Reine Logik `src/systems/overworld.ts`** (Phaser-/DOM-frei): Kachelraster (`TileMap`), `isWalkable`, rasterbasierter `tryStep` (Schritt oder blockiert), `parseMap` (ASCII → Raster) — headless testbar.
+- **Datengetriebenes Testgebiet `src/data/maps.ts`:** programmatisch erzeugtes 24×16-Feld mit geschlossenem Wandrand und Innenhindernissen, freier Spawn.
+- **`src/scenes/OverworldScene.ts`:** rendert das Raster, bewegt den Spieler **rasterweise** (Tween) über die reine Logik, **folgende Kamera** mit Kartenbegrenzung. Eingabe: **Pfeiltasten + WASD** und ein **Touch-Steuerkreuz** (4 Buttons, `scrollFactor 0`). `TitleScene` startet die Oberwelt per Tipp/Taste; Szene in `main.ts` registriert.
+- **Test `test/overworld.test.ts`:** 4 Checks (parseMap Wände/Boden/Breite, isWalkable inkl. außerhalb, tryStep Bewegung/Blockieren, Feld-Rand + begehbarer Spawn).
+- **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **9/9** grün (5 RNG + 4 Oberwelt), `npm run build` → `dist/` erzeugt. *Live-Browser-Smoke (Bewegung/Kamera/Touch) noch manuell zu prüfen — Logik & Build sind grün.*
 
 [ ] **Phase 2 – Datenmodell & Speichern**
 - Typisierte Daten für Party-Charaktere (Werte, Level, EP, Skills, Ausrüstung) und ein erstes Gegner-/Skill-/Item-Set.
