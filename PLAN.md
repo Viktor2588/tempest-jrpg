@@ -121,11 +121,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/battle.test.ts`:** 9 Checks (Aufbau, Determinismus inkl. Log/Rewards, Sieg+Beute, Niederlage/Terminierung, Szenariomatrix 15×, Verteidigen, Item-Heilung/Verbrauch, Giftstatus, Flucht).
 - **Abnahme (lokal verifiziert):** `bun install --frozen-lockfile` sauber, `bun run typecheck` sauber, `bun run test` → **23/23** grün (9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
-[ ] **Phase 4 – Menüs: Party, Inventar, Ausrüstung, Status, Rollen**
-- Menü-Overlay: Party-Übersicht, Inventar (nutzen/sortieren), Ausrüstung (Slots, Werteänderung), Status/Skills.
-- Erste Rollen-/Job-Ansicht: verfügbare Rollen, Werteauswirkung, Skill-Zugriff, klare Erklärung der taktischen Funktion.
-- Streamlining: häufige Aktionen brauchen kurze Wege; Sortieren, Vergleichen, Ausrüsten und Item-Nutzung müssen auf Touch schnell funktionieren.
-- **Abnahme:** Ausrüsten/Verbrauch verändern Werte korrekt (Logiktests); Rollenwerte werden korrekt berechnet; Menü auf Touch bedienbar (≥44 px) und ohne verschachtelte Sackgassen.
+[x] **Phase 4 – Menüs: Party, Inventar, Ausrüstung, Status, Rollen (fertig 2026-06-27, Worktree `worktree/tempest-phase-4-menus`)**
+- **Reine Menülogik `src/systems/menu.ts`** (Phaser-/DOM-frei): Party-Summaries, sortierte Inventaransicht, Item-Nutzung, Ausrüsten/Ablegen mit Inventar-Slot-Tausch, berechnete Werte aus Level + Job + Ausrüstung, Skilllisten aus Charakter + Rolle. Touch-Zielkonstante `MENU_TOUCH_TARGET_PX = 44`.
+- **Rollen-/Job-Daten `src/data/jobs.ts`:** erste Rollen `adaptive-hero`, `vanguard`, `mystic`, `scout`, `support-priest` mit Stat-Multiplikatoren, Skill-Zugriff und Charakterbeschränkungen; Datenintegrität validiert Job-Skills, erlaubte Charaktere und positive Multiplikatoren.
+- **`src/scenes/MenuScene.ts`:** Overlay-Menü über der Oberwelt mit Tabs **Party / Inventar / Ausrüstung / Status / Rollen**, Party-Liste, Item-Nutzung, Ausrüstungswechsel, Status-/Skillanzeige, Rollenwahl und Auto-Save bei Zustandsänderungen. Öffnen/Schließen per **M** und Touch-Button; Oberwelt pausiert im Overlay.
+- **Test `test/menu.test.ts`:** 6 Checks (Ausrüsten/Ablegen verändert Werte und Inventar, Heilitem-Verbrauch, Inventarsortierung, Rollenwerte + Skillzugriff, ungültige Rollenwahl, Touch-Zielgröße ≥44 px).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **29/29** grün (6 Menü + 9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
 [ ] **Phase 5 – Welt: NPCs, Dialoge, Städte, Shops, Begegnungen**
 - Dialogsystem (datengetrieben, Auswahlen, Flags/Quests), NPCs, eine Stadt mit Shop (Kauf/Verkauf), Zufalls-/Trigger-Begegnungen, die in den Kampf führen.

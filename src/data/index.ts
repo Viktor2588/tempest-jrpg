@@ -1,18 +1,21 @@
 import { HEROES } from './characters';
 import { ENEMIES } from './enemies';
 import { ITEMS } from './items';
+import { JOBS } from './jobs';
 import { SKILLS } from './skills';
 import type {
   CharacterDefinition,
   EnemyDefinition,
   EquipmentSlot,
   ItemDefinition,
+  JobDefinition,
   SkillDefinition
 } from './types';
 
 export { HEROES } from './characters';
 export { ENEMIES } from './enemies';
 export { ITEMS } from './items';
+export { JOBS } from './jobs';
 export { SKILLS } from './skills';
 export type {
   CharacterDefinition,
@@ -22,6 +25,7 @@ export type {
   EquipmentSlot,
   ItemDefinition,
   ItemEffect,
+  JobDefinition,
   SkillDefinition,
   SkillStatusEffect,
   SkillTag,
@@ -34,6 +38,7 @@ export const GAME_DATA = {
   heroes: HEROES,
   enemies: ENEMIES,
   items: ITEMS,
+  jobs: JOBS,
   skills: SKILLS
 } as const;
 
@@ -46,6 +51,7 @@ interface DataSet {
   readonly heroes: readonly CharacterDefinition[];
   readonly enemies: readonly EnemyDefinition[];
   readonly items: readonly ItemDefinition[];
+  readonly jobs: readonly JobDefinition[];
   readonly skills: readonly SkillDefinition[];
 }
 
@@ -53,9 +59,11 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   const issues: DataValidationIssue[] = [];
   const skillIds = new Set(data.skills.map((skill) => skill.id));
   const itemIds = new Set(data.items.map((item) => item.id));
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
 
   validateUniqueIds('skills', data.skills, issues);
   validateUniqueIds('items', data.items, issues);
+  validateUniqueIds('jobs', data.jobs, issues);
   validateUniqueIds('heroes', data.heroes, issues);
   validateUniqueIds('enemies', data.enemies, issues);
 
@@ -115,7 +123,31 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     }
   }
 
+  for (const job of data.jobs) {
+    validateSkillReferences(`jobs.${job.id}.skillIds`, job.skillIds, skillIds, issues);
+    for (const characterId of job.allowedCharacterIds ?? []) {
+      if (!heroIds.has(characterId)) {
+        issues.push({
+          path: `jobs.${job.id}.allowedCharacterIds.${characterId}`,
+          message: `Job verweist auf unbekannten Charakter '${characterId}'.`
+        });
+      }
+    }
+    validateJobMultipliers(job, issues);
+  }
+
   return issues;
+}
+
+function validateJobMultipliers(job: JobDefinition, issues: DataValidationIssue[]): void {
+  for (const [stat, multiplier] of Object.entries(job.statMultiplier)) {
+    if (typeof multiplier !== 'number' || !Number.isFinite(multiplier) || multiplier <= 0) {
+      issues.push({
+        path: `jobs.${job.id}.statMultiplier.${stat}`,
+        message: 'Job-Multiplikator muss eine positive Zahl sein.'
+      });
+    }
+  }
 }
 
 function validateUniqueIds(

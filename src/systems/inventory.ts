@@ -40,3 +40,23 @@ export function normalizeInventoryStacks(stacks: readonly InventoryStack[]): Inv
 export function getItemCount(stacks: readonly InventoryStack[], itemId: string): number {
   return stacks.find((stack) => stack.itemId === itemId)?.quantity ?? 0;
 }
+
+export function addInventoryItem(
+  stacks: readonly InventoryStack[],
+  itemId: string,
+  quantity = 1
+): InventoryStack[] {
+  return normalizeInventoryStacks([...stacks, { itemId, quantity }]);
+}
+
+export function removeInventoryItem(
+  stacks: readonly InventoryStack[],
+  itemId: string,
+  quantity = 1
+): InventoryStack[] {
+  return normalizeInventoryStacks(
+    stacks.map((stack) =>
+      stack.itemId === itemId ? { ...stack, quantity: stack.quantity - quantity } : stack
+    )
+  );
+}

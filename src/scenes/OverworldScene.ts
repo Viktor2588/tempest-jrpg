@@ -62,6 +62,19 @@ export class OverworldScene extends Phaser.Scene {
     this.add.text(this.scale.width - 86, 30, '⚔ Kampf (Enter)', { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffd6de' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     btn.on('pointerdown', toBattle);
+
+    // Menü-Overlay (Phase 4): pausiert die Oberwelt, Szene rendert über ihr.
+    const openMenu = () => {
+      if (this.scene.isActive('Menu')) return;
+      this.scene.launch('Menu');
+      this.scene.pause();
+    };
+    this.input.keyboard?.on('keydown-M', openMenu);
+    const menuBtn = this.add.rectangle(this.scale.width - 86, 80, 150, 44, 0x223049, 0.9)
+      .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.7).setInteractive();
+    this.add.text(this.scale.width - 86, 80, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
+      .setOrigin(0.5).setScrollFactor(0).setDepth(11);
+    menuBtn.on('pointerdown', openMenu);
   }
 
   override update(): void {
