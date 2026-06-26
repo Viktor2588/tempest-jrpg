@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 
 // base: Unterpfad für GitHub Pages (https://<user>.github.io/tempest-jrpg/).
-// Lokal (npm run dev) ist base egal.
+// Lokal (bun run dev) ist base egal.
 export default defineConfig({
   base: '/tempest-jrpg/',
   build: { outDir: 'dist', target: 'es2020' },
