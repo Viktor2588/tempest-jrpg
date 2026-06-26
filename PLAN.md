@@ -105,10 +105,14 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/overworld.test.ts`:** 4 Checks (parseMap Wände/Boden/Breite, isWalkable inkl. außerhalb, tryStep Bewegung/Blockieren, Feld-Rand + begehbarer Spawn).
 - **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **9/9** grün (5 RNG + 4 Oberwelt), `npm run build` → `dist/` erzeugt. *Live-Browser-Smoke (Bewegung/Kamera/Touch) noch manuell zu prüfen — Logik & Build sind grün.*
 
-[ ] **Phase 2 – Datenmodell & Speichern**
-- Typisierte Daten für Party-Charaktere (Werte, Level, EP, Skills, Ausrüstung) und ein erstes Gegner-/Skill-/Item-Set.
-- `save.ts`: versioniertes Schema, `migrate()`, Export/Import, Reset; Auto-Save.
-- **Abnahme:** Zustand übersteht Speichern→Laden (Roundtrip-Test); Migration eines „alten" Stands getestet; Datenintegrität (eindeutige IDs, gültige Referenzen) als Test.
+[x] **Phase 2 – Datenmodell & Speichern (fertig 2026-06-26)**
+- Typisierte Datenstruktur ergänzt: `src/data/types.ts` plus erstes Content-Set für Helden/Monster, Skills, Items und Gegner (`characters.ts`, `skills.ts`, `items.ts`, `enemies.ts`).
+- Datenintegrität zentral prüfbar: `src/data/index.ts` exportiert `GAME_DATA` und `validateGameData()` für eindeutige IDs, Skill-/Item-/Equipment-Referenzen, Drop-Chancen und Basiswerte.
+- Erste reine Systemmodule ergänzt: `stats.ts` (Level/EP/Werte), `party.ts` (Initialparty/PartyMember-State), `inventory.ts` (Stacks/Startinventar/Normalisierung).
+- `save.ts`: versioniertes Schema `SaveGameV2`, `createNewSave()`, `normalize()`, `migrate()`, `exportSave()`, `importSave()`, `loadSave()`, `writeSave()`, `autoSave()`, `resetSave()` über eine testbare `StorageLike`-Abstraktion.
+- Migration eines alten v1-Formats abgedeckt: alte Party-/Inventar-/Positionsdaten werden ins aktuelle Schema überführt, unbekannte Figuren werden verworfen, ungültige Werte normalisiert.
+- **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **10/10** grün, `npm run build` grün (Phaser-Bundle-Warnung unverändert/unkritisch). Roundtrip, Migration, Auto-Save/Load/Reset und Datenintegrität sind getestet.
+- *Hinweis: `/worktree` war auf dieser Maschine read-only; der Phase-2-Worktree liegt deshalb unter `/private/tmp/worktree/tempest-phase-2-data-save` auf Branch `phase/2-data-save`.*
 
 [x] **Phase 3 – Rundenkampf-Engine (fertig 2026-06-27, Worktree `worktree/tempest-phase-3-battle`)**
 - **Reine Engine `src/systems/battle.ts`** (Phaser-/DOM-frei, seedbar): **CT-Initiative** (geschwindigkeitsbasiert), Aktionen **Angriff / Magie / Heilung / Verteidigen / Fliehen**, Elemente + Schwächen (×1,75) / Resistenzen (×0,5), Status **Gift** (DoT) und **Verteidigt** (halber Schaden), AoE-Magie (`alle-gegner`), einfache **Gegner-KI** (Caster bevorzugt Schwächen), **Beute** (EP/Gold beim Besiegen), garantierte Terminierung (Sieg/Niederlage/Flucht oder LP-Anteil nach 300 Zügen). `renderView` liefert ein kopiertes View-Modell.
