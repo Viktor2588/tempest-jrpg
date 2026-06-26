@@ -22,14 +22,35 @@ export const SKILLS = [
     tags: ['magical']
   },
   {
+    id: 'storm-gust',
+    name: 'Sturmböe',
+    description: 'Trifft alle Gegner mit einer schnellen Windwelle.',
+    element: 'wind',
+    target: 'all-enemies',
+    costMp: 7,
+    power: 15,
+    tags: ['magical']
+  },
+  {
     id: 'goblin-feint',
     name: 'Goblin-Finte',
-    description: 'Ein trickreicher Hieb, der später als Tempo-/Debuff-Aktion genutzt wird.',
+    description: 'Ein trickreicher Hieb, der Gegner verwirrt und zuverlässig Schaden setzt.',
     element: 'neutral',
     target: 'single-enemy',
     costMp: 2,
     power: 16,
     tags: ['physical', 'debuff']
+  },
+  {
+    id: 'venom-spit',
+    name: 'Giftdorn',
+    description: 'Ein dunkler Treffer mit Chance auf Gift.',
+    element: 'shadow',
+    target: 'single-enemy',
+    costMp: 3,
+    power: 14,
+    tags: ['magical', 'debuff'],
+    statusEffect: { id: 'poison', chance: 0.8, turns: 3 }
   },
   {
     id: 'soothing-prayer',

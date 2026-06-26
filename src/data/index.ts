@@ -23,8 +23,10 @@ export type {
   ItemDefinition,
   ItemEffect,
   SkillDefinition,
+  SkillStatusEffect,
   SkillTag,
   SkillTarget,
+  StatusEffectId,
   StatBlock
 } from './types';
 
@@ -100,6 +102,17 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       });
     }
     validateEquipmentItem(item, issues);
+  }
+
+  for (const skill of data.skills) {
+    validateNonNegativeInteger(`skills.${skill.id}.costMp`, skill.costMp, issues);
+    validateNonNegativeInteger(`skills.${skill.id}.power`, skill.power, issues);
+    if (skill.statusEffect && (skill.statusEffect.chance < 0 || skill.statusEffect.chance > 1)) {
+      issues.push({
+        path: `skills.${skill.id}.statusEffect.chance`,
+        message: 'Status-Chance muss zwischen 0 und 1 liegen.'
+      });
+    }
   }
 
   return issues;

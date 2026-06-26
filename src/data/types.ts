@@ -7,6 +7,8 @@ export type ElementType =
   | 'shadow'
   | 'holy';
 
+export type StatusEffectId = 'poison';
+
 export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
 
 export interface StatBlock {
@@ -22,6 +24,12 @@ export interface StatBlock {
 export type SkillTarget = 'single-enemy' | 'all-enemies' | 'single-ally' | 'self';
 export type SkillTag = 'physical' | 'magical' | 'heal' | 'buff' | 'debuff';
 
+export interface SkillStatusEffect {
+  readonly id: StatusEffectId;
+  readonly chance: number;
+  readonly turns: number;
+}
+
 export interface SkillDefinition {
   readonly id: string;
   readonly name: string;
@@ -31,6 +39,7 @@ export interface SkillDefinition {
   readonly costMp: number;
   readonly power: number;
   readonly tags: readonly SkillTag[];
+  readonly statusEffect?: SkillStatusEffect;
 }
 
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';

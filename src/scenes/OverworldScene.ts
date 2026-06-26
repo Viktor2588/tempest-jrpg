@@ -53,6 +53,15 @@ export class OverworldScene extends Phaser.Scene {
 
     // Touch-Steuerkreuz (mobil).
     this.buildDpad();
+
+    // Kampf auslösen (Demo: Enter-Taste oder Knopf) → bindet Phase 3 an.
+    const toBattle = () => this.scene.start('Battle');
+    this.input.keyboard?.on('keydown-ENTER', toBattle);
+    const btn = this.add.rectangle(this.scale.width - 86, 30, 150, 38, 0x3a2230, 0.9)
+      .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0xff8aa0, 0.7).setInteractive();
+    this.add.text(this.scale.width - 86, 30, '⚔ Kampf (Enter)', { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffd6de' })
+      .setOrigin(0.5).setScrollFactor(0).setDepth(11);
+    btn.on('pointerdown', toBattle);
   }
 
   override update(): void {

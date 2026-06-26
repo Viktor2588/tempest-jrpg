@@ -42,5 +42,26 @@ export const ENEMIES = [
     experienceReward: 20,
     goldReward: 14,
     drops: [{ itemId: 'mana-drop', chance: 0.15 }]
+  },
+  {
+    id: 'spore-moth',
+    name: 'Sporenmotte',
+    level: 2,
+    element: 'shadow',
+    stats: {
+      maxHp: 46,
+      maxMp: 14,
+      attack: 9,
+      defense: 7,
+      magic: 12,
+      spirit: 9,
+      agility: 13
+    },
+    skillIds: ['venom-spit'],
+    weaknesses: ['fire', 'wind'],
+    resistances: ['shadow'],
+    experienceReward: 22,
+    goldReward: 16,
+    drops: [{ itemId: 'healing-herb', chance: 0.25 }]
   }
 ] as const satisfies readonly EnemyDefinition[];

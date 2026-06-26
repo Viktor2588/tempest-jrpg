@@ -114,12 +114,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **10/10** grün, `bun run build` grün (Phaser-Bundle-Warnung unverändert/unkritisch). Roundtrip, Migration, Auto-Save/Load/Reset und Datenintegrität sind getestet.
 - *Hinweis: `/worktree` war auf dieser Maschine read-only; der Phase-2-Worktree liegt deshalb unter `/private/tmp/worktree/tempest-phase-2-data-save` auf Branch `phase/2-data-save`.*
 
-[ ] **Phase 3 – Rundenkampf-Engine**
-- DOM/Phaser-freie `battle.ts`: Zugreihenfolge (Geschwindigkeit/ATB), Aktionen (Angriff, Skill, Magie, Item, Verteidigen, Fliehen), Elemente/Schwächen, Statuseffekte, einfache Gegner-KI, garantierte Terminierung, seedbar.
-- Zugökonomie bewusst designen: klare Kosten/Nutzen für Tempo, Schutz, Status, Ressource und Synergie; Kämpfe sollen schnell entscheidbar, aber taktisch lesbar sein.
-- `BattleScene.ts` rendert das View-Modell, Befehlsmenü, Trefferanzeigen; schnelle Begegnungsübergänge aus der Oberwelt; Sieg → EP/Beute, Niederlage → Game-Over/Rückkehr.
-- Optionales Timing-/Reaktionsfenster als erstes interaktives Element vorbereiten (z. B. Guard-Bonus), ohne die Headless-Kampflogik an Phaser zu koppeln.
-- **Abnahme:** Szenariomatrix (mehrere Partys × Gegner × Seeds) terminiert deterministisch; Sieg/Niederlage/Beute getestet; auf Handy & Desktop spielbar; Standardkampf startet und endet ohne spürbare Warte-/Menülast.
+[x] **Phase 3 – Rundenkampf-Engine (fertig 2026-06-27, Worktree `worktree/tempest-phase-3-battle`)**
+- **Reine Engine `src/systems/battle.ts`** (Phaser-/DOM-frei, seedbar): **CT-Initiative** (geschwindigkeitsbasiert), Aktionen **Angriff / Skill / Item / Verteidigen / Fliehen**, Elemente + Schwächen (×1,75) / Resistenzen (×0,5), Status **Gift** (DoT) und **Verteidigt** (halber Schaden), AoE-Skills (`all-enemies`), einfache **Gegner-KI** (Skills/Ziele nach Effektivität), **Beute** (EP/Gold/Item-Drops), garantierte Terminierung (Sieg/Niederlage/Flucht oder LP-Anteil nach 300 Zügen). `renderView` liefert ein kopiertes View-Modell.
+- **Datenintegration:** Phase 3 nutzt die Phase-2-Datenmodelle statt eigener Demo-Daten: `characters.ts`, `enemies.ts`, `items.ts`, `skills.ts`. Ergänzt wurden u. a. AoE-Skill `storm-gust`, Gift-Skill `venom-spit`, Gegner `spore-moth` und validierte `SkillStatusEffect`-Daten.
+- **`src/scenes/BattleScene.ts`:** treibt nur die Engine an — Gegner-/Party-Reihen mit LP/MP-Balken, Befehlsmenü (Angriff/Skills/Items/Verteidigen/Fliehen), Skill-/Itemlisten, Ziel-Antippen, automatische Gegnerzüge mit kurzer Pause, Ergebnis (EP/Gold/Beute) → zurück zur Oberwelt. Auslösung aus der Oberwelt per **Enter/Knopf**; in `main.ts` registriert.
+- **Test `test/battle.test.ts`:** 9 Checks (Aufbau, Determinismus inkl. Log/Rewards, Sieg+Beute, Niederlage/Terminierung, Szenariomatrix 15×, Verteidigen, Item-Heilung/Verbrauch, Giftstatus, Flucht).
+- **Abnahme (lokal verifiziert):** `bun install --frozen-lockfile` sauber, `bun run typecheck` sauber, `bun run test` → **23/23** grün (9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
 [ ] **Phase 4 – Menüs: Party, Inventar, Ausrüstung, Status, Rollen**
 - Menü-Overlay: Party-Übersicht, Inventar (nutzen/sortieren), Ausrüstung (Slots, Werteänderung), Status/Skills.
