@@ -110,12 +110,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - `save.ts`: versioniertes Schema, `migrate()`, Export/Import, Reset; Auto-Save.
 - **Abnahme:** Zustand übersteht Speichern→Laden (Roundtrip-Test); Migration eines „alten" Stands getestet; Datenintegrität (eindeutige IDs, gültige Referenzen) als Test.
 
-[ ] **Phase 3 – Rundenkampf-Engine**
-- DOM/Phaser-freie `battle.ts`: Zugreihenfolge (Geschwindigkeit/ATB), Aktionen (Angriff, Skill, Magie, Item, Verteidigen, Fliehen), Elemente/Schwächen, Statuseffekte, einfache Gegner-KI, garantierte Terminierung, seedbar.
-- Zugökonomie bewusst designen: klare Kosten/Nutzen für Tempo, Schutz, Status, Ressource und Synergie; Kämpfe sollen schnell entscheidbar, aber taktisch lesbar sein.
-- `BattleScene.ts` rendert das View-Modell, Befehlsmenü, Trefferanzeigen; schnelle Begegnungsübergänge aus der Oberwelt; Sieg → EP/Beute, Niederlage → Game-Over/Rückkehr.
-- Optionales Timing-/Reaktionsfenster als erstes interaktives Element vorbereiten (z. B. Guard-Bonus), ohne die Headless-Kampflogik an Phaser zu koppeln.
-- **Abnahme:** Szenariomatrix (mehrere Partys × Gegner × Seeds) terminiert deterministisch; Sieg/Niederlage/Beute getestet; auf Handy & Desktop spielbar; Standardkampf startet und endet ohne spürbare Warte-/Menülast.
+[x] **Phase 3 – Rundenkampf-Engine (fertig 2026-06-27, Worktree `worktree/tempest-phase-3-battle`)**
+- **Reine Engine `src/systems/battle.ts`** (Phaser-/DOM-frei, seedbar): **CT-Initiative** (geschwindigkeitsbasiert), Aktionen **Angriff / Magie / Heilung / Verteidigen / Fliehen**, Elemente + Schwächen (×1,75) / Resistenzen (×0,5), Status **Gift** (DoT) und **Verteidigt** (halber Schaden), AoE-Magie (`alle-gegner`), einfache **Gegner-KI** (Caster bevorzugt Schwächen), **Beute** (EP/Gold beim Besiegen), garantierte Terminierung (Sieg/Niederlage/Flucht oder LP-Anteil nach 300 Zügen). `renderView` liefert ein kopiertes View-Modell.
+- **Daten:** `src/data/skills.ts` (6 Fähigkeiten, typisiert) und `src/data/units.ts` (Demo-Party + 4 Gegner mit Statblock/Beute) — bis das Party-/Progressionssystem aus Phase 2 angebunden ist.
+- **`src/scenes/BattleScene.ts`:** treibt nur die Engine an — Gegner-/Party-Reihen mit LP/MP-Balken, Befehlsmenü (Angriff/Magie/Verteidigen/Fliehen), Fähigkeitsliste, Ziel-Antippen, automatische Gegnerzüge mit kurzer Pause, Ergebnis (Beute) → zurück zur Oberwelt. Auslösung aus der Oberwelt per **Enter/Knopf**; in `main.ts` registriert.
+- **Test `test/battle.test.ts`:** 7 Checks (Aufbau, Determinismus inkl. Log, Sieg+Beute, Niederlage/Terminierung, Szenariomatrix 12×, Verteidigen, Flucht).
+- **Abnahme (lokal verifiziert):** `npm run typecheck` sauber, `npm test` → **16/16** grün (7 Kampf + 5 RNG + 4 Oberwelt), `npm run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün. Item-Aktion bewusst zurückgestellt, bis das Inventar (Phase 2/4) steht.*
 
 [ ] **Phase 4 – Menüs: Party, Inventar, Ausrüstung, Status, Rollen**
 - Menü-Overlay: Party-Übersicht, Inventar (nutzen/sortieren), Ausrüstung (Slots, Werteänderung), Status/Skills.
