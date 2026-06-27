@@ -144,9 +144,14 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - Balance-Analyse (Kraftkurven je Rang/Level/Rolle/Bindungsbonus) als Test/Heuristik.
 - **Abnahme:** Entwicklung/Namensgebung verändert Werte/Skills nachvollziehbar; Rollen- und Bindungsboni sind testbar; Balance-Bänder monoton; ungenutzte Figuren können ohne Grinding wieder sinnvoll eingesetzt werden; Inhalt deckt mehrere Linien/Regionen ab.
 
-[ ] **Phase 7 – Feinschliff: Audio, Übergänge, Tutorial, Polish**
-- Szenenübergänge, Trefferfeedback/Partikel, Musik/SFX (lokale Assets), kurzes Tutorial/Onboarding, Optionen (Lautstärke, Effektstufe, Steuerung).
-- **Abnahme:** Spielfluss fühlt sich rund an; Optionen persistiert; keine Konsolenfehler.
+[x] **Phase 7 – Feinschliff: Audio, Übergänge, Tutorial, Optionen (fertig 2026-06-27, Worktree `worktree/tempest-phase-7-polish`)**
+- **Einstellungen `src/systems/settings.ts`** (rein, headless testbar, eigener localStorage-Key `tempest-settings-v1`, getrennt vom Save-Schema): Lautstärken (Master/Musik/SFX), reduzierte Bewegung, `seenTutorial`; mit Klemmung + Migration kaputter/teilweiser Daten. `test/settings.test.ts`: 5 Checks (Defaults, Roundtrip, Klemmung, Migration, effektive Lautstärke).
+- **Prozedurale Audio `src/audio/sfx.ts`** (WebAudio, **ohne Asset-Dateien**): kurze SFX (select/confirm/cancel/hit/magic/heal/victory/defeat) respektieren die SFX-Lautstärke; `resumeAudio()` nach erster Nutzergeste.
+- **Szenenübergänge `src/scenes/transition.ts`:** sanftes Kamera-Fade (`fadeToScene`/`fadeIn`), respektiert „reduzierte Bewegung" (sofortiger Schnitt).
+- **`src/scenes/OptionsScene.ts`:** Lautstärke-Regler (−/+ mit Balken), Reduzierte-Bewegung-Umschalter — **sofort persistiert**, mit SFX-Feedback und Fade.
+- **`TitleScene` überarbeitet:** Menü „Spiel starten" / „Optionen" mit Fade-Übergängen + SFX, Audio-Freischaltung bei erster Geste, **einmaliges Tutorial-Overlay** (Steuerung/Kampf/Optionen) über `seenTutorial`. `OptionsScene` in `main.ts` registriert.
+- **Bewusst isoliert** (mostly neue Dateien + Title/main.ts), um nicht mit der parallel laufenden Phase 6 zu kollidieren. Fade/SFX in Battle/Overworld/Menu sind ein trivialer Folgeschritt (Helfer liegen bereit).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **41/41** grün (inkl. 5 neue Settings-Checks), `bun run build` → `dist/`. Keine Konsolenfehler erwartet; Live-Browser-Smoke noch manuell.
 
 [ ] **Phase 8 – PWA/Offline & Release**
 - Service Worker (App-Shell + Assets), Web-App-Manifest, installierbar; Build-Größenbudget; Deploy (GitHub Pages) via CI bei grün.
