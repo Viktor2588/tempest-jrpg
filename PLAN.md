@@ -42,7 +42,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 ## Technische Entscheidungen
 - **Engine:** **Phaser 3** (Canvas/WebGL) mit **TypeScript**.
 - **Build/Dev:** **Vite** (schneller Dev-Server, HMR, optimierter Build). Bewusste Abkehr vom „kein Build"-Prinzip des Vorgängers, um Typsicherheit, Module und Tests zu gewinnen.
-- **Ziel-Plattform:** **Browser & Handy** (mobile-first). Touch- **und** Tastatur-/Gamepad-Steuerung. **PWA** (installierbar, offline) via Service Worker.
+- **Ziel-Plattform:** **Browser & Handy** (mobile-first), Touch- **und** Tastatur-/Gamepad-Steuerung. Auslieferung als **statische Web-App** über GitHub Pages. **Kein Offline-Betrieb / kein Service Worker / keine PWA-Installation** — bewusst weggelassen, um Komplexität zu sparen.
 - **Sprache (UI/Story):** **Deutsch**.
 - **Tests:** **Vitest** für die **engine-/DOM-freie Spiellogik** (Werte, Kampf, Inventar, Save, Datenintegrität). Phaser-Szenen bleiben dünn; die Logik liegt in reinen, headless testbaren Modulen — wie im Vorgängerprojekt bewährt.
 - **CI:** GitHub Actions: Typecheck + Tests bei Push/PR; Deploy (z. B. GitHub Pages) nur bei grün.
@@ -52,7 +52,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 
 ## Architektur (Zielbild)
 ```
-index.html              Mount-Punkt + PWA-Registrierung
+index.html              Mount-Punkt (#game) + Meta/Favicon
 src/
   main.ts               Phaser-Game-Config, Szenen-Registrierung, Skalierung (mobile-first)
   scenes/               Phaser-Szenen (dünn — nur Darstellung & Eingabe)
@@ -155,9 +155,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Bewusst isoliert** (mostly neue Dateien + Title/main.ts), um nicht mit der parallel laufenden Phase 6 zu kollidieren. Fade/SFX in Battle/Overworld/Menu sind ein trivialer Folgeschritt (Helfer liegen bereit).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **41/41** grün (inkl. 5 neue Settings-Checks), `bun run build` → `dist/`. Keine Konsolenfehler erwartet; Live-Browser-Smoke noch manuell.
 
-[ ] **Phase 8 – PWA/Offline & Release**
-- Service Worker (App-Shell + Assets), Web-App-Manifest, installierbar; Build-Größenbudget; Deploy (GitHub Pages) via CI bei grün.
-- **Abnahme:** installierbar, nach erstem Laden offline lauffähig; Lighthouse-PWA grün; Deploy automatisiert.
+[x] **Phase 8 – Release & Auslieferung (fertig 2026-06-27, Worktree `worktree/tempest-phase-8-release`)** — *Offline/PWA bewusst gestrichen (Spielerwunsch: Komplexität sparen).*
+- **Statische Web-App über GitHub Pages:** `.github/workflows/deploy.yml` installiert mit Bun, führt Typecheck + Tests aus, baut `dist/` und deployed per `actions/deploy-pages`; CI für Branches/PRs bleibt separat.
+- **Release-Metadaten:** `index.html` hat deutsche Sprache, Beschreibung, App-/OpenGraph-Metadaten und ein statisches SVG-Favicon aus `public/favicon.svg`; kein Manifest, kein Service Worker.
+- **Build-Größenbudget:** `vite.config.ts` setzt `base: '/tempest-jrpg/'` und dokumentiert `chunkSizeWarningLimit: 1700`, weil Phaser bewusst als Single-Bundle-Runtime ausgeliefert wird.
+- **README:** Überblick, aktueller No-PWA-Release-Scope, Dev-/Verifikationsbefehle, Projektstruktur und GitHub-Pages-Deployablauf.
+- **Test `test/release.test.ts`:** 4 Checks (Pages-Base/Deploy-Workflow, Release-Metadaten ohne PWA-Artefakte, keine Service-Worker-Registrierung, dokumentiertes Bundle-Budget).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **50/50** grün, `bun run build` → `dist/` ohne Vite-Chunkgrößenwarnung. Live-GitHub-Pages-Deploy läuft nach Push auf `main`.
 
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Jobs/Rollen, Beziehungen, Aufholmechaniken, Balance-Bänder.
