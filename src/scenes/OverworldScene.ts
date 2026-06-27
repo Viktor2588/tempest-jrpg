@@ -38,6 +38,11 @@ export class OverworldScene extends Phaser.Scene {
     const map = JURA_FIELD;
     this.save = loadSave(window.localStorage) ?? createNewSave();
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
+    // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
+    // laufen bei scene.start NICHT erneut. Daher transiente Zustände hier zurücksetzen,
+    // sonst bleibt nach einem Kampf `moving=true` hängen → Bewegung blockiert.
+    this.moving = false;
+    this.touchDir = null;
 
     // Kacheln zeichnen.
     const g = this.add.graphics();

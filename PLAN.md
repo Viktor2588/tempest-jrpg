@@ -225,6 +225,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/settings.test.ts` erweitert:** Defaults, Enum-Validierung, abgeleitete Werte (zusätzlich zu den bestehenden Lautstärke-/Migrationschecks).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **63/63** grün, `bun run build` → `dist/`. Optionen persistiert & wirksam (Tempo/Kontrast sichtbar im Dialog).
 
+[x] **Bugfix Bewegung nach Kampf + Auto-Kampf (2026-06-27, Worktree `worktree/tempest-fix-autobattle`)**
+- **Bugfix:** Nach einem Kampf war keine Bewegung mehr möglich. **Ursache:** Phaser nutzt **dieselbe Szenen-Instanz** wieder; Klassenfeld-Initialwerte laufen bei `scene.start` nicht erneut → `OverworldScene.moving` blieb von vor dem Kampf auf `true` hängen, `update()` brach dauerhaft früh ab. **Fix:** transiente Zustände (`moving`, `touchDir`) in `create()` zurücksetzen (gleiches Muster wie `BattleScene.resultAnnounced`). Wurzelfix, kein Symptom-Patch.
+- **Auto-Kampf:** neues reines, getestetes `src/systems/autoBattle.ts` (`chooseAutoAction`: Heilung bei niedrigem LP → günstigste Schadensfähigkeit → Standardangriff aufs LP-schwächste Ziel). `BattleScene` bekommt einen **„⚡ Auto"-Umschalter**; bei aktivem Auto wählt und spielt die Szene die Spielerzüge automatisch (kurze Pause für Lesbarkeit). `test/autoBattle.test.ts`: gültige Aktion, deterministischer Sieg, Terminierungs-Stichprobe.
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **76/76** grün (autoBattle +3), `bun run build` → `dist/`.
+
 [ ] **Phase 15 – Balance, QA & Mobile-Politur**
 - Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.
 - **Abnahme:** `bun run test` grün inkl. Balance-/Durchspielmatrix; flüssig auf 390×844; keine Konsolen-/Layoutfehler.

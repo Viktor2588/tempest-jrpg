@@ -24,6 +24,7 @@ import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { fadeIn } from './transition';
+import { chooseAutoAction } from '../systems/autoBattle';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
 
@@ -43,6 +44,7 @@ export class BattleScene extends Phaser.Scene {
   private unitPos = new Map<string, { x: number; y: number }>();
   private resultAnnounced = false;
   private rewardsApplied = false;
+  private auto = false;
   private save!: SaveGameV2;
 
   constructor() {
@@ -64,6 +66,7 @@ export class BattleScene extends Phaser.Scene {
     });
     this.resultAnnounced = false;
     this.rewardsApplied = false;
+    this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.unitPos.clear();
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
     this.layer = this.add.container(0, 0);
@@ -139,6 +142,13 @@ export class BattleScene extends Phaser.Scene {
     if (isPlayerTurn(this.state)) {
       this.mode = 'menu';
       this.refresh();
+      if (this.auto) {
+        this.time.delayedCall(260, () => {
+          if (!this.auto || !isPlayerTurn(this.state)) return;
+          const action = chooseAutoAction(this.state);
+          if (action) this.doAct(action);
+        });
+      }
       return;
     }
 
@@ -332,6 +342,9 @@ export class BattleScene extends Phaser.Scene {
     }
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
+
+    // Auto-Kampf: schaltet automatische Zugwahl an/aus (siehe systems/autoBattle).
+    items.push([this.auto ? '⏸ Auto: AN' : '⚡ Auto: aus', () => { this.auto = !this.auto; this.afterAction(); }]);
 
     items.forEach(([label, callback], index) => this.button(GAME_WIDTH - 170, 280 + index * 42, label, callback));
   }
