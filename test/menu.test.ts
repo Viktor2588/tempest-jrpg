@@ -8,7 +8,6 @@ import {
   getAvailableJobs,
   getMemberSkillDefinitions,
   MENU_TOUCH_TARGET_PX,
-  selectJob,
   unequipItem,
   useItem,
   type MenuGameState
@@ -87,15 +86,6 @@ describe('menu system', () => {
     expect(getAvailableJobs('gobta').map((job) => job.id)).toContain('scout');
     expect(scoutStats.agility).toBeGreaterThan(baseAgility);
     expect(scoutSkills).toContain('storm-gust');
-  });
-
-  it('validiert Rollenauswahl pro Charakter', () => {
-    const selected = selectJob({}, 'rimuru', 'adaptive-hero');
-    const invalid = selectJob({}, 'gobta', 'support-priest');
-
-    expect(selected.ok).toBe(true);
-    expect(selected.state.rimuru).toBe('adaptive-hero');
-    expect(invalid.ok).toBe(false);
   });
 
   it('erzwingt mindestens 44px Touch-Ziele für Menübuttons', () => {

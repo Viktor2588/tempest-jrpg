@@ -34,7 +34,6 @@ import { createHeroBattleUnit, type BattleUnitInput } from './battle';
 import {
   applyJobMultipliers,
   calculateMemberBaseStats,
-  getAvailableJobs,
   getDefaultJobId
 } from './menu';
 import type { PartyMemberState } from './party';
@@ -416,29 +415,7 @@ export function unlockSkillNode(
   };
 }
 
-export function selectProgressionJob(
-  state: ProgressionState,
-  characterId: string,
-  jobId: string,
-  flags: Readonly<Record<string, boolean>> = {}
-): ProgressionActionResult {
-  const unlockedJobIds = getUnlockedJobIds(characterId, state, flags);
-  if (!getAvailableJobs(characterId, unlockedJobIds).some((job) => job.id === jobId)) {
-    return { ok: false, state, message: 'Rolle ist nicht freigeschaltet.' };
-  }
-  return {
-    ok: true,
-    state: {
-      ...state,
-      jobIdsByCharacterId: {
-        ...state.jobIdsByCharacterId,
-        [characterId]: jobId
-      }
-    },
-    message: `${jobById.get(jobId)?.name ?? jobId} ausgewählt.`
-  };
-}
-
+// ponytail: getSelectedJobId now always resolves the innate class (no role selection). jobIdsByCharacterId kept for save-compat; Stage 2 removes it with JobDefinition.
 export function getSelectedJobId(state: ProgressionState, characterId: string): string {
   return state.jobIdsByCharacterId[characterId] ?? getDefaultJobId(characterId);
 }
@@ -711,8 +688,7 @@ export function calculateStartingTeamMeter(
 
 export function createProgressionBattleParty(
   members: readonly PartyMemberState[],
-  state: ProgressionState,
-  flags: Readonly<Record<string, boolean>> = {}
+  state: ProgressionState
 ): BattleUnitInput[] {
   return members.flatMap((member): BattleUnitInput[] => {
     const hero = heroById.get(member.characterId);
@@ -727,10 +703,6 @@ export function createProgressionBattleParty(
       currentMp: member.currentMp,
       skillIds: getProgressionCoreSkillIds(member, state),
       jobId,
-      availableJobIds: [
-        getDefaultJobId(member.characterId),
-        ...getUnlockedJobIds(member.characterId, state, flags)
-      ],
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
       formName: getActiveEvolution(state, member.characterId)?.formName,
       openingStatusIds: getOpeningStatusIds(member.characterId, state)

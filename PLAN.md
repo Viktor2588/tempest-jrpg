@@ -38,6 +38,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 - **Schlanke Progression:** Level-Skalierung, Reserve-EP oder Party-weites Aufholen verhindern, dass ungenutzte Figuren dauerhaft zurückfallen.
 - **Namensgebung & Entwicklung als Kernfantasie:** Das Tempest-typische Kreaturen-Entwicklungs-/Namensgebungssystem bleibt die zentrale Progressionsfantasie und verbindet Werte, Skills, Rollen und Story-Status.
 - **Grinding minimieren:** Wiederholkämpfe dürfen lohnen, aber der Hauptfortschritt soll aus Questfortschritt, taktisch guten Kämpfen, Entwicklung, Beziehungen und Erkundung entstehen.
+- **Talentbäume statt Rollen (Spielerwunsch 2026-06-27):** Der Charakter-Build entsteht über **Talentbäume** (das bestehende `SKILL_TREES`-System), nicht über wählbare/umschaltbare Rollen. Die frühere Rollen-/Job-Auswahl entfällt; die innere Klasse bleibt nur noch als fixe Stat-Basis bestehen, bis sie ganz in die Basiswerte gefaltet ist.
 
 ## Technische Entscheidungen
 - **Engine:** **Phaser 3** (Canvas/WebGL) mit **TypeScript**.
@@ -236,6 +237,14 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Bugfix:** Nach einem Kampf war keine Bewegung mehr möglich. **Ursache:** Phaser nutzt **dieselbe Szenen-Instanz** wieder; Klassenfeld-Initialwerte laufen bei `scene.start` nicht erneut → `OverworldScene.moving` blieb von vor dem Kampf auf `true` hängen, `update()` brach dauerhaft früh ab. **Fix:** transiente Zustände (`moving`, `touchDir`) in `create()` zurücksetzen (gleiches Muster wie `BattleScene.resultAnnounced`). Wurzelfix, kein Symptom-Patch.
 - **Auto-Kampf:** neues reines, getestetes `src/systems/autoBattle.ts` (`chooseAutoAction`: Heilung bei niedrigem LP → günstigste Schadensfähigkeit → Standardangriff aufs LP-schwächste Ziel). `BattleScene` bekommt einen **„⚡ Auto"-Umschalter**; bei aktivem Auto wählt und spielt die Szene die Spielerzüge automatisch (kurze Pause für Lesbarkeit). `test/autoBattle.test.ts`: gültige Aktion, deterministischer Sieg, Terminierungs-Stichprobe.
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **76/76** grün (autoBattle +3), `bun run build` → `dist/`.
+
+[~] **Talentbäume statt Rollen – Pivot (Stage 1 fertig 2026-06-27, Worktree `worktree/tempest-talent-trees`)** *(autonom, Spielerwunsch)*
+- **Stage 1 (fertig):** Das **spielerseitige Rollensystem** entfernt — Talentbäume (Menü-Tab **„Talente"**, vormals „Entwicklung") sind die einzige Build-Achse.
+  - `battle.ts`: In-Kampf-Rollenwechsel raus (`switch-job`-Aktion, `availableJobIds`, `resolveJobSwitch`, `applyCombatantJob`). `jobId` bleibt als **fixe innere Klasse** (einmaliger Stat-Basiswert beim Aufbau).
+  - `menu.ts`/`progression.ts`: Rollen-**Auswahl** raus (`selectJob`, `selectProgressionJob`); `getSelectedJobId` liefert nur noch die Standard-Klasse. `jobIdsByCharacterId` bleibt für Save-Kompatibilität.
+  - `MenuScene.ts`: Tab **„Rollen"** entfernt; `drawJobs` weg. Kampf-Party-Aufbau ohne `flags`-Param.
+  - **Abnahme (lokal verifiziert):** `tsc --noEmit` sauber, `vitest run` → **77/77** grün (−1 Rollenauswahl-Test, switch-job-Test → Baseline-Test umgebaut), `vite build` → `dist/`.
+- **Stage 2 (offen):** Innere Klassen (Job-Multiplikatoren) in die **Basiswerte** der Charaktere falten und `JobDefinition`/`JOBS` + Restmaschinerie (`getUnlockedJobIds`, Job-Unlocks via Beziehung/Story/Erkundung, `jobIdsByCharacterId`, Daten-Validierung) ganz löschen; ehemalige Rollen-Skills/-Boni als (gating-)Talentknoten einpflegen, damit kein Progressions-Inhalt verloren geht. Talentbäume um build-prägende Knoten erweitern. Siehe `ponytail:`-Marker in `battle.ts`/`progression.ts`.
 
 [ ] **Phase 15 – Balance, QA & Mobile-Politur**
 - Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.

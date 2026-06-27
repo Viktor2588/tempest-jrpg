@@ -5,7 +5,6 @@ import {
   buildMenuView,
   EQUIPMENT_SLOTS,
   equipItem,
-  getAvailableJobs,
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
@@ -25,24 +24,21 @@ import {
   getRelationshipLevelNumber,
   getSelectedJobId,
   getSkillTree,
-  getUnlockedJobIds,
   renameMember,
-  selectProgressionJob,
   unlockSkillNode,
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildCodexView, buildQuestLog, createWorldState } from '../systems/world';
 
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'jobs' | 'quests' | 'codex';
+type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex';
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
   { id: 'inventory', label: 'Inventar' },
   { id: 'equipment', label: 'Ausrüstung' },
   { id: 'status', label: 'Status' },
-  { id: 'growth', label: 'Entwicklung' },
-  { id: 'jobs', label: 'Rollen' },
+  { id: 'growth', label: 'Talente' },
   { id: 'quests', label: 'Quests' },
   { id: 'codex', label: 'Codex' }
 ];
@@ -121,7 +117,6 @@ export class MenuScene extends Phaser.Scene {
     else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
     else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
     else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else if (this.selectedTab === 'jobs') this.drawJobs(view, selected.member.characterId);
     else if (this.selectedTab === 'quests') this.drawQuestLog();
     else this.drawCodex();
   }
@@ -417,42 +412,6 @@ export class MenuScene extends Phaser.Scene {
           lineSpacing: 4
         }
       ));
-    });
-  }
-
-  private drawJobs(view: MenuView, characterId: string): void {
-    this.sectionTitle('Rollen / Jobs');
-    const currentJobId = getSelectedJobId(this.save.progression, characterId);
-    const unlockedJobIds = getUnlockedJobIds(characterId, this.save.progression, this.save.flags);
-
-    getAvailableJobs(characterId, unlockedJobIds).forEach((job, index) => {
-      const y = 158 + index * 66;
-      const previewStats = calculateProgressionStats(
-        view.members[this.selectedMemberIndex]!.member,
-        this.save.progression,
-        job.id
-      );
-      this.button(300, y, 210, job.name, () => {
-        const result = selectProgressionJob(
-          this.save.progression,
-          characterId,
-          job.id,
-          this.save.flags
-        );
-        if (result.ok) this.jobAssignments[characterId] = job.id;
-        this.applyProgressionResult(result);
-      }, currentJobId === job.id ? 0x30506f : 0x1b2940);
-      this.layer.add(this.add.text(528, y - 16, job.description, {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: '#9fb2cc',
-        wordWrap: { width: 340 }
-      }));
-      this.layer.add(this.add.text(528, y + 14, `LP ${previewStats.maxHp} · MP ${previewStats.maxMp} · ATK ${previewStats.attack} · DEF ${previewStats.defense} · MAG ${previewStats.magic} · AGI ${previewStats.agility}`, {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: '#6f83a5'
-      }));
     });
   }
 
