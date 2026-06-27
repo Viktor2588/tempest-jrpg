@@ -42,6 +42,28 @@ export const SKILLS = [
     tags: ['physical', 'debuff']
   },
   {
+    id: 'battle-cry',
+    name: 'Kampfruf',
+    description: 'Erhöht kurzzeitig den Angriff des Anwenders.',
+    element: 'neutral',
+    target: 'self',
+    costMp: 3,
+    power: 0,
+    tags: ['buff'],
+    statusEffect: { id: 'attack-up', chance: 1, turns: 3 }
+  },
+  {
+    id: 'quick-step',
+    name: 'Schneller Schritt',
+    description: 'Erhöht kurzzeitig die Initiative des Anwenders.',
+    element: 'wind',
+    target: 'self',
+    costMp: 3,
+    power: 0,
+    tags: ['buff'],
+    statusEffect: { id: 'haste', chance: 1, turns: 3 }
+  },
+  {
     id: 'venom-spit',
     name: 'Giftdorn',
     description: 'Ein dunkler Treffer mit Chance auf Gift.',
@@ -51,6 +73,17 @@ export const SKILLS = [
     power: 14,
     tags: ['magical', 'debuff'],
     statusEffect: { id: 'poison', chance: 0.8, turns: 3 }
+  },
+  {
+    id: 'spirit-bind',
+    name: 'Geistfessel',
+    description: 'Ein schwacher Schattenzauber, der den Geist des Ziels senkt.',
+    element: 'shadow',
+    target: 'single-enemy',
+    costMp: 5,
+    power: 10,
+    tags: ['magical', 'debuff'],
+    statusEffect: { id: 'spirit-down', chance: 1, turns: 3 }
   },
   {
     id: 'soothing-prayer',

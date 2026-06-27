@@ -6,6 +6,7 @@ import {
   currentActor,
   enemyTurn,
   isPlayerTurn,
+  queueReaction,
   renderView,
   startBattle,
   type BattleState,
@@ -103,6 +104,93 @@ function lootEnemy(): BattleUnitInput[] {
       drops: [{ itemId: 'healing-herb', chance: 1 }]
     }
   ];
+}
+
+function depthHero(
+  sourceId: string,
+  name: string,
+  overrides: Partial<BattleUnitInput> = {}
+): BattleUnitInput {
+  return {
+    sourceId,
+    name,
+    side: 'party',
+    level: 6,
+    stats: {
+      maxHp: 150,
+      maxMp: 60,
+      attack: 26,
+      defense: 18,
+      magic: 24,
+      spirit: 18,
+      agility: 22
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: ['slime-strike', 'water-blade', 'storm-gust', 'spirit-bind'],
+    availableJobIds: ['vanguard', 'mystic', 'scout'],
+    ...overrides
+  };
+}
+
+function phaseEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
+  return {
+    sourceId: 'phase-beast',
+    name: 'Phasenbestie',
+    side: 'enemy',
+    level: 6,
+    stats: {
+      maxHp: 230,
+      maxMp: 50,
+      attack: 22,
+      defense: 16,
+      magic: 20,
+      spirit: 14,
+      agility: 18
+    },
+    element: 'fire',
+    weaknesses: ['water', 'shadow'],
+    resistances: ['fire'],
+    skillIds: ['slime-strike', 'venom-spit', 'spirit-bind'],
+    experienceReward: 80,
+    goldReward: 50,
+    drops: [],
+    ...overrides
+  };
+}
+
+function autoPlayDepth(state: BattleState): { status: string; steps: number } {
+  let guard = 0;
+
+  while (state.status === 'active' && guard++ < 5000) {
+    if (isPlayerTurn(state)) {
+      const actor = currentActor(state)!;
+      const enemy = renderView(state).enemies.find((candidate) => !candidate.dead);
+      if (!enemy) break;
+
+      const partner = renderView(state).party.find((candidate) => !candidate.dead && candidate.id !== actor.id);
+      if (partner && renderView(state).teamMeter >= 100) {
+        act(state, { type: 'team-attack', partnerId: partner.id, targetId: enemy.id });
+        continue;
+      }
+
+      const skillId = actor.skillIds.find((id) => id === 'water-blade' && actor.mp >= 4)
+        ?? actor.skillIds.find((id) => id === 'storm-gust' && actor.mp >= 7)
+        ?? actor.skillIds.find((id) => id === 'spirit-bind' && actor.mp >= 5);
+      if (skillId) {
+        act(state, { type: 'skill', skillId, targetId: enemy.id });
+      } else {
+        act(state, { type: 'attack', targetId: enemy.id });
+      }
+    } else {
+      const target = renderView(state).party.find((member) => !member.dead);
+      if (target) queueReaction(state, target.id, { kind: 'timing-block', timing: 'success' });
+      enemyTurn(state);
+    }
+  }
+
+  return { status: state.status, steps: guard };
 }
 
 describe('battle engine', () => {
@@ -266,5 +354,134 @@ describe('battle engine', () => {
     }
 
     expect(fled).toBe(true);
+  });
+
+  it('Reaktionsfenster reduzieren Schaden und erlauben Konter ohne eigenen Zugverbrauch', () => {
+    const blocked = startBattle({ party: fastTank(), enemyIds: ['direwolf-pup'], seed: 3 });
+    const blockedHero = blocked.combatants.find((combatant) => combatant.side === 'party')!;
+    const blockedEnemy = blocked.combatants.find((combatant) => combatant.side === 'enemy')!;
+    blocked.activeId = blockedEnemy.id;
+    queueReaction(blocked, blockedHero.id, { kind: 'timing-block', timing: 'perfect' });
+    const blockedBefore = blockedHero.hp;
+    enemyTurn(blocked);
+    const blockedDamage = blockedBefore - blockedHero.hp;
+
+    const countered = startBattle({ party: fastTank(), enemyIds: ['direwolf-pup'], seed: 3 });
+    const counterHero = countered.combatants.find((combatant) => combatant.side === 'party')!;
+    const counterEnemy = countered.combatants.find((combatant) => combatant.side === 'enemy')!;
+    countered.activeId = counterEnemy.id;
+    queueReaction(countered, counterHero.id, { kind: 'counter', timing: 'perfect' });
+    const enemyBefore = counterEnemy.hp;
+    enemyTurn(countered);
+
+    expect(blockedDamage).toBeLessThan(8);
+    expect(counterEnemy.hp).toBeLessThan(enemyBefore);
+    expect(renderView(countered).party[0]!.reaction).toBeNull();
+  });
+
+  it('wechselt Jobs im Kampf und aktualisiert Werte sowie Skills lesbar', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', { jobId: 'vanguard' })],
+      enemies: [phaseEnemy()],
+      seed: 12
+    });
+    const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
+    state.activeId = hero.id;
+    const beforeMagic = hero.magic;
+
+    const result = act(state, { type: 'switch-job', jobId: 'mystic' });
+
+    expect(result.ok).toBe(true);
+    expect(hero.jobId).toBe('mystic');
+    expect(hero.magic).toBeGreaterThan(beforeMagic);
+    expect(hero.skillIds).toContain('spirit-bind');
+    expect(renderView(state).party[0]!.jobId).toBe('mystic');
+  });
+
+  it('setzt Schwächen unter Break-Druck und macht gebrochene Gegner verwundbarer', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru')],
+      enemies: [phaseEnemy({ stats: { ...phaseEnemy().stats, maxHp: 500 } })],
+      seed: 21
+    });
+    const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = hero.id;
+
+    act(state, { type: 'skill', skillId: 'water-blade', targetId: enemy.id });
+    state.activeId = hero.id;
+    act(state, { type: 'skill', skillId: 'water-blade', targetId: enemy.id });
+
+    expect(enemy.statuses.map((status) => status.id)).toContain('guard-break');
+    expect(enemy.breakGauge).toBe(enemy.breakGaugeMax);
+    expect(renderView(state).teamMeter).toBeGreaterThan(0);
+  });
+
+  it('nutzt Team-Angriffe nur über aktive Synergiepartner und verbraucht Team-Meter', () => {
+    const state = startBattle({
+      party: [
+        depthHero('rimuru', 'Rimuru', { synergyPartnerIds: ['gobta'] }),
+        depthHero('gobta', 'Gobta', { synergyPartnerIds: ['rimuru'] })
+      ],
+      enemies: [phaseEnemy()],
+      teamMeter: 100,
+      seed: 31
+    });
+    const [rimuru, gobta] = state.combatants.filter((combatant) => combatant.side === 'party');
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = rimuru!.id;
+    const beforeHp = enemy.hp;
+
+    const result = act(state, { type: 'team-attack', partnerId: gobta!.id, targetId: enemy.id });
+
+    expect(result.ok).toBe(true);
+    expect(enemy.hp).toBeLessThan(beforeHp);
+    expect(renderView(state).teamMeter).toBe(0);
+    expect(enemy.breakGauge).toBeLessThan(enemy.breakGaugeMax);
+  });
+
+  it('Gegner wechseln unter 50 Prozent LP in eine zweite Phase mit lesbarem View-State', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru')],
+      enemies: [phaseEnemy()],
+      seed: 41
+    });
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    enemy.hp = Math.floor(enemy.maxHp * 0.45);
+    state.activeId = enemy.id;
+
+    enemyTurn(state);
+
+    expect(enemy.phaseIndex).toBe(1);
+    expect(renderView(state).enemies[0]!.phaseIndex).toBe(1);
+  });
+
+  it('terminiert deterministisch über Rollen × Gegnerphasen × Seeds', () => {
+    const jobs = ['vanguard', 'mystic', 'scout'];
+    const phaseHpFractions = [1, 0.45];
+    const seeds = [101, 202, 303];
+
+    for (const jobId of jobs) {
+      for (const phaseHpFraction of phaseHpFractions) {
+        for (const seed of seeds) {
+          const state = startBattle({
+            party: [
+              depthHero('rimuru', 'Rimuru', { jobId, synergyPartnerIds: ['gobta'] }),
+              depthHero('gobta', 'Gobta', { jobId: 'vanguard', synergyPartnerIds: ['rimuru'] })
+            ],
+            enemies: [phaseEnemy()],
+            teamMeter: 100,
+            seed
+          });
+          const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+          enemy.hp = Math.floor(enemy.maxHp * phaseHpFraction);
+
+          const outcome = autoPlayDepth(state);
+
+          expect(['won', 'lost', 'fled']).toContain(outcome.status);
+          expect(outcome.steps).toBeLessThan(5000);
+        }
+      }
+    }
   });
 });

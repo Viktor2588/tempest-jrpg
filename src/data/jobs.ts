@@ -28,7 +28,7 @@ export const JOBS = [
       magic: 0.9,
       agility: 0.95
     },
-    skillIds: ['goblin-feint']
+    skillIds: ['goblin-feint', 'battle-cry']
   },
   {
     id: 'mystic',
@@ -41,7 +41,7 @@ export const JOBS = [
       magic: 1.2,
       spirit: 1.18
     },
-    skillIds: ['water-blade', 'soothing-prayer']
+    skillIds: ['water-blade', 'spirit-bind', 'soothing-prayer']
   },
   {
     id: 'scout',
@@ -52,7 +52,7 @@ export const JOBS = [
       defense: 0.95,
       agility: 1.25
     },
-    skillIds: ['storm-gust']
+    skillIds: ['storm-gust', 'quick-step']
   },
   {
     id: 'support-priest',
