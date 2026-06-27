@@ -425,10 +425,12 @@ export class MenuScene extends Phaser.Scene {
         fontSize: '15px',
         color: quest.status === 'completed' ? '#8dffc2' : quest.status === 'active' ? '#e9c56c' : '#9fb2cc'
       }));
-      this.layer.add(this.add.text(318, y - 18, quest.description, {
+      // Aktive Quests zeigen den aktuellen Schritt als Wegführung statt der generischen Beschreibung.
+      const currentStep = quest.status === 'active' ? quest.steps.find((step) => step.current) : undefined;
+      this.layer.add(this.add.text(318, y - 18, currentStep ? `→ ${currentStep.description}` : quest.description, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
-        color: '#9fb2cc',
+        color: currentStep ? '#e9c56c' : '#9fb2cc',
         wordWrap: { width: 535 }
       }));
       const visibleSteps = quest.steps

@@ -28,6 +28,7 @@ const MAP_ID = 'tempest-start';
 export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
   private player!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  private worldLayer?: Phaser.GameObjects.Container;
   private moving = false;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd?: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
@@ -84,6 +85,13 @@ export class OverworldScene extends Phaser.Scene {
       : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
 
     this.drawWorldObjects();
+
+    // Nach Rückkehr aus Dialog/Shop/Menü (scene.resume) den Save neu laden und die
+    // Story-Marker neu zeichnen, damit freigeschaltete Encounter sofort sichtbar sind.
+    this.events.on(Phaser.Scenes.Events.RESUME, () => {
+      this.save = loadSave(window.localStorage) ?? this.save;
+      this.drawWorldObjects();
+    });
 
     // Kamera folgt, begrenzt auf die Kartengröße.
     this.cameras.main.setBounds(0, 0, map.width * TILE, map.height * TILE);
@@ -176,6 +184,12 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private drawWorldObjects(): void {
+    // In einen Layer zeichnen, damit gated Story-Marker beim Resume (nach Dialog/
+    // Shop/Menü) mit frischem Save neu gezeichnet werden können — sonst erscheinen
+    // freigeschaltete „!"-Encounter erst nach einem Szenenneustart.
+    if (this.worldLayer) this.worldLayer.removeAll(true);
+    else this.worldLayer = this.add.container(0, 0);
+    const layer = this.worldLayer;
     const world = createWorldState(this.save);
     for (const location of getMapLocations(MAP_ID, world)) {
       const color = location.kind === 'city'
@@ -185,44 +199,44 @@ export class OverworldScene extends Phaser.Scene {
           : location.kind === 'dungeon'
             ? 0x7350a8
             : 0xd2b35f;
-      this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
-        .setStrokeStyle(2, color, 0.85);
-      this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
+      layer.add(this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
+        .setStrokeStyle(2, color, 0.85));
+      layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
         fontFamily: 'sans-serif',
         fontSize: '10px',
         color: '#e9eef7'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
     }
 
     const triggerEncounters = getVisibleMapEncounters(MAP_ID, world).filter(isTriggerEncounterForMap);
     for (const encounter of triggerEncounters) {
-      this.add.rectangle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.72, TILE * 0.72, 0x633050, 0.55)
-        .setStrokeStyle(2, 0xff8aa0, 0.8);
-      this.add.text(this.cx(encounter.position.x), this.cy(encounter.position.y), '!', {
+      layer.add(this.add.rectangle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.72, TILE * 0.72, 0x633050, 0.55)
+        .setStrokeStyle(2, 0xff8aa0, 0.8));
+      layer.add(this.add.text(this.cx(encounter.position.x), this.cy(encounter.position.y), '!', {
         fontFamily: 'sans-serif',
         fontSize: '20px',
         color: '#ffd6de'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
     }
 
     for (const npc of NPCS.filter((item) => item.mapId === MAP_ID)) {
-      this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
-        .setStrokeStyle(2, 0xfff1aa, 0.9);
-      this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 34, npc.name, {
+      layer.add(this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
+        .setStrokeStyle(2, 0xfff1aa, 0.9));
+      layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 34, npc.name, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#e9eef7'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
     }
 
     for (const shop of SHOPS.filter((item) => item.mapId === MAP_ID)) {
-      this.add.rectangle(this.cx(shop.position.x), this.cy(shop.position.y), TILE * 0.7, TILE * 0.7, 0x2f6f55, 0.95)
-        .setStrokeStyle(2, 0x8affc1, 0.9);
-      this.add.text(this.cx(shop.position.x), this.cy(shop.position.y), '店', {
+      layer.add(this.add.rectangle(this.cx(shop.position.x), this.cy(shop.position.y), TILE * 0.7, TILE * 0.7, 0x2f6f55, 0.95)
+        .setStrokeStyle(2, 0x8affc1, 0.9));
+      layer.add(this.add.text(this.cx(shop.position.x), this.cy(shop.position.y), '店', {
         fontFamily: 'sans-serif',
         fontSize: '18px',
         color: '#e9eef7'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
     }
   }
 

@@ -88,11 +88,15 @@ export class DialogueScene extends Phaser.Scene {
       });
     }
 
+    // 2-Spalten-Raster: bis zu vier gefilterte Optionen bleiben sichtbar und klickbar
+    // (die frühere horizontale Reihe lief bei 3–4 Optionen aus dem Bild).
     this.view.choices.forEach((choice, index) => {
-      this.button(94 + index * 250, 432, 230, choice.label, () => this.choose(choice.id));
+      const col = index % 2;
+      const row = Math.floor(index / 2);
+      this.button(94 + col * 410, 398 + row * 48, 384, choice.label, () => this.choose(choice.id));
     });
     if (this.view.choices.length === 0) {
-      this.button(94, 432, 230, 'Weiter', () => this.close());
+      this.button(94, 398, 384, 'Weiter', () => this.close());
     }
   }
 
