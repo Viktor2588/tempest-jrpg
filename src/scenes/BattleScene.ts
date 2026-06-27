@@ -138,6 +138,7 @@ export class BattleScene extends Phaser.Scene {
 
   private doAct(action: Parameters<typeof act>[1]): void {
     const before = snapshot(this.allViews());
+    const actor = currentActor(this.state); // Angreifer für die Angriffsbewegung
     const result = act(this.state, action);
     if (!result.ok) {
       this.flash(result.reason ?? 'Geht nicht.');
@@ -146,8 +147,24 @@ export class BattleScene extends Phaser.Scene {
 
     this.pendingSkillId = null;
     this.pendingItemId = null;
+    this.attackStreak(actor?.id, action);
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
     this.afterAction();
+  }
+
+  // Kurze gerichtete Angriffsbewegung (Lunge/Geschoss) vom Angreifer zum Ziel.
+  private attackStreak(actorId: string | undefined, action: Parameters<typeof act>[1]): void {
+    if (loadSettings(window.localStorage).reducedMotion) return;
+    if (!actorId || !('targetId' in action) || !action.targetId) return;
+    const from = this.unitPos.get(actorId);
+    const to = this.unitPos.get(action.targetId);
+    if (!from || !to) return;
+    const magic = action.type === 'skill';
+    const color = magic ? 0x9fe8ff : 0xfff0b0;
+    // Geschoss/Klingenpunkt vom Angreifer zum Ziel
+    const bolt = this.add.circle(from.x, from.y, magic ? 6 : 5, color).setDepth(58);
+    this.fxLayer.add(bolt);
+    this.tweens.add({ targets: bolt, x: to.x, y: to.y, duration: 170, ease: 'Quad.In', onComplete: () => bolt.destroy() });
   }
 
   private refresh(): void {

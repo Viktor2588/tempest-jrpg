@@ -178,6 +178,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Bewegungsoption respektiert:** bei „reduzierte Bewegung" entfallen Shake/Flash/Partikel; Zahlen bleiben (informativ). Engine bleibt headless-rein.
 - **Test `test/feedback.test.ts`:** 5 Checks (Snapshot, Schaden/Heilung, Tod-Übergang, unveränderte Einheiten/MP, totalDamage).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **55/55** grün, `bun run build` → `dist/`. Live-Browser-Smoke noch manuell. *Angriffs-Lunge/Cast-Pose bewusst zurückgestellt (würde das Render-Modell der Szene umbauen) — Folgeschritt.*
+- **Nachschliff Feel (2026-06-27):** markanter **Begegnungsübergang** Oberwelt→Kampf (`battleWipe`: Blitz + Shake + Fade) an beiden Kampfeinstiegen, sanftes **Oberwelt-Fade-in** bei Rückkehr aus dem Kampf, gerichtete **Angriffsbewegung** (Geschoss/Klinge Angreifer→Ziel) bei Spieleraktionen — alles reine Szenen-Ebene, „reduzierte Bewegung" respektiert. `bun run test` → 63/63 grün. *Leichter UI-Skin-Pass zurückgestellt, um nicht mit parallelen Szenenänderungen (Phase 11) zu kollidieren.*
 
 [x] **Phase 10 – Kampftiefe (moderne JRPG-Pfeiler) (fertig 2026-06-27, Worktree `worktree/tempest-phase-10-battle-depth`)**
 - **Aktive Reaktionsfenster:** `queueReaction` unterstützt Timing-Block und Konter mit `perfect`/`success`/`miss`; perfekte Reaktionen reduzieren Schaden stark, Konter verursachen Gegenschaden und perfekte Blocks bauen Team-Meter auf.

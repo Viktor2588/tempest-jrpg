@@ -11,6 +11,7 @@ import {
   getAdjacentShop,
   resolveEncounter
 } from '../systems/world';
+import { battleWipe, fadeIn } from './transition';
 
 const TILE = 48;
 const MOVE_MS = 130;
@@ -36,6 +37,7 @@ export class OverworldScene extends Phaser.Scene {
   create(): void {
     const map = JURA_FIELD;
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
 
     // Kacheln zeichnen.
     const g = this.add.graphics();
@@ -83,7 +85,7 @@ export class OverworldScene extends Phaser.Scene {
     interactBtn.on('pointerdown', interact);
 
     // Kampf auslösen (Demo: Enter-Taste oder Knopf) → bindet Phase 3 an.
-    const toBattle = () => this.scene.start('Battle');
+    const toBattle = () => battleWipe(this, 'Battle');
     this.input.keyboard?.on('keydown-ENTER', toBattle);
     const btn = this.add.rectangle(this.scale.width - 86, 30, 150, 38, 0x3a2230, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0xff8aa0, 0.7).setInteractive();
@@ -200,7 +202,7 @@ export class OverworldScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
 
     if (result.state.encounter) {
-      this.scene.start('Battle', { enemyIds: [...result.state.encounter.enemyIds] });
+      battleWipe(this, 'Battle', { enemyIds: [...result.state.encounter.enemyIds] });
     }
   }
 
