@@ -7,7 +7,14 @@ export type ElementType =
   | 'shadow'
   | 'holy';
 
-export type StatusEffectId = 'poison';
+export type StatusEffectId =
+  | 'poison'
+  | 'attack-up'
+  | 'defense-up'
+  | 'magic-up'
+  | 'spirit-down'
+  | 'haste'
+  | 'guard-break';
 
 export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
 

@@ -179,9 +179,15 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/feedback.test.ts`:** 5 Checks (Snapshot, Schaden/Heilung, Tod-Übergang, unveränderte Einheiten/MP, totalDamage).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **55/55** grün, `bun run build` → `dist/`. Live-Browser-Smoke noch manuell. *Angriffs-Lunge/Cast-Pose bewusst zurückgestellt (würde das Render-Modell der Szene umbauen) — Folgeschritt.*
 
-[ ] **Phase 10 – Kampftiefe (moderne JRPG-Pfeiler)** *(autonom)*
-- Aktive **Reaktionsfenster** (Timing-Block/Konter, optional/schnell), **Rollen-/Job-Wechsel im Kampf**, **Schwäche-/Break-System** (Phasenleiste), **Team-/Synergie-Angriffe** über Beziehungen, lesbare **Gegnerphasen** (>1 Muster, <50 % LP-Wechsel). Voller Status-/Buff-/Debuff-Satz.
-- **Abnahme:** deterministische Szenariomatrix (Rollen × Gegnerphasen × Seeds) terminiert; jede Mechanik hat klaren, lesbaren Wert; neue Logik in `systems/battle*` getestet.
+[x] **Phase 10 – Kampftiefe (moderne JRPG-Pfeiler) (fertig 2026-06-27, Worktree `worktree/tempest-phase-10-battle-depth`)**
+- **Aktive Reaktionsfenster:** `queueReaction` unterstützt Timing-Block und Konter mit `perfect`/`success`/`miss`; perfekte Reaktionen reduzieren Schaden stark, Konter verursachen Gegenschaden und perfekte Blocks bauen Team-Meter auf.
+- **Rollen-/Job-Wechsel im Kampf:** `switch-job` validiert freigeschaltete Rollen, wendet Job-Multiplikatoren auf Basiswerte an, aktualisiert HP/MP-Grenzen und Skillzugriff; `CombatantView.jobId` macht den Zustand lesbar.
+- **Schwäche-/Break-System:** Schwächentreffer und Debuffs senken eine Break-Leiste; bei Break setzt die Engine `guard-break`, setzt CT zurück, erhöht Team-Meter und macht Gegner verwundbarer. `CombatantView.breakGauge`/`breakGaugeMax` expose die Phasenleiste.
+- **Team-/Synergie-Angriffe:** `team-attack` benötigt volle Team-Leiste und eine aktive Synergiebeziehung (`synergyPartnerIds`), kombiniert Werte beider Figuren, verbraucht Meter und erzeugt zusätzlichen Break-Druck.
+- **Gegnerphasen:** Gegner wechseln unter 50 % LP in Phase 2 (`phaseIndex`), priorisieren verwundete Ziele stärker und verwenden Skills aggressiver; der Zustand ist im View-Modell sichtbar.
+- **Status-/Buff-/Debuff-Satz:** Status-IDs erweitert um `attack-up`, `defense-up`, `magic-up`, `spirit-down`, `haste`, `guard-break`; neue Skills `battle-cry`, `quick-step`, `spirit-bind` hängen an Rollen.
+- **Test `test/battle.test.ts`:** 6 neue Checks (Reaktion/Konter, Jobwechsel, Break, Team-Angriff, Gegnerphase, deterministische Matrix Rollen × Gegnerphasen × Seeds); Battle-Suite jetzt 15 Checks.
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **56/56** grün, `bun run build` → `dist/` ohne Vite-Warnung.
 
 [ ] **Phase 11 – Progression & Kernfantasie** *(autonom)*
 - **Namensgebung → Evolution** als Herzstück (Werte-/Skill-/Rollen-Schub, sichtbare Formen), **Skill-Bäume**, tiefere **Ausrüstung/Sets/Verzauberung**, **Bindungen/Beziehungen** mit Spielwert (Team-Angriffe, Buffs, Szenen). Anti-Grinding/Aufholmechaniken aus Phase 6 verzahnen.

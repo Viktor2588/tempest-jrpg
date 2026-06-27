@@ -5,12 +5,14 @@ import {
   ENEMIES,
   HEROES,
   ITEMS,
+  JOBS,
   SKILLS,
   type CharacterDefinition,
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
   type ItemDefinition,
+  type JobDefinition,
   type SkillDefinition,
   type StatBlock,
   type StatusEffectId
@@ -28,6 +30,14 @@ export interface StatusInstance {
   turns: number;
 }
 
+export type ReactionKind = 'timing-block' | 'counter';
+export type ReactionTiming = 'perfect' | 'success' | 'miss';
+
+export interface QueuedReaction {
+  readonly kind: ReactionKind;
+  readonly timing: ReactionTiming;
+}
+
 export interface BattleUnitInput {
   readonly sourceId: string;
   readonly name: string;
@@ -40,6 +50,9 @@ export interface BattleUnitInput {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   readonly skillIds: readonly string[];
+  readonly jobId?: string;
+  readonly availableJobIds?: readonly string[];
+  readonly synergyPartnerIds?: readonly string[];
   readonly experienceReward?: number;
   readonly goldReward?: number;
   readonly drops?: readonly EnemyDrop[];
@@ -51,20 +64,30 @@ export interface Combatant {
   readonly name: string;
   readonly side: Side;
   readonly level: number;
+  readonly baseStats: StatBlock;
+  baseSkillIds: string[];
+  jobId: string | null;
+  availableJobIds: string[];
   hp: number;
-  readonly maxHp: number;
+  maxHp: number;
   mp: number;
-  readonly maxMp: number;
-  readonly attack: number;
-  readonly defense: number;
-  readonly magic: number;
-  readonly spirit: number;
-  readonly agility: number;
+  maxMp: number;
+  attack: number;
+  defense: number;
+  magic: number;
+  spirit: number;
+  agility: number;
   readonly element: ElementType;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
-  readonly skillIds: readonly string[];
+  skillIds: string[];
+  readonly synergyPartnerIds: readonly string[];
   readonly statuses: StatusInstance[];
+  reaction: QueuedReaction | null;
+  breakGauge: number;
+  readonly breakGaugeMax: number;
+  phaseIndex: number;
+  readonly phaseThreshold: number;
   ct: number;
   guarding: boolean;
   dead: boolean;
@@ -84,6 +107,7 @@ export interface BattleState {
   inventory: InventoryStack[];
   status: BattleStatus;
   activeId: string | null;
+  teamMeter: number;
   round: number;
   turns: number;
   readonly seed: number;
@@ -96,6 +120,8 @@ export type BattleAction =
   | { type: 'attack'; targetId: string }
   | { type: 'skill'; skillId: string; targetId?: string }
   | { type: 'item'; itemId: string; targetId?: string }
+  | { type: 'switch-job'; jobId: string }
+  | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'guard' }
   | { type: 'flee' };
 
@@ -104,6 +130,7 @@ export interface StartBattleOptions {
   readonly enemyIds?: readonly string[];
   readonly enemies?: readonly BattleUnitInput[];
   readonly inventory?: readonly InventoryStack[];
+  readonly teamMeter?: number;
   readonly seed: number;
 }
 
@@ -117,11 +144,16 @@ export const MAX_TURNS = 300;
 
 const POISON_DAMAGE_FRACTION = 0.06;
 const MAX_ADVANCE_STEPS = 100_000;
+const BREAK_GAUGE_MAX = 4;
+const TEAM_METER_MAX = 100;
+const TEAM_METER_BREAK_GAIN = 35;
+const TEAM_ATTACK_COST = 100;
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const enemyById = new Map<string, EnemyDefinition>(ENEMIES.map((enemy) => [enemy.id, enemy]));
+const jobById = new Map<string, JobDefinition>(JOBS.map((job) => [job.id, job]));
 
 export function createDefaultBattleParty(): BattleUnitInput[] {
   return HEROES.filter((hero) => hero.startsInParty).map((hero) => createHeroBattleUnit(hero));
@@ -148,7 +180,10 @@ export function createBattlePartyFromMembers(members: readonly PartyMemberState[
 
 export function createHeroBattleUnit(
   hero: CharacterDefinition,
-  overrides: Partial<Pick<BattleUnitInput, 'currentHp' | 'currentMp' | 'level' | 'name' | 'skillIds'>> = {}
+  overrides: Partial<Pick<
+    BattleUnitInput,
+    'availableJobIds' | 'currentHp' | 'currentMp' | 'jobId' | 'level' | 'name' | 'skillIds' | 'synergyPartnerIds'
+  >> = {}
 ): BattleUnitInput {
   const level = overrides.level ?? hero.initialLevel;
   const stats = scaleStats(hero.baseStats, hero.growthPerLevel, level);
@@ -164,7 +199,10 @@ export function createHeroBattleUnit(
     element: 'neutral',
     weaknesses: [],
     resistances: [],
-    skillIds: overrides.skillIds ?? hero.initialSkillIds
+    skillIds: overrides.skillIds ?? hero.initialSkillIds,
+    jobId: overrides.jobId,
+    availableJobIds: overrides.availableJobIds,
+    synergyPartnerIds: overrides.synergyPartnerIds
   };
 }
 
@@ -210,6 +248,7 @@ export function startBattle(options: StartBattleOptions): BattleState {
     inventory: normalizeInventoryStacks(options.inventory ?? []),
     status: 'active',
     activeId: null,
+    teamMeter: clamp(options.teamMeter ?? 0, 0, TEAM_METER_MAX),
     round: 1,
     turns: 0,
     seed: options.seed,
@@ -240,11 +279,27 @@ export function act(state: BattleState, action: BattleAction): ActionResult {
   return resolveAction(state, actor, action);
 }
 
+export function queueReaction(
+  state: BattleState,
+  combatantId: string,
+  reaction: QueuedReaction
+): ActionResult {
+  const combatant = getCombatant(state, combatantId);
+  if (state.status !== 'active' || !combatant || combatant.side !== 'party' || combatant.dead) {
+    return { ok: false, reason: 'Reaktion nicht möglich.' };
+  }
+
+  combatant.reaction = reaction;
+  pushLog(state, `${combatant.name} bereitet ${reaction.kind === 'counter' ? 'Konter' : 'Block-Timing'} vor.`);
+  return { ok: true };
+}
+
 export function enemyTurn(state: BattleState): ActionResult {
   const actor = currentActor(state);
   if (state.status !== 'active' || !actor || actor.side !== 'enemy') {
     return { ok: false, reason: 'Kein Gegnerzug.' };
   }
+  updateEnemyPhase(state, actor);
 
   const foes = livingCombatants(state, 'party');
   if (foes.length === 0) {
@@ -257,12 +312,13 @@ export function enemyTurn(state: BattleState): ActionResult {
     .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(actor, skill))
     .filter((skill) => !isHealingSkill(skill));
 
-  if (usableSkills.length > 0 && state.rng() < 0.65) {
+  const skillChance = actor.phaseIndex >= 1 ? 0.9 : 0.65;
+  if (usableSkills.length > 0 && state.rng() < skillChance) {
     const scored = usableSkills
       .flatMap((skill) => aiTargetsForSkill(state, actor, skill).map((target) => ({
         skill,
         target,
-        score: elementMultiplier(skill.element, target) + (target.hp / target.maxHp)
+        score: scoreEnemySkillTarget(actor, skill, target)
       })))
       .sort((a, b) => b.score - a.score);
 
@@ -276,7 +332,9 @@ export function enemyTurn(state: BattleState): ActionResult {
     }
   }
 
-  const target = foes[Math.floor(state.rng() * foes.length)]!;
+  const target = actor.phaseIndex >= 1
+    ? foes.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]!
+    : foes[Math.floor(state.rng() * foes.length)]!;
   return resolveAction(state, actor, { type: 'attack', targetId: target.id });
 }
 
@@ -291,26 +349,41 @@ function aiTargetsForSkill(state: BattleState, actor: Combatant, skill: SkillDef
 }
 
 function createCombatant(unit: BattleUnitInput, id: string): Combatant {
+  const jobStats = unit.jobId ? applyJobMultipliers(unit.stats, jobById.get(unit.jobId)) : unit.stats;
+  const baseSkillIds = [...unit.skillIds];
+  const jobSkillIds = unit.jobId ? jobById.get(unit.jobId)?.skillIds ?? [] : [];
+  const breakGaugeMax = unit.side === 'enemy' ? BREAK_GAUGE_MAX : Math.max(3, BREAK_GAUGE_MAX - 1);
+
   return {
     id,
     sourceId: unit.sourceId,
     name: unit.name,
     side: unit.side,
     level: unit.level,
-    hp: clamp(unit.currentHp ?? unit.stats.maxHp, 0, unit.stats.maxHp),
-    maxHp: unit.stats.maxHp,
-    mp: clamp(unit.currentMp ?? unit.stats.maxMp, 0, unit.stats.maxMp),
-    maxMp: unit.stats.maxMp,
-    attack: unit.stats.attack,
-    defense: unit.stats.defense,
-    magic: unit.stats.magic,
-    spirit: unit.stats.spirit,
-    agility: Math.max(1, unit.stats.agility),
+    baseStats: unit.stats,
+    baseSkillIds,
+    jobId: unit.jobId ?? null,
+    availableJobIds: [...(unit.availableJobIds ?? [])],
+    hp: clamp(unit.currentHp ?? jobStats.maxHp, 0, jobStats.maxHp),
+    maxHp: jobStats.maxHp,
+    mp: clamp(unit.currentMp ?? jobStats.maxMp, 0, jobStats.maxMp),
+    maxMp: jobStats.maxMp,
+    attack: jobStats.attack,
+    defense: jobStats.defense,
+    magic: jobStats.magic,
+    spirit: jobStats.spirit,
+    agility: Math.max(1, jobStats.agility),
     element: unit.element,
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
-    skillIds: [...unit.skillIds],
+    skillIds: uniqueStrings([...baseSkillIds, ...jobSkillIds]),
+    synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     statuses: [],
+    reaction: null,
+    breakGauge: breakGaugeMax,
+    breakGaugeMax,
+    phaseIndex: 0,
+    phaseThreshold: 0.5,
     ct: 0,
     guarding: false,
     dead: false,
@@ -343,6 +416,12 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'item':
       return resolveItem(state, actor, action.itemId, action.targetId);
+
+    case 'switch-job':
+      return resolveJobSwitch(state, actor, action.jobId);
+
+    case 'team-attack':
+      return resolveTeamAttack(state, actor, action.partnerId, action.targetId);
   }
 }
 
@@ -372,8 +451,8 @@ function resolveAttack(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
 
-  const rawDamage = (actor.attack * 1.8 - target.defense * 0.8) * variance(state.rng);
-  const damage = applyDamage(target, rawDamage);
+  const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8) * variance(state.rng);
+  const damage = applyDamage(state, actor, target, rawDamage);
   pushLog(state, `${actor.name} greift ${target.name} an: ${damage} Schaden.`);
   checkDeath(state, target);
   endTurn(state, actor);
@@ -401,11 +480,20 @@ function resolveSkill(
 
   actor.mp -= skill.costMp;
 
+  if (isStatusOnlySkill(skill)) {
+    for (const target of targets) {
+      applySkillStatus(state, target, skill);
+    }
+    endTurn(state, actor);
+    return { ok: true };
+  }
+
   if (isHealingSkill(skill)) {
     for (const target of targets) {
-      const amount = Math.max(1, Math.round(skill.power + actor.magic * 1.1));
+      const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 1.1));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
+      applySkillStatus(state, target, skill);
     }
     endTurn(state, actor);
     return { ok: true };
@@ -413,14 +501,15 @@ function resolveSkill(
 
   for (const target of targets) {
     const usesPhysicalScaling = skill.tags.includes('physical') && !skill.tags.includes('magical');
-    const offense = usesPhysicalScaling ? actor.attack : actor.magic;
-    const mitigation = usesPhysicalScaling ? target.defense : target.spirit;
+    const offense = usesPhysicalScaling ? effectiveStat(actor, 'attack') : effectiveStat(actor, 'magic');
+    const mitigation = usesPhysicalScaling ? effectiveStat(target, 'defense') : effectiveStat(target, 'spirit');
     const rawDamage = (skill.power + offense * 1.35 - mitigation * 0.55)
       * elementMultiplier(skill.element, target)
       * variance(state.rng);
-    const damage = applyDamage(target, rawDamage);
+    const damage = applyDamage(state, actor, target, rawDamage);
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
+    applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
     applySkillStatus(state, target, skill);
     checkDeath(state, target);
   }
@@ -484,12 +573,74 @@ function resolveItem(
   return { ok: true };
 }
 
+function resolveJobSwitch(state: BattleState, actor: Combatant, jobId: string): ActionResult {
+  if (actor.side !== 'party') {
+    return { ok: false, reason: 'Nur die Party kann Rollen wechseln.' };
+  }
+  if (actor.jobId === jobId) {
+    return { ok: false, reason: 'Diese Rolle ist bereits aktiv.' };
+  }
+  if (!actor.availableJobIds.includes(jobId)) {
+    return { ok: false, reason: 'Rolle ist im Kampf nicht freigeschaltet.' };
+  }
+  const job = jobById.get(jobId);
+  if (!job) {
+    return { ok: false, reason: 'Unbekannte Rolle.' };
+  }
+
+  applyCombatantJob(actor, job);
+  pushLog(state, `${actor.name} wechselt zu ${job.name}.`);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+function resolveTeamAttack(
+  state: BattleState,
+  actor: Combatant,
+  partnerId: string,
+  targetId: string
+): ActionResult {
+  if (state.teamMeter < TEAM_ATTACK_COST) {
+    return { ok: false, reason: 'Team-Leiste ist nicht voll.' };
+  }
+  const partner = getCombatant(state, partnerId);
+  const target = getCombatant(state, targetId);
+  if (!partner || partner.dead || partner.side !== actor.side || partner.id === actor.id) {
+    return { ok: false, reason: 'Ungültiger Synergiepartner.' };
+  }
+  if (!target || target.dead || target.side === actor.side) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+  if (!hasSynergyLink(actor, partner)) {
+    return { ok: false, reason: 'Keine aktive Beziehung für einen Team-Angriff.' };
+  }
+
+  state.teamMeter = Math.max(0, state.teamMeter - TEAM_ATTACK_COST);
+  const rawDamage = (
+    effectiveStat(actor, 'attack')
+    + effectiveStat(actor, 'magic')
+    + effectiveStat(partner, 'attack')
+    + effectiveStat(partner, 'magic')
+    - effectiveStat(target, 'defense') * 0.65
+  ) * 1.35 * variance(state.rng);
+  const damage = applyDamage(state, actor, target, rawDamage, false);
+  applyBreakPressure(state, target, 'neutral', 2);
+  pushLog(state, `${actor.name} und ${partner.name} entfesseln Teamdruck: ${damage} Schaden.`);
+  checkDeath(state, target);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
 function canUseSkill(actor: Combatant, skill: SkillDefinition): boolean {
   return actor.mp >= skill.costMp;
 }
 
 function isHealingSkill(skill: SkillDefinition): boolean {
   return skill.tags.includes('heal');
+}
+
+function isStatusOnlySkill(skill: SkillDefinition): boolean {
+  return skill.power <= 0 && !!skill.statusEffect && (skill.tags.includes('buff') || skill.tags.includes('debuff'));
 }
 
 function targetsForSkill(
@@ -518,15 +669,15 @@ function targetsForSkill(
 }
 
 function applySkillStatus(state: BattleState, target: Combatant, skill: SkillDefinition): void {
-  if (!skill.statusEffect || target.dead || target.statuses.some((status) => status.id === skill.statusEffect?.id)) {
+  if (!skill.statusEffect || target.dead) {
     return;
   }
   if (state.rng() > skill.statusEffect.chance) {
     return;
   }
 
-  target.statuses.push({ id: skill.statusEffect.id, turns: skill.statusEffect.turns });
-  pushLog(state, `${target.name} wird vergiftet.`);
+  applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns);
+  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)}.`);
 }
 
 function advanceToNextActor(state: BattleState): void {
@@ -551,12 +702,13 @@ function advanceToNextActor(state: BattleState): void {
       if (actor.dead) {
         continue;
       }
+      updateEnemyPhase(state, actor);
       state.activeId = actor.id;
       return;
     }
 
     for (const combatant of livingCombatants(state)) {
-      combatant.ct += combatant.agility;
+      combatant.ct += effectiveStat(combatant, 'agility');
     }
     state.round += 1;
   }
@@ -566,6 +718,7 @@ function advanceToNextActor(state: BattleState): void {
 
 function startTurn(state: BattleState, actor: Combatant): void {
   actor.guarding = false;
+  updateEnemyPhase(state, actor);
 
   const poison = actor.statuses.find((status) => status.id === 'poison');
   if (poison) {
@@ -654,11 +807,177 @@ function awardEnemyRewards(state: BattleState, enemy: Combatant): void {
   }
 }
 
-function applyDamage(target: Combatant, rawDamage: number): number {
-  const guardedDamage = target.guarding ? rawDamage * 0.5 : rawDamage;
+function applyDamage(
+  state: BattleState,
+  attacker: Combatant,
+  target: Combatant,
+  rawDamage: number,
+  allowReaction = true
+): number {
+  let adjustedDamage = rawDamage * damageTakenMultiplier(target);
+  const reaction = allowReaction ? target.reaction : null;
+  target.reaction = null;
+
+  if (reaction && target.side === 'party') {
+    if (reaction.timing === 'perfect') {
+      adjustedDamage *= reaction.kind === 'counter' ? 0.45 : 0.25;
+      state.teamMeter = clamp(state.teamMeter + 10, 0, TEAM_METER_MAX);
+      pushLog(state, `${target.name} trifft das perfekte Reaktionsfenster.`);
+    } else if (reaction.timing === 'success') {
+      adjustedDamage *= reaction.kind === 'counter' ? 0.65 : 0.5;
+      pushLog(state, `${target.name} blockt im Timing.`);
+    } else {
+      pushLog(state, `${target.name} verpasst das Reaktionsfenster.`);
+    }
+  }
+
+  const guardedDamage = target.guarding ? adjustedDamage * 0.5 : adjustedDamage;
   const damage = Math.max(1, Math.round(guardedDamage));
   target.hp = Math.max(0, target.hp - damage);
+
+  if (reaction?.kind === 'counter' && reaction.timing !== 'miss' && !attacker.dead) {
+    const counterDamage = Math.max(
+      1,
+      Math.round(effectiveStat(target, 'attack') * 1.15 - effectiveStat(attacker, 'defense') * 0.45)
+    );
+    attacker.hp = Math.max(0, attacker.hp - counterDamage);
+    pushLog(state, `${target.name} kontert ${attacker.name}: ${counterDamage} Schaden.`);
+    checkDeath(state, attacker);
+  }
+
   return damage;
+}
+
+function applyBreakPressure(
+  state: BattleState,
+  target: Combatant,
+  element: ElementType,
+  bonusPressure = 0
+): void {
+  if (target.dead || target.side !== 'enemy') {
+    return;
+  }
+  const weaknessPressure = target.weaknesses.includes(element) ? 2 : 0;
+  const pressure = weaknessPressure + bonusPressure;
+  if (pressure <= 0) {
+    return;
+  }
+
+  target.breakGauge = Math.max(0, target.breakGauge - pressure);
+  if (target.breakGauge > 0) {
+    pushLog(state, `${target.name}s Break-Leiste sinkt auf ${target.breakGauge}/${target.breakGaugeMax}.`);
+    return;
+  }
+
+  target.breakGauge = target.breakGaugeMax;
+  applyStatus(target, 'guard-break', 2);
+  target.ct = 0;
+  state.teamMeter = clamp(state.teamMeter + TEAM_METER_BREAK_GAIN, 0, TEAM_METER_MAX);
+  pushLog(state, `${target.name} ist gebrochen! Team-Leiste ${state.teamMeter}/${TEAM_METER_MAX}.`);
+}
+
+function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
+  if (combatant.side !== 'enemy' || combatant.dead || combatant.phaseIndex >= 1) {
+    return;
+  }
+  if (combatant.hp / combatant.maxHp <= combatant.phaseThreshold) {
+    combatant.phaseIndex = 1;
+    combatant.ct = Math.max(combatant.ct, CT_THRESHOLD);
+    pushLog(state, `${combatant.name} wechselt in Phase 2.`);
+  }
+}
+
+function scoreEnemySkillTarget(actor: Combatant, skill: SkillDefinition, target: Combatant): number {
+  const vulnerability = elementMultiplier(skill.element, target);
+  const woundedPriority = actor.phaseIndex >= 1 ? 1 - (target.hp / target.maxHp) : target.hp / target.maxHp;
+  const breakPriority = target.breakGauge <= 1 ? 0.4 : 0;
+  return vulnerability + woundedPriority + breakPriority;
+}
+
+function effectiveStat(combatant: Combatant, stat: keyof StatBlock): number {
+  let value = combatant[stat];
+  for (const status of combatant.statuses) {
+    if (status.id === 'attack-up' && stat === 'attack') value *= 1.25;
+    else if (status.id === 'defense-up' && stat === 'defense') value *= 1.25;
+    else if (status.id === 'magic-up' && stat === 'magic') value *= 1.25;
+    else if (status.id === 'spirit-down' && stat === 'spirit') value *= 0.75;
+    else if (status.id === 'haste' && stat === 'agility') value *= 1.3;
+    else if (status.id === 'guard-break' && (stat === 'defense' || stat === 'spirit')) value *= 0.65;
+  }
+  return Math.max(1, Math.round(value));
+}
+
+function damageTakenMultiplier(target: Combatant): number {
+  return target.statuses.some((status) => status.id === 'guard-break') ? 1.25 : 1;
+}
+
+function applyStatus(target: Combatant, statusId: StatusEffectId, turns: number): void {
+  const existing = target.statuses.find((status) => status.id === statusId);
+  if (existing) {
+    existing.turns = Math.max(existing.turns, turns);
+    return;
+  }
+  target.statuses.push({ id: statusId, turns });
+}
+
+function statusLabel(statusId: StatusEffectId): string {
+  switch (statusId) {
+    case 'poison':
+      return 'vergiftet';
+    case 'attack-up':
+      return 'Angriff erhöht';
+    case 'defense-up':
+      return 'Verteidigung erhöht';
+    case 'magic-up':
+      return 'Magie erhöht';
+    case 'spirit-down':
+      return 'Geist gesenkt';
+    case 'haste':
+      return 'Tempo erhöht';
+    case 'guard-break':
+      return 'gebrochen';
+  }
+}
+
+function applyCombatantJob(combatant: Combatant, job: JobDefinition): void {
+  const previousMaxHp = combatant.maxHp;
+  const previousMaxMp = combatant.maxMp;
+  const stats = applyJobMultipliers(combatant.baseStats, job);
+
+  combatant.jobId = job.id;
+  combatant.maxHp = stats.maxHp;
+  combatant.maxMp = stats.maxMp;
+  combatant.attack = stats.attack;
+  combatant.defense = stats.defense;
+  combatant.magic = stats.magic;
+  combatant.spirit = stats.spirit;
+  combatant.agility = Math.max(1, stats.agility);
+  combatant.hp = clamp(combatant.hp + (stats.maxHp - previousMaxHp), 1, stats.maxHp);
+  combatant.mp = clamp(combatant.mp + (stats.maxMp - previousMaxMp), 0, stats.maxMp);
+  combatant.skillIds = uniqueStrings([...combatant.baseSkillIds, ...job.skillIds]);
+}
+
+function applyJobMultipliers(stats: StatBlock, job: JobDefinition | undefined): StatBlock {
+  if (!job) {
+    return stats;
+  }
+  return {
+    maxHp: multiplyStat(stats.maxHp, job.statMultiplier.maxHp),
+    maxMp: multiplyStat(stats.maxMp, job.statMultiplier.maxMp),
+    attack: multiplyStat(stats.attack, job.statMultiplier.attack),
+    defense: multiplyStat(stats.defense, job.statMultiplier.defense),
+    magic: multiplyStat(stats.magic, job.statMultiplier.magic),
+    spirit: multiplyStat(stats.spirit, job.statMultiplier.spirit),
+    agility: multiplyStat(stats.agility, job.statMultiplier.agility)
+  };
+}
+
+function multiplyStat(value: number, multiplier = 1): number {
+  return Math.max(1, Math.round(value * multiplier));
+}
+
+function hasSynergyLink(a: Combatant, b: Combatant): boolean {
+  return a.synergyPartnerIds.includes(b.sourceId) || b.synergyPartnerIds.includes(a.sourceId);
 }
 
 function consumeItem(state: BattleState, itemId: string): void {
@@ -730,12 +1049,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.trunc(value)));
 }
 
+function uniqueStrings(values: readonly string[]): string[] {
+  return [...new Set(values)];
+}
+
 export interface CombatantView {
   readonly id: string;
   readonly sourceId: string;
   readonly name: string;
   readonly side: Side;
   readonly level: number;
+  readonly jobId: string | null;
   readonly hp: number;
   readonly maxHp: number;
   readonly mp: number;
@@ -743,6 +1067,10 @@ export interface CombatantView {
   readonly element: ElementType;
   readonly skillIds: readonly string[];
   readonly statuses: readonly StatusEffectId[];
+  readonly reaction: QueuedReaction | null;
+  readonly breakGauge: number;
+  readonly breakGaugeMax: number;
+  readonly phaseIndex: number;
   readonly dead: boolean;
   readonly guarding: boolean;
   readonly active: boolean;
@@ -753,6 +1081,7 @@ export interface BattleView {
   readonly party: readonly CombatantView[];
   readonly enemies: readonly CombatantView[];
   readonly activeId: string | null;
+  readonly teamMeter: number;
   readonly log: readonly string[];
   readonly rewards: BattleRewards;
   readonly inventory: readonly InventoryStack[];
@@ -770,6 +1099,7 @@ export function renderView(state: BattleState): BattleView {
       .filter((combatant) => combatant.side === 'enemy')
       .map((combatant) => renderCombatant(combatant, state.activeId)),
     activeId: state.activeId,
+    teamMeter: state.teamMeter,
     log: [...state.log],
     rewards: {
       experience: state.rewards.experience,
@@ -789,6 +1119,7 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     name: combatant.name,
     side: combatant.side,
     level: combatant.level,
+    jobId: combatant.jobId,
     hp: combatant.hp,
     maxHp: combatant.maxHp,
     mp: combatant.mp,
@@ -796,6 +1127,10 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     element: combatant.element,
     skillIds: [...combatant.skillIds],
     statuses: combatant.statuses.map((status) => status.id),
+    reaction: combatant.reaction,
+    breakGauge: combatant.breakGauge,
+    breakGaugeMax: combatant.breakGaugeMax,
+    phaseIndex: combatant.phaseIndex,
     dead: combatant.dead,
     guarding: combatant.guarding,
     active: combatant.id === activeId
