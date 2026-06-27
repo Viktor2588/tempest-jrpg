@@ -272,6 +272,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
   4. **Quest-Log-Wegführung:** aktive Quests zeigen statt der generischen Beschreibung den **aktuellen Schritt** als Hinweis (z. B. „→ Hole Vaels Analyse und Lyrres Grenzbericht ein").
 - **Abnahme (lokal verifiziert):** `tsc --noEmit` sauber, `vitest run` → **91/91** grün (Playthrough +2), `vite build` → `dist/`. Logik war nachweislich korrekt; die Fixes machen die abschließbare Quest auch im Spiel folgbar.
 
+[x] **Bugfix: Menü-Layout-Overlaps (fertig 2026-06-27, direkt auf `main`)** *(Spieler-Screenshots)*
+- **Symptom:** In der Party-Seitenleiste lief die Unterzeile (`Adaptiver Magiekämpfer · LP … · MP …`) durch die Button-Border („durchgestrichen") **und** horizontal in den Content-Bereich (x≥300) über; Menü-Hintergrund ließ den Overworld stark durchscheinen.
+- **Fix (`MenuScene`):** Party-Einträge auf 70px Höhe; die LP/MP-Zeile steht **unter** dem 44px-Button (kreuzt keine Border mehr) und ist auf `LP x/y · MP x/y` gekürzt (kein Überlauf in den Content; die Klassenbezeichnung steht weiter in Party-/Status-Tab). Menü-Backdrop von Alpha 0.82 → 0.93 für klarere Lesbarkeit.
+- **Abnahme:** `tsc` sauber, **91/91** grün, `build` ok.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

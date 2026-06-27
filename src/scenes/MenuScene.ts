@@ -65,7 +65,7 @@ export class MenuScene extends Phaser.Scene {
       gold: this.save.party.gold
     };
 
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.82);
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.93);
     this.layer = this.add.container(0, 0);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
     this.input.keyboard?.on('keydown-M', () => this.close());
@@ -124,7 +124,9 @@ export class MenuScene extends Phaser.Scene {
     }));
 
     view.members.forEach((summary, index) => {
-      const y = 174 + index * 54;
+      // Eintragshöhe 70: 44px-Button + LP/MP-Zeile darunter, ohne dass die
+      // Unterzeile die Button-Border kreuzt (vorher „durchgestrichener" Text).
+      const y = 170 + index * 70;
       const stats = calculateProgressionStats(
         summary.member,
         this.save.progression
@@ -133,7 +135,7 @@ export class MenuScene extends Phaser.Scene {
         this.selectedMemberIndex = index;
         this.refresh();
       }, this.selectedMemberIndex === index ? 0x30506f : 0x162238);
-      this.layer.add(this.add.text(38, y + 16, `${summary.character.role} · LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
+      this.layer.add(this.add.text(34, y + 30, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#9fb2cc'
