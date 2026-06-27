@@ -212,9 +212,10 @@ test/                  Vitest-Suiten gegen src/systems & src/data
   - **System-Verzahnung:** Namensgebung löst Bond-Szenen aus; Regionen = Akt-Tore; Beziehungen schalten Teamangriffe & Story frei.
   - *Status: vom Spieler grundsätzlich abgesegnet („mach erstmal so"), Detail-Verfeinerung (Namen/Enden/Ton) jederzeit möglich.*
 
-[ ] **Phase 13 – Art- & Audio-Produktion** *(braucht Asset-Pipeline; siehe Asset-Strategie)*
-- **Art Bible** + Pipeline (Tilesets, Charakter-Sprites/Portraits, Gegner, VFX-Atlas, UI-Skin) — KI/frei, mit `ASSETS.md`-Attribution. **Musik + echte SFX** ersetzen die prozeduralen Töne (Lautstärke-System steht bereits). Lazy-Load je Szene.
+[ ] **Phase 13 – Art- & Audio-Produktion** *(CC0; Grundlage fertig 2026-06-27, Asset-Einpflege + Szenen-Verdrahtung offen)*
+- **Art Bible** + Pipeline (Tilesets, Charakter-Sprites/Portraits, Gegner, VFX-Atlas, UI-Skin) — **CC0**, mit `ASSETS.md`-Attribution. **Musik + echte SFX** ersetzen die prozeduralen Töne (Lautstärke-System steht bereits). Lazy-Load je Szene.
 - **Abnahme:** kohärenter Look über Oberwelt/Kampf/Menü; alle Lizenzen dokumentiert; Bundle im Budget; Rechtecke/Beep-SFX vollständig ersetzt.
+  - **✅ Grundlage (2026-06-27, Worktree `worktree/tempest-phase-13-art`):** `docs/ART_BIBLE.md` (Top-down-Pixel, 32px, Palette, 1px-Outline, Figuren-Akzente, CC0-Beschaffung), `ASSETS.md` (CC0-only Attributions-Gerüst), Phaser-freier **`src/render/artSpec.ts`** (Palette/Maße/deterministische Specs, getestet) + Phaser-Generator **`src/render/placeholderArt.ts`** (`generatePlaceholderTextures` → kohärente `ph-<kind>`-Texturen). `test/artSpec.test.ts` (5 Checks). `bun run typecheck`/`test` (**73/73**)/`build` grün. *Bewusst noch nicht in Szenen verdrahtet; echte CC0-Sprites/Audio + Ersetzen der Rechtecke/Beeps folgen.*
 
 [x] **Phase 14 – Zugänglichkeit, Schwierigkeit & Tempo (fertig 2026-06-27, Worktree `worktree/tempest-phase-14-accessibility`)** *(bewusst settings-isoliert, kollisionsfrei zur parallelen Engine-Arbeit)*
 - **`systems/settings.ts` erweitert** (rein, getestet): `difficulty` (leicht/normal/schwer), `textSpeed` (langsam/normal/schnell/sofort), `highContrast`, `colorblind` (aus/protan/deutan/tritan) mit Enum-Validierung + abwärtskompatibler Migration. Abgeleitete Helfer `textCharDelayMs`, `enemyDamageMultiplier`, `playerDamageMultiplier` (Letztere für die Kampf-Engine bereitgestellt).
