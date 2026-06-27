@@ -9,11 +9,12 @@ Lizenz stehen. Kein Asset ohne Eintrag, keine Nicht-CC0-Lizenz (z. B. LPC = CC-B
 - **itch.io** — nur ausgewiesene CC0-Packs.
 
 ## Aktuell verwendete Assets
-**Kenney „Tiny Town"** (Kacheln) und **Kenney „Tiny Dungeon"** (Charaktere/Gegner) — beide
-**CC0** (License.txt: „Creative Commons Zero, CC0"). Einzelne 16×16-Sprites wurden per
-Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held, Grün-Blob → Schleim usw.) ausgewählt
-und einzeln ins Repo übernommen. Übrige Elemente nutzen weiter **prozedurale Platzhalter**
-(`src/render/placeholderArt.ts`).
+**Kenney „Tiny Town"** (Kacheln), **Kenney „Tiny Dungeon"** (Charaktere/Gegner) und
+**Kenney „RPG Audio"** (SFX) — alle **CC0** (License.txt: „Creative Commons Zero, CC0").
+Einzelne 16×16-Sprites wurden per Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held,
+Grün-Blob → Schleim usw.) ausgewählt und einzeln ins Repo übernommen. Die SFX wurden aus
+dem RPG-Audio-Pack passend auf UI/Kampf/Resultat gemappt. Übrige Elemente nutzen weiter
+**prozedurale Platzhalter** (`src/render/placeholderArt.ts`).
 
 | Datei (in `src/assets/…`) | Typ | Quelle (URL) | Autor | Lizenz |
 |---|---|---|---|---|
@@ -25,6 +26,14 @@ und einzeln ins Repo übernommen. Übrige Elemente nutzen weiter **prozedurale P
 | `sprites/enemy-wolf.png` | Gegner Bestie (Tiny Dungeon `tile_0065`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-imp.png` | Gegner Imp (Tiny Dungeon `tile_0106`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-ogre.png` | Gegner Oger (Tiny Dungeon `tile_0121`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `audio/ui-select.ogg` | UI-Auswahl-SFX (RPG Audio `metalClick.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/ui-confirm.ogg` | UI-Bestätigen-SFX (RPG Audio `metalLatch.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/ui-cancel.ogg` | UI-Abbrechen-SFX (RPG Audio `cloth1.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/battle-hit.ogg` | Treffer-SFX (RPG Audio `knifeSlice.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/battle-magic.ogg` | Magie-SFX (RPG Audio `bookOpen.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/battle-heal.ogg` | Heilungs-SFX (RPG Audio `bookFlip2.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/result-victory.ogg` | Sieg-/Belohnungs-SFX (RPG Audio `handleCoins.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `audio/result-defeat.ogg` | Niederlage-SFX (RPG Audio `doorClose_3.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 
 ## Vorgehen beim Hinzufügen
 1. Lizenz prüfen: **muss CC0 sein**. Im Zweifel nicht verwenden.
