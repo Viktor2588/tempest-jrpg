@@ -23,6 +23,7 @@ import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/s
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
+import { playMusic, resumeMusic } from '../audio/music';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 import { applyWorldState, completeEncounter, createWorldState } from '../systems/world';
@@ -75,9 +76,11 @@ export class BattleScene extends Phaser.Scene {
     this.layer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0).setDepth(50); // Effekte überleben refresh()
     fadeIn(this);
+    playMusic('battle');
     // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
-    this.input.once('pointerdown', resumeAudio);
-    this.input.keyboard?.once('keydown', resumeAudio);
+    const unlockAudio = () => { resumeAudio(); resumeMusic(); };
+    this.input.once('pointerdown', unlockAudio);
+    this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
   }
 

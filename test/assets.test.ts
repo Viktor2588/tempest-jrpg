@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import assetsDoc from '../ASSETS.md?raw';
+import musicSource from '../src/audio/music.ts?raw';
 import sfxSource from '../src/audio/sfx.ts?raw';
 
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
@@ -17,5 +18,12 @@ describe('Asset-Lizenzen und Audio-Wiring', () => {
     expect(sfxSource).toContain('../assets/audio/result-victory.ogg');
     expect(sfxSource).not.toContain('createOscillator');
     expect(sfxSource).not.toContain('OscillatorType');
+  });
+
+  it('bindet echte CC0-Musik-Motive für Titel, Oberwelt und Kampf ein', () => {
+    expect(musicSource).toContain('../assets/music/title-theme.ogg');
+    expect(musicSource).toContain('../assets/music/field-theme.ogg');
+    expect(musicSource).toContain('../assets/music/battle-theme.ogg');
+    expect(musicSource).toContain('effectiveMusicVolume');
   });
 });

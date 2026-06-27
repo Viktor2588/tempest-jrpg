@@ -13,6 +13,8 @@ import {
   getVisibleMapEncounters,
   resolveEncounter
 } from '../systems/world';
+import { playMusic, resumeMusic } from '../audio/music';
+import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn } from './transition';
 
 const TILE = 48;
@@ -40,6 +42,7 @@ export class OverworldScene extends Phaser.Scene {
     const map = JURA_FIELD;
     this.save = loadSave(window.localStorage) ?? createNewSave();
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
+    playMusic('overworld');
     // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
     // laufen bei scene.start NICHT erneut. Daher transiente Zustände hier zurücksetzen,
     // sonst bleibt nach einem Kampf `moving=true` hängen → Bewegung blockiert.
@@ -94,6 +97,11 @@ export class OverworldScene extends Phaser.Scene {
 
     // Touch-Steuerkreuz (mobil).
     this.buildDpad();
+
+    // Audio nach erster Nutzergeste erneut freigeben (falls Autoplay geblockt war).
+    const unlockAudio = () => { resumeAudio(); resumeMusic(); };
+    this.input.once('pointerdown', unlockAudio);
+    this.input.keyboard?.once('keydown', unlockAudio);
 
     // NPC/Shop-Interaktion.
     const interact = () => this.interact();

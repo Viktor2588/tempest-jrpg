@@ -9,12 +9,14 @@ Lizenz stehen. Kein Asset ohne Eintrag, keine Nicht-CC0-Lizenz (z. B. LPC = CC-B
 - **itch.io** — nur ausgewiesene CC0-Packs.
 
 ## Aktuell verwendete Assets
-**Kenney „Tiny Town"** (Kacheln), **Kenney „Tiny Dungeon"** (Charaktere/Gegner) und
-**Kenney „RPG Audio"** (SFX) — alle **CC0** (License.txt: „Creative Commons Zero, CC0").
+**Kenney „Tiny Town"** (Kacheln), **Kenney „Tiny Dungeon"** (Charaktere/Gegner),
+**Kenney „RPG Audio"** (SFX) und **Kenney „Music Jingles"** (kurze Musik-Motive) —
+alle **CC0** (License.txt: „Creative Commons Zero, CC0").
 Einzelne 16×16-Sprites wurden per Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held,
 Grün-Blob → Schleim usw.) ausgewählt und einzeln ins Repo übernommen. Die SFX wurden aus
-dem RPG-Audio-Pack passend auf UI/Kampf/Resultat gemappt. Übrige Elemente nutzen weiter
-**prozedurale Platzhalter** (`src/render/placeholderArt.ts`).
+dem RPG-Audio-Pack passend auf UI/Kampf/Resultat gemappt; die Musik-Motive laufen als
+leise Titel-/Oberwelt-/Kampf-Loops. Übrige Elemente nutzen weiter **prozedurale Platzhalter**
+(`src/render/placeholderArt.ts`).
 
 | Datei (in `src/assets/…`) | Typ | Quelle (URL) | Autor | Lizenz |
 |---|---|---|---|---|
@@ -34,6 +36,9 @@ dem RPG-Audio-Pack passend auf UI/Kampf/Resultat gemappt. Übrige Elemente nutze
 | `audio/battle-heal.ogg` | Heilungs-SFX (RPG Audio `bookFlip2.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/result-victory.ogg` | Sieg-/Belohnungs-SFX (RPG Audio `handleCoins.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/result-defeat.ogg` | Niederlage-SFX (RPG Audio `doorClose_3.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
+| `music/title-theme.ogg` | Titel-Motiv (Music Jingles `jingles_PIZZI07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/field-theme.ogg` | Oberwelt-Motiv (Music Jingles `jingles_NES00.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/battle-theme.ogg` | Kampf-Motiv (Music Jingles `jingles_STEEL07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 
 ## Vorgehen beim Hinzufügen
 1. Lizenz prüfen: **muss CC0 sein**. Im Zweifel nicht verwenden.

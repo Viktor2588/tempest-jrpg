@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { loadSettings, saveSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
+import { playMusic, resumeMusic } from '../audio/music';
 import { fadeIn, fadeToScene } from './transition';
 
 // Titelbildschirm: Start, Optionen und einmaliges Onboarding (Tutorial).
@@ -13,6 +14,7 @@ export class TitleScene extends Phaser.Scene {
   create(): void {
     const cx = GAME_WIDTH / 2;
     fadeIn(this);
+    playMusic('title');
 
     this.add.text(cx, 150, 'Tempest – Chronik', { fontFamily: 'serif', fontSize: '44px', color: '#e9c56c' }).setOrigin(0.5);
     this.add.text(cx, 196, 'Ein JRPG der Tempest-Welt', { fontFamily: 'sans-serif', fontSize: '18px', color: '#9fb2cc' }).setOrigin(0.5);
@@ -21,8 +23,9 @@ export class TitleScene extends Phaser.Scene {
     this.menuButton(cx, 336, '⚙ Optionen', () => { playSfx('select'); fadeToScene(this, 'Options', { from: 'Title' }); });
 
     // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
-    this.input.once('pointerdown', resumeAudio);
-    this.input.keyboard?.once('keydown', resumeAudio);
+    const unlockAudio = () => { resumeAudio(); resumeMusic(); };
+    this.input.once('pointerdown', unlockAudio);
+    this.input.keyboard?.once('keydown', unlockAudio);
 
     // Einmaliges Tutorial beim ersten Start.
     const settings = loadSettings(window.localStorage);
@@ -55,6 +58,6 @@ export class TitleScene extends Phaser.Scene {
     const bg = this.add.rectangle(cx, cy + 100, 200, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
     overlay.add(bg);
     overlay.add(this.add.text(cx, cy + 100, 'Los geht’s', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5));
-    bg.on('pointerdown', () => { resumeAudio(); playSfx('confirm'); overlay.destroy(); });
+    bg.on('pointerdown', () => { resumeAudio(); resumeMusic(); playSfx('confirm'); overlay.destroy(); });
   }
 }

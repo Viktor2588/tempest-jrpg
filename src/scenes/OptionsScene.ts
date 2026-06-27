@@ -6,6 +6,7 @@ import {
   type Difficulty, type TextSpeed, type Colorblind
 } from '../systems/settings';
 import { playSfx } from '../audio/sfx';
+import { updateMusicVolume } from '../audio/music';
 import { fadeIn, fadeToScene } from './transition';
 
 type VolumeKey = 'masterVolume' | 'musicVolume' | 'sfxVolume';
@@ -58,6 +59,7 @@ export class OptionsScene extends Phaser.Scene {
 
   private persist(): void {
     saveSettings(window.localStorage, this.settings);
+    updateMusicVolume();
     playSfx('select');
   }
 
