@@ -163,6 +163,43 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/release.test.ts`:** 4 Checks (Pages-Base/Deploy-Workflow, Release-Metadaten ohne PWA-Artefakte, keine Service-Worker-Registrierung, dokumentiertes Bundle-Budget).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **50/50** grün, `bun run build` → `dist/` ohne Vite-Chunkgrößenwarnung. Live-GitHub-Pages-Deploy läuft nach Push auf `main`.
 
+## Ausbau zu einer herausragenden Produktion (Phasen 9–15)
+**Ziel:** ambitioniertes Hobby-JRPG mit echtem Produktionswert. Das Gerüst (Phasen 0–8) steht und ist getestet; jetzt zählt **Präsentation, Spielgefühl, Tiefe und Inhalt**. Reihenfolge-Empfehlung: **9 → 10 → 11** (verwandeln das vorhandene Spiel sofort, voll autonom), **13** früh als Stilrichtung klären (größter sichtbarer Sprung), **12** sobald eine Story-Richtung steht.
+
+**Asset-Strategie (verbindlich für alle Art/Audio-Arbeiten):**
+- Assets sind **KI-erzeugt oder frei** (bevorzugt **CC0**, sonst CC-BY/OGA-BY). Jede Quelle + Lizenz wird in **`ASSETS.md`/`CREDITS`** mit Attribution geführt; nichts ohne klare Lizenz ins Repo.
+- **Keine 1:1-Übernahme urheberrechtlich geschützter Tensura-Originalfiguren** (auch nicht per KI) — eigene/generische Designs im Tempest-Geist. Schützt das Hobby-Projekt rechtlich.
+- **Stilkohärenz vor Quantität:** verbindliche **Art Bible** (Palette, Auflösung/Tile-Größe, Perspektive, Outline-Regeln). Bis echte Assets vorliegen, ein **kohärenter prozeduraler/Pixel-Platzhalterstil**, den der Automode selbst erzeugt — später 1:1 austauschbar.
+- **Budget:** Gesamtgröße der Auslieferung im Blick behalten (Lazy-Loading je Szene möglich), damit der Pages-Build schlank bleibt.
+
+[ ] **Phase 9 – Game Feel & Kampf-Juice** *(autonom, höchster ROI)*
+- Trefferpause (hit-stop), Screenshake, aufsteigende Schadens-/Heilzahlen, Treffer-/Tod-Partikel, Angriffs-Lunge/Cast-Animationen, Kamera-Akzente, flüssige Begegnungs-/Szenenübergänge (nutzt `transition.ts`). Reduziert-Bewegung-Option respektieren.
+- **Abnahme:** Kämpfe wirken spürbar „teuer"; alle Effekte über Effektstufe abschaltbar; keine Konsolenfehler; Logik bleibt headless-rein (nur Darstellung in Szenen).
+
+[ ] **Phase 10 – Kampftiefe (moderne JRPG-Pfeiler)** *(autonom)*
+- Aktive **Reaktionsfenster** (Timing-Block/Konter, optional/schnell), **Rollen-/Job-Wechsel im Kampf**, **Schwäche-/Break-System** (Phasenleiste), **Team-/Synergie-Angriffe** über Beziehungen, lesbare **Gegnerphasen** (>1 Muster, <50 % LP-Wechsel). Voller Status-/Buff-/Debuff-Satz.
+- **Abnahme:** deterministische Szenariomatrix (Rollen × Gegnerphasen × Seeds) terminiert; jede Mechanik hat klaren, lesbaren Wert; neue Logik in `systems/battle*` getestet.
+
+[ ] **Phase 11 – Progression & Kernfantasie** *(autonom)*
+- **Namensgebung → Evolution** als Herzstück (Werte-/Skill-/Rollen-Schub, sichtbare Formen), **Skill-Bäume**, tiefere **Ausrüstung/Sets/Verzauberung**, **Bindungen/Beziehungen** mit Spielwert (Team-Angriffe, Buffs, Szenen). Anti-Grinding/Aufholmechaniken aus Phase 6 verzahnen.
+- **Abnahme:** Entwicklung/Namensgebung verändert Werte/Skills nachvollziehbar; Bindungs-Boni greifen im Kampf; Save-Migration getestet; Balance-Bänder monoton.
+
+[ ] **Phase 12 – Welt, Story & Quests** *(teils autonom; Story-Richtung von dir)*
+- Erzählbogen + denkwürdige Figuren, **Quest-/Flag-System**, mehrere **Städte & Dungeons mit eigener Identität** (Mechanik + Optik), Lore-/Codex, Cutscene-Bausteine in `DialogueScene`.
+- **Abnahme:** durchgängiger Story-Slice (Intro → Stadt → Quest → Dungeon → Boss → Belohnung) headless durchspielbar; Quests/Flags persistiert.
+
+[ ] **Phase 13 – Art- & Audio-Produktion** *(braucht Asset-Pipeline; siehe Asset-Strategie)*
+- **Art Bible** + Pipeline (Tilesets, Charakter-Sprites/Portraits, Gegner, VFX-Atlas, UI-Skin) — KI/frei, mit `ASSETS.md`-Attribution. **Musik + echte SFX** ersetzen die prozeduralen Töne (Lautstärke-System steht bereits). Lazy-Load je Szene.
+- **Abnahme:** kohärenter Look über Oberwelt/Kampf/Menü; alle Lizenzen dokumentiert; Bundle im Budget; Rechtecke/Beep-SFX vollständig ersetzt.
+
+[ ] **Phase 14 – Zugänglichkeit, Schwierigkeit & Tempo**
+- Schwierigkeitsgrade, Textgeschwindigkeit, frei belegbare Tasten/Gamepad, Farbfehlsicht-/Kontrastoptionen, „kein Pflicht-Grinding"-Kurve, Auto-Speichern + mehrere Speicherstände. Baut auf `systems/settings.ts` auf.
+- **Abnahme:** Optionen persistiert und wirksam; Spiel ohne Maus/ohne Ton/ohne Animation vollständig spielbar.
+
+[ ] **Phase 15 – Balance, QA & Mobile-Politur**
+- Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.
+- **Abnahme:** `bun run test` grün inkl. Balance-/Durchspielmatrix; flüssig auf 390×844; keine Konsolen-/Layoutfehler.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Jobs/Rollen, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.
