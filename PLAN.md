@@ -251,9 +251,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
   - **Tests angepasst:** Kampfmatrix läuft über Talent-/Skill-Loadouts statt Rollen; Progression testet Bindungs-/Erkundungs-/Story-Gates auf Talentknoten; Menü berechnet Werte/Skills ohne Job-Parameter.
   - **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck` sauber, `test` → **81/81** grün, `build` grün.
 
-[ ] **Phase 15 – Balance, QA & Mobile-Politur**
-- Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.
-- **Abnahme:** `bun run test` grün inkl. Balance-/Durchspielmatrix; flüssig auf 390×844; keine Konsolen-/Layoutfehler.
+[x] **Phase 15 – Balance, QA & Mobile-Politur** *(fertig 2026-06-27, Worktree `worktree/tempest-phase-15-qa`)*
+- **Erweiterte QA-Gates:** neues reines `src/systems/qa.ts` prüft Phase-15-Balance (`analyzePhase15Balance`), ein mobiles Overworld-Renderbudget (`estimateOverworldBudget`/`analyzeOverworldBudget`) und einen vollständigen **Headless-Act-1-Durchspieltest** (`runHeadlessActOnePlaythrough`) mit Dialogen, Shop-Käufen, drei Story-Encountern, Auto-Kampf, Rewards, Progression, Questabschluss und Save-Export/Import.
+- **Mobile-Layout-Politur:** `src/systems/mobileLayout.ts` macht das Overworld-HUD testbar. `OverworldScene` nutzt dieselbe Layoutquelle; der Kampfbutton wurde von 38px auf ≥44px korrigiert, und das D-Pad liegt auf 390×844 innerhalb sicherer Bounds ohne überlappende Touch-Ziele.
+- **Auto-Kampf robuster:** `chooseAutoAction` nutzt jetzt Heilitems und MP-Items aus dem Kampf-Inventar, damit QA-/Auto-Durchläufe nicht an fehlender manueller Item-Nutzung hängen.
+- **Test `test/qa.test.ts`:** 4 neue Checks (390×844/960×540 HUD-Layout, mobiles Renderbudget, erweiterte Balance, kompletter Headless-Act-1-Playthrough). `test/autoBattle.test.ts` prüft zusätzlich automatische Heilitem-Nutzung.
+- **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck` sauber, `test` → **86/86** grün, `build` grün. Chrome-/Browser-Smokes auf Nutzerwunsch ausgelassen; mobile Abnahme erfolgt über headless 390×844-Layout- und Budget-Gates.
 
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.

@@ -1,0 +1,405 @@
+import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS } from '../data/world';
+import { JURA_FIELD } from '../data/maps';
+import { SKILL_TREES } from '../data';
+import { chooseAutoAction } from './autoBattle';
+import {
+  act,
+  enemyTurn,
+  isPlayerTurn,
+  renderView,
+  startBattle,
+  type BattleState,
+  type BattleStatus
+} from './battle';
+import { normalizeInventoryStacks } from './inventory';
+import { layoutOverworldHud, allHudRects, type ViewportSize } from './mobileLayout';
+import { useItem, type MenuGameState } from './menu';
+import {
+  analyzeProgressionBalance,
+  applyBattleProgressionRewards,
+  calculateProgressionStats,
+  calculateStartingTeamMeter,
+  createProgressionBattleParty,
+  unlockSkillNode
+} from './progression';
+import { makeRng } from './rng';
+import { createNewSave, exportSave, importSave, type SaveGameV2 } from './save';
+import {
+  applyWorldState,
+  buyItem,
+  chooseDialogOption,
+  completeEncounter,
+  createWorldState,
+  resolveEncounter,
+  startDialogForNpc
+} from './world';
+import type { Vec2 } from './overworld';
+
+export interface QaIssue {
+  readonly path: string;
+  readonly message: string;
+}
+
+export interface AutoBattleSummary {
+  readonly status: BattleStatus;
+  readonly steps: number;
+  readonly turns: number;
+  readonly experience: number;
+  readonly gold: number;
+  readonly remainingPartyHpFraction: number;
+}
+
+export interface EncounterPlaythroughSummary extends AutoBattleSummary {
+  readonly encounterId: string;
+}
+
+export interface HeadlessPlaythroughResult {
+  readonly ok: boolean;
+  readonly issues: readonly QaIssue[];
+  readonly battles: readonly EncounterPlaythroughSummary[];
+  readonly completedQuestIds: readonly string[];
+  readonly finalGold: number;
+  readonly exportedBytes: number;
+}
+
+export interface OverworldBudget {
+  readonly mapTiles: number;
+  readonly staticWorldObjects: number;
+  readonly hudInteractiveTargets: number;
+  readonly estimatedDisplayObjects: number;
+}
+
+const AUTO_BATTLE_STEP_LIMIT = 900;
+const STORY_ENCOUNTERS: ReadonlyArray<{
+  readonly id: string;
+  readonly position: Vec2;
+  readonly chapterId: string;
+}> = [
+  { id: 'training-clearing', position: { x: 20, y: 12 }, chapterId: 'chapter-1' },
+  { id: 'whispering-grove-ambush', position: { x: 14, y: 8 }, chapterId: 'chapter-2' },
+  { id: 'shrine-approach', position: { x: 21, y: 13 }, chapterId: 'chapter-3' }
+];
+
+const TALENT_PRIORITIES: Readonly<Record<string, readonly string[]>> = {
+  rimuru: ['rimuru-fluid-core', 'rimuru-marsh-runner', 'rimuru-predator-instinct', 'rimuru-shadow-domain'],
+  gobta: ['gobta-pack-footwork', 'gobta-rider-feint', 'gobta-marsh-runner', 'gobta-tempest-knight']
+};
+
+export function analyzePhase15Balance(): QaIssue[] {
+  const issues: QaIssue[] = analyzeProgressionBalance().map((issue) => ({
+    path: issue.path,
+    message: issue.message
+  }));
+
+  for (const tree of SKILL_TREES) {
+    const localNodeIds = new Set(tree.nodes.map((node) => node.id));
+    for (const node of tree.nodes) {
+      for (const requiredNodeId of node.requiredNodeIds) {
+        if (!localNodeIds.has(requiredNodeId)) {
+          issues.push({
+            path: `qa.skillTrees.${tree.id}.${node.id}.requiredNodeIds.${requiredNodeId}`,
+            message: 'Talentknoten hängt von einem Knoten außerhalb seines Baums ab.'
+          });
+        }
+        const requiredNode = tree.nodes.find((candidate) => candidate.id === requiredNodeId);
+        if (requiredNode && requiredNode.requiredLevel > node.requiredLevel) {
+          issues.push({
+            path: `qa.skillTrees.${tree.id}.${node.id}.requiredLevel`,
+            message: 'Talentknoten ist früher freigeschaltet als sein Vorgänger.'
+          });
+        }
+      }
+    }
+  }
+
+  return issues;
+}
+
+export function runHeadlessActOnePlaythrough(seed = 1501): HeadlessPlaythroughResult {
+  const battles: EncounterPlaythroughSummary[] = [];
+  const issues: QaIssue[] = [];
+
+  try {
+    let save = createNewSave({ seed, now: '2026-06-27T00:00:00.000Z' });
+
+    save = chooseNpcOption(save, 'rigurd', 'accept');
+    save = buyIfPossible(save, 'healing-herb', 2);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[0]!, seed + 11, battles);
+    save = chooseNpcOption(save, 'rigurd', 'report');
+
+    save = chooseNpcOption(save, 'sora', 'begin');
+    save = chooseNpcOption(save, 'vael', 'analyze');
+    save = chooseNpcOption(save, 'lyrre', 'briefing');
+    save = chooseNpcOption(save, 'sora', 'council');
+    save = buyIfPossible(save, 'healing-herb', 4);
+    save = buyIfPossible(save, 'mana-drop', 1);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[1]!, seed + 23, battles);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[2]!, seed + 37, battles);
+    save = chooseNpcOption(save, 'sora', 'report-act1');
+
+    const roundtripped = importSave(exportSave(save), '2026-06-27T00:15:00.000Z');
+    const completedQuestIds = Object.entries(roundtripped.quests)
+      .filter(([, quest]) => quest.status === 'completed')
+      .map(([questId]) => questId)
+      .sort();
+
+    if (!completedQuestIds.includes('first-patrol')) {
+      issues.push({ path: 'qa.playthrough.first-patrol', message: 'Erste Patrouille wurde nicht abgeschlossen.' });
+    }
+    if (!completedQuestIds.includes('binding-of-ancestors')) {
+      issues.push({ path: 'qa.playthrough.binding-of-ancestors', message: 'Act-1-Quest wurde nicht abgeschlossen.' });
+    }
+    if (!roundtripped.flags['story.act1.completed']) {
+      issues.push({ path: 'qa.playthrough.story.act1.completed', message: 'Act-1-Abschlussflag fehlt.' });
+    }
+
+    return {
+      ok: issues.length === 0,
+      issues,
+      battles,
+      completedQuestIds,
+      finalGold: roundtripped.party.gold,
+      exportedBytes: exportSave(roundtripped).length
+    };
+  } catch (error) {
+    issues.push({
+      path: 'qa.playthrough.exception',
+      message: error instanceof Error ? error.message : String(error)
+    });
+    return {
+      ok: false,
+      issues,
+      battles,
+      completedQuestIds: [],
+      finalGold: 0,
+      exportedBytes: 0
+    };
+  }
+}
+
+export function autoPlayBattleToEnd(
+  state: BattleState,
+  maxSteps = AUTO_BATTLE_STEP_LIMIT
+): AutoBattleSummary {
+  let steps = 0;
+
+  while (state.status === 'active' && steps < maxSteps) {
+    steps += 1;
+    if (isPlayerTurn(state)) {
+      const action = chooseAutoAction(state);
+      if (!action) {
+        break;
+      }
+      const result = act(state, action);
+      if (!result.ok) {
+        act(state, { type: 'guard' });
+      }
+    } else {
+      enemyTurn(state);
+    }
+  }
+
+  const view = renderView(state);
+  const maxHp = view.party.reduce((sum, member) => sum + member.maxHp, 0);
+  const hp = view.party.reduce((sum, member) => sum + Math.max(0, member.hp), 0);
+
+  return {
+    status: state.status,
+    steps,
+    turns: view.turn,
+    experience: view.rewards.experience,
+    gold: view.rewards.gold,
+    remainingPartyHpFraction: maxHp > 0 ? hp / maxHp : 0
+  };
+}
+
+export function estimateOverworldBudget(viewport: ViewportSize = { width: 960, height: 540 }): OverworldBudget {
+  const triggerEncounters = ENCOUNTERS.filter((encounter) => encounter.kind === 'trigger').length;
+  const worldMarkerObjects = LOCATIONS.length * 2
+    + triggerEncounters * 2
+    + NPCS.length * 2
+    + SHOPS.length * 2;
+  const hudTargets = allHudRects(layoutOverworldHud(viewport)).length;
+  const hudObjects = hudTargets * 2;
+  const player = 1;
+
+  return {
+    mapTiles: JURA_FIELD.width * JURA_FIELD.height,
+    staticWorldObjects: worldMarkerObjects,
+    hudInteractiveTargets: hudTargets,
+    estimatedDisplayObjects: JURA_FIELD.width * JURA_FIELD.height + worldMarkerObjects + hudObjects + player
+  };
+}
+
+export function analyzeOverworldBudget(
+  budget: OverworldBudget,
+  limits: Partial<OverworldBudget> = {}
+): QaIssue[] {
+  const maxMapTiles = limits.mapTiles ?? 600;
+  const maxStaticWorldObjects = limits.staticWorldObjects ?? 80;
+  const maxHudInteractiveTargets = limits.hudInteractiveTargets ?? 10;
+  const maxEstimatedDisplayObjects = limits.estimatedDisplayObjects ?? 700;
+  const issues: QaIssue[] = [];
+
+  if (budget.mapTiles > maxMapTiles) {
+    issues.push({ path: 'qa.budget.mapTiles', message: 'Karte überschreitet das mobile Tile-Budget.' });
+  }
+  if (budget.staticWorldObjects > maxStaticWorldObjects) {
+    issues.push({ path: 'qa.budget.staticWorldObjects', message: 'Zu viele statische Weltobjekte für den mobilen Zielrahmen.' });
+  }
+  if (budget.hudInteractiveTargets > maxHudInteractiveTargets) {
+    issues.push({ path: 'qa.budget.hudInteractiveTargets', message: 'Zu viele persistente HUD-Touchziele.' });
+  }
+  if (budget.estimatedDisplayObjects > maxEstimatedDisplayObjects) {
+    issues.push({ path: 'qa.budget.estimatedDisplayObjects', message: 'Geschätzte DisplayObjects überschreiten das mobile Budget.' });
+  }
+
+  return issues;
+}
+
+function chooseNpcOption(save: SaveGameV2, npcId: string, choiceId: string): SaveGameV2 {
+  const world = createWorldState(save);
+  const dialog = startDialogForNpc(world, npcId);
+  const result = chooseDialogOption(world, dialog.dialogId, dialog.nodeId, choiceId);
+  if (!result.ok) {
+    throw new Error(`${npcId}.${choiceId}: ${result.message}`);
+  }
+  return applyWorldState(save, result.state.world);
+}
+
+function buyIfPossible(save: SaveGameV2, itemId: string, quantity: number): SaveGameV2 {
+  const result = buyItem(createWorldState(save), 'tempest-supply', itemId, quantity);
+  return result.ok ? applyWorldState(save, result.state) : save;
+}
+
+function playStoryEncounter(
+  save: SaveGameV2,
+  storyEncounter: (typeof STORY_ENCOUNTERS)[number],
+  seed: number,
+  battles: EncounterPlaythroughSummary[]
+): SaveGameV2 {
+  const encounterResult = resolveEncounter(
+    createWorldState(save),
+    'tempest-start',
+    storyEncounter.position,
+    makeRng(seed)
+  );
+  const encounter = encounterResult.state.encounter;
+  if (!encounter || encounter.id !== storyEncounter.id) {
+    throw new Error(`Expected encounter '${storyEncounter.id}', got '${encounter?.id ?? 'none'}'.`);
+  }
+
+  save = applyWorldState(save, encounterResult.state.world);
+  const battle = startBattle({
+    party: createProgressionBattleParty(save.party.active, save.progression),
+    enemyIds: [...encounter.enemyIds],
+    inventory: save.inventory.stacks,
+    teamMeter: calculateStartingTeamMeter(save.party.active, save.progression),
+    seed
+  });
+  const summary = autoPlayBattleToEnd(battle);
+  battles.push({ ...summary, encounterId: encounter.id });
+  if (summary.status !== 'won') {
+    throw new Error(`Encounter '${encounter.id}' ended with '${summary.status}' after ${summary.steps} steps.`);
+  }
+
+  const view = renderView(battle);
+  const progression = applyBattleProgressionRewards(
+    save.party.active,
+    save.party.reserve,
+    save.progression,
+    view.rewards.experience,
+    storyEncounter.chapterId
+  );
+  const active = progression.active.map((member) => {
+    const previous = save.party.active.find((candidate) => candidate.characterId === member.characterId);
+    const combatant = view.party.find((candidate) => candidate.sourceId === member.characterId);
+    if (!previous || !combatant) {
+      return member;
+    }
+    const hpGrowth = Math.max(0, member.currentHp - previous.currentHp);
+    const mpGrowth = Math.max(0, member.currentMp - previous.currentMp);
+    const stats = calculateProgressionStats(member, progression.state);
+    return {
+      ...member,
+      currentHp: Math.min(stats.maxHp, Math.max(1, combatant.hp + hpGrowth)),
+      currentMp: Math.min(stats.maxMp, Math.max(0, combatant.mp + mpGrowth))
+    };
+  });
+
+  save = {
+    ...save,
+    party: {
+      active,
+      reserve: progression.reserve,
+      gold: save.party.gold + view.rewards.gold
+    },
+    inventory: {
+      stacks: normalizeInventoryStacks([...view.inventory, ...view.rewards.items])
+    },
+    progression: progression.state
+  };
+  save = applyWorldState(save, completeEncounter(createWorldState(save), encounter.id).state);
+  save = spendUsefulTalentPoints(save);
+  return recoverWithInventory(save);
+}
+
+function spendUsefulTalentPoints(save: SaveGameV2): SaveGameV2 {
+  let progression = save.progression;
+  for (const member of save.party.active) {
+    for (const nodeId of TALENT_PRIORITIES[member.characterId] ?? []) {
+      const result = unlockSkillNode(member, progression, nodeId, { flags: save.flags });
+      if (result.ok) {
+        progression = result.state;
+      }
+    }
+  }
+  return { ...save, progression };
+}
+
+function recoverWithInventory(save: SaveGameV2): SaveGameV2 {
+  let state: MenuGameState = {
+    party: [...save.party.active],
+    inventory: [...save.inventory.stacks],
+    gold: save.party.gold
+  };
+
+  for (const member of state.party) {
+    for (let guard = 0; guard < 8; guard += 1) {
+      const current = state.party.find((candidate) => candidate.characterId === member.characterId);
+      if (!current) {
+        break;
+      }
+      const stats = calculateProgressionStats(current, save.progression);
+      if (current.currentHp >= Math.floor(stats.maxHp * 0.9)) {
+        break;
+      }
+      const result = useItem(state, 'healing-herb', current.characterId);
+      if (!result.ok) {
+        break;
+      }
+      state = result.state;
+    }
+    for (let guard = 0; guard < 4; guard += 1) {
+      const current = state.party.find((candidate) => candidate.characterId === member.characterId);
+      if (!current) {
+        break;
+      }
+      const stats = calculateProgressionStats(current, save.progression);
+      if (current.currentMp >= Math.floor(stats.maxMp * 0.6)) {
+        break;
+      }
+      const result = useItem(state, 'mana-drop', current.characterId);
+      if (!result.ok) {
+        break;
+      }
+      state = result.state;
+    }
+  }
+
+  return {
+    ...save,
+    party: { ...save.party, active: state.party, gold: state.gold },
+    inventory: { stacks: state.inventory }
+  };
+}

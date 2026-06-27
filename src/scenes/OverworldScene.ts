@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { JURA_FIELD } from '../data/maps';
 import { NPCS, SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
+import { layoutOverworldHud } from '../systems/mobileLayout';
 import { tryStep, WALL, type Dir, type Vec2 } from '../systems/overworld';
 import { makeRng } from '../systems/rng';
 import {
@@ -107,18 +108,21 @@ export class OverworldScene extends Phaser.Scene {
     const interact = () => this.interact();
     this.input.keyboard?.on('keydown-E', interact);
     this.input.keyboard?.on('keydown-SPACE', interact);
-    const interactBtn = this.add.rectangle(this.scale.width - 86, 132, 150, 44, 0x1f3a2f, 0.9)
+    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    const interactRect = hud.buttons.interact;
+    const interactBtn = this.add.rectangle(interactRect.x, interactRect.y, interactRect.width, interactRect.height, 0x1f3a2f, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x75ffab, 0.7).setInteractive();
-    this.add.text(this.scale.width - 86, 132, '◆ Interaktion', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d9ffe7' })
+    this.add.text(interactRect.x, interactRect.y, '◆ Interaktion', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d9ffe7' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     interactBtn.on('pointerdown', interact);
 
     // Kampf auslösen (Demo: Enter-Taste oder Knopf) → bindet Phase 3 an.
     const toBattle = () => battleWipe(this, 'Battle');
     this.input.keyboard?.on('keydown-ENTER', toBattle);
-    const btn = this.add.rectangle(this.scale.width - 86, 30, 150, 38, 0x3a2230, 0.9)
+    const battleRect = hud.buttons.battle;
+    const btn = this.add.rectangle(battleRect.x, battleRect.y, battleRect.width, battleRect.height, 0x3a2230, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0xff8aa0, 0.7).setInteractive();
-    this.add.text(this.scale.width - 86, 30, '⚔ Kampf (Enter)', { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffd6de' })
+    this.add.text(battleRect.x, battleRect.y, '⚔ Kampf (Enter)', { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffd6de' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     btn.on('pointerdown', toBattle);
 
@@ -129,9 +133,10 @@ export class OverworldScene extends Phaser.Scene {
       this.scene.pause();
     };
     this.input.keyboard?.on('keydown-M', openMenu);
-    const menuBtn = this.add.rectangle(this.scale.width - 86, 80, 150, 44, 0x223049, 0.9)
+    const menuRect = hud.buttons.menu;
+    const menuBtn = this.add.rectangle(menuRect.x, menuRect.y, menuRect.width, menuRect.height, 0x223049, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.7).setInteractive();
-    this.add.text(this.scale.width - 86, 80, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
+    this.add.text(menuRect.x, menuRect.y, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
   }
@@ -273,17 +278,11 @@ export class OverworldScene extends Phaser.Scene {
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
 
   private buildDpad(): void {
-    const r = 30, gap = 4, baseX = r + 18, baseY = this.scale.height - r - 18;
-    const layout: Array<{ dir: Dir; dx: number; dy: number; label: string }> = [
-      { dir: 'up', dx: 0, dy: -(r + gap), label: '▲' },
-      { dir: 'down', dx: 0, dy: r + gap, label: '▼' },
-      { dir: 'left', dx: -(r + gap), dy: 0, label: '◀' },
-      { dir: 'right', dx: r + gap, dy: 0, label: '▶' }
-    ];
-    for (const b of layout) {
-      const btn = this.add.rectangle(baseX + b.dx, baseY + b.dy, r * 1.7, r * 1.7, 0x223049, 0.55)
+    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    for (const b of hud.dpad) {
+      const btn = this.add.rectangle(b.x, b.y, b.width, b.height, 0x223049, 0.55)
         .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.6).setInteractive();
-      this.add.text(baseX + b.dx, baseY + b.dy, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
+      this.add.text(b.x, b.y, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
         .setOrigin(0.5).setScrollFactor(0).setDepth(11);
       btn.on('pointerdown', () => { this.touchDir = b.dir; });
       btn.on('pointerup', () => { if (this.touchDir === b.dir) this.touchDir = null; });

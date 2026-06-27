@@ -33,6 +33,24 @@ describe('autoBattle', () => {
     }
   });
 
+  it('nutzt Heilitems automatisch, wenn kein Heilskill verfügbar ist', () => {
+    const state = startBattle({
+      party: createDefaultBattleParty(),
+      enemyIds: ['forest-slime'],
+      inventory: [{ itemId: 'healing-herb', quantity: 1 }],
+      seed: 8
+    });
+    const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
+    hero.hp = Math.floor(hero.maxHp * 0.25);
+    state.activeId = hero.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'item',
+      itemId: 'healing-herb',
+      targetId: hero.id
+    });
+  });
+
   it('beendet Kämpfe deterministisch und gewinnt gegen schwache Gegner', () => {
     const a = autoRun(5, ['forest-slime', 'forest-slime']);
     const b = autoRun(5, ['forest-slime', 'forest-slime']);
