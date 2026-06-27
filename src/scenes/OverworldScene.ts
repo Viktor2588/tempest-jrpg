@@ -69,12 +69,14 @@ export class OverworldScene extends Phaser.Scene {
       }
     }
 
-    // Spieler — Platzhalter-Sprite, sonst Rechteck.
+    // Spieler — echtes CC0-Sprite → Platzhalter → Rechteck.
     this.pos = this.save.location.mapId === MAP_ID
       ? { x: this.save.location.x, y: this.save.location.y }
       : { ...map.spawn };
-    this.player = this.textures.exists('ph-hero')
-      ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), 'ph-hero').setDisplaySize(TILE * 0.82, TILE * 0.82)
+    const heroKey = this.textures.exists('sprite-hero') ? 'sprite-hero'
+      : (this.textures.exists('ph-hero') ? 'ph-hero' : null);
+    this.player = heroKey
+      ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
       : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
 
     this.drawWorldObjects();

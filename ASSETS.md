@@ -9,16 +9,22 @@ Lizenz stehen. Kein Asset ohne Eintrag, keine Nicht-CC0-Lizenz (z. B. LPC = CC-B
 - **itch.io** — nur ausgewiesene CC0-Packs.
 
 ## Aktuell verwendete Assets
-**Kenney „Tiny Town"** (CC0). Aus dem Pack wurden einzelne 16×16-Kacheln per Farb-
-Klassifizierung ausgewählt und einzeln ins Repo übernommen (Boden/Wand/Pfad). Für Einheiten
-und übrige Kacheln greifen weiterhin die **prozeduralen Platzhalter** (`src/render/placeholderArt.ts`,
-kein externes Asset). License.txt des Packs: „Creative Commons Zero, CC0".
+**Kenney „Tiny Town"** (Kacheln) und **Kenney „Tiny Dungeon"** (Charaktere/Gegner) — beide
+**CC0** (License.txt: „Creative Commons Zero, CC0"). Einzelne 16×16-Sprites wurden per
+Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held, Grün-Blob → Schleim usw.) ausgewählt
+und einzeln ins Repo übernommen. Übrige Elemente nutzen weiter **prozedurale Platzhalter**
+(`src/render/placeholderArt.ts`).
 
 | Datei (in `src/assets/…`) | Typ | Quelle (URL) | Autor | Lizenz |
 |---|---|---|---|---|
 | `tiles/grass.png` | Boden-Kachel (Tiny Town `tile_0000`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
 | `tiles/wall.png` | Wand-/Stein-Kachel (Tiny Town `tile_0104`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
 | `tiles/path.png` | Pfad-/Erd-Kachel (Tiny Town `tile_0025`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
+| `sprites/hero.png` | Held/Spieler (Tiny Dungeon `tile_0088`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/enemy-slime.png` | Gegner Schleim (Tiny Dungeon `tile_0108`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/enemy-wolf.png` | Gegner Bestie (Tiny Dungeon `tile_0065`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/enemy-imp.png` | Gegner Imp (Tiny Dungeon `tile_0106`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/enemy-ogre.png` | Gegner Oger (Tiny Dungeon `tile_0121`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 
 ## Vorgehen beim Hinzufügen
 1. Lizenz prüfen: **muss CC0 sein**. Im Zweifel nicht verwenden.

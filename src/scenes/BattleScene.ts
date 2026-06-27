@@ -259,10 +259,12 @@ export class BattleScene extends Phaser.Scene {
     const box = this.add.rectangle(x, y, width, 62, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
     this.layer.add(box);
-    // Platzhalter-Sprite als Einheiten-Token (Fallback: nur die Box).
-    const phKey = 'ph-' + this.phKindFor(unit, side);
-    if (this.textures.exists(phKey)) {
-      this.layer.add(this.add.image(x, y, phKey).setDisplaySize(40, 40).setAlpha(alpha));
+    // Einheiten-Token: echtes CC0-Sprite → Platzhalter (Fallback: nur die Box).
+    const kind = this.phKindFor(unit, side);
+    const spriteKey = this.textures.exists('sprite-' + kind) ? 'sprite-' + kind
+      : (this.textures.exists('ph-' + kind) ? 'ph-' + kind : null);
+    if (spriteKey) {
+      this.layer.add(this.add.image(x, y, spriteKey).setDisplaySize(40, 40).setAlpha(alpha));
     }
     this.layer.add(this.add.text(x, y - 24, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
       fontFamily: 'sans-serif',
