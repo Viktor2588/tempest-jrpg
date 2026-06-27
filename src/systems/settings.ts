@@ -2,12 +2,25 @@
 // eigenen localStorage-Schlüssel — getrennt vom Spielstand (save.ts), damit
 // Optionen unabhängig vom Save-Schema bleiben.
 
+export type Difficulty = 'leicht' | 'normal' | 'schwer';
+export type TextSpeed = 'langsam' | 'normal' | 'schnell' | 'sofort';
+export type Colorblind = 'aus' | 'protan' | 'deutan' | 'tritan';
+
+export const DIFFICULTIES: readonly Difficulty[] = ['leicht', 'normal', 'schwer'];
+export const TEXT_SPEEDS: readonly TextSpeed[] = ['langsam', 'normal', 'schnell', 'sofort'];
+export const COLORBLIND_MODES: readonly Colorblind[] = ['aus', 'protan', 'deutan', 'tritan'];
+
 export interface GameSettings {
   masterVolume: number; // 0..1
   musicVolume: number;  // 0..1
   sfxVolume: number;    // 0..1
   reducedMotion: boolean;
   seenTutorial: boolean;
+  // Zugänglichkeit (Phase 14)
+  difficulty: Difficulty;
+  textSpeed: TextSpeed;
+  highContrast: boolean;
+  colorblind: Colorblind;
 }
 
 export interface SettingsStorage {
@@ -22,7 +35,11 @@ export const DEFAULT_SETTINGS: GameSettings = {
   musicVolume: 0.7,
   sfxVolume: 0.9,
   reducedMotion: false,
-  seenTutorial: false
+  seenTutorial: false,
+  difficulty: 'normal',
+  textSpeed: 'normal',
+  highContrast: false,
+  colorblind: 'aus'
 };
 
 function clamp01(value: unknown, fallback: number): number {
@@ -31,6 +48,9 @@ function clamp01(value: unknown, fallback: number): number {
 }
 function asBool(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback;
+}
+function asEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+  return (typeof value === 'string' && (allowed as readonly string[]).includes(value)) ? (value as T) : fallback;
 }
 
 /** Säubert beliebige (auch alte/teilweise) Eingaben zu gültigen Einstellungen. */
@@ -41,7 +61,11 @@ export function normalizeSettings(raw: unknown): GameSettings {
     musicVolume: clamp01(r.musicVolume, DEFAULT_SETTINGS.musicVolume),
     sfxVolume: clamp01(r.sfxVolume, DEFAULT_SETTINGS.sfxVolume),
     reducedMotion: asBool(r.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
-    seenTutorial: asBool(r.seenTutorial, DEFAULT_SETTINGS.seenTutorial)
+    seenTutorial: asBool(r.seenTutorial, DEFAULT_SETTINGS.seenTutorial),
+    difficulty: asEnum(r.difficulty, DIFFICULTIES, DEFAULT_SETTINGS.difficulty),
+    textSpeed: asEnum(r.textSpeed, TEXT_SPEEDS, DEFAULT_SETTINGS.textSpeed),
+    highContrast: asBool(r.highContrast, DEFAULT_SETTINGS.highContrast),
+    colorblind: asEnum(r.colorblind, COLORBLIND_MODES, DEFAULT_SETTINGS.colorblind)
   };
 }
 
@@ -69,4 +93,21 @@ export function effectiveSfxVolume(s: GameSettings): number {
 }
 export function effectiveMusicVolume(s: GameSettings): number {
   return clamp01(s.masterVolume * s.musicVolume, 0);
+}
+
+// ---- Zugänglichkeit: abgeleitete Werte für andere Systeme/Szenen ----
+
+/** Verzögerung pro Zeichen für den Dialog-Schreibmaschineneffekt (ms). 0 = sofort. */
+export function textCharDelayMs(s: GameSettings): number {
+  return { langsam: 45, normal: 24, schnell: 12, sofort: 0 }[s.textSpeed];
+}
+
+/** Schadensmultiplikator gegen den Spieler je Schwierigkeit (für die Kampf-Engine). */
+export function enemyDamageMultiplier(s: GameSettings): number {
+  return { leicht: 0.7, normal: 1, schwer: 1.4 }[s.difficulty];
+}
+
+/** Schadensmultiplikator der Party je Schwierigkeit (für die Kampf-Engine). */
+export function playerDamageMultiplier(s: GameSettings): number {
+  return { leicht: 1.25, normal: 1, schwer: 0.9 }[s.difficulty];
 }

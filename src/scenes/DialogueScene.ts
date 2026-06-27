@@ -9,11 +9,15 @@ import {
   type DialogView
 } from '../systems/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
+import { loadSettings, textCharDelayMs } from '../systems/settings';
 
 export class DialogueScene extends Phaser.Scene {
   private save!: SaveGameV2;
   private view!: DialogView;
   private layer!: Phaser.GameObjects.Container;
+  private bodyText?: Phaser.GameObjects.Text;
+  private fullText = '';
+  private revealEvent?: Phaser.Time.TimerEvent;
 
   constructor() {
     super('Dialogue');
@@ -29,23 +33,57 @@ export class DialogueScene extends Phaser.Scene {
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.64);
     this.layer = this.add.container(0, 0);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
+    // Tippen/Klicken vervollständigt den laufenden Schreibmaschineneffekt sofort.
+    this.input.on('pointerdown', () => this.completeReveal());
     this.refresh();
+  }
+
+  // Schreibmaschineneffekt sofort beenden (zeigt den ganzen Text).
+  private completeReveal(): void {
+    if (this.revealEvent) {
+      this.revealEvent.remove();
+      this.revealEvent = undefined;
+      this.bodyText?.setText(this.fullText);
+    }
   }
 
   private refresh(): void {
     this.layer.removeAll(true);
+    const settings = loadSettings(window.localStorage);
+    const hc = settings.highContrast;
     this.panel(70, 315, GAME_WIDTH - 140, 180);
     this.layer.add(this.add.text(94, 250, this.view.speaker, {
       fontFamily: 'serif',
       fontSize: '24px',
-      color: '#e9c56c'
+      color: hc ? '#ffffff' : '#e9c56c'
     }));
-    this.layer.add(this.add.text(94, 292, this.view.text, {
+
+    // Schreibmaschineneffekt nach Textgeschwindigkeit; „sofort"/reduzierte Bewegung = ganzer Text.
+    this.revealEvent?.remove();
+    this.revealEvent = undefined;
+    this.fullText = this.view.text;
+    this.bodyText = this.add.text(94, 292, '', {
       fontFamily: 'sans-serif',
       fontSize: '16px',
-      color: '#e9eef7',
+      color: hc ? '#ffffff' : '#e9eef7',
       wordWrap: { width: GAME_WIDTH - 188 }
-    }));
+    });
+    this.layer.add(this.bodyText);
+    const delay = settings.reducedMotion ? 0 : textCharDelayMs(settings);
+    if (delay <= 0) {
+      this.bodyText.setText(this.fullText);
+    } else {
+      let shown = 0;
+      this.revealEvent = this.time.addEvent({
+        delay,
+        loop: true,
+        callback: () => {
+          shown += 1;
+          this.bodyText?.setText(this.fullText.slice(0, shown));
+          if (shown >= this.fullText.length) { this.revealEvent?.remove(); this.revealEvent = undefined; }
+        }
+      });
+    }
 
     this.view.choices.forEach((choice, index) => {
       this.button(94 + index * 250, 432, 230, choice.label, () => this.choose(choice.id));

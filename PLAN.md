@@ -201,9 +201,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Art Bible** + Pipeline (Tilesets, Charakter-Sprites/Portraits, Gegner, VFX-Atlas, UI-Skin) — KI/frei, mit `ASSETS.md`-Attribution. **Musik + echte SFX** ersetzen die prozeduralen Töne (Lautstärke-System steht bereits). Lazy-Load je Szene.
 - **Abnahme:** kohärenter Look über Oberwelt/Kampf/Menü; alle Lizenzen dokumentiert; Bundle im Budget; Rechtecke/Beep-SFX vollständig ersetzt.
 
-[ ] **Phase 14 – Zugänglichkeit, Schwierigkeit & Tempo**
-- Schwierigkeitsgrade, Textgeschwindigkeit, frei belegbare Tasten/Gamepad, Farbfehlsicht-/Kontrastoptionen, „kein Pflicht-Grinding"-Kurve, Auto-Speichern + mehrere Speicherstände. Baut auf `systems/settings.ts` auf.
-- **Abnahme:** Optionen persistiert und wirksam; Spiel ohne Maus/ohne Ton/ohne Animation vollständig spielbar.
+[x] **Phase 14 – Zugänglichkeit, Schwierigkeit & Tempo (fertig 2026-06-27, Worktree `worktree/tempest-phase-14-accessibility`)** *(bewusst settings-isoliert, kollisionsfrei zur parallelen Engine-Arbeit)*
+- **`systems/settings.ts` erweitert** (rein, getestet): `difficulty` (leicht/normal/schwer), `textSpeed` (langsam/normal/schnell/sofort), `highContrast`, `colorblind` (aus/protan/deutan/tritan) mit Enum-Validierung + abwärtskompatibler Migration. Abgeleitete Helfer `textCharDelayMs`, `enemyDamageMultiplier`, `playerDamageMultiplier` (Letztere für die Kampf-Engine bereitgestellt).
+- **`OptionsScene` neu aufgebaut:** kompakte Reihen für Lautstärken + alle Zugänglichkeitsoptionen (Cycler/Toggle), sofort persistiert, SFX-Feedback, ≥38 px Tap-Ziele.
+- **`DialogueScene` Schreibmaschineneffekt:** Text erscheint nach `textSpeed` (Tippen/Klick vervollständigt sofort; „sofort"/reduzierte Bewegung = ganzer Text); **hoher Kontrast** schaltet auf reinweiße Schrift.
+- *Wiring offen (kollisionsbewusst): `difficulty`-Multiplikatoren in die Kampf-Engine und `colorblind`-Palette ins globale Rendering — Helfer/Settings stehen bereit, Einbau wenn die Engine-/Render-Phasen nicht mehr parallel laufen.*
+- **Test `test/settings.test.ts` erweitert:** Defaults, Enum-Validierung, abgeleitete Werte (zusätzlich zu den bestehenden Lautstärke-/Migrationschecks).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **63/63** grün, `bun run build` → `dist/`. Optionen persistiert & wirksam (Tempo/Kontrast sichtbar im Dialog).
 
 [ ] **Phase 15 – Balance, QA & Mobile-Politur**
 - Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.

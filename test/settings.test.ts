@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_SETTINGS, SETTINGS_KEY, normalizeSettings, loadSettings, saveSettings,
-  effectiveSfxVolume, effectiveMusicVolume, type SettingsStorage
+  effectiveSfxVolume, effectiveMusicVolume,
+  textCharDelayMs, enemyDamageMultiplier, playerDamageMultiplier, type SettingsStorage
 } from '../src/systems/settings';
 
 function memStorage(initial?: Record<string, string>): SettingsStorage & { data: Record<string, string> } {
@@ -45,5 +46,28 @@ describe('settings', () => {
     const s = { ...DEFAULT_SETTINGS, masterVolume: 0.5, sfxVolume: 0.5, musicVolume: 1 };
     expect(effectiveSfxVolume(s)).toBeCloseTo(0.25);
     expect(effectiveMusicVolume(s)).toBeCloseTo(0.5);
+  });
+
+  it('Zugänglichkeits-Defaults und Enum-Validierung', () => {
+    expect(DEFAULT_SETTINGS.difficulty).toBe('normal');
+    expect(DEFAULT_SETTINGS.textSpeed).toBe('normal');
+    expect(DEFAULT_SETTINGS.colorblind).toBe('aus');
+    // ungültige Enum-Werte fallen auf Default zurück
+    const n = normalizeSettings({ difficulty: 'unmöglich', textSpeed: 5, colorblind: 'x', highContrast: 1 });
+    expect(n.difficulty).toBe('normal');
+    expect(n.textSpeed).toBe('normal');
+    expect(n.colorblind).toBe('aus');
+    expect(n.highContrast).toBe(false);
+    // gültige Werte bleiben erhalten
+    const ok = normalizeSettings({ difficulty: 'schwer', textSpeed: 'sofort', colorblind: 'deutan', highContrast: true });
+    expect(ok).toMatchObject({ difficulty: 'schwer', textSpeed: 'sofort', colorblind: 'deutan', highContrast: true });
+  });
+
+  it('abgeleitete Zugänglichkeitswerte', () => {
+    expect(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'sofort' })).toBe(0);
+    expect(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'langsam' })).toBeGreaterThan(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'schnell' }));
+    expect(enemyDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'leicht' })).toBeLessThan(1);
+    expect(enemyDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'schwer' })).toBeGreaterThan(1);
+    expect(playerDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'leicht' })).toBeGreaterThan(1);
   });
 });
