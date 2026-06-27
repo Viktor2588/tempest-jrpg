@@ -24,6 +24,8 @@ import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
+import type { VfxKind } from '../render/artSpec';
+import { vfxKey } from '../render/vfxAtlas';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 import { applyWorldState, completeEncounter, createWorldState } from '../systems/world';
@@ -104,6 +106,7 @@ export class BattleScene extends Phaser.Scene {
       } else if (event.hpDelta > 0) {
         healed = true;
         this.floatNumber(pos, '+' + event.hpDelta, '#8dffc2');
+        if (!reduced) this.healSpark(pos);
       }
       if (event.died && !reduced) this.poof(pos);
     }
@@ -124,17 +127,60 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private flashBox(pos: { x: number; y: number }, color: number): void {
+    const burst = this.vfxSprite('hit-burst', pos.x, pos.y, 88);
+    if (burst) {
+      burst.setAlpha(0.9).setDepth(55);
+      this.tweens.add({
+        targets: burst,
+        scaleX: burst.scaleX * 1.45,
+        scaleY: burst.scaleY * 1.45,
+        alpha: 0,
+        duration: 240,
+        ease: 'Quad.Out',
+        onComplete: () => burst.destroy()
+      });
+      return;
+    }
     const rect = this.add.rectangle(pos.x, pos.y, 112, 62, color, 0.5).setDepth(55);
     this.fxLayer.add(rect);
     this.tweens.add({ targets: rect, alpha: 0, duration: 220, onComplete: () => rect.destroy() });
   }
 
+  private healSpark(pos: { x: number; y: number }): void {
+    const spark = this.vfxSprite('heal-spark', pos.x, pos.y - 6, 42);
+    if (!spark) return;
+    spark.setAlpha(0.9).setDepth(56);
+    this.tweens.add({
+      targets: spark,
+      y: pos.y - 30,
+      angle: 45,
+      alpha: 0,
+      duration: 520,
+      ease: 'Cubic.Out',
+      onComplete: () => spark.destroy()
+    });
+  }
+
   private poof(pos: { x: number; y: number }): void {
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2;
-      const dot = this.add.circle(pos.x, pos.y, 3, 0xffd6a0).setDepth(60);
-      this.fxLayer.add(dot);
-      this.tweens.add({ targets: dot, x: pos.x + Math.cos(angle) * 38, y: pos.y + Math.sin(angle) * 38, alpha: 0, duration: 430, onComplete: () => dot.destroy() });
+      const puff = this.vfxSprite('death-poof', pos.x, pos.y, 20);
+      if (puff) {
+        puff.setDepth(60);
+        this.tweens.add({
+          targets: puff,
+          x: pos.x + Math.cos(angle) * 38,
+          y: pos.y + Math.sin(angle) * 38,
+          angle: Phaser.Math.RadToDeg(angle),
+          alpha: 0,
+          duration: 430,
+          onComplete: () => puff.destroy()
+        });
+      } else {
+        const dot = this.add.circle(pos.x, pos.y, 3, 0xffd6a0).setDepth(60);
+        this.fxLayer.add(dot);
+        this.tweens.add({ targets: dot, x: pos.x + Math.cos(angle) * 38, y: pos.y + Math.sin(angle) * 38, alpha: 0, duration: 430, onComplete: () => dot.destroy() });
+      }
     }
   }
 
@@ -194,10 +240,33 @@ export class BattleScene extends Phaser.Scene {
     if (!from || !to) return;
     const magic = action.type === 'skill';
     const color = magic ? 0x9fe8ff : 0xfff0b0;
+    const key: VfxKind = magic ? 'magic-bolt' : 'physical-bolt';
+    const sprite = this.vfxSprite(key, from.x, from.y, magic ? 26 : 22);
+    if (sprite) {
+      sprite.setDepth(58);
+      sprite.rotation = Phaser.Math.Angle.Between(from.x, from.y, to.x, to.y);
+      this.tweens.add({
+        targets: sprite,
+        x: to.x,
+        y: to.y,
+        duration: 170,
+        ease: 'Quad.In',
+        onComplete: () => sprite.destroy()
+      });
+      return;
+    }
     // Geschoss/Klingenpunkt vom Angreifer zum Ziel
     const bolt = this.add.circle(from.x, from.y, magic ? 6 : 5, color).setDepth(58);
     this.fxLayer.add(bolt);
     this.tweens.add({ targets: bolt, x: to.x, y: to.y, duration: 170, ease: 'Quad.In', onComplete: () => bolt.destroy() });
+  }
+
+  private vfxSprite(kind: VfxKind, x: number, y: number, displaySize: number): Phaser.GameObjects.Image | null {
+    const key = vfxKey(kind);
+    if (!this.textures.exists(key)) return null;
+    const sprite = this.add.image(x, y, key).setDisplaySize(displaySize, displaySize).setDepth(55);
+    this.fxLayer.add(sprite);
+    return sprite;
   }
 
   private refresh(): void {

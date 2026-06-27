@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ART, PALETTE, PLACEHOLDER_KINDS, placeholderSpec } from '../src/render/artSpec';
+import { ART, PALETTE, PLACEHOLDER_KINDS, VFX_KINDS, placeholderSpec, vfxSpec } from '../src/render/artSpec';
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const paletteValues = new Set<string>(Object.values(PALETTE));
@@ -37,5 +37,25 @@ describe('artSpec', () => {
     expect(spec.size).toBe(32);
     expect(spec.shape).toBe('round');
     expect(spec.base).toMatch(HEX);
+  });
+
+  it('definiert einen kohärenten VFX-Satz aus der Projektpalette', () => {
+    expect(VFX_KINDS).toEqual([
+      'hit-burst',
+      'heal-spark',
+      'death-poof',
+      'physical-bolt',
+      'magic-bolt',
+      'target-ring'
+    ]);
+    for (const kind of VFX_KINDS) {
+      const spec = vfxSpec(kind);
+      expect(spec.size).toBeGreaterThanOrEqual(24);
+      expect(['burst', 'spark', 'puff', 'bolt', 'ring']).toContain(spec.shape);
+      for (const c of [spec.base, spec.accent, spec.outline]) {
+        expect(c).toMatch(HEX);
+        expect(paletteValues.has(c)).toBe(true);
+      }
+    }
   });
 });

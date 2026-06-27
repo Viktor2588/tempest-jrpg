@@ -43,6 +43,24 @@ export interface PlaceholderSpec {
   shape: 'block' | 'round'; // Kacheln = block, Figuren = round
 }
 
+export type VfxKind =
+  | 'hit-burst'
+  | 'heal-spark'
+  | 'death-poof'
+  | 'physical-bolt'
+  | 'magic-bolt'
+  | 'target-ring';
+
+export type VfxShape = 'burst' | 'spark' | 'puff' | 'bolt' | 'ring';
+
+export interface VfxSpec {
+  size: number;
+  base: Hex;
+  accent: Hex;
+  outline: Hex;
+  shape: VfxShape;
+}
+
 const TILE_SPECS: Record<string, Omit<PlaceholderSpec, 'size' | 'outline'>> = {
   'tile-grass': { base: PALETTE.grass, accent: PALETTE.grassDark, shape: 'block' },
   'tile-path': { base: PALETTE.stone, accent: PALETTE.mist, shape: 'block' },
@@ -65,6 +83,15 @@ export const PLACEHOLDER_KINDS: readonly PlaceholderKind[] = [
   ...Object.keys(TILE_SPECS), ...Object.keys(UNIT_SPECS)
 ] as PlaceholderKind[];
 
+export const VFX_KINDS: readonly VfxKind[] = [
+  'hit-burst',
+  'heal-spark',
+  'death-poof',
+  'physical-bolt',
+  'magic-bolt',
+  'target-ring'
+] as const;
+
 /** Deterministische Platzhalter-Spec je Art; unbekannte Keys → neutraler Fallback. */
 export function placeholderSpec(kind: string): PlaceholderSpec {
   const isTile = kind.startsWith('tile-');
@@ -74,4 +101,23 @@ export function placeholderSpec(kind: string): PlaceholderSpec {
     return { size, base: PALETTE.steel, accent: PALETTE.mist, outline: PALETTE.ink, shape: isTile ? 'block' : 'round' };
   }
   return { size, outline: PALETTE.ink, ...def };
+}
+
+/** Deterministische VFX-Spec je Effekt; unbekannte Keys → Treffer-Burst-Fallback. */
+export function vfxSpec(kind: string): VfxSpec {
+  switch (kind) {
+    case 'heal-spark':
+      return { size: 32, base: PALETTE.hp, accent: PALETTE.bone, outline: PALETTE.ink, shape: 'spark' };
+    case 'death-poof':
+      return { size: 32, base: PALETTE.mist, accent: PALETTE.shadow, outline: PALETTE.ink, shape: 'puff' };
+    case 'physical-bolt':
+      return { size: 24, base: PALETTE.gold, accent: PALETTE.bone, outline: PALETTE.ink, shape: 'bolt' };
+    case 'magic-bolt':
+      return { size: 24, base: PALETTE.arcane, accent: PALETTE.bone, outline: PALETTE.ink, shape: 'bolt' };
+    case 'target-ring':
+      return { size: 32, base: PALETTE.hp, accent: PALETTE.bone, outline: PALETTE.ink, shape: 'ring' };
+    case 'hit-burst':
+    default:
+      return { size: 32, base: PALETTE.ember, accent: PALETTE.gold, outline: PALETTE.ink, shape: 'burst' };
+  }
 }
