@@ -275,6 +275,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Bugfix: Menü-Layout-Overlaps (fertig 2026-06-27, direkt auf `main`)** *(Spieler-Screenshots)*
 - **Symptom:** In der Party-Seitenleiste lief die Unterzeile (`Adaptiver Magiekämpfer · LP … · MP …`) durch die Button-Border („durchgestrichen") **und** horizontal in den Content-Bereich (x≥300) über; Menü-Hintergrund ließ den Overworld stark durchscheinen.
 - **Fix (`MenuScene`):** Party-Einträge auf 70px Höhe; die LP/MP-Zeile steht **unter** dem 44px-Button (kreuzt keine Border mehr) und ist auf `LP x/y · MP x/y` gekürzt (kein Überlauf in den Content; die Klassenbezeichnung steht weiter in Party-/Status-Tab). Menü-Backdrop von Alpha 0.82 → 0.93 für klarere Lesbarkeit.
+- **Fix (`BattleScene.drawUnit`):** Einheiten-Kasten 62→84px; Name/Form oben, Sprite mittig, **HP-Leiste + LP/MP-Text unter den Sprite** verschoben (lag vorher mittig über dem Token und verdeckte es). Reihenabstände kollisionsfrei (Gegner y=145, Party y=360).
 - **Abnahme:** `tsc` sauber, **91/91** grün, `build` ok.
 
 ## Verifikation (Methodik)

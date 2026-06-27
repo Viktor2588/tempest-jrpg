@@ -336,7 +336,7 @@ export class BattleScene extends Phaser.Scene {
     const width = 112;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
-    const box = this.add.rectangle(x, y, width, 62, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
+    const box = this.add.rectangle(x, y, width, 84, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
     this.layer.add(box);
     // Einheiten-Token: echtes CC0-Sprite → Platzhalter (Fallback: nur die Box).
@@ -363,35 +363,36 @@ export class BattleScene extends Phaser.Scene {
       }
       this.layer.add(sprite);
     }
-    this.layer.add(this.add.text(x, y - 24, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
+    this.layer.add(this.add.text(x, y - 36, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
       fontFamily: 'sans-serif',
       fontSize: '12px',
       color: '#e9eef7'
     }).setOrigin(0.5).setAlpha(alpha));
     if (unit.formName) {
-      this.layer.add(this.add.text(x, y - 11, unit.formName, {
+      this.layer.add(this.add.text(x, y - 25, unit.formName, {
         fontFamily: 'sans-serif',
         fontSize: '9px',
         color: '#e9c56c'
       }).setOrigin(0.5).setAlpha(alpha));
     }
 
-    this.layer.add(this.add.rectangle(x, y, width - 14, 8, 0x10151f).setOrigin(0.5));
+    // HP-Leiste unter dem Sprite (vorher mittig über dem Token → verdeckt).
+    this.layer.add(this.add.rectangle(x, y + 26, width - 14, 8, 0x10151f).setOrigin(0.5));
     this.layer.add(this.add.rectangle(
       x - (width - 14) / 2,
-      y,
+      y + 26,
       Math.max(0, (width - 14) * (unit.hp / unit.maxHp)),
       8,
       unit.dead ? 0x555555 : 0x53d98b
     ).setOrigin(0, 0.5));
-    this.layer.add(this.add.text(x, y + 16, `${unit.hp}/${unit.maxHp} LP  ${unit.mp}/${unit.maxMp} MP`, {
+    this.layer.add(this.add.text(x, y + 36, `${unit.hp}/${unit.maxHp} LP  ${unit.mp}/${unit.maxMp} MP`, {
       fontFamily: 'sans-serif',
       fontSize: '10px',
       color: '#9fb2cc'
     }).setOrigin(0.5).setAlpha(alpha));
 
     if (unit.statuses.includes('poison')) {
-      this.layer.add(this.add.text(x + width / 2 - 8, y - 24, '☠', {
+      this.layer.add(this.add.text(x + width / 2 - 8, y - 36, '☠', {
         fontSize: '12px',
         color: '#b06bff'
       }).setOrigin(0.5));
