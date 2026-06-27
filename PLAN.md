@@ -167,7 +167,8 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 **Ziel:** ambitioniertes Hobby-JRPG mit echtem Produktionswert. Das Gerüst (Phasen 0–8) steht und ist getestet; jetzt zählt **Präsentation, Spielgefühl, Tiefe und Inhalt**. Reihenfolge-Empfehlung: **9 → 10 → 11** (verwandeln das vorhandene Spiel sofort, voll autonom), **13** früh als Stilrichtung klären (größter sichtbarer Sprung), **12** sobald eine Story-Richtung steht.
 
 **Asset-Strategie (verbindlich für alle Art/Audio-Arbeiten):**
-- Assets sind **KI-erzeugt oder frei** (bevorzugt **CC0**, sonst CC-BY/OGA-BY). Jede Quelle + Lizenz wird in **`ASSETS.md`/`CREDITS`** mit Attribution geführt; nichts ohne klare Lizenz ins Repo.
+- **Entscheidung (2026-06-27): ausschließlich CC0-Assets.** Quellen: **Kenney.nl** (durchgehend CC0), **OpenGameArt mit CC0-Filter**, einzelne itch.io-CC0-Packs. *Nicht* CC0 (z. B. LPC = CC-BY-SA/GPL) bleibt draußen. Jede Quelle wird trotzdem in **`ASSETS.md`** mit Link + „CC0" dokumentiert. KI-Erzeugung ist nicht der Weg.
+- **Zielstil (CC0-tauglich): Top-down-Pixel-Art (16×16 oder 32×32).** Beste CC0-Abdeckung für Tiles, Charaktere, Gegner, UI. Bis kohärente CC0-Sets eingepflegt sind, liefert ein prozedurales Platzhalter-Modul denselben Stil (später 1:1 austauschbar).
 - **Keine 1:1-Übernahme urheberrechtlich geschützter Tensura-Originalfiguren** (auch nicht per KI) — eigene/generische Designs im Tempest-Geist. Schützt das Hobby-Projekt rechtlich.
 - **Stilkohärenz vor Quantität:** verbindliche **Art Bible** (Palette, Auflösung/Tile-Größe, Perspektive, Outline-Regeln). Bis echte Assets vorliegen, ein **kohärenter prozeduraler/Pixel-Platzhalterstil**, den der Automode selbst erzeugt — später 1:1 austauschbar.
 - **Budget:** Gesamtgröße der Auslieferung im Blick behalten (Lazy-Loading je Szene möglich), damit der Pages-Build schlank bleibt.
@@ -194,9 +195,18 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Namensgebung → Evolution** als Herzstück (Werte-/Skill-/Rollen-Schub, sichtbare Formen), **Skill-Bäume**, tiefere **Ausrüstung/Sets/Verzauberung**, **Bindungen/Beziehungen** mit Spielwert (Team-Angriffe, Buffs, Szenen). Anti-Grinding/Aufholmechaniken aus Phase 6 verzahnen.
 - **Abnahme:** Entwicklung/Namensgebung verändert Werte/Skills nachvollziehbar; Bindungs-Boni greifen im Kampf; Save-Migration getestet; Balance-Bänder monoton.
 
-[ ] **Phase 12 – Welt, Story & Quests** *(teils autonom; Story-Richtung von dir)*
+[ ] **Phase 12 – Welt, Story & Quests** *(Story-Design akzeptiert 2026-06-27, verfeinerbar)*
 - Erzählbogen + denkwürdige Figuren, **Quest-/Flag-System**, mehrere **Städte & Dungeons mit eigener Identität** (Mechanik + Optik), Lore-/Codex, Cutscene-Bausteine in `DialogueScene`.
 - **Abnahme:** durchgängiger Story-Slice (Intro → Stadt → Quest → Dungeon → Boss → Belohnung) headless durchspielbar; Quests/Flags persistiert.
+
+  **Story-Design „Tempest – Chronik" (akzeptiert, eigene Figuren — keine 1:1-Tensura-Originale):**
+  - **Logline:** Als gestaltwandelnder **Schleimkern ohne Erinnerung** (Fähigkeit: *verschlingen & benennen*) einst du im Großen Jura-Wald zerstrittene Monstervölker zur Nation **Tempest** — während die uralte Versiegelung **„Bindung der Ahnen"** zerfällt und ein Krieg Mensch ↔ Monster droht.
+  - **Ton:** ernst mit Wärme, charaktergetrieben, Prisen Humor (kein Grimdark). **Themen:** Zugehörigkeit, „Namen geben = Identität & Verantwortung", Vorurteile überwinden.
+  - **Figuren (an Systeme gekoppelt):** *Du / „der Namenlose"* (Schleim, Verschlinger/Analyse → Namensgebung & Evolution als Kernfantasie); **Sora** (Oger-Kriegerin, Wächter/Berserker; Bindung → Teamangriff); **Vael** (Kobold-Tüftler, Arkanist/Support, baut Schmiede/Akademie); **Lyrre** (menschliche Späherin/Diplomatin, Fernkampf/Debuff, trägt das Mensch-↔-Monster-Thema).
+  - **Antagonist:** **Mordrahn**, Hüter der zerfallenden Bindung — will sie per Massenopfer neu schmieden „um die Welt zu retten" (Grauzone).
+  - **3 Akte (an Regionen/Schwierigkeit gekoppelt):** 1) Erwachen & Gründung Tempests; 2) Wachstum & Misstrauen, Grenzeskalation, Verlust/Verrat, Entdeckung der zerfallenden Bindung; 3) Bündnis (Monster + gemäßigte Menschen) gegen Mordrahn, finale **Wahl**: Bindung **zerstören** (Freiheit/Risiko) vs. **neu schmieden** (Ordnung/Opfer) → 2 Enden + *True Ending* über erfüllte Bindungen.
+  - **System-Verzahnung:** Namensgebung löst Bond-Szenen aus; Regionen = Akt-Tore; Beziehungen schalten Teamangriffe & Story frei.
+  - *Status: vom Spieler grundsätzlich abgesegnet („mach erstmal so"), Detail-Verfeinerung (Namen/Enden/Ton) jederzeit möglich.*
 
 [ ] **Phase 13 – Art- & Audio-Produktion** *(braucht Asset-Pipeline; siehe Asset-Strategie)*
 - **Art Bible** + Pipeline (Tilesets, Charakter-Sprites/Portraits, Gegner, VFX-Atlas, UI-Skin) — KI/frei, mit `ASSETS.md`-Attribution. **Musik + echte SFX** ersetzen die prozeduralen Töne (Lautstärke-System steht bereits). Lazy-Load je Szene.
