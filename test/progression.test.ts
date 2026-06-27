@@ -11,7 +11,7 @@ import {
   renderView,
   startBattle
 } from '../src/systems/battle';
-import { calculateMemberStats, getAvailableJobs } from '../src/systems/menu';
+import { calculateMemberStats } from '../src/systems/menu';
 import { createPartyMember } from '../src/systems/party';
 import {
   analyzeProgressionBalance,
@@ -27,7 +27,6 @@ import {
   evolveMember,
   getProgressionSkillIds,
   getRelationshipLevelNumber,
-  getUnlockedJobIds,
   grantRelationshipPoints,
   grantSkillPoints,
   hasCustomName,
@@ -39,7 +38,7 @@ import { experienceForLevel } from '../src/systems/stats';
 const hero = (id: string): CharacterDefinition => HEROES.find((entry) => entry.id === id)!;
 
 describe('progression system', () => {
-  it('verknüpft Namensgebung mit Entwicklung, Stats, Skills und Job-Freischaltung', () => {
+  it('verknüpft Namensgebung mit Entwicklung, Stats und Skills', () => {
     const rimuru = createPartyMember(hero('rimuru'), { level: 4 });
     const state = createProgressionState();
 
@@ -52,32 +51,54 @@ describe('progression system', () => {
     expect(createBattlePartyFromMembers([renamed.member])[0]!.name).toBe('Ciel');
 
     const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
-    const unlockedJobs = getUnlockedJobIds('rimuru', evolved.state);
-    const predatorStats = calculateProgressionStats(evolved.member, evolved.state, 'predator-sage');
-    const skillIds = getProgressionSkillIds(evolved.member, evolved.state, 'predator-sage');
+    const predatorStats = calculateProgressionStats(evolved.member, evolved.state);
+    const skillIds = getProgressionSkillIds(evolved.member, evolved.state);
 
     expect(evolved.ok).toBe(true);
-    expect(unlockedJobs).toContain('predator-sage');
-    expect(getAvailableJobs('rimuru').map((job) => job.id)).not.toContain('predator-sage');
-    expect(getAvailableJobs('rimuru', unlockedJobs).map((job) => job.id)).toContain('predator-sage');
     expect(predatorStats.magic).toBeGreaterThan(calculateProgressionStats(rimuru, state).magic);
     expect(skillIds).toContain('predator-aura');
   });
 
-  it('schaltet Rollen über Beziehungen, Story-Flags und Erkundung getrennt frei', () => {
+  it('gated frühere Rollen-Inhalte über Talentknoten statt Job-Unlocks', () => {
+    const gobta = createPartyMember(hero('gobta'), { level: 5 });
+    const shuna = createPartyMember(hero('shuna'), { level: 5 });
     const baseState = createProgressionState();
     const afterBond = grantRelationshipPoints(baseState, 'gobta-ranga', 80).state;
     const afterExploration = discoverRegion(afterBond, 'marsh-border').state;
 
     expect(getRelationshipLevelNumber(afterBond, 'gobta-ranga')).toBe(2);
-    expect(getUnlockedJobIds('gobta', afterBond)).toContain('tempest-knight');
-    expect(getUnlockedJobIds('gobta', afterExploration)).toContain('marsh-runner');
-    expect(getAvailableJobs('gobta', getUnlockedJobIds('gobta', afterExploration)).map((job) => job.id))
-      .toEqual(expect.arrayContaining(['tempest-knight', 'marsh-runner']));
+    expect(afterExploration.discoveredRegionIds).toContain('marsh-border');
 
-    const shunaStoryJobs = getUnlockedJobIds('shuna', baseState, { 'bond.rigurd.trust-1': true });
-    expect(shunaStoryJobs).toContain('spirit-weaver');
-    expect(getAvailableJobs('shuna', shunaStoryJobs).map((job) => job.id)).toContain('spirit-weaver');
+    let knightState = grantSkillPoints(afterBond, 'gobta', 4).state;
+    for (const nodeId of ['gobta-pack-footwork', 'gobta-rider-feint', 'gobta-tempest-knight']) {
+      const unlocked = unlockSkillNode(gobta, knightState, nodeId);
+      expect(unlocked.ok).toBe(true);
+      knightState = unlocked.state;
+    }
+    expect(getProgressionSkillIds(gobta, knightState)).toContain('direwolf-rush');
+    expect(calculateProgressionStats(gobta, knightState).defense)
+      .toBeGreaterThan(calculateProgressionStats(gobta, baseState).defense);
+
+    let marshState = grantSkillPoints(afterExploration, 'gobta', 2).state;
+    for (const nodeId of ['gobta-pack-footwork', 'gobta-marsh-runner']) {
+      const unlocked = unlockSkillNode(gobta, marshState, nodeId);
+      expect(unlocked.ok).toBe(true);
+      marshState = unlocked.state;
+    }
+    expect(getProgressionSkillIds(gobta, marshState)).toContain('storm-gust');
+
+    let shunaState = grantSkillPoints(baseState, 'shuna', 4).state;
+    for (const nodeId of ['shuna-prayer-thread', 'shuna-warding-weave']) {
+      const unlocked = unlockSkillNode(shuna, shunaState, nodeId);
+      expect(unlocked.ok).toBe(true);
+      shunaState = unlocked.state;
+    }
+    expect(unlockSkillNode(shuna, shunaState, 'shuna-spirit-weaver').ok).toBe(false);
+    const spiritWeaver = unlockSkillNode(shuna, shunaState, 'shuna-spirit-weaver', {
+      flags: { 'bond.rigurd.trust-1': true }
+    });
+    expect(spiritWeaver.ok).toBe(true);
+    expect(getProgressionSkillIds(shuna, spiritWeaver.state)).toContain('sacred-weave');
   });
 
   it('wendet Beziehungsboni nachvollziehbar auf Charakterwerte an', () => {
@@ -109,11 +130,6 @@ describe('progression system', () => {
       expect(unlocked.ok).toBe(true);
       state = unlocked.state;
     }
-    state = createProgressionState({
-      ...state,
-      jobIdsByCharacterId: { rimuru: 'mystic' }
-    });
-
     const unit = createProgressionBattleParty([evolved.member], state)[0]!;
     expect(unit.formName).toBe('Raubtier-Schleim');
     expect(unit.skillIds).toEqual(expect.arrayContaining(['predator-aura', 'venom-spit', 'spirit-bind']));

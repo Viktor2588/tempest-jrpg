@@ -1,5 +1,8 @@
 import type { CharacterDefinition } from './types';
 
+// ponytail: die früheren Standard-Rollen-Multiplikatoren sind hier in Basiswerte + Wachstum
+// eingefaltet (gerundet → ganze Zahlen), seit Rollen durch Talentbäume ersetzt wurden.
+// Klassen-Skills sind in initialSkillIds übernommen. Rollen/JobDefinition existieren nicht mehr.
 export const HEROES = [
   {
     id: 'rimuru',
@@ -10,13 +13,13 @@ export const HEROES = [
     initialLevel: 1,
     initialExperience: 0,
     baseStats: {
-      maxHp: 72,
-      maxMp: 28,
-      attack: 13,
-      defense: 10,
-      magic: 16,
-      spirit: 12,
-      agility: 14
+      maxHp: 76,
+      maxMp: 29,
+      attack: 14,
+      defense: 11,
+      magic: 17,
+      spirit: 13,
+      agility: 15
     },
     growthPerLevel: {
       maxHp: 9,
@@ -43,24 +46,24 @@ export const HEROES = [
     initialLevel: 1,
     initialExperience: 0,
     baseStats: {
-      maxHp: 84,
+      maxHp: 99,
       maxMp: 12,
-      attack: 15,
-      defense: 12,
-      magic: 7,
+      attack: 17,
+      defense: 14,
+      magic: 6,
       spirit: 9,
-      agility: 17
+      agility: 16
     },
     growthPerLevel: {
-      maxHp: 10,
+      maxHp: 12,
       maxMp: 2,
-      attack: 4,
-      defense: 3,
+      attack: 5,
+      defense: 4,
       magic: 1,
       spirit: 2,
       agility: 4
     },
-    initialSkillIds: ['slime-strike', 'goblin-feint'],
+    initialSkillIds: ['slime-strike', 'goblin-feint', 'battle-cry'],
     startingEquipment: {
       weapon: 'tempest-training-sword',
       armor: 'traveler-cloak',
@@ -77,20 +80,20 @@ export const HEROES = [
     initialExperience: 0,
     baseStats: {
       maxHp: 64,
-      maxMp: 34,
-      attack: 8,
+      maxMp: 41,
+      attack: 7,
       defense: 9,
-      magic: 18,
-      spirit: 17,
+      magic: 20,
+      spirit: 21,
       agility: 11
     },
     growthPerLevel: {
       maxHp: 7,
-      maxMp: 6,
+      maxMp: 7,
       attack: 2,
       defense: 2,
       magic: 4,
-      spirit: 4,
+      spirit: 5,
       agility: 2
     },
     initialSkillIds: ['soothing-prayer'],

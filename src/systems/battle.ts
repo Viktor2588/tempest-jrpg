@@ -5,14 +5,12 @@ import {
   ENEMIES,
   HEROES,
   ITEMS,
-  JOBS,
   SKILLS,
   type CharacterDefinition,
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
   type ItemDefinition,
-  type JobDefinition,
   type SkillDefinition,
   type StatBlock,
   type StatusEffectId
@@ -51,7 +49,6 @@ export interface BattleUnitInput {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   readonly skillIds: readonly string[];
-  readonly jobId?: string;
   readonly synergyPartnerIds?: readonly string[];
   readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
@@ -68,8 +65,6 @@ export interface Combatant {
   readonly level: number;
   readonly baseStats: StatBlock;
   baseSkillIds: string[];
-  // ponytail: jobId = innate class, applied once as stat baseline. Talent trees are the build system now; in-battle role switching removed. Stage 2: fold class into base stats and delete JobDefinition.
-  jobId: string | null;
   hp: number;
   maxHp: number;
   mp: number;
@@ -154,7 +149,6 @@ const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const enemyById = new Map<string, EnemyDefinition>(ENEMIES.map((enemy) => [enemy.id, enemy]));
-const jobById = new Map<string, JobDefinition>(JOBS.map((job) => [job.id, job]));
 
 export function createDefaultBattleParty(): BattleUnitInput[] {
   return HEROES.filter((hero) => hero.startsInParty).map((hero) => createHeroBattleUnit(hero));
@@ -186,7 +180,6 @@ export function createHeroBattleUnit(
     'currentHp'
     | 'currentMp'
     | 'formName'
-    | 'jobId'
     | 'level'
     | 'name'
     | 'openingStatusIds'
@@ -210,7 +203,6 @@ export function createHeroBattleUnit(
     weaknesses: [],
     resistances: [],
     skillIds: overrides.skillIds ?? hero.initialSkillIds,
-    jobId: overrides.jobId,
     synergyPartnerIds: overrides.synergyPartnerIds,
     openingStatusIds: overrides.openingStatusIds
   };
@@ -359,9 +351,8 @@ function aiTargetsForSkill(state: BattleState, actor: Combatant, skill: SkillDef
 }
 
 function createCombatant(unit: BattleUnitInput, id: string): Combatant {
-  const jobStats = unit.jobId ? applyJobMultipliers(unit.stats, jobById.get(unit.jobId)) : unit.stats;
+  const stats = unit.stats;
   const baseSkillIds = [...unit.skillIds];
-  const jobSkillIds = unit.jobId ? jobById.get(unit.jobId)?.skillIds ?? [] : [];
   const breakGaugeMax = unit.side === 'enemy' ? BREAK_GAUGE_MAX : Math.max(3, BREAK_GAUGE_MAX - 1);
 
   return {
@@ -373,20 +364,19 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     level: unit.level,
     baseStats: unit.stats,
     baseSkillIds,
-    jobId: unit.jobId ?? null,
-    hp: clamp(unit.currentHp ?? jobStats.maxHp, 0, jobStats.maxHp),
-    maxHp: jobStats.maxHp,
-    mp: clamp(unit.currentMp ?? jobStats.maxMp, 0, jobStats.maxMp),
-    maxMp: jobStats.maxMp,
-    attack: jobStats.attack,
-    defense: jobStats.defense,
-    magic: jobStats.magic,
-    spirit: jobStats.spirit,
-    agility: Math.max(1, jobStats.agility),
+    hp: clamp(unit.currentHp ?? stats.maxHp, 0, stats.maxHp),
+    maxHp: stats.maxHp,
+    mp: clamp(unit.currentMp ?? stats.maxMp, 0, stats.maxMp),
+    maxMp: stats.maxMp,
+    attack: stats.attack,
+    defense: stats.defense,
+    magic: stats.magic,
+    spirit: stats.spirit,
+    agility: Math.max(1, stats.agility),
     element: unit.element,
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
-    skillIds: uniqueStrings([...baseSkillIds, ...jobSkillIds]),
+    skillIds: uniqueStrings([...baseSkillIds]),
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
       id: statusId,
@@ -928,25 +918,6 @@ function statusLabel(statusId: StatusEffectId): string {
   }
 }
 
-function applyJobMultipliers(stats: StatBlock, job: JobDefinition | undefined): StatBlock {
-  if (!job) {
-    return stats;
-  }
-  return {
-    maxHp: multiplyStat(stats.maxHp, job.statMultiplier.maxHp),
-    maxMp: multiplyStat(stats.maxMp, job.statMultiplier.maxMp),
-    attack: multiplyStat(stats.attack, job.statMultiplier.attack),
-    defense: multiplyStat(stats.defense, job.statMultiplier.defense),
-    magic: multiplyStat(stats.magic, job.statMultiplier.magic),
-    spirit: multiplyStat(stats.spirit, job.statMultiplier.spirit),
-    agility: multiplyStat(stats.agility, job.statMultiplier.agility)
-  };
-}
-
-function multiplyStat(value: number, multiplier = 1): number {
-  return Math.max(1, Math.round(value * multiplier));
-}
-
 function hasSynergyLink(a: Combatant, b: Combatant): boolean {
   return a.synergyPartnerIds.includes(b.sourceId) || b.synergyPartnerIds.includes(a.sourceId);
 }
@@ -1031,7 +1002,6 @@ export interface CombatantView {
   readonly formName: string | null;
   readonly side: Side;
   readonly level: number;
-  readonly jobId: string | null;
   readonly hp: number;
   readonly maxHp: number;
   readonly mp: number;
@@ -1093,7 +1063,6 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     formName: combatant.formName,
     side: combatant.side,
     level: combatant.level,
-    jobId: combatant.jobId,
     hp: combatant.hp,
     maxHp: combatant.maxHp,
     mp: combatant.mp,

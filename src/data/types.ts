@@ -49,19 +49,6 @@ export interface SkillDefinition {
   readonly statusEffect?: SkillStatusEffect;
 }
 
-export interface JobDefinition {
-  readonly id: string;
-  readonly name: string;
-  readonly description: string;
-  readonly statMultiplier: Partial<StatBlock>;
-  readonly skillIds: readonly string[];
-  readonly allowedCharacterIds?: readonly string[];
-  readonly unlock?: {
-    readonly kind: 'story' | 'evolution' | 'bond' | 'exploration';
-    readonly label: string;
-  };
-}
-
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';
 
 export interface ItemEffect {

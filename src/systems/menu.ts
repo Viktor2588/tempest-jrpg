@@ -1,12 +1,10 @@
 import {
   HEROES,
   ITEMS,
-  JOBS,
   SKILLS,
   type CharacterDefinition,
   type EquipmentSlot,
   type ItemDefinition,
-  type JobDefinition,
   type SkillDefinition,
   type StatBlock
 } from '../data';
@@ -38,7 +36,6 @@ export interface MenuResult<TState = MenuGameState> {
 export interface MemberSummary {
   readonly member: PartyMemberState;
   readonly character: CharacterDefinition;
-  readonly job: JobDefinition;
   readonly stats: StatBlock;
   readonly skills: readonly SkillDefinition[];
   readonly equipmentItems: Partial<Record<EquipmentSlot, ItemDefinition>>;
@@ -60,8 +57,6 @@ export interface MenuView {
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
-const jobDefinitions: readonly JobDefinition[] = JOBS;
-const jobById = new Map<string, JobDefinition>(jobDefinitions.map((job) => [job.id, job]));
 
 export function createMenuState(
   party: readonly PartyMemberState[],
@@ -75,13 +70,10 @@ export function createMenuState(
   };
 }
 
-export function buildMenuView(
-  state: MenuGameState,
-  jobAssignments: Readonly<Record<string, string>> = {}
-): MenuView {
+export function buildMenuView(state: MenuGameState): MenuView {
   return {
     members: state.party.flatMap((member) => {
-      const summary = getMemberSummary(member, jobAssignments[member.characterId]);
+      const summary = getMemberSummary(member);
       return summary ? [summary] : [];
     }),
     inventory: getSortedInventory(state.inventory),
@@ -89,45 +81,23 @@ export function buildMenuView(
   };
 }
 
-export function getMemberSummary(
-  member: PartyMemberState,
-  jobId = getDefaultJobId(member.characterId),
-  unlockedJobIds: readonly string[] = []
-): MemberSummary | null {
+export function getMemberSummary(member: PartyMemberState): MemberSummary | null {
   const character = heroById.get(member.characterId);
-  const availableJobs = getAvailableJobs(member.characterId, unlockedJobIds);
-  const job = availableJobs.find((candidate) => candidate.id === jobId) ?? availableJobs[0];
-  if (!character || !job) {
+  if (!character) {
     return null;
   }
 
   return {
     member,
     character,
-    job,
-    stats: calculateMemberStats(member, job.id),
-    skills: getMemberSkillDefinitions(member, job.id),
+    stats: calculateMemberStats(member),
+    skills: getMemberSkillDefinitions(member),
     equipmentItems: getEquipmentItems(member)
   };
 }
 
-export function getDefaultJobId(characterId: string): string {
-  if (characterId === 'rimuru') return 'adaptive-hero';
-  if (characterId === 'shuna') return 'support-priest';
-  return 'vanguard';
-}
-
-export function getAvailableJobs(characterId: string, unlockedJobIds: readonly string[] = []): JobDefinition[] {
-  const unlocked = new Set(unlockedJobIds);
-  return jobDefinitions.filter((job) =>
-    !job.allowedCharacterIds || job.allowedCharacterIds.includes(characterId)
-  ).filter((job) =>
-    !job.unlock || unlocked.has(job.id)
-  );
-}
-
-export function calculateMemberStats(member: PartyMemberState, jobId = getDefaultJobId(member.characterId)): StatBlock {
-  return applyJobMultipliers(calculateMemberBaseStats(member), requireJob(jobId));
+export function calculateMemberStats(member: PartyMemberState): StatBlock {
+  return calculateMemberBaseStats(member);
 }
 
 export function calculateMemberBaseStats(member: PartyMemberState): StatBlock {
@@ -144,9 +114,8 @@ export function calculateEquipmentBonus(member: PartyMemberState): Partial<StatB
   }, {});
 }
 
-export function getMemberSkillDefinitions(member: PartyMemberState, jobId = getDefaultJobId(member.characterId)): SkillDefinition[] {
-  const job = requireJob(jobId);
-  const skillIds = [...new Set([...member.learnedSkillIds, ...job.skillIds])];
+export function getMemberSkillDefinitions(member: PartyMemberState): SkillDefinition[] {
+  const skillIds = [...new Set(member.learnedSkillIds)];
   return skillIds.flatMap((skillId) => {
     const skill = skillById.get(skillId);
     return skill ? [skill] : [];
@@ -301,22 +270,6 @@ function normalizePartyResources(state: MenuGameState): MenuGameState {
   };
 }
 
-export function applyJobMultipliers(stats: StatBlock, job: JobDefinition): StatBlock {
-  return {
-    maxHp: multiplyStat(stats.maxHp, job.statMultiplier.maxHp),
-    maxMp: multiplyStat(stats.maxMp, job.statMultiplier.maxMp),
-    attack: multiplyStat(stats.attack, job.statMultiplier.attack),
-    defense: multiplyStat(stats.defense, job.statMultiplier.defense),
-    magic: multiplyStat(stats.magic, job.statMultiplier.magic),
-    spirit: multiplyStat(stats.spirit, job.statMultiplier.spirit),
-    agility: multiplyStat(stats.agility, job.statMultiplier.agility)
-  };
-}
-
-function multiplyStat(value: number, multiplier = 1): number {
-  return Math.max(1, Math.round(value * multiplier));
-}
-
 function addStatsPartial(a: Partial<StatBlock>, b: Partial<StatBlock>): Partial<StatBlock> {
   return {
     maxHp: (a.maxHp ?? 0) + (b.maxHp ?? 0),
@@ -341,12 +294,6 @@ function requireCharacter(characterId: string): CharacterDefinition {
   const character = heroById.get(characterId);
   if (!character) throw new Error(`Unknown character '${characterId}'.`);
   return character;
-}
-
-function requireJob(jobId: string): JobDefinition {
-  const job = jobById.get(jobId);
-  if (!job) throw new Error(`Unknown job '${jobId}'.`);
-  return job;
 }
 
 function clampResource(value: number, max: number): number {

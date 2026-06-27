@@ -543,18 +543,7 @@ export class BattleScene extends Phaser.Scene {
           state: this.save.progression,
           grantedSkillPoints: 0
         };
-    const jobIdsByCharacterId = {
-      ...progressionResult.state.jobIdsByCharacterId,
-      ...Object.fromEntries(
-        view.party.flatMap((combatant) =>
-          combatant.jobId ? [[combatant.sourceId, combatant.jobId]] : []
-        )
-      )
-    };
-    const progression = {
-      ...progressionResult.state,
-      jobIdsByCharacterId
-    };
+    const progression = progressionResult.state;
     const active = progressionResult.active.map((member) => {
       if (status === 'lost') {
         return member;
@@ -570,8 +559,7 @@ export class BattleScene extends Phaser.Scene {
       const mpGrowth = Math.max(0, member.currentMp - previous.currentMp);
       const stats = calculateProgressionStats(
         member,
-        progression,
-        jobIdsByCharacterId[member.characterId]
+        progression
       );
       return {
         ...member,

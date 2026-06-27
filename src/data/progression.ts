@@ -31,7 +31,6 @@ export interface EvolutionDefinition {
   readonly requiresCustomName: boolean;
   readonly statBonus: Partial<StatBlock>;
   readonly skillIds: readonly string[];
-  readonly unlockedJobIds: readonly string[];
   readonly skillPointReward: number;
   readonly description: string;
 }
@@ -50,7 +49,6 @@ export interface RelationshipLevelDefinition {
   readonly partnerPassiveBonus?: Partial<StatBlock>;
   readonly combatBonus?: RelationshipCombatBonus;
   readonly skillIds?: readonly string[];
-  readonly unlockedJobIds?: readonly string[];
 }
 
 export interface RelationshipSceneDefinition {
@@ -71,20 +69,6 @@ export interface RelationshipDefinition {
   readonly scenes: readonly RelationshipSceneDefinition[];
 }
 
-export interface JobUnlockDefinition {
-  readonly id: string;
-  readonly jobId: string;
-  readonly source: ProgressionUnlockSource;
-  readonly characterId?: string;
-  readonly requiredEvolutionId?: string;
-  readonly requiredRelationshipLevel?: {
-    readonly relationshipId: string;
-    readonly level: number;
-  };
-  readonly requiredFlag?: string;
-  readonly requiredRegionId?: string;
-}
-
 export interface CatchUpConfig {
   readonly maxLevelGap: number;
   readonly reserveExperienceRate: number;
@@ -99,6 +83,12 @@ export interface SkillTreeNodeDefinition {
   readonly requiredLevel: number;
   readonly requiredNodeIds: readonly string[];
   readonly requiredEvolutionId?: string;
+  readonly requiredRelationshipLevel?: {
+    readonly relationshipId: string;
+    readonly level: number;
+  };
+  readonly requiredFlag?: string;
+  readonly requiredRegionId?: string;
   readonly skillId?: string;
   readonly statBonus?: Partial<StatBlock>;
 }
@@ -196,7 +186,6 @@ export const EVOLUTIONS = [
       agility: 2
     },
     skillIds: ['predator-aura'],
-    unlockedJobIds: ['predator-sage'],
     skillPointReward: 2,
     description: 'Ein benannter Kern macht Rimuru zu einer fokussierten Magie-/Adaptionsrolle.'
   },
@@ -215,7 +204,6 @@ export const EVOLUTIONS = [
       agility: 3
     },
     skillIds: ['direwolf-rush'],
-    unlockedJobIds: [],
     skillPointReward: 2,
     description: 'Gobtas benannte Form stabilisiert die Front, ohne seine Initiative zu verlieren.'
   },
@@ -233,7 +221,6 @@ export const EVOLUTIONS = [
       spirit: 6
     },
     skillIds: ['sacred-weave'],
-    unlockedJobIds: [],
     skillPointReward: 2,
     description: 'Shunas Namensentwicklung verschiebt sie klar in Richtung Heilung und Barrieren.'
   }
@@ -344,8 +331,7 @@ export const RELATIONSHIPS = [
         level: 2,
         requiredPoints: 75,
         title: 'Rudel-Timing',
-        passiveBonus: { attack: 2, agility: 3 },
-        unlockedJobIds: ['tempest-knight']
+        passiveBonus: { attack: 2, agility: 3 }
       },
       {
         level: 3,
@@ -402,39 +388,6 @@ export const RELATIONSHIPS = [
   }
 ] as const satisfies readonly RelationshipDefinition[];
 
-export const JOB_UNLOCKS = [
-  {
-    id: 'unlock-predator-sage',
-    jobId: 'predator-sage',
-    source: 'evolution',
-    characterId: 'rimuru',
-    requiredEvolutionId: 'rimuru-predator-slime'
-  },
-  {
-    id: 'unlock-tempest-knight',
-    jobId: 'tempest-knight',
-    source: 'bond',
-    characterId: 'gobta',
-    requiredRelationshipLevel: {
-      relationshipId: 'gobta-ranga',
-      level: 2
-    }
-  },
-  {
-    id: 'unlock-spirit-weaver',
-    jobId: 'spirit-weaver',
-    source: 'story',
-    characterId: 'shuna',
-    requiredFlag: 'bond.rigurd.trust-1'
-  },
-  {
-    id: 'unlock-marsh-runner',
-    jobId: 'marsh-runner',
-    source: 'exploration',
-    requiredRegionId: 'marsh-border'
-  }
-] as const satisfies readonly JobUnlockDefinition[];
-
 export const CATCH_UP_CONFIG = {
   maxLevelGap: 2,
   reserveExperienceRate: 0.5,
@@ -471,6 +424,16 @@ export const SKILL_TREES = [
         skillId: 'venom-spit'
       },
       {
+        id: 'rimuru-marsh-runner',
+        name: 'Marschenläufer-Instinkt',
+        description: 'Wandelt Sumpferkundung in Tempo und robuste Geländekontrolle um.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        requiredRegionId: 'marsh-border',
+        statBonus: { maxHp: 3, agility: 3 }
+      },
+      {
         id: 'rimuru-shadow-domain',
         name: 'Schattendomäne',
         description: 'Verstärkt Schattenmagie und lehrt Geistfessel.',
@@ -479,6 +442,16 @@ export const SKILL_TREES = [
         requiredNodeIds: ['rimuru-predator-instinct'],
         skillId: 'spirit-bind',
         statBonus: { magic: 3, spirit: 2 }
+      },
+      {
+        id: 'rimuru-predator-sage',
+        name: 'Raubtier-Weiser',
+        description: 'Faltet die frühere Raubtier-Weiser-Rolle in eine fokussierte Magie-Talentspitze.',
+        cost: 2,
+        requiredLevel: 7,
+        requiredNodeIds: ['rimuru-shadow-domain'],
+        requiredEvolutionId: 'rimuru-predator-slime',
+        statBonus: { maxMp: 8, magic: 3, spirit: 2, agility: 1 }
       }
     ]
   },
@@ -504,6 +477,31 @@ export const SKILL_TREES = [
         requiredLevel: 4,
         requiredNodeIds: ['gobta-pack-footwork'],
         skillId: 'quick-step'
+      },
+      {
+        id: 'gobta-marsh-runner',
+        name: 'Marschenläufer',
+        description: 'Macht Sumpferkundung zu schneller Flankenarbeit und lehrt Sturmböe.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['gobta-pack-footwork'],
+        requiredRegionId: 'marsh-border',
+        skillId: 'storm-gust',
+        statBonus: { attack: 1, spirit: 1, agility: 4 }
+      },
+      {
+        id: 'gobta-tempest-knight',
+        name: 'Tempest-Ritter',
+        description: 'Bindet Rangas Rudel-Timing an robuste Frontwerte und Direwolf-Druck.',
+        cost: 2,
+        requiredLevel: 5,
+        requiredNodeIds: ['gobta-rider-feint'],
+        requiredRelationshipLevel: {
+          relationshipId: 'gobta-ranga',
+          level: 2
+        },
+        skillId: 'direwolf-rush',
+        statBonus: { maxHp: 8, attack: 3, defense: 3, agility: 1 }
       },
       {
         id: 'gobta-alpha-charge',
@@ -540,6 +538,17 @@ export const SKILL_TREES = [
         requiredLevel: 4,
         requiredNodeIds: ['shuna-prayer-thread'],
         skillId: 'barrier-prayer'
+      },
+      {
+        id: 'shuna-spirit-weaver',
+        name: 'Geistweberin',
+        description: 'Verwandelt Tempests Vertrauen in stärkere Heil- und Barrierewerte.',
+        cost: 2,
+        requiredLevel: 5,
+        requiredNodeIds: ['shuna-warding-weave'],
+        requiredFlag: 'bond.rigurd.trust-1',
+        skillId: 'sacred-weave',
+        statBonus: { maxMp: 8, magic: 2, spirit: 4 }
       },
       {
         id: 'shuna-sacred-circle',

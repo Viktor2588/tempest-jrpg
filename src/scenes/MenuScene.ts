@@ -22,7 +22,6 @@ import {
   getProgressionRelationships,
   getProgressionSkills,
   getRelationshipLevelNumber,
-  getSelectedJobId,
   getSkillTree,
   renameMember,
   unlockSkillNode,
@@ -48,7 +47,6 @@ export class MenuScene extends Phaser.Scene {
   private state!: MenuGameState;
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
-  private jobAssignments: Record<string, string> = {};
   private layer!: Phaser.GameObjects.Container;
   private message = 'Menü geöffnet.';
 
@@ -63,12 +61,6 @@ export class MenuScene extends Phaser.Scene {
       inventory: this.save.inventory.stacks,
       gold: this.save.party.gold
     };
-    this.jobAssignments = Object.fromEntries(
-      this.state.party.map((member) => [
-        member.characterId,
-        getSelectedJobId(this.save.progression, member.characterId)
-      ])
-    );
 
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.82);
     this.layer = this.add.container(0, 0);
@@ -79,7 +71,7 @@ export class MenuScene extends Phaser.Scene {
 
   private refresh(): void {
     this.layer.removeAll(true);
-    const view = buildMenuView(this.state, this.jobAssignments);
+    const view = buildMenuView(this.state);
     const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
 
     this.layer.add(this.add.text(24, 18, 'Tempest-Menü', {
@@ -132,14 +124,13 @@ export class MenuScene extends Phaser.Scene {
       const y = 174 + index * 54;
       const stats = calculateProgressionStats(
         summary.member,
-        this.save.progression,
-        this.jobAssignments[summary.member.characterId]
+        this.save.progression
       );
       this.button(24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
         this.selectedMemberIndex = index;
         this.refresh();
       }, this.selectedMemberIndex === index ? 0x30506f : 0x162238);
-      this.layer.add(this.add.text(38, y + 16, `${summary.job.name} · LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
+      this.layer.add(this.add.text(38, y + 16, `${summary.character.role} · LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#9fb2cc'
@@ -153,15 +144,14 @@ export class MenuScene extends Phaser.Scene {
       const y = 154 + index * 78;
       const stats = calculateProgressionStats(
         summary.member,
-        this.save.progression,
-        this.jobAssignments[summary.member.characterId]
+        this.save.progression
       );
       const formName = getActiveEvolution(
         this.save.progression,
         summary.member.characterId
       )?.formName ?? summary.character.species;
       this.panel(300, y, 600, 66);
-      this.layer.add(this.add.text(318, y - 24, `${summary.member.name} · ${formName} · ${summary.job.name}`, {
+      this.layer.add(this.add.text(318, y - 24, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
         color: '#e9eef7'
@@ -173,8 +163,7 @@ export class MenuScene extends Phaser.Scene {
       }));
       const skills = getProgressionSkills(
         summary.member,
-        this.save.progression,
-        this.jobAssignments[summary.member.characterId]
+        this.save.progression
       );
       this.layer.add(this.add.text(318, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
         fontFamily: 'sans-serif',
@@ -292,8 +281,7 @@ export class MenuScene extends Phaser.Scene {
 
     const stats = calculateProgressionStats(
       summary.member,
-      this.save.progression,
-      this.jobAssignments[summary.member.characterId]
+      this.save.progression
     );
     this.panel(300, 170, 570, 110);
     const formName = getActiveEvolution(this.save.progression, characterId)?.formName
@@ -315,8 +303,7 @@ export class MenuScene extends Phaser.Scene {
     }));
     getProgressionSkills(
       summary.member,
-      this.save.progression,
-      this.jobAssignments[summary.member.characterId]
+      this.save.progression
     ).forEach((skill, index) => {
       this.layer.add(this.add.text(318, 250 + index * 34, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
         fontFamily: 'sans-serif',
@@ -382,7 +369,9 @@ export class MenuScene extends Phaser.Scene {
       ).includes(node.id);
       const y = 266 + index * 62;
       this.button(300, y, 210, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
-        const result = unlockSkillNode(summary.member, this.save.progression, node.id);
+        const result = unlockSkillNode(summary.member, this.save.progression, node.id, {
+          flags: this.save.flags
+        });
         this.applyProgressionResult(result);
       }, unlocked ? 0x1f3a2f : 0x1b2940);
       this.layer.add(this.add.text(522, y - 14, node.description, {

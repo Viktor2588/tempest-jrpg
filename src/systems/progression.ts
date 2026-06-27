@@ -5,8 +5,6 @@ import {
   EVOLUTIONS,
   HEROES,
   ITEMS,
-  JOBS,
-  JOB_UNLOCKS,
   PROGRESSION_LINES,
   PROGRESSION_REGIONS,
   RELATIONSHIPS,
@@ -18,8 +16,6 @@ import {
   type EquipmentSlot,
   type EvolutionDefinition,
   type ItemDefinition,
-  type JobDefinition,
-  type JobUnlockDefinition,
   type ProgressionLineDefinition,
   type RegionProgressionDefinition,
   type RelationshipDefinition,
@@ -31,11 +27,7 @@ import {
   type StatBlock
 } from '../data';
 import { createHeroBattleUnit, type BattleUnitInput } from './battle';
-import {
-  applyJobMultipliers,
-  calculateMemberBaseStats,
-  getDefaultJobId
-} from './menu';
+import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import {
@@ -54,7 +46,6 @@ export interface ProgressionState {
   readonly skillPointsByCharacterId: Readonly<Record<string, number>>;
   readonly unlockedSkillNodeIdsByCharacterId: Readonly<Record<string, readonly string[]>>;
   readonly enchantmentLevelsByEquipmentKey: Readonly<Record<string, number>>;
-  readonly jobIdsByCharacterId: Readonly<Record<string, string>>;
 }
 
 export interface CreateProgressionStateOptions {
@@ -64,7 +55,6 @@ export interface CreateProgressionStateOptions {
   readonly skillPointsByCharacterId?: Readonly<Record<string, number>>;
   readonly unlockedSkillNodeIdsByCharacterId?: Readonly<Record<string, readonly string[]>>;
   readonly enchantmentLevelsByEquipmentKey?: Readonly<Record<string, number>>;
-  readonly jobIdsByCharacterId?: Readonly<Record<string, string>>;
 }
 
 export interface MemberActionResult {
@@ -78,6 +68,10 @@ export interface ProgressionActionResult {
   readonly ok: boolean;
   readonly state: ProgressionState;
   readonly message: string;
+}
+
+export interface SkillTreeUnlockContext {
+  readonly flags?: Readonly<Record<string, boolean>>;
 }
 
 export interface CatchUpResult {
@@ -108,7 +102,6 @@ export interface BalanceIssue {
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
-const jobById = new Map<string, JobDefinition>(JOBS.map((job) => [job.id, job]));
 const regionById = new Map<string, RegionProgressionDefinition>(
   PROGRESSION_REGIONS.map((region) => [region.id, region])
 );
@@ -136,8 +129,7 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     ),
     enchantmentLevelsByEquipmentKey: normalizePointRecord(
       options.enchantmentLevelsByEquipmentKey ?? {}
-    ),
-    jobIdsByCharacterId: normalizeStringRecord(options.jobIdsByCharacterId ?? {})
+    )
   };
 }
 
@@ -360,7 +352,8 @@ export function grantSkillPoints(
 export function canUnlockSkillNode(
   member: PartyMemberState,
   state: ProgressionState,
-  nodeId: string
+  nodeId: string,
+  context: SkillTreeUnlockContext = {}
 ): ProgressionActionResult {
   const tree = getSkillTree(member.characterId);
   const node = skillTreeNodeById.get(nodeId);
@@ -378,6 +371,17 @@ export function canUnlockSkillNode(
     && state.evolutionIdsByCharacterId[member.characterId] !== node.requiredEvolutionId) {
     return { ok: false, state, message: 'Passende Entwicklung erforderlich.' };
   }
+  if (node.requiredRelationshipLevel
+    && getRelationshipLevelNumber(state, node.requiredRelationshipLevel.relationshipId)
+      < node.requiredRelationshipLevel.level) {
+    return { ok: false, state, message: 'Passende Bindungsstufe erforderlich.' };
+  }
+  if (node.requiredRegionId && !state.discoveredRegionIds.includes(node.requiredRegionId)) {
+    return { ok: false, state, message: 'Passende Regionserkundung erforderlich.' };
+  }
+  if (node.requiredFlag && !context.flags?.[node.requiredFlag]) {
+    return { ok: false, state, message: 'Passender Story-Fortschritt erforderlich.' };
+  }
   if (!node.requiredNodeIds.every((requiredId) => unlocked.includes(requiredId))) {
     return { ok: false, state, message: 'Vorgänger-Knoten fehlen.' };
   }
@@ -390,9 +394,10 @@ export function canUnlockSkillNode(
 export function unlockSkillNode(
   member: PartyMemberState,
   state: ProgressionState,
-  nodeId: string
+  nodeId: string,
+  context: SkillTreeUnlockContext = {}
 ): ProgressionActionResult {
-  const check = canUnlockSkillNode(member, state, nodeId);
+  const check = canUnlockSkillNode(member, state, nodeId, context);
   const node = skillTreeNodeById.get(nodeId);
   if (!check.ok || !node) {
     return check;
@@ -413,11 +418,6 @@ export function unlockSkillNode(
     },
     message: `${node.name} freigeschaltet.`
   };
-}
-
-// ponytail: getSelectedJobId now always resolves the innate class (no role selection). jobIdsByCharacterId kept for save-compat; Stage 2 removes it with JobDefinition.
-export function getSelectedJobId(state: ProgressionState, characterId: string): string {
-  return state.jobIdsByCharacterId[characterId] ?? getDefaultJobId(characterId);
 }
 
 export function equipmentEnhancementKey(
@@ -488,8 +488,7 @@ export function getActiveEquipmentSetTiers(
 
 export function calculateProgressionStats(
   member: PartyMemberState,
-  state: ProgressionState,
-  jobId = getDefaultJobId(member.characterId)
+  state: ProgressionState
 ): StatBlock {
   const baseStats = calculateMemberBaseStats(member);
   const evolutionStats = addStats(baseStats, getActiveEvolution(state, member.characterId)?.statBonus);
@@ -502,9 +501,7 @@ export function calculateProgressionStats(
     calculateSkillTreeBonus(member.characterId, state)
   );
   const setStats = addStats(skillTreeStats, calculateEquipmentSetBonus(member));
-  const enchantedStats = addStats(setStats, calculateEnchantmentBonus(member, state));
-  const job = jobById.get(jobId) ?? jobById.get(getDefaultJobId(member.characterId));
-  return job ? applyJobMultipliers(enchantedStats, job) : enchantedStats;
+  return addStats(setStats, calculateEnchantmentBonus(member, state));
 }
 
 export function calculateProgressionBaseStats(
@@ -592,14 +589,9 @@ export function calculateEnchantmentBonus(
 
 export function getProgressionSkillIds(
   member: PartyMemberState,
-  state: ProgressionState,
-  jobId = getDefaultJobId(member.characterId)
+  state: ProgressionState
 ): readonly string[] {
-  const job = jobById.get(jobId);
-  return uniqueStrings([
-    ...getProgressionCoreSkillIds(member, state),
-    ...(job?.skillIds ?? [])
-  ]);
+  return getProgressionCoreSkillIds(member, state);
 }
 
 export function getProgressionCoreSkillIds(
@@ -629,10 +621,9 @@ export function getProgressionCoreSkillIds(
 
 export function getProgressionSkills(
   member: PartyMemberState,
-  state: ProgressionState,
-  jobId = getDefaultJobId(member.characterId)
+  state: ProgressionState
 ): readonly SkillDefinition[] {
-  return getProgressionSkillIds(member, state, jobId).flatMap((skillId) => {
+  return getProgressionSkillIds(member, state).flatMap((skillId) => {
     const skill = skillById.get(skillId);
     return skill ? [skill] : [];
   });
@@ -695,14 +686,12 @@ export function createProgressionBattleParty(
     if (!hero) {
       return [];
     }
-    const jobId = getSelectedJobId(state, member.characterId);
     const unit = createHeroBattleUnit(hero, {
       name: member.name,
       level: member.level,
       currentHp: member.currentHp,
       currentMp: member.currentMp,
       skillIds: getProgressionCoreSkillIds(member, state),
-      jobId,
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
       formName: getActiveEvolution(state, member.characterId)?.formName,
       openingStatusIds: getOpeningStatusIds(member.characterId, state)
@@ -748,37 +737,6 @@ export function applyBattleProgressionRewards(
     state: nextState,
     grantedSkillPoints
   };
-}
-
-export function getUnlockedJobIds(
-  characterId: string,
-  state: ProgressionState,
-  flags: Readonly<Record<string, boolean>> = {}
-): readonly string[] {
-  const unlocked = new Set<string>();
-  const activeEvolution = getActiveEvolution(state, characterId);
-
-  for (const jobId of activeEvolution?.unlockedJobIds ?? []) {
-    unlocked.add(jobId);
-  }
-
-  for (const relationship of RELATIONSHIPS.filter((entry) => entry.characterId === characterId)) {
-    const level = getRelationshipLevel(state, relationship.id);
-    for (const jobId of level?.unlockedJobIds ?? []) {
-      unlocked.add(jobId);
-    }
-  }
-
-  for (const unlock of JOB_UNLOCK_DEFINITIONS) {
-    if (unlock.characterId && unlock.characterId !== characterId) {
-      continue;
-    }
-    if (isJobUnlockSatisfied(unlock, characterId, state, flags)) {
-      unlocked.add(unlock.jobId);
-    }
-  }
-
-  return [...unlocked].sort();
 }
 
 export function catchUpReserveMembers(
@@ -921,17 +879,6 @@ export function analyzeProgressionBalance(sampleLevels: readonly number[] = [1, 
     }
   }
 
-  for (const job of JOBS) {
-    for (const [stat, multiplier] of Object.entries(job.statMultiplier)) {
-      if (typeof multiplier === 'number' && (multiplier < 0.75 || multiplier > 1.4)) {
-        issues.push({
-          path: `balance.jobs.${job.id}.statMultiplier.${stat}`,
-          message: 'Job-Multiplikator liegt außerhalb des Balancing-Bands 0.75–1.40.'
-        });
-      }
-    }
-  }
-
   for (const region of PROGRESSION_REGIONS) {
     const enemyLevels = region.enemyIds
       .map((enemyId) => GAME_ENEMY_LEVELS.get(enemyId))
@@ -958,38 +905,6 @@ export function getProgressionRelationships(characterId: string): readonly Relat
   return RELATIONSHIPS.filter((relationship) =>
     relationship.characterId === characterId || relationship.partnerId === characterId
   );
-}
-
-function isJobUnlockSatisfied(
-  unlock: JobUnlockDefinition,
-  characterId: string,
-  state: ProgressionState,
-  flags: Readonly<Record<string, boolean>>
-): boolean {
-  const job = jobById.get(unlock.jobId);
-  const allowedCharacterIds: readonly string[] = job?.allowedCharacterIds ?? [];
-  if (!job || (allowedCharacterIds.length > 0 && !allowedCharacterIds.includes(characterId))) {
-    return false;
-  }
-  if (unlock.requiredEvolutionId) {
-    const activeEvolution = getActiveEvolution(state, characterId);
-    if (activeEvolution?.id !== unlock.requiredEvolutionId) {
-      return false;
-    }
-  }
-  if (unlock.requiredRelationshipLevel) {
-    const level = getRelationshipLevelNumber(state, unlock.requiredRelationshipLevel.relationshipId);
-    if (level < unlock.requiredRelationshipLevel.level) {
-      return false;
-    }
-  }
-  if (unlock.requiredFlag && !flags[unlock.requiredFlag]) {
-    return false;
-  }
-  if (unlock.requiredRegionId && !state.discoveredRegionIds.includes(unlock.requiredRegionId)) {
-    return false;
-  }
-  return true;
 }
 
 function setMemberExperienceFloor(member: PartyMemberState, experience: number): PartyMemberState {
@@ -1108,8 +1023,6 @@ function partialPowerScore(stats: Partial<StatBlock>): number {
     agility: stats.agility ?? 0
   });
 }
-
-const JOB_UNLOCK_DEFINITIONS: readonly JobUnlockDefinition[] = JOB_UNLOCKS;
 
 const GAME_ENEMY_LEVELS = new Map<string, number>(
   ENEMIES.map((enemy) => [enemy.id, enemy.level] as const)

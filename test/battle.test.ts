@@ -378,18 +378,17 @@ describe('battle engine', () => {
     expect(renderView(countered).party[0]!.reaction).toBeNull();
   });
 
-  it('wendet die innere Klasse als festen Stat-Basiswert an (kein Wechsel im Kampf)', () => {
+  it('übernimmt Werte und Skills der Einheit direkt (keine Klassen-Multiplikatoren mehr)', () => {
     const state = startBattle({
-      party: [depthHero('rimuru', 'Rimuru', { jobId: 'mystic' })],
+      party: [depthHero('rimuru', 'Rimuru')],
       enemies: [phaseEnemy()],
       seed: 12
     });
     const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
 
-    // mystic erhöht Magie und gewährt seine Klassen-Skills als Baseline
-    expect(hero.jobId).toBe('mystic');
+    expect(hero.maxHp).toBe(150);
     expect(hero.skillIds).toContain('spirit-bind');
-    expect(renderView(state).party[0]!.jobId).toBe('mystic');
+    expect(hero.skillIds).toContain('water-blade');
   });
 
   it('setzt Schwächen unter Break-Druck und macht gebrochene Gegner verwundbarer', () => {
@@ -450,18 +449,37 @@ describe('battle engine', () => {
     expect(renderView(state).enemies[0]!.phaseIndex).toBe(1);
   });
 
-  it('terminiert deterministisch über Rollen × Gegnerphasen × Seeds', () => {
-    const jobs = ['vanguard', 'mystic', 'scout'];
+  it('terminiert deterministisch über Talent-Loadouts × Gegnerphasen × Seeds', () => {
+    const loadouts = [
+      {
+        rimuruSkillIds: ['slime-strike', 'water-blade', 'storm-gust'],
+        gobtaSkillIds: ['goblin-feint', 'battle-cry']
+      },
+      {
+        rimuruSkillIds: ['slime-strike', 'water-blade', 'spirit-bind', 'venom-spit'],
+        gobtaSkillIds: ['goblin-feint', 'quick-step']
+      },
+      {
+        rimuruSkillIds: ['slime-strike', 'predator-aura', 'spirit-bind'],
+        gobtaSkillIds: ['goblin-feint', 'direwolf-rush', 'storm-gust']
+      }
+    ];
     const phaseHpFractions = [1, 0.45];
     const seeds = [101, 202, 303];
 
-    for (const jobId of jobs) {
+    for (const loadout of loadouts) {
       for (const phaseHpFraction of phaseHpFractions) {
         for (const seed of seeds) {
           const state = startBattle({
             party: [
-              depthHero('rimuru', 'Rimuru', { jobId, synergyPartnerIds: ['gobta'] }),
-              depthHero('gobta', 'Gobta', { jobId: 'vanguard', synergyPartnerIds: ['rimuru'] })
+              depthHero('rimuru', 'Rimuru', {
+                skillIds: loadout.rimuruSkillIds,
+                synergyPartnerIds: ['gobta']
+              }),
+              depthHero('gobta', 'Gobta', {
+                skillIds: loadout.gobtaSkillIds,
+                synergyPartnerIds: ['rimuru']
+              })
             ],
             enemies: [phaseEnemy()],
             teamMeter: 100,

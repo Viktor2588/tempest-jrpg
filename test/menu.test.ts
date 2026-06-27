@@ -5,7 +5,6 @@ import {
   buildMenuView,
   calculateMemberStats,
   equipItem,
-  getAvailableJobs,
   getMemberSkillDefinitions,
   MENU_TOUCH_TARGET_PX,
   unequipItem,
@@ -77,15 +76,17 @@ describe('menu system', () => {
     ]);
   });
 
-  it('berechnet Rollenwerte und Skillzugriff deterministisch', () => {
+  it('berechnet gefaltete Klassenwerte und innewohnenden Skillzugriff deterministisch', () => {
     const gobta = createInitialParty().find((member) => member.characterId === 'gobta')!;
-    const baseAgility = calculateMemberStats(gobta, 'vanguard').agility;
-    const scoutStats = calculateMemberStats(gobta, 'scout');
-    const scoutSkills = getMemberSkillDefinitions(gobta, 'scout').map((skill) => skill.id);
+    const stats = calculateMemberStats(gobta);
+    const skills = getMemberSkillDefinitions(gobta).map((skill) => skill.id);
 
-    expect(getAvailableJobs('gobta').map((job) => job.id)).toContain('scout');
-    expect(scoutStats.agility).toBeGreaterThan(baseAgility);
-    expect(scoutSkills).toContain('storm-gust');
+    // gefaltete Frontkämpfer-Basis (Lv.1: maxHp 99, agility 16) + Ausrüstung
+    expect(stats.maxHp).toBeGreaterThanOrEqual(99);
+    expect(stats.agility).toBeGreaterThanOrEqual(16);
+    // ehemaliger Vorhut-Klassenskill ist jetzt Teil des Startkits
+    expect(skills).toContain('battle-cry');
+    expect(skills).toContain('goblin-feint');
   });
 
   it('erzwingt mindestens 44px Touch-Ziele für Menübuttons', () => {

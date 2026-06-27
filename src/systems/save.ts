@@ -357,8 +357,7 @@ function readProgressionState(raw: unknown): ProgressionState {
     unlockedSkillNodeIdsByCharacterId: readStringArrayRecord(
       raw.unlockedSkillNodeIdsByCharacterId
     ),
-    enchantmentLevelsByEquipmentKey: readNumberRecord(raw.enchantmentLevelsByEquipmentKey),
-    jobIdsByCharacterId: readStringRecord(raw.jobIdsByCharacterId)
+    enchantmentLevelsByEquipmentKey: readNumberRecord(raw.enchantmentLevelsByEquipmentKey)
   });
 }
 

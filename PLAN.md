@@ -23,7 +23,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 - **Schneller Spielfluss:** Kämpfe sollen so wenig Reibung wie möglich erzeugen: kurze Intros, klare Trefferanimationen, schnelle Ergebnisauflösung und keine unnötigen Menüwege.
 - **Nahtlose Begegnungen:** Exploration und Kampf sollen sich möglichst direkt verbinden. Begegnungen dürfen in eine Battle-Ansicht wechseln, aber ohne lange Übergangssequenzen oder Tempoverlust.
 - **Aktive Beteiligung:** Defensive/Offensive Reaktionsfenster, Timing-Boni oder kurze Eingabe-Events können Angriffe, Verteidigung oder Spezialaktionen verstärken. Wichtig: optional schnell bedienbar, niemals rhythmusbrechend.
-- **Taktische Rollenvielfalt:** Jobs/Klassen/Rollen sollen nicht nur außerhalb des Kampfes relevant sein. Ein späteres Ziel ist das **schnelle Wechseln von Rollen im Kampf**, um Gegnerphasen, Schwächen und Party-Synergien taktisch auszunutzen.
+- **Taktische Build-Vielfalt:** Talentbäume, Skills, Status, Ausrüstung und Synergien sollen unterschiedliche Kampfpläne ermöglichen, ohne Rollen-/Jobwechsel als separates System zu erzwingen.
 - **Lesbare Tiefe statt Komplexitätsballast:** Jede Kampfentscheidung muss klaren Wert haben: Schaden, Schutz, Tempo, Status, Position/Rolle, Ressource oder Synergie.
 
 ### 2. Immersive Umwelt- & Levelgestaltung
@@ -36,9 +36,9 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 - **Charaktergetriebene Story:** Haupt- und Nebenfiguren sollen mechanisch und erzählerisch wachsen. Quests, Dialoge und Kämpfe sollen dieselben Figuren stärken, nicht getrennte Systeme sein.
 - **Beziehungen mit Spielwert:** Freundschafts-/Bindungsmechaniken liefern Story-Szenen und konkrete Boni, z. B. Teamangriffe, passive Buffs, bessere Shop-/Quest-Optionen oder neue Klassen-/Skill-Pfade.
 - **Schlanke Progression:** Level-Skalierung, Reserve-EP oder Party-weites Aufholen verhindern, dass ungenutzte Figuren dauerhaft zurückfallen.
-- **Namensgebung & Entwicklung als Kernfantasie:** Das Tempest-typische Kreaturen-Entwicklungs-/Namensgebungssystem bleibt die zentrale Progressionsfantasie und verbindet Werte, Skills, Rollen und Story-Status.
+- **Namensgebung & Entwicklung als Kernfantasie:** Das Tempest-typische Kreaturen-Entwicklungs-/Namensgebungssystem bleibt die zentrale Progressionsfantasie und verbindet Werte, Skills, Talentpfade und Story-Status.
 - **Grinding minimieren:** Wiederholkämpfe dürfen lohnen, aber der Hauptfortschritt soll aus Questfortschritt, taktisch guten Kämpfen, Entwicklung, Beziehungen und Erkundung entstehen.
-- **Talentbäume statt Rollen (Spielerwunsch 2026-06-27):** Der Charakter-Build entsteht über **Talentbäume** (das bestehende `SKILL_TREES`-System), nicht über wählbare/umschaltbare Rollen. Die frühere Rollen-/Job-Auswahl entfällt; die innere Klasse bleibt nur noch als fixe Stat-Basis bestehen, bis sie ganz in die Basiswerte gefaltet ist.
+- **Talentbäume statt Rollen (Spielerwunsch 2026-06-27):** Der Charakter-Build entsteht über **Talentbäume** (das bestehende `SKILL_TREES`-System), nicht über wählbare/umschaltbare Rollen. Frühere Rollen-/Job-Auswahl und innere Klassen sind in Basiswerte, Startskills und gated Talentknoten aufgegangen.
 
 ## Technische Entscheidungen
 - **Engine:** **Phaser 3** (Canvas/WebGL) mit **TypeScript**.
@@ -68,12 +68,10 @@ src/
     stats.ts              Werte, Level, EP-Kurven, Schadensformeln
     battle.ts             Rundenkampf-Engine (Zugreihenfolge, Aktionen, Status, KI, Terminierung)
     party.ts              Party-/Charakterzustand, Entwicklung/Namensgebung
-    jobs.ts               Rollen-/Klassenmodell, Freischaltungen, Wechselkosten, Kampf-Synergien
-    relationships.ts      Bindungen/Freundschaft, Story-Flags, Kampf-/Quest-Boni
-    progression.ts        Levelkurven, Reserve-EP, Aufhol-/Skalierungsregeln
+    progression.ts        Evolution, Talentbäume, Bindungen, Story-Gates, Reserve-EP, Aufhol-/Skalierungsregeln
     inventory.ts          Items, Ausrüsten, Verbrauch
     save.ts               Serialisieren/Laden/Migration
-  data/                Inhaltstabellen (typisiert): Helden/Monster, Jobs, Beziehungen, Skills, Items, Gegner, Karten, Dialoge, Quests
+  data/                Inhaltstabellen (typisiert): Helden/Monster, Talentbäume, Beziehungen, Skills, Items, Gegner, Karten, Dialoge, Quests
   ui/                  Wiederverwendbare HUD-/Menü-Bausteine
   assets/              Tilesets, Sprites, Portraits, Audio (zunächst Platzhalter)
 test/                  Vitest-Suiten gegen src/systems & src/data
@@ -85,7 +83,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Mobile-first.** Große Tap-Ziele, Touch-Steuerkreuz/-Buttons, kein Hover-Zwang; skaliert auf Desktop.
 - **Tempo ist ein Feature.** Menüwege, Kampfanimationen, Übergänge und Wiederholaktionen werden aktiv auf kurze Interaktionsschleifen optimiert.
 - **Grinding ist Fallback, nicht Kernloop.** Systeme müssen Reserve-EP, Aufholmechaniken oder Quest-/Erkundungsfortschritt unterstützen, damit Progression ohne XP-Padding funktioniert.
-- **Story und Mechanik greifen ineinander.** Beziehungen, Jobs/Rollen, Namensgebung, Entwicklung und Kampfboni sollen über dieselben Datenmodelle erklärbar und testbar sein.
+- **Story und Mechanik greifen ineinander.** Beziehungen, Talentpfade, Namensgebung, Entwicklung und Kampfboni sollen über dieselben Datenmodelle erklärbar und testbar sein.
 - **Lazy/minimal.** Erst wenn ein System spielbar gebraucht wird, wird es gebaut; keine spekulativen Abstraktionen.
 - **Jede nicht-triviale Logik bekommt einen Test.** Mindestens ein laufender Check, der bricht, wenn die Logik bricht.
 
@@ -241,20 +239,24 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Auto-Kampf:** neues reines, getestetes `src/systems/autoBattle.ts` (`chooseAutoAction`: Heilung bei niedrigem LP → günstigste Schadensfähigkeit → Standardangriff aufs LP-schwächste Ziel). `BattleScene` bekommt einen **„⚡ Auto"-Umschalter**; bei aktivem Auto wählt und spielt die Szene die Spielerzüge automatisch (kurze Pause für Lesbarkeit). `test/autoBattle.test.ts`: gültige Aktion, deterministischer Sieg, Terminierungs-Stichprobe.
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **76/76** grün (autoBattle +3), `bun run build` → `dist/`.
 
-[~] **Talentbäume statt Rollen – Pivot (Stage 1 fertig 2026-06-27, Worktree `worktree/tempest-talent-trees`)** *(autonom, Spielerwunsch)*
+[x] **Talentbäume statt Rollen – Pivot (Stage 1+2 fertig 2026-06-27, Worktrees `worktree/tempest-talent-trees`, `worktree/tempest-talent-fold`)** *(autonom, Spielerwunsch)*
 - **Stage 1 (fertig):** Das **spielerseitige Rollensystem** entfernt — Talentbäume (Menü-Tab **„Talente"**, vormals „Entwicklung") sind die einzige Build-Achse.
   - `battle.ts`: In-Kampf-Rollenwechsel raus (`switch-job`-Aktion, `availableJobIds`, `resolveJobSwitch`, `applyCombatantJob`). `jobId` bleibt als **fixe innere Klasse** (einmaliger Stat-Basiswert beim Aufbau).
   - `menu.ts`/`progression.ts`: Rollen-**Auswahl** raus (`selectJob`, `selectProgressionJob`); `getSelectedJobId` liefert nur noch die Standard-Klasse. `jobIdsByCharacterId` bleibt für Save-Kompatibilität.
   - `MenuScene.ts`: Tab **„Rollen"** entfernt; `drawJobs` weg. Kampf-Party-Aufbau ohne `flags`-Param.
   - **Abnahme (lokal verifiziert):** `tsc --noEmit` sauber, `vitest run` → **77/77** grün (−1 Rollenauswahl-Test, switch-job-Test → Baseline-Test umgebaut), `vite build` → `dist/`.
-- **Stage 2 (offen):** Innere Klassen (Job-Multiplikatoren) in die **Basiswerte** der Charaktere falten und `JobDefinition`/`JOBS` + Restmaschinerie (`getUnlockedJobIds`, Job-Unlocks via Beziehung/Story/Erkundung, `jobIdsByCharacterId`, Daten-Validierung) ganz löschen; ehemalige Rollen-Skills/-Boni als (gating-)Talentknoten einpflegen, damit kein Progressions-Inhalt verloren geht. Talentbäume um build-prägende Knoten erweitern. Siehe `ponytail:`-Marker in `battle.ts`/`progression.ts`.
+- **Stage 2 (fertig):** Innere Klassen vollständig in **Basiswerte, Wachstum und Startskills** gefaltet; `src/data/jobs.ts`, `JobDefinition`, `JOBS`, `getUnlockedJobIds`, `jobIdsByCharacterId`, `getSelectedJobId`, `CombatantView.jobId` und Job-Datenvalidierung entfernt.
+  - **Rollen-Inhalte erhalten:** Frühere Advanced-Rollen wurden als gated Talentknoten modelliert: `rimuru-predator-sage` (Evolution), `gobta-tempest-knight` (Bindung), `gobta-marsh-runner`/`rimuru-marsh-runner` (Erkundung) und `shuna-spirit-weaver` (Story-Flag). Skills/Boni bleiben so über Talentbäume erreichbar statt über Rollenwechsel.
+  - **Save-Kompatibilität:** Legacy-Import normalisiert alte Saves weiter, übernimmt `jobIdsByCharacterId` aber nicht mehr in den aktuellen `ProgressionState`.
+  - **Tests angepasst:** Kampfmatrix läuft über Talent-/Skill-Loadouts statt Rollen; Progression testet Bindungs-/Erkundungs-/Story-Gates auf Talentknoten; Menü berechnet Werte/Skills ohne Job-Parameter.
+  - **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck` sauber, `test` → **81/81** grün, `build` grün.
 
 [ ] **Phase 15 – Balance, QA & Mobile-Politur**
 - Balance-Heuristiken als Tests, vollständiger Headless-Durchspieltest, Performance/Akku auf dem Handy (Render-/Tick-Budget), Eingabe-/Layout-Politur, Bugfix-Durchlauf.
 - **Abnahme:** `bun run test` grün inkl. Balance-/Durchspielmatrix; flüssig auf 390×844; keine Konsolen-/Layoutfehler.
 
 ## Verifikation (Methodik)
-- **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Jobs/Rollen, Beziehungen, Aufholmechaniken, Balance-Bänder.
+- **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.
 - **Manuell/Browser:** `bun run dev`, Prüfung in Handygröße (390×844) und Desktop; optional Playwright-Screenshots.
 - **Smoke-Flow:** Oberwelt bewegen → Begegnung → Kampf gewinnen → Menü/Ausrüstung → Speichern → neu laden (Stand bleibt) → Reset.
