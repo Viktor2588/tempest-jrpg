@@ -220,3 +220,31 @@ export function uiSkinSpec(kind: string): UiSkinSpec {
       return { base: PALETTE.shadow, accent: PALETTE.gold, outline: PALETTE.steel, highlight: PALETTE.mist, shadow: PALETTE.ink };
   }
 }
+
+export interface IdleBobSpec {
+  readonly amplitudePx: number;
+  readonly durationMs: number;
+  readonly delayMs: number;
+}
+
+/**
+ * Dezente, deterministische Idle-Bob-Animation für Kampf-Einheiten.
+ * `null`, wenn reduzierte Bewegung aktiv ist oder die Einheit besiegt wurde —
+ * dann bleibt das Sprite ruhig. Der Phasenversatz aus der ID verhindert, dass
+ * alle Einheiten im Gleichschritt wippen.
+ */
+export function idleBobSpec(
+  unitId: string,
+  opts: { readonly reducedMotion: boolean; readonly dead: boolean }
+): IdleBobSpec | null {
+  if (opts.reducedMotion || opts.dead) return null;
+  let hash = 0;
+  for (let i = 0; i < unitId.length; i += 1) {
+    hash = (hash * 31 + unitId.charCodeAt(i)) >>> 0;
+  }
+  return {
+    amplitudePx: 3,
+    durationMs: 1400 + (hash % 600), // 1400–1999 ms, leicht variierend
+    delayMs: hash % 400
+  };
+}

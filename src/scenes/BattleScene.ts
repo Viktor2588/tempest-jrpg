@@ -24,7 +24,7 @@ import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
-import type { VfxKind } from '../render/artSpec';
+import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiButtonBackground } from '../render/uiSkin';
 import { fadeIn } from './transition';
@@ -46,6 +46,7 @@ export class BattleScene extends Phaser.Scene {
   private pendingTeamPartnerId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
+  private idleTweens: Phaser.Tweens.Tween[] = [];
   private unitPos = new Map<string, { x: number; y: number }>();
   private resultAnnounced = false;
   private rewardsApplied = false;
@@ -270,6 +271,9 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private refresh(): void {
+    // Idle-Bobs (repeat:-1) gezielt beenden, bevor ihre Sprites zerstört werden.
+    this.idleTweens.forEach((tween) => tween.remove());
+    this.idleTweens = [];
     this.layer.removeAll(true);
     const view = renderView(this.state);
 
@@ -336,7 +340,24 @@ export class BattleScene extends Phaser.Scene {
     const spriteKey = this.textures.exists('sprite-' + kind) ? 'sprite-' + kind
       : (this.textures.exists('ph-' + kind) ? 'ph-' + kind : null);
     if (spriteKey) {
-      this.layer.add(this.add.image(x, y, spriteKey).setDisplaySize(40, 40).setAlpha(alpha));
+      const sprite = this.add.image(x, y, spriteKey).setDisplaySize(40, 40).setAlpha(alpha);
+      sprite.setFlipX(side === 'enemy'); // Gegner blicken zur Party
+      const bob = idleBobSpec(unit.id, {
+        reducedMotion: loadSettings(window.localStorage).reducedMotion,
+        dead: unit.dead
+      });
+      if (bob) {
+        this.idleTweens.push(this.tweens.add({
+          targets: sprite,
+          y: y - bob.amplitudePx,
+          duration: bob.durationMs,
+          delay: bob.delayMs,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.InOut'
+        }));
+      }
+      this.layer.add(sprite);
     }
     this.layer.add(this.add.text(x, y - 24, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
       fontFamily: 'sans-serif',

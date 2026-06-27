@@ -8,6 +8,7 @@ import {
   VFX_KINDS,
   placeholderSpec,
   portraitSpec,
+  idleBobSpec,
   uiSkinSpec,
   vfxSpec
 } from '../src/render/artSpec';
@@ -108,5 +109,20 @@ describe('artSpec', () => {
         expect(paletteValues.has(c)).toBe(true);
       }
     }
+  });
+
+  it('liefert deterministische, phasenversetzte Idle-Bobs und respektiert reduzierte Bewegung', () => {
+    expect(idleBobSpec('unit-a', { reducedMotion: true, dead: false })).toBeNull();
+    expect(idleBobSpec('unit-a', { reducedMotion: false, dead: true })).toBeNull();
+
+    const a = idleBobSpec('unit-a', { reducedMotion: false, dead: false })!;
+    const b = idleBobSpec('unit-b', { reducedMotion: false, dead: false })!;
+    expect(a).toEqual(idleBobSpec('unit-a', { reducedMotion: false, dead: false })); // deterministisch
+    expect(a.amplitudePx).toBeGreaterThan(0);
+    expect(a.durationMs).toBeGreaterThanOrEqual(1400);
+    expect(a.durationMs).toBeLessThan(2000);
+    expect(a.delayMs).toBeGreaterThanOrEqual(0);
+    expect(a.delayMs).toBeLessThan(400);
+    expect(a.delayMs).not.toBe(b.delayMs); // unterschiedlicher Phasenversatz
   });
 });
