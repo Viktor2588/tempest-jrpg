@@ -15,8 +15,11 @@ alle **CC0** (License.txt: „Creative Commons Zero, CC0").
 Einzelne 16×16-Sprites wurden per Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held,
 Grün-Blob → Schleim usw.) ausgewählt und einzeln ins Repo übernommen. Die SFX wurden aus
 dem RPG-Audio-Pack passend auf UI/Kampf/Resultat gemappt; die Musik-Motive laufen als
-leise Titel-/Oberwelt-/Kampf-Loops. Übrige Elemente nutzen weiter **prozedurale Platzhalter**
-(`src/render/placeholderArt.ts`).
+leise Titel-/Oberwelt-/Kampf-Loops. Übrige Elemente nutzen weiter **prozedurale
+Platzhalter** und repo-eigene generierte UI-/Portrait-Texturen
+(`src/render/placeholderArt.ts`, `src/render/portraitAtlas.ts`, `src/render/uiSkin.ts`).
+Diese werden zur Laufzeit aus der Art-Bible-Palette erzeugt und benötigen keine externe
+Lizenzzeile.
 
 | Datei (in `src/assets/…`) | Typ | Quelle (URL) | Autor | Lizenz |
 |---|---|---|---|---|

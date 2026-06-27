@@ -29,6 +29,9 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildCodexView, buildQuestLog, createWorldState } from '../systems/world';
+import { addUiButtonBackground, addUiPanel, addUiPortraitFrame } from '../render/uiSkin';
+import { portraitKey } from '../render/portraitAtlas';
+import type { PortraitKind } from '../render/artSpec';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex';
 
@@ -151,12 +154,13 @@ export class MenuScene extends Phaser.Scene {
         summary.member.characterId
       )?.formName ?? summary.character.species;
       this.panel(300, y, 600, 66);
-      this.layer.add(this.add.text(318, y - 24, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+      this.drawPortrait(summary.member.characterId, 336, y, 46);
+      this.layer.add(this.add.text(372, y - 24, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
         color: '#e9eef7'
       }));
-      this.layer.add(this.add.text(318, y, `LP ${summary.member.currentHp}/${stats.maxHp}  MP ${summary.member.currentMp}/${stats.maxMp}  ATK ${stats.attack}  DEF ${stats.defense}  MAG ${stats.magic}  SPI ${stats.spirit}  AGI ${stats.agility}`, {
+      this.layer.add(this.add.text(372, y, `LP ${summary.member.currentHp}/${stats.maxHp}  MP ${summary.member.currentMp}/${stats.maxMp}  ATK ${stats.attack}  DEF ${stats.defense}  MAG ${stats.magic}  SPI ${stats.spirit}  AGI ${stats.agility}`, {
         fontFamily: 'sans-serif',
         fontSize: '13px',
         color: '#9fb2cc'
@@ -165,7 +169,7 @@ export class MenuScene extends Phaser.Scene {
         summary.member,
         this.save.progression
       );
-      this.layer.add(this.add.text(318, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
+      this.layer.add(this.add.text(372, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#6f83a5'
@@ -286,17 +290,18 @@ export class MenuScene extends Phaser.Scene {
     this.panel(300, 170, 570, 110);
     const formName = getActiveEvolution(this.save.progression, characterId)?.formName
       ?? summary.character.species;
-    this.layer.add(this.add.text(318, 130, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+    this.drawPortrait(characterId, 348, 176, 64);
+    this.layer.add(this.add.text(396, 130, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
       fontFamily: 'sans-serif',
       fontSize: '17px',
       color: '#e9eef7'
     }));
-    this.layer.add(this.add.text(318, 162, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
+    this.layer.add(this.add.text(396, 162, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
       fontFamily: 'sans-serif',
       fontSize: '14px',
       color: '#9fb2cc'
     }));
-    this.layer.add(this.add.text(318, 188, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
+    this.layer.add(this.add.text(396, 188, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
       fontFamily: 'sans-serif',
       fontSize: '14px',
       color: '#9fb2cc'
@@ -538,9 +543,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private panel(x: number, y: number, width: number, height: number): void {
-    this.layer.add(this.add.rectangle(x, y, width, height, 0x121b2a, 0.9)
-      .setOrigin(0, 0.5)
-      .setStrokeStyle(1, 0x33445f, 0.7));
+    this.layer.add(addUiPanel(this, x, y, width, height, { originY: 0.5 }));
   }
 
   private button(
@@ -552,10 +555,7 @@ export class MenuScene extends Phaser.Scene {
     color = 0x1b2940
   ): void {
     const height = MENU_TOUCH_TARGET_PX;
-    const background = this.add.rectangle(x, y, width, height, color, 0.96)
-      .setOrigin(0, 0.5)
-      .setStrokeStyle(1, 0x68d7ff, 0.55)
-      .setInteractive();
+    const background = addUiButtonBackground(this, x, y, width, height, color);
     const text = this.add.text(x + 10, y, label, {
       fontFamily: 'sans-serif',
       fontSize: '13px',
@@ -567,10 +567,30 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(background);
     this.layer.add(text);
   }
+
+  private drawPortrait(characterId: string, x: number, y: number, size: number): void {
+    const key = portraitKeyForCharacter(characterId);
+    if (!key || !this.textures.exists(key)) {
+      return;
+    }
+    this.layer.add(addUiPortraitFrame(this, x, y, size));
+    this.layer.add(this.add.image(x, y, key).setDisplaySize(size, size));
+  }
 }
 
 function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'weapon') return 'Waffe';
   if (slot === 'armor') return 'Rüstung';
   return 'Accessoire';
+}
+
+function portraitKeyForCharacter(characterId: string): string | null {
+  if (isPortraitKind(characterId)) {
+    return portraitKey(characterId);
+  }
+  return null;
+}
+
+function isPortraitKind(value: string): value is PortraitKind {
+  return ['rimuru', 'gobta', 'shuna', 'sora', 'vael', 'lyrre', 'rigurd', 'mordrahn'].includes(value);
 }

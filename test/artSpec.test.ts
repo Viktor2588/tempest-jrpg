@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { ART, PALETTE, PLACEHOLDER_KINDS, VFX_KINDS, placeholderSpec, vfxSpec } from '../src/render/artSpec';
+import {
+  ART,
+  PALETTE,
+  PLACEHOLDER_KINDS,
+  PORTRAIT_KINDS,
+  UI_SKIN_KINDS,
+  VFX_KINDS,
+  placeholderSpec,
+  portraitSpec,
+  uiSkinSpec,
+  vfxSpec
+} from '../src/render/artSpec';
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const paletteValues = new Set<string>(Object.values(PALETTE));
@@ -53,6 +64,46 @@ describe('artSpec', () => {
       expect(spec.size).toBeGreaterThanOrEqual(24);
       expect(['burst', 'spark', 'puff', 'bolt', 'ring']).toContain(spec.shape);
       for (const c of [spec.base, spec.accent, spec.outline]) {
+        expect(c).toMatch(HEX);
+        expect(paletteValues.has(c)).toBe(true);
+      }
+    }
+  });
+
+  it('definiert Portrait-Specs für Party- und Storyfiguren aus der Projektpalette', () => {
+    expect(PORTRAIT_KINDS).toEqual([
+      'rimuru',
+      'gobta',
+      'shuna',
+      'sora',
+      'vael',
+      'lyrre',
+      'rigurd',
+      'mordrahn'
+    ]);
+    for (const kind of PORTRAIT_KINDS) {
+      const spec = portraitSpec(kind);
+      expect(spec.size).toBe(64);
+      expect(['slime', 'goblin', 'priest', 'warrior', 'mage', 'scout', 'elder', 'shadow'])
+        .toContain(spec.motif);
+      for (const c of [spec.base, spec.accent, spec.outline, spec.background]) {
+        expect(c).toMatch(HEX);
+        expect(paletteValues.has(c)).toBe(true);
+      }
+    }
+  });
+
+  it('definiert einen wiederverwendbaren UI-Skin aus der Projektpalette', () => {
+    expect(UI_SKIN_KINDS).toEqual([
+      'panel',
+      'button',
+      'button-active',
+      'button-danger',
+      'button-success'
+    ]);
+    for (const kind of UI_SKIN_KINDS) {
+      const spec = uiSkinSpec(kind);
+      for (const c of [spec.base, spec.accent, spec.outline, spec.highlight, spec.shadow]) {
         expect(c).toMatch(HEX);
         expect(paletteValues.has(c)).toBe(true);
       }

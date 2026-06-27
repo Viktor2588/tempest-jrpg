@@ -1,0 +1,166 @@
+// Prozeduraler Pixel-Portrait-Atlas (Phaser, browser-only). Erzeugt kohärente
+// 64×64-Busts für Story-/Menüfiguren, bis echte CC0-Portraits eingepflegt sind.
+import Phaser from 'phaser';
+import { PORTRAIT_KINDS, portraitSpec, type PortraitKind, type PortraitMotif } from './artSpec';
+
+function hex(color: string): number {
+  return Phaser.Display.Color.HexStringToColor(color).color;
+}
+
+export function portraitKey(kind: PortraitKind): string {
+  return 'portrait-' + kind;
+}
+
+export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
+  switch (speaker.trim().toLowerCase()) {
+    case 'rimuru':
+    case 'der namenlose':
+      return 'rimuru';
+    case 'gobta':
+      return 'gobta';
+    case 'shuna':
+      return 'shuna';
+    case 'sora':
+      return 'sora';
+    case 'vael':
+      return 'vael';
+    case 'lyrre':
+      return 'lyrre';
+    case 'rigurd':
+      return 'rigurd';
+    case 'mordrahn':
+    case 'mordrahns echo':
+      return 'mordrahn';
+    default:
+      return null;
+  }
+}
+
+export function portraitKeyForSpeaker(speaker: string): string | null {
+  const kind = portraitKindForSpeaker(speaker);
+  return kind ? portraitKey(kind) : null;
+}
+
+export function generatePortraitTextures(
+  scene: Phaser.Scene,
+  kinds: readonly PortraitKind[] = PORTRAIT_KINDS
+): void {
+  for (const kind of kinds) {
+    const key = portraitKey(kind);
+    if (scene.textures.exists(key)) {
+      continue;
+    }
+    const spec = portraitSpec(kind);
+    const g = scene.make.graphics({ x: 0, y: 0 }, false);
+    const s = spec.size;
+
+    g.fillStyle(hex(spec.background), 1);
+    g.fillRect(0, 0, s, s);
+    g.fillStyle(hex(spec.outline), 1);
+    g.fillRect(0, 0, s, 1);
+    g.fillRect(0, s - 1, s, 1);
+    g.fillRect(0, 0, 1, s);
+    g.fillRect(s - 1, 0, 1, s);
+    g.fillStyle(hex(spec.accent), 0.22);
+    g.fillRect(4, 4, s - 8, 4);
+    g.fillRect(4, 10, 4, s - 14);
+
+    drawBust(g, s, spec.motif, hex(spec.base), hex(spec.accent), hex(spec.outline));
+
+    g.generateTexture(key, s, s);
+    g.destroy();
+  }
+}
+
+function drawBust(
+  g: Phaser.GameObjects.Graphics,
+  size: number,
+  motif: PortraitMotif,
+  base: number,
+  accent: number,
+  outline: number
+): void {
+  const cx = size / 2;
+
+  g.fillStyle(outline, 1);
+  g.fillRoundedRect(16, 42, 32, 18, 5);
+  g.fillStyle(base, 1);
+  g.fillRoundedRect(18, 44, 28, 16, 4);
+
+  if (motif === 'slime') {
+    g.fillStyle(outline, 1);
+    g.fillCircle(cx, 31, 20);
+    g.fillStyle(base, 1);
+    g.fillCircle(cx, 31, 18);
+    g.fillStyle(accent, 0.9);
+    g.fillCircle(24, 23, 4);
+    drawEyes(g, 27, 34, outline, accent);
+    return;
+  }
+
+  g.fillStyle(outline, 1);
+  g.fillCircle(cx, 26, 17);
+  g.fillStyle(base, 1);
+  g.fillCircle(cx, 27, 15);
+
+  switch (motif) {
+    case 'warrior':
+      g.fillStyle(accent, 1);
+      g.fillTriangle(21, 18, 43, 18, 32, 8);
+      g.fillRect(18, 21, 28, 4);
+      break;
+    case 'mage':
+      g.fillStyle(accent, 1);
+      g.fillTriangle(20, 19, 44, 19, 33, 5);
+      g.fillCircle(42, 18, 3);
+      break;
+    case 'scout':
+      g.fillStyle(accent, 1);
+      g.fillRect(18, 19, 28, 5);
+      g.fillTriangle(42, 19, 54, 23, 42, 24);
+      break;
+    case 'elder':
+      g.fillStyle(accent, 1);
+      g.fillRect(22, 15, 20, 6);
+      g.fillStyle(outline, 0.7);
+      g.fillRect(25, 39, 14, 7);
+      break;
+    case 'shadow':
+      g.fillStyle(outline, 0.85);
+      g.fillTriangle(16, 18, 48, 18, 32, 4);
+      g.fillStyle(accent, 0.8);
+      g.fillCircle(cx, 31, 4);
+      break;
+    case 'priest':
+      g.fillStyle(accent, 1);
+      g.fillCircle(cx, 15, 4);
+      g.fillRect(30, 11, 4, 12);
+      g.fillRect(26, 15, 12, 3);
+      break;
+    case 'goblin':
+      g.fillStyle(base, 1);
+      g.fillTriangle(17, 25, 8, 19, 19, 31);
+      g.fillTriangle(47, 25, 56, 19, 45, 31);
+      g.lineStyle(1, outline, 1);
+      g.strokeTriangle(17, 25, 8, 19, 19, 31);
+      g.strokeTriangle(47, 25, 56, 19, 45, 31);
+      break;
+  }
+
+  drawEyes(g, 27, 29, outline, accent);
+}
+
+function drawEyes(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  outline: number,
+  accent: number
+): void {
+  g.fillStyle(outline, 1);
+  g.fillRect(x, y, 3, 3);
+  g.fillRect(x + 8, y, 3, 3);
+  g.fillStyle(accent, 0.85);
+  g.fillRect(x + 1, y + 1, 1, 1);
+  g.fillRect(x + 9, y + 1, 1, 1);
+}

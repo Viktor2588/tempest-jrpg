@@ -53,12 +53,51 @@ export type VfxKind =
 
 export type VfxShape = 'burst' | 'spark' | 'puff' | 'bolt' | 'ring';
 
+export type PortraitKind =
+  | 'rimuru'
+  | 'gobta'
+  | 'shuna'
+  | 'sora'
+  | 'vael'
+  | 'lyrre'
+  | 'rigurd'
+  | 'mordrahn';
+
+export type PortraitMotif =
+  | 'slime'
+  | 'goblin'
+  | 'priest'
+  | 'warrior'
+  | 'mage'
+  | 'scout'
+  | 'elder'
+  | 'shadow';
+
+export type UiSkinKind = 'panel' | 'button' | 'button-active' | 'button-danger' | 'button-success';
+
 export interface VfxSpec {
   size: number;
   base: Hex;
   accent: Hex;
   outline: Hex;
   shape: VfxShape;
+}
+
+export interface PortraitSpec {
+  size: number;
+  base: Hex;
+  accent: Hex;
+  outline: Hex;
+  background: Hex;
+  motif: PortraitMotif;
+}
+
+export interface UiSkinSpec {
+  base: Hex;
+  accent: Hex;
+  outline: Hex;
+  highlight: Hex;
+  shadow: Hex;
 }
 
 const TILE_SPECS: Record<string, Omit<PlaceholderSpec, 'size' | 'outline'>> = {
@@ -92,6 +131,25 @@ export const VFX_KINDS: readonly VfxKind[] = [
   'target-ring'
 ] as const;
 
+export const PORTRAIT_KINDS: readonly PortraitKind[] = [
+  'rimuru',
+  'gobta',
+  'shuna',
+  'sora',
+  'vael',
+  'lyrre',
+  'rigurd',
+  'mordrahn'
+] as const;
+
+export const UI_SKIN_KINDS: readonly UiSkinKind[] = [
+  'panel',
+  'button',
+  'button-active',
+  'button-danger',
+  'button-success'
+] as const;
+
 /** Deterministische Platzhalter-Spec je Art; unbekannte Keys → neutraler Fallback. */
 export function placeholderSpec(kind: string): PlaceholderSpec {
   const isTile = kind.startsWith('tile-');
@@ -119,5 +177,46 @@ export function vfxSpec(kind: string): VfxSpec {
     case 'hit-burst':
     default:
       return { size: 32, base: PALETTE.ember, accent: PALETTE.gold, outline: PALETTE.ink, shape: 'burst' };
+  }
+}
+
+/** Deterministische Portrait-Specs für prozedurale, CC0-freie Pixel-Busts. */
+export function portraitSpec(kind: string): PortraitSpec {
+  switch (kind) {
+    case 'rimuru':
+      return { size: 64, base: PALETTE.water, accent: PALETTE.bone, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'slime' };
+    case 'gobta':
+      return { size: 64, base: PALETTE.grass, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'goblin' };
+    case 'shuna':
+      return { size: 64, base: PALETTE.hp, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.steel, motif: 'priest' };
+    case 'sora':
+      return { size: 64, base: PALETTE.ember, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'vael':
+      return { size: 64, base: PALETTE.arcane, accent: PALETTE.bone, outline: PALETTE.ink, background: PALETTE.steel, motif: 'mage' };
+    case 'lyrre':
+      return { size: 64, base: PALETTE.mist, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+    case 'rigurd':
+      return { size: 64, base: PALETTE.stone, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
+    case 'mordrahn':
+      return { size: 64, base: PALETTE.enemy, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'shadow' };
+    default:
+      return { size: 64, base: PALETTE.steel, accent: PALETTE.mist, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+  }
+}
+
+/** Deterministischer UI-Skin aus der Projektpalette. */
+export function uiSkinSpec(kind: string): UiSkinSpec {
+  switch (kind) {
+    case 'button-active':
+      return { base: PALETTE.water, accent: PALETTE.hp, outline: PALETTE.bone, highlight: PALETTE.mist, shadow: PALETTE.ink };
+    case 'button-danger':
+      return { base: PALETTE.enemy, accent: PALETTE.ember, outline: PALETTE.gold, highlight: PALETTE.bone, shadow: PALETTE.ink };
+    case 'button-success':
+      return { base: PALETTE.grassDark, accent: PALETTE.hp, outline: PALETTE.bone, highlight: PALETTE.hp, shadow: PALETTE.ink };
+    case 'button':
+      return { base: PALETTE.shadow, accent: PALETTE.water, outline: PALETTE.mist, highlight: PALETTE.steel, shadow: PALETTE.ink };
+    case 'panel':
+    default:
+      return { base: PALETTE.shadow, accent: PALETTE.gold, outline: PALETTE.steel, highlight: PALETTE.mist, shadow: PALETTE.ink };
   }
 }

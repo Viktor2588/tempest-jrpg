@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { generatePlaceholderTextures } from '../render/placeholderArt';
+import { generatePortraitTextures } from '../render/portraitAtlas';
 import { generateVfxTextures } from '../render/vfxAtlas';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
@@ -48,6 +49,8 @@ export class PreloadScene extends Phaser.Scene {
     // Prozedurale Platzhalter-Texturen (ph-<kind>) erzeugen — global verfügbar,
     // bis echte CC0-Assets eingepflegt sind. Szenen nutzen sie mit Rechteck-Fallback.
     generatePlaceholderTextures(this);
+    // Prozedurale Portraits (portrait-<kind>) für Dialog-/Menü-UI.
+    generatePortraitTextures(this);
     // Prozeduraler Pixel-VFX-Atlas (vfx-<kind>) für Kampf-Feedback.
     generateVfxTextures(this);
     this.scene.start('Title');

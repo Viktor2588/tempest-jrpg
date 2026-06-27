@@ -26,6 +26,7 @@ import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
 import type { VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
+import { addUiButtonBackground } from '../render/uiSkin';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 import { applyWorldState, completeEncounter, createWorldState } from '../systems/world';
@@ -437,7 +438,7 @@ export class BattleScene extends Phaser.Scene {
     // Auto-Kampf: schaltet automatische Zugwahl an/aus (siehe systems/autoBattle).
     items.push([this.auto ? '⏸ Auto: AN' : '⚡ Auto: aus', () => { this.auto = !this.auto; this.afterAction(); }]);
 
-    items.forEach(([label, callback], index) => this.button(GAME_WIDTH - 170, 280 + index * 42, label, callback));
+    items.forEach(([label, callback], index) => this.button(GAME_WIDTH - 170, 238 + index * 46, label, callback));
   }
 
   private drawSkillList(): void {
@@ -448,7 +449,7 @@ export class BattleScene extends Phaser.Scene {
     });
 
     skills.forEach((skill, index) => {
-      this.button(GAME_WIDTH - 190, 260 + index * 40, `${skill.name} (${skill.costMp} MP)`, () => {
+      this.button(GAME_WIDTH - 190, 260 + index * 48, `${skill.name} (${skill.costMp} MP)`, () => {
         if (actor.mp < skill.costMp) {
           this.flash('Nicht genug MP.');
           return;
@@ -463,7 +464,7 @@ export class BattleScene extends Phaser.Scene {
         this.refresh();
       });
     });
-    this.button(GAME_WIDTH - 190, 260 + skills.length * 40, '↩ Zurück', () => {
+    this.button(GAME_WIDTH - 190, 260 + skills.length * 48, '↩ Zurück', () => {
       this.mode = 'menu';
       this.refresh();
     });
@@ -474,14 +475,14 @@ export class BattleScene extends Phaser.Scene {
     inventory.forEach((stack, index) => {
       const item = itemById.get(stack.itemId);
       if (!item) return;
-      this.button(GAME_WIDTH - 190, 260 + index * 40, `${item.name} ×${stack.quantity}`, () => {
+      this.button(GAME_WIDTH - 190, 260 + index * 48, `${item.name} ×${stack.quantity}`, () => {
         this.pendingItemId = item.id;
         this.pendingSkillId = null;
         this.mode = 'target-ally';
         this.refresh();
       });
     });
-    this.button(GAME_WIDTH - 190, 260 + inventory.length * 40, '↩ Zurück', () => {
+    this.button(GAME_WIDTH - 190, 260 + inventory.length * 48, '↩ Zurück', () => {
       this.mode = 'menu';
       this.refresh();
     });
@@ -606,10 +607,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private button(x: number, y: number, label: string, callback: () => void): void {
-    const background = this.add.rectangle(x, y, 190, 36, 0x1b2940, 0.95)
-      .setOrigin(0, 0.5)
-      .setStrokeStyle(1, 0x68d7ff, 0.6)
-      .setInteractive();
+    const background = addUiButtonBackground(this, x, y, 190, 44);
     const text = this.add.text(x + 12, y, label, {
       fontFamily: 'sans-serif',
       fontSize: '14px',

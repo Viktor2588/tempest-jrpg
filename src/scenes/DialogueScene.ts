@@ -10,6 +10,8 @@ import {
 } from '../systems/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { loadSettings, textCharDelayMs } from '../systems/settings';
+import { portraitKeyForSpeaker } from '../render/portraitAtlas';
+import { addUiButtonBackground, addUiPanel, addUiPortraitFrame } from '../render/uiSkin';
 
 export class DialogueScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -51,8 +53,9 @@ export class DialogueScene extends Phaser.Scene {
     this.layer.removeAll(true);
     const settings = loadSettings(window.localStorage);
     const hc = settings.highContrast;
-    this.panel(70, 315, GAME_WIDTH - 140, 180);
-    this.layer.add(this.add.text(94, 250, this.view.speaker, {
+    this.panel(70, 230, GAME_WIDTH - 140, 265);
+    const textX = this.drawPortrait(this.view.speaker, 126, 314, 64) ? 180 : 94;
+    this.layer.add(this.add.text(textX, 250, this.view.speaker, {
       fontFamily: 'serif',
       fontSize: '24px',
       color: hc ? '#ffffff' : '#e9c56c'
@@ -62,11 +65,11 @@ export class DialogueScene extends Phaser.Scene {
     this.revealEvent?.remove();
     this.revealEvent = undefined;
     this.fullText = this.view.text;
-    this.bodyText = this.add.text(94, 292, '', {
+    this.bodyText = this.add.text(textX, 292, '', {
       fontFamily: 'sans-serif',
       fontSize: '16px',
       color: hc ? '#ffffff' : '#e9eef7',
-      wordWrap: { width: GAME_WIDTH - 188 }
+      wordWrap: { width: GAME_WIDTH - textX - 90 }
     });
     this.layer.add(this.bodyText);
     const delay = settings.reducedMotion ? 0 : textCharDelayMs(settings);
@@ -118,16 +121,11 @@ export class DialogueScene extends Phaser.Scene {
   }
 
   private panel(x: number, y: number, width: number, height: number): void {
-    this.layer.add(this.add.rectangle(x, y, width, height, 0x121b2a, 0.95)
-      .setOrigin(0, 0)
-      .setStrokeStyle(2, 0x33445f, 0.9));
+    this.layer.add(addUiPanel(this, x, y, width, height, { originY: 0, alpha: 0.96 }));
   }
 
   private button(x: number, y: number, width: number, label: string, callback: () => void): void {
-    const bg = this.add.rectangle(x, y, width, 44, 0x1b2940, 0.98)
-      .setOrigin(0, 0.5)
-      .setStrokeStyle(1, 0x68d7ff, 0.65)
-      .setInteractive();
+    const bg = addUiButtonBackground(this, x, y, width, 44);
     const text = this.add.text(x + 12, y, label, {
       fontFamily: 'sans-serif',
       fontSize: '14px',
@@ -138,5 +136,15 @@ export class DialogueScene extends Phaser.Scene {
     bg.on('pointerdown', callback);
     this.layer.add(bg);
     this.layer.add(text);
+  }
+
+  private drawPortrait(speaker: string, x: number, y: number, size: number): boolean {
+    const key = portraitKeyForSpeaker(speaker);
+    if (!key || !this.textures.exists(key)) {
+      return false;
+    }
+    this.layer.add(addUiPortraitFrame(this, x, y, size));
+    this.layer.add(this.add.image(x, y, key).setDisplaySize(size, size));
+    return true;
   }
 }
