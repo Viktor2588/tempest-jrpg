@@ -2,24 +2,60 @@ import { HEROES } from './characters';
 import { ENEMIES } from './enemies';
 import { ITEMS } from './items';
 import { JOBS } from './jobs';
+import {
+  CATCH_UP_CONFIG,
+  EVOLUTIONS,
+  JOB_UNLOCKS,
+  PROGRESSION_LINES,
+  PROGRESSION_REGIONS,
+  RELATIONSHIPS
+} from './progression';
 import { SKILLS } from './skills';
 import { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
 import type { DialogChoiceDefinition } from './world';
+import type {
+  CatchUpConfig,
+  EvolutionDefinition,
+  JobUnlockDefinition,
+  ProgressionLineDefinition,
+  RegionProgressionDefinition,
+  RelationshipDefinition
+} from './progression';
 import type {
   CharacterDefinition,
   EnemyDefinition,
   EquipmentSlot,
   ItemDefinition,
   JobDefinition,
-  SkillDefinition
+  SkillDefinition,
+  StatBlock
 } from './types';
 
 export { HEROES } from './characters';
 export { ENEMIES } from './enemies';
 export { ITEMS } from './items';
 export { JOBS } from './jobs';
+export {
+  CATCH_UP_CONFIG,
+  EVOLUTIONS,
+  JOB_UNLOCKS,
+  PROGRESSION_LINES,
+  PROGRESSION_REGIONS,
+  RELATIONSHIPS
+} from './progression';
 export { SKILLS } from './skills';
 export { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
+export type {
+  CatchUpConfig,
+  EvolutionDefinition,
+  JobUnlockDefinition,
+  ProgressionLineDefinition,
+  ProgressionUnlockSource,
+  RegionProgressionDefinition,
+  RelationshipDefinition,
+  RelationshipLevelDefinition,
+  RelationshipSceneDefinition
+} from './progression';
 export type {
   DialogChoiceDefinition,
   DialogDefinition,
@@ -53,6 +89,14 @@ export const GAME_DATA = {
   items: ITEMS,
   jobs: JOBS,
   skills: SKILLS,
+  progression: {
+    regions: PROGRESSION_REGIONS,
+    lines: PROGRESSION_LINES,
+    evolutions: EVOLUTIONS,
+    relationships: RELATIONSHIPS,
+    jobUnlocks: JOB_UNLOCKS,
+    catchUp: CATCH_UP_CONFIG
+  },
   world: {
     dialogs: DIALOGS,
     encounters: ENCOUNTERS,
@@ -73,21 +117,41 @@ interface DataSet {
   readonly items: readonly ItemDefinition[];
   readonly jobs: readonly JobDefinition[];
   readonly skills: readonly SkillDefinition[];
+  readonly progression: {
+    readonly regions: readonly RegionProgressionDefinition[];
+    readonly lines: readonly ProgressionLineDefinition[];
+    readonly evolutions: readonly EvolutionDefinition[];
+    readonly relationships: readonly RelationshipDefinition[];
+    readonly jobUnlocks: readonly JobUnlockDefinition[];
+    readonly catchUp: CatchUpConfig;
+  };
   readonly world: typeof GAME_DATA.world;
 }
 
 export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue[] {
   const issues: DataValidationIssue[] = [];
-  const skillIds = new Set(data.skills.map((skill) => skill.id));
-  const itemIds = new Set(data.items.map((item) => item.id));
-  const heroIds = new Set(data.heroes.map((hero) => hero.id));
-  const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
-  const dialogIds = new Set(data.world.dialogs.map((dialog) => dialog.id));
+  const skillIds = new Set<string>(data.skills.map((skill) => skill.id));
+  const itemIds = new Set<string>(data.items.map((item) => item.id));
+  const heroIds = new Set<string>(data.heroes.map((hero) => hero.id));
+  const enemyIds = new Set<string>(data.enemies.map((enemy) => enemy.id));
+  const jobIds = new Set<string>(data.jobs.map((job) => job.id));
+  const dialogIds = new Set<string>(data.world.dialogs.map((dialog) => dialog.id));
+  const encounterIds = new Set<string>(data.world.encounters.map((encounter) => encounter.id));
+  const npcIds = new Set<string>(data.world.npcs.map((npc) => npc.id));
   const questIds = new Set<string>(data.world.quests.map((quest) => quest.id));
+  const regionIds = new Set<string>(data.progression.regions.map((region) => region.id));
+  const lineIds = new Set<string>(data.progression.lines.map((line) => line.id));
+  const evolutionIds = new Set<string>(data.progression.evolutions.map((evolution) => evolution.id));
+  const relationshipIds = new Set<string>(data.progression.relationships.map((relationship) => relationship.id));
 
   validateUniqueIds('skills', data.skills, issues);
   validateUniqueIds('items', data.items, issues);
   validateUniqueIds('jobs', data.jobs, issues);
+  validateUniqueIds('progression.regions', data.progression.regions, issues);
+  validateUniqueIds('progression.lines', data.progression.lines, issues);
+  validateUniqueIds('progression.evolutions', data.progression.evolutions, issues);
+  validateUniqueIds('progression.relationships', data.progression.relationships, issues);
+  validateUniqueIds('progression.jobUnlocks', data.progression.jobUnlocks, issues);
   validateUniqueIds('world.dialogs', data.world.dialogs, issues);
   validateUniqueIds('world.encounters', data.world.encounters, issues);
   validateUniqueIds('world.npcs', data.world.npcs, issues);
@@ -163,6 +227,190 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       }
     }
     validateJobMultipliers(job, issues);
+  }
+
+  for (const region of data.progression.regions) {
+    validatePositiveInteger(`progression.regions.${region.id}.baselineLevel`, region.baselineLevel, issues);
+    if (region.chapterId.trim().length === 0) {
+      issues.push({
+        path: `progression.regions.${region.id}.chapterId`,
+        message: 'Kapitel-ID darf nicht leer sein.'
+      });
+    }
+    for (const encounterId of region.encounterIds) {
+      if (!encounterIds.has(encounterId)) {
+        issues.push({
+          path: `progression.regions.${region.id}.encounterIds.${encounterId}`,
+          message: `Region verweist auf unbekannten Encounter '${encounterId}'.`
+        });
+      }
+    }
+    for (const enemyId of region.enemyIds) {
+      if (!enemyIds.has(enemyId)) {
+        issues.push({
+          path: `progression.regions.${region.id}.enemyIds.${enemyId}`,
+          message: `Region verweist auf unbekannten Gegner '${enemyId}'.`
+        });
+      }
+    }
+  }
+
+  for (const line of data.progression.lines) {
+    if (!heroIds.has(line.characterId)) {
+      issues.push({
+        path: `progression.lines.${line.id}.characterId`,
+        message: `Progressionslinie verweist auf unbekannten Charakter '${line.characterId}'.`
+      });
+    }
+    if (!regionIds.has(line.regionId)) {
+      issues.push({
+        path: `progression.lines.${line.id}.regionId`,
+        message: `Progressionslinie verweist auf unbekannte Region '${line.regionId}'.`
+      });
+    }
+    for (const enemyId of line.rivalEnemyIds) {
+      if (!enemyIds.has(enemyId)) {
+        issues.push({
+          path: `progression.lines.${line.id}.rivalEnemyIds.${enemyId}`,
+          message: `Progressionslinie verweist auf unbekannten Rivalen '${enemyId}'.`
+        });
+      }
+    }
+  }
+
+  for (const evolution of data.progression.evolutions) {
+    const line = data.progression.lines.find((candidate) => candidate.id === evolution.lineId);
+    if (!lineIds.has(evolution.lineId)) {
+      issues.push({
+        path: `progression.evolutions.${evolution.id}.lineId`,
+        message: `Entwicklung verweist auf unbekannte Linie '${evolution.lineId}'.`
+      });
+    }
+    if (!heroIds.has(evolution.characterId)) {
+      issues.push({
+        path: `progression.evolutions.${evolution.id}.characterId`,
+        message: `Entwicklung verweist auf unbekannten Charakter '${evolution.characterId}'.`
+      });
+    }
+    if (line && line.characterId !== evolution.characterId) {
+      issues.push({
+        path: `progression.evolutions.${evolution.id}.characterId`,
+        message: `Entwicklung passt nicht zur Linie '${evolution.lineId}'.`
+      });
+    }
+    validatePositiveInteger(`progression.evolutions.${evolution.id}.requiredLevel`, evolution.requiredLevel, issues);
+    validatePositiveInteger(`progression.evolutions.${evolution.id}.rank`, evolution.rank, issues);
+    validateStatBonus(`progression.evolutions.${evolution.id}.statBonus`, evolution.statBonus, issues);
+    validateSkillReferences(`progression.evolutions.${evolution.id}.skillIds`, evolution.skillIds, skillIds, issues);
+    validateJobReferences(`progression.evolutions.${evolution.id}.unlockedJobIds`, evolution.unlockedJobIds, jobIds, issues);
+  }
+
+  for (const relationship of data.progression.relationships) {
+    if (!heroIds.has(relationship.characterId)) {
+      issues.push({
+        path: `progression.relationships.${relationship.id}.characterId`,
+        message: `Beziehung verweist auf unbekannten Charakter '${relationship.characterId}'.`
+      });
+    }
+    if (relationship.partnerKind === 'npc' && !npcIds.has(relationship.partnerId)) {
+      issues.push({
+        path: `progression.relationships.${relationship.id}.partnerId`,
+        message: `NPC-Beziehung verweist auf unbekannten NPC '${relationship.partnerId}'.`
+      });
+    }
+    let previousLevel = 0;
+    let previousPoints = -1;
+    for (const level of relationship.levels) {
+      validatePositiveInteger(`progression.relationships.${relationship.id}.levels.${level.level}.level`, level.level, issues);
+      validateNonNegativeInteger(
+        `progression.relationships.${relationship.id}.levels.${level.level}.requiredPoints`,
+        level.requiredPoints,
+        issues
+      );
+      if (level.level <= previousLevel || level.requiredPoints <= previousPoints) {
+        issues.push({
+          path: `progression.relationships.${relationship.id}.levels.${level.level}`,
+          message: 'Beziehungsstufen müssen streng aufsteigend sortiert sein.'
+        });
+      }
+      validateStatBonus(
+        `progression.relationships.${relationship.id}.levels.${level.level}.passiveBonus`,
+        level.passiveBonus,
+        issues
+      );
+      validateSkillReferences(
+        `progression.relationships.${relationship.id}.levels.${level.level}.skillIds`,
+        level.skillIds ?? [],
+        skillIds,
+        issues
+      );
+      validateJobReferences(
+        `progression.relationships.${relationship.id}.levels.${level.level}.unlockedJobIds`,
+        level.unlockedJobIds ?? [],
+        jobIds,
+        issues
+      );
+      previousLevel = level.level;
+      previousPoints = level.requiredPoints;
+    }
+    for (const scene of relationship.scenes) {
+      validatePositiveInteger(
+        `progression.relationships.${relationship.id}.scenes.${scene.id}.requiredLevel`,
+        scene.requiredLevel,
+        issues
+      );
+      if (!relationship.levels.some((level) => level.level >= scene.requiredLevel)) {
+        issues.push({
+          path: `progression.relationships.${relationship.id}.scenes.${scene.id}.requiredLevel`,
+          message: 'Beziehungsszene verlangt eine nicht erreichbare Stufe.'
+        });
+      }
+    }
+  }
+
+  for (const unlock of data.progression.jobUnlocks) {
+    if (!jobIds.has(unlock.jobId)) {
+      issues.push({
+        path: `progression.jobUnlocks.${unlock.id}.jobId`,
+        message: `Job-Freischaltung verweist auf unbekannten Job '${unlock.jobId}'.`
+      });
+    }
+    if (unlock.characterId && !heroIds.has(unlock.characterId)) {
+      issues.push({
+        path: `progression.jobUnlocks.${unlock.id}.characterId`,
+        message: `Job-Freischaltung verweist auf unbekannten Charakter '${unlock.characterId}'.`
+      });
+    }
+    if (unlock.requiredEvolutionId && !evolutionIds.has(unlock.requiredEvolutionId)) {
+      issues.push({
+        path: `progression.jobUnlocks.${unlock.id}.requiredEvolutionId`,
+        message: `Job-Freischaltung verweist auf unbekannte Entwicklung '${unlock.requiredEvolutionId}'.`
+      });
+    }
+    if (unlock.requiredRegionId && !regionIds.has(unlock.requiredRegionId)) {
+      issues.push({
+        path: `progression.jobUnlocks.${unlock.id}.requiredRegionId`,
+        message: `Job-Freischaltung verweist auf unbekannte Region '${unlock.requiredRegionId}'.`
+      });
+    }
+    const requiredRelationship = unlock.requiredRelationshipLevel;
+    if (requiredRelationship && !relationshipIds.has(requiredRelationship.relationshipId)) {
+      issues.push({
+        path: `progression.jobUnlocks.${unlock.id}.requiredRelationshipLevel.relationshipId`,
+        message: `Job-Freischaltung verweist auf unbekannte Beziehung '${requiredRelationship.relationshipId}'.`
+      });
+    }
+  }
+
+  validateNonNegativeInteger('progression.catchUp.maxLevelGap', data.progression.catchUp.maxLevelGap, issues);
+  if (data.progression.catchUp.reserveExperienceRate < 0 || data.progression.catchUp.reserveExperienceRate > 1) {
+    issues.push({
+      path: 'progression.catchUp.reserveExperienceRate',
+      message: 'Reserve-EP-Rate muss zwischen 0 und 1 liegen.'
+    });
+  }
+  for (const [chapterId, baseline] of Object.entries(data.progression.catchUp.chapterBaselines)) {
+    validatePositiveInteger(`progression.catchUp.chapterBaselines.${chapterId}`, baseline, issues);
   }
 
   for (const npc of data.world.npcs) {
@@ -290,6 +538,37 @@ function validateSkillReferences(
       issues.push({
         path: `${path}.${skillId}`,
         message: `Unbekannter Skill '${skillId}'.`
+      });
+    }
+  }
+}
+
+function validateJobReferences(
+  path: string,
+  jobIds: readonly string[],
+  knownJobIds: ReadonlySet<string>,
+  issues: DataValidationIssue[]
+): void {
+  for (const jobId of jobIds) {
+    if (!knownJobIds.has(jobId)) {
+      issues.push({
+        path: `${path}.${jobId}`,
+        message: `Unbekannter Job '${jobId}'.`
+      });
+    }
+  }
+}
+
+function validateStatBonus(
+  path: string,
+  bonus: Partial<Record<keyof StatBlock, number>>,
+  issues: DataValidationIssue[]
+): void {
+  for (const [stat, value] of Object.entries(bonus)) {
+    if (!Number.isInteger(value) || value < 0) {
+      issues.push({
+        path: `${path}.${stat}`,
+        message: 'Stat-Bonus muss eine nicht-negative ganze Zahl sein.'
       });
     }
   }

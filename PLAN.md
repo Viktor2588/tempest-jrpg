@@ -136,13 +136,15 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/world.test.ts`:** 7 Checks (Welt-Datenintegrität, Dialog→Quest/Flag, Report-Freischaltung+Belohnung, Shop-Kauf/-Verkauf, Interaktionsnähe, einmaliger Trigger-Encounter, kompletter Headless-Smoke-Flow Stadt → NPC/Quest → Shop → Begegnung → Belohnung → Speichern).
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **36/36** grün (7 Welt + 6 Menü + 9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Live-Browser-Smoke noch manuell; Logik/Build grün.*
 
-[ ] **Phase 6 – Inhalt & Progression: Entwicklung, Namensgebung, Jobs, Beziehungen**
-- Marquee-Feature der Vorlage als Party-Progression: Namensgebung → Entwicklung/Evolution, Skill-Erwerb, Ränge/Level; mehrere Helden-/Monsterlinien, Gegner und Regionen als Inhalt.
-- Job-/Rollen-System ausbauen: Freischaltungen über Story, Entwicklung, Beziehungen oder Erkundung; späterer Zielpunkt ist kontrollierter Rollenwechsel im Kampf.
-- Beziehungen ausbauen: Bindungsstufen, kurze Szenen, Team-/Passiveffekte und nachvollziehbare Boni.
-- Aufhol-/Skalierungsregeln: Reserve-EP, Party-weites Level-Aufholen oder Kapitel-Baselines verhindern repetitive Nachlevel-Phasen.
-- Balance-Analyse (Kraftkurven je Rang/Level/Rolle/Bindungsbonus) als Test/Heuristik.
-- **Abnahme:** Entwicklung/Namensgebung verändert Werte/Skills nachvollziehbar; Rollen- und Bindungsboni sind testbar; Balance-Bänder monoton; ungenutzte Figuren können ohne Grinding wieder sinnvoll eingesetzt werden; Inhalt deckt mehrere Linien/Regionen ab.
+[x] **Phase 6 – Inhalt & Progression: Entwicklung, Namensgebung, Jobs, Beziehungen (fertig 2026-06-27, Worktree `worktree/tempest-phase-6-progression`)**
+- **Progressionsdaten `src/data/progression.ts`:** 3 Regionen (`tempest-grove`, `marsh-border`, `spirit-shrine`), 3 Helden-/Monsterlinien, 3 benannte Entwicklungen, 3 Beziehungsketten, Job-Unlocks und Catch-up-Konfiguration.
+- **Content-Erweiterung:** Neue Skills (`predator-aura`, `direwolf-rush`, `sacred-weave`), neue Gegner (`orc-scout`, `lizardman-acolyte`) und zusätzliche Encounter (`marsh-border-watch`, `shrine-approach`) erweitern das erste Content-Set über Startgebiet und Trainingskampf hinaus.
+- **Reine Progression-Engine `src/systems/progression.ts`:** Namensgebung, Entwicklung/Evolution, Skill-/Stat-Boni, Beziehungsstufen, Beziehungsszenen, Regionsentdeckung, Job-Freischaltungen, Reserve-Catch-up und Balance-Heuristik sind Phaser-/DOM-frei testbar.
+- **Rollenfreischaltung:** Fortgeschrittene Jobs bleiben im Menü gesperrt, bis `getUnlockedJobIds` sie über Evolution (`predator-sage`), Beziehung (`tempest-knight`), Story-Flag (`spirit-weaver`) oder Erkundung (`marsh-runner`) freigibt.
+- **Namensgebung sichtbar:** `createBattlePartyFromMembers` übernimmt gespeicherte Partynamen, sodass benannte Figuren auch im Kampf korrekt erscheinen.
+- **Balance/Catch-up:** Kapitel-Baselines und max. Level-Abstand holen Reservefiguren auf; `analyzeProgressionBalance` prüft monotone Heldenkurven, Evolutionen, Beziehungen, Job-Multiplikator-Bänder und Regionen.
+- **Test `test/progression.test.ts`:** 5 Checks (Namensgebung→Evolution→Skill/Stats/Job, Job-Unlocks über Beziehung/Story/Erkundung, Beziehungsboni, Reserve-Catch-up, Content-/Balance-Abnahme).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **41/41** grün (5 Progression + 7 Welt + 6 Menü + 9 Kampf + 5 RNG + 4 Oberwelt + 3 Save + 2 Datenintegrität), `bun run build` → `dist/`. *Build zeigt weiterhin nur die bekannte Vite-Chunkgrößenwarnung.*
 
 [x] **Phase 7 – Feinschliff: Audio, Übergänge, Tutorial, Optionen (fertig 2026-06-27, Worktree `worktree/tempest-phase-7-polish`)**
 - **Einstellungen `src/systems/settings.ts`** (rein, headless testbar, eigener localStorage-Key `tempest-settings-v1`, getrennt vom Save-Schema): Lautstärken (Master/Musik/SFX), reduzierte Bewegung, `seenTutorial`; mit Klemmung + Migration kaputter/teilweiser Daten. `test/settings.test.ts`: 5 Checks (Defaults, Roundtrip, Klemmung, Migration, effektive Lautstärke).
