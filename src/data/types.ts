@@ -79,6 +79,12 @@ export interface ItemDefinition {
   readonly stackable: boolean;
   readonly startingQuantity?: number;
   readonly equipmentSlot?: EquipmentSlot;
+  readonly equipmentSetId?: string;
+  readonly enchantment?: {
+    readonly maxLevel: number;
+    readonly goldCostPerLevel: number;
+    readonly statBonusPerLevel: Partial<StatBlock>;
+  };
   readonly statBonus?: Partial<StatBlock>;
   readonly effect?: ItemEffect;
 }

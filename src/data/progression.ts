@@ -1,4 +1,4 @@
-import type { StatBlock } from './types';
+import type { StatusEffectId, StatBlock } from './types';
 
 export type ProgressionUnlockSource = 'story' | 'evolution' | 'bond' | 'exploration';
 
@@ -32,7 +32,14 @@ export interface EvolutionDefinition {
   readonly statBonus: Partial<StatBlock>;
   readonly skillIds: readonly string[];
   readonly unlockedJobIds: readonly string[];
+  readonly skillPointReward: number;
   readonly description: string;
+}
+
+export interface RelationshipCombatBonus {
+  readonly startingTeamMeter?: number;
+  readonly teamAttack?: boolean;
+  readonly openingStatusId?: StatusEffectId;
 }
 
 export interface RelationshipLevelDefinition {
@@ -40,6 +47,8 @@ export interface RelationshipLevelDefinition {
   readonly requiredPoints: number;
   readonly title: string;
   readonly passiveBonus: Partial<StatBlock>;
+  readonly partnerPassiveBonus?: Partial<StatBlock>;
+  readonly combatBonus?: RelationshipCombatBonus;
   readonly skillIds?: readonly string[];
   readonly unlockedJobIds?: readonly string[];
 }
@@ -80,6 +89,37 @@ export interface CatchUpConfig {
   readonly maxLevelGap: number;
   readonly reserveExperienceRate: number;
   readonly chapterBaselines: Readonly<Record<string, number>>;
+}
+
+export interface SkillTreeNodeDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly cost: number;
+  readonly requiredLevel: number;
+  readonly requiredNodeIds: readonly string[];
+  readonly requiredEvolutionId?: string;
+  readonly skillId?: string;
+  readonly statBonus?: Partial<StatBlock>;
+}
+
+export interface SkillTreeDefinition {
+  readonly id: string;
+  readonly characterId: string;
+  readonly name: string;
+  readonly nodes: readonly SkillTreeNodeDefinition[];
+}
+
+export interface EquipmentSetTierDefinition {
+  readonly pieces: number;
+  readonly statBonus: Partial<StatBlock>;
+}
+
+export interface EquipmentSetDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly itemIds: readonly string[];
+  readonly tiers: readonly EquipmentSetTierDefinition[];
 }
 
 export const PROGRESSION_REGIONS = [
@@ -157,6 +197,7 @@ export const EVOLUTIONS = [
     },
     skillIds: ['predator-aura'],
     unlockedJobIds: ['predator-sage'],
+    skillPointReward: 2,
     description: 'Ein benannter Kern macht Rimuru zu einer fokussierten Magie-/Adaptionsrolle.'
   },
   {
@@ -175,6 +216,7 @@ export const EVOLUTIONS = [
     },
     skillIds: ['direwolf-rush'],
     unlockedJobIds: [],
+    skillPointReward: 2,
     description: 'Gobtas benannte Form stabilisiert die Front, ohne seine Initiative zu verlieren.'
   },
   {
@@ -192,11 +234,63 @@ export const EVOLUTIONS = [
     },
     skillIds: ['sacred-weave'],
     unlockedJobIds: [],
+    skillPointReward: 2,
     description: 'Shunas Namensentwicklung verschiebt sie klar in Richtung Heilung und Barrieren.'
   }
 ] as const satisfies readonly EvolutionDefinition[];
 
 export const RELATIONSHIPS = [
+  {
+    id: 'rimuru-gobta',
+    characterId: 'rimuru',
+    partnerId: 'gobta',
+    partnerName: 'Gobta',
+    partnerKind: 'party',
+    levels: [
+      {
+        level: 1,
+        requiredPoints: 20,
+        title: 'Gemeinsame Patrouille',
+        passiveBonus: { defense: 1 },
+        partnerPassiveBonus: { agility: 1 },
+        combatBonus: { startingTeamMeter: 20 }
+      },
+      {
+        level: 2,
+        requiredPoints: 60,
+        title: 'Tempest-Doppelschlag',
+        passiveBonus: { attack: 2, magic: 2 },
+        partnerPassiveBonus: { attack: 2, agility: 2 },
+        combatBonus: { startingTeamMeter: 35, teamAttack: true }
+      },
+      {
+        level: 3,
+        requiredPoints: 120,
+        title: 'Sturmvorhut',
+        passiveBonus: { attack: 3, magic: 3, agility: 2 },
+        partnerPassiveBonus: { attack: 3, defense: 2, agility: 3 },
+        combatBonus: {
+          startingTeamMeter: 50,
+          teamAttack: true,
+          openingStatusId: 'attack-up'
+        }
+      }
+    ],
+    scenes: [
+      {
+        id: 'rimuru-gobta-patrol',
+        requiredLevel: 1,
+        title: 'Patrouille zu zweit',
+        summary: 'Rimuru und Gobta lernen, ihre improvisierten Angriffe aufeinander abzustimmen.'
+      },
+      {
+        id: 'rimuru-gobta-storm-drill',
+        requiredLevel: 2,
+        title: 'Sturmtraining',
+        summary: 'Ein gemeinsames Manöver wird zum verlässlichen Team-Angriff.'
+      }
+    ]
+  },
   {
     id: 'rimuru-rigurd',
     characterId: 'rimuru',
@@ -350,3 +444,132 @@ export const CATCH_UP_CONFIG = {
     'chapter-3': 7
   }
 } as const satisfies CatchUpConfig;
+
+export const SKILL_TREES = [
+  {
+    id: 'rimuru-adaptation-tree',
+    characterId: 'rimuru',
+    name: 'Adaptive Essenz',
+    nodes: [
+      {
+        id: 'rimuru-fluid-core',
+        name: 'Fließender Kern',
+        description: 'Verdichtet Magie und erhöht die MP-Reserve.',
+        cost: 1,
+        requiredLevel: 2,
+        requiredNodeIds: [],
+        statBonus: { maxMp: 4, magic: 1 }
+      },
+      {
+        id: 'rimuru-predator-instinct',
+        name: 'Raubtierinstinkt',
+        description: 'Öffnet nach der Entwicklung den Zugriff auf Giftdorn.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        requiredEvolutionId: 'rimuru-predator-slime',
+        skillId: 'venom-spit'
+      },
+      {
+        id: 'rimuru-shadow-domain',
+        name: 'Schattendomäne',
+        description: 'Verstärkt Schattenmagie und lehrt Geistfessel.',
+        cost: 2,
+        requiredLevel: 6,
+        requiredNodeIds: ['rimuru-predator-instinct'],
+        skillId: 'spirit-bind',
+        statBonus: { magic: 3, spirit: 2 }
+      }
+    ]
+  },
+  {
+    id: 'gobta-pack-tree',
+    characterId: 'gobta',
+    name: 'Rudeltaktik',
+    nodes: [
+      {
+        id: 'gobta-pack-footwork',
+        name: 'Rudelschritt',
+        description: 'Verbessert Gobtas Initiative.',
+        cost: 1,
+        requiredLevel: 2,
+        requiredNodeIds: [],
+        statBonus: { agility: 2 }
+      },
+      {
+        id: 'gobta-rider-feint',
+        name: 'Reiterfinte',
+        description: 'Lehrt den Schnellen Schritt.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['gobta-pack-footwork'],
+        skillId: 'quick-step'
+      },
+      {
+        id: 'gobta-alpha-charge',
+        name: 'Alpha-Ansturm',
+        description: 'Verbindet die benannte Form mit dem Direwolf-Ansturm.',
+        cost: 2,
+        requiredLevel: 6,
+        requiredNodeIds: ['gobta-rider-feint'],
+        requiredEvolutionId: 'gobta-hobgoblin-guard',
+        skillId: 'direwolf-rush',
+        statBonus: { attack: 3, agility: 2 }
+      }
+    ]
+  },
+  {
+    id: 'shuna-weaving-tree',
+    characterId: 'shuna',
+    name: 'Geistgewebe',
+    nodes: [
+      {
+        id: 'shuna-prayer-thread',
+        name: 'Gebetsfaden',
+        description: 'Stärkt Geist und MP.',
+        cost: 1,
+        requiredLevel: 2,
+        requiredNodeIds: [],
+        statBonus: { maxMp: 4, spirit: 2 }
+      },
+      {
+        id: 'shuna-warding-weave',
+        name: 'Schutzgewebe',
+        description: 'Lehrt das Barrieregebet.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['shuna-prayer-thread'],
+        skillId: 'barrier-prayer'
+      },
+      {
+        id: 'shuna-sacred-circle',
+        name: 'Sakralkreis',
+        description: 'Vollendet das Gewebe der benannten Kijin-Form.',
+        cost: 2,
+        requiredLevel: 6,
+        requiredNodeIds: ['shuna-warding-weave'],
+        requiredEvolutionId: 'shuna-kijin-weaver',
+        skillId: 'sacred-weave',
+        statBonus: { magic: 2, spirit: 3 }
+      }
+    ]
+  }
+] as const satisfies readonly SkillTreeDefinition[];
+
+export const EQUIPMENT_SETS = [
+  {
+    id: 'tempest-initiate',
+    name: 'Tempest-Anwärter',
+    itemIds: ['tempest-training-sword', 'traveler-cloak', 'tempest-charm'],
+    tiers: [
+      {
+        pieces: 2,
+        statBonus: { defense: 2, agility: 1 }
+      },
+      {
+        pieces: 3,
+        statBonus: { maxHp: 8, attack: 2, spirit: 2 }
+      }
+    ]
+  }
+] as const satisfies readonly EquipmentSetDefinition[];

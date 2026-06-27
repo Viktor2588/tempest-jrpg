@@ -96,6 +96,17 @@ export const SKILLS = [
     tags: ['heal', 'magical']
   },
   {
+    id: 'barrier-prayer',
+    name: 'Barrieregebet',
+    description: 'Legt einen schützenden Gebetsfaden um einen Verbündeten.',
+    element: 'holy',
+    target: 'single-ally',
+    costMp: 6,
+    power: 0,
+    tags: ['buff', 'magical'],
+    statusEffect: { id: 'defense-up', chance: 1, turns: 3 }
+  },
+  {
     id: 'predator-aura',
     name: 'Raubtier-Aura',
     description: 'Ein konzentrierter Schattenstoß, der aus einer benannten Schleimform erwacht.',

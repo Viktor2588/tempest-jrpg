@@ -127,10 +127,13 @@ export function getAvailableJobs(characterId: string, unlockedJobIds: readonly s
 }
 
 export function calculateMemberStats(member: PartyMemberState, jobId = getDefaultJobId(member.characterId)): StatBlock {
+  return applyJobMultipliers(calculateMemberBaseStats(member), requireJob(jobId));
+}
+
+export function calculateMemberBaseStats(member: PartyMemberState): StatBlock {
   const character = requireCharacter(member.characterId);
   const baseStats = scaleStats(character.baseStats, character.growthPerLevel, member.level);
-  const jobStats = applyJobMultipliers(baseStats, requireJob(jobId));
-  return addStats(jobStats, calculateEquipmentBonus(member));
+  return addStats(baseStats, calculateEquipmentBonus(member));
 }
 
 export function calculateEquipmentBonus(member: PartyMemberState): Partial<StatBlock> {
@@ -314,7 +317,7 @@ function normalizePartyResources(state: MenuGameState): MenuGameState {
   };
 }
 
-function applyJobMultipliers(stats: StatBlock, job: JobDefinition): StatBlock {
+export function applyJobMultipliers(stats: StatBlock, job: JobDefinition): StatBlock {
   return {
     maxHp: multiplyStat(stats.maxHp, job.statMultiplier.maxHp),
     maxMp: multiplyStat(stats.maxMp, job.statMultiplier.maxMp),

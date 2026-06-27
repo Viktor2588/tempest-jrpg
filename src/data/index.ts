@@ -4,22 +4,26 @@ import { ITEMS } from './items';
 import { JOBS } from './jobs';
 import {
   CATCH_UP_CONFIG,
+  EQUIPMENT_SETS,
   EVOLUTIONS,
   JOB_UNLOCKS,
   PROGRESSION_LINES,
   PROGRESSION_REGIONS,
-  RELATIONSHIPS
+  RELATIONSHIPS,
+  SKILL_TREES
 } from './progression';
 import { SKILLS } from './skills';
 import { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
 import type { DialogChoiceDefinition } from './world';
 import type {
   CatchUpConfig,
+  EquipmentSetDefinition,
   EvolutionDefinition,
   JobUnlockDefinition,
   ProgressionLineDefinition,
   RegionProgressionDefinition,
-  RelationshipDefinition
+  RelationshipDefinition,
+  SkillTreeDefinition
 } from './progression';
 import type {
   CharacterDefinition,
@@ -37,24 +41,31 @@ export { ITEMS } from './items';
 export { JOBS } from './jobs';
 export {
   CATCH_UP_CONFIG,
+  EQUIPMENT_SETS,
   EVOLUTIONS,
   JOB_UNLOCKS,
   PROGRESSION_LINES,
   PROGRESSION_REGIONS,
-  RELATIONSHIPS
+  RELATIONSHIPS,
+  SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
 export { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
 export type {
   CatchUpConfig,
+  EquipmentSetDefinition,
+  EquipmentSetTierDefinition,
   EvolutionDefinition,
   JobUnlockDefinition,
   ProgressionLineDefinition,
   ProgressionUnlockSource,
   RegionProgressionDefinition,
+  RelationshipCombatBonus,
   RelationshipDefinition,
   RelationshipLevelDefinition,
-  RelationshipSceneDefinition
+  RelationshipSceneDefinition,
+  SkillTreeDefinition,
+  SkillTreeNodeDefinition
 } from './progression';
 export type {
   DialogChoiceDefinition,
@@ -94,6 +105,8 @@ export const GAME_DATA = {
     lines: PROGRESSION_LINES,
     evolutions: EVOLUTIONS,
     relationships: RELATIONSHIPS,
+    skillTrees: SKILL_TREES,
+    equipmentSets: EQUIPMENT_SETS,
     jobUnlocks: JOB_UNLOCKS,
     catchUp: CATCH_UP_CONFIG
   },
@@ -122,6 +135,8 @@ interface DataSet {
     readonly lines: readonly ProgressionLineDefinition[];
     readonly evolutions: readonly EvolutionDefinition[];
     readonly relationships: readonly RelationshipDefinition[];
+    readonly skillTrees: readonly SkillTreeDefinition[];
+    readonly equipmentSets: readonly EquipmentSetDefinition[];
     readonly jobUnlocks: readonly JobUnlockDefinition[];
     readonly catchUp: CatchUpConfig;
   };
@@ -143,6 +158,10 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   const lineIds = new Set<string>(data.progression.lines.map((line) => line.id));
   const evolutionIds = new Set<string>(data.progression.evolutions.map((evolution) => evolution.id));
   const relationshipIds = new Set<string>(data.progression.relationships.map((relationship) => relationship.id));
+  const equipmentSetIds = new Set<string>(data.progression.equipmentSets.map((set) => set.id));
+  const skillTreeNodeIds = new Set<string>(
+    data.progression.skillTrees.flatMap((tree) => tree.nodes.map((node) => node.id))
+  );
 
   validateUniqueIds('skills', data.skills, issues);
   validateUniqueIds('items', data.items, issues);
@@ -151,6 +170,13 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   validateUniqueIds('progression.lines', data.progression.lines, issues);
   validateUniqueIds('progression.evolutions', data.progression.evolutions, issues);
   validateUniqueIds('progression.relationships', data.progression.relationships, issues);
+  validateUniqueIds('progression.skillTrees', data.progression.skillTrees, issues);
+  validateUniqueIds(
+    'progression.skillTreeNodes',
+    data.progression.skillTrees.flatMap((tree) => tree.nodes),
+    issues
+  );
+  validateUniqueIds('progression.equipmentSets', data.progression.equipmentSets, issues);
   validateUniqueIds('progression.jobUnlocks', data.progression.jobUnlocks, issues);
   validateUniqueIds('world.dialogs', data.world.dialogs, issues);
   validateUniqueIds('world.encounters', data.world.encounters, issues);
@@ -201,6 +227,25 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
         path: `items.${item.id}.effect.skillId`,
         message: `Item verweist auf unbekannten Skill '${item.effect.skillId ?? 'undefined'}'.`
       });
+    }
+    if (item.equipmentSetId && !equipmentSetIds.has(item.equipmentSetId)) {
+      issues.push({
+        path: `items.${item.id}.equipmentSetId`,
+        message: `Item verweist auf unbekanntes Set '${item.equipmentSetId}'.`
+      });
+    }
+    if (item.enchantment) {
+      validatePositiveInteger(`items.${item.id}.enchantment.maxLevel`, item.enchantment.maxLevel, issues);
+      validatePositiveInteger(
+        `items.${item.id}.enchantment.goldCostPerLevel`,
+        item.enchantment.goldCostPerLevel,
+        issues
+      );
+      validateStatBonus(
+        `items.${item.id}.enchantment.statBonusPerLevel`,
+        item.enchantment.statBonusPerLevel,
+        issues
+      );
     }
     validateEquipmentItem(item, issues);
   }
@@ -300,6 +345,11 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     }
     validatePositiveInteger(`progression.evolutions.${evolution.id}.requiredLevel`, evolution.requiredLevel, issues);
     validatePositiveInteger(`progression.evolutions.${evolution.id}.rank`, evolution.rank, issues);
+    validatePositiveInteger(
+      `progression.evolutions.${evolution.id}.skillPointReward`,
+      evolution.skillPointReward,
+      issues
+    );
     validateStatBonus(`progression.evolutions.${evolution.id}.statBonus`, evolution.statBonus, issues);
     validateSkillReferences(`progression.evolutions.${evolution.id}.skillIds`, evolution.skillIds, skillIds, issues);
     validateJobReferences(`progression.evolutions.${evolution.id}.unlockedJobIds`, evolution.unlockedJobIds, jobIds, issues);
@@ -316,6 +366,12 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       issues.push({
         path: `progression.relationships.${relationship.id}.partnerId`,
         message: `NPC-Beziehung verweist auf unbekannten NPC '${relationship.partnerId}'.`
+      });
+    }
+    if (relationship.partnerKind === 'party' && !heroIds.has(relationship.partnerId)) {
+      issues.push({
+        path: `progression.relationships.${relationship.id}.partnerId`,
+        message: `Party-Beziehung verweist auf unbekannten Charakter '${relationship.partnerId}'.`
       });
     }
     let previousLevel = 0;
@@ -338,6 +394,18 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
         level.passiveBonus,
         issues
       );
+      validateStatBonus(
+        `progression.relationships.${relationship.id}.levels.${level.level}.partnerPassiveBonus`,
+        level.partnerPassiveBonus ?? {},
+        issues
+      );
+      if ((level.combatBonus?.startingTeamMeter ?? 0) < 0
+        || (level.combatBonus?.startingTeamMeter ?? 0) > 100) {
+        issues.push({
+          path: `progression.relationships.${relationship.id}.levels.${level.level}.combatBonus.startingTeamMeter`,
+          message: 'Start-Teamleiste muss zwischen 0 und 100 liegen.'
+        });
+      }
       validateSkillReferences(
         `progression.relationships.${relationship.id}.levels.${level.level}.skillIds`,
         level.skillIds ?? [],
@@ -365,6 +433,85 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
           message: 'Beziehungsszene verlangt eine nicht erreichbare Stufe.'
         });
       }
+    }
+  }
+
+  for (const tree of data.progression.skillTrees) {
+    if (!heroIds.has(tree.characterId)) {
+      issues.push({
+        path: `progression.skillTrees.${tree.id}.characterId`,
+        message: `Skill-Baum verweist auf unbekannten Charakter '${tree.characterId}'.`
+      });
+    }
+    for (const node of tree.nodes) {
+      validatePositiveInteger(`progression.skillTrees.${tree.id}.${node.id}.cost`, node.cost, issues);
+      validatePositiveInteger(
+        `progression.skillTrees.${tree.id}.${node.id}.requiredLevel`,
+        node.requiredLevel,
+        issues
+      );
+      validateSkillReferences(
+        `progression.skillTrees.${tree.id}.${node.id}.skillId`,
+        node.skillId ? [node.skillId] : [],
+        skillIds,
+        issues
+      );
+      validateStatBonus(
+        `progression.skillTrees.${tree.id}.${node.id}.statBonus`,
+        node.statBonus ?? {},
+        issues
+      );
+      if (node.requiredEvolutionId && !evolutionIds.has(node.requiredEvolutionId)) {
+        issues.push({
+          path: `progression.skillTrees.${tree.id}.${node.id}.requiredEvolutionId`,
+          message: `Skill-Knoten verweist auf unbekannte Entwicklung '${node.requiredEvolutionId}'.`
+        });
+      }
+      for (const requiredNodeId of node.requiredNodeIds) {
+        if (!skillTreeNodeIds.has(requiredNodeId)) {
+          issues.push({
+            path: `progression.skillTrees.${tree.id}.${node.id}.requiredNodeIds.${requiredNodeId}`,
+            message: `Skill-Knoten verweist auf unbekannten Vorgänger '${requiredNodeId}'.`
+          });
+        }
+      }
+    }
+  }
+
+  for (const set of data.progression.equipmentSets) {
+    for (const itemId of set.itemIds) {
+      const item = data.items.find((candidate) => candidate.id === itemId);
+      if (!item) {
+        issues.push({
+          path: `progression.equipmentSets.${set.id}.itemIds.${itemId}`,
+          message: `Ausrüstungsset verweist auf unbekanntes Item '${itemId}'.`
+        });
+      } else if (item.equipmentSetId !== set.id) {
+        issues.push({
+          path: `progression.equipmentSets.${set.id}.itemIds.${itemId}`,
+          message: `Item '${itemId}' ist nicht dem Set '${set.id}' zugeordnet.`
+        });
+      }
+    }
+    let previousPieces = 0;
+    for (const tier of set.tiers) {
+      validatePositiveInteger(
+        `progression.equipmentSets.${set.id}.tiers.${tier.pieces}.pieces`,
+        tier.pieces,
+        issues
+      );
+      validateStatBonus(
+        `progression.equipmentSets.${set.id}.tiers.${tier.pieces}.statBonus`,
+        tier.statBonus,
+        issues
+      );
+      if (tier.pieces <= previousPieces || tier.pieces > set.itemIds.length) {
+        issues.push({
+          path: `progression.equipmentSets.${set.id}.tiers.${tier.pieces}`,
+          message: 'Set-Stufen müssen streng steigen und erreichbar sein.'
+        });
+      }
+      previousPieces = tier.pieces;
     }
   }
 

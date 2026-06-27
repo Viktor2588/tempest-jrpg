@@ -41,6 +41,7 @@ export interface QueuedReaction {
 export interface BattleUnitInput {
   readonly sourceId: string;
   readonly name: string;
+  readonly formName?: string;
   readonly side: Side;
   readonly level: number;
   readonly stats: StatBlock;
@@ -53,6 +54,7 @@ export interface BattleUnitInput {
   readonly jobId?: string;
   readonly availableJobIds?: readonly string[];
   readonly synergyPartnerIds?: readonly string[];
+  readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
   readonly goldReward?: number;
   readonly drops?: readonly EnemyDrop[];
@@ -62,6 +64,7 @@ export interface Combatant {
   readonly id: string;
   readonly sourceId: string;
   readonly name: string;
+  readonly formName: string | null;
   readonly side: Side;
   readonly level: number;
   readonly baseStats: StatBlock;
@@ -182,7 +185,16 @@ export function createHeroBattleUnit(
   hero: CharacterDefinition,
   overrides: Partial<Pick<
     BattleUnitInput,
-    'availableJobIds' | 'currentHp' | 'currentMp' | 'jobId' | 'level' | 'name' | 'skillIds' | 'synergyPartnerIds'
+    'availableJobIds'
+    | 'currentHp'
+    | 'currentMp'
+    | 'formName'
+    | 'jobId'
+    | 'level'
+    | 'name'
+    | 'openingStatusIds'
+    | 'skillIds'
+    | 'synergyPartnerIds'
   >> = {}
 ): BattleUnitInput {
   const level = overrides.level ?? hero.initialLevel;
@@ -191,6 +203,7 @@ export function createHeroBattleUnit(
   return {
     sourceId: hero.id,
     name: overrides.name ?? hero.name,
+    formName: overrides.formName,
     side: 'party',
     level,
     stats,
@@ -202,7 +215,8 @@ export function createHeroBattleUnit(
     skillIds: overrides.skillIds ?? hero.initialSkillIds,
     jobId: overrides.jobId,
     availableJobIds: overrides.availableJobIds,
-    synergyPartnerIds: overrides.synergyPartnerIds
+    synergyPartnerIds: overrides.synergyPartnerIds,
+    openingStatusIds: overrides.openingStatusIds
   };
 }
 
@@ -358,6 +372,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     id,
     sourceId: unit.sourceId,
     name: unit.name,
+    formName: unit.formName ?? null,
     side: unit.side,
     level: unit.level,
     baseStats: unit.stats,
@@ -378,7 +393,10 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     resistances: unit.resistances,
     skillIds: uniqueStrings([...baseSkillIds, ...jobSkillIds]),
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
-    statuses: [],
+    statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
+      id: statusId,
+      turns: 3
+    })),
     reaction: null,
     breakGauge: breakGaugeMax,
     breakGaugeMax,
@@ -1049,7 +1067,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.trunc(value)));
 }
 
-function uniqueStrings(values: readonly string[]): string[] {
+function uniqueStrings<T extends string>(values: readonly T[]): T[] {
   return [...new Set(values)];
 }
 
@@ -1057,15 +1075,18 @@ export interface CombatantView {
   readonly id: string;
   readonly sourceId: string;
   readonly name: string;
+  readonly formName: string | null;
   readonly side: Side;
   readonly level: number;
   readonly jobId: string | null;
+  readonly availableJobIds: readonly string[];
   readonly hp: number;
   readonly maxHp: number;
   readonly mp: number;
   readonly maxMp: number;
   readonly element: ElementType;
   readonly skillIds: readonly string[];
+  readonly synergyPartnerIds: readonly string[];
   readonly statuses: readonly StatusEffectId[];
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
@@ -1117,15 +1138,18 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     id: combatant.id,
     sourceId: combatant.sourceId,
     name: combatant.name,
+    formName: combatant.formName,
     side: combatant.side,
     level: combatant.level,
     jobId: combatant.jobId,
+    availableJobIds: [...combatant.availableJobIds],
     hp: combatant.hp,
     maxHp: combatant.maxHp,
     mp: combatant.mp,
     maxMp: combatant.maxMp,
     element: combatant.element,
     skillIds: [...combatant.skillIds],
+    synergyPartnerIds: [...combatant.synergyPartnerIds],
     statuses: combatant.statuses.map((status) => status.id),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,
