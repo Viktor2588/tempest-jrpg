@@ -128,8 +128,8 @@ export const PROGRESSION_REGIONS = [
     name: 'Tempest-Hain',
     chapterId: 'chapter-1',
     baselineLevel: 3,
-    encounterIds: ['training-clearing', 'east-grass'],
-    enemyIds: ['forest-slime', 'direwolf-pup']
+    encounterIds: ['training-clearing', 'east-grass', 'whispering-grove-ambush'],
+    enemyIds: ['forest-slime', 'direwolf-pup', 'spore-moth', 'orc-scout']
   },
   {
     id: 'marsh-border',
@@ -145,7 +145,7 @@ export const PROGRESSION_REGIONS = [
     chapterId: 'chapter-3',
     baselineLevel: 7,
     encounterIds: ['shrine-approach'],
-    enemyIds: ['lizardman-acolyte', 'spore-moth']
+    enemyIds: ['lizardman-acolyte', 'spore-moth', 'mordrahn-echo']
   }
 ] as const satisfies readonly RegionProgressionDefinition[];
 

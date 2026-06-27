@@ -2,15 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { validateGameData, GAME_DATA } from '../src/data';
 import { getItemCount } from '../src/systems/inventory';
 import { makeRng } from '../src/systems/rng';
-import { createNewSave } from '../src/systems/save';
+import { createNewSave, exportSave, importSave } from '../src/systems/save';
 import {
   applyWorldState,
+  buildCodexView,
+  buildQuestLog,
   buildShopView,
   buyItem,
   chooseDialogOption,
+  completeEncounter,
   getAdjacentNpc,
   getAdjacentShop,
+  getMapLocations,
   resolveEncounter,
+  runActOneStorySliceSmoke,
   runMiniFlowSmoke,
   sellItem,
   startDialogForNpc,
@@ -48,8 +53,10 @@ describe('world/dialog/shop/encounter system', () => {
     expect(beforeEncounter.choices.map((choice) => choice.id)).not.toContain('report');
 
     const encounter = resolveEncounter(accepted, 'tempest-start', { x: 20, y: 12 }, makeRng(1));
-    const reportDialog = startDialogForNpc(encounter.state.world, 'rigurd');
-    const completed = chooseDialogOption(encounter.state.world, reportDialog.dialogId, reportDialog.nodeId, 'report');
+    expect(encounter.state.encounter?.id).toBe('training-clearing');
+    const won = completeEncounter(encounter.state.world, encounter.state.encounter!.id);
+    const reportDialog = startDialogForNpc(won.state, 'rigurd');
+    const completed = chooseDialogOption(won.state, reportDialog.dialogId, reportDialog.nodeId, 'report');
 
     expect(reportDialog.choices.map((choice) => choice.id)).toContain('report');
     expect(completed.state.world.quests['first-patrol']?.status).toBe('completed');
@@ -82,10 +89,13 @@ describe('world/dialog/shop/encounter system', () => {
 
   it('löst Trigger-Encounter genau einmal aus und setzt Flags', () => {
     const first = resolveEncounter(emptyWorld(), 'tempest-start', { x: 20, y: 12 }, makeRng(1));
-    const second = resolveEncounter(first.state.world, 'tempest-start', { x: 20, y: 12 }, makeRng(1));
+    const completed = completeEncounter(first.state.world, first.state.encounter!.id);
+    const second = resolveEncounter(completed.state, 'tempest-start', { x: 20, y: 12 }, makeRng(1));
 
     expect(first.state.encounter?.id).toBe('training-clearing');
-    expect(first.state.world.flags['encounter.training-cleared']).toBe(true);
+    expect(first.state.world.flags['encounter.training-cleared']).toBeUndefined();
+    expect(completed.state.flags['encounter.training-cleared']).toBe(true);
+    expect(completed.state.flags['encounter.training-clearing.cleared']).toBe(true);
     expect(second.state.encounter).toBeNull();
   });
 
@@ -99,5 +109,62 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getItemCount(world.inventory, 'mana-drop')).toBe(1);
     expect(save.party.gold).toBe(world.gold);
     expect(save.inventory.stacks).toEqual(world.inventory);
+  });
+
+  it('gated den Story-Dungeon über Rat-Flags und führt Questlog/Lore mit', () => {
+    let state = chooseDialogOption(emptyWorld(), 'sora-act1', 'start', 'begin').state.world;
+
+    const blocked = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, makeRng(2));
+    expect(blocked.state.encounter).toBeNull();
+
+    state = chooseDialogOption(state, 'vael-council', 'start', 'analyze').state.world;
+    state = chooseDialogOption(state, 'lyrre-border', 'start', 'briefing').state.world;
+    state = chooseDialogOption(state, 'sora-act1', 'start', 'council').state.world;
+
+    const activeLocations = getMapLocations('tempest-start', state).map((location) => location.id);
+    expect(activeLocations).toContain('whispering-grove');
+    expect(activeLocations).not.toContain('ancestor-seal');
+
+    const quest = buildQuestLog(state).find((entry) => entry.id === 'binding-of-ancestors')!;
+    expect(quest.status).toBe('active');
+    expect(quest.steps.find((step) => step.id === 'gather-council')?.completed).toBe(true);
+    expect(quest.steps.find((step) => step.id === 'clear-grove')?.current).toBe(true);
+    expect(buildCodexView(state).find((entry) => entry.id === 'tempest-council')?.unlocked).toBe(true);
+
+    const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, makeRng(2));
+    expect(grove.state.encounter?.id).toBe('whispering-grove-ambush');
+    const completed = completeEncounter(grove.state.world, grove.state.encounter!.id);
+    const repeated = completeEncounter(completed.state, grove.state.encounter!.id);
+
+    expect(completed.state.flags['story.grove.cleared']).toBe(true);
+    expect(getItemCount(completed.state.inventory, 'ancestor-seal-fragment')).toBe(1);
+    expect(repeated.state).toEqual(completed.state);
+    expect(getMapLocations('tempest-start', completed.state).map((location) => location.id)).toContain('ancestor-seal');
+  });
+
+  it('spielt den Act-1-Story-Slice Intro → Stadt → Quest → Dungeon → Boss → Belohnung headless durch und persistiert ihn', () => {
+    const world = runActOneStorySliceSmoke(makeRng(8));
+    const quest = buildQuestLog(world).find((entry) => entry.id === 'binding-of-ancestors')!;
+    const save = applyWorldState(createNewSave({ now: '2026-06-27T00:00:00.000Z', seed: 8 }), world);
+    const roundtrip = importSave(exportSave(save), '2026-06-27T01:00:00.000Z');
+    const persistedWorld = {
+      flags: roundtrip.flags,
+      quests: roundtrip.quests,
+      inventory: roundtrip.inventory.stacks,
+      gold: roundtrip.party.gold
+    };
+
+    expect(quest.status).toBe('completed');
+    expect(quest.steps.every((step) => step.completed)).toBe(true);
+    expect(world.flags['story.act1.completed']).toBe(true);
+    expect(world.flags['story.boss.echo-defeated']).toBe(true);
+    expect(world.gold).toBe(300);
+    expect(getItemCount(world.inventory, 'ancestor-seal-fragment')).toBe(1);
+    expect(getItemCount(world.inventory, 'tempest-charm')).toBe(1);
+    expect(buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id))
+      .toEqual(['nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']);
+    expect(persistedWorld.quests['binding-of-ancestors']?.status).toBe('completed');
+    expect(persistedWorld.flags['story.act1.completed']).toBe(true);
+    expect(getItemCount(persistedWorld.inventory, 'tempest-charm')).toBe(1);
   });
 });

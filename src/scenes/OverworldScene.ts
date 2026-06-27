@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { JURA_FIELD } from '../data/maps';
-import { ENCOUNTERS, NPCS, SHOPS, type EncounterDefinition } from '../data/world';
+import { NPCS, SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { tryStep, WALL, type Dir, type Vec2 } from '../systems/overworld';
 import { makeRng } from '../systems/rng';
@@ -9,6 +9,8 @@ import {
   createWorldState,
   getAdjacentNpc,
   getAdjacentShop,
+  getMapLocations,
+  getVisibleMapEncounters,
   resolveEncounter
 } from '../systems/world';
 import { battleWipe, fadeIn } from './transition';
@@ -147,7 +149,25 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private drawWorldObjects(): void {
-    const triggerEncounters = (ENCOUNTERS as readonly EncounterDefinition[]).filter(isTriggerEncounterForMap);
+    const world = createWorldState(this.save);
+    for (const location of getMapLocations(MAP_ID, world)) {
+      const color = location.kind === 'city'
+        ? 0x476bff
+        : location.kind === 'outpost'
+          ? 0x4f8a55
+          : location.kind === 'dungeon'
+            ? 0x7350a8
+            : 0xd2b35f;
+      this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
+        .setStrokeStyle(2, color, 0.85);
+      this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
+        fontFamily: 'sans-serif',
+        fontSize: '10px',
+        color: '#e9eef7'
+      }).setOrigin(0.5);
+    }
+
+    const triggerEncounters = getVisibleMapEncounters(MAP_ID, world).filter(isTriggerEncounterForMap);
     for (const encounter of triggerEncounters) {
       this.add.rectangle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.72, TILE * 0.72, 0x633050, 0.55)
         .setStrokeStyle(2, 0xff8aa0, 0.8);
@@ -207,7 +227,10 @@ export class OverworldScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
 
     if (result.state.encounter) {
-      battleWipe(this, 'Battle', { enemyIds: [...result.state.encounter.enemyIds] });
+      battleWipe(this, 'Battle', {
+        enemyIds: [...result.state.encounter.enemyIds],
+        encounterId: result.state.encounter.id
+      });
     }
   }
 

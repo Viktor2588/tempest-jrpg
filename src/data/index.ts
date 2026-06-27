@@ -13,8 +13,19 @@ import {
   SKILL_TREES
 } from './progression';
 import { SKILLS } from './skills';
-import { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
-import type { DialogChoiceDefinition } from './world';
+import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
+import type {
+  DialogChoiceDefinition,
+  DialogDefinition,
+  EncounterDefinition,
+  LoreEntryDefinition,
+  NpcDefinition,
+  QuestDefinition,
+  ShopDefinition,
+  WorldEffect,
+  WorldLocationDefinition,
+  WorldRequirement
+} from './world';
 import type {
   CatchUpConfig,
   EquipmentSetDefinition,
@@ -50,7 +61,7 @@ export {
   SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
-export { DIALOGS, ENCOUNTERS, NPCS, QUESTS, SHOPS } from './world';
+export { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 export type {
   CatchUpConfig,
   EquipmentSetDefinition,
@@ -72,9 +83,14 @@ export type {
   DialogDefinition,
   DialogNodeDefinition,
   EncounterDefinition,
+  LoreEntryDefinition,
   NpcDefinition,
+  QuestDefinition,
+  QuestStepDefinition,
   ShopDefinition,
   WorldEffect,
+  WorldLocationDefinition,
+  WorldLocationKind,
   WorldRequirement
 } from './world';
 export type {
@@ -113,6 +129,8 @@ export const GAME_DATA = {
   world: {
     dialogs: DIALOGS,
     encounters: ENCOUNTERS,
+    locations: LOCATIONS,
+    lore: LORE_ENTRIES,
     npcs: NPCS,
     quests: QUESTS,
     shops: SHOPS
@@ -140,7 +158,15 @@ interface DataSet {
     readonly jobUnlocks: readonly JobUnlockDefinition[];
     readonly catchUp: CatchUpConfig;
   };
-  readonly world: typeof GAME_DATA.world;
+  readonly world: {
+    readonly dialogs: readonly DialogDefinition[];
+    readonly encounters: readonly EncounterDefinition[];
+    readonly locations: readonly WorldLocationDefinition[];
+    readonly lore: readonly LoreEntryDefinition[];
+    readonly npcs: readonly NpcDefinition[];
+    readonly quests: readonly QuestDefinition[];
+    readonly shops: readonly ShopDefinition[];
+  };
 }
 
 export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue[] {
@@ -152,8 +178,12 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   const jobIds = new Set<string>(data.jobs.map((job) => job.id));
   const dialogIds = new Set<string>(data.world.dialogs.map((dialog) => dialog.id));
   const encounterIds = new Set<string>(data.world.encounters.map((encounter) => encounter.id));
+  const locationIds = new Set<string>(data.world.locations.map((location) => location.id));
   const npcIds = new Set<string>(data.world.npcs.map((npc) => npc.id));
   const questIds = new Set<string>(data.world.quests.map((quest) => quest.id));
+  const questStepIdsByQuestId = new Map<string, Set<string>>(
+    data.world.quests.map((quest) => [quest.id, new Set(quest.steps.map((step) => step.id))])
+  );
   const regionIds = new Set<string>(data.progression.regions.map((region) => region.id));
   const lineIds = new Set<string>(data.progression.lines.map((line) => line.id));
   const evolutionIds = new Set<string>(data.progression.evolutions.map((evolution) => evolution.id));
@@ -180,8 +210,15 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   validateUniqueIds('progression.jobUnlocks', data.progression.jobUnlocks, issues);
   validateUniqueIds('world.dialogs', data.world.dialogs, issues);
   validateUniqueIds('world.encounters', data.world.encounters, issues);
+  validateUniqueIds('world.locations', data.world.locations, issues);
+  validateUniqueIds('world.lore', data.world.lore, issues);
   validateUniqueIds('world.npcs', data.world.npcs, issues);
   validateUniqueIds('world.quests', data.world.quests, issues);
+  validateUniqueIds(
+    'world.questSteps',
+    data.world.quests.flatMap((quest) => quest.steps.map((step) => ({ id: `${quest.id}.${step.id}` }))),
+    issues
+  );
   validateUniqueIds('world.shops', data.world.shops, issues);
   validateUniqueIds('heroes', data.heroes, issues);
   validateUniqueIds('enemies', data.enemies, issues);
@@ -560,6 +597,40 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     validatePositiveInteger(`progression.catchUp.chapterBaselines.${chapterId}`, baseline, issues);
   }
 
+  for (const quest of data.world.quests) {
+    if (quest.steps.length === 0) {
+      issues.push({
+        path: `world.quests.${quest.id}.steps`,
+        message: 'Quest braucht mindestens einen Schritt.'
+      });
+    }
+    for (const step of quest.steps) {
+      if (step.locationId && !locationIds.has(step.locationId)) {
+        issues.push({
+          path: `world.quests.${quest.id}.steps.${step.id}.locationId`,
+          message: `Quest-Schritt verweist auf unbekannten Ort '${step.locationId}'.`
+        });
+      }
+    }
+    for (const itemId of quest.reward?.itemIds ?? []) {
+      if (!itemIds.has(itemId)) {
+        issues.push({
+          path: `world.quests.${quest.id}.reward.itemIds.${itemId}`,
+          message: `Quest-Belohnung verweist auf unbekanntes Item '${itemId}'.`
+        });
+      }
+    }
+  }
+
+  for (const location of data.world.locations) {
+    if (location.name.trim().length === 0 || location.identity.trim().length === 0) {
+      issues.push({
+        path: `world.locations.${location.id}`,
+        message: 'Ort braucht Namen und spielerische Identität.'
+      });
+    }
+  }
+
   for (const npc of data.world.npcs) {
     if (!dialogIds.has(npc.dialogId)) {
       issues.push({
@@ -595,6 +666,29 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
         message: 'Encounter-Chance muss zwischen 0 und 1 liegen.'
       });
     }
+    validateWorldRequirements(
+      `world.encounters.${encounter.id}.requirements`,
+      encounter.requirements ?? [],
+      questIds,
+      questStepIdsByQuestId,
+      issues
+    );
+    validateWorldEffects(
+      `world.encounters.${encounter.id}.startEffects`,
+      encounter.startEffects ?? [],
+      itemIds,
+      questIds,
+      questStepIdsByQuestId,
+      issues
+    );
+    validateWorldEffects(
+      `world.encounters.${encounter.id}.victoryEffects`,
+      encounter.victoryEffects ?? [],
+      itemIds,
+      questIds,
+      questStepIdsByQuestId,
+      issues
+    );
   }
 
   for (const dialog of data.world.dialogs) {
@@ -613,33 +707,126 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
             message: `Dialogauswahl verweist auf unbekannten Knoten '${choice.nextNodeId}'.`
           });
         }
-        for (const effect of choice.effects ?? []) {
-          if ('itemId' in effect && !itemIds.has(effect.itemId)) {
-            issues.push({
-              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects.${effect.itemId}`,
-              message: `Dialogeffekt verweist auf unbekanntes Item '${effect.itemId}'.`
-            });
-          }
-          if ('questId' in effect && !questIds.has(effect.questId)) {
-            issues.push({
-              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects.${effect.questId}`,
-              message: `Dialogeffekt verweist auf unbekannte Quest '${effect.questId}'.`
-            });
-          }
-        }
-        for (const requirement of choice.requirements ?? []) {
-          if (requirement.questStatus && !questIds.has(requirement.questStatus.questId)) {
-            issues.push({
-              path: `world.dialogs.${dialog.id}.${node.id}.${choice.id}.requirements.${requirement.questStatus.questId}`,
-              message: `Dialoganforderung verweist auf unbekannte Quest '${requirement.questStatus.questId}'.`
-            });
-          }
-        }
+        validateWorldEffects(
+          `world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects`,
+          choice.effects ?? [],
+          itemIds,
+          questIds,
+          questStepIdsByQuestId,
+          issues
+        );
+        validateWorldRequirements(
+          `world.dialogs.${dialog.id}.${node.id}.${choice.id}.requirements`,
+          choice.requirements ?? [],
+          questIds,
+          questStepIdsByQuestId,
+          issues
+        );
       }
     }
   }
 
   return issues;
+}
+
+function validateWorldEffects(
+  path: string,
+  effects: readonly WorldEffect[],
+  itemIds: ReadonlySet<string>,
+  questIds: ReadonlySet<string>,
+  questStepIdsByQuestId: ReadonlyMap<string, ReadonlySet<string>>,
+  issues: DataValidationIssue[]
+): void {
+  for (const effect of effects) {
+    if ('itemId' in effect && !itemIds.has(effect.itemId)) {
+      issues.push({
+        path: `${path}.${effect.itemId}`,
+        message: `Welteffekt verweist auf unbekanntes Item '${effect.itemId}'.`
+      });
+    }
+    if ('questId' in effect) {
+      validateQuestReference(`${path}.${effect.questId}`, effect.questId, questIds, issues, 'Welteffekt');
+      if ('stepId' in effect) {
+        validateQuestStepReference(
+          `${path}.${effect.questId}.${effect.stepId}`,
+          effect.questId,
+          effect.stepId,
+          questStepIdsByQuestId,
+          issues,
+          'Welteffekt'
+        );
+      }
+    }
+  }
+}
+
+function validateWorldRequirements(
+  path: string,
+  requirements: readonly WorldRequirement[],
+  questIds: ReadonlySet<string>,
+  questStepIdsByQuestId: ReadonlyMap<string, ReadonlySet<string>>,
+  issues: DataValidationIssue[]
+): void {
+  for (const requirement of requirements) {
+    if (requirement.questStatus) {
+      validateQuestReference(
+        `${path}.${requirement.questStatus.questId}`,
+        requirement.questStatus.questId,
+        questIds,
+        issues,
+        'Weltanforderung'
+      );
+    }
+    for (const stepRequirement of [requirement.questStep, requirement.missingQuestStep]) {
+      if (!stepRequirement) continue;
+      validateQuestReference(
+        `${path}.${stepRequirement.questId}`,
+        stepRequirement.questId,
+        questIds,
+        issues,
+        'Weltanforderung'
+      );
+      validateQuestStepReference(
+        `${path}.${stepRequirement.questId}.${stepRequirement.stepId}`,
+        stepRequirement.questId,
+        stepRequirement.stepId,
+        questStepIdsByQuestId,
+        issues,
+        'Weltanforderung'
+      );
+    }
+  }
+}
+
+function validateQuestReference(
+  path: string,
+  questId: string,
+  questIds: ReadonlySet<string>,
+  issues: DataValidationIssue[],
+  label: string
+): void {
+  if (!questIds.has(questId)) {
+    issues.push({
+      path,
+      message: `${label} verweist auf unbekannte Quest '${questId}'.`
+    });
+  }
+}
+
+function validateQuestStepReference(
+  path: string,
+  questId: string,
+  stepId: string,
+  questStepIdsByQuestId: ReadonlyMap<string, ReadonlySet<string>>,
+  issues: DataValidationIssue[],
+  label: string
+): void {
+  if (!questStepIdsByQuestId.get(questId)?.has(stepId)) {
+    issues.push({
+      path,
+      message: `${label} verweist auf unbekannten Quest-Schritt '${questId}.${stepId}'.`
+    });
+  }
 }
 
 function validateJobMultipliers(job: JobDefinition, issues: DataValidationIssue[]): void {

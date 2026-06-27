@@ -77,5 +77,13 @@ export const ITEMS = [
     price: 0,
     stackable: false,
     startingQuantity: 1
+  },
+  {
+    id: 'ancestor-seal-fragment',
+    name: 'Ahnensiegel-Fragment',
+    description: 'Ein singendes Bruchstück der Bindung der Ahnen. Vael beschreibt es als gefrorenen Donner.',
+    category: 'key',
+    price: 0,
+    stackable: false
   }
 ] as const satisfies readonly ItemDefinition[];

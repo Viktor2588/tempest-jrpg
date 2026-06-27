@@ -199,9 +199,14 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Anti-Grinding:** Kampfbelohnungen vergeben Skill- und Beziehungspunkte; Reservemitglieder erhalten begrenzte Aufhol-EP. Ergebnisse und Jobwechsel werden in `SaveGameV3` persistiert; Migrationen von v1, v2 und dem alten Storage-Key sind getestet.
 - **Abnahme (lokal verifiziert):** `tsc --noEmit` sauber, `vitest run` → **66/66** grün, `vite build` → `dist/`; Desktop- und 390×844-Browser-Smoke für Titel und Progressionsmenüs ohne überlappende Bedienelemente. Balance-Bänder, Evolution, Skill-Pfade, Sets/Verzauberung, Bindungsboni, Team-Angriff und Save-Migration sind headless getestet.
 
-[ ] **Phase 12 – Welt, Story & Quests** *(Story-Design akzeptiert 2026-06-27, verfeinerbar)*
+[x] **Phase 12 – Welt, Story & Quests** *(fertig 2026-06-27, Worktree `worktree/tempest-phase-12-world-story`; Story-Design akzeptiert 2026-06-27, verfeinerbar)*
 - Erzählbogen + denkwürdige Figuren, **Quest-/Flag-System**, mehrere **Städte & Dungeons mit eigener Identität** (Mechanik + Optik), Lore-/Codex, Cutscene-Bausteine in `DialogueScene`.
 - **Abnahme:** durchgängiger Story-Slice (Intro → Stadt → Quest → Dungeon → Boss → Belohnung) headless durchspielbar; Quests/Flags persistiert.
+- **Story-Slice umgesetzt:** Hauptquest **„Bindung der Ahnen"** mit Sora, Vael und Lyrre; gated Rat-Schritt → Flüsterhain-Dungeon → Ahnensiegel-Boss gegen **Mordrahns Echo** → Abschlussbelohnung und Act-1-Flag.
+- **Welt-/Quest-Daten erweitert:** neue Orte (`tempest-hollow`, `border-camp`, `whispering-grove`, `ancestor-seal`) mit spielerischer Identität, Lore-/Codex-Einträge, zusätzlicher Grenzshop, Key-Item `ancestor-seal-fragment`, Boss-Gegner `mordrahn-echo`.
+- **Reine Weltlogik erweitert:** Questlog-/Codex-Views, `notFlag`-/Quest-Step-Requirements, sichtbare Location-/Encounter-Gates, idempotenter `completeEncounter()`; Trigger gelten erst nach Sieg als abgeschlossen. `BattleScene` schreibt Encounter-Victory-Effekte nach gewonnenem Kampf in den Save.
+- **UI-Anbindung:** Oberwelt zeigt freigeschaltete Story-Orte und gated Trigger; Menü hat neue Tabs **Quests** und **Codex**.
+- **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck` sauber, `npx --yes bun@latest run test` → **78/78** grün, `npx --yes bun@latest run build` → `dist/`. Headless-Story-Slice Intro → Stadt → Quest → Dungeon → Boss → Belohnung + Save-Roundtrip ist in `test/world.test.ts` abgedeckt.
 
   **Story-Design „Tempest – Chronik" (akzeptiert, eigene Figuren — keine 1:1-Tensura-Originale):**
   - **Logline:** Als gestaltwandelnder **Schleimkern ohne Erinnerung** (Fähigkeit: *verschlingen & benennen*) einst du im Großen Jura-Wald zerstrittene Monstervölker zur Nation **Tempest** — während die uralte Versiegelung **„Bindung der Ahnen"** zerfällt und ein Krieg Mensch ↔ Monster droht.

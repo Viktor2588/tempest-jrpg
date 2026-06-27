@@ -32,8 +32,9 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
+import { buildCodexView, buildQuestLog, createWorldState } from '../systems/world';
 
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'jobs';
+type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'jobs' | 'quests' | 'codex';
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
@@ -41,7 +42,9 @@ const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'equipment', label: 'Ausrüstung' },
   { id: 'status', label: 'Status' },
   { id: 'growth', label: 'Entwicklung' },
-  { id: 'jobs', label: 'Rollen' }
+  { id: 'jobs', label: 'Rollen' },
+  { id: 'quests', label: 'Quests' },
+  { id: 'codex', label: 'Codex' }
 ];
 
 export class MenuScene extends Phaser.Scene {
@@ -118,7 +121,9 @@ export class MenuScene extends Phaser.Scene {
     else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
     else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
     else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else this.drawJobs(view, selected.member.characterId);
+    else if (this.selectedTab === 'jobs') this.drawJobs(view, selected.member.characterId);
+    else if (this.selectedTab === 'quests') this.drawQuestLog();
+    else this.drawCodex();
   }
 
   private drawMemberList(view: MenuView): void {
@@ -447,6 +452,67 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#6f83a5'
+      }));
+    });
+  }
+
+  private drawQuestLog(): void {
+    this.sectionTitle('Quests & Story');
+    const quests = buildQuestLog(createWorldState(this.save));
+    quests.forEach((quest, index) => {
+      const y = 160 + index * 132;
+      const status = quest.status === 'completed'
+        ? 'Abgeschlossen'
+        : quest.status === 'active'
+          ? 'Aktiv'
+          : 'Offen';
+      this.panel(300, y, 590, 108);
+      this.layer.add(this.add.text(318, y - 42, `${quest.title} · ${status}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '15px',
+        color: quest.status === 'completed' ? '#8dffc2' : quest.status === 'active' ? '#e9c56c' : '#9fb2cc'
+      }));
+      this.layer.add(this.add.text(318, y - 18, quest.description, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#9fb2cc',
+        wordWrap: { width: 535 }
+      }));
+      const visibleSteps = quest.steps
+        .filter((step) => step.completed || step.current || quest.status === 'completed')
+        .slice(0, 3);
+      visibleSteps.forEach((step, stepIndex) => {
+        const marker = step.completed ? '✓' : step.current ? '◆' : '·';
+        this.layer.add(this.add.text(318, y + 12 + stepIndex * 18, `${marker} ${step.title}`, {
+          fontFamily: 'sans-serif',
+          fontSize: '12px',
+          color: step.completed ? '#8dffc2' : step.current ? '#e9eef7' : '#6f83a5'
+        }));
+      });
+      this.layer.add(this.add.text(704, y + 44, `Belohnung: ${quest.rewardGold} Gold`, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#e9c56c'
+      }));
+    });
+  }
+
+  private drawCodex(): void {
+    this.sectionTitle('Codex');
+    const entries = buildCodexView(createWorldState(this.save));
+    entries.forEach((entry, index) => {
+      const y = 158 + index * 86;
+      this.panel(300, y, 590, 68);
+      this.layer.add(this.add.text(318, y - 24, `${entry.unlocked ? '◈' : '◇'} ${entry.title}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '15px',
+        color: entry.unlocked ? '#e9c56c' : '#6f83a5'
+      }));
+      this.layer.add(this.add.text(318, y - 2, entry.unlocked ? entry.body ?? '' : 'Noch nicht entdeckt.', {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: entry.unlocked ? '#cbd6e8' : '#6f83a5',
+        wordWrap: { width: 540 }
       }));
     });
   }

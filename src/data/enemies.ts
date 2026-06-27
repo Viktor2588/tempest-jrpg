@@ -105,5 +105,26 @@ export const ENEMIES = [
     experienceReward: 55,
     goldReward: 42,
     drops: [{ itemId: 'mana-drop', chance: 0.22 }]
+  },
+  {
+    id: 'mordrahn-echo',
+    name: 'Mordrahns Echo',
+    level: 6,
+    element: 'shadow',
+    stats: {
+      maxHp: 118,
+      maxMp: 32,
+      attack: 18,
+      defense: 16,
+      magic: 23,
+      spirit: 19,
+      agility: 14
+    },
+    skillIds: ['spirit-bind', 'venom-spit'],
+    weaknesses: ['holy', 'wind'],
+    resistances: ['shadow'],
+    experienceReward: 90,
+    goldReward: 75,
+    drops: [{ itemId: 'mana-drop', chance: 0.35 }]
   }
 ] as const satisfies readonly EnemyDefinition[];

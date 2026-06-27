@@ -25,6 +25,7 @@ import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
+import { applyWorldState, completeEncounter, createWorldState } from '../systems/world';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
 
@@ -46,13 +47,15 @@ export class BattleScene extends Phaser.Scene {
   private rewardsApplied = false;
   private auto = false;
   private save!: SaveGameV2;
+  private encounterId: string | null = null;
 
   constructor() {
     super('Battle');
   }
 
-  create(data: { enemyIds?: string[] }): void {
+  create(data: { enemyIds?: string[]; encounterId?: string }): void {
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    this.encounterId = data?.encounterId ?? null;
     this.state = startBattle({
       party: createProgressionBattleParty(
         this.save.party.active,
@@ -492,7 +495,7 @@ export class BattleScene extends Phaser.Scene {
       ? normalizeInventoryStacks([...view.inventory, ...view.rewards.items])
       : normalizeInventoryStacks(view.inventory);
 
-    this.save = autoSave(window.localStorage, {
+    let nextSave: SaveGameV2 = {
       ...this.save,
       party: {
         active,
@@ -501,7 +504,14 @@ export class BattleScene extends Phaser.Scene {
       },
       inventory: { stacks: inventory },
       progression
-    });
+    };
+
+    if (status === 'won' && this.encounterId) {
+      const completed = completeEncounter(createWorldState(nextSave), this.encounterId);
+      nextSave = applyWorldState(nextSave, completed.state);
+    }
+
+    this.save = autoSave(window.localStorage, nextSave);
   }
 
   private drawHint(text: string): void {

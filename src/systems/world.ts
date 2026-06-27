@@ -1,4 +1,4 @@
-import { DIALOGS, ENCOUNTERS, NPCS, SHOPS, type DialogChoiceDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldRequirement } from '../data/world';
+import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
@@ -19,6 +19,33 @@ export interface DialogView {
   readonly speaker: string;
   readonly text: string;
   readonly choices: readonly DialogChoiceDefinition[];
+}
+
+export interface QuestStepView {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly locationId: string | null;
+  readonly completed: boolean;
+  readonly current: boolean;
+}
+
+export interface QuestLogEntryView {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly status: 'inactive' | 'active' | 'completed';
+  readonly steps: readonly QuestStepView[];
+  readonly rewardGold: number;
+  readonly rewardItemIds: readonly string[];
+}
+
+export interface LoreEntryView {
+  readonly id: string;
+  readonly title: string;
+  readonly category: LoreEntryDefinition['category'];
+  readonly unlocked: boolean;
+  readonly body: string | null;
 }
 
 export interface ShopItemView {
@@ -43,9 +70,12 @@ export interface WorldResult<T = WorldState> {
 }
 
 const dialogsById = new Map<string, DialogDefinition>(DIALOGS.map((dialog) => [dialog.id, dialog]));
+const encounterById = new Map<string, EncounterDefinition>(ENCOUNTERS.map((encounter) => [encounter.id, encounter]));
 const npcById = new Map<string, NpcDefinition>(NPCS.map((npc) => [npc.id, npc]));
 const shopById = new Map<string, ShopDefinition>(SHOPS.map((shop) => [shop.id, shop]));
 const itemById: ReadonlyMap<string, ItemDefinition> = new Map(ITEMS.map((item) => [item.id, item]));
+const allLocations: readonly WorldLocationDefinition[] = LOCATIONS;
+const allLoreEntries: readonly LoreEntryDefinition[] = LORE_ENTRIES;
 
 export function createWorldState(save: SaveGameV2): WorldState {
   return {
@@ -78,6 +108,23 @@ export function getMapEncounters(mapId: string): EncounterDefinition[] {
   return ENCOUNTERS.filter((encounter) => encounter.mapId === mapId);
 }
 
+export function getVisibleMapEncounters(mapId: string, state: WorldState): EncounterDefinition[] {
+  return getMapEncounters(mapId).filter((encounter) =>
+    encounter.kind !== 'trigger'
+    || (
+      !state.flags[`encounter.${encounter.id}.cleared`]
+      && requirementsMet(state, encounter.requirements ?? [])
+    )
+  );
+}
+
+export function getMapLocations(mapId: string, state?: WorldState): WorldLocationDefinition[] {
+  return allLocations.filter((location) =>
+    location.mapId === mapId
+    && (!state || !location.unlockFlag || state.flags[location.unlockFlag] === true)
+  );
+}
+
 export function getAdjacentNpc(mapId: string, position: Vec2): NpcDefinition | undefined {
   return getMapNpcs(mapId).find((npc) => isAdjacentOrSame(npc.position, position));
 }
@@ -89,6 +136,47 @@ export function getAdjacentShop(mapId: string, position: Vec2): ShopDefinition |
 export function startDialogForNpc(state: WorldState, npcId: string): DialogView {
   const npc = requireNpc(npcId);
   return getDialogView(state, npc.dialogId, requireDialog(npc.dialogId).startNodeId);
+}
+
+export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
+  return QUESTS.map((quest) => {
+    const questState = state.quests[quest.id];
+    const status = questState?.status ?? 'inactive';
+    const completedStepIds = new Set(questState?.completedStepIds ?? []);
+    const currentStepId = status === 'active'
+      ? quest.steps.find((step) => !completedStepIds.has(step.id))?.id ?? null
+      : null;
+
+    return {
+      id: quest.id,
+      title: quest.title,
+      description: quest.description,
+      status,
+      steps: quest.steps.map((step) => ({
+        id: step.id,
+        title: step.title,
+        description: step.description,
+        locationId: step.locationId ?? null,
+        completed: completedStepIds.has(step.id),
+        current: currentStepId === step.id
+      })),
+      rewardGold: quest.reward?.gold ?? 0,
+      rewardItemIds: quest.reward?.itemIds ?? []
+    };
+  });
+}
+
+export function buildCodexView(state: WorldState): LoreEntryView[] {
+  return allLoreEntries.map((entry) => {
+    const unlocked = !entry.unlockFlag || state.flags[entry.unlockFlag] === true;
+    return {
+      id: entry.id,
+      title: entry.title,
+      category: entry.category,
+      unlocked,
+      body: unlocked ? entry.body : null
+    };
+  });
 }
 
 export function getDialogView(state: WorldState, dialogId: string, nodeId: string): DialogView {
@@ -194,15 +282,13 @@ export function resolveEncounter(
     && encounter.position.x === position.x
     && encounter.position.y === position.y
     && !state.flags[`encounter.${encounter.id}.cleared`]
+    && requirementsMet(state, encounter.requirements ?? [])
   );
   if (trigger) {
     return {
       ok: true,
       state: {
-        world: applyEffects(state, [
-          { type: 'set-flag', flag: `encounter.${trigger.id}.cleared`, value: true },
-          { type: 'set-flag', flag: 'encounter.training-cleared', value: true }
-        ]),
+        world: applyEffects(state, trigger.startEffects ?? []),
         encounter: trigger
       },
       message: 'Begegnung ausgelöst.'
@@ -213,6 +299,7 @@ export function resolveEncounter(
     encounter.kind === 'random'
     && encounter.bounds
     && inBounds(position, encounter.bounds)
+    && requirementsMet(state, encounter.requirements ?? [])
     && rng() < encounter.chance
   );
 
@@ -220,6 +307,27 @@ export function resolveEncounter(
     ok: true,
     state: { world: state, encounter: random ?? null },
     message: random ? 'Zufallsbegegnung.' : 'Keine Begegnung.'
+  };
+}
+
+export function completeEncounter(state: WorldState, encounterId: string): WorldResult {
+  const encounter = requireEncounter(encounterId);
+  const clearedFlag = `encounter.${encounter.id}.cleared`;
+  if (encounter.kind === 'trigger' && state.flags[clearedFlag]) {
+    return { ok: true, state, message: 'Begegnung war bereits abgeschlossen.' };
+  }
+
+  const effects: WorldEffect[] = [
+    ...(encounter.kind === 'trigger'
+      ? [{ type: 'set-flag' as const, flag: clearedFlag, value: true }]
+      : []),
+    ...(encounter.victoryEffects ?? [])
+  ];
+
+  return {
+    ok: true,
+    state: applyEffects(state, effects),
+    message: 'Begegnung abgeschlossen.'
   };
 }
 
@@ -241,13 +349,47 @@ export function runMiniFlowSmoke(seedRng: Rng): WorldState {
 
   const encounter = resolveEncounter(state, 'tempest-start', { x: 20, y: 12 }, seedRng);
   if (!encounter.state.encounter) throw new Error('Expected trigger encounter.');
-  state = encounter.state.world;
+  const completedEncounter = completeEncounter(encounter.state.world, encounter.state.encounter.id);
+  state = completedEncounter.state;
 
   const report = startDialogForNpc(state, 'rigurd');
   const completed = chooseDialogOption(state, report.dialogId, report.nodeId, 'report');
   state = completed.state.world;
 
   return state;
+}
+
+export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
+  let state: WorldState = {
+    flags: {},
+    quests: {},
+    inventory: [],
+    gold: 120
+  };
+
+  state = chooseNpcOptionOrThrow(state, 'sora', 'begin');
+  state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
+  state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
+  state = chooseNpcOptionOrThrow(state, 'sora', 'council');
+
+  const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, seedRng);
+  if (!grove.state.encounter) throw new Error('Expected whispering-grove encounter.');
+  state = completeEncounter(grove.state.world, grove.state.encounter.id).state;
+
+  const shrine = resolveEncounter(state, 'tempest-start', { x: 21, y: 13 }, seedRng);
+  if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter.');
+  state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
+
+  return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');
+}
+
+function chooseNpcOptionOrThrow(state: WorldState, npcId: string, choiceId: string): WorldState {
+  const dialog = startDialogForNpc(state, npcId);
+  const result = chooseDialogOption(state, dialog.dialogId, dialog.nodeId, choiceId);
+  if (!result.ok) {
+    throw new Error(result.message);
+  }
+  return result.state.world;
 }
 
 function applyEffects(state: WorldState, effects: readonly WorldEffect[]): WorldState {
@@ -258,14 +400,19 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
   switch (effect.type) {
     case 'set-flag':
       return { ...state, flags: { ...state.flags, [effect.flag]: effect.value } };
-    case 'start-quest':
+    case 'start-quest': {
+      const currentQuest = state.quests[effect.questId];
+      const nextQuest = !currentQuest || currentQuest.status === 'inactive'
+        ? { status: 'active' as const, completedStepIds: currentQuest?.completedStepIds ?? [] }
+        : currentQuest;
       return {
         ...state,
         quests: {
           ...state.quests,
-          [effect.questId]: state.quests[effect.questId] ?? { status: 'active', completedStepIds: [] }
+          [effect.questId]: nextQuest
         }
       };
+    }
     case 'complete-quest-step': {
       const quest = state.quests[effect.questId] ?? { status: 'active', completedStepIds: [] };
       return {
@@ -299,10 +446,19 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
 
 function requirementsMet(state: WorldState, requirements: readonly WorldRequirement[]): boolean {
   return requirements.every((requirement) => {
-    if (requirement.flag) return state.flags[requirement.flag] === true;
+    if (requirement.flag && state.flags[requirement.flag] !== true) return false;
+    if (requirement.notFlag && state.flags[requirement.notFlag] === true) return false;
     if (requirement.questStatus) {
       const current = state.quests[requirement.questStatus.questId]?.status ?? 'inactive';
-      return current === requirement.questStatus.status;
+      if (current !== requirement.questStatus.status) return false;
+    }
+    if (requirement.questStep) {
+      const completed = state.quests[requirement.questStep.questId]?.completedStepIds ?? [];
+      if (!completed.includes(requirement.questStep.stepId)) return false;
+    }
+    if (requirement.missingQuestStep) {
+      const completed = state.quests[requirement.missingQuestStep.questId]?.completedStepIds ?? [];
+      if (completed.includes(requirement.missingQuestStep.stepId)) return false;
     }
     return true;
   });
@@ -324,6 +480,12 @@ function requireDialog(dialogId: string): DialogDefinition {
   const dialog = dialogsById.get(dialogId);
   if (!dialog) throw new Error(`Unknown dialog '${dialogId}'.`);
   return dialog;
+}
+
+function requireEncounter(encounterId: string): EncounterDefinition {
+  const encounter = encounterById.get(encounterId);
+  if (!encounter) throw new Error(`Unknown encounter '${encounterId}'.`);
+  return encounter;
 }
 
 function requireDialogNode(dialog: DialogDefinition, nodeId: string): DialogNodeDefinition {
