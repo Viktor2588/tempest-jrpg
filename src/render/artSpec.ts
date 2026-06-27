@@ -33,7 +33,8 @@ export type Hex = (typeof PALETTE)[keyof typeof PALETTE];
 export type PlaceholderKind =
   | 'tile-grass' | 'tile-path' | 'tile-wall' | 'tile-water'
   | 'hero' | 'ally-sora' | 'ally-vael' | 'ally-lyrre'
-  | 'enemy-slime' | 'enemy-wolf' | 'enemy-imp' | 'enemy-ogre';
+  | 'enemy-slime' | 'enemy-wolf' | 'enemy-imp' | 'enemy-ogre'
+  | 'enemy-moth' | 'enemy-orc' | 'enemy-lizard' | 'enemy-boss';
 
 export interface PlaceholderSpec {
   size: number;             // Kantenlänge in px
@@ -115,7 +116,11 @@ const UNIT_SPECS: Record<string, Omit<PlaceholderSpec, 'size' | 'outline'>> = {
   'enemy-slime': { base: PALETTE.water, accent: PALETTE.bone, shape: 'round' },
   'enemy-wolf': { base: PALETTE.steel, accent: PALETTE.mist, shape: 'round' },
   'enemy-imp': { base: PALETTE.ember, accent: PALETTE.ink, shape: 'round' },
-  'enemy-ogre': { base: PALETTE.enemy, accent: PALETTE.bone, shape: 'round' }
+  'enemy-ogre': { base: PALETTE.enemy, accent: PALETTE.bone, shape: 'round' },
+  'enemy-moth': { base: PALETTE.arcane, accent: PALETTE.mist, shape: 'round' },
+  'enemy-orc': { base: PALETTE.grassDark, accent: PALETTE.ember, shape: 'round' },
+  'enemy-lizard': { base: PALETTE.grass, accent: PALETTE.gold, shape: 'round' },
+  'enemy-boss': { base: PALETTE.shadow, accent: PALETTE.enemy, shape: 'round' }
 };
 
 export const PLACEHOLDER_KINDS: readonly PlaceholderKind[] = [

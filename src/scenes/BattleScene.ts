@@ -323,6 +323,10 @@ export class BattleScene extends Phaser.Scene {
     if (side === 'party') return 'hero';
     const n = unit.name.toLowerCase();
     if (n.includes('wolf')) return 'enemy-wolf';
+    if (n.includes('mordrahn') || n.includes('echo')) return 'enemy-boss';
+    if (n.includes('motte') || n.includes('moth')) return 'enemy-moth';
+    if (n.includes('ork') || n.includes('orc')) return 'enemy-orc';
+    if (n.includes('echse') || n.includes('lizard')) return 'enemy-lizard';
     if (n.includes('imp')) return 'enemy-imp';
     if (n.includes('ogre') || n.includes('oger')) return 'enemy-ogre';
     return 'enemy-slime';
