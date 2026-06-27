@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tempest Chronik">
+  <rect width="64" height="64" rx="14" fill="#0b0f16"/>
+  <path d="M32 9c10 7 17 15 17 27 0 10-7 19-17 19s-17-9-17-19C15 24 22 16 32 9Z" fill="#68d7ff"/>
+  <path d="M23 36c4 4 14 4 18 0" fill="none" stroke="#0b0f16" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="25" cy="29" r="3" fill="#0b0f16"/>
+  <circle cx="39" cy="29" r="3" fill="#0b0f16"/>
+  <path d="M44 12c3 5 4 10 2 16" fill="none" stroke="#e9c56c" stroke-width="4" stroke-linecap="round"/>
+</svg>
