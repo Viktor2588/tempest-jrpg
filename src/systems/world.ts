@@ -138,6 +138,24 @@ export function startDialogForNpc(state: WorldState, npcId: string): DialogView 
   return getDialogView(state, npc.dialogId, requireDialog(npc.dialogId).startNodeId);
 }
 
+const QUEST_PROGRESS_EFFECTS: ReadonlySet<WorldEffect['type']> = new Set([
+  'start-quest', 'complete-quest-step', 'complete-quest'
+]);
+
+// Ein NPC verdient JETZT einen Quest-Marker, wenn ein Gespräch die Story/Quest
+// voranbringt: eine sichtbare (requirement-gefilterte) Dialogoption mit Quest-
+// Effekt oder gesetztem `story.*`-Flag. Datengetrieben → leuchtet automatisch
+// Sora→Vael→Lyrre→Sora zur richtigen Zeit und erlischt, wenn dort nichts zu tun ist.
+export function npcHasQuestMarker(state: WorldState, npcId: string): boolean {
+  if (!npcById.has(npcId)) return false;
+  return startDialogForNpc(state, npcId).choices.some((choice) =>
+    (choice.effects ?? []).some((effect) =>
+      QUEST_PROGRESS_EFFECTS.has(effect.type)
+      || (effect.type === 'set-flag' && effect.flag.startsWith('story.') && effect.value)
+    )
+  );
+}
+
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
   return QUESTS.map((quest) => {
     const questState = state.quests[quest.id];

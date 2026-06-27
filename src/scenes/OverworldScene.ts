@@ -12,6 +12,7 @@ import {
   getAdjacentShop,
   getMapLocations,
   getVisibleMapEncounters,
+  npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
 import { playMusic, resumeMusic } from '../audio/music';
@@ -237,6 +238,16 @@ export class OverworldScene extends Phaser.Scene {
         fontSize: '11px',
         color: '#e9eef7'
       }).setOrigin(0.5));
+      // Quest-Marker: goldenes „!" über NPCs, bei denen ein Gespräch JETZT die
+      // Story voranbringt (unterscheidet sich vom pinken Encounter-„!" auf der Kachel).
+      // Statisch gehalten, damit beim worldLayer-Neuzeichnen keine Tweens lecken.
+      if (npcHasQuestMarker(world, npc.id)) {
+        layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 52, '❗', {
+          fontFamily: 'sans-serif',
+          fontSize: '20px',
+          color: '#ffd34d'
+        }).setOrigin(0.5));
+      }
     }
 
     for (const shop of SHOPS.filter((item) => item.mapId === MAP_ID)) {

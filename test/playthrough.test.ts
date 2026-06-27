@@ -10,6 +10,7 @@ import {
   getMapEncounters,
   getMapNpcs,
   getVisibleMapEncounters,
+  npcHasQuestMarker,
   resolveEncounter,
   startDialogForNpc
 } from '../src/systems/world';
@@ -88,6 +89,30 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     for (const entry of codex) {
       expect(entry.unlocked, `Codex-Eintrag '${entry.id}' blieb verschlossen`).toBe(true);
     }
+  });
+
+  it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {
+    const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
+    let save = createNewSave();
+
+    // Start: Sora (Story) und Rigurd (Patrouille) bieten je eine Aktion; Vael/Lyrre noch nicht.
+    expect(marker(save, 'sora')).toBe(true);
+    expect(marker(save, 'rigurd')).toBe(true);
+    expect(marker(save, 'vael')).toBe(false);
+    expect(marker(save, 'lyrre')).toBe(false);
+
+    save = talk(save, 'sora', 'begin'); // Quest aktiv
+    // Jetzt sind Vael & Lyrre dran; bei Sora gibt es gerade nichts zu tun.
+    expect(marker(save, 'vael')).toBe(true);
+    expect(marker(save, 'lyrre')).toBe(true);
+    expect(marker(save, 'sora')).toBe(false);
+
+    save = talk(save, 'vael', 'analyze');
+    save = talk(save, 'lyrre', 'briefing');
+    // Vael/Lyrre erledigt → kein Marker mehr; Sora wieder dran (Rat versammeln).
+    expect(marker(save, 'vael')).toBe(false);
+    expect(marker(save, 'lyrre')).toBe(false);
+    expect(marker(save, 'sora')).toBe(true);
   });
 
   it('hält jeden Quest-NPC und Story-Encounter auf der Karte erreichbar', () => {

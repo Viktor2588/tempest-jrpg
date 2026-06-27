@@ -285,6 +285,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test:** `test/playthrough.test.ts` prüft jetzt die **Marker-Sichtbarkeit** über die Story (nach Rat → Hain sichtbar/Schrein nicht; nach Hain → Schrein sichtbar/Hain nicht; nach Schrein → keiner) — fängt künftige „Marker fehlt"-Regressionen auf der Logikseite.
 - **Abnahme:** `tsc` sauber, **91/91** grün, `build` ok.
 
+[x] **Feature: Quest-Marker über NPCs (fertig 2026-06-27, direkt auf `main`)** *(Spielerwunsch — schwer erkennbar, welche Elemente interaktiv/relevant sind)*
+- **Datengetriebener Helfer `npcHasQuestMarker(state, npcId)` (rein, getestet):** wahr, wenn der **requirement-gefilterte** Startdialog des NPCs gerade eine quest-vorantreibende Option hat (`start-quest`/`complete-quest-step`/`complete-quest` oder gesetztes `story.*`-Flag). Kein Hardcoding von „Questgebern".
+- **`OverworldScene`:** zeichnet ein **goldenes „❗"** über NPCs mit aktiver Quest-Aktion (deutlich vom pinken Encounter-„!" auf der Kachel unterscheidbar); statisch (kein Tween-Leak beim `worldLayer`-Neuzeichnen). Leuchtet automatisch Sora→Vael→Lyrre→Sora zur richtigen Zeit und erlischt, wenn dort nichts zu tun ist.
+- **Test `test/playthrough.test.ts`:** prüft die Marker-Reihenfolge (Start: Sora+Rigurd; nach Sora-Start: Vael+Lyrre, Sora aus; nach Vael+Lyrre: Sora wieder an).
+- **Abnahme:** `tsc` sauber, **92/92** grün, `build` ok.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.
