@@ -278,6 +278,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Fix (`BattleScene.drawUnit`):** Einheiten-Kasten 62→84px; Name/Form oben, Sprite mittig, **HP-Leiste + LP/MP-Text unter den Sprite** verschoben (lag vorher mittig über dem Token und verdeckte es). Reihenabstände kollisionsfrei (Gegner y=145, Party y=360).
 - **Abnahme:** `tsc` sauber, **91/91** grün, `build` ok.
 
+[x] **Bugfix: Schrein-Marker fehlt nach Hain → „für immer stuck" (fertig 2026-06-27, direkt auf `main`)** *(Spielermeldung)*
+- **Symptom:** Nach gewonnenem Flüsterhain-Kampf erscheint der „!"-Schrein-Marker nicht; Spieler kommt nicht weiter.
+- **Wurzel (Regression aus dem Marker-Refresh):** Der Rückweg Kampf→Overworld ist `scene.start('Overworld')`; Phaser nutzt die **Szenen-Instanz wieder**, daher zeigte `this.worldLayer` auf den **zerstörten** Container der Vorsitzung → `drawWorldObjects` zeichnete in einen toten Container → keine Marker. Die Encounter-**Logik** war korrekt (Schrein wird nach `story.grove.cleared` sichtbar), nur das Rendern brach.
+- **Fix (`OverworldScene`):** `this.worldLayer = undefined` im transienten Reset von `create()` (gleiches Muster wie `moving`/`touchDir`); RESUME-Listener via `off`+`on` mit benannter `onResume`-Methode (kein Listener-Leak über scene.start-Zyklen).
+- **Test:** `test/playthrough.test.ts` prüft jetzt die **Marker-Sichtbarkeit** über die Story (nach Rat → Hain sichtbar/Schrein nicht; nach Hain → Schrein sichtbar/Hain nicht; nach Schrein → keiner) — fängt künftige „Marker fehlt"-Regressionen auf der Logikseite.
+- **Abnahme:** `tsc` sauber, **91/91** grün, `build` ok.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

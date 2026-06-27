@@ -9,6 +9,7 @@ import {
   createWorldState,
   getMapEncounters,
   getMapNpcs,
+  getVisibleMapEncounters,
   resolveEncounter,
   startDialogForNpc
 } from '../src/systems/world';
@@ -48,6 +49,13 @@ function clearTriggerAt(save: SaveGameV2, pos: Vec2): SaveGameV2 {
   return next;
 }
 
+// Welche „!"-Marker der Overworld nach diesem Stand zeichnet (drawWorldObjects-Quelle).
+function visibleTriggerIds(save: SaveGameV2): string[] {
+  return getVisibleMapEncounters(MAP_ID, createWorldState(save))
+    .filter((enc) => enc.kind === 'trigger')
+    .map((enc) => enc.id);
+}
+
 describe('Act-1-Durchspielen (szenentreu)', () => {
   it('schließt „Bindung der Ahnen" über den echten Szenen-Fluss ab und füllt den Codex', () => {
     let save = createNewSave();
@@ -57,8 +65,18 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = talk(save, 'vael', 'analyze');   // story.vael.ready
     save = talk(save, 'lyrre', 'briefing'); // story.lyrre.ready
     save = talk(save, 'sora', 'council');   // story.council.ready + gather-council
+    // Nach dem Rat erscheint der Hain-Marker, der Schrein noch nicht.
+    expect(visibleTriggerIds(save)).toContain('whispering-grove-ambush');
+    expect(visibleTriggerIds(save)).not.toContain('shrine-approach');
+
     save = clearTriggerAt(save, { x: 14, y: 8 });  // Flüsterhain → clear-grove
+    // Regressionsschutz: nach dem Hain-Sieg MUSS der Schrein-Marker auftauchen (sonst „stuck").
+    expect(visibleTriggerIds(save)).toContain('shrine-approach');
+    expect(visibleTriggerIds(save)).not.toContain('whispering-grove-ambush');
+
     save = clearTriggerAt(save, { x: 21, y: 13 }); // Schrein/Boss → defeat-mordrahn-echo
+    expect(visibleTriggerIds(save).filter((id) => id === 'shrine-approach')).toHaveLength(0);
+
     save = talk(save, 'sora', 'report-act1'); // report-sora + complete-quest + Reward
 
     const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'binding-of-ancestors')!;

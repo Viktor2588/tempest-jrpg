@@ -50,6 +50,11 @@ export class OverworldScene extends Phaser.Scene {
     // sonst bleibt nach einem Kampf `moving=true` hängen → Bewegung blockiert.
     this.moving = false;
     this.touchDir = null;
+    // Nach scene.start (z. B. Rückkehr aus dem Kampf) zeigt das Feld auf den
+    // ZERSTÖRTEN Container der vorigen Sitzung → zurücksetzen, sonst zeichnet
+    // drawWorldObjects in einen toten Container und die Story-Marker (z. B. der
+    // Schrein nach dem Hain-Sieg) verschwinden → Spieler bleibt stecken.
+    this.worldLayer = undefined;
 
     // Kacheln: echte CC0-Kenney-Kacheln bevorzugt → Platzhalter → Rechteck-Fallback.
     const tileKey = (wall: boolean): string | null => {
@@ -88,10 +93,10 @@ export class OverworldScene extends Phaser.Scene {
 
     // Nach Rückkehr aus Dialog/Shop/Menü (scene.resume) den Save neu laden und die
     // Story-Marker neu zeichnen, damit freigeschaltete Encounter sofort sichtbar sind.
-    this.events.on(Phaser.Scenes.Events.RESUME, () => {
-      this.save = loadSave(window.localStorage) ?? this.save;
-      this.drawWorldObjects();
-    });
+    // off vor on: create() läuft bei jedem scene.start erneut → sonst sammeln sich
+    // Listener auf der (wiederverwendeten) Szenen-Instanz an.
+    this.events.off(Phaser.Scenes.Events.RESUME, this.onResume, this);
+    this.events.on(Phaser.Scenes.Events.RESUME, this.onResume, this);
 
     // Kamera folgt, begrenzt auf die Kartengröße.
     this.cameras.main.setBounds(0, 0, map.width * TILE, map.height * TILE);
@@ -181,6 +186,11 @@ export class OverworldScene extends Phaser.Scene {
         this.resolveEncounterAtCurrentPosition();
       }
     });
+  }
+
+  private onResume(): void {
+    this.save = loadSave(window.localStorage) ?? this.save;
+    this.drawWorldObjects();
   }
 
   private drawWorldObjects(): void {
