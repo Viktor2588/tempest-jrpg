@@ -172,9 +172,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Stilkohärenz vor Quantität:** verbindliche **Art Bible** (Palette, Auflösung/Tile-Größe, Perspektive, Outline-Regeln). Bis echte Assets vorliegen, ein **kohärenter prozeduraler/Pixel-Platzhalterstil**, den der Automode selbst erzeugt — später 1:1 austauschbar.
 - **Budget:** Gesamtgröße der Auslieferung im Blick behalten (Lazy-Loading je Szene möglich), damit der Pages-Build schlank bleibt.
 
-[ ] **Phase 9 – Game Feel & Kampf-Juice** *(autonom, höchster ROI)*
-- Trefferpause (hit-stop), Screenshake, aufsteigende Schadens-/Heilzahlen, Treffer-/Tod-Partikel, Angriffs-Lunge/Cast-Animationen, Kamera-Akzente, flüssige Begegnungs-/Szenenübergänge (nutzt `transition.ts`). Reduziert-Bewegung-Option respektieren.
-- **Abnahme:** Kämpfe wirken spürbar „teuer"; alle Effekte über Effektstufe abschaltbar; keine Konsolenfehler; Logik bleibt headless-rein (nur Darstellung in Szenen).
+[x] **Phase 9 – Game Feel & Kampf-Juice (fertig 2026-06-27, Worktree `worktree/tempest-phase-9-juice`)** *(autonom, höchster ROI)*
+- **Reine Ableitung `src/systems/feedback.ts`** (Phaser-/DOM-frei, getestet): `snapshot`/`diffFeedback`/`totalDamage` errechnen aus Vorher/Nachher-Zuständen die LP-/MP-Deltas + Tod-Events — **ohne Eingriff in die Kampf-Engine** (bewusst, damit es nicht mit der parallelen Engine-Phase kollidiert).
+- **`BattleScene` aufgewertet (nur Darstellung):** eigene, nicht-gelöschte **FX-Ebene** für aufsteigende **Schadens-/Heilzahlen**, **Treffer-Flash**, **Tod-Partikel (Poof)** und **Kamera-Shake** (Stärke ∝ Schaden); **Szenen-Fade-in** (`transition.ts`); Sieg/Niederlage-Flourish (Kamera-Flash/Shake, einmalig); **SFX** (Treffer/Heilung/Sieg/Niederlage) aus dem Phase-7-Audio. Spieler- **und** Gegnerzüge lösen Feedback über Zustands-Diff aus.
+- **Bewegungsoption respektiert:** bei „reduzierte Bewegung" entfallen Shake/Flash/Partikel; Zahlen bleiben (informativ). Engine bleibt headless-rein.
+- **Test `test/feedback.test.ts`:** 5 Checks (Snapshot, Schaden/Heilung, Tod-Übergang, unveränderte Einheiten/MP, totalDamage).
+- **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **55/55** grün, `bun run build` → `dist/`. Live-Browser-Smoke noch manuell. *Angriffs-Lunge/Cast-Pose bewusst zurückgestellt (würde das Render-Modell der Szene umbauen) — Folgeschritt.*
 
 [ ] **Phase 10 – Kampftiefe (moderne JRPG-Pfeiler)** *(autonom)*
 - Aktive **Reaktionsfenster** (Timing-Block/Konter, optional/schnell), **Rollen-/Job-Wechsel im Kampf**, **Schwäche-/Break-System** (Phasenleiste), **Team-/Synergie-Angriffe** über Beziehungen, lesbare **Gegnerphasen** (>1 Muster, <50 % LP-Wechsel). Voller Status-/Buff-/Debuff-Satz.

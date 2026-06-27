@@ -14,6 +14,10 @@ import {
   type BattleState,
   type CombatantView
 } from '../systems/battle';
+import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
+import { loadSettings } from '../systems/settings';
+import { playSfx, resumeAudio } from '../audio/sfx';
+import { fadeIn } from './transition';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
 
@@ -28,6 +32,9 @@ export class BattleScene extends Phaser.Scene {
   private pendingSkillId: string | null = null;
   private pendingItemId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
+  private fxLayer!: Phaser.GameObjects.Container;
+  private unitPos = new Map<string, { x: number; y: number }>();
+  private resultAnnounced = false;
 
   constructor() {
     super('Battle');
@@ -40,9 +47,70 @@ export class BattleScene extends Phaser.Scene {
       inventory: createInitialInventory(),
       seed: (Date.now() & 0x7fffffff) || 1
     });
+    this.resultAnnounced = false;
+    this.unitPos.clear();
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
     this.layer = this.add.container(0, 0);
+    this.fxLayer = this.add.container(0, 0).setDepth(50); // Effekte überleben refresh()
+    fadeIn(this);
+    // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
+    this.input.once('pointerdown', resumeAudio);
+    this.input.keyboard?.once('keydown', resumeAudio);
     this.afterAction();
+  }
+
+  private allViews(): CombatantView[] {
+    const view = renderView(this.state);
+    return [...view.party, ...view.enemies];
+  }
+
+  // Wirkt sich nur auf die Darstellung aus: Schadens-/Heilzahlen, Treffer-Flash,
+  // Tod-Partikel, Kamera-Shake und SFX — alles über die Bewegungsoption gedämpft.
+  private playFeedback(events: ReturnType<typeof diffFeedback>): void {
+    if (!events.length) return;
+    const reduced = loadSettings(window.localStorage).reducedMotion;
+    let healed = false;
+    for (const event of events) {
+      const pos = this.unitPos.get(event.id);
+      if (!pos) continue;
+      if (event.hpDelta < 0) {
+        this.floatNumber(pos, String(-event.hpDelta), '#ff6f83');
+        if (!reduced) this.flashBox(pos, 0xff5a5a);
+      } else if (event.hpDelta > 0) {
+        healed = true;
+        this.floatNumber(pos, '+' + event.hpDelta, '#8dffc2');
+      }
+      if (event.died && !reduced) this.poof(pos);
+    }
+    const dmg = totalDamage(events);
+    if (dmg > 0) playSfx('hit');
+    if (healed) playSfx('heal');
+    if (!reduced && dmg > 0) {
+      this.cameras.main.shake(Math.min(220, 70 + dmg * 4), Math.min(0.012, 0.003 + dmg * 0.0004));
+    }
+  }
+
+  private floatNumber(pos: { x: number; y: number }, text: string, color: string): void {
+    const label = this.add.text(pos.x, pos.y - 12, text, {
+      fontFamily: 'sans-serif', fontSize: '18px', fontStyle: 'bold', color, stroke: '#05070c', strokeThickness: 3
+    }).setOrigin(0.5).setDepth(60);
+    this.fxLayer.add(label);
+    this.tweens.add({ targets: label, y: pos.y - 52, alpha: 0, duration: 850, ease: 'Cubic.Out', onComplete: () => label.destroy() });
+  }
+
+  private flashBox(pos: { x: number; y: number }, color: number): void {
+    const rect = this.add.rectangle(pos.x, pos.y, 112, 62, color, 0.5).setDepth(55);
+    this.fxLayer.add(rect);
+    this.tweens.add({ targets: rect, alpha: 0, duration: 220, onComplete: () => rect.destroy() });
+  }
+
+  private poof(pos: { x: number; y: number }): void {
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const dot = this.add.circle(pos.x, pos.y, 3, 0xffd6a0).setDepth(60);
+      this.fxLayer.add(dot);
+      this.tweens.add({ targets: dot, x: pos.x + Math.cos(angle) * 38, y: pos.y + Math.sin(angle) * 38, alpha: 0, duration: 430, onComplete: () => dot.destroy() });
+    }
   }
 
   private afterAction(): void {
@@ -61,12 +129,15 @@ export class BattleScene extends Phaser.Scene {
     this.mode = 'busy';
     this.refresh();
     this.time.delayedCall(320, () => {
+      const before = snapshot(this.allViews());
       enemyTurn(this.state);
+      this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
       this.afterAction();
     });
   }
 
   private doAct(action: Parameters<typeof act>[1]): void {
+    const before = snapshot(this.allViews());
     const result = act(this.state, action);
     if (!result.ok) {
       this.flash(result.reason ?? 'Geht nicht.');
@@ -75,6 +146,7 @@ export class BattleScene extends Phaser.Scene {
 
     this.pendingSkillId = null;
     this.pendingItemId = null;
+    this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
     this.afterAction();
   }
 
@@ -121,6 +193,7 @@ export class BattleScene extends Phaser.Scene {
   private drawUnit(unit: CombatantView, x: number, y: number, side: 'party' | 'enemy'): void {
     const width = 112;
     const alpha = unit.dead ? 0.35 : 1;
+    this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
     const box = this.add.rectangle(x, y, width, 62, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
     this.layer.add(box);
@@ -242,6 +315,14 @@ export class BattleScene extends Phaser.Scene {
 
   private drawResult(status: string, rewards: { experience: number; gold: number; items: readonly { itemId: string; quantity: number }[] }): void {
     const won = status === 'won';
+    if (!this.resultAnnounced) {
+      this.resultAnnounced = true;
+      playSfx(won ? 'victory' : status === 'fled' ? 'cancel' : 'defeat');
+      if (!loadSettings(window.localStorage).reducedMotion) {
+        if (won) this.cameras.main.flash(300, 80, 70, 30);
+        else this.cameras.main.shake(260, 0.01);
+      }
+    }
     const title = won ? '🏆 Sieg!' : status === 'fled' ? '🏃 Entkommen' : '💀 Niederlage';
     this.layer.add(this.add.text(GAME_WIDTH / 2, 250, title, {
       fontFamily: 'serif',
