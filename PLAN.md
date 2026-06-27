@@ -38,6 +38,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 - **Schlanke Progression:** Level-Skalierung, Reserve-EP oder Party-weites Aufholen verhindern, dass ungenutzte Figuren dauerhaft zurückfallen.
 - **Namensgebung & Entwicklung als Kernfantasie:** Das Tempest-typische Kreaturen-Entwicklungs-/Namensgebungssystem bleibt die zentrale Progressionsfantasie und verbindet Werte, Skills, Rollen und Story-Status.
 - **Grinding minimieren:** Wiederholkämpfe dürfen lohnen, aber der Hauptfortschritt soll aus Questfortschritt, taktisch guten Kämpfen, Entwicklung, Beziehungen und Erkundung entstehen.
+- **Talentbäume statt Rollen-Ballast:** Die langfristige Charakterausdifferenzierung soll stärker über Talent-/Skill-Bäume laufen als über viele separate Rollen. Bestehende Rollen bleiben vorerst als taktische Kampfoption erhalten, werden später aber auf Synergien mit Talentbäumen geprüft.
 
 ## Technische Entscheidungen
 - **Engine:** **Phaser 3** (Canvas/WebGL) mit **TypeScript**.
