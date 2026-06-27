@@ -22,7 +22,7 @@ const MAP_ID = 'tempest-start';
 // der reinen systems/overworld-Logik.
 export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
-  private player!: Phaser.GameObjects.Rectangle;
+  private player!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
   private moving = false;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd?: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
@@ -44,24 +44,36 @@ export class OverworldScene extends Phaser.Scene {
     this.moving = false;
     this.touchDir = null;
 
-    // Kacheln zeichnen.
+    // Kacheln: echte CC0-Kenney-Kacheln bevorzugt → Platzhalter → Rechteck-Fallback.
+    const tileKey = (wall: boolean): string | null => {
+      const real = wall ? 'tile-wall' : 'tile-grass';
+      if (this.textures.exists(real)) return real;
+      const ph = wall ? 'ph-tile-wall' : 'ph-tile-grass';
+      return this.textures.exists(ph) ? ph : null;
+    };
     const g = this.add.graphics();
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const wall = map.tiles[y]![x] === WALL;
-        g.fillStyle(wall ? 0x2f3b52 : 0x161d2a, 1);
-        g.fillRect(x * TILE, y * TILE, TILE, TILE);
-        g.lineStyle(1, 0x0c111b, 0.6);
-        g.strokeRect(x * TILE, y * TILE, TILE, TILE);
+        const key = tileKey(wall);
+        if (key) {
+          this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, key).setDisplaySize(TILE, TILE);
+        } else {
+          g.fillStyle(wall ? 0x2f3b52 : 0x161d2a, 1);
+          g.fillRect(x * TILE, y * TILE, TILE, TILE);
+          g.lineStyle(1, 0x0c111b, 0.6);
+          g.strokeRect(x * TILE, y * TILE, TILE, TILE);
+        }
       }
     }
 
-    // Spieler.
+    // Spieler — Platzhalter-Sprite, sonst Rechteck.
     this.pos = this.save.location.mapId === MAP_ID
       ? { x: this.save.location.x, y: this.save.location.y }
       : { ...map.spawn };
-    this.player = this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff)
-      .setStrokeStyle(2, 0xcdeaff);
+    this.player = this.textures.exists('ph-hero')
+      ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), 'ph-hero').setDisplaySize(TILE * 0.82, TILE * 0.82)
+      : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
 
     this.drawWorldObjects();
 
