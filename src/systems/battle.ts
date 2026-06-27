@@ -136,6 +136,7 @@ export function createBattlePartyFromMembers(members: readonly PartyMemberState[
 
     return [
       createHeroBattleUnit(hero, {
+        name: member.name,
         level: member.level,
         currentHp: member.currentHp,
         currentMp: member.currentMp,
@@ -147,14 +148,14 @@ export function createBattlePartyFromMembers(members: readonly PartyMemberState[
 
 export function createHeroBattleUnit(
   hero: CharacterDefinition,
-  overrides: Partial<Pick<BattleUnitInput, 'currentHp' | 'currentMp' | 'level' | 'skillIds'>> = {}
+  overrides: Partial<Pick<BattleUnitInput, 'currentHp' | 'currentMp' | 'level' | 'name' | 'skillIds'>> = {}
 ): BattleUnitInput {
   const level = overrides.level ?? hero.initialLevel;
   const stats = scaleStats(hero.baseStats, hero.growthPerLevel, level);
 
   return {
     sourceId: hero.id,
-    name: hero.name,
+    name: overrides.name ?? hero.name,
     side: 'party',
     level,
     stats,

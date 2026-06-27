@@ -180,5 +180,21 @@ export const ENCOUNTERS = [
     bounds: { x: 14, y: 6, width: 8, height: 8 },
     enemyIds: ['forest-slime'],
     chance: 0.12
+  },
+  {
+    id: 'marsh-border-watch',
+    mapId: 'tempest-start',
+    kind: 'random',
+    bounds: { x: 2, y: 11, width: 6, height: 3 },
+    enemyIds: ['spore-moth', 'orc-scout'],
+    chance: 0.08
+  },
+  {
+    id: 'shrine-approach',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 21, y: 13 },
+    enemyIds: ['lizardman-acolyte'],
+    chance: 1
   }
 ] as const satisfies readonly EncounterDefinition[];

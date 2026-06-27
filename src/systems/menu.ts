@@ -91,11 +91,12 @@ export function buildMenuView(
 
 export function getMemberSummary(
   member: PartyMemberState,
-  jobId = getDefaultJobId(member.characterId)
+  jobId = getDefaultJobId(member.characterId),
+  unlockedJobIds: readonly string[] = []
 ): MemberSummary | null {
   const character = heroById.get(member.characterId);
-  const job = getAvailableJobs(member.characterId).find((candidate) => candidate.id === jobId)
-    ?? getAvailableJobs(member.characterId)[0];
+  const availableJobs = getAvailableJobs(member.characterId, unlockedJobIds);
+  const job = availableJobs.find((candidate) => candidate.id === jobId) ?? availableJobs[0];
   if (!character || !job) {
     return null;
   }
@@ -116,9 +117,12 @@ export function getDefaultJobId(characterId: string): string {
   return 'vanguard';
 }
 
-export function getAvailableJobs(characterId: string): JobDefinition[] {
+export function getAvailableJobs(characterId: string, unlockedJobIds: readonly string[] = []): JobDefinition[] {
+  const unlocked = new Set(unlockedJobIds);
   return jobDefinitions.filter((job) =>
     !job.allowedCharacterIds || job.allowedCharacterIds.includes(characterId)
+  ).filter((job) =>
+    !job.unlock || unlocked.has(job.id)
   );
 }
 
@@ -283,9 +287,10 @@ export function useItem(
 export function selectJob(
   assignments: Readonly<Record<string, string>>,
   characterId: string,
-  jobId: string
+  jobId: string,
+  unlockedJobIds: readonly string[] = []
 ): MenuResult<Readonly<Record<string, string>>> {
-  if (!getAvailableJobs(characterId).some((job) => job.id === jobId)) {
+  if (!getAvailableJobs(characterId, unlockedJobIds).some((job) => job.id === jobId)) {
     return { ok: false, state: assignments, message: 'Rolle ist für diesen Charakter nicht verfügbar.' };
   }
   return {

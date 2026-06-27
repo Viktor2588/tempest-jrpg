@@ -61,5 +61,35 @@ export const SKILLS = [
     costMp: 5,
     power: 24,
     tags: ['heal', 'magical']
+  },
+  {
+    id: 'predator-aura',
+    name: 'Raubtier-Aura',
+    description: 'Ein konzentrierter Schattenstoß, der aus einer benannten Schleimform erwacht.',
+    element: 'shadow',
+    target: 'single-enemy',
+    costMp: 8,
+    power: 30,
+    tags: ['magical']
+  },
+  {
+    id: 'direwolf-rush',
+    name: 'Direwolf-Ansturm',
+    description: 'Ein schneller physischer Vorstoß, der aus tiefer Bindung zur Direwolf-Linie entsteht.',
+    element: 'neutral',
+    target: 'single-enemy',
+    costMp: 5,
+    power: 24,
+    tags: ['physical']
+  },
+  {
+    id: 'sacred-weave',
+    name: 'Sakralgewebe',
+    description: 'Stärkt die Heilkunst mit feinen Barrierefäden der Oger-Priesterinnen.',
+    element: 'holy',
+    target: 'single-ally',
+    costMp: 9,
+    power: 38,
+    tags: ['heal', 'magical']
   }
 ] as const satisfies readonly SkillDefinition[];
