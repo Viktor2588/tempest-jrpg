@@ -2,10 +2,9 @@ import Phaser from 'phaser';
 import { ITEMS, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
-import { createInitialInventory } from '../systems/inventory';
+import { normalizeInventoryStacks } from '../systems/inventory';
 import {
   act,
-  createDefaultBattleParty,
   currentActor,
   enemyTurn,
   isPlayerTurn,
@@ -14,6 +13,13 @@ import {
   type BattleState,
   type CombatantView
 } from '../systems/battle';
+import {
+  applyBattleProgressionRewards,
+  calculateProgressionStats,
+  calculateStartingTeamMeter,
+  createProgressionBattleParty
+} from '../systems/progression';
+import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { loadSettings } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
@@ -31,23 +37,33 @@ export class BattleScene extends Phaser.Scene {
   private mode: Mode = 'busy';
   private pendingSkillId: string | null = null;
   private pendingItemId: string | null = null;
+  private pendingTeamPartnerId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
   private unitPos = new Map<string, { x: number; y: number }>();
   private resultAnnounced = false;
+  private rewardsApplied = false;
+  private save!: SaveGameV2;
 
   constructor() {
     super('Battle');
   }
 
   create(data: { enemyIds?: string[] }): void {
+    this.save = loadSave(window.localStorage) ?? createNewSave();
     this.state = startBattle({
-      party: createDefaultBattleParty(),
+      party: createProgressionBattleParty(
+        this.save.party.active,
+        this.save.progression,
+        this.save.flags
+      ),
       enemyIds: data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
-      inventory: createInitialInventory(),
+      inventory: this.save.inventory.stacks,
+      teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
       seed: (Date.now() & 0x7fffffff) || 1
     });
     this.resultAnnounced = false;
+    this.rewardsApplied = false;
     this.unitPos.clear();
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
     this.layer = this.add.container(0, 0);
@@ -148,6 +164,7 @@ export class BattleScene extends Phaser.Scene {
     this.pendingSkillId = null;
     this.pendingItemId = null;
     this.attackStreak(actor?.id, action);
+    this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
     this.afterAction();
   }
@@ -188,6 +205,11 @@ export class BattleScene extends Phaser.Scene {
     }
 
     const actor = currentActor(this.state);
+    this.layer.add(this.add.text(16, 82, `Team-Leiste ${view.teamMeter}/100`, {
+      fontFamily: 'sans-serif',
+      fontSize: '12px',
+      color: '#e9c56c'
+    }));
     this.layer.add(this.add.text(GAME_WIDTH / 2, 250, actor ? `${actor.name} ist am Zug` : '', {
       fontFamily: 'sans-serif',
       fontSize: '15px',
@@ -214,11 +236,18 @@ export class BattleScene extends Phaser.Scene {
     const box = this.add.rectangle(x, y, width, 62, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
     this.layer.add(box);
-    this.layer.add(this.add.text(x, y - 22, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
+    this.layer.add(this.add.text(x, y - 24, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
       fontFamily: 'sans-serif',
       fontSize: '12px',
       color: '#e9eef7'
     }).setOrigin(0.5).setAlpha(alpha));
+    if (unit.formName) {
+      this.layer.add(this.add.text(x, y - 11, unit.formName, {
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        color: '#e9c56c'
+      }).setOrigin(0.5).setAlpha(alpha));
+    }
 
     this.layer.add(this.add.rectangle(x, y, width - 14, 8, 0x10151f).setOrigin(0.5));
     this.layer.add(this.add.rectangle(
@@ -246,7 +275,13 @@ export class BattleScene extends Phaser.Scene {
     if (!unit.dead && (wantsEnemy || wantsAlly)) {
       box.setInteractive().setStrokeStyle(2, 0x68ff9a);
       box.on('pointerdown', () => {
-        if (this.pendingSkillId) {
+        if (this.pendingTeamPartnerId) {
+          this.doAct({
+            type: 'team-attack',
+            partnerId: this.pendingTeamPartnerId,
+            targetId: unit.id
+          });
+        } else if (this.pendingSkillId) {
           this.doAct({ type: 'skill', skillId: this.pendingSkillId, targetId: unit.id });
         } else if (this.pendingItemId) {
           this.doAct({ type: 'item', itemId: this.pendingItemId, targetId: unit.id });
@@ -264,6 +299,7 @@ export class BattleScene extends Phaser.Scene {
         this.mode = 'target-enemy';
         this.pendingSkillId = null;
         this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
         this.refresh();
       }],
       ['✨ Skills', () => {
@@ -277,6 +313,23 @@ export class BattleScene extends Phaser.Scene {
       ['🛡 Verteidigen', () => this.doAct({ type: 'guard' })],
       ['🏃 Fliehen', () => this.doAct({ type: 'flee' })]
     ];
+    const partner = renderView(this.state).party.find((candidate) =>
+      !candidate.dead
+      && candidate.id !== actor.id
+      && (
+        actor.synergyPartnerIds.includes(candidate.sourceId)
+        || candidate.synergyPartnerIds.includes(actor.sourceId)
+      )
+    );
+    if (renderView(this.state).teamMeter >= 100 && partner) {
+      items.splice(3, 0, ['◆ Team-Angriff', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = partner.id;
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
 
@@ -332,6 +385,10 @@ export class BattleScene extends Phaser.Scene {
 
   private drawResult(status: string, rewards: { experience: number; gold: number; items: readonly { itemId: string; quantity: number }[] }): void {
     const won = status === 'won';
+    if (!this.rewardsApplied) {
+      this.rewardsApplied = true;
+      this.applyBattleResult(status);
+    }
     if (!this.resultAnnounced) {
       this.resultAnnounced = true;
       playSfx(won ? 'victory' : status === 'fled' ? 'cancel' : 'defeat');
@@ -367,6 +424,73 @@ export class BattleScene extends Phaser.Scene {
     this.button(GAME_WIDTH / 2 - 90, 345, 'Zurück zur Welt', () => this.scene.start('Overworld'));
   }
 
+  private applyBattleResult(status: string): void {
+    const view = renderView(this.state);
+    const progressionResult = status === 'won'
+      ? applyBattleProgressionRewards(
+          this.save.party.active,
+          this.save.party.reserve,
+          this.save.progression,
+          view.rewards.experience
+        )
+      : {
+          active: this.save.party.active,
+          reserve: this.save.party.reserve,
+          state: this.save.progression,
+          grantedSkillPoints: 0
+        };
+    const jobIdsByCharacterId = {
+      ...progressionResult.state.jobIdsByCharacterId,
+      ...Object.fromEntries(
+        view.party.flatMap((combatant) =>
+          combatant.jobId ? [[combatant.sourceId, combatant.jobId]] : []
+        )
+      )
+    };
+    const progression = {
+      ...progressionResult.state,
+      jobIdsByCharacterId
+    };
+    const active = progressionResult.active.map((member) => {
+      if (status === 'lost') {
+        return member;
+      }
+      const previous = this.save.party.active.find(
+        (candidate) => candidate.characterId === member.characterId
+      );
+      const combatant = view.party.find((candidate) => candidate.sourceId === member.characterId);
+      if (!previous || !combatant) {
+        return member;
+      }
+      const hpGrowth = Math.max(0, member.currentHp - previous.currentHp);
+      const mpGrowth = Math.max(0, member.currentMp - previous.currentMp);
+      const stats = calculateProgressionStats(
+        member,
+        progression,
+        jobIdsByCharacterId[member.characterId]
+      );
+      return {
+        ...member,
+        currentHp: Math.min(stats.maxHp, Math.max(1, combatant.hp + hpGrowth)),
+        currentMp: Math.min(stats.maxMp, Math.max(0, combatant.mp + mpGrowth))
+      };
+    });
+    const inventory = status === 'won'
+      ? normalizeInventoryStacks([...view.inventory, ...view.rewards.items])
+      : normalizeInventoryStacks(view.inventory);
+
+    this.save = autoSave(window.localStorage, {
+      ...this.save,
+      party: {
+        active,
+        reserve: progressionResult.reserve,
+        gold: this.save.party.gold + (status === 'won' ? view.rewards.gold : 0)
+      },
+      inventory: { stacks: inventory },
+      progression
+    });
+  }
+
   private drawHint(text: string): void {
     this.layer.add(this.add.text(GAME_WIDTH / 2, 470, text, {
       fontFamily: 'sans-serif',
@@ -377,6 +501,7 @@ export class BattleScene extends Phaser.Scene {
       this.mode = 'menu';
       this.pendingSkillId = null;
       this.pendingItemId = null;
+      this.pendingTeamPartnerId = null;
       this.refresh();
     });
   }

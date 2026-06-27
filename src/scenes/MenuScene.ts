@@ -3,27 +3,44 @@ import type { EquipmentSlot } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import {
   buildMenuView,
-  calculateMemberStats,
   EQUIPMENT_SLOTS,
   equipItem,
   getAvailableJobs,
-  getDefaultJobId,
   MENU_TOUCH_TARGET_PX,
-  selectJob,
   type MenuGameState,
   type MenuView,
   unequipItem,
   useItem
 } from '../systems/menu';
+import {
+  calculateProgressionStats,
+  enchantEquipment,
+  evolveMember,
+  getActiveEquipmentSetTiers,
+  getActiveEvolution,
+  getAvailableEvolutions,
+  getEnchantmentLevel,
+  getProgressionRelationships,
+  getProgressionSkills,
+  getRelationshipLevelNumber,
+  getSelectedJobId,
+  getSkillTree,
+  getUnlockedJobIds,
+  renameMember,
+  selectProgressionJob,
+  unlockSkillNode,
+  type ProgressionActionResult
+} from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'jobs';
+type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'jobs';
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
   { id: 'inventory', label: 'Inventar' },
   { id: 'equipment', label: 'Ausrüstung' },
   { id: 'status', label: 'Status' },
+  { id: 'growth', label: 'Entwicklung' },
   { id: 'jobs', label: 'Rollen' }
 ];
 
@@ -48,7 +65,10 @@ export class MenuScene extends Phaser.Scene {
       gold: this.save.party.gold
     };
     this.jobAssignments = Object.fromEntries(
-      this.state.party.map((member) => [member.characterId, getDefaultJobId(member.characterId)])
+      this.state.party.map((member) => [
+        member.characterId,
+        getSelectedJobId(this.save.progression, member.characterId)
+      ])
     );
 
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.82);
@@ -97,6 +117,7 @@ export class MenuScene extends Phaser.Scene {
     else if (this.selectedTab === 'inventory') this.drawInventory(view, selected.member.characterId);
     else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
     else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
+    else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
     else this.drawJobs(view, selected.member.characterId);
   }
 
@@ -109,8 +130,12 @@ export class MenuScene extends Phaser.Scene {
 
     view.members.forEach((summary, index) => {
       const y = 174 + index * 54;
-      const stats = summary.stats;
-      this.button(24, y, 232, `${summary.character.name}  Lv.${summary.member.level}`, () => {
+      const stats = calculateProgressionStats(
+        summary.member,
+        this.save.progression,
+        this.jobAssignments[summary.member.characterId]
+      );
+      this.button(24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
         this.selectedMemberIndex = index;
         this.refresh();
       }, this.selectedMemberIndex === index ? 0x30506f : 0x162238);
@@ -126,9 +151,17 @@ export class MenuScene extends Phaser.Scene {
     this.sectionTitle('Party-Übersicht');
     view.members.forEach((summary, index) => {
       const y = 154 + index * 78;
-      const stats = summary.stats;
+      const stats = calculateProgressionStats(
+        summary.member,
+        this.save.progression,
+        this.jobAssignments[summary.member.characterId]
+      );
+      const formName = getActiveEvolution(
+        this.save.progression,
+        summary.member.characterId
+      )?.formName ?? summary.character.species;
       this.panel(300, y, 600, 66);
-      this.layer.add(this.add.text(318, y - 24, `${summary.character.name} · ${summary.character.species} · ${summary.job.name}`, {
+      this.layer.add(this.add.text(318, y - 24, `${summary.member.name} · ${formName} · ${summary.job.name}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
         color: '#e9eef7'
@@ -138,7 +171,12 @@ export class MenuScene extends Phaser.Scene {
         fontSize: '13px',
         color: '#9fb2cc'
       }));
-      this.layer.add(this.add.text(318, y + 20, `Skills: ${summary.skills.map((skill) => skill.name).join(', ') || '—'}`, {
+      const skills = getProgressionSkills(
+        summary.member,
+        this.save.progression,
+        this.jobAssignments[summary.member.characterId]
+      );
+      this.layer.add(this.add.text(318, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#6f83a5'
@@ -181,17 +219,57 @@ export class MenuScene extends Phaser.Scene {
 
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
-      const y = 160 + index * 58;
+      const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
+      const y = 160 + index * 88;
       this.panel(300, y, 290, 46);
-      this.layer.add(this.add.text(318, y - 12, `${slotLabel(slot)}: ${item?.name ?? 'Leer'}`, {
+      this.layer.add(this.add.text(318, y - 14, slotLabel(slot), {
         fontFamily: 'sans-serif',
-        fontSize: '14px',
-        color: '#e9eef7'
+        fontSize: '10px',
+        color: '#9fb2cc'
       }));
+      this.layer.add(this.add.text(
+        318,
+        y + 4,
+        `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`,
+        {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#e9eef7'
+        }
+      ));
       if (item) {
         this.button(500, y, 78, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
+        if (item.enchantment && enchantmentLevel < item.enchantment.maxLevel) {
+          const cost = item.enchantment.goldCostPerLevel * (enchantmentLevel + 1);
+          this.button(300, y + 25, 278, `Verzaubern · ${cost} Gold`, () => {
+            const result = enchantEquipment(
+              summary.member,
+              this.save.progression,
+              slot,
+              this.state.gold
+            );
+            this.save = { ...this.save, progression: result.state };
+            this.state = { ...this.state, gold: result.gold };
+            this.message = result.message;
+            if (result.ok) this.persist();
+            this.refresh();
+          }, 0x2f2743);
+        }
       }
     });
+
+    const sets = getActiveEquipmentSetTiers(summary.member);
+    this.layer.add(this.add.text(
+      300,
+      430,
+      sets.map(({ set, pieces }) => `${set.name}: ${pieces}/${set.itemIds.length} Teile`).join(' · ')
+        || 'Kein Ausrüstungsset aktiv.',
+      {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#e9c56c'
+      }
+    ));
 
     this.layer.add(this.add.text(620, 126, 'Ausrüstbar aus Inventar', {
       fontFamily: 'sans-serif',
@@ -212,9 +290,15 @@ export class MenuScene extends Phaser.Scene {
     const summary = view.members.find((member) => member.member.characterId === characterId);
     if (!summary) return;
 
-    const stats = summary.stats;
+    const stats = calculateProgressionStats(
+      summary.member,
+      this.save.progression,
+      this.jobAssignments[summary.member.characterId]
+    );
     this.panel(300, 170, 570, 110);
-    this.layer.add(this.add.text(318, 130, `${summary.character.name} · ${summary.character.role}`, {
+    const formName = getActiveEvolution(this.save.progression, characterId)?.formName
+      ?? summary.character.species;
+    this.layer.add(this.add.text(318, 130, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
       fontFamily: 'sans-serif',
       fontSize: '17px',
       color: '#e9eef7'
@@ -229,7 +313,11 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '14px',
       color: '#9fb2cc'
     }));
-    summary.skills.forEach((skill, index) => {
+    getProgressionSkills(
+      summary.member,
+      this.save.progression,
+      this.jobAssignments[summary.member.characterId]
+    ).forEach((skill, index) => {
       this.layer.add(this.add.text(318, 250 + index * 34, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
@@ -239,18 +327,115 @@ export class MenuScene extends Phaser.Scene {
     });
   }
 
+  private drawGrowth(view: MenuView, characterId: string): void {
+    this.sectionTitle('Namensgebung, Entwicklung & Bindungen');
+    const summary = view.members.find((member) => member.member.characterId === characterId);
+    if (!summary) return;
+
+    const activeEvolution = getActiveEvolution(this.save.progression, characterId);
+    const availableEvolution = getAvailableEvolutions(summary.member, this.save.progression)[0];
+    this.layer.add(this.add.text(
+      300,
+      150,
+      `Name: ${summary.member.name} · Form: ${activeEvolution?.formName ?? summary.character.species}`,
+      {
+        fontFamily: 'sans-serif',
+        fontSize: '15px',
+        color: '#e9eef7'
+      }
+    ));
+    this.button(300, 190, 132, 'Neu benennen', () => {
+      const proposed = window.prompt('Neuer Name', summary.member.name);
+      if (proposed === null) return;
+      const result = renameMember(summary.member, proposed, this.save.progression);
+      this.replaceMember(result.member);
+      this.save = { ...this.save, progression: result.state };
+      this.message = result.message;
+      if (result.ok) this.persist();
+      this.refresh();
+    });
+    if (availableEvolution) {
+      this.button(446, 190, 142, 'Entwickeln', () => {
+        const result = evolveMember(
+          summary.member,
+          this.save.progression,
+          availableEvolution.id
+        );
+        this.replaceMember(result.member);
+        this.save = { ...this.save, progression: result.state };
+        this.message = result.message;
+        if (result.ok) this.persist();
+        this.refresh();
+      }, 0x3b3154);
+    }
+
+    const tree = getSkillTree(characterId);
+    const points = this.save.progression.skillPointsByCharacterId[characterId] ?? 0;
+    this.layer.add(this.add.text(300, 228, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte`, {
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      color: '#e9c56c'
+    }));
+    tree?.nodes.forEach((node, index) => {
+      const unlocked = (
+        this.save.progression.unlockedSkillNodeIdsByCharacterId[characterId] ?? []
+      ).includes(node.id);
+      const y = 266 + index * 62;
+      this.button(300, y, 210, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
+        const result = unlockSkillNode(summary.member, this.save.progression, node.id);
+        this.applyProgressionResult(result);
+      }, unlocked ? 0x1f3a2f : 0x1b2940);
+      this.layer.add(this.add.text(522, y - 14, node.description, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#9fb2cc',
+        wordWrap: { width: 155 }
+      }));
+    });
+
+    this.layer.add(this.add.text(700, 150, 'Bindungen', {
+      fontFamily: 'sans-serif',
+      fontSize: '15px',
+      color: '#e9c56c'
+    }));
+    getProgressionRelationships(characterId).forEach((relationship, index) => {
+      const level = getRelationshipLevelNumber(this.save.progression, relationship.id);
+      const pointsValue = this.save.progression.relationshipPoints[relationship.id] ?? 0;
+      this.layer.add(this.add.text(
+        700,
+        184 + index * 62,
+        `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`,
+        {
+          fontFamily: 'sans-serif',
+          fontSize: '12px',
+          color: '#cbd6e8',
+          lineSpacing: 4
+        }
+      ));
+    });
+  }
+
   private drawJobs(view: MenuView, characterId: string): void {
     this.sectionTitle('Rollen / Jobs');
-    const currentJobId = this.jobAssignments[characterId] ?? getDefaultJobId(characterId);
+    const currentJobId = getSelectedJobId(this.save.progression, characterId);
+    const unlockedJobIds = getUnlockedJobIds(characterId, this.save.progression, this.save.flags);
 
-    getAvailableJobs(characterId).forEach((job, index) => {
+    getAvailableJobs(characterId, unlockedJobIds).forEach((job, index) => {
       const y = 158 + index * 66;
-      const previewStats = calculateMemberStats(view.members[this.selectedMemberIndex]!.member, job.id);
+      const previewStats = calculateProgressionStats(
+        view.members[this.selectedMemberIndex]!.member,
+        this.save.progression,
+        job.id
+      );
       this.button(300, y, 210, job.name, () => {
-        const result = selectJob(this.jobAssignments, characterId, job.id);
-        if (result.ok) this.jobAssignments = { ...result.state };
-        this.message = result.message;
-        this.refresh();
+        const result = selectProgressionJob(
+          this.save.progression,
+          characterId,
+          job.id,
+          this.save.flags
+        );
+        if (result.ok) this.jobAssignments[characterId] = job.id;
+        this.applyProgressionResult(result);
       }, currentJobId === job.id ? 0x30506f : 0x1b2940);
       this.layer.add(this.add.text(528, y - 16, job.description, {
         fontFamily: 'sans-serif',
@@ -281,9 +466,48 @@ export class MenuScene extends Phaser.Scene {
           stacks: this.state.inventory
         }
       };
-      autoSave(window.localStorage, this.save);
+      this.persist();
     }
     this.refresh();
+  }
+
+  private applyProgressionResult(result: ProgressionActionResult): void {
+    this.message = result.message;
+    if (result.ok) {
+      this.save = { ...this.save, progression: result.state };
+      this.persist();
+    }
+    this.refresh();
+  }
+
+  private replaceMember(member: MenuGameState['party'][number]): void {
+    this.state = {
+      ...this.state,
+      party: this.state.party.map((candidate) =>
+        candidate.characterId === member.characterId ? member : candidate
+      )
+    };
+    this.save = {
+      ...this.save,
+      party: {
+        ...this.save.party,
+        active: this.state.party
+      }
+    };
+  }
+
+  private persist(): void {
+    this.save = autoSave(window.localStorage, {
+      ...this.save,
+      party: {
+        ...this.save.party,
+        active: this.state.party,
+        gold: this.state.gold
+      },
+      inventory: {
+        stacks: this.state.inventory
+      }
+    });
   }
 
   private close(): void {

@@ -29,6 +29,12 @@ export const ITEMS = [
     price: 80,
     stackable: false,
     equipmentSlot: 'weapon',
+    equipmentSetId: 'tempest-initiate',
+    enchantment: {
+      maxLevel: 3,
+      goldCostPerLevel: 60,
+      statBonusPerLevel: { attack: 1 }
+    },
     statBonus: { attack: 4 }
   },
   {
@@ -39,6 +45,12 @@ export const ITEMS = [
     price: 65,
     stackable: false,
     equipmentSlot: 'armor',
+    equipmentSetId: 'tempest-initiate',
+    enchantment: {
+      maxLevel: 3,
+      goldCostPerLevel: 55,
+      statBonusPerLevel: { defense: 1, spirit: 1 }
+    },
     statBonus: { defense: 3, spirit: 1 }
   },
   {
@@ -49,6 +61,12 @@ export const ITEMS = [
     price: 120,
     stackable: false,
     equipmentSlot: 'accessory',
+    equipmentSetId: 'tempest-initiate',
+    enchantment: {
+      maxLevel: 3,
+      goldCostPerLevel: 70,
+      statBonusPerLevel: { maxMp: 2, spirit: 1 }
+    },
     statBonus: { maxMp: 5, spirit: 2 }
   },
   {

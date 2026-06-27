@@ -4,6 +4,7 @@ import {
   createNewSave,
   exportSave,
   importSave,
+  LEGACY_SAVE_STORAGE_KEYS,
   loadSave,
   migrate,
   resetSave,
@@ -47,17 +48,28 @@ describe('save.ts', () => {
       },
       flags: {
         metVillageGuide: true
+      },
+      progression: {
+        ...save.progression,
+        relationshipPoints: { 'rimuru-gobta': 75 },
+        skillPointsByCharacterId: { rimuru: 2 },
+        unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-fluid-core'] },
+        jobIdsByCharacterId: { rimuru: 'mystic' }
       }
     };
 
     const loaded = importSave(exportSave(changed), '2026-06-26T10:05:00.000Z');
 
-    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.schemaVersion).toBe(3);
     expect(loaded.party.gold).toBe(250);
     expect(loaded.playtimeSeconds).toBe(90);
     expect(getItemCount(loaded.inventory.stacks, 'healing-herb')).toBe(7);
     expect(getItemCount(loaded.inventory.stacks, 'mana-drop')).toBe(2);
     expect(loaded.flags.metVillageGuide).toBe(true);
+    expect(loaded.progression.relationshipPoints['rimuru-gobta']).toBe(75);
+    expect(loaded.progression.unlockedSkillNodeIdsByCharacterId.rimuru)
+      .toEqual(['rimuru-fluid-core']);
+    expect(loaded.progression.jobIdsByCharacterId.rimuru).toBe('mystic');
   });
 
   it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {
@@ -96,7 +108,7 @@ describe('save.ts', () => {
       '2026-06-26T12:00:00.000Z'
     );
 
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(migrated.createdAt).toBe('2026-06-01T00:00:00.000Z');
     expect(migrated.updatedAt).toBe('2026-06-26T12:00:00.000Z');
     expect(migrated.location).toEqual({
@@ -112,6 +124,24 @@ describe('save.ts', () => {
     expect(getItemCount(migrated.inventory.stacks, 'healing-herb')).toBe(4);
     expect(getItemCount(migrated.inventory.stacks, 'broken')).toBe(0);
     expect(migrated.flags).toEqual({ introComplete: true });
+    expect(migrated.progression).toEqual(createNewSave().progression);
+  });
+
+  it('migriert v2-Fortschritt und lädt den bisherigen Storage-Key automatisch', () => {
+    const storage = new MemoryStorage();
+    const oldSave = createNewSave({ now: '2026-06-26T10:00:00.000Z', seed: 8 });
+    const { progression: _progression, ...withoutProgression } = oldSave;
+    storage.setItem(LEGACY_SAVE_STORAGE_KEYS[0], JSON.stringify({
+      ...withoutProgression,
+      schemaVersion: 2
+    }));
+
+    const loaded = loadSave(storage);
+
+    expect(loaded?.schemaVersion).toBe(3);
+    expect(loaded?.seed).toBe(8);
+    expect(loaded?.progression).toEqual(createNewSave().progression);
+    expect(storage.getItem(SAVE_STORAGE_KEY)).not.toBeNull();
   });
 
   it('speichert, lädt und löscht Auto-Saves über eine Storage-Abstraktion', () => {

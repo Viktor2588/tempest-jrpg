@@ -109,7 +109,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - Typisierte Datenstruktur ergänzt: `src/data/types.ts` plus erstes Content-Set für Helden/Monster, Skills, Items und Gegner (`characters.ts`, `skills.ts`, `items.ts`, `enemies.ts`).
 - Datenintegrität zentral prüfbar: `src/data/index.ts` exportiert `GAME_DATA` und `validateGameData()` für eindeutige IDs, Skill-/Item-/Equipment-Referenzen, Drop-Chancen und Basiswerte.
 - Erste reine Systemmodule ergänzt: `stats.ts` (Level/EP/Werte), `party.ts` (Initialparty/PartyMember-State), `inventory.ts` (Stacks/Startinventar/Normalisierung).
-- `save.ts`: versioniertes Schema `SaveGameV2`, `createNewSave()`, `normalize()`, `migrate()`, `exportSave()`, `importSave()`, `loadSave()`, `writeSave()`, `autoSave()`, `resetSave()` über eine testbare `StorageLike`-Abstraktion.
+- `save.ts`: versioniertes Schema (aktuell `SaveGameV3`), `createNewSave()`, `normalize()`, `migrate()`, `exportSave()`, `importSave()`, `loadSave()`, `writeSave()`, `autoSave()`, `resetSave()` über eine testbare `StorageLike`-Abstraktion.
 - Migration eines alten v1-Formats abgedeckt: alte Party-/Inventar-/Positionsdaten werden ins aktuelle Schema überführt, unbekannte Figuren werden verworfen, ungültige Werte normalisiert.
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **10/10** grün, `bun run build` grün (Phaser-Bundle-Warnung unverändert/unkritisch). Roundtrip, Migration, Auto-Save/Load/Reset und Datenintegrität sind getestet.
 - *Hinweis: `/worktree` war auf dieser Maschine read-only; der Phase-2-Worktree liegt deshalb unter `/private/tmp/worktree/tempest-phase-2-data-save` auf Branch `phase/2-data-save`.*
@@ -191,9 +191,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/battle.test.ts`:** 6 neue Checks (Reaktion/Konter, Jobwechsel, Break, Team-Angriff, Gegnerphase, deterministische Matrix Rollen × Gegnerphasen × Seeds); Battle-Suite jetzt 15 Checks.
 - **Abnahme (lokal verifiziert):** `bun run typecheck` sauber, `bun run test` → **56/56** grün, `bun run build` → `dist/` ohne Vite-Warnung.
 
-[ ] **Phase 11 – Progression & Kernfantasie** *(autonom)*
-- **Namensgebung → Evolution** als Herzstück (Werte-/Skill-/Rollen-Schub, sichtbare Formen), **Skill-Bäume**, tiefere **Ausrüstung/Sets/Verzauberung**, **Bindungen/Beziehungen** mit Spielwert (Team-Angriffe, Buffs, Szenen). Anti-Grinding/Aufholmechaniken aus Phase 6 verzahnen.
-- **Abnahme:** Entwicklung/Namensgebung verändert Werte/Skills nachvollziehbar; Bindungs-Boni greifen im Kampf; Save-Migration getestet; Balance-Bänder monoton.
+[x] **Phase 11 – Progression & Kernfantasie (fertig 2026-06-27, Worktree `worktree/tempest-phase-11-progression`)** *(autonom)*
+- **Namensgebung → Evolution:** benannte Figuren können nach erfüllten Bedingungen sichtbar evolvieren; Formname, Werte, Skills, Rollenfreischaltungen und Skillpunkte fließen aus einem gemeinsamen Progressionszustand in Menü und Kampf.
+- **Skill-Bäume:** drei verzweigte, datengetriebene Bäume mit Voraussetzungen und Skillpunktkosten; Freischaltungen sind validiert, persistent und erweitern den realen Kampfbau.
+- **Ausrüstungstiefe:** Setzugehörigkeiten, Setboni und mehrstufige Verzauberungen verändern die berechneten Werte; Material- und Goldkosten werden beim Verbessern verbraucht.
+- **Bindungen mit Spielwert:** Beziehungspunkte/-stufen schalten Szenen, passive Partnerboni, Kampfbeginn-Buffs, Team-Meter und einen Synergieangriff frei; die Battle-UI zeigt Form, Rollen und Synergie.
+- **Anti-Grinding:** Kampfbelohnungen vergeben Skill- und Beziehungspunkte; Reservemitglieder erhalten begrenzte Aufhol-EP. Ergebnisse und Jobwechsel werden in `SaveGameV3` persistiert; Migrationen von v1, v2 und dem alten Storage-Key sind getestet.
+- **Abnahme (lokal verifiziert):** `tsc --noEmit` sauber, `vitest run` → **66/66** grün, `vite build` → `dist/`; Desktop- und 390×844-Browser-Smoke für Titel und Progressionsmenüs ohne überlappende Bedienelemente. Balance-Bänder, Evolution, Skill-Pfade, Sets/Verzauberung, Bindungsboni, Team-Angriff und Save-Migration sind headless getestet.
 
 [ ] **Phase 12 – Welt, Story & Quests** *(Story-Design akzeptiert 2026-06-27, verfeinerbar)*
 - Erzählbogen + denkwürdige Figuren, **Quest-/Flag-System**, mehrere **Städte & Dungeons mit eigener Identität** (Mechanik + Optik), Lore-/Codex, Cutscene-Bausteine in `DialogueScene`.

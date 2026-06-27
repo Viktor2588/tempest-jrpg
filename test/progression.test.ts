@@ -5,23 +5,34 @@ import {
   PROGRESSION_REGIONS,
   type CharacterDefinition
 } from '../src/data';
-import { createBattlePartyFromMembers } from '../src/systems/battle';
-import { getAvailableJobs } from '../src/systems/menu';
+import {
+  act,
+  createBattlePartyFromMembers,
+  renderView,
+  startBattle
+} from '../src/systems/battle';
+import { calculateMemberStats, getAvailableJobs } from '../src/systems/menu';
 import { createPartyMember } from '../src/systems/party';
 import {
   analyzeProgressionBalance,
+  applyBattleProgressionRewards,
   calculateProgressionStats,
+  calculateStartingTeamMeter,
   catchUpReserveMembers,
   canEvolve,
   createProgressionState,
+  createProgressionBattleParty,
   discoverRegion,
+  enchantEquipment,
   evolveMember,
   getProgressionSkillIds,
   getRelationshipLevelNumber,
   getUnlockedJobIds,
   grantRelationshipPoints,
+  grantSkillPoints,
   hasCustomName,
-  renameMember
+  renameMember,
+  unlockSkillNode
 } from '../src/systems/progression';
 import { experienceForLevel } from '../src/systems/stats';
 
@@ -83,6 +94,82 @@ describe('progression system', () => {
     expect(skillIds).toContain('direwolf-rush');
   });
 
+  it('führt Namensgebung, Entwicklung und Skill-Baum als zusammenhängenden Pfad aus', () => {
+    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const renamed = renameMember(rimuru, 'Ciel');
+    const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
+    let state = grantSkillPoints(evolved.state, 'rimuru', 2).state;
+
+    for (const nodeId of [
+      'rimuru-fluid-core',
+      'rimuru-predator-instinct',
+      'rimuru-shadow-domain'
+    ]) {
+      const unlocked = unlockSkillNode(evolved.member, state, nodeId);
+      expect(unlocked.ok).toBe(true);
+      state = unlocked.state;
+    }
+    state = createProgressionState({
+      ...state,
+      jobIdsByCharacterId: { rimuru: 'mystic' }
+    });
+
+    const unit = createProgressionBattleParty([evolved.member], state)[0]!;
+    expect(unit.formName).toBe('Raubtier-Schleim');
+    expect(unit.skillIds).toEqual(expect.arrayContaining(['predator-aura', 'venom-spit', 'spirit-bind']));
+    expect(unit.skillIds).not.toContain('soothing-prayer');
+    expect(calculateProgressionStats(evolved.member, state).magic)
+      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).magic);
+    expect(state.skillPointsByCharacterId.rimuru).toBe(0);
+  });
+
+  it('aktiviert Set-Boni und steigert ausgerüstete Gegenstände über Verzauberung', () => {
+    const gobta = createPartyMember(hero('gobta'), { level: 4 });
+    const state = createProgressionState();
+    const baseDefense = calculateMemberStats(gobta).defense;
+    const setAttack = calculateProgressionStats(gobta, state).attack;
+    const setDefense = calculateProgressionStats(gobta, state).defense;
+    const enchanted = enchantEquipment(gobta, state, 'weapon', 500);
+
+    expect(setDefense).toBeGreaterThan(baseDefense);
+    expect(enchanted.ok).toBe(true);
+    expect(enchanted.gold).toBe(440);
+    expect(calculateProgressionStats(gobta, enchanted.state).attack).toBeGreaterThan(setAttack);
+  });
+
+  it('übersetzt Party-Bindungen in Startbuff, Team-Leiste und ausführbaren Team-Angriff', () => {
+    const party = [
+      createPartyMember(hero('rimuru'), { level: 6 }),
+      createPartyMember(hero('gobta'), { level: 6 })
+    ];
+    const bonded = grantRelationshipPoints(
+      createProgressionState(),
+      'rimuru-gobta',
+      120
+    ).state;
+    const units = createProgressionBattleParty(party, bonded);
+    const state = startBattle({
+      party: units,
+      enemyIds: ['forest-slime'],
+      teamMeter: 100,
+      seed: 9
+    });
+    const view = renderView(state);
+    const actor = view.party.find((member) => member.active)!;
+    const partner = view.party.find((member) => member.id !== actor.id)!;
+    const target = view.enemies[0]!;
+
+    expect(calculateStartingTeamMeter(party, bonded)).toBe(50);
+    expect(view.party.every((member) => member.statuses.includes('attack-up'))).toBe(true);
+    expect(actor.synergyPartnerIds).toContain(partner.sourceId);
+    expect(act(state, {
+      type: 'team-attack',
+      partnerId: partner.id,
+      targetId: target.id
+    }).ok).toBe(true);
+    expect(renderView(state).teamMeter).toBe(0);
+  });
+
   it('holt Reservefiguren über Kapitel-Baselines und Party-Abstand ohne Grinding auf', () => {
     const active = [
       createPartyMember(hero('rimuru'), { level: 8 }),
@@ -98,6 +185,26 @@ describe('progression system', () => {
     expect(caughtUp.level).toBe(6);
     expect(caughtUp.experience).toBe(experienceForLevel(6));
     expect(caughtUp.currentHp).toBeGreaterThan(reserve[0]!.currentHp);
+  });
+
+  it('vergibt Kampf-EP, Skill-Punkte, Bindung und Reserve-Aufholen in einem Schritt', () => {
+    const active = [
+      createPartyMember(hero('rimuru'), { level: 1 }),
+      createPartyMember(hero('gobta'), { level: 1 })
+    ];
+    const reserve = [createPartyMember(hero('shuna'), { level: 1 })];
+    const result = applyBattleProgressionRewards(
+      active,
+      reserve,
+      createProgressionState(),
+      experienceForLevel(4),
+      'chapter-2'
+    );
+
+    expect(result.active.every((member) => member.level >= 4)).toBe(true);
+    expect(result.grantedSkillPoints).toBeGreaterThan(0);
+    expect(result.state.relationshipPoints['rimuru-gobta']).toBe(5);
+    expect(result.reserve[0]!.level).toBeGreaterThan(1);
   });
 
   it('liefert mehrere Linien, Regionen und monotone Balance-Bänder', () => {

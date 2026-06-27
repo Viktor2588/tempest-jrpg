@@ -1,17 +1,23 @@
 import {
   CATCH_UP_CONFIG,
   ENEMIES,
+  EQUIPMENT_SETS,
   EVOLUTIONS,
   HEROES,
+  ITEMS,
   JOBS,
   JOB_UNLOCKS,
   PROGRESSION_LINES,
   PROGRESSION_REGIONS,
   RELATIONSHIPS,
+  SKILL_TREES,
   SKILLS,
   type CatchUpConfig,
   type CharacterDefinition,
+  type EquipmentSetDefinition,
+  type EquipmentSlot,
   type EvolutionDefinition,
+  type ItemDefinition,
   type JobDefinition,
   type JobUnlockDefinition,
   type ProgressionLineDefinition,
@@ -19,9 +25,18 @@ import {
   type RelationshipDefinition,
   type RelationshipLevelDefinition,
   type SkillDefinition,
+  type SkillTreeDefinition,
+  type SkillTreeNodeDefinition,
+  type StatusEffectId,
   type StatBlock
 } from '../data';
-import { calculateMemberStats, getDefaultJobId } from './menu';
+import { createHeroBattleUnit, type BattleUnitInput } from './battle';
+import {
+  applyJobMultipliers,
+  calculateMemberBaseStats,
+  getAvailableJobs,
+  getDefaultJobId
+} from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import {
@@ -37,12 +52,20 @@ export interface ProgressionState {
   readonly evolutionIdsByCharacterId: Readonly<Record<string, string>>;
   readonly relationshipPoints: Readonly<Record<string, number>>;
   readonly discoveredRegionIds: readonly string[];
+  readonly skillPointsByCharacterId: Readonly<Record<string, number>>;
+  readonly unlockedSkillNodeIdsByCharacterId: Readonly<Record<string, readonly string[]>>;
+  readonly enchantmentLevelsByEquipmentKey: Readonly<Record<string, number>>;
+  readonly jobIdsByCharacterId: Readonly<Record<string, string>>;
 }
 
 export interface CreateProgressionStateOptions {
   readonly evolutionIdsByCharacterId?: Readonly<Record<string, string>>;
   readonly relationshipPoints?: Readonly<Record<string, number>>;
   readonly discoveredRegionIds?: readonly string[];
+  readonly skillPointsByCharacterId?: Readonly<Record<string, number>>;
+  readonly unlockedSkillNodeIdsByCharacterId?: Readonly<Record<string, readonly string[]>>;
+  readonly enchantmentLevelsByEquipmentKey?: Readonly<Record<string, number>>;
+  readonly jobIdsByCharacterId?: Readonly<Record<string, string>>;
 }
 
 export interface MemberActionResult {
@@ -64,6 +87,20 @@ export interface CatchUpResult {
   readonly grantedExperience: number;
 }
 
+export interface EnchantmentResult {
+  readonly ok: boolean;
+  readonly state: ProgressionState;
+  readonly gold: number;
+  readonly message: string;
+}
+
+export interface BattleProgressionResult {
+  readonly active: readonly PartyMemberState[];
+  readonly reserve: readonly PartyMemberState[];
+  readonly state: ProgressionState;
+  readonly grantedSkillPoints: number;
+}
+
 export interface BalanceIssue {
   readonly path: string;
   readonly message: string;
@@ -71,6 +108,7 @@ export interface BalanceIssue {
 
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
+const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const jobById = new Map<string, JobDefinition>(JOBS.map((job) => [job.id, job]));
 const regionById = new Map<string, RegionProgressionDefinition>(
   PROGRESSION_REGIONS.map((region) => [region.id, region])
@@ -81,13 +119,31 @@ const relationshipById = new Map<string, RelationshipDefinition>(
 const evolutionById = new Map<string, EvolutionDefinition>(
   EVOLUTIONS.map((evolution) => [evolution.id, evolution])
 );
+const skillTreeByCharacterId = new Map<string, SkillTreeDefinition>(
+  SKILL_TREES.map((tree) => [tree.characterId, tree])
+);
+const skillTreeNodeById = new Map<string, SkillTreeNodeDefinition>(
+  SKILL_TREES.flatMap((tree) => tree.nodes.map((node) => [node.id, node] as const))
+);
 
 export function createProgressionState(options: CreateProgressionStateOptions = {}): ProgressionState {
   return {
     evolutionIdsByCharacterId: normalizeStringRecord(options.evolutionIdsByCharacterId ?? {}),
     relationshipPoints: normalizePointRecord(options.relationshipPoints ?? {}),
-    discoveredRegionIds: uniqueStrings(options.discoveredRegionIds ?? [])
+    discoveredRegionIds: uniqueStrings(options.discoveredRegionIds ?? []),
+    skillPointsByCharacterId: normalizePointRecord(options.skillPointsByCharacterId ?? {}),
+    unlockedSkillNodeIdsByCharacterId: normalizeStringArrayRecord(
+      options.unlockedSkillNodeIdsByCharacterId ?? {}
+    ),
+    enchantmentLevelsByEquipmentKey: normalizePointRecord(
+      options.enchantmentLevelsByEquipmentKey ?? {}
+    ),
+    jobIdsByCharacterId: normalizeStringRecord(options.jobIdsByCharacterId ?? {})
   };
+}
+
+export function normalizeProgressionState(state: CreateProgressionStateOptions): ProgressionState {
+  return createProgressionState(state);
 }
 
 export function renameMember(
@@ -178,6 +234,11 @@ export function evolveMember(
     evolutionIdsByCharacterId: {
       ...state.evolutionIdsByCharacterId,
       [member.characterId]: evolution.id
+    },
+    skillPointsByCharacterId: {
+      ...state.skillPointsByCharacterId,
+      [member.characterId]:
+        (state.skillPointsByCharacterId[member.characterId] ?? 0) + evolution.skillPointReward
     }
   };
   const evolvedMember = {
@@ -271,14 +332,222 @@ export function getUnlockedRelationshipScenes(
     .map((scene) => scene.id);
 }
 
+export function getSkillTree(characterId: string): SkillTreeDefinition | undefined {
+  return skillTreeByCharacterId.get(characterId);
+}
+
+export function grantSkillPoints(
+  state: ProgressionState,
+  characterId: string,
+  points: number
+): ProgressionActionResult {
+  if (!heroById.has(characterId)) {
+    return { ok: false, state, message: 'Charakter nicht gefunden.' };
+  }
+  const granted = clampNonNegativeInteger(points);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      skillPointsByCharacterId: {
+        ...state.skillPointsByCharacterId,
+        [characterId]: (state.skillPointsByCharacterId[characterId] ?? 0) + granted
+      }
+    },
+    message: `${granted} Skill-Punkte erhalten.`
+  };
+}
+
+export function canUnlockSkillNode(
+  member: PartyMemberState,
+  state: ProgressionState,
+  nodeId: string
+): ProgressionActionResult {
+  const tree = getSkillTree(member.characterId);
+  const node = skillTreeNodeById.get(nodeId);
+  if (!tree || !node || !tree.nodes.some((candidate) => candidate.id === nodeId)) {
+    return { ok: false, state, message: 'Skill-Knoten gehört nicht zu diesem Charakter.' };
+  }
+  const unlocked = state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [];
+  if (unlocked.includes(node.id)) {
+    return { ok: false, state, message: 'Skill-Knoten ist bereits freigeschaltet.' };
+  }
+  if (member.level < node.requiredLevel) {
+    return { ok: false, state, message: `Level ${node.requiredLevel} erforderlich.` };
+  }
+  if (node.requiredEvolutionId
+    && state.evolutionIdsByCharacterId[member.characterId] !== node.requiredEvolutionId) {
+    return { ok: false, state, message: 'Passende Entwicklung erforderlich.' };
+  }
+  if (!node.requiredNodeIds.every((requiredId) => unlocked.includes(requiredId))) {
+    return { ok: false, state, message: 'Vorgänger-Knoten fehlen.' };
+  }
+  if ((state.skillPointsByCharacterId[member.characterId] ?? 0) < node.cost) {
+    return { ok: false, state, message: 'Nicht genug Skill-Punkte.' };
+  }
+  return { ok: true, state, message: `${node.name} kann freigeschaltet werden.` };
+}
+
+export function unlockSkillNode(
+  member: PartyMemberState,
+  state: ProgressionState,
+  nodeId: string
+): ProgressionActionResult {
+  const check = canUnlockSkillNode(member, state, nodeId);
+  const node = skillTreeNodeById.get(nodeId);
+  if (!check.ok || !node) {
+    return check;
+  }
+  const currentNodes = state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [];
+  return {
+    ok: true,
+    state: {
+      ...state,
+      skillPointsByCharacterId: {
+        ...state.skillPointsByCharacterId,
+        [member.characterId]: (state.skillPointsByCharacterId[member.characterId] ?? 0) - node.cost
+      },
+      unlockedSkillNodeIdsByCharacterId: {
+        ...state.unlockedSkillNodeIdsByCharacterId,
+        [member.characterId]: uniqueStrings([...currentNodes, node.id])
+      }
+    },
+    message: `${node.name} freigeschaltet.`
+  };
+}
+
+export function selectProgressionJob(
+  state: ProgressionState,
+  characterId: string,
+  jobId: string,
+  flags: Readonly<Record<string, boolean>> = {}
+): ProgressionActionResult {
+  const unlockedJobIds = getUnlockedJobIds(characterId, state, flags);
+  if (!getAvailableJobs(characterId, unlockedJobIds).some((job) => job.id === jobId)) {
+    return { ok: false, state, message: 'Rolle ist nicht freigeschaltet.' };
+  }
+  return {
+    ok: true,
+    state: {
+      ...state,
+      jobIdsByCharacterId: {
+        ...state.jobIdsByCharacterId,
+        [characterId]: jobId
+      }
+    },
+    message: `${jobById.get(jobId)?.name ?? jobId} ausgewählt.`
+  };
+}
+
+export function getSelectedJobId(state: ProgressionState, characterId: string): string {
+  return state.jobIdsByCharacterId[characterId] ?? getDefaultJobId(characterId);
+}
+
+export function equipmentEnhancementKey(
+  characterId: string,
+  slot: EquipmentSlot,
+  itemId: string
+): string {
+  return `${characterId}:${slot}:${itemId}`;
+}
+
+export function getEnchantmentLevel(
+  member: PartyMemberState,
+  state: ProgressionState,
+  slot: EquipmentSlot
+): number {
+  const itemId = member.equipment[slot];
+  if (!itemId) {
+    return 0;
+  }
+  return state.enchantmentLevelsByEquipmentKey[
+    equipmentEnhancementKey(member.characterId, slot, itemId)
+  ] ?? 0;
+}
+
+export function enchantEquipment(
+  member: PartyMemberState,
+  state: ProgressionState,
+  slot: EquipmentSlot,
+  gold: number
+): EnchantmentResult {
+  const itemId = member.equipment[slot];
+  const item = itemId ? itemById.get(itemId) : undefined;
+  if (!item?.enchantment || !itemId) {
+    return { ok: false, state, gold, message: 'Diese Ausrüstung kann nicht verzaubert werden.' };
+  }
+  const currentLevel = getEnchantmentLevel(member, state, slot);
+  if (currentLevel >= item.enchantment.maxLevel) {
+    return { ok: false, state, gold, message: 'Maximale Verzauberung erreicht.' };
+  }
+  const cost = item.enchantment.goldCostPerLevel * (currentLevel + 1);
+  if (gold < cost) {
+    return { ok: false, state, gold, message: `${cost} Gold erforderlich.` };
+  }
+  const nextLevel = currentLevel + 1;
+  return {
+    ok: true,
+    state: {
+      ...state,
+      enchantmentLevelsByEquipmentKey: {
+        ...state.enchantmentLevelsByEquipmentKey,
+        [equipmentEnhancementKey(member.characterId, slot, itemId)]: nextLevel
+      }
+    },
+    gold: gold - cost,
+    message: `${item.name} ist jetzt Verzauberung +${nextLevel}.`
+  };
+}
+
+export function getActiveEquipmentSetTiers(
+  member: PartyMemberState
+): readonly { readonly set: EquipmentSetDefinition; readonly pieces: number }[] {
+  const equippedItemIds = new Set(Object.values(member.equipment).filter((itemId): itemId is string => !!itemId));
+  return EQUIPMENT_SETS.flatMap((set) => {
+    const pieces = set.itemIds.filter((itemId) => equippedItemIds.has(itemId)).length;
+    return pieces > 0 ? [{ set, pieces }] : [];
+  });
+}
+
 export function calculateProgressionStats(
   member: PartyMemberState,
   state: ProgressionState,
   jobId = getDefaultJobId(member.characterId)
 ): StatBlock {
-  const baseStats = calculateMemberStats(member, jobId);
+  const baseStats = calculateMemberBaseStats(member);
   const evolutionStats = addStats(baseStats, getActiveEvolution(state, member.characterId)?.statBonus);
-  return addStats(evolutionStats, calculateRelationshipBonus(member.characterId, state));
+  const relationshipStats = addStats(
+    evolutionStats,
+    calculateRelationshipBonus(member.characterId, state)
+  );
+  const skillTreeStats = addStats(
+    relationshipStats,
+    calculateSkillTreeBonus(member.characterId, state)
+  );
+  const setStats = addStats(skillTreeStats, calculateEquipmentSetBonus(member));
+  const enchantedStats = addStats(setStats, calculateEnchantmentBonus(member, state));
+  const job = jobById.get(jobId) ?? jobById.get(getDefaultJobId(member.characterId));
+  return job ? applyJobMultipliers(enchantedStats, job) : enchantedStats;
+}
+
+export function calculateProgressionBaseStats(
+  member: PartyMemberState,
+  state: ProgressionState
+): StatBlock {
+  const baseStats = calculateMemberBaseStats(member);
+  return addStats(
+    addStats(
+      addStats(
+        addStats(
+          addStats(baseStats, getActiveEvolution(state, member.characterId)?.statBonus),
+          calculateRelationshipBonus(member.characterId, state)
+        ),
+        calculateSkillTreeBonus(member.characterId, state)
+      ),
+      calculateEquipmentSetBonus(member)
+    ),
+    calculateEnchantmentBonus(member, state)
+  );
 }
 
 export function calculateRelationshipBonus(
@@ -286,11 +555,62 @@ export function calculateRelationshipBonus(
   state: ProgressionState
 ): Partial<StatBlock> {
   return RELATIONSHIPS
-    .filter((relationship) => relationship.characterId === characterId)
+    .filter((relationship) =>
+      relationship.characterId === characterId || relationship.partnerId === characterId
+    )
     .reduce<Partial<StatBlock>>((bonus, relationship) => {
       const activeLevel = getRelationshipLevel(state, relationship.id);
-      return activeLevel ? addPartialStats(bonus, activeLevel.passiveBonus) : bonus;
+      if (!activeLevel) {
+        return bonus;
+      }
+      const activeBonus = relationship.characterId === characterId
+        ? activeLevel.passiveBonus
+        : activeLevel.partnerPassiveBonus ?? {};
+      return addPartialStats(bonus, activeBonus);
     }, {});
+}
+
+export function calculateSkillTreeBonus(
+  characterId: string,
+  state: ProgressionState
+): Partial<StatBlock> {
+  const unlocked = new Set(state.unlockedSkillNodeIdsByCharacterId[characterId] ?? []);
+  return (getSkillTree(characterId)?.nodes ?? [])
+    .filter((node) => unlocked.has(node.id))
+    .reduce<Partial<StatBlock>>(
+      (bonus, node) => addPartialStats(bonus, node.statBonus ?? {}),
+      {}
+    );
+}
+
+export function calculateEquipmentSetBonus(member: PartyMemberState): Partial<StatBlock> {
+  return getActiveEquipmentSetTiers(member).reduce<Partial<StatBlock>>((bonus, activeSet) => {
+    const setBonus = activeSet.set.tiers
+      .filter((tier) => activeSet.pieces >= tier.pieces)
+      .reduce<Partial<StatBlock>>(
+        (tierBonus, tier) => addPartialStats(tierBonus, tier.statBonus),
+        {}
+      );
+    return addPartialStats(bonus, setBonus);
+  }, {});
+}
+
+export function calculateEnchantmentBonus(
+  member: PartyMemberState,
+  state: ProgressionState
+): Partial<StatBlock> {
+  return (['weapon', 'armor', 'accessory'] as const).reduce<Partial<StatBlock>>((bonus, slot) => {
+    const itemId = member.equipment[slot];
+    const item = itemId ? itemById.get(itemId) : undefined;
+    const level = getEnchantmentLevel(member, state, slot);
+    if (!item?.enchantment || level <= 0) {
+      return bonus;
+    }
+    return addPartialStats(
+      bonus,
+      multiplyPartialStats(item.enchantment.statBonusPerLevel, level)
+    );
+  }, {});
 }
 
 export function getProgressionSkillIds(
@@ -298,17 +618,35 @@ export function getProgressionSkillIds(
   state: ProgressionState,
   jobId = getDefaultJobId(member.characterId)
 ): readonly string[] {
-  const evolution = getActiveEvolution(state, member.characterId);
   const job = jobById.get(jobId);
+  return uniqueStrings([
+    ...getProgressionCoreSkillIds(member, state),
+    ...(job?.skillIds ?? [])
+  ]);
+}
+
+export function getProgressionCoreSkillIds(
+  member: PartyMemberState,
+  state: ProgressionState
+): readonly string[] {
+  const evolution = getActiveEvolution(state, member.characterId);
   const relationshipSkillIds = RELATIONSHIPS
-    .filter((relationship) => relationship.characterId === member.characterId)
+    .filter((relationship) =>
+      relationship.characterId === member.characterId
+      || relationship.partnerId === member.characterId
+    )
     .flatMap((relationship) => getRelationshipLevel(state, relationship.id)?.skillIds ?? []);
+  const skillTreeSkillIds = (getSkillTree(member.characterId)?.nodes ?? [])
+    .filter((node) =>
+      (state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []).includes(node.id)
+    )
+    .flatMap((node) => node.skillId ? [node.skillId] : []);
 
   return uniqueStrings([
     ...member.learnedSkillIds,
     ...(evolution?.skillIds ?? []),
     ...relationshipSkillIds,
-    ...(job?.skillIds ?? [])
+    ...skillTreeSkillIds
   ]);
 }
 
@@ -321,6 +659,123 @@ export function getProgressionSkills(
     const skill = skillById.get(skillId);
     return skill ? [skill] : [];
   });
+}
+
+export function getCombatSynergyPartnerIds(
+  characterId: string,
+  state: ProgressionState
+): readonly string[] {
+  return uniqueStrings(RELATIONSHIPS.flatMap((relationship) => {
+    const level = getRelationshipLevel(state, relationship.id);
+    if (relationship.partnerKind !== 'party' || !level?.combatBonus?.teamAttack) {
+      return [];
+    }
+    if (relationship.characterId === characterId) {
+      return [relationship.partnerId];
+    }
+    if (relationship.partnerId === characterId) {
+      return [relationship.characterId];
+    }
+    return [];
+  }));
+}
+
+export function getOpeningStatusIds(
+  characterId: string,
+  state: ProgressionState
+): readonly StatusEffectId[] {
+  return uniqueStrings(RELATIONSHIPS.flatMap((relationship) => {
+    if (relationship.characterId !== characterId && relationship.partnerId !== characterId) {
+      return [];
+    }
+    const statusId = getRelationshipLevel(state, relationship.id)?.combatBonus?.openingStatusId;
+    return statusId ? [statusId] : [];
+  })) as StatusEffectId[];
+}
+
+export function calculateStartingTeamMeter(
+  members: readonly PartyMemberState[],
+  state: ProgressionState
+): number {
+  const activeCharacterIds = new Set(members.map((member) => member.characterId));
+  const meter = RELATIONSHIPS.reduce((total, relationship) => {
+    if (relationship.partnerKind !== 'party'
+      || !activeCharacterIds.has(relationship.characterId)
+      || !activeCharacterIds.has(relationship.partnerId)) {
+      return total;
+    }
+    return total + (getRelationshipLevel(state, relationship.id)?.combatBonus?.startingTeamMeter ?? 0);
+  }, 0);
+  return Math.min(100, meter);
+}
+
+export function createProgressionBattleParty(
+  members: readonly PartyMemberState[],
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
+): BattleUnitInput[] {
+  return members.flatMap((member): BattleUnitInput[] => {
+    const hero = heroById.get(member.characterId);
+    if (!hero) {
+      return [];
+    }
+    const jobId = getSelectedJobId(state, member.characterId);
+    const unit = createHeroBattleUnit(hero, {
+      name: member.name,
+      level: member.level,
+      currentHp: member.currentHp,
+      currentMp: member.currentMp,
+      skillIds: getProgressionCoreSkillIds(member, state),
+      jobId,
+      availableJobIds: [
+        getDefaultJobId(member.characterId),
+        ...getUnlockedJobIds(member.characterId, state, flags)
+      ],
+      synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
+      formName: getActiveEvolution(state, member.characterId)?.formName,
+      openingStatusIds: getOpeningStatusIds(member.characterId, state)
+    });
+    return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
+  });
+}
+
+export function applyBattleProgressionRewards(
+  activeMembers: readonly PartyMemberState[],
+  reserveMembers: readonly PartyMemberState[],
+  state: ProgressionState,
+  battleExperience: number,
+  chapterId = 'chapter-1'
+): BattleProgressionResult {
+  const experience = clampNonNegativeInteger(battleExperience);
+  let nextState = state;
+  let grantedSkillPoints = 0;
+  const active = activeMembers.map((member) => {
+    const advanced = addMemberExperience(member, experience);
+    const points = skillPointsForLevelGain(member.level, advanced.level);
+    if (points > 0) {
+      nextState = grantSkillPoints(nextState, member.characterId, points).state;
+      grantedSkillPoints += points;
+    }
+    return advanced;
+  });
+  const reserveExperience = calculateReserveExperienceReward(experience);
+  const rewardedReserve = reserveMembers.map((member) => addMemberExperience(member, reserveExperience));
+  const caughtUp = catchUpReserveMembers(active, rewardedReserve, chapterId);
+  const activeCharacterIds = new Set(active.map((member) => member.characterId));
+  for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
+    if (relationship.partnerKind === 'party'
+      && activeCharacterIds.has(relationship.characterId)
+      && activeCharacterIds.has(relationship.partnerId)) {
+      nextState = grantRelationshipPoints(nextState, relationship.id, 5).state;
+    }
+  }
+
+  return {
+    active,
+    reserve: caughtUp.reserve,
+    state: nextState,
+    grantedSkillPoints
+  };
 }
 
 export function getUnlockedJobIds(
@@ -434,14 +889,60 @@ export function analyzeProgressionBalance(sampleLevels: readonly number[] = [1, 
     }
   }
 
-  for (const relationship of RELATIONSHIPS) {
+  for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
     let previousScore = 0;
+    let previousPartnerScore = 0;
+    let previousTeamMeter = 0;
     for (const level of relationship.levels) {
       const score = partialPowerScore(level.passiveBonus);
       if (score < previousScore) {
         issues.push({
           path: `balance.relationships.${relationship.id}.levels.${level.level}`,
           message: 'Beziehungsbonus fällt in späterer Stufe ab.'
+        });
+      }
+      previousScore = score;
+      const partnerScore = partialPowerScore(level.partnerPassiveBonus ?? {});
+      if (partnerScore < previousPartnerScore) {
+        issues.push({
+          path: `balance.relationships.${relationship.id}.levels.${level.level}.partner`,
+          message: 'Partnerbonus fällt in späterer Stufe ab.'
+        });
+      }
+      previousPartnerScore = partnerScore;
+      const teamMeter = level.combatBonus?.startingTeamMeter ?? previousTeamMeter;
+      if (teamMeter < previousTeamMeter) {
+        issues.push({
+          path: `balance.relationships.${relationship.id}.levels.${level.level}.teamMeter`,
+          message: 'Kampfbonus fällt in späterer Stufe ab.'
+        });
+      }
+      previousTeamMeter = teamMeter;
+    }
+  }
+
+  for (const tree of SKILL_TREES as readonly SkillTreeDefinition[]) {
+    let cumulativeScore = 0;
+    for (const node of tree.nodes) {
+      const nextScore = cumulativeScore + partialPowerScore(node.statBonus ?? {});
+      if (nextScore < cumulativeScore) {
+        issues.push({
+          path: `balance.skillTrees.${tree.id}.${node.id}`,
+          message: 'Skill-Baum verliert Kraft durch einen Knoten.'
+        });
+      }
+      cumulativeScore = nextScore;
+    }
+  }
+
+  for (const set of EQUIPMENT_SETS) {
+    let previousScore = 0;
+    for (const tier of set.tiers) {
+      const score = previousScore + partialPowerScore(tier.statBonus);
+      if (score <= previousScore) {
+        issues.push({
+          path: `balance.equipmentSets.${set.id}.${tier.pieces}`,
+          message: 'Set-Stufe erhöht die Kraftkurve nicht.'
         });
       }
       previousScore = score;
@@ -482,7 +983,9 @@ export function getProgressionRegions(): readonly RegionProgressionDefinition[] 
 }
 
 export function getProgressionRelationships(characterId: string): readonly RelationshipDefinition[] {
-  return RELATIONSHIPS.filter((relationship) => relationship.characterId === characterId);
+  return RELATIONSHIPS.filter((relationship) =>
+    relationship.characterId === characterId || relationship.partnerId === characterId
+  );
 }
 
 function isJobUnlockSatisfied(
@@ -535,6 +1038,28 @@ function setMemberExperienceFloor(member: PartyMemberState, experience: number):
   };
 }
 
+function addMemberExperience(member: PartyMemberState, experience: number): PartyMemberState {
+  const nextExperience = member.experience + clampNonNegativeInteger(experience);
+  const nextLevel = Math.max(member.level, levelForExperience(nextExperience));
+  const hero = heroById.get(member.characterId);
+  if (!hero || nextLevel === member.level) {
+    return { ...member, experience: nextExperience, level: nextLevel };
+  }
+  const previousStats = scaleStats(hero.baseStats, hero.growthPerLevel, member.level);
+  const nextStats = scaleStats(hero.baseStats, hero.growthPerLevel, nextLevel);
+  return {
+    ...member,
+    experience: nextExperience,
+    level: nextLevel,
+    currentHp: member.currentHp + (nextStats.maxHp - previousStats.maxHp),
+    currentMp: member.currentMp + (nextStats.maxMp - previousStats.maxMp)
+  };
+}
+
+function skillPointsForLevelGain(previousLevel: number, nextLevel: number): number {
+  return Math.max(0, Math.floor(nextLevel / 2) - Math.floor(previousLevel / 2));
+}
+
 function normalizeGivenName(name: string): string {
   return name.trim().replace(/\s+/g, ' ');
 }
@@ -554,6 +1079,16 @@ function normalizePointRecord(record: Readonly<Record<string, number>>): Readonl
   );
 }
 
+function normalizeStringArrayRecord(
+  record: Readonly<Record<string, readonly string[]>>
+): Readonly<Record<string, readonly string[]>> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([key, values]) => key.trim().length > 0 && Array.isArray(values))
+      .map(([key, values]) => [key, uniqueStrings(values.filter((value) => value.trim().length > 0))])
+  );
+}
+
 function addPartialStats(a: Partial<StatBlock>, b: Partial<StatBlock>): Partial<StatBlock> {
   return {
     maxHp: (a.maxHp ?? 0) + (b.maxHp ?? 0),
@@ -563,6 +1098,18 @@ function addPartialStats(a: Partial<StatBlock>, b: Partial<StatBlock>): Partial<
     magic: (a.magic ?? 0) + (b.magic ?? 0),
     spirit: (a.spirit ?? 0) + (b.spirit ?? 0),
     agility: (a.agility ?? 0) + (b.agility ?? 0)
+  };
+}
+
+function multiplyPartialStats(stats: Partial<StatBlock>, multiplier: number): Partial<StatBlock> {
+  return {
+    maxHp: (stats.maxHp ?? 0) * multiplier,
+    maxMp: (stats.maxMp ?? 0) * multiplier,
+    attack: (stats.attack ?? 0) * multiplier,
+    defense: (stats.defense ?? 0) * multiplier,
+    magic: (stats.magic ?? 0) * multiplier,
+    spirit: (stats.spirit ?? 0) * multiplier,
+    agility: (stats.agility ?? 0) * multiplier
   };
 }
 
