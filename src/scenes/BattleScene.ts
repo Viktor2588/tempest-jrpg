@@ -62,8 +62,7 @@ export class BattleScene extends Phaser.Scene {
     this.state = startBattle({
       party: createProgressionBattleParty(
         this.save.party.active,
-        this.save.progression,
-        this.save.flags
+        this.save.progression
       ),
       enemyIds: data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
       inventory: this.save.inventory.stacks,

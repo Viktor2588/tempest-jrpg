@@ -287,22 +287,6 @@ export function useItem(
   };
 }
 
-export function selectJob(
-  assignments: Readonly<Record<string, string>>,
-  characterId: string,
-  jobId: string,
-  unlockedJobIds: readonly string[] = []
-): MenuResult<Readonly<Record<string, string>>> {
-  if (!getAvailableJobs(characterId, unlockedJobIds).some((job) => job.id === jobId)) {
-    return { ok: false, state: assignments, message: 'Rolle ist für diesen Charakter nicht verfügbar.' };
-  }
-  return {
-    ok: true,
-    state: { ...assignments, [characterId]: jobId },
-    message: `${requireJob(jobId).name} ausgewählt.`
-  };
-}
-
 function normalizePartyResources(state: MenuGameState): MenuGameState {
   return {
     ...state,

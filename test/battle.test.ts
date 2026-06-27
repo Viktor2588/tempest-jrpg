@@ -129,7 +129,6 @@ function depthHero(
     weaknesses: [],
     resistances: [],
     skillIds: ['slime-strike', 'water-blade', 'storm-gust', 'spirit-bind'],
-    availableJobIds: ['vanguard', 'mystic', 'scout'],
     ...overrides
   };
 }
@@ -379,21 +378,16 @@ describe('battle engine', () => {
     expect(renderView(countered).party[0]!.reaction).toBeNull();
   });
 
-  it('wechselt Jobs im Kampf und aktualisiert Werte sowie Skills lesbar', () => {
+  it('wendet die innere Klasse als festen Stat-Basiswert an (kein Wechsel im Kampf)', () => {
     const state = startBattle({
-      party: [depthHero('rimuru', 'Rimuru', { jobId: 'vanguard' })],
+      party: [depthHero('rimuru', 'Rimuru', { jobId: 'mystic' })],
       enemies: [phaseEnemy()],
       seed: 12
     });
     const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
-    state.activeId = hero.id;
-    const beforeMagic = hero.magic;
 
-    const result = act(state, { type: 'switch-job', jobId: 'mystic' });
-
-    expect(result.ok).toBe(true);
+    // mystic erhöht Magie und gewährt seine Klassen-Skills als Baseline
     expect(hero.jobId).toBe('mystic');
-    expect(hero.magic).toBeGreaterThan(beforeMagic);
     expect(hero.skillIds).toContain('spirit-bind');
     expect(renderView(state).party[0]!.jobId).toBe('mystic');
   });

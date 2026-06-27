@@ -52,7 +52,6 @@ export interface BattleUnitInput {
   readonly resistances: readonly ElementType[];
   readonly skillIds: readonly string[];
   readonly jobId?: string;
-  readonly availableJobIds?: readonly string[];
   readonly synergyPartnerIds?: readonly string[];
   readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
@@ -69,8 +68,8 @@ export interface Combatant {
   readonly level: number;
   readonly baseStats: StatBlock;
   baseSkillIds: string[];
+  // ponytail: jobId = innate class, applied once as stat baseline. Talent trees are the build system now; in-battle role switching removed. Stage 2: fold class into base stats and delete JobDefinition.
   jobId: string | null;
-  availableJobIds: string[];
   hp: number;
   maxHp: number;
   mp: number;
@@ -123,7 +122,6 @@ export type BattleAction =
   | { type: 'attack'; targetId: string }
   | { type: 'skill'; skillId: string; targetId?: string }
   | { type: 'item'; itemId: string; targetId?: string }
-  | { type: 'switch-job'; jobId: string }
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'guard' }
   | { type: 'flee' };
@@ -185,8 +183,7 @@ export function createHeroBattleUnit(
   hero: CharacterDefinition,
   overrides: Partial<Pick<
     BattleUnitInput,
-    'availableJobIds'
-    | 'currentHp'
+    'currentHp'
     | 'currentMp'
     | 'formName'
     | 'jobId'
@@ -214,7 +211,6 @@ export function createHeroBattleUnit(
     resistances: [],
     skillIds: overrides.skillIds ?? hero.initialSkillIds,
     jobId: overrides.jobId,
-    availableJobIds: overrides.availableJobIds,
     synergyPartnerIds: overrides.synergyPartnerIds,
     openingStatusIds: overrides.openingStatusIds
   };
@@ -378,7 +374,6 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     baseStats: unit.stats,
     baseSkillIds,
     jobId: unit.jobId ?? null,
-    availableJobIds: [...(unit.availableJobIds ?? [])],
     hp: clamp(unit.currentHp ?? jobStats.maxHp, 0, jobStats.maxHp),
     maxHp: jobStats.maxHp,
     mp: clamp(unit.currentMp ?? jobStats.maxMp, 0, jobStats.maxMp),
@@ -434,9 +429,6 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'item':
       return resolveItem(state, actor, action.itemId, action.targetId);
-
-    case 'switch-job':
-      return resolveJobSwitch(state, actor, action.jobId);
 
     case 'team-attack':
       return resolveTeamAttack(state, actor, action.partnerId, action.targetId);
@@ -587,27 +579,6 @@ function resolveItem(
   }
 
   consumeItem(state, itemId);
-  endTurn(state, actor);
-  return { ok: true };
-}
-
-function resolveJobSwitch(state: BattleState, actor: Combatant, jobId: string): ActionResult {
-  if (actor.side !== 'party') {
-    return { ok: false, reason: 'Nur die Party kann Rollen wechseln.' };
-  }
-  if (actor.jobId === jobId) {
-    return { ok: false, reason: 'Diese Rolle ist bereits aktiv.' };
-  }
-  if (!actor.availableJobIds.includes(jobId)) {
-    return { ok: false, reason: 'Rolle ist im Kampf nicht freigeschaltet.' };
-  }
-  const job = jobById.get(jobId);
-  if (!job) {
-    return { ok: false, reason: 'Unbekannte Rolle.' };
-  }
-
-  applyCombatantJob(actor, job);
-  pushLog(state, `${actor.name} wechselt zu ${job.name}.`);
   endTurn(state, actor);
   return { ok: true };
 }
@@ -957,24 +928,6 @@ function statusLabel(statusId: StatusEffectId): string {
   }
 }
 
-function applyCombatantJob(combatant: Combatant, job: JobDefinition): void {
-  const previousMaxHp = combatant.maxHp;
-  const previousMaxMp = combatant.maxMp;
-  const stats = applyJobMultipliers(combatant.baseStats, job);
-
-  combatant.jobId = job.id;
-  combatant.maxHp = stats.maxHp;
-  combatant.maxMp = stats.maxMp;
-  combatant.attack = stats.attack;
-  combatant.defense = stats.defense;
-  combatant.magic = stats.magic;
-  combatant.spirit = stats.spirit;
-  combatant.agility = Math.max(1, stats.agility);
-  combatant.hp = clamp(combatant.hp + (stats.maxHp - previousMaxHp), 1, stats.maxHp);
-  combatant.mp = clamp(combatant.mp + (stats.maxMp - previousMaxMp), 0, stats.maxMp);
-  combatant.skillIds = uniqueStrings([...combatant.baseSkillIds, ...job.skillIds]);
-}
-
 function applyJobMultipliers(stats: StatBlock, job: JobDefinition | undefined): StatBlock {
   if (!job) {
     return stats;
@@ -1079,7 +1032,6 @@ export interface CombatantView {
   readonly side: Side;
   readonly level: number;
   readonly jobId: string | null;
-  readonly availableJobIds: readonly string[];
   readonly hp: number;
   readonly maxHp: number;
   readonly mp: number;
@@ -1142,7 +1094,6 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     side: combatant.side,
     level: combatant.level,
     jobId: combatant.jobId,
-    availableJobIds: [...combatant.availableJobIds],
     hp: combatant.hp,
     maxHp: combatant.maxHp,
     mp: combatant.mp,
