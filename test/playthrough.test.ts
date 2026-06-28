@@ -84,11 +84,41 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(quest.status).toBe('completed');
     expect(quest.steps.every((step) => step.completed)).toBe(true);
 
-    // Codex muss sich entlang der Story füllen — kein Eintrag darf verschlossen bleiben.
+    // Codex muss sich entlang Act 1 füllen — die vier Act-1-Einträge sind entsperrt.
     const codex = buildCodexView(createWorldState(save));
-    for (const entry of codex) {
-      expect(entry.unlocked, `Codex-Eintrag '${entry.id}' blieb verschlossen`).toBe(true);
+    const unlocked = (id: string) => codex.find((entry) => entry.id === id)?.unlocked === true;
+    for (const id of ['nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']) {
+      expect(unlocked(id), `Act-1-Codex '${id}' blieb verschlossen`).toBe(true);
     }
+  });
+
+  it('schließt Act 2 „Grenzfeuer" über den echten Szenen-Fluss ab und füllt den Codex weiter', () => {
+    // Act 1 als abgeschlossen voraussetzen (Act-2-Gate).
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+
+    expect(npcHasQuestMarker(createWorldState(save), 'lyrre')).toBe(true); // Lyrre startet Act 2
+
+    save = talk(save, 'lyrre', 'muster');   // border-escalation aktiv + story.act2.started
+    expect(visibleTriggerIds(save)).toContain('marsh-frontier-clash');
+    expect(visibleTriggerIds(save)).not.toContain('border-rift-vanguard');
+
+    save = clearTriggerAt(save, { x: 5, y: 13 });  // Sumpfgrenze → border-clash
+    save = talk(save, 'vael', 'read-fracture');    // story.fracture.read
+    expect(visibleTriggerIds(save)).toContain('border-rift-vanguard');
+
+    save = clearTriggerAt(save, { x: 22, y: 7 });  // Vorhut → break-vanguard
+    save = talk(save, 'lyrre', 'report-act2');     // complete-quest + story.act2.completed
+
+    const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-escalation')!;
+    expect(quest.status).toBe('completed');
+    const incomplete = quest.steps.filter((step) => !step.completed).map((step) => step.id);
+    expect(incomplete, `unfertige Schritte: ${incomplete.join(', ')}`).toHaveLength(0);
+
+    const codex = buildCodexView(createWorldState(save));
+    const unlocked = (id: string) => codex.find((entry) => entry.id === id)?.unlocked === true;
+    expect(unlocked('border-fires')).toBe(true);
+    expect(unlocked('second-fracture')).toBe(true);
+    expect(unlocked('mordrahn-vanguard')).toBe(true);
   });
 
   it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {

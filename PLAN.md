@@ -291,6 +291,17 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Test `test/playthrough.test.ts`:** prüft die Marker-Reihenfolge (Start: Sora+Rigurd; nach Sora-Start: Vael+Lyrre, Sora aus; nach Vael+Lyrre: Sora wieder an).
 - **Abnahme:** `tsc` sauber, **92/92** grün, `build` ok.
 
+[x] **Act 2 – Wachstum & Misstrauen (fertig 2026-06-28, direkt auf `main`)** *(Story-Content, Phase-12-Fortsetzung)*
+- **Thema (lt. Story-Design):** Grenzeskalation Mensch↔Monster, Verlust/Verrat, Entdeckung der **beschleunigt zerfallenden Bindung**. Getragen von **Lyrre** (Grenze/Diplomatie) + **Vael** (Magiestruktur). Region **marsh-border** (Kapitel 2). Gated durch `story.act1.completed`.
+- **Quest `border-escalation` („Grenzfeuer", actId `act-2`), 5 Schritte (spiegelt Act-1-Struktur: 2 Dialoge + 2 Encounter + Bericht):**
+  1. `muster` (Lyrre, gated `act1.completed`+Quest inaktiv) → `story.act2.started`.
+  2. `border-clash` — Trigger-Encounter Sumpfgrenze (gated `act2.started`, ¬`border.cleared`) → `story.border.cleared` + Codex.
+  3. `read-fracture` (Vael, gated `border.cleared`, ¬`fracture.read`) → `story.fracture.read` + Codex; enthüllt den Verrat/Defektor narrativ.
+  4. `break-vanguard` — Trigger-Encounter „Mordrahns Vorhut" (gated `fracture.read`, ¬`vanguard.broken`) → `story.vanguard.broken` + Codex.
+  5. `report-act2` (Lyrre, gated `vanguard.broken`) → `complete-quest` + `story.act2.completed` + Reward.
+- **Neuer Content (umgesetzt):** 2 Gegner (`human-lancer`, `mordrahn-vanguard`), 2 Locations (`marsh-frontier`/`border-rift` mit unlockFlags), 3 Codex-Einträge (`border-fires`/`second-fracture`/`mordrahn-vanguard`), 2 Trigger-Encounter (`marsh-frontier-clash`@(5,13), `border-rift-vanguard`@(22,7)), Act-2-Optionen an Lyrre- (`muster`/`report-act2`) und Vael-Startdialog (`read-fracture`). Quest-Marker + Encounter-Marker greifen automatisch (datengetrieben).
+- **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` um einen Act-2-Durchlauf erweitert (Lyrre→Sumpfgrenze→Vael→Grenzriss→Lyrre, Questabschluss + 3 Codex-Unlocks; Marker-/Erreichbarkeits-Tests decken die neuen Encounter automatisch ab). `tsc` sauber, **93/93** grün, `build` ok.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

@@ -126,5 +126,47 @@ export const ENEMIES = [
     experienceReward: 90,
     goldReward: 75,
     drops: [{ itemId: 'mana-drop', chance: 0.35 }]
+  },
+  {
+    id: 'human-lancer',
+    name: 'Menschen-Lanzenträger',
+    level: 6,
+    element: 'neutral',
+    stats: {
+      maxHp: 96,
+      maxMp: 8,
+      attack: 22,
+      defense: 17,
+      magic: 7,
+      spirit: 12,
+      agility: 15
+    },
+    skillIds: ['goblin-feint', 'battle-cry'],
+    weaknesses: ['shadow', 'fire'],
+    resistances: [],
+    experienceReward: 60,
+    goldReward: 48,
+    drops: [{ itemId: 'healing-herb', chance: 0.3 }]
+  },
+  {
+    id: 'mordrahn-vanguard',
+    name: 'Mordrahns Vorhut',
+    level: 8,
+    element: 'shadow',
+    stats: {
+      maxHp: 158,
+      maxMp: 40,
+      attack: 24,
+      defense: 19,
+      magic: 26,
+      spirit: 21,
+      agility: 17
+    },
+    skillIds: ['spirit-bind', 'venom-spit', 'water-blade'],
+    weaknesses: ['holy', 'wind'],
+    resistances: ['shadow'],
+    experienceReward: 140,
+    goldReward: 110,
+    drops: [{ itemId: 'mana-drop', chance: 0.4 }]
   }
 ] as const satisfies readonly EnemyDefinition[];

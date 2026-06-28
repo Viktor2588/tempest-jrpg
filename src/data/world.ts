@@ -189,6 +189,45 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 180, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'border-escalation',
+    title: 'Grenzfeuer',
+    description: 'Halte die Sumpfgrenze, während Misstrauen und Mordrahns Vorhut die zerfallende Bindung ausnutzen.',
+    actId: 'act-2',
+    steps: [
+      {
+        id: 'muster',
+        title: 'Zum Grenzlager',
+        description: 'Lyrre meldet, dass Menschenpatrouillen an der Sumpfgrenze auflaufen.',
+        locationId: 'border-camp'
+      },
+      {
+        id: 'border-clash',
+        title: 'Sumpfgrenze halten',
+        description: 'Wirf die erste Patrouille an der Sumpfgrenze zurück.',
+        locationId: 'marsh-frontier'
+      },
+      {
+        id: 'read-fracture',
+        title: 'Den zweiten Riss lesen',
+        description: 'Bring Vael die Grenzfunde — die Bindung zerfällt schneller, und jemand aus Tempest hat geredet.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'break-vanguard',
+        title: 'Mordrahns Vorhut brechen',
+        description: 'Stell dich der Vorhut am Grenzriss, bevor sie ihn weiter aufreißt.',
+        locationId: 'border-rift'
+      },
+      {
+        id: 'report-act2',
+        title: 'Bericht: Die Bindung bröckelt',
+        description: 'Kehr zu Lyrre zurück und sichere die Grenze für den nächsten Schlag.',
+        locationId: 'border-camp'
+      }
+    ],
+    reward: { gold: 240, itemIds: ['mana-drop'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -230,6 +269,26 @@ export const LOCATIONS = [
     description: 'Ein gebrochener Schrein, an dem die Bindung der Ahnen hörbar knirscht.',
     identity: 'Boss-Ort: klare Arena, Siegelmechanik und Mordrahns moralischer Konflikt.',
     unlockFlag: 'story.grove.cleared'
+  },
+  {
+    id: 'marsh-frontier',
+    name: 'Sumpfgrenze',
+    kind: 'dungeon',
+    mapId: 'tempest-start',
+    position: { x: 5, y: 13 },
+    description: 'Ein schlammiger Streifen zwischen Tempest und den Menschenwegen, wo Patrouillen aufeinandertreffen.',
+    identity: 'Act-2-Schlachtfeld: enge Sichtlinien, Menschen-Monster-Spannung, erste echte Grenzgefechte.',
+    unlockFlag: 'story.act2.started'
+  },
+  {
+    id: 'border-rift',
+    name: 'Grenzriss',
+    kind: 'shrine',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 7 },
+    description: 'Ein neuer Spalt in der Bindung, an dem Mordrahns Vorhut die Versiegelung weiter aufbricht.',
+    identity: 'Act-2-Bosskampf: Mordrahns Vorhut und der sichtbare Beweis, dass die Bindung schneller zerfällt.',
+    unlockFlag: 'story.fracture.read'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -261,6 +320,27 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Der Hüter der zerfallenden Bindung. Sein Echo spricht nicht wie ein Eroberer, sondern wie jemand, der eine Katastrophe um jeden Preis verhindern will.',
     unlockFlag: 'story.boss.echo-defeated'
+  },
+  {
+    id: 'border-fires',
+    title: 'Grenzfeuer',
+    category: 'history',
+    body: 'Mit Tempests Wachstum zählen Menschenspäher die Feuer der Monsterstadt. Aus Vorsicht wird Misstrauen, aus Misstrauen die erste Patrouillenlinie am Sumpf.',
+    unlockFlag: 'story.act2.started'
+  },
+  {
+    id: 'second-fracture',
+    title: 'Der zweite Riss',
+    category: 'history',
+    body: 'Vaels Messungen sind eindeutig: die Bindung zerfällt schneller, als sie sollte — entlang der Grenze, als zöge jemand gezielt an den Fäden. Und jemand aus Tempest hat den Weg verraten.',
+    unlockFlag: 'story.fracture.read'
+  },
+  {
+    id: 'mordrahn-vanguard',
+    title: 'Mordrahns Vorhut',
+    category: 'people',
+    body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner, die den Riss weiter aufreißen, damit ihr Hüter „die Welt retten" kann.',
+    unlockFlag: 'story.vanguard.broken'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -444,6 +524,20 @@ export const DIALOGS = [
             requirements: [{ flag: 'story.vael.ready' }]
           },
           {
+            id: 'read-fracture',
+            label: 'Grenzfunde deuten',
+            nextNodeId: 'fracture',
+            requirements: [
+              { questStatus: { questId: 'border-escalation', status: 'active' } },
+              { flag: 'story.border.cleared' },
+              { notFlag: 'story.fracture.read' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.fracture.read', value: true },
+              { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'read-fracture' }
+            ]
+          },
+          {
             id: 'end',
             label: 'Später'
           }
@@ -460,6 +554,12 @@ export const DIALOGS = [
         speaker: 'Vael',
         text: 'Die Signatur ist nicht wild. Jemand lenkt sie. Das macht mir mehr Angst als jede Bestie im Hain.',
         choices: [{ id: 'end', label: 'Ich passe auf' }]
+      },
+      {
+        id: 'fracture',
+        speaker: 'Vael',
+        text: 'Die Grenzfunde bestätigen es: die Bindung zerfällt schneller als natürlich — entlang genau der Route, die ihr genommen habt. Jemand aus Tempest hat geredet. Brich die Vorhut am Grenzriss, bevor sie ihn ganz aufreißt.',
+        choices: [{ id: 'end', label: 'Zum Grenzriss' }]
       }
     ]
   },
@@ -492,6 +592,37 @@ export const DIALOGS = [
             requirements: [{ flag: 'story.lyrre.ready' }]
           },
           {
+            id: 'muster',
+            label: 'Grenzlage hören',
+            nextNodeId: 'muster',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'border-escalation', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'border-escalation' },
+              { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'muster' },
+              { type: 'set-flag', flag: 'story.act2.started', value: true }
+            ]
+          },
+          {
+            id: 'report-act2',
+            label: 'Grenze sichern',
+            nextNodeId: 'act2-done',
+            requirements: [
+              { questStatus: { questId: 'border-escalation', status: 'active' } },
+              { flag: 'story.vanguard.broken' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'report-act2' },
+              { type: 'complete-quest', questId: 'border-escalation' },
+              { type: 'set-flag', flag: 'story.act2.completed', value: true },
+              { type: 'set-flag', flag: 'bond.lyrre.trust-1', value: true },
+              { type: 'add-gold', amount: 240 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
             id: 'end',
             label: 'Später'
           }
@@ -508,6 +639,18 @@ export const DIALOGS = [
         speaker: 'Lyrre',
         text: 'Noch greifen sie nicht an. Aber Misstrauen ist auch eine Waffe — sie braucht nur länger, bis man die Wunde sieht.',
         choices: [{ id: 'end', label: 'Verstanden' }]
+      },
+      {
+        id: 'muster',
+        speaker: 'Lyrre',
+        text: 'Es ist soweit: Patrouillen sammeln sich an der Sumpfgrenze. Halt sie zurück, ohne ein Massaker zu provozieren — wir wollen eine Grenze, kein Feuer.',
+        choices: [{ id: 'end', label: 'Zur Sumpfgrenze' }]
+      },
+      {
+        id: 'act2-done',
+        speaker: 'Lyrre',
+        text: 'Die Vorhut ist gebrochen, die Grenze hält — fürs Erste. Aber wir wissen jetzt: jemand zieht an der Bindung, und jemand aus Tempest hat ihm den Weg gezeigt.',
+        choices: [{ id: 'end', label: 'Tempest hält' }]
       }
     ]
   }
@@ -631,6 +774,39 @@ export const ENCOUNTERS = [
       { type: 'set-flag', flag: 'story.boss.echo-defeated', value: true },
       { type: 'set-flag', flag: 'codex.mordrahn', value: true },
       { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'defeat-mordrahn-echo' }
+    ]
+  },
+  {
+    id: 'marsh-frontier-clash',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 5, y: 13 },
+    enemyIds: ['human-lancer', 'spore-moth'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.act2.started' },
+      { notFlag: 'story.border.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.border.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'border-clash' },
+      { type: 'add-item', itemId: 'healing-herb', quantity: 2 }
+    ]
+  },
+  {
+    id: 'border-rift-vanguard',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 22, y: 7 },
+    enemyIds: ['mordrahn-vanguard', 'human-lancer'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.fracture.read' },
+      { notFlag: 'story.vanguard.broken' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.vanguard.broken', value: true },
+      { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'break-vanguard' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
