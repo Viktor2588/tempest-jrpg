@@ -47,13 +47,30 @@ const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'travel', label: 'Ranga' }
 ];
 
+// Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
+// als Auswahl-Seitenleiste gebraucht. Quests/Codex/Reise nutzen die volle Breite.
+const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['party', 'inventory', 'equipment', 'status', 'growth']);
+
+// Kurzbeschreibung pro Tab — erklärt, was der Menüpunkt macht.
+const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
+  party: 'Überblick über deine aktive Gruppe.',
+  inventory: 'Gegenstände ansehen und an einer Figur benutzen.',
+  equipment: 'Waffe, Rüstung und Accessoire anlegen oder ablegen.',
+  status: 'Werte, Skills und Entwicklung der gewählten Figur.',
+  growth: 'Talente freischalten, Entwicklung und Bindungen vertiefen.',
+  quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
+  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
+  travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
+};
+
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
   private state!: MenuGameState;
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
+  private codexPage = 0;
   private layer!: Phaser.GameObjects.Container;
-  private message = 'Menü geöffnet.';
+  private message = TAB_DESCRIPTIONS.party;
 
   constructor() {
     super('Menu');
@@ -94,11 +111,17 @@ export class MenuScene extends Phaser.Scene {
     TABS.forEach((tab, index) => {
       this.button(24 + index * 112, 94, 104, tab.label, () => {
         this.selectedTab = tab.id;
+        // Beim Tabwechsel die Kurzbeschreibung in die Meldungszeile setzen, damit klar
+        // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
+        this.message = TAB_DESCRIPTIONS[tab.id];
+        this.codexPage = 0;
         this.refresh();
       }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
     });
 
-    this.drawMemberList(view);
+    // Party-Auswahlleiste nur auf Figur-bezogenen Tabs — sonst verschwendet sie Platz
+    // (und überlappte vorher die Quest-/Codex-Inhalte).
+    if (CHARACTER_TABS.has(this.selectedTab)) this.drawMemberList(view);
 
     if (!selected) {
       this.layer.add(this.add.text(300, 160, 'Keine Party vorhanden.', {
@@ -511,23 +534,49 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    const entries = buildCodexView(createWorldState(this.save));
-    entries.forEach((entry, index) => {
-      const y = 158 + index * 86;
-      this.panel(300, y, 590, 68);
-      const marker = entry.unlocked ? (entry.newlyUnlocked ? '✦ NEU' : '◈') : '◇';
-      this.layer.add(this.add.text(318, y - 24, `${marker} ${entry.title}`, {
-        fontFamily: 'sans-serif',
-        fontSize: '15px',
-        color: entry.newlyUnlocked ? '#8dffc2' : (entry.unlocked ? '#e9c56c' : '#6f83a5')
+    const all = buildCodexView(createWorldState(this.save));
+    // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
+    // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
+    const unlocked = all.filter((entry) => entry.unlocked);
+    const lockedCount = all.length - unlocked.length;
+
+    if (unlocked.length === 0) {
+      this.layer.add(this.add.text(318, 172, 'Noch keine Codex-Einträge entdeckt — erkunde die Welt.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
       }));
-      this.layer.add(this.add.text(318, y - 2, entry.unlocked ? entry.body ?? '' : 'Noch nicht entdeckt.', {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: entry.unlocked ? '#cbd6e8' : '#6f83a5',
-        wordWrap: { width: 540 }
+    }
+
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(unlocked.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const pageEntries = unlocked.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    pageEntries.forEach((entry, index) => {
+      const y = 170 + index * 84;
+      this.panel(300, y, 590, 66);
+      this.layer.add(this.add.text(318, y - 22, `${entry.newlyUnlocked ? '✦ NEU' : '◈'} ${entry.title}`, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: entry.newlyUnlocked ? '#8dffc2' : '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y, entry.body ?? '', {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
       }));
     });
+
+    // Fußzeile: Seitenblättern + Filterhinweis auf unentdeckte Einträge.
+    const footerY = 512;
+    if (pageCount > 1) {
+      this.button(300, footerY, 96, '‹ Zurück', () => { this.codexPage -= 1; this.refresh(); });
+      this.button(404, footerY, 96, 'Weiter ›', () => { this.codexPage += 1; this.refresh(); });
+      this.layer.add(this.add.text(516, footerY + 12, `Seite ${this.codexPage + 1}/${pageCount}`, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
+      }));
+    }
+    if (lockedCount > 0) {
+      this.layer.add(this.add.text(888, footerY + 12, `${lockedCount} noch unentdeckt`, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
+      }).setOrigin(1, 0));
+    }
   }
 
   private drawRangaTravel(): void {
