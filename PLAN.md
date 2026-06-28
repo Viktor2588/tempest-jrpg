@@ -348,6 +348,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Datengetriebene Art-Zuordnung:** Party-Art wird über `sourceId`, Arena-Art über die aktuelle `mapId` gewählt; beide Pfade behalten bestehende Sprite-/Farb-Fallbacks. Mapping und Vollständigkeit werden headless getestet.
 - **Battle-HUD-Politur:** regionale Vollbild-Arena mit lesbarer Abdunklung, klarer Zuganzeige, grafischer Team-Leiste, ruhigerer Einheitenhierarchie und kompakter Aktionsleiste. Touch-Ziele bleiben mindestens 44 px hoch; Gegner-/Party-Karten, Log und Befehle dürfen sich bei 960×540 nicht überdecken.
 - **Umgesetzt:** `battleArt.ts` ordnet alle drei Partyfiguren und Karten-Arenen mit robustem Tempest-Fallback zu; `PreloadScene` lädt und filtert die sechs neuen Assets. `BattleScene` rendert die aktuelle regionale Arena, größere individuelle Party-Cutouts, transparente Einheitenkarten, eine grafische Team-Leiste und eine horizontale 44px-Aktionsleiste; Skills/Items nutzen ein kompaktes Raster.
+- **WebP-Optimierung (2026-06-28):** alle zehn gemalten Kampfassets (Kreaturenatlas, drei Gegner-Cutouts, drei Party-Cutouts, drei Arenen) von PNG/JPG auf WebP umgestellt; Cutouts behalten ihren Alpha-Kanal. Assetblock von ca. **6,7 MB auf 1,4 MB** reduziert (rund **79 %**); Browser-Smoke bestätigt identisches Rendering.
 - **Abnahme:** `bun run typecheck` sauber, `bun run test` → **123/123** grün, `bun run build` grün; Desktop- und 390×844-Playwright-Smoke ohne Konsolenfehler oder Layout-Überlappung.
 
 ## Verifikation (Methodik)

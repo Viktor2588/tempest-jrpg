@@ -20,16 +20,16 @@ import enemySlimeUrl from '../assets/sprites/enemy-slime.png';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
-import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.png';
-import humanLancerUrl from '../assets/sprites/enemy-human-lancer.png';
-import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.png';
-import mordrahnUrl from '../assets/sprites/enemy-mordrahn.png';
-import rimuruBattleUrl from '../assets/sprites/party-rimuru.png';
-import gobtaBattleUrl from '../assets/sprites/party-gobta.png';
-import shunaBattleUrl from '../assets/sprites/party-shuna.png';
-import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.jpg';
-import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.jpg';
-import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.jpg';
+import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
+import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
+import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
+import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
+import rimuruBattleUrl from '../assets/sprites/party-rimuru.webp';
+import gobtaBattleUrl from '../assets/sprites/party-gobta.webp';
+import shunaBattleUrl from '../assets/sprites/party-shuna.webp';
+import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
+import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
+import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {

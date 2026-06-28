@@ -32,16 +32,16 @@ Lizenzzeile.
 | `sprites/enemy-wolf.png` | Gegner Bestie (Tiny Dungeon `tile_0065`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-imp.png` | Gegner Imp (Tiny Dungeon `tile_0106`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-ogre.png` | Gegner Oger (Tiny Dungeon `tile_0121`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
-| `sprites/kingdom-board-units.png` | 5×4-Kampfatlas mit 20 Kreaturenlinien | lokales Schwesterprojekt `/kingdom/assets/battle/board-units.png` | Projektgeneriert | Projektintern generiertes Original |
-| `sprites/enemy-human-lancer.png` | Menschen-Lanzenträger, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-human-deserter.png` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-mordrahn.png` | Mordrahn-Boss, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/party-rimuru.png` | Rimuru, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter adaptiver Schleimmagier, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/party-gobta.png` | Gobta, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter Goblin-Frontkämpfer, Dreiviertelperspektive, magentafarbener Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/party-shuna.png` | Shuna, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalte Oger-Heilerin, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `backgrounds/battle-tempest-grove.jpg` | Kampfarena Tempest-Hain, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; lichte Waldlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `backgrounds/battle-spirit-marsh.jpg` | Kampfarena Geistmoor, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; magische Moorlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `backgrounds/battle-spirit-highlands.jpg` | Kampfarena Geisterschrein, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Bergschrein-Terrasse mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/kingdom-board-units.webp` | 5×4-Kampfatlas mit 20 Kreaturenlinien | lokales Schwesterprojekt `/kingdom/assets/battle/board-units.png`, als WebP optimiert | Projektgeneriert | Projektintern generiertes Original |
+| `sprites/enemy-human-lancer.webp` | Menschen-Lanzenträger, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-human-deserter.webp` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-mordrahn.webp` | Mordrahn-Boss, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-rimuru.webp` | Rimuru, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter adaptiver Schleimmagier, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-gobta.webp` | Gobta, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter Goblin-Frontkämpfer, Dreiviertelperspektive, magentafarbener Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-shuna.webp` | Shuna, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalte Oger-Heilerin, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-tempest-grove.webp` | Kampfarena Tempest-Hain, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; lichte Waldlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-spirit-marsh.webp` | Kampfarena Geistmoor, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; magische Moorlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-spirit-highlands.webp` | Kampfarena Geisterschrein, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Bergschrein-Terrasse mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `audio/ui-select.ogg` | UI-Auswahl-SFX (RPG Audio `metalClick.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-confirm.ogg` | UI-Bestätigen-SFX (RPG Audio `metalLatch.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-cancel.ogg` | UI-Abbrechen-SFX (RPG Audio `cloth1.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
@@ -56,6 +56,6 @@ Lizenzzeile.
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.
-2. Datei nach `src/assets/<kategorie>/` legen; an die Art Bible angleichen (Palette/32px).
+2. Datei nach `src/assets/<kategorie>/` legen; an die Art Bible angleichen. Große gemalte Rasterassets als WebP mit Alpha-Erhalt optimieren.
 3. Zeile in der Tabelle oben ergänzen (Datei, Typ, URL, Autor, „CC0").
 4. Platzhalter-Schlüssel (`ph-<kind>`) durch das echte Asset ersetzen.
