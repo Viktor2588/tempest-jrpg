@@ -56,8 +56,8 @@ const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
   party: 'Überblick über deine aktive Gruppe.',
   inventory: 'Gegenstände ansehen und an einer Figur benutzen.',
   equipment: 'Waffe, Rüstung und Accessoire anlegen oder ablegen.',
-  status: 'Werte, Skills und Entwicklung der gewählten Figur.',
-  growth: 'Talente freischalten, Entwicklung und Bindungen vertiefen.',
+  status: 'Werte, Skills, Namensgebung, Entwicklung und Bindungen der Figur.',
+  growth: 'Talentbaum: Knoten mit Skillpunkten freischalten.',
   quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
   codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
   travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
@@ -307,64 +307,29 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawStatus(view: MenuView, characterId: string): void {
-    this.sectionTitle('Status & Skills');
+    this.sectionTitle('Status, Entwicklung & Bindungen');
     const summary = view.members.find((member) => member.member.characterId === characterId);
     if (!summary) return;
 
-    const stats = calculateProgressionStats(
-      summary.member,
-      this.save.progression
-    );
-    this.panel(300, 170, 570, 110);
+    const stats = calculateProgressionStats(summary.member, this.save.progression);
     const formName = getActiveEvolution(this.save.progression, characterId)?.formName
       ?? summary.character.species;
-    this.drawPortrait(characterId, 348, 176, 64);
-    this.layer.add(this.add.text(396, 130, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
-      fontFamily: 'sans-serif',
-      fontSize: '17px',
-      color: '#e9eef7'
-    }));
-    this.layer.add(this.add.text(396, 162, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
-      fontFamily: 'sans-serif',
-      fontSize: '14px',
-      color: '#9fb2cc'
-    }));
-    this.layer.add(this.add.text(396, 188, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
-      fontFamily: 'sans-serif',
-      fontSize: '14px',
-      color: '#9fb2cc'
-    }));
-    getProgressionSkills(
-      summary.member,
-      this.save.progression
-    ).forEach((skill, index) => {
-      this.layer.add(this.add.text(318, 250 + index * 34, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: '#cbd6e8',
-        wordWrap: { width: 540 }
-      }));
-    });
-  }
 
-  private drawGrowth(view: MenuView, characterId: string): void {
-    this.sectionTitle('Namensgebung, Entwicklung & Bindungen');
-    const summary = view.members.find((member) => member.member.characterId === characterId);
-    if (!summary) return;
+    // Werte-Panel.
+    this.panel(300, 158, 570, 92);
+    this.drawPortrait(characterId, 348, 162, 58);
+    this.layer.add(this.add.text(392, 126, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+      fontFamily: 'sans-serif', fontSize: '16px', color: '#e9eef7'
+    }));
+    this.layer.add(this.add.text(392, 154, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
+      fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+    }));
+    this.layer.add(this.add.text(392, 176, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
+      fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+    }));
 
-    const activeEvolution = getActiveEvolution(this.save.progression, characterId);
-    const availableEvolution = getAvailableEvolutions(summary.member, this.save.progression)[0];
-    this.layer.add(this.add.text(
-      300,
-      150,
-      `Name: ${summary.member.name} · Form: ${activeEvolution?.formName ?? summary.character.species}`,
-      {
-        fontFamily: 'sans-serif',
-        fontSize: '15px',
-        color: '#e9eef7'
-      }
-    ));
-    this.button(300, 190, 132, 'Neu benennen', () => {
+    // Namensgebung & Entwicklung (aus dem Talente-Tab hierher verschoben).
+    this.button(300, 224, 150, 'Neu benennen', () => {
       const proposed = window.prompt('Neuer Name', summary.member.name);
       if (proposed === null) return;
       const result = renameMember(summary.member, proposed, this.save.progression);
@@ -374,13 +339,10 @@ export class MenuScene extends Phaser.Scene {
       if (result.ok) this.persist();
       this.refresh();
     });
+    const availableEvolution = getAvailableEvolutions(summary.member, this.save.progression)[0];
     if (availableEvolution) {
-      this.button(446, 190, 142, 'Entwickeln', () => {
-        const result = evolveMember(
-          summary.member,
-          this.save.progression,
-          availableEvolution.id
-        );
+      this.button(464, 224, 150, 'Entwickeln', () => {
+        const result = evolveMember(summary.member, this.save.progression, availableEvolution.id);
         this.replaceMember(result.member);
         this.save = { ...this.save, progression: result.state };
         this.message = result.message;
@@ -389,52 +351,50 @@ export class MenuScene extends Phaser.Scene {
       }, 0x3b3154);
     }
 
+    // Skills (linke Spalte).
+    this.layer.add(this.add.text(300, 280, 'Skills', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
+    getProgressionSkills(summary.member, this.save.progression).forEach((skill, index) => {
+      this.layer.add(this.add.text(300, 306 + index * 32, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 380 }
+      }));
+    });
+
+    // Bindungen (rechte Spalte).
+    this.layer.add(this.add.text(710, 280, 'Bindungen', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
+    getProgressionRelationships(characterId).forEach((relationship, index) => {
+      const level = getRelationshipLevelNumber(this.save.progression, relationship.id);
+      const pointsValue = this.save.progression.relationshipPoints[relationship.id] ?? 0;
+      this.layer.add(this.add.text(710, 306 + index * 50, `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', lineSpacing: 3
+      }));
+    });
+  }
+
+  private drawGrowth(view: MenuView, characterId: string): void {
+    this.sectionTitle('Talentbaum');
+    const summary = view.members.find((member) => member.member.characterId === characterId);
+    if (!summary) return;
+
     const tree = getSkillTree(characterId);
     const points = this.save.progression.skillPointsByCharacterId[characterId] ?? 0;
-    this.layer.add(this.add.text(300, 228, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte`, {
-      fontFamily: 'sans-serif',
-      fontSize: '14px',
-      color: '#e9c56c'
+    this.layer.add(this.add.text(300, 158, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte verfügbar`, {
+      fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
     }));
     tree?.nodes.forEach((node, index) => {
       const unlocked = (
         this.save.progression.unlockedSkillNodeIdsByCharacterId[characterId] ?? []
       ).includes(node.id);
-      const y = 266 + index * 62;
-      this.button(300, y, 210, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
+      const y = 198 + index * 62;
+      this.button(300, y, 230, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
         const result = unlockSkillNode(summary.member, this.save.progression, node.id, {
           flags: this.save.flags
         });
         this.applyProgressionResult(result);
       }, unlocked ? 0x1f3a2f : 0x1b2940);
       const requirementHint = this.describeSkillRequirement(node);
-      this.layer.add(this.add.text(522, y - 14, requirementHint ? `${node.description}\n${requirementHint}` : node.description, {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: '#9fb2cc',
-        wordWrap: { width: 155 }
+      this.layer.add(this.add.text(548, y - 14, requirementHint ? `${node.description}\n${requirementHint}` : node.description, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 360 }
       }));
-    });
-
-    this.layer.add(this.add.text(700, 150, 'Bindungen', {
-      fontFamily: 'sans-serif',
-      fontSize: '15px',
-      color: '#e9c56c'
-    }));
-    getProgressionRelationships(characterId).forEach((relationship, index) => {
-      const level = getRelationshipLevelNumber(this.save.progression, relationship.id);
-      const pointsValue = this.save.progression.relationshipPoints[relationship.id] ?? 0;
-      this.layer.add(this.add.text(
-        700,
-        184 + index * 62,
-        `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`,
-        {
-          fontFamily: 'sans-serif',
-          fontSize: '12px',
-          color: '#cbd6e8',
-          lineSpacing: 4
-        }
-      ));
     });
   }
 
