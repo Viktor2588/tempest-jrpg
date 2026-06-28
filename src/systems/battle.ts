@@ -99,12 +99,15 @@ export interface BattleRewards {
   items: InventoryStack[];
 }
 
+export type BattleDamageMultipliers = Readonly<Record<Side, number>>;
+
 export interface BattleState {
   combatants: Combatant[];
   inventory: InventoryStack[];
   status: BattleStatus;
   activeId: string | null;
   teamMeter: number;
+  readonly damageMultipliers: BattleDamageMultipliers;
   round: number;
   turns: number;
   readonly seed: number;
@@ -127,6 +130,7 @@ export interface StartBattleOptions {
   readonly enemies?: readonly BattleUnitInput[];
   readonly inventory?: readonly InventoryStack[];
   readonly teamMeter?: number;
+  readonly damageMultipliers?: Partial<BattleDamageMultipliers>;
   readonly seed: number;
 }
 
@@ -251,6 +255,7 @@ export function startBattle(options: StartBattleOptions): BattleState {
     status: 'active',
     activeId: null,
     teamMeter: clamp(options.teamMeter ?? 0, 0, TEAM_METER_MAX),
+    damageMultipliers: normalizeDamageMultipliers(options.damageMultipliers),
     round: 1,
     turns: 0,
     seed: options.seed,
@@ -793,7 +798,9 @@ function applyDamage(
   rawDamage: number,
   allowReaction = true
 ): number {
-  let adjustedDamage = rawDamage * damageTakenMultiplier(target);
+  let adjustedDamage = rawDamage
+    * state.damageMultipliers[attacker.side]
+    * damageTakenMultiplier(target);
   const reaction = allowReaction ? target.reaction : null;
   target.reaction = null;
 
@@ -817,7 +824,10 @@ function applyDamage(
   if (reaction?.kind === 'counter' && reaction.timing !== 'miss' && !attacker.dead) {
     const counterDamage = Math.max(
       1,
-      Math.round(effectiveStat(target, 'attack') * 1.15 - effectiveStat(attacker, 'defense') * 0.45)
+      Math.round(
+        (effectiveStat(target, 'attack') * 1.15 - effectiveStat(attacker, 'defense') * 0.45)
+        * state.damageMultipliers[target.side]
+      )
     );
     attacker.hp = Math.max(0, attacker.hp - counterDamage);
     pushLog(state, `${target.name} kontert ${attacker.name}: ${counterDamage} Schaden.`);
@@ -989,6 +999,19 @@ function average(values: readonly number[]): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.trunc(value)));
+}
+
+function normalizeDamageMultipliers(
+  multipliers: Partial<BattleDamageMultipliers> | undefined
+): BattleDamageMultipliers {
+  return {
+    party: positiveFinite(multipliers?.party, 1),
+    enemy: positiveFinite(multipliers?.enemy, 1)
+  };
+}
+
+function positiveFinite(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function uniqueStrings<T extends string>(values: readonly T[]): T[] {
