@@ -113,6 +113,37 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getAdjacentNpc('tempest-start', { x: 10, y: 10 })).toBeUndefined();
   });
 
+  it('macht Tempest nach dem Prolog als benannte Siedlung auf der Karte sichtbar', () => {
+    const before = getMapLocations('tempest-start', emptyWorld()).map((location) => location.id);
+    const after = getMapLocations('tempest-start', {
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.tempest.named': true
+      },
+      quests: {},
+      inventory: [],
+      gold: 0
+    }).map((location) => location.id);
+
+    for (const id of ['tempest-council-plaza', 'tempest-name-stone', 'tempest-palisade']) {
+      expect(before).not.toContain(id);
+      expect(after).toContain(id);
+    }
+  });
+
+  it('reagiert im Band-2-Hub-Dialog auf die sichtbare Siedlungsstruktur', () => {
+    const state: WorldState = {
+      flags: { 'story.slime-prologue.completed': true },
+      quests: { 'binding-of-ancestors': { status: 'active', completedStepIds: ['awakening'] } },
+      inventory: [],
+      gold: 0
+    };
+
+    const result = chooseDialogOption(state, 'rigurd-act1', 'start', 'state');
+    expect(result.state.next?.text).toContain('Namensstein');
+    expect(result.state.next?.text).toContain('Palisade');
+  });
+
   it('löst Trigger-Encounter genau einmal aus und setzt Flags', () => {
     const first = resolveEncounter(emptyWorld(), 'tempest-start', { x: 20, y: 12 }, makeRng(1));
     const completed = completeEncounter(first.state.world, first.state.encounter!.id);
@@ -172,6 +203,8 @@ describe('world/dialog/shop/encounter system', () => {
     expect(completed.state.flags['story.grove.cleared']).toBe(true);
     expect(completed.state.flags['codex.ancestor-seal-warning']).toBe(true);
     expect(buildCodexView(completed.state).find((entry) => entry.id === 'ancestor-seal-warning')?.unlocked)
+      .toBe(true);
+    expect(buildCodexView(completed.state).find((entry) => entry.id === 'ancestor-seal-warning')?.newlyUnlocked)
       .toBe(true);
     expect(getItemCount(completed.state.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(repeated.state).toEqual(completed.state);

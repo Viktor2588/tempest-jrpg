@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { loadSettings, saveSettings } from '../systems/settings';
+import { loadSave } from '../systems/save';
+import { getChapterBanner } from '../systems/chapterBanner';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
 import { fadeIn, fadeToScene } from './transition';
@@ -18,6 +20,12 @@ export class TitleScene extends Phaser.Scene {
 
     this.add.text(cx, 150, 'Tempest – Chronik', { fontFamily: 'serif', fontSize: '44px', color: '#e9c56c' }).setOrigin(0.5);
     this.add.text(cx, 196, 'Ein JRPG der Tempest-Welt', { fontFamily: 'sans-serif', fontSize: '18px', color: '#9fb2cc' }).setOrigin(0.5);
+    const banner = getChapterBanner(loadSave(window.localStorage));
+    this.add.text(cx, 232, `${banner.kicker}: ${banner.line}`, {
+      fontFamily: 'sans-serif',
+      fontSize: '15px',
+      color: banner.kicker === 'Band 2' ? '#e9c56c' : '#9fb2cc'
+    }).setOrigin(0.5);
 
     this.menuButton(cx, 280, '▶ Spiel starten', () => { playSfx('confirm'); fadeToScene(this, 'Overworld'); });
     this.menuButton(cx, 336, '⚙ Optionen', () => { playSfx('select'); fadeToScene(this, 'Options', { from: 'Title' }); });

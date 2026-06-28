@@ -66,8 +66,8 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [x] Nach `slime-awakening` Abschluss nicht nur `binding-of-ancestors` starten, sondern den Spieler klar zum nächsten Canon-Anker führen: Rimuru/Rigurd/Shuna statt erfundenem NPC.
 - [x] Questlog-Sortierung prüfen: `binding-of-ancestors` muss über Nebenquests stehen.
-- [ ] Tempest-Hub visuell nach dem Prolog verändern: weniger Notlager, mehr benannte Siedlung.
-- [ ] Kurzen Titel-/Loading-Hinweis für Band 2 ergänzen: „Eine Stadt braucht mehr als einen Namen.“
+- [x] Tempest-Hub visuell nach dem Prolog verändern: weniger Notlager, mehr benannte Siedlung.
+- [x] Kurzen Titel-/Loading-Hinweis für Band 2 ergänzen: „Eine Stadt braucht mehr als einen Namen.“
 
 ### 2. Rat von Tempest als spielbarer Hub-Beat
 
@@ -109,9 +109,9 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 ### 7. Präsentation
 
 - [ ] Portraits/Platzhalter für Rimuru, Rigurd, Gobta, Ranga, Shuna und ggf. namenloses Echo prüfen.
-- [ ] Tempest-Hub nach Band-1-Abschluss mit neuen Markern/NPC-Reaktionen aktualisieren.
+- [x] Tempest-Hub nach Band-1-Abschluss mit neuen Markern/NPC-Reaktionen aktualisieren.
 - [ ] Soundhinweise für Rat, Ahnenzeichen und Echo-Kampf differenzieren.
-- [ ] Codex-Neueinträge nach Freischaltung klarer signalisieren.
+- [x] Codex-Neueinträge nach Freischaltung klarer signalisieren.
 
 ### 8. Tests und Gates
 
