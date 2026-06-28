@@ -1,7 +1,7 @@
 # Art Bible — „Tempest – Chronik"
 
 Verbindliche Stilrichtlinie für alle visuellen Assets. Ziel: **kohärenter Look** trotz
-zusammengesuchter **CC0**-Assets. Quelle der Wahrheit für Maße/Palette ist
+zusammengesuchter **CC0**- und projektgenerierter Assets. Quelle der Wahrheit für Maße/Palette ist
 `src/render/artSpec.ts` (Code) — dieses Dokument erklärt das Warum.
 
 ## Grundsätze
@@ -37,9 +37,10 @@ elementgebunden: `gold` (Held/Heilig), `ember` (Feuer), `arcane` (Magie),
 - Idle: 2 Frames (leichtes „Atmen"); Lauf: 4 Frames; Treffer: 1 Flash-Frame.
 - Bis echte Animationen existieren, reichen Einzelframes + Engine-Tweens (Phase 9).
 
-## Asset-Beschaffung (CC0)
-- **Nur CC0.** Quellen: **Kenney.nl**, **OpenGameArt (Lizenzfilter CC0)**, CC0-Packs auf itch.io.
+## Asset-Beschaffung
+- **Externe Assets nur CC0.** Quellen: **Kenney.nl**, **OpenGameArt (Lizenzfilter CC0)**, CC0-Packs auf itch.io.
 - **Nicht** verwenden: LPC (CC-BY-SA/GPL), „CC-BY ohne Freigabe", unklare Lizenzen.
+- Projektgenerierte Original-Assets sind erlaubt, wenn Quelle, Prompt-Zweck und Generierungsweg in `ASSETS.md` dokumentiert sind.
 - Jede eingepflegte Datei wird in **`ASSETS.md`** mit Quelle/Autor/Lizenz/URL dokumentiert.
 - Bis Assets da sind: prozedurale Platzhalter aus `src/render/placeholderArt.ts`
   (gleiche Palette/Größe) — später 1:1 durch CC0-Sprites ersetzbar.

@@ -1,7 +1,8 @@
 # Assets & Lizenzen
 
-**Regel: ausschließlich CC0.** Jedes Bild-/Audio-Asset im Repo muss hier mit Quelle und
-Lizenz stehen. Kein Asset ohne Eintrag, keine Nicht-CC0-Lizenz (z. B. LPC = CC-BY-SA/GPL → **nicht** verwenden).
+**Regel: externe Assets ausschließlich CC0; projektgenerierte Originale separat dokumentieren.**
+Jedes Bild-/Audio-Asset im Repo muss hier mit Quelle und Lizenz beziehungsweise
+Generierungsprovenienz stehen. Kein Asset ohne Eintrag.
 
 ## Erlaubte Quellen (CC0)
 - **Kenney.nl** — durchgehend CC0 (Tiles, Charaktere, UI, Audio).
@@ -31,6 +32,10 @@ Lizenzzeile.
 | `sprites/enemy-wolf.png` | Gegner Bestie (Tiny Dungeon `tile_0065`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-imp.png` | Gegner Imp (Tiny Dungeon `tile_0106`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-ogre.png` | Gegner Oger (Tiny Dungeon `tile_0121`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/kingdom-board-units.png` | 5×4-Kampfatlas mit 20 Kreaturenlinien | lokales Schwesterprojekt `/kingdom/assets/battle/board-units.png` | Projektgeneriert | Projektintern generiertes Original |
+| `sprites/enemy-human-lancer.png` | Menschen-Lanzenträger, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-human-deserter.png` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-mordrahn.png` | Mordrahn-Boss, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `audio/ui-select.ogg` | UI-Auswahl-SFX (RPG Audio `metalClick.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-confirm.ogg` | UI-Bestätigen-SFX (RPG Audio `metalLatch.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-cancel.ogg` | UI-Abbrechen-SFX (RPG Audio `cloth1.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
@@ -44,7 +49,7 @@ Lizenzzeile.
 | `music/battle-theme.ogg` | Kampf-Motiv (Music Jingles `jingles_STEEL07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 
 ## Vorgehen beim Hinzufügen
-1. Lizenz prüfen: **muss CC0 sein**. Im Zweifel nicht verwenden.
+1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.
 2. Datei nach `src/assets/<kategorie>/` legen; an die Art Bible angleichen (Palette/32px).
 3. Zeile in der Tabelle oben ergänzen (Datei, Typ, URL, Autor, „CC0").
 4. Platzhalter-Schlüssel (`ph-<kind>`) durch das echte Asset ersetzen.

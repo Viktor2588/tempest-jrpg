@@ -6,7 +6,7 @@ import sfxSource from '../src/audio/sfx.ts?raw';
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
   .map((path) => path.replace('../src/assets/', ''));
 
-describe('Asset-Lizenzen und Audio-Wiring', () => {
+describe('Asset-Herkunft und Audio-Wiring', () => {
   it('dokumentiert jede eingecheckte Asset-Datei in ASSETS.md', () => {
     for (const file of assetFiles) {
       expect(assetsDoc).toContain(`\`${file}\``);

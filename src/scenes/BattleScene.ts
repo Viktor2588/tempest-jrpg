@@ -25,6 +25,7 @@ import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiTextButton } from '../render/uiSkin';
+import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 
@@ -320,33 +321,43 @@ export class BattleScene extends Phaser.Scene {
     return start + (index * span) / count;
   }
 
-  // Ordnet eine Einheit einer Platzhalter-Art zu (CC0-Sprites ersetzen diese später 1:1).
-  private phKindFor(unit: CombatantView, side: 'party' | 'enemy'): string {
-    if (side === 'party') return 'hero';
-    const n = unit.name.toLowerCase();
-    if (n.includes('wolf')) return 'enemy-wolf';
-    if (n.includes('mordrahn') || n.includes('echo')) return 'enemy-boss';
-    if (n.includes('motte') || n.includes('moth')) return 'enemy-moth';
-    if (n.includes('ork') || n.includes('orc')) return 'enemy-orc';
-    if (n.includes('echse') || n.includes('lizard')) return 'enemy-lizard';
-    if (n.includes('imp')) return 'enemy-imp';
-    if (n.includes('ogre') || n.includes('oger')) return 'enemy-ogre';
-    return 'enemy-slime';
+  private textureFor(unit: CombatantView, side: 'party' | 'enemy'): {
+    key: string;
+    frame?: string;
+  } | null {
+    const art: EnemyArtSpec = side === 'party'
+      ? { textureKey: 'sprite-hero', fallbackKind: 'hero' }
+      : enemyArtFor(unit.sourceId, unit.name);
+
+    if (art.textureKey && this.textures.exists(art.textureKey)) {
+      const texture = this.textures.get(art.textureKey);
+      if (!art.frame || texture.has(art.frame)) {
+        return { key: art.textureKey, frame: art.frame };
+      }
+    }
+
+    const legacyKey = 'sprite-' + art.fallbackKind;
+    if (this.textures.exists(legacyKey)) return { key: legacyKey };
+
+    const placeholderKey = 'ph-' + art.fallbackKind;
+    return this.textures.exists(placeholderKey) ? { key: placeholderKey } : null;
   }
 
   private drawUnit(unit: CombatantView, x: number, y: number, side: 'party' | 'enemy'): void {
-    const width = 112;
+    const width = 128;
+    const height = 112;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
-    const box = this.add.rectangle(x, y, width, 84, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
+    const box = this.add.rectangle(x, y, width, height, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
     this.layer.add(box);
-    // Einheiten-Token: echtes CC0-Sprite → Platzhalter (Fallback: nur die Box).
-    const kind = this.phKindFor(unit, side);
-    const spriteKey = this.textures.exists('sprite-' + kind) ? 'sprite-' + kind
-      : (this.textures.exists('ph-' + kind) ? 'ph-' + kind : null);
-    if (spriteKey) {
-      const sprite = this.add.image(x, y, spriteKey).setDisplaySize(40, 40).setAlpha(alpha);
+    // Proportional skalierte Illustration → Legacy-Sprite → Platzhalter.
+    const texture = this.textureFor(unit, side);
+    if (texture) {
+      const sprite = this.add.image(x, y - 1, texture.key, texture.frame).setAlpha(alpha);
+      const fitWidth = side === 'enemy' ? 86 : 48;
+      const fitHeight = side === 'enemy' ? 58 : 48;
+      sprite.setScale(Math.min(fitWidth / sprite.width, fitHeight / sprite.height));
       sprite.setFlipX(side === 'enemy'); // Gegner blicken zur Party
       const bob = idleBobSpec(unit.id, {
         reducedMotion: loadSettings(window.localStorage).reducedMotion,
@@ -355,7 +366,7 @@ export class BattleScene extends Phaser.Scene {
       if (bob) {
         this.idleTweens.push(this.tweens.add({
           targets: sprite,
-          y: y - bob.amplitudePx,
+          y: y - 1 - bob.amplitudePx,
           duration: bob.durationMs,
           delay: bob.delayMs,
           yoyo: true,
@@ -365,13 +376,16 @@ export class BattleScene extends Phaser.Scene {
       }
       this.layer.add(sprite);
     }
-    this.layer.add(this.add.text(x, y - 36, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
+    const nameBottom = y - (unit.formName ? 39 : 31);
+    this.layer.add(this.add.text(x, nameBottom, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
       fontFamily: 'sans-serif',
-      fontSize: '12px',
-      color: '#e9eef7'
-    }).setOrigin(0.5).setAlpha(alpha));
+      fontSize: unit.name.length > 22 ? '10px' : '12px',
+      color: '#e9eef7',
+      align: 'center',
+      wordWrap: { width: width - 10, useAdvancedWrap: true }
+    }).setOrigin(0.5, 1).setAlpha(alpha));
     if (unit.formName) {
-      this.layer.add(this.add.text(x, y - 25, unit.formName, {
+      this.layer.add(this.add.text(x, y - 30, unit.formName, {
         fontFamily: 'sans-serif',
         fontSize: '9px',
         color: '#e9c56c'
@@ -379,22 +393,22 @@ export class BattleScene extends Phaser.Scene {
     }
 
     // HP-Leiste unter dem Sprite (vorher mittig über dem Token → verdeckt).
-    this.layer.add(this.add.rectangle(x, y + 26, width - 14, 8, 0x10151f).setOrigin(0.5));
+    this.layer.add(this.add.rectangle(x, y + 32, width - 14, 8, 0x10151f).setOrigin(0.5));
     this.layer.add(this.add.rectangle(
       x - (width - 14) / 2,
-      y + 26,
+      y + 32,
       Math.max(0, (width - 14) * (unit.hp / unit.maxHp)),
       8,
       unit.dead ? 0x555555 : 0x53d98b
     ).setOrigin(0, 0.5));
-    this.layer.add(this.add.text(x, y + 36, `${unit.hp}/${unit.maxHp} LP  ${unit.mp}/${unit.maxMp} MP`, {
+    this.layer.add(this.add.text(x, y + 43, `${unit.hp}/${unit.maxHp} LP  ${unit.mp}/${unit.maxMp} MP`, {
       fontFamily: 'sans-serif',
       fontSize: '10px',
       color: '#9fb2cc'
     }).setOrigin(0.5).setAlpha(alpha));
 
     if (unit.statuses.includes('poison')) {
-      this.layer.add(this.add.text(x + width / 2 - 8, y - 36, '☠', {
+      this.layer.add(this.add.text(x + width / 2 - 8, y - height / 2 + 10, '☠', {
         fontSize: '12px',
         color: '#b06bff'
       }).setOrigin(0.5));

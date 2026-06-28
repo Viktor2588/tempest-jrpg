@@ -3,6 +3,11 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { generatePlaceholderTextures } from '../render/placeholderArt';
 import { generatePortraitTextures } from '../render/portraitAtlas';
 import { generateVfxTextures } from '../render/vfxAtlas';
+import {
+  KINGDOM_UNIT_ATLAS,
+  KINGDOM_UNIT_FRAMES,
+  KINGDOM_UNIT_TEXTURE_KEY
+} from '../render/enemyArt';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -14,6 +19,10 @@ import enemySlimeUrl from '../assets/sprites/enemy-slime.png';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
+import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.png';
+import humanLancerUrl from '../assets/sprites/enemy-human-lancer.png';
+import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.png';
+import mordrahnUrl from '../assets/sprites/enemy-mordrahn.png';
 
 // Lädt globale Assets mit Fortschrittsbalken. (Noch keine echten Assets — Phase 0.)
 export class PreloadScene extends Phaser.Scene {
@@ -43,9 +52,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-wolf', enemyWolfUrl);
     this.load.image('sprite-enemy-imp', enemyImpUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreUrl);
+    this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
+    this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
+    this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
+    this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
   }
 
   create(): void {
+    this.registerKingdomUnitFrames();
     // Prozedurale Platzhalter-Texturen (ph-<kind>) erzeugen — global verfügbar,
     // bis echte CC0-Assets eingepflegt sind. Szenen nutzen sie mit Rechteck-Fallback.
     generatePlaceholderTextures(this);
@@ -54,5 +68,32 @@ export class PreloadScene extends Phaser.Scene {
     // Prozeduraler Pixel-VFX-Atlas (vfx-<kind>) für Kampf-Feedback.
     generateVfxTextures(this);
     this.scene.start('Title');
+  }
+
+  private registerKingdomUnitFrames(): void {
+    const texture = this.textures.get(KINGDOM_UNIT_TEXTURE_KEY);
+    const source = texture.getSourceImage();
+    const frameWidth = source.width / KINGDOM_UNIT_ATLAS.columns;
+    const frameHeight = source.height / KINGDOM_UNIT_ATLAS.rows;
+
+    for (const [name, frame] of Object.entries(KINGDOM_UNIT_FRAMES)) {
+      if (!texture.has(name)) {
+        texture.add(
+          name,
+          0,
+          frame.col * frameWidth,
+          frame.row * frameHeight,
+          frameWidth,
+          frameHeight
+        );
+      }
+    }
+
+    [
+      KINGDOM_UNIT_TEXTURE_KEY,
+      'sprite-enemy-human-lancer',
+      'sprite-enemy-human-deserter',
+      'sprite-enemy-mordrahn'
+    ].forEach((key) => this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR));
   }
 }
