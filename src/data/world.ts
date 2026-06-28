@@ -54,6 +54,12 @@ export interface WorldLocationDefinition {
   readonly kind: WorldLocationKind;
   readonly mapId: string;
   readonly position: Vec2;
+  readonly bounds?: {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+  };
   readonly description: string;
   readonly identity: string;
   readonly unlockFlag?: string;
@@ -614,6 +620,7 @@ export const LOCATIONS = [
     kind: 'dungeon',
     mapId: 'tempest-start',
     position: { x: 14, y: 8 },
+    bounds: { x: 13, y: 7, width: 4, height: 3 },
     description: 'Ein dichter Hain, dessen Sporen auf Namen und magische Signaturen reagieren.',
     identity: 'Dungeon-Identität: Gift, Sichtlinien, Abkürzungen und Pflanzen, die auf Storyflags reagieren.',
     unlockFlag: 'story.council.ready'
@@ -799,6 +806,13 @@ export const LORE_ENTRIES = [
     category: 'systems',
     body: 'Der Sturmschwur zeigt, wie der Codex funktioniert: wichtige Weltbegriffe werden nicht in langen Erklärblöcken versteckt, sondern beim Erleben freigeschaltet.',
     unlockFlag: 'story.storm-dragon.oath'
+  },
+  {
+    id: 'tutorial-grove-combat',
+    title: 'Tutorial: Status, Schwächen und Teamleiste',
+    category: 'systems',
+    body: 'Der Flüsterhain ist der erste Kampf, der mehr verlangt als Angriff und Verteidigung: Status-Effekte kontrollieren Tempo, elementare Schwächen öffnen sichere Schadensfenster, und die Teamleiste belohnt Rimuru, Gobta und Ranga für abgestimmte Züge.',
+    unlockFlag: 'codex.tutorial-grove-combat'
   },
   {
     id: 'goblin-village',
@@ -1370,6 +1384,7 @@ export const DIALOGS = [
             ],
             effects: [
               { type: 'set-flag', flag: 'story.council.ready', value: true },
+              { type: 'set-flag', flag: 'codex.tutorial-grove-combat', value: true },
               { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'gather-council' }
             ]
           },

@@ -290,6 +290,16 @@ export class OverworldScene extends Phaser.Scene {
             : location.kind === 'gateway'
               ? 0x68d7ff
               : 0xd2b35f;
+      if (location.bounds) {
+        layer.add(this.add.rectangle(
+          this.cx(location.bounds.x) - TILE / 2,
+          this.cy(location.bounds.y) - TILE / 2,
+          location.bounds.width * TILE,
+          location.bounds.height * TILE,
+          color,
+          0.12
+        ).setOrigin(0, 0).setStrokeStyle(2, color, 0.42));
+      }
       layer.add(this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
         .setStrokeStyle(2, color, 0.85));
       layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
