@@ -41,11 +41,11 @@ function talk(save: SaveGameV2, npcId: string, choiceId: string): SaveGameV2 {
 // Spiegelt die OverworldScene: tritt auf die Encounter-Kachel (resolveEncounter),
 // erwartet, dass der gated Trigger wirklich auslöst, und schreibt nach Sieg die
 // victoryEffects (completeEncounter) zurück.
-function clearTriggerAt(save: SaveGameV2, pos: Vec2): SaveGameV2 {
-  const triggered = resolveEncounter(createWorldState(save), MAP_ID, pos, makeRng(1));
+function clearTriggerAt(save: SaveGameV2, pos: Vec2, mapId: string = MAP_ID): SaveGameV2 {
+  const triggered = resolveEncounter(createWorldState(save), mapId, pos, makeRng(1));
   expect(
     triggered.state.encounter,
-    `Kein Encounter an (${pos.x},${pos.y}) — gated Trigger nicht erreichbar`
+    `Kein Encounter an (${pos.x},${pos.y}) auf '${mapId}' — gated Trigger nicht erreichbar`
   ).not.toBeNull();
   let next = applyWorldState(save, triggered.state.world);
   const won = completeEncounter(createWorldState(next), triggered.state.encounter!.id);
@@ -54,8 +54,8 @@ function clearTriggerAt(save: SaveGameV2, pos: Vec2): SaveGameV2 {
 }
 
 // Welche „!"-Marker der Overworld nach diesem Stand zeichnet (drawWorldObjects-Quelle).
-function visibleTriggerIds(save: SaveGameV2): string[] {
-  return getVisibleMapEncounters(MAP_ID, createWorldState(save))
+function visibleTriggerIds(save: SaveGameV2, mapId: string = MAP_ID): string[] {
+  return getVisibleMapEncounters(mapId, createWorldState(save))
     .filter((enc) => enc.kind === 'trigger')
     .map((enc) => enc.id);
 }
@@ -240,6 +240,19 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = talk(save, 'rigurd', 'report-apex');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'apex-bounty')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-elder-direwolf')?.unlocked).toBe(true);
+  });
+
+  it('Regionsquest (Geistmoor): Eirs „Fäulnis im Moor" ist annehm- und abschließbar', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+    expect(npcHasQuestMarker(createWorldState(save), 'eir')).toBe(true);
+
+    save = talk(save, 'eir', 'accept-cleanse');
+    expect(visibleTriggerIds(save, 'spirit-marsh')).toContain('marsh-blight');
+    save = clearTriggerAt(save, { x: 12, y: 12 }, 'spirit-marsh');
+    save = talk(save, 'eir', 'report-cleanse');
+
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'marsh-cleansing')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'marsh-keeper')?.unlocked).toBe(true);
   });
 
   it('Save-Kompatibilität: alter v1-Stand migriert und der Act-1-Bogen bleibt voll spielbar', () => {

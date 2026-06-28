@@ -212,11 +212,21 @@ export function autoPlayBattleToEnd(
 }
 
 export function estimateOverworldBudget(viewport: ViewportSize = { width: 960, height: 540 }): OverworldBudget {
-  const triggerEncounters = ENCOUNTERS.filter((encounter) => encounter.kind === 'trigger').length;
-  const worldMarkerObjects = LOCATIONS.length * 2
-    + triggerEncounters * 2
-    + NPCS.length * 2
-    + SHOPS.length * 2;
+  // Die Overworld rendert immer nur EINE Karte gleichzeitig (und gated Objekte erst
+  // nach Freischaltung). Maßgeblich für die mobile Renderlast ist daher die am
+  // stärksten belegte einzelne Karte, nicht die globale Summe über alle Regionen.
+  const mapIds = new Set<string>([
+    ...LOCATIONS.map((l) => l.mapId),
+    ...NPCS.map((n) => n.mapId),
+    ...SHOPS.map((s) => s.mapId),
+    ...ENCOUNTERS.map((e) => e.mapId)
+  ]);
+  const worldMarkerObjects = Math.max(...[...mapIds].map((mapId) => (
+    LOCATIONS.filter((l) => l.mapId === mapId).length
+    + ENCOUNTERS.filter((e) => e.mapId === mapId && e.kind === 'trigger').length
+    + NPCS.filter((n) => n.mapId === mapId).length
+    + SHOPS.filter((s) => s.mapId === mapId).length
+  ) * 2));
   const hudTargets = allHudRects(layoutOverworldHud(viewport)).length;
   const hudObjects = hudTargets * 2;
   const player = 1;

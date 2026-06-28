@@ -367,6 +367,32 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 300, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'marsh-cleansing',
+    title: 'Fäulnis im Moor',
+    description: 'Moorhüterin Eir bittet, eine schwärende Blüte in der Nebelmoor-Tiefe zu tilgen, die das Geistmoor vergiftet.',
+    steps: [
+      {
+        id: 'accept-cleanse',
+        title: 'Eirs Bitte annehmen',
+        description: 'Hör dir die Moorhüterin an und mach dich in die Nebelmoor-Tiefe auf.',
+        locationId: 'marsh-mire'
+      },
+      {
+        id: 'cleanse-blight',
+        title: 'Die Fäulnis tilgen',
+        description: 'Zerstör die schwärende Blüte und ihre Wächter in der Nebelmoor-Tiefe.',
+        locationId: 'marsh-mire'
+      },
+      {
+        id: 'report-cleanse',
+        title: 'Eir berichten',
+        description: 'Kehr zur Moorhüterin zurück und melde, dass das Moor wieder atmet.',
+        locationId: 'marsh-mire'
+      }
+    ],
+    reward: { gold: 130, itemIds: ['tempest-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -668,6 +694,13 @@ export const LORE_ENTRIES = [
     category: 'places',
     body: 'Jenseits des Moors steigt das Land zu windumtosten Schreinterrassen an, wo die ältesten Echos der Bindung nachhallen. Der Schreingipfel gilt als härteste Prüfung außerhalb der Hauptgeschichte — und als Ort, an dem Tempests Späher die nächste Grenze erahnen.',
     unlockFlag: 'highlands.guardian.cleared'
+  },
+  {
+    id: 'marsh-keeper',
+    title: 'Die Moorhüterin',
+    category: 'people',
+    body: 'Eir wacht über das Geistmoor, lange bevor Tempest entstand. Sie misstraut Städten, doch wer dem Moor hilft, gewinnt eine zähe Verbündete — und einen ersten Faden zwischen Tempest und den alten Hütern.',
+    unlockFlag: 'sidequest.cleanse.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -1239,6 +1272,64 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Tempest hält' }]
       }
     ]
+  },
+  {
+    id: 'eir-marsh',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Moorhüterin Eir',
+        text: 'Ein Wanderer aus dem Hain? Sei vorsichtig — das Moor faulte nicht von selbst. Eine schwärende Blüte vergiftet die Nebelmoor-Tiefe und lockt die Echos an.',
+        choices: [
+          {
+            id: 'accept-cleanse',
+            label: 'Die Fäulnis tilgen',
+            nextNodeId: 'cleanse-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'marsh-cleansing', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'marsh-cleansing' },
+              { type: 'complete-quest-step', questId: 'marsh-cleansing', stepId: 'accept-cleanse' },
+              { type: 'set-flag', flag: 'sidequest.cleanse.started', value: true }
+            ]
+          },
+          {
+            id: 'report-cleanse',
+            label: 'Fäulnis getilgt melden',
+            nextNodeId: 'cleanse-done',
+            requirements: [
+              { questStatus: { questId: 'marsh-cleansing', status: 'active' } },
+              { flag: 'sidequest.cleanse.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'marsh-cleansing', stepId: 'report-cleanse' },
+              { type: 'complete-quest', questId: 'marsh-cleansing' },
+              { type: 'add-gold', amount: 130 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
+            id: 'end',
+            label: 'Später'
+          }
+        ]
+      },
+      {
+        id: 'cleanse-accepted',
+        speaker: 'Moorhüterin Eir',
+        text: 'Die Blüte wuchert in der Nebelmoor-Tiefe im Osten. Brich sie und das, was sie beschützt — dann atmet das Moor wieder.',
+        choices: [{ id: 'end', label: 'Zur Nebelmoor-Tiefe' }]
+      },
+      {
+        id: 'cleanse-done',
+        speaker: 'Moorhüterin Eir',
+        text: 'Der Nebel klart schon auf. Du hast dem Moor etwas zurückgegeben — und Tempest einen Verbündeten im Hüterkreis. Nimm das als Dank.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -1274,6 +1365,14 @@ export const NPCS = [
     position: { x: 8, y: 5 },
     dialogId: 'lyrre-border',
     color: 0x9ff0a4
+  },
+  {
+    id: 'eir',
+    name: 'Moorhüterin Eir',
+    mapId: 'spirit-marsh',
+    position: { x: 4, y: 8 },
+    dialogId: 'eir-marsh',
+    color: 0x6fd0b0
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -1548,6 +1647,22 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'highlands.guardian.cleared', value: true },
       { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+    ]
+  },
+  {
+    id: 'marsh-blight',
+    mapId: 'spirit-marsh',
+    kind: 'trigger',
+    position: { x: 12, y: 12 },
+    enemyIds: ['spore-moth', 'stray-echo'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.cleanse.started' },
+      { notFlag: 'sidequest.cleanse.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.cleanse.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'marsh-cleansing', stepId: 'cleanse-blight' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
