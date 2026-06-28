@@ -17,6 +17,16 @@ Ein klassisches **JRPG** im Universum von *That Time I Got Reincarnated as a Sli
 
 Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Builders: die Architektur soll von Beginn an zum JRPG-Genre passen. Das Ziel ist kein langsames Retro-Menüspiel, sondern ein modernes, schnelles, charaktergetriebenes JRPG: reich an Story und Weltgefühl, aber mit klaren Menüs, kurzen Wegen, beschleunigten Kämpfen und Progression ohne stumpfes Grinding.
 
+### Verbindliche Inhaltslinie: Canon-first
+
+- Das Projekt ist ein privates Hobbyprojekt. Sichtbare Figuren und Begleiter verwenden deshalb die originalen Tensura-Namen, damit Story und Party eindeutig bleiben.
+- Für Band 1 und 2 sind Rimuru, Veldora, Rigurd, Gobta, Ranga und Shuna die sichtbaren Kernfiguren. Neue erfundene Haupt-NPCs werden für ihre Funktionen nicht angelegt.
+- Eigene Dialogformulierungen und eine eigenständige JRPG-Struktur bleiben Pflicht; Manga-/Anime-Texte und Szenen werden nicht wörtlich übernommen.
+- Bestehende interne IDs dürfen aus Gründen der Save-Kompatibilität vorerst bestehen bleiben. Sichtbare Namen, Questtexte, NPC-Auftritte und Codex-Einträge müssen jedoch der Canon-first-Linie folgen.
+- Die früheren sichtbaren Figuren Sora, Vael, Lyrre und Mordrahn gehören nicht mehr zum Canon-Hauptpfad. Historische Einträge in abgeschlossenen Phasen bleiben als Entwicklungsprotokoll bestehen; diese neue Regel überschreibt deren damalige Story-Richtung.
+- Der Original-Arc `ancestors-choice` bleibt technisch erhalten, wird aber als optionale Nebenhandlung vom Canon-Hauptpfad getrennt.
+- Figuren dürfen originale Namen tragen; Grafiken bleiben eigenständig bzw. prozedural und übernehmen keine geschützten Manga-/Anime-Artworks.
+
 ## Große Design-Vision: Moderne JRPG-Pfeiler
 
 ### 1. Fesselnder Kampf & Zugökonomie
@@ -351,11 +361,103 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **WebP-Optimierung (2026-06-28):** alle zehn gemalten Kampfassets (Kreaturenatlas, drei Gegner-Cutouts, drei Party-Cutouts, drei Arenen) von PNG/JPG auf WebP umgestellt; Cutouts behalten ihren Alpha-Kanal. Assetblock von ca. **6,7 MB auf 1,4 MB** reduziert (rund **79 %**); Browser-Smoke bestätigt identisches Rendering.
 - **Abnahme:** `bun run typecheck` sauber, `bun run test` → **123/123** grün, `bun run build` grün; Desktop- und 390×844-Playwright-Smoke ohne Konsolenfehler oder Layout-Überlappung.
 
-[~] **Phase 17 – Browser-Smoke in CI (in Bearbeitung 2026-06-28, direkt auf `main`)**
+[x] **Phase 17 – Browser-Smoke in CI (fertig 2026-06-28, direkt auf `main`)**
 - **Projektlokaler E2E-Smoke:** Playwright startet den Vite-Server selbst und prüft Title → Overworld → Battle sowie Menü-Öffnen/-Schließen über echte Canvas-Eingaben.
 - **Render-Gates:** Desktop (1440×900) und Mobil (390×844), keine `pageerror`-/Console-Errors, sichtbares Canvas mit nichtleerem Pixelinhalt und Screenshots als Fehlerartefakte.
 - **CI-Wiring:** Chromium wird in CI installiert; Smoke läuft auf Pull Requests/Feature-Branches und vor dem Pages-Deploy auf `main`.
-- **Abnahme:** lokaler Smoke, Typecheck, Vitest und Produktionsbuild grün; GitHub-Workflow-Syntax valide.
+- **Abnahme:** Typecheck, **135/135** Vitest-Tests und **4/4** Playwright-Smokes (Desktop/Mobil) grün; CI-/Deploy-Workflows führen den Browser-Smoke aus.
+
+## Integration von Band 1 und Band 2
+
+**Ziel:** `erstes_band.md` und `zweites_band.md` bilden einen zusammenhängenden, speicherbaren Canon-Hauptpfad: Rimuru startet allein, Gobta und Ranga treten story-gesteuert bei, Band 1 endet mit Tempests erster Benennung und Band 2 führt ohne erfundene Haupt-NPCs durch Rat, Aufbau, Flüsterhain und namenloses Echo. `border-escalation` bleibt am Ende eine freiwillige Überleitung; `ancestors-choice` bleibt optionaler Alt-/Nebencontent.
+
+### Bestandsabgleich vom 2026-06-28
+
+| Bereich | Bereits vorhanden | Noch erforderlich |
+| --- | --- | --- |
+| Band-1-Quest | `slime-awakening`, Höhle, Goblindorf, Direwolf-Arena, Benennung und Übergang sind durchspielbar | Veldora sichtbar benennen; Gobta/Ranga real und story-gesteuert rekrutieren |
+| Party | Rimuru, Gobta und Shuna als Charakterdaten; aktive/reserve Party wird gespeichert | Gobta aus der Startparty entfernen; Ranga als Held ergänzen; idempotenten Rekrutierungseffekt und Save-Backfill bauen |
+| Band-2-Quest | `binding-of-ancestors`, Hainkampf, Echo-Kampf, Questlog/Codex/Marker und Tests existieren | Sichtbaren Sora/Vael/Lyrre/Mordrahn-Hauptpfad durch Rigurd/Gobta/Ranga/Shuna und ein namenloses Echo ersetzen |
+| Tempest-Hub | Karte, Shops, Marker und mehrere Storyorte sind vorhanden | Hub-Zustand nach Band 1, Canon-Rat und sichtbarkeitsabhängige NPCs ergänzen |
+| Ranga-Systeme | Direwolf-Pakt, Fraktions-/Mount-Flags und Gobta-Talentgates sind vorbereitet | Ranga-Charakter, Kampfprofil, Scout-Vorschau, entdeckte Schnellreisepunkte und UI-Zugang umsetzen |
+| Altcontent | Vollständiger Originalbogen samt Enden ist technisch vorhanden | Vom Canon-Hauptpfad isolieren, für alte Saves erreichbar halten und `ancestors-choice` als optional kennzeichnen |
+| QA | Headless-Prolog→Act-1 und erster Browser-Prolog-Smoke sind vorhanden | Party-Reihenfolge, kompletter Band-1→Band-2-Flow, Save-Migration und Desktop-/Mobil-E2E abdecken |
+
+[ ] **Phase 18 – Story-gesteuerte Party und Save-Grundlage**
+
+- **Startzustand korrigieren:** `gobta.startsInParty` auf `false` setzen; ein neuer Spielstand enthält ausschließlich Rimuru. `createInitialParty()` und der Default-Kampf müssen denselben Startzustand liefern.
+- **Ranga als Charakter:** Ranga in `HEROES` mit eigenen Basiswerten, Wachstum, Startskills und Ausrüstung ergänzen. Fehlende Ranga-Skills datengetrieben anlegen und durch Datenintegritätstests absichern.
+- **Rekrutierung als echter Zustand:** `WorldEffect` um einen idempotenten Effekt wie `recruit-character` erweitern. Der Effekt darf keine Duplikate erzeugen und muss aktive Party/Reserve korrekt persistieren. Für Band 1 gilt eine aktive Dreierparty: Rimuru, Gobta, Ranga.
+- **World-/Save-Verknüpfung:** Partyinformationen so in die reine World-Logik einbinden, dass Dialog- und Encounter-Effekte nicht nur ein Flag setzen, sondern tatsächlich den Save-Roster ändern. Szenen bleiben reine Anwender dieser Logik.
+- **Kompatibilität bestehender Saves:** vorhandene Mitglieder niemals entfernen. Beim Laden werden Storyflags rückwärtskompatibel ergänzt: `story.goblin.plea` kann fehlenden Gobta, `story.direwolf.pact` fehlenden Ranga nachtragen. Alte Saves, in denen Gobta bereits zu früh vorhanden ist, bleiben spielbar.
+- **Party-/Save-Tests:** frischer Save = nur Rimuru; doppelte Rekrutierung bleibt einmalig; aktive Mitglieder überleben Export/Import und New Game+; alte v1/v2/v3-Stände bleiben ladbar.
+- **Abnahme:** Der Partybeitritt ist ein wiederverwendbares System und nicht als Sonderfall in `DialogueScene` oder `BattleScene` verdrahtet.
+
+[ ] **Phase 19 – Band 1 vollständig canonisieren und abschließen**
+
+- **Veldora sichtbar machen:** NPC-Name, Sprecher, Dialoge, Questtexte, Codex und Portrait-Zuordnung zeigen „Veldora“. Die interne ID `sealed-storm-dragon` darf bestehen bleiben.
+- **Gobtas Beitritt:** Die Dialogoption „Goblindorf schützen“ rekrutiert Gobta nach der Goblin-Bitte. Vor diesem Beat darf Gobta weder im Menü noch im Kampf erscheinen.
+- **Rangas Beitritt:** Der Direwolf-Kampf setzt zunächst Sieg/Unterwerfung. Ein anschließender Ranga-Dialog schließt den Pakt, benennt Ranga sichtbar und rekrutiert ihn; erst dann gelten `story.direwolf.pact`, Fraktions-, Mount- und Gobta-Progressionsflags.
+- **Ranga präsentieren:** prozedurales Portrait, Overworld-/Menü-Fallback und Kampf-Sprite/-Fallback ergänzen. Keine fremden Original-Artworks übernehmen.
+- **Prologtexte bereinigen:** generische Formulierungen wie „versiegelter Sturmdrache“ und „Direwolf-Begleiter“ dort durch Veldora/Ranga ersetzen, wo die Figur bereits bekannt ist.
+- **Soft-Lock-Schutz:** Gateway und Questmarker führen zwingend Höhle → Goblindorf → Direwolf-Lichtung → Rigurd/Benennung. Der Benennungsabschluss startet `binding-of-ancestors` genau einmal.
+- **Abnahme-Tests:** Partyfolge Rimuru → Rimuru+Gobta → Rimuru+Gobta+Ranga; Ranga kann am Rekrutierungszeitpunkt in einem Kampf eingesetzt werden; vollständiger Headless-Prolog und Browser-Smoke auf Desktop/Mobil.
+- **Definition of Done Band 1:** alle offenen Punkte aus `erstes_band.md` sind erledigt, der neue Save startet allein und der Prolog endet ohne externe Anleitung in Tempest.
+
+[ ] **Phase 20 – Band 2 auf den Canon-Hauptpfad umbauen**
+
+- **Stabile IDs beibehalten:** Quest-ID `binding-of-ancestors` und möglichst auch bestehende Step-IDs bleiben für alte Saves bestehen. Titel, Beschreibungen, Dialogquellen und sichtbare Gegnernamen werden inhaltlich neu zugeordnet.
+- **Canon-Rollen festlegen:** Rigurd führt Verwaltung/Versorgung und den Abschluss; Gobta und Ranga übernehmen Grenz-/Scoutbericht; Shuna ist Rat-/Ritualfigur und liest die Ahnenzeichen. Rimuru bzw. der Große Weise liefert nur innere Analyse, keinen neuen erfundenen NPC.
+- **Band-2-Flow umsetzen:**
+  1. Nach der Benennung führt ein klarer Marker zu Rigurd oder Shuna in Tempest.
+  2. Der erste Rat zeigt Rigurd, Gobta, Ranga und Shuna als Beteiligte.
+  3. Drei kurze Pflichtbeats setzen getrennte Flags: Gründer-/Vorratshilfe, Gobta-/Ranga-Scout und Shunas Ritual-/Ahnenzeichen.
+  4. Erst nach diesen Beats öffnet sich der Pflichtkampf im Flüsterhain.
+  5. Danach folgt der Kampf gegen ein sichtbar namenloses Echo am Siegel.
+  6. Der Bericht bei Rigurd/Shuna schließt `binding-of-ancestors` und markiert Band 2 als abgeschlossen.
+- **Keine erfundenen Hauptfiguren:** Sora, Vael und Lyrre treiben keinen Schritt der Canon-Hauptquest mehr voran. `mordrahn-echo` darf vorerst interne Gegner-ID bleiben, erscheint im Kampf, Questlog und Codex jedoch nur als „Namenloses Echo“.
+- **Tempest als Zustand:** NPCs, Marker, Texte und mindestens sichtbare Hub-Dekorationen wechseln nach `story.slime-prologue.completed` vom beschädigten Goblindorf zur jungen Siedlung.
+- **NPC-Sichtbarkeit datengetrieben:** `NpcDefinition`/World-Queries erhalten Story-Anforderungen, damit Canon-Figuren zum richtigen Zeitpunkt und Legacy-Figuren nicht dauerhaft nebeneinander auf der Karte stehen.
+- **Freiwilliger Folge-Hook:** Nach Band 2 bietet Rigurd oder Ranga „Grenzfeuer“ freiwillig an. Ablehnen lässt den Hauptpfad sauber abgeschlossen; Annehmen startet `border-escalation` genau einmal. Die weitere Canon-Umsetzung gehört zu Band 3.
+- **Abnahme:** `binding-of-ancestors` ist von einem Band-1-Save aus ohne Sora/Vael/Lyrre vollständig abschließbar; Questmarker, Codex und Save/Load bilden jeden Schritt korrekt ab.
+
+[ ] **Phase 21 – Ranga-Scout, Schnellreise und Legacy-Isolation**
+
+- **Entdeckte Reisepunkte:** Sichere Punkte werden erst beim realen Besuch freigeschaltet und im Save persistiert. Zu unbekannten, gesperrten oder aktuell unsicheren Zielen darf keine Schnellreise möglich sein.
+- **Ranga-Zugang:** Eine kompakte Scout-/Reiseauswahl über Ranga zeigt entdeckte Ziele, Gefahrenstufe und blockierte Routen. Die Logik liegt in einem reinen, getesteten System; die Szene rendert nur das View-Modell.
+- **Scout-Nutzen in Band 2:** Rangas Scout-Beat markiert Flüsterhain/Grenzroute, zeigt den nächsten Pflichtort in Minimap/Questlog und kann einen optionalen Hinterhalt kenntlich machen. Gobtas Direwolf-Talenttexte referenzieren Ranga konsistent.
+- **Legacy-Arc isolieren:** Neue Saves sehen Sora, Vael, Lyrre und Mordrahn nicht im Canon-Hauptpfad. Bestehende Saves mit Fortschritt im alten Originalbogen erhalten beim Laden ein Kompatibilitätsflag, das ihre benötigten NPCs und Questwege weiter sichtbar hält.
+- **Optionale Nebenhandlung:** `ancestors-choice` wird als optionale Original-Nebenhandlung klassifiziert und darf weder Band 2 noch spätere Canon-Hauptquests sperren. Ending-Flags/-Galerie bleiben nur an diesen optionalen Arc gekoppelt.
+- **Codex-/Portrait-Bereinigung:** Gesperrte Legacy-Einträge verraten keine erfundenen Namen im Canon-Modus; Portraitlisten und Sprecher-Mapping enthalten alle sichtbaren Canon-Figuren von Band 1/2.
+- **Abnahme:** Ein neuer Canon-Save enthält keine sichtbare Legacy-Hauptfigur; ein alter Save bleibt ohne Quest-Soft-Lock fortsetzbar; Schnellreise funktioniert nur über mit Ranga entdeckte sichere Ziele.
+
+[ ] **Phase 22 – Band-1-/Band-2-Integrations-Gate**
+
+- **Headless-Gesamtflow:** neuer Save → Veldora → Gobta-Beitritt → Direwolf-Boss → Ranga-Pakt/Beitritt → Tempest-Benennung → Rat → drei Aufbauaufgaben → Flüsterhain → namenloses Echo → Band-2-Abschluss.
+- **Checkpoint-Tests:** Save/Load jeweils vor und nach Gobta-Beitritt, Ranga-Pakt, Rat, Hain und Echo; keine doppelten Belohnungen, Mitglieder oder Questschritte.
+- **Migrationsmatrix:** alter Save ohne Prologflags, alter Save mitten in `binding-of-ancestors`, abgeschlossener alter Act-1-Save und New Game+ werden migriert und bleiben spielbar.
+- **Daten-Gates:** jeder Queststep besitzt eine erreichbare Abschlussquelle; alle sichtbaren NPCs/Encounter/Gateways liegen auf begehbaren Kacheln; alle Charakter-, Skill-, Portrait-, Codex- und Gegnerreferenzen sind gültig.
+- **Browser-E2E:** Desktop und 390×844 prüfen mindestens frischen Start/Party, Band-1-Abschluss, Canon-Rat, ersten Band-2-Kampf und Questabschluss ohne Console-/Renderfehler.
+- **Release-Gates:** `bun run typecheck`, `bun run test`, `bun run test:e2e` und `bun run build` grün.
+- **Dokumentation:** erledigte Punkte in `erstes_band.md` und `zweites_band.md` abhaken; verbleibende Aufgaben dürfen ausschließlich Band 3+ oder optionale Politur betreffen.
+- **Definition of Done:** Band 1 und 2 sind in einem frischen Durchlauf zusammenhängend spielbar, verwenden im sichtbaren Hauptpfad nur die festgelegten Canon-Figuren und bleiben mit bestehenden Spielständen kompatibel.
+
+[ ] **Phase 23 – Erlebnis-Politur für Band 1 und Band 2**
+
+**Ziel:** Nach der technischen Integration sollen beide Bände wie ein zusammenhängendes JRPG-Kapitel wirken. Priorität: Tempest-Wachstum → Rekrutierungsszenen → Partygespräche → Kapitelübergänge → Boss-Nachspiel.
+
+- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 erhält eine eigene Titelzeile statt eines unbemerkten Questwechsels.
+- **Tempest sichtbar wachsen lassen:** Gebäude-/Dekorationszustand, NPC-Positionen, Umgebungsdialoge und Händlerangebot reagieren mindestens auf Prologabschluss, Rat und Band-2-Abschluss.
+- **Rekrutierungs- und Benennungsszenen:** Gobtas Beitritt, Rangas Pakt und Tempests erste Benennung erhalten jeweils einen klaren visuellen und akustischen Moment statt nur Flags und Questtext.
+- **Partygespräche:** kurze optionale Dialoge zwischen Rimuru, Gobta, Ranga und Shuna nach Direwolf-Kampf, Rat, Flüsterhain und Echo. Gespräche dürfen Codex-/Beziehungsfortschritt geben, aber den Hauptpfad nicht blockieren.
+- **Wegführung:** eine verfolgte Hauptquest, eindeutige Minimap-Ziele und verständliche Hinweise für gesperrte Wege. Der Spieler muss jederzeit erkennen können, wer oder welcher Ort den nächsten Pflichtbeat fortsetzt.
+- **Boss-Nachspiel:** Direwolf und namenloses Echo erhalten Abschlusssequenz, Belohnungsübersicht, freigeschaltete Fähigkeiten/Systeme und sichtbare Reaktionen im Hub.
+- **Ranga-Reisegefühl:** Schnellreise erhält eine kurze überspringbare Reiseanimation, Scout-Bericht und kleine optionale Entdeckungen; „reduzierte Bewegung“ zeigt eine sofortige Variante.
+- **Adaptive Tutorials:** Schwächen/Teamleiste beim Direwolf, Status-/Magieeffekte beim Echo und Scout-/Schnellreise erst bei ihrer tatsächlichen Freischaltung erklären. Bereits verstandene Hinweise bleiben überspringbar.
+- **Ruhepunkt:** Tempest erhält einen klaren Lager-/Gasthauspunkt zum Heilen, Speichern, Partygespräch und späteren Wechseln zwischen aktiver Gruppe und Reserve.
+- **Bandabschluss:** Zusammenfassung von rekrutierten Figuren, Bindungen, Codex-Fortschritt und wichtigen Entscheidungen sowie eine spoilerarme Vorschau auf Band 3.
+- **Präsentationsregeln:** alle Sequenzen bleiben kurz, überspringbar und touch-tauglich; keine langen ununterbrochenen Textblöcke oder Pflichtanimationen.
+- **Abnahme:** Desktop und 390×844 zeigen Kapitelübergänge, Rekrutierung, Hub-Wachstum, Boss-Nachspiel und Abschluss ohne Überlappungen oder Console-Fehler; Headless-Tests sichern Zustandswechsel und Einmaligkeit der Belohnungen.
 
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
@@ -367,7 +469,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postgame-Boss, 3 Regionen/Multi-Map, Phaser 4, Talentbäume). Geordnet nach Wert, nicht nach Aufwand.
 
 **Priorität HOCH — Korrektheit/QA (genau die Bug-Klasse, die uns mehrfach getroffen hat)**
-1. **Browser-Smoke in CI (Playwright):** bootet das Spiel headless im Browser, schießt Screenshots von Title/Overworld/Battle/Menü/Dialog/Ende und prüft auf Konsolenfehler. → fängt **Szenen-/Render-Regressionen**, die unsere Headless-Vitest-Tests prinzipiell nicht sehen können (z. B. der `worldLayer`-Stale-Container-Bug, Menü-Overlaps, HP-Leiste über dem Sprite, fehlende Marker). Größter ROI, weil fast jeder gemeldete Bug visueller/szenischer Natur war.
+1. **Browser-Smoke in CI (Playwright)** ✅ *(2026-06-28, Phase 17)*: bootet das Spiel headless im Browser auf Desktop und Mobil, prüft Canvas-Inhalt sowie Console-/Page-Errors und läuft in CI und vor dem Pages-Deploy.
 2. **Save-Kompatibilitäts-Test** ✅ *(2026-06-28)*: `playthrough.test` migriert einen alten v1-Stand auf v3 und spielt den kompletten Act-1-Bogen darauf durch (Questabschluss + Codex + `story.act1.completed`) → kein Soft-Lock durch Schema-/Content-Drift. Künftig pro großem Content-Schritt erweiterbar.
 
 **Priorität MITTEL — Welt lebendiger machen (die neuen Regionen sind aktuell reine Kampfzonen)**
@@ -381,7 +483,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 
 **Priorität MITTEL — Progression & Replay**
 8. **NG+ / Ende-Galerie:** ✅ *(2026-06-28)* Persistentes `PlayerProfile` speichert gesehene Enden und NG+-Durchläufe unabhängig vom Spielstand. Der Ende-Bildschirm zeigt eine spoilerfreie 3-Enden-Galerie und startet optional New Game+; dabei bleiben Party-Level/-Skills, Ausrüstung, Inventar, Gold und Progression erhalten, während Story, Quests und Ort zurückgesetzt und die Party voll geheilt werden. Headless getestet.
-9. **Begleiter rekrutieren:** Sora/Vael/Lyrre sind nur Story-NPCs — eine(n) spielbar machen (eigener Talentbaum) = echte Party-Tiefe.
+9. **Canon-Begleiter rekrutieren:** Gobta und Ranga werden in Phase 18/19 story-gesteuert zu aktiven Mitgliedern; Gabiru folgt laut Band-4-Plan später. Sora/Vael/Lyrre werden nicht als Canon-Party ausgebaut.
 
 **Priorität NIEDRIG — Technik/Wartbarkeit/Politur**
 10. **`src/data/world.ts` (~1500 Z.) in Module splitten** (quests/dialogs/encounters/locations/lore) → Wartbarkeit + weniger Merge-Konflikte bei Parallelarbeit.
