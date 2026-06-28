@@ -63,6 +63,9 @@ export interface WorldLocationDefinition {
   readonly description: string;
   readonly identity: string;
   readonly unlockFlag?: string;
+  // Scout-/Vorahnungsmarker: Ort darf bereits auf Karte/Minimap erscheinen,
+  // bleibt aber für Begegnungen/Gateways weiter über unlockFlag/Requirements gesperrt.
+  readonly revealFlag?: string;
   // Gateway in eine andere Region: Interaktion versetzt den Spieler dorthin.
   readonly travelTo?: { readonly mapId: string; readonly x: number; readonly y: number };
 }
@@ -70,6 +73,7 @@ export interface WorldLocationDefinition {
 export interface LoreEntryDefinition {
   readonly id: string;
   readonly title: string;
+  readonly lockedTitle?: string;
   readonly category: 'people' | 'places' | 'history' | 'systems';
   readonly body: string;
   readonly unlockFlag?: string;
@@ -623,7 +627,8 @@ export const LOCATIONS = [
     bounds: { x: 13, y: 7, width: 4, height: 3 },
     description: 'Ein dichter Hain, dessen Sporen auf Namen und magische Signaturen reagieren.',
     identity: 'Dungeon-Identität: Gift, Sichtlinien, Abkürzungen und Pflanzen, die auf Storyflags reagieren.',
-    unlockFlag: 'story.council.ready'
+    unlockFlag: 'story.council.ready',
+    revealFlag: 'scout.whispering-grove'
   },
   {
     id: 'ancestor-seal',
@@ -643,7 +648,8 @@ export const LOCATIONS = [
     position: { x: 5, y: 13 },
     description: 'Ein schlammiger Streifen zwischen Tempest und den Menschenwegen, wo Patrouillen aufeinandertreffen.',
     identity: 'Act-2-Schlachtfeld: enge Sichtlinien, Menschen-Monster-Spannung, erste echte Grenzgefechte.',
-    unlockFlag: 'story.act2.started'
+    unlockFlag: 'story.act2.started',
+    revealFlag: 'scout.border-route'
   },
   {
     id: 'border-rift',
@@ -846,8 +852,15 @@ export const LORE_ENTRIES = [
     id: 'direwolf-mount-seed',
     title: 'Direwolf-Rudel: Reittiere',
     category: 'systems',
-    body: 'Der Pakt legt den Systemhaken für spätere Direwolf-Reittiere: schnelle Reise, Sonderbewegung oder ein Kampf-Opening können darauf aufbauen, ohne im Prolog sofort aktiv zu sein.',
+    body: 'Der Pakt legt den Systemhaken für Rangas Reisehilfe: sichere, bereits entdeckte Orte können später als Schnellreiseziele dienen; unsichere Dungeons bleiben nur Scout-Hinweise.',
     unlockFlag: 'mount.direwolf.seed'
+  },
+  {
+    id: 'ranga-scout-travel',
+    title: 'Ranga-Scout und Schnellreise',
+    category: 'systems',
+    body: 'Ranga unterscheidet zwischen sicheren Reisepunkten und gefährlichen Spuren. Tempest kann nur zu Orten schnellreisen, die real besucht, im Save markiert und aktuell sicher sind; Hain und Grenzroute werden zuerst nur gescoutet.',
+    unlockFlag: 'story.direwolf.pact'
   },
   {
     id: 'gobta-rider-path',
@@ -929,6 +942,7 @@ export const LORE_ENTRIES = [
   {
     id: 'mordrahn-keeper',
     title: 'Der Hüter und sein Opfer',
+    lockedTitle: 'Unbekannter Hüter',
     category: 'people',
     body: 'Mordrahn war der letzte Wächter der Bindung. Um den ewigen Zerfall aufzuhalten, wollte er sie mit einem Massenopfer neu schmieden — keine Bosheit, sondern eine Verzweiflung, die jeden Preis zahlt. Besiegt, aber nicht widerlegt: die Frage, was mit der Bindung geschehen soll, bleibt.',
     unlockFlag: 'story.mordrahn.defeated'
@@ -1969,7 +1983,10 @@ export const DIALOGS = [
             ],
             effects: [
               { type: 'set-flag', flag: 'story.ranga.ready', value: true },
-              { type: 'set-flag', flag: 'story.lyrre.ready', value: true }
+              { type: 'set-flag', flag: 'story.lyrre.ready', value: true },
+              { type: 'set-flag', flag: 'scout.whispering-grove', value: true },
+              { type: 'set-flag', flag: 'scout.border-route', value: true },
+              { type: 'set-flag', flag: 'scout.ambush.whispering-grove', value: true }
             ]
           },
           {
@@ -1984,13 +2001,13 @@ export const DIALOGS = [
       {
         id: 'scouted',
         speaker: 'Ranga',
-        text: 'Rangas Spur ist klar: Der Hain reagiert nicht auf Hunger, sondern auf Namen. Mit diesem Weg kann Rigurd den Rat losschicken.',
+        text: 'Rangas Spur ist klar: Der Hain reagiert nicht auf Hunger, sondern auf Namen. Er markiert den Hainrand, die spätere Grenzroute und einen möglichen Hinterhalt im Unterholz.',
         choices: [{ id: 'end', label: 'Zum Rat zurück' }]
       },
       {
         id: 'after',
         speaker: 'Ranga',
-        text: 'Der sichere Pfad bleibt markiert. Wenn Tempest später schneller reisen will, beginnt die Route hier.',
+        text: 'Der sichere Pfad bleibt markiert. Ranga trägt euch nur zu Orten, die Tempest wirklich kennt und die gerade nicht unter Feinddruck stehen.',
         choices: [{ id: 'end', label: 'Guter Junge' }]
       }
     ]

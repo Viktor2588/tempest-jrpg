@@ -254,6 +254,7 @@ describe('world/dialog/shop/encounter system', () => {
       'direwolf-pact',
       'direwolf-faction',
       'direwolf-mount-seed',
+      'ranga-scout-travel',
       'gobta-rider-path',
       'first-tempest-naming',
       'storm-dragon-future-ally'

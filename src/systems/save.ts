@@ -123,7 +123,8 @@ function carryOverMember(member: PartyMemberState): PartyMemberState {
 export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGameV3 {
   const active = normalizePartyMembers(save.party.active);
   const reserve = normalizePartyMembers(save.party.reserve);
-  const flags = normalizeBooleanRecord(save.flags);
+  const quests = normalizeQuestRecord(save.quests);
+  const flags = normalizeLegacyArcFlags(normalizeBooleanRecord(save.flags), quests);
   const baseParty = active.length > 0 ? active : createInitialParty();
   const fallbackParty = backfillStoryRecruits(baseParty, reserve, flags);
 
@@ -143,7 +144,7 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
       stacks: normalizeInventoryStacks(save.inventory.stacks)
     },
     flags,
-    quests: normalizeQuestRecord(save.quests),
+    quests,
     progression: normalizeProgressionState(save.progression)
   };
 }
@@ -493,6 +494,26 @@ function normalizeBooleanRecord(raw: Readonly<Record<string, unknown>>): Record<
   }
 
   return normalized;
+}
+
+function normalizeLegacyArcFlags(
+  flags: Record<string, boolean>,
+  quests: Readonly<Record<string, QuestState>>
+): Record<string, boolean> {
+  if (flags['compat.legacyArc.visible']) {
+    return flags['story.original-arc.optional'] ? flags : { ...flags, 'story.original-arc.optional': true };
+  }
+  const ancestorsChoiceStatus = quests['ancestors-choice']?.status ?? 'inactive';
+  const hasOriginalArcProgress = ancestorsChoiceStatus !== 'inactive'
+    || flags['story.act3.started'] === true
+    || flags['story.act3.completed'] === true
+    || flags['story.mordrahn.defeated'] === true
+    || flags['ending.freedom'] === true
+    || flags['ending.order'] === true
+    || flags['ending.true'] === true;
+  return hasOriginalArcProgress
+    ? { ...flags, 'compat.legacyArc.visible': true, 'story.original-arc.optional': true }
+    : flags;
 }
 
 function normalizeQuestRecord(raw: Readonly<Record<string, unknown>>): Record<string, QuestState> {

@@ -155,7 +155,10 @@ export function getVisibleMapEncounters(mapId: string, state: WorldState): Encou
 export function getMapLocations(mapId: string, state?: WorldState): WorldLocationDefinition[] {
   return allLocations.filter((location) =>
     location.mapId === mapId
-    && (!state || !location.unlockFlag || state.flags[location.unlockFlag] === true)
+    && (!state
+      || !location.unlockFlag
+      || state.flags[location.unlockFlag] === true
+      || (location.revealFlag !== undefined && state.flags[location.revealFlag] === true))
   );
 }
 
@@ -222,7 +225,9 @@ const QUEST_STATUS_ORDER: Record<QuestLogEntryView['status'], number> = {
   completed: 1,
   inactive: 2
 };
-const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation', 'ancestors-choice']);
+// `ancestors-choice` bleibt technisch erhalten, wird aber nicht mehr als Canon-
+// Hauptquest priorisiert; sie ist der optionale Original-/Legacy-Arc.
+const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation']);
 
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
   const entries = QUESTS.map((quest) => {
@@ -269,7 +274,7 @@ export function buildCodexView(state: WorldState): LoreEntryView[] {
     const unlocked = !entry.unlockFlag || state.flags[entry.unlockFlag] === true;
     return {
       id: entry.id,
-      title: entry.title,
+      title: unlocked ? entry.title : (entry.lockedTitle ?? entry.title),
       category: entry.category,
       unlocked,
       newlyUnlocked: unlocked && entry.unlockFlag?.startsWith('codex.') === true,

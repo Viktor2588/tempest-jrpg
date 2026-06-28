@@ -379,9 +379,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 | Party | Neuer Save startet allein mit Rimuru; Gobta und Ranga werden idempotent rekrutiert und per Save-Backfill kompatibel ergänzt. | Gabiru/weitere Canon-Figuren gehören zu späteren Bänden. |
 | Band-2-Quest | `binding-of-ancestors` läuft sichtbar über Rigurd, Shuna, Gobta und Ranga; Flüsterhain, Ahnensiegel, Namenloses Echo und Abschluss sind durchspielbar. Quest-/Step-IDs bleiben save-kompatibel. | `border-escalation`/Band-3+-Canonisierung separat. |
 | Tempest-Hub | Post-Prolog-Hubmarker, Ratsplatz/Namensstein/Palisade, Band-2-Titelhinweis, Codex-NEU-Signal und Canon-NPC-Sichtbarkeit sind umgesetzt. | Weitere Hub-Politur: Sound, Partygespräche, Ruhepunkt. |
-| Ranga-Systeme | Ranga ist Held, Portrait-/Battle-Zuordnung existiert; Band-2-Scoutbeat und Gobta/Ranga-Talent-/Bindungsbezug sind umgesetzt. | Echte Schnellreise-/Scout-Auswahl bleibt Phase 21. |
-| Altcontent | Sora/Vael/Lyrre treiben neue Band-2-Hauptsaves nicht mehr sichtbar; interne Legacy-Flags bleiben für Save-Kompatibilität erhalten. | Vollständige Legacy-Arc-Isolation, optionale Einordnung von `ancestors-choice`, Codex-/Portrait-Bereinigung. |
-| QA | Headless-Band-1→Band-2-Flows, Questmarker, Save-/Codex-Gates, Browser-E2E Desktop/Mobil und Flüsterhain-Kampfzone sind getestet. | Phase 22 bleibt als explizites Integrations-/Migrations-Gate für die gesamte Matrix. |
+| Ranga-Systeme | Ranga ist Held, Portrait-/Battle-Zuordnung existiert; Band-2-Scoutbeat, Scout-/Reisemenü, entdeckte sichere Schnellreiseziele und Gobta/Ranga-Talent-/Bindungsbezug sind umgesetzt. | Reiseanimation/Politur bleibt Phase 23. |
+| Altcontent | Sora/Vael/Lyrre treiben neue Band-2-Hauptsaves nicht mehr sichtbar; alte Originalbogen-/Ending-Saves bekommen ein Compat-Flag; `ancestors-choice` ist nicht mehr Canon-Hauptquest-priorisiert; gesperrte Legacy-Codexnamen werden verdeckt. | Spätere inhaltliche Neubewertung von `border-escalation`/Band 3+ bleibt separat. |
+| QA | Headless-Band-1→Band-2-Flows, Questmarker, Save-/Codex-Gates, Ranga-Reise-/Legacy-Tests, Browser-E2E Desktop/Mobil, Build und Flüsterhain-Kampfzone sind getestet. | Phase 22 bleibt als explizites Integrations-/Migrations-Gate für die gesamte Matrix. |
 
 [x] **Phase 18 – Story-gesteuerte Party und Save-Grundlage** *(vollständig, 2026-06-28)*
 
@@ -443,15 +443,19 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - [x] **Freiwilliger Folge-Hook:** Nach Band 2 startet `border-escalation` nicht automatisch, sondern freiwillig über Gobtas Grenzlage-Dialog.
 - [x] **Abnahme:** `binding-of-ancestors` ist von einem Band-1-Save aus ohne Sora/Vael/Lyrre vollständig abschließbar; Questmarker, Codex und Save/Load bilden jeden Schritt korrekt ab.
 
-[ ] **Phase 21 – Ranga-Scout, Schnellreise und Legacy-Isolation**
+[x] **Phase 21 – Ranga-Scout, Schnellreise und Legacy-Isolation** *(vollständig, 2026-06-28)*
 
-- **Entdeckte Reisepunkte:** Sichere Punkte werden erst beim realen Besuch freigeschaltet und im Save persistiert. Zu unbekannten, gesperrten oder aktuell unsicheren Zielen darf keine Schnellreise möglich sein.
-- **Ranga-Zugang:** Eine kompakte Scout-/Reiseauswahl über Ranga zeigt entdeckte Ziele, Gefahrenstufe und blockierte Routen. Die Logik liegt in einem reinen, getesteten System; die Szene rendert nur das View-Modell.
-- **Scout-Nutzen in Band 2:** Rangas Scout-Beat markiert Flüsterhain/Grenzroute, zeigt den nächsten Pflichtort in Minimap/Questlog und kann einen optionalen Hinterhalt kenntlich machen. Gobtas Direwolf-Talenttexte referenzieren Ranga konsistent.
-- **Legacy-Arc isolieren:** Neue Saves sehen Sora, Vael, Lyrre und Mordrahn nicht im Canon-Hauptpfad. Bestehende Saves mit Fortschritt im alten Originalbogen erhalten beim Laden ein Kompatibilitätsflag, das ihre benötigten NPCs und Questwege weiter sichtbar hält.
-- **Optionale Nebenhandlung:** `ancestors-choice` wird als optionale Original-Nebenhandlung klassifiziert und darf weder Band 2 noch spätere Canon-Hauptquests sperren. Ending-Flags/-Galerie bleiben nur an diesen optionalen Arc gekoppelt.
-- **Codex-/Portrait-Bereinigung:** Gesperrte Legacy-Einträge verraten keine erfundenen Namen im Canon-Modus; Portraitlisten und Sprecher-Mapping enthalten alle sichtbaren Canon-Figuren von Band 1/2.
-- **Abnahme:** Ein neuer Canon-Save enthält keine sichtbare Legacy-Hauptfigur; ein alter Save bleibt ohne Quest-Soft-Lock fortsetzbar; Schnellreise funktioniert nur über mit Ranga entdeckte sichere Ziele.
+> **Umgesetzt:** Neues reines System `src/systems/rangaTravel.ts` für Ranga-Reiseziele, Scoutbericht, Statusgründe und Zielauflösung. Die Szenen rendern nur das View-Modell; Schnellreise wird nur für sichere, entdeckte und freigeschaltete Ziele erlaubt.
+>
+> **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck`, `npx --yes bun@latest run test` (**165/165**), `npx --yes bun@latest run build` und `npx --yes bun@latest run test:e2e` (**6/6**) grün.
+
+- [x] **Entdeckte Reisepunkte:** Sichere Punkte werden erst beim realen Besuch als `travel.ranga.discovered.*` im Save persistiert. Zu unbekannten, gesperrten oder aktuell unsicheren Zielen ist keine Schnellreise möglich.
+- [x] **Ranga-Zugang:** Menü-Tab **Ranga** zeigt Scoutbericht, entdeckte Ziele, Gefahrenstufe, blockierte Routen und Reisebutton nur für verfügbare Ziele.
+- [x] **Scout-Nutzen in Band 2:** Rangas Scout-Beat markiert Flüsterhain, Grenzroute und möglichen Hain-Hinterhalt. `revealFlag` macht gescoutete Orte auf Karte/Minimap sichtbar, ohne Encounter/Gateways freizuschalten.
+- [x] **Legacy-Arc isolieren:** Neue Saves erhalten kein Legacy-Compat-Flag; alte Originalbogen-/Ending-Saves bekommen beim Normalisieren `compat.legacyArc.visible` + `story.original-arc.optional`.
+- [x] **Optionale Nebenhandlung:** `ancestors-choice` bleibt technisch erhalten, wird im Questlog aber nicht mehr als Canon-Hauptquest priorisiert.
+- [x] **Codex-/Portrait-Bereinigung:** Gesperrte Legacy-Codex-Einträge können eigene `lockedTitle` verwenden; `mordrahn-keeper` verrät im gesperrten Canon-Modus keinen alten Eigennamen. Sichtbare Canon-Figuren von Band 1/2 sind weiterhin in Portrait-/Sprecher-Mapping enthalten.
+- [x] **Abnahme:** Neuer Canon-Save enthält keine sichtbare Legacy-Hauptfigur; alter Originalbogen-Save erhält Compat-Flag; Schnellreise funktioniert nur über mit Ranga entdeckte sichere Ziele.
 
 [ ] **Phase 22 – Band-1-/Band-2-Integrations-Gate**
 
@@ -476,7 +480,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Partygespräche:** kurze optionale Dialoge zwischen Rimuru, Gobta, Ranga und Shuna nach Direwolf-Kampf, Rat, Flüsterhain und Echo. Gespräche dürfen Codex-/Beziehungsfortschritt geben, aber den Hauptpfad nicht blockieren.
 - **Wegführung:** eine verfolgte Hauptquest, eindeutige Minimap-Ziele und verständliche Hinweise für gesperrte Wege. Questmarker, Questlog-Priorisierung und Hain-Zonenanzeige sind umgesetzt; echte verfolgte Zielmarkierung bleibt offen.
 - **Boss-Nachspiel:** Direwolf und namenloses Echo erhalten Abschlusssequenz, Belohnungsübersicht, freigeschaltete Fähigkeiten/Systeme und sichtbare Reaktionen im Hub.
-- **Ranga-Reisegefühl:** Schnellreise erhält eine kurze überspringbare Reiseanimation, Scout-Bericht und kleine optionale Entdeckungen; „reduzierte Bewegung“ zeigt eine sofortige Variante.
+- **Ranga-Reisegefühl:** Schnellreise und Scout-Bericht sind technisch umgesetzt; offen bleiben kurze überspringbare Reiseanimation, kleine optionale Entdeckungen und „reduzierte Bewegung“ als sofortige Variante.
 - **Adaptive Tutorials:** Schwächen/Teamleiste beim Direwolf, Status-/Magieeffekte beim Echo und Scout-/Schnellreise erst bei ihrer tatsächlichen Freischaltung erklären. Flüsterhain-Tutorial für Status/Schwächen/Teamleiste ist umgesetzt; weitere situative Hinweise bleiben offen.
 - **Ruhepunkt:** Tempest erhält einen klaren Lager-/Gasthauspunkt zum Heilen, Speichern, Partygespräch und späteren Wechseln zwischen aktiver Gruppe und Reserve.
 - **Bandabschluss:** Zusammenfassung von rekrutierten Figuren, Bindungen, Codex-Fortschritt und wichtigen Entscheidungen sowie eine spoilerarme Vorschau auf Band 3.
