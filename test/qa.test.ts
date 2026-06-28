@@ -33,7 +33,7 @@ describe('phase 15 QA gates', () => {
 
     expect(analyzeOverworldBudget(budget)).toEqual([]);
     expect(budget.estimatedDisplayObjects).toBeLessThanOrEqual(700);
-    expect(budget.hudInteractiveTargets).toBe(7);
+    expect(budget.hudInteractiveTargets).toBe(6);
   });
 
   it('meldet keine erweiterten Balance-Probleme', () => {

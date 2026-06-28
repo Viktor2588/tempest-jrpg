@@ -15,7 +15,6 @@ export interface DpadButtonLayout extends Rect {
 
 export interface OverworldHudLayout {
   readonly buttons: {
-    readonly battle: Rect;
     readonly menu: Rect;
     readonly interact: Rect;
   };
@@ -49,24 +48,19 @@ export function layoutOverworldHud(viewport: ViewportSize): OverworldHudLayout {
 
   return {
     buttons: {
-      battle: {
-        id: 'battle',
-        x: rightX,
-        y: 30,
-        width: ACTION_BUTTON_WIDTH,
-        height: ACTION_BUTTON_HEIGHT
-      },
+      // Menü unter der Minimap (oben rechts); Interaktion unten rechts gegenüber dem
+      // Steuerkreuz (gut mit dem Daumen erreichbar). Kein Demo-„Kampf"-Knopf mehr.
       menu: {
         id: 'menu',
         x: rightX,
-        y: 80,
+        y: 150,
         width: ACTION_BUTTON_WIDTH,
         height: ACTION_BUTTON_HEIGHT
       },
       interact: {
         id: 'interact',
         x: rightX,
-        y: 132,
+        y: viewport.height - HUD_SAFE_MARGIN_PX - ACTION_BUTTON_HEIGHT / 2,
         width: ACTION_BUTTON_WIDTH,
         height: ACTION_BUTTON_HEIGHT
       }
@@ -121,7 +115,6 @@ export function analyzeHudLayout(
 
 export function allHudRects(layout: OverworldHudLayout): readonly Rect[] {
   return [
-    layout.buttons.battle,
     layout.buttons.menu,
     layout.buttons.interact,
     ...layout.dpad

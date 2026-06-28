@@ -146,15 +146,9 @@ export class OverworldScene extends Phaser.Scene {
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     interactBtn.on('pointerdown', interact);
 
-    // Kampf auslösen (Demo: Enter-Taste oder Knopf) → bindet Phase 3 an.
-    const toBattle = () => battleWipe(this, 'Battle');
-    this.input.keyboard?.on('keydown-ENTER', toBattle);
-    const battleRect = hud.buttons.battle;
-    const btn = this.add.rectangle(battleRect.x, battleRect.y, battleRect.width, battleRect.height, 0x3a2230, 0.9)
-      .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0xff8aa0, 0.7).setInteractive();
-    this.add.text(battleRect.x, battleRect.y, '⚔ Kampf (Enter)', { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffd6de' })
-      .setOrigin(0.5).setScrollFactor(0).setDepth(11);
-    btn.on('pointerdown', toBattle);
+    // Demo-Kampf nur noch unsichtbar per Enter (kein HUD-Knopf mehr — oben rechts
+    // gehört der Übersicht/Minimap); echte Kämpfe laufen über Begegnungen.
+    this.input.keyboard?.on('keydown-ENTER', () => battleWipe(this, 'Battle'));
 
     // Menü-Overlay (Phase 4): pausiert die Oberwelt, Szene rendert über ihr.
     const openMenu = () => {
