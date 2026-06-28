@@ -255,6 +255,19 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'marsh-keeper')?.unlocked).toBe(true);
   });
 
+  it('Regionsquest (Geisterschrein): Kaels „Wache am Schrein" ist annehm- und abschließbar', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+    expect(npcHasQuestMarker(createWorldState(save), 'kael')).toBe(true);
+
+    save = talk(save, 'kael', 'accept-vigil');
+    expect(visibleTriggerIds(save, 'spirit-highlands')).toContain('shrine-windecho');
+    save = clearTriggerAt(save, { x: 8, y: 4 }, 'spirit-highlands');
+    save = talk(save, 'kael', 'report-vigil');
+
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'shrine-vigil')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'shrine-watcher')?.unlocked).toBe(true);
+  });
+
   it('Save-Kompatibilität: alter v1-Stand migriert und der Act-1-Bogen bleibt voll spielbar', () => {
     // Ein „alter" Spielstand aus der Zeit vor Talenten/Regionen/neuen Flags.
     let save: SaveGameV2 = migrate({

@@ -393,6 +393,32 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 130, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'shrine-vigil',
+    title: 'Wache am Schrein',
+    description: 'Schreinwächter Kael bittet, ein tobendes Sturmecho zu bannen, das von den Schreinterrassen Besitz ergriffen hat.',
+    steps: [
+      {
+        id: 'accept-vigil',
+        title: 'Kaels Wache übernehmen',
+        description: 'Hör dem Schreinwächter zu und steig zu den Terrassen auf.',
+        locationId: 'shrine-summit'
+      },
+      {
+        id: 'banish-echo',
+        title: 'Das Sturmecho bannen',
+        description: 'Stell dich dem tobenden Sturmecho auf der Westterrasse und löse seine Bindung.',
+        locationId: 'shrine-summit'
+      },
+      {
+        id: 'report-vigil',
+        title: 'Kael berichten',
+        description: 'Kehr zum Schreinwächter zurück und melde, dass der Wind wieder still steht.',
+        locationId: 'shrine-summit'
+      }
+    ],
+    reward: { gold: 160, itemIds: ['tempest-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -701,6 +727,13 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Eir wacht über das Geistmoor, lange bevor Tempest entstand. Sie misstraut Städten, doch wer dem Moor hilft, gewinnt eine zähe Verbündete — und einen ersten Faden zwischen Tempest und den alten Hütern.',
     unlockFlag: 'sidequest.cleanse.cleared'
+  },
+  {
+    id: 'shrine-watcher',
+    title: 'Der Schreinwächter',
+    category: 'people',
+    body: 'Kael hält allein Wache auf den Schreinterrassen und liest in den Echos die nächste Grenze. Wer ihm hilft, ein Sturmecho zu bannen, erhält von Tempests fernstem Außenposten ein offenes Ohr — und eine Warnung vor dem, was jenseits des Hochlands lauert.',
+    unlockFlag: 'sidequest.vigil.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -1330,6 +1363,64 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Gern geschehen' }]
       }
     ]
+  },
+  {
+    id: 'kael-shrine',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Schreinwächter Kael',
+        text: 'Du hast es bis hier herauf geschafft? Dann hör zu: Ein Sturmecho hat die Westterrasse erfasst und zerrt an der Bindung. Bann es, bevor es die anderen Echos mitreißt.',
+        choices: [
+          {
+            id: 'accept-vigil',
+            label: 'Das Sturmecho bannen',
+            nextNodeId: 'vigil-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'shrine-vigil', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'shrine-vigil' },
+              { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'accept-vigil' },
+              { type: 'set-flag', flag: 'sidequest.vigil.started', value: true }
+            ]
+          },
+          {
+            id: 'report-vigil',
+            label: 'Sturmecho gebannt melden',
+            nextNodeId: 'vigil-done',
+            requirements: [
+              { questStatus: { questId: 'shrine-vigil', status: 'active' } },
+              { flag: 'sidequest.vigil.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'report-vigil' },
+              { type: 'complete-quest', questId: 'shrine-vigil' },
+              { type: 'add-gold', amount: 160 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
+            id: 'end',
+            label: 'Später'
+          }
+        ]
+      },
+      {
+        id: 'vigil-accepted',
+        speaker: 'Schreinwächter Kael',
+        text: 'Die Westterrasse liegt unter dem Schreingipfel. Folge dem Heulen — und brich das Echo, das es ausspeit.',
+        choices: [{ id: 'end', label: 'Zur Westterrasse' }]
+      },
+      {
+        id: 'vigil-done',
+        speaker: 'Schreinwächter Kael',
+        text: 'Der Wind steht still. Zum ersten Mal seit langem höre ich den Schrein wieder atmen. Tempest hat sich einen Späher am Rand der Welt verdient — nimm das.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -1373,6 +1464,14 @@ export const NPCS = [
     position: { x: 4, y: 8 },
     dialogId: 'eir-marsh',
     color: 0x6fd0b0
+  },
+  {
+    id: 'kael',
+    name: 'Schreinwächter Kael',
+    mapId: 'spirit-highlands',
+    position: { x: 3, y: 9 },
+    dialogId: 'kael-shrine',
+    color: 0xbcd2ff
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -1663,6 +1762,22 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.cleanse.cleared', value: true },
       { type: 'complete-quest-step', questId: 'marsh-cleansing', stepId: 'cleanse-blight' }
+    ]
+  },
+  {
+    id: 'shrine-windecho',
+    mapId: 'spirit-highlands',
+    kind: 'trigger',
+    position: { x: 8, y: 4 },
+    enemyIds: ['elder-direwolf', 'stray-echo'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.vigil.started' },
+      { notFlag: 'sidequest.vigil.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.vigil.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'banish-echo' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

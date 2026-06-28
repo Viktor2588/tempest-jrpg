@@ -358,7 +358,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 
 **Priorität MITTEL — Welt lebendiger machen (die neuen Regionen sind aktuell reine Kampfzonen)**
 3. **Pro-Karte-Tile-Theming:** Geistmoor/Geisterschrein nutzen dasselbe Tileset wie der Hain → sie sehen identisch aus. Eigene Paletten/Tiles je Region (Moor = dunkler/Wasser, Hochland = Stein/Wind) → die Regionen fühlen sich wie eigene Orte an.
-4. **Regionale NPCs + kleine Quests** in Geistmoor/Geisterschrein → Orte mit Eigenleben statt nur Encounter-Feldern. ✅ *(2026-06-28, Geistmoor)*: Moorhüterin Eir + Quest „Fäulnis im Moor" (Fäulnis-Encounter reinigen → Gold + Tempest-Charm + Codex `marsh-keeper`); map-aware Playthrough-Test. Geisterschrein-NPC folgt analog.
+4. **Regionale NPCs + kleine Quests** in Geistmoor/Geisterschrein → Orte mit Eigenleben statt nur Encounter-Feldern. ✅ *(2026-06-28, Geistmoor)*: Moorhüterin Eir + Quest „Fäulnis im Moor" (Fäulnis-Encounter reinigen → Gold + Tempest-Charm + Codex `marsh-keeper`); map-aware Playthrough-Test. ✅ *(2026-06-28, Geisterschrein)*: Schreinwächter Kael + Quest „Wache am Schrein" (Sturmecho `shrine-windecho` bannen → Gold + Tempest-Charm + Codex `shrine-watcher`). Alle 3 Regionen haben jetzt eine eigene Quest/NPC.
 5. **Minimap/Regions-Anzeige:** bei jetzt 3 Karten fehlt eine „Wo bin ich / wohin"-Orientierung.
 
 **Priorität MITTEL — Spielgefühl & Onboarding**
