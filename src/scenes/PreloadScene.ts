@@ -8,6 +8,7 @@ import {
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY
 } from '../render/enemyArt';
+import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -23,8 +24,14 @@ import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.png';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.png';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.png';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.png';
+import rimuruBattleUrl from '../assets/sprites/party-rimuru.png';
+import gobtaBattleUrl from '../assets/sprites/party-gobta.png';
+import shunaBattleUrl from '../assets/sprites/party-shuna.png';
+import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.jpg';
+import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.jpg';
+import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.jpg';
 
-// Lädt globale Assets mit Fortschrittsbalken. (Noch keine echten Assets — Phase 0.)
+// Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
   constructor() {
     super('Preload');
@@ -56,6 +63,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
+    this.load.image(PARTY_BATTLE_ART.rimuru, rimuruBattleUrl);
+    this.load.image(PARTY_BATTLE_ART.gobta, gobtaBattleUrl);
+    this.load.image(PARTY_BATTLE_ART.shuna, shunaBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['spirit-highlands'], spiritHighlandsBattleUrl);
   }
 
   create(): void {
@@ -93,7 +106,9 @@ export class PreloadScene extends Phaser.Scene {
       KINGDOM_UNIT_TEXTURE_KEY,
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
-      'sprite-enemy-mordrahn'
+      'sprite-enemy-mordrahn',
+      ...Object.values(PARTY_BATTLE_ART),
+      ...Object.values(BATTLE_ARENA_TEXTURES)
     ].forEach((key) => this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR));
   }
 }

@@ -36,6 +36,12 @@ Lizenzzeile.
 | `sprites/enemy-human-lancer.png` | Menschen-Lanzenträger, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-human-deserter.png` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-mordrahn.png` | Mordrahn-Boss, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-rimuru.png` | Rimuru, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter adaptiver Schleimmagier, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-gobta.png` | Gobta, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter Goblin-Frontkämpfer, Dreiviertelperspektive, magentafarbener Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/party-shuna.png` | Shuna, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalte Oger-Heilerin, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-tempest-grove.jpg` | Kampfarena Tempest-Hain, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; lichte Waldlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-spirit-marsh.jpg` | Kampfarena Geistmoor, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; magische Moorlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `backgrounds/battle-spirit-highlands.jpg` | Kampfarena Geisterschrein, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Bergschrein-Terrasse mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `audio/ui-select.ogg` | UI-Auswahl-SFX (RPG Audio `metalClick.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-confirm.ogg` | UI-Bestätigen-SFX (RPG Audio `metalLatch.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |
 | `audio/ui-cancel.ogg` | UI-Abbrechen-SFX (RPG Audio `cloth1.ogg`) | https://kenney.nl/assets/rpg-audio | Kenney | CC0 |

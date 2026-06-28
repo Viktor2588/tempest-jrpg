@@ -26,6 +26,7 @@ import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiTextButton } from '../render/uiSkin';
 import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
+import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 
@@ -78,7 +79,7 @@ export class BattleScene extends Phaser.Scene {
     this.rewardsApplied = false;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.unitPos.clear();
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
+    this.drawArena();
     this.layer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0).setDepth(50); // Effekte überleben refresh()
     fadeIn(this);
@@ -88,6 +89,21 @@ export class BattleScene extends Phaser.Scene {
     this.input.once('pointerdown', unlockAudio);
     this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
+  }
+
+  private drawArena(): void {
+    const arena = battleArenaForMap(this.save.location.mapId);
+    if (this.textures.exists(arena.textureKey)) {
+      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, arena.textureKey)
+        .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    } else {
+      this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
+    }
+
+    // Ruhige Kontrastflächen lassen Log, Werte und Befehle auf allen Arenen lesbar.
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x081019, 0.18);
+    this.add.rectangle(GAME_WIDTH / 2, 30, GAME_WIDTH, 60, 0x071019, 0.78);
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 58, GAME_WIDTH, 116, 0x071019, 0.88);
   }
 
   private allViews(): CombatantView[] {
@@ -280,14 +296,14 @@ export class BattleScene extends Phaser.Scene {
     this.layer.removeAll(true);
     const view = renderView(this.state);
 
-    view.enemies.forEach((enemy, index) => this.drawUnit(enemy, this.colX(index, view.enemies.length), 145, 'enemy'));
-    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), 360, 'party'));
+    view.enemies.forEach((enemy, index) => this.drawUnit(enemy, this.colX(index, view.enemies.length), 137, 'enemy'));
+    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), 345, 'party'));
 
-    view.log.slice(0, 4).forEach((line, index) => {
-      this.layer.add(this.add.text(16, 14 + index * 16, line, {
+    view.log.slice(0, 2).forEach((line, index) => {
+      this.layer.add(this.add.text(16, 11 + index * 19, line, {
         fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: index === 0 ? '#e9d8a8' : '#7d8aa0'
+        fontSize: '13px',
+        color: index === 0 ? '#f7e5b5' : '#9cabc0'
       }));
     });
 
@@ -297,15 +313,35 @@ export class BattleScene extends Phaser.Scene {
     }
 
     const actor = currentActor(this.state);
-    this.layer.add(this.add.text(16, 82, `Team-Leiste ${view.teamMeter}/100`, {
+    this.layer.add(this.add.text(GAME_WIDTH - 194, 9, 'TEAM', {
       fontFamily: 'sans-serif',
-      fontSize: '12px',
-      color: '#e9c56c'
+      fontSize: '10px',
+      fontStyle: 'bold',
+      color: '#f0cf72'
     }));
-    this.layer.add(this.add.text(GAME_WIDTH / 2, 250, actor ? `${actor.name} ist am Zug` : '', {
+    this.layer.add(this.add.rectangle(GAME_WIDTH - 110, 31, 168, 10, 0x101827)
+      .setOrigin(0.5)
+      .setStrokeStyle(1, 0xa68742, 0.75));
+    this.layer.add(this.add.rectangle(
+      GAME_WIDTH - 194,
+      31,
+      168 * (view.teamMeter / 100),
+      8,
+      view.teamMeter >= 100 ? 0xffdf74 : 0x4dd7bb
+    ).setOrigin(0, 0.5));
+    this.layer.add(this.add.text(GAME_WIDTH - 15, 31, `${view.teamMeter}`, {
       fontFamily: 'sans-serif',
-      fontSize: '15px',
-      color: '#cdeaff'
+      fontSize: '11px',
+      color: '#f7e5b5'
+    }).setOrigin(1, 0.5));
+
+    this.layer.add(this.add.rectangle(GAME_WIDTH / 2, 248, 300, 34, 0x091521, 0.86)
+      .setStrokeStyle(1, 0x6b91b2, 0.75));
+    this.layer.add(this.add.text(GAME_WIDTH / 2, 248, actor ? `${actor.name} ist am Zug` : '', {
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      fontStyle: 'bold',
+      color: '#e6f4ff'
     }).setOrigin(0.5));
 
     if (this.mode === 'menu') this.drawMenu();
@@ -325,8 +361,9 @@ export class BattleScene extends Phaser.Scene {
     key: string;
     frame?: string;
   } | null {
+    const partyTextureKey = side === 'party' ? partyBattleTextureFor(unit.sourceId) : null;
     const art: EnemyArtSpec = side === 'party'
-      ? { textureKey: 'sprite-hero', fallbackKind: 'hero' }
+      ? { textureKey: partyTextureKey ?? 'sprite-hero', fallbackKind: 'hero' }
       : enemyArtFor(unit.sourceId, unit.name);
 
     if (art.textureKey && this.textures.exists(art.textureKey)) {
@@ -344,19 +381,19 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private drawUnit(unit: CombatantView, x: number, y: number, side: 'party' | 'enemy'): void {
-    const width = 128;
-    const height = 112;
+    const width = 136;
+    const height = 126;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
-    const box = this.add.rectangle(x, y, width, height, side === 'enemy' ? 0x3a2230 : 0x223049, 0.9 * alpha)
-      .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffe08a : 0x4a5876);
+    const box = this.add.rectangle(x, y, width, height, side === 'enemy' ? 0x281520 : 0x122338, 0.58 * alpha)
+      .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffdc78 : 0x6a7891, unit.active ? 1 : 0.72);
     this.layer.add(box);
     // Proportional skalierte Illustration → Legacy-Sprite → Platzhalter.
     const texture = this.textureFor(unit, side);
     if (texture) {
-      const sprite = this.add.image(x, y - 1, texture.key, texture.frame).setAlpha(alpha);
-      const fitWidth = side === 'enemy' ? 86 : 48;
-      const fitHeight = side === 'enemy' ? 58 : 48;
+      const sprite = this.add.image(x, y - 2, texture.key, texture.frame).setAlpha(alpha);
+      const fitWidth = side === 'enemy' ? 96 : 82;
+      const fitHeight = side === 'enemy' ? 72 : 76;
       sprite.setScale(Math.min(fitWidth / sprite.width, fitHeight / sprite.height));
       sprite.setFlipX(side === 'enemy'); // Gegner blicken zur Party
       const bob = idleBobSpec(unit.id, {
@@ -366,7 +403,7 @@ export class BattleScene extends Phaser.Scene {
       if (bob) {
         this.idleTweens.push(this.tweens.add({
           targets: sprite,
-          y: y - 1 - bob.amplitudePx,
+          y: y - 2 - bob.amplitudePx,
           duration: bob.durationMs,
           delay: bob.delayMs,
           yoyo: true,
@@ -376,35 +413,34 @@ export class BattleScene extends Phaser.Scene {
       }
       this.layer.add(sprite);
     }
-    const nameBottom = y - (unit.formName ? 39 : 31);
-    this.layer.add(this.add.text(x, nameBottom, `${unit.name}${unit.guarding ? ' 🛡' : ''}`, {
+    this.layer.add(this.add.text(x, y - 53, `${unit.name}${unit.guarding ? '  ◆' : ''}`, {
       fontFamily: 'sans-serif',
       fontSize: unit.name.length > 22 ? '10px' : '12px',
+      fontStyle: unit.active ? 'bold' : 'normal',
       color: '#e9eef7',
       align: 'center',
       wordWrap: { width: width - 10, useAdvancedWrap: true }
-    }).setOrigin(0.5, 1).setAlpha(alpha));
+    }).setOrigin(0.5).setAlpha(alpha));
     if (unit.formName) {
-      this.layer.add(this.add.text(x, y - 30, unit.formName, {
+      this.layer.add(this.add.text(x, y - 39, unit.formName, {
         fontFamily: 'sans-serif',
         fontSize: '9px',
-        color: '#e9c56c'
+        color: '#f0cf72'
       }).setOrigin(0.5).setAlpha(alpha));
     }
 
-    // HP-Leiste unter dem Sprite (vorher mittig über dem Token → verdeckt).
-    this.layer.add(this.add.rectangle(x, y + 32, width - 14, 8, 0x10151f).setOrigin(0.5));
+    this.layer.add(this.add.rectangle(x, y + 38, width - 14, 9, 0x0a0f18, 0.96).setOrigin(0.5));
     this.layer.add(this.add.rectangle(
       x - (width - 14) / 2,
-      y + 32,
+      y + 38,
       Math.max(0, (width - 14) * (unit.hp / unit.maxHp)),
-      8,
+      9,
       unit.dead ? 0x555555 : 0x53d98b
     ).setOrigin(0, 0.5));
-    this.layer.add(this.add.text(x, y + 43, `${unit.hp}/${unit.maxHp} LP  ${unit.mp}/${unit.maxMp} MP`, {
+    this.layer.add(this.add.text(x, y + 51, `${unit.hp}/${unit.maxHp} LP  ·  ${unit.mp}/${unit.maxMp} MP`, {
       fontFamily: 'sans-serif',
       fontSize: '10px',
-      color: '#9fb2cc'
+      color: '#d1deef'
     }).setOrigin(0.5).setAlpha(alpha));
 
     if (unit.statuses.includes('poison')) {
@@ -480,7 +516,11 @@ export class BattleScene extends Phaser.Scene {
     // Auto-Kampf: schaltet automatische Zugwahl an/aus (siehe systems/autoBattle).
     items.push([this.auto ? '⏸ Auto: AN' : '⚡ Auto: aus', () => { this.auto = !this.auto; this.afterAction(); }]);
 
-    items.forEach(([label, callback], index) => this.button(GAME_WIDTH - 170, 238 + index * 46, label, callback));
+    const gap = 6;
+    const width = Math.floor((GAME_WIDTH - 32 - gap * (items.length - 1)) / items.length);
+    items.forEach(([label, callback], index) => {
+      this.button(16 + index * (width + gap), 496, label, callback, width, '12px');
+    });
   }
 
   private drawSkillList(): void {
@@ -490,8 +530,9 @@ export class BattleScene extends Phaser.Scene {
       return skill ? [skill] : [];
     });
 
-    skills.forEach((skill, index) => {
-      this.button(GAME_WIDTH - 190, 260 + index * 48, `${skill.name} (${skill.costMp} MP)`, () => {
+    const choices: Array<[string, () => void]> = skills.map((skill) => [
+      `${skill.name} (${skill.costMp} MP)`,
+      () => {
         if (actor.mp < skill.costMp) {
           this.flash('Nicht genug MP.');
           return;
@@ -504,29 +545,42 @@ export class BattleScene extends Phaser.Scene {
         }
         this.mode = skill.target === 'single-ally' ? 'target-ally' : 'target-enemy';
         this.refresh();
-      });
-    });
-    this.button(GAME_WIDTH - 190, 260 + skills.length * 48, '↩ Zurück', () => {
+      }
+    ]);
+    choices.push(['↩ Zurück', () => {
       this.mode = 'menu';
       this.refresh();
-    });
+    }]);
+    this.drawChoiceGrid(choices);
   }
 
   private drawItemList(): void {
     const inventory = renderView(this.state).inventory;
-    inventory.forEach((stack, index) => {
+    const choices = inventory.flatMap((stack): Array<[string, () => void]> => {
       const item = itemById.get(stack.itemId);
-      if (!item) return;
-      this.button(GAME_WIDTH - 190, 260 + index * 48, `${item.name} ×${stack.quantity}`, () => {
+      if (!item) return [];
+      return [[`${item.name} ×${stack.quantity}`, () => {
         this.pendingItemId = item.id;
         this.pendingSkillId = null;
         this.mode = 'target-ally';
         this.refresh();
-      });
+      }]];
     });
-    this.button(GAME_WIDTH - 190, 260 + inventory.length * 48, '↩ Zurück', () => {
+    choices.push(['↩ Zurück', () => {
       this.mode = 'menu';
       this.refresh();
+    }]);
+    this.drawChoiceGrid(choices);
+  }
+
+  private drawChoiceGrid(choices: ReadonlyArray<readonly [string, () => void]>): void {
+    const columns = 5;
+    const gap = 8;
+    const width = Math.floor((GAME_WIDTH - 32 - gap * (columns - 1)) / columns);
+    choices.slice(0, columns * 2).forEach(([label, callback], index) => {
+      const col = index % columns;
+      const row = Math.floor(index / columns);
+      this.button(16 + col * (width + gap), 449 + row * 48, label, callback, width, '12px');
     });
   }
 
@@ -579,23 +633,33 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private drawHint(text: string): void {
-    this.layer.add(this.add.text(GAME_WIDTH / 2, 470, text, {
+    this.layer.add(this.add.text(24, 450, text, {
       fontFamily: 'sans-serif',
       fontSize: '14px',
-      color: '#9fe8ff'
-    }).setOrigin(0.5));
-    this.button(GAME_WIDTH - 170, 300, '↩ Abbrechen', () => {
+      fontStyle: 'bold',
+      color: '#b9f1ff'
+    }).setOrigin(0, 0.5));
+    this.button(GAME_WIDTH - 196, 496, '↩ Abbrechen', () => {
       this.mode = 'menu';
       this.pendingSkillId = null;
       this.pendingItemId = null;
       this.pendingTeamPartnerId = null;
       this.refresh();
-    });
+    }, 180, '13px');
   }
 
-  private button(x: number, y: number, label: string, callback: () => void): void {
-    this.layer.add(addUiTextButton(this, x, y, 190, label, callback, {
-      idleAlpha: 0.95
+  private button(
+    x: number,
+    y: number,
+    label: string,
+    callback: () => void,
+    width = 190,
+    fontSize = '14px'
+  ): void {
+    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+      idleAlpha: 0.95,
+      fontSize,
+      textOffsetX: width < 150 ? 8 : 12
     }));
   }
 
