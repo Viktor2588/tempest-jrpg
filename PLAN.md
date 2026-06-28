@@ -348,3 +348,29 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Typsicherheit:** `tsc --noEmit` in CI.
 - **Manuell/Browser:** `bun run dev`, Prüfung in Handygröße (390×844) und Desktop; optional Playwright-Screenshots.
 - **Smoke-Flow:** Oberwelt bewegen → Begegnung → Kampf gewinnen → Menü/Ausrüstung → Speichern → neu laden (Stand bleibt) → Reset.
+
+## Verbesserungs-Backlog (Ideen, priorisiert — 2026-06-28)
+Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postgame-Boss, 3 Regionen/Multi-Map, Phaser 4, Talentbäume). Geordnet nach Wert, nicht nach Aufwand.
+
+**Priorität HOCH — Korrektheit/QA (genau die Bug-Klasse, die uns mehrfach getroffen hat)**
+1. **Browser-Smoke in CI (Playwright):** bootet das Spiel headless im Browser, schießt Screenshots von Title/Overworld/Battle/Menü/Dialog/Ende und prüft auf Konsolenfehler. → fängt **Szenen-/Render-Regressionen**, die unsere Headless-Vitest-Tests prinzipiell nicht sehen können (z. B. der `worldLayer`-Stale-Container-Bug, Menü-Overlaps, HP-Leiste über dem Sprite, fehlende Marker). Größter ROI, weil fast jeder gemeldete Bug visueller/szenischer Natur war.
+2. **Save-Kompatibilitäts-Test:** einen alten Save (vor Talenten/Regionen/neuen `story.*`/`sidequest.*`-Flags) laden und einen vollen Playthrough fahren → keine Soft-Locks durch Schema-/Content-Drift bei künftigen Erweiterungen.
+
+**Priorität MITTEL — Welt lebendiger machen (die neuen Regionen sind aktuell reine Kampfzonen)**
+3. **Pro-Karte-Tile-Theming:** Geistmoor/Geisterschrein nutzen dasselbe Tileset wie der Hain → sie sehen identisch aus. Eigene Paletten/Tiles je Region (Moor = dunkler/Wasser, Hochland = Stein/Wind) → die Regionen fühlen sich wie eigene Orte an.
+4. **Regionale NPCs + kleine Quests** in Geistmoor/Geisterschrein → Orte mit Eigenleben statt nur Encounter-Feldern.
+5. **Minimap/Regions-Anzeige:** bei jetzt 3 Karten fehlt eine „Wo bin ich / wohin"-Orientierung.
+
+**Priorität MITTEL — Spielgefühl & Onboarding**
+6. **Kampftiefe sichtbar machen:** Break-Leiste, Team-Meter und Reaktionsfenster existieren mechanisch, werden aber kaum erklärt/hervorgehoben → optionales Kampf-Tutorial + klarere HUD-Hinweise.
+7. **Quest-Log:** „aktive Quest verfolgen"/Sortierung, sobald viele Quests offen sind (aktuell 5 Quests + Nebenquests).
+
+**Priorität MITTEL — Progression & Replay**
+8. **NG+ / Ende-Galerie:** andere Enden ohne Komplett-Replay erlebbar; Bonus/Anerkennung fürs True Ending.
+9. **Begleiter rekrutieren:** Sora/Vael/Lyrre sind nur Story-NPCs — eine(n) spielbar machen (eigener Talentbaum) = echte Party-Tiefe.
+
+**Priorität NIEDRIG — Technik/Wartbarkeit/Politur**
+10. **`src/data/world.ts` (~1500 Z.) in Module splitten** (quests/dialogs/encounters/locations/lore) → Wartbarkeit + weniger Merge-Konflikte bei Parallelarbeit.
+11. **Asset-/Szenen-Lazy-Loading je Region** (Bundle ~1,85 MB nach Phaser 4) — bewusst aufgeschoben; bei wachsendem Content sinnvoll.
+12. **Offene Phase-13-Politur:** längere CC0-Musik-Loops statt kurzer Jingles, echte CC0-Portraits statt prozeduraler Busts, mehr Tile-/Sprite-Varianz.
+13. **Balance-Pass mit neuem Content:** Levelkurve über 3 Regionen + Postgame-Superboss + Act-2/3-Bosse formal gegen ein Level-/Schwierigkeitsband testen (erweitert `analyzePhase15Balance`).
