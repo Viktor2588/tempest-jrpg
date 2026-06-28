@@ -384,7 +384,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 ## QoL-Änderungen (Userwunsch, 2026-06-28)
 [x] **A — Überlevel-Schutz** ✅: Wenn die Party signifikant über dem Gebietslevel liegt, greifen Zufallsmonster nicht mehr an.
 - **Umsetzung:** `WorldState.partyLevel` (optional) aus `max(active party level)` in `createWorldState`. In `resolveEncounter` werden **nur Zufallsbegegnungen** übersprungen, wenn `partyLevel − maxEnemyLevel(encounter) ≥ OVERLEVEL_AVOIDANCE_GAP` (=5). Trigger-/Story-Encounter bleiben immer aktiv. Headless-Test in `world.test`.
-[~] **B — Minimap:** Karten scrollen (Kamera folgt, Map > Screen) → Orientierung fehlt.
+[x] **B — Minimap** ✅: Karten scrollen (Kamera folgt, Map > Screen) → fixiertes Marker-Radar oben rechts.
 - **Umsetzung:** `src/systems/minimap.ts` `buildMinimap(mapW, mapH, marker[])` → testbares Pixel-Modell (Zellgröße/Scaling/Clamping). Marker-Radar (Spieler/Gateway/NPC/Landmark) als fixiertes Panel oben rechts in der `OverworldScene`; Spieler-Punkt folgt der Bewegung. Keine Wand-Tiles (Renderbudget).
 [x] **C — Grenzriss-Gate** ✅: Der `gate-to-marsh` (Pfad ins Geistmoor) öffnet erst nach Abschluss von „Grenzfeuer" (border-escalation, Höhepunkt am Grenzriss).
 - **Umsetzung:** `unlockFlag: 'story.act2.completed'` an `gate-to-marsh`. `getMapLocations` filtert bereits per Flag (Marker verschwindet); `getAdjacentTravel` bekommt denselben Flag-Filter (Reise blockiert bis freigeschaltet). Rückweg-Gateways bleiben offen.

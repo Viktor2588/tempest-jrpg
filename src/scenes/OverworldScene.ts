@@ -3,6 +3,7 @@ import { getMap } from '../data/maps';
 import { NPCS, SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
+import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
 import { isWalkable, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { makeRng } from '../systems/rng';
 import {
@@ -39,6 +40,11 @@ export class OverworldScene extends Phaser.Scene {
   private touchDir: Dir | null = null;
   private save!: SaveGameV2;
   private stepCount = 0;
+  private minimapLayer?: Phaser.GameObjects.Container;
+  private minimapPlayerDot?: Phaser.GameObjects.Arc;
+  private minimapOriginX = 0;
+  private minimapOriginY = 0;
+  private minimapCell = 4;
 
   constructor() {
     super('Overworld');
@@ -95,6 +101,8 @@ export class OverworldScene extends Phaser.Scene {
       : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
 
     this.drawWorldObjects();
+    this.minimapLayer = undefined; // wiederverwendete Instanz: alter Container ist zerstört.
+    this.drawMinimap();
 
     // Nach Rückkehr aus Dialog/Shop/Menü (scene.resume) den Save neu laden und die
     // Story-Marker neu zeichnen, damit freigeschaltete Encounter sofort sichtbar sind.
@@ -180,6 +188,7 @@ export class OverworldScene extends Phaser.Scene {
     if (next.x === this.pos.x && next.y === this.pos.y) return; // blockiert
     this.pos = next;
     this.moving = true;
+    this.updateMinimapPlayer();
     this.persistPosition(dir);
     this.tweens.add({
       targets: this.player,
@@ -196,7 +205,61 @@ export class OverworldScene extends Phaser.Scene {
   private onResume(): void {
     this.save = loadSave(window.localStorage) ?? this.save;
     this.drawWorldObjects();
+    this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
     this.maybeShowEnding();
+  }
+
+  // Fixierte Minimap oben rechts: Marker-Radar (Spieler/Gateway/NPC/Landmark) zur
+  // Orientierung, da die Karten größer als der Bildschirm sind und die Kamera folgt.
+  private drawMinimap(): void {
+    if (this.minimapLayer) this.minimapLayer.removeAll(true);
+    else this.minimapLayer = this.add.container(0, 0).setScrollFactor(0).setDepth(20);
+    const layer = this.minimapLayer;
+    const world = createWorldState(this.save);
+
+    const markers: MinimapMarker[] = [];
+    for (const location of getMapLocations(this.mapId, world)) {
+      markers.push({
+        x: location.position.x,
+        y: location.position.y,
+        kind: location.kind === 'gateway' ? 'gateway' : 'landmark'
+      });
+    }
+    for (const npc of NPCS.filter((item) => item.mapId === this.mapId)) {
+      markers.push({ x: npc.position.x, y: npc.position.y, kind: 'npc' });
+    }
+
+    const model = buildMinimap(this.map.width, this.map.height, markers, 132);
+    const pad = 8;
+    this.minimapOriginX = this.scale.width - model.width - 14;
+    this.minimapOriginY = 14;
+    this.minimapCell = model.cell;
+
+    layer.add(this.add.rectangle(
+      this.minimapOriginX - pad / 2, this.minimapOriginY - pad / 2,
+      model.width + pad, model.height + pad, 0x0c121d, 0.72
+    ).setOrigin(0, 0).setStrokeStyle(2, 0x3a4a66, 0.9));
+
+    const dotColor: Record<MinimapMarkerKind, number> = {
+      player: 0x9ff0ff, gateway: 0x68d7ff, npc: 0xffe08a, landmark: 0xd2b35f
+    };
+    for (const dot of model.dots) {
+      const size = dot.kind === 'gateway' ? model.cell + 1 : model.cell;
+      layer.add(this.add.rectangle(
+        this.minimapOriginX + dot.px, this.minimapOriginY + dot.py, size, size, dotColor[dot.kind], 0.95
+      ).setOrigin(0.5));
+    }
+
+    this.minimapPlayerDot = this.add.circle(0, 0, Math.max(2, model.cell * 0.7), 0x9ff0ff).setStrokeStyle(1, 0xffffff, 0.9);
+    layer.add(this.minimapPlayerDot);
+    this.updateMinimapPlayer();
+  }
+
+  private updateMinimapPlayer(): void {
+    this.minimapPlayerDot?.setPosition(
+      this.minimapOriginX + this.pos.x * this.minimapCell + this.minimapCell / 2,
+      this.minimapOriginY + this.pos.y * this.minimapCell + this.minimapCell / 2
+    );
   }
 
   // Nach der finalen Wahl (ending.*-Flag gesetzt) einmalig den Ende-Bildschirm zeigen.
