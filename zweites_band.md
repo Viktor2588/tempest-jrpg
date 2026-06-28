@@ -86,10 +86,10 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 4. Flüsterhain als erster Band-2-Kampfraum
 
-- [ ] Eigene Mini-Map oder klar abgegrenzten Bereich für den Flüsterhain anlegen.
-- [ ] Encounter `whispering-grove-ambush` als Band-2-Pflichtkampf prüfen und ggf. balancen.
+- [x] Eigene Mini-Map oder klar abgegrenzten Bereich für den Flüsterhain anlegen.
+- [x] Encounter `whispering-grove-ambush` als Band-2-Pflichtkampf prüfen und ggf. balancen.
 - [x] Battle-Hintergrund für Hain/Echo-Störung ergänzen.
-- [ ] Kampf-Tutorial erweitern: Status, Magieschwäche und Teamleiste statt nur Angriff/Verteidigung.
+- [x] Kampf-Tutorial erweitern: Status, Magieschwäche und Teamleiste statt nur Angriff/Verteidigung.
 
 ### 5. Ahnenbindung und namenloses Echo
 

@@ -188,15 +188,27 @@ describe('world/dialog/shop/encounter system', () => {
     const activeLocations = getMapLocations('tempest-start', state).map((location) => location.id);
     expect(activeLocations).toContain('whispering-grove');
     expect(activeLocations).not.toContain('ancestor-seal');
+    const groveLocation = getMapLocations('tempest-start', state).find((location) => location.id === 'whispering-grove')!;
+    expect(groveLocation.bounds).toEqual({ x: 13, y: 7, width: 4, height: 3 });
 
     const quest = buildQuestLog(state).find((entry) => entry.id === 'binding-of-ancestors')!;
     expect(quest.status).toBe('active');
     expect(quest.steps.find((step) => step.id === 'gather-council')?.completed).toBe(true);
     expect(quest.steps.find((step) => step.id === 'clear-grove')?.current).toBe(true);
     expect(buildCodexView(state).find((entry) => entry.id === 'tempest-council')?.unlocked).toBe(true);
+    const tutorial = buildCodexView(state).find((entry) => entry.id === 'tutorial-grove-combat')!;
+    expect(tutorial.unlocked).toBe(true);
+    expect(tutorial.body).toContain('Status');
+    expect(tutorial.body).toContain('Schwächen');
+    expect(tutorial.body).toContain('Teamleiste');
 
     const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, makeRng(2));
     expect(grove.state.encounter?.id).toBe('whispering-grove-ambush');
+    const enemyLevels = grove.state.encounter!.enemyIds.map((id) =>
+      GAME_DATA.enemies.find((enemy) => enemy.id === id)!.level
+    );
+    expect(Math.max(...enemyLevels)).toBeLessThanOrEqual(4);
+    expect(grove.state.encounter!.enemyIds).toEqual(['spore-moth', 'orc-scout']);
     const completed = completeEncounter(grove.state.world, grove.state.encounter!.id);
     const repeated = completeEncounter(completed.state, grove.state.encounter!.id);
 
@@ -389,6 +401,7 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getItemCount(world.inventory, 'tempest-charm')).toBe(1);
     expect(buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id))
       .toEqual([
+        'tutorial-grove-combat',
         'first-tempest-naming',
         'storm-dragon-future-ally',
         'nameless-core',
