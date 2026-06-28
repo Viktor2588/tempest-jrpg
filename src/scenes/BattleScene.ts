@@ -602,6 +602,17 @@ export class BattleScene extends Phaser.Scene {
         else this.cameras.main.shake(260, 0.01);
       }
     }
+    const pactMessage = won && this.encounterId === 'direwolf-pack-leader'
+      ? 'Das Rudel senkt die Köpfe. Der Sieg endet als Pakt, nicht als Auslöschung.'
+      : null;
+
+    // Sichtbare Ergebnis-Dialogbox hinter dem Resultat (statt frei schwebendem Text).
+    const boxTop = 224;
+    const boxBottom = pactMessage ? 432 : (won ? 408 : 372);
+    this.layer.add(this.add.rectangle(
+      GAME_WIDTH / 2, (boxTop + boxBottom) / 2, 480, boxBottom - boxTop, 0x0a0f18, 0.94
+    ).setStrokeStyle(2, won ? 0xe9c56c : 0xff7b8a, 0.85));
+
     const title = won ? '🏆 Sieg!' : status === 'fled' ? '🏃 Entkommen' : '💀 Niederlage';
     this.layer.add(this.add.text(GAME_WIDTH / 2, 250, title, {
       fontFamily: 'serif',
@@ -626,9 +637,6 @@ export class BattleScene extends Phaser.Scene {
         }).setOrigin(0.5));
       }
     }
-    const pactMessage = won && this.encounterId === 'direwolf-pack-leader'
-      ? 'Das Rudel senkt die Köpfe. Der Sieg endet als Pakt, nicht als Auslöschung.'
-      : null;
     if (pactMessage) {
       this.layer.add(this.add.text(GAME_WIDTH / 2, 338, pactMessage, {
         fontFamily: 'sans-serif',
