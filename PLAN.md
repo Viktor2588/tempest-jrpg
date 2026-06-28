@@ -491,6 +491,27 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Präsentationsregeln:** alle Sequenzen bleiben kurz, überspringbar und touch-tauglich; keine langen ununterbrochenen Textblöcke oder Pflichtanimationen.
 - **Abnahme:** Desktop und 390×844 zeigen Kapitelübergänge, Rekrutierung, Hub-Wachstum, Boss-Nachspiel und Abschluss ohne Überlappungen oder Console-Fehler; Headless-Tests sichern Zustandswechsel und Einmaligkeit der Belohnungen.
 
+
+phase 24 Userfeedback
+> **✅ Status (2026-06-28):** Alle Punkte umgesetzt — NPC-Kollisionen, Gateway-on-tile, Gebietsindikator, Rigurd/„Jura-Wald", Sieg-Dialogbox, Menü-Rework (Party-Leiste/Beschreibungen/Codex-Paginierung/Quest-Log-Vollbreite/Status-Reorg/Equipment-Layout/Quest-Detailansicht), HUD (nur Menü unter Minimap), Steuerungs-Tutorial. Ranga-Schnellreise-Gating war bereits vom Story-Writer. **Offen nur:** Bild-Assets (imagegen — Asset-Pipeline) und die Shuna-Pacing-Frage (Story-Design).
+
+Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
+- Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
+- Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
+- Menu: Die Breite eines Questeintrags ist zu gering Belohnung ist auf der kannte ganz unten. Ausserdem sollte es eine möglichkeit geben sich die quest genau anzeigen zu lassen mit weiteren details. so kann in der übersicht nur eine summary stehen & kein ganzes buch
+- Menu: Namensgebung Entwicklungen & Bindungen sollten unter status stehen
+- Menu: Das ablegen & verzaubern im menu ist ebenfalls verrutscht & sieht nicht gut aus.
+- Menu: party wird in jeder menu page angezeigt. das ist vergäudeter platz.
+- Menu: eine kurze beschreibung für jeden menu eintrag wäre gut, dann weiß man was jeder menupunkt machen soll. 
+- Avatar: Es fehlt ein rimuru assets (blauer schleim als hauptfigur zum steuern) ausserdem sollten waldschleime auch grün sein. & andere schleime entsprechene Farben haben (imagegen)
+- Tutorial: Veldora braucht auch noch assets damit alles nicht so generisch aussieht (imagegen)
+- Rigurd sollte nach dem tutorial nicht sagen willkommen am Rand von tempest sondern willkommen am rand vom jurawald (so heißt das gebit, tempest gibt es ja am anfang noch garnicht, muss erst später gegründet werden). 
+- es fehlt mir ein Gebiets indikator der den namen des gebiets aufzeigt z.b. Goblin-dorf etc. vielleicht direkt under der Karte.
+- Nach einem Sieg: Zurück zur welt & das ergebniss sind noch verbesserungwürdig es fehtl eine sichtbare dialogbox oder alles gleich richtig umsetzten.
+- Kommt shuna erst ab Band 2 vor? mir kommt es vor das es zu schnell geht???
+- die npcs brauchen kollisionen. & grenzübergänge in andere gebiete dürfen nur wenn man auf denen steht in die nächste ebene übergehen nicht ein feld vorher schon.
+
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.
@@ -530,3 +551,70 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 - **Umsetzung:** `src/systems/minimap.ts` `buildMinimap(mapW, mapH, marker[])` → testbares Pixel-Modell (Zellgröße/Scaling/Clamping). Marker-Radar (Spieler/Gateway/NPC/Landmark) als fixiertes Panel oben rechts in der `OverworldScene`; Spieler-Punkt folgt der Bewegung. Keine Wand-Tiles (Renderbudget).
 [x] **C — Grenzriss-Gate** ✅: Der `gate-to-marsh` (Pfad ins Geistmoor) öffnet erst nach Abschluss von „Grenzfeuer" (border-escalation, Höhepunkt am Grenzriss).
 - **Umsetzung:** `unlockFlag: 'story.act2.completed'` an `gate-to-marsh`. `getMapLocations` filtert bereits per Flag (Marker verschwindet); `getAdjacentTravel` bekommt denselben Flag-Filter (Reise blockiert bis freigeschaltet). Rückweg-Gateways bleiben offen.
+
+## Canon-Content aus Tensura LN Band 1 & 2 (Lore-Recherche & Content-Vorschlag, 2026-06-28)
+
+> **Quelle:** die ersten beiden Light Novels von „Tensei shitara Slime Datta Ken". Die
+> bestehenden „Bänder" sind bewusst ein eigenständiger JRPG-Bogen (keine 1:1-Adaption) und
+> haben mehrere zentrale LN-Arcs noch **nicht** abgedeckt. Die folgenden Arcs/Figuren sind
+> LN-treu und lassen sich modular als Regionen, Quests, Begleiter und Bosse ergänzen.
+> **Mechanik-Anker (alles vorhanden):** `recruit-character`, Naming/Evolution als sichtbarer
+> Story-Beat, Maps/Gateways, Encounter+`victoryEffects`, Codex, NPC-Sichtbarkeit, Schnellreise.
+> **Stabile IDs beibehalten**, sichtbare Namen Canon (Projektregel der Band-Docs).
+
+### Band 1 (LN Vol 1) — noch offene Canon-Beats
+1. **Zwergenkönigreich Dwargon** *(neue Region + Begleiter)* — Rimuru reist ins Bewaffnete
+   Königreich Dwargon (Handel/Handwerk). Beats: Markt/Schmiede, ein Zwischenfall am Tor/in der
+   Taverne, Minister **Vesta** als Intrigant, König **Gazel Dwargo** (Schwertheld). **Kaijin**
+   (Meisterhandwerker) und die drei Brüder **Garm/Dord/Myrd** schließen sich Tempest an →
+   schaltet **Schmieden/Bau/Ausrüstungstier** frei. Spielhook: neue Map `dwargon`, Gateway vom
+   Jura-Wald, recruit-character `kaijin`, Shop/Crafting-Erweiterung, Codex „Dwargon", Vesta als
+   späterer optionaler Forscher.
+2. **Shizu (Shizue Izawa) & Ifrit** *(emotionaler Hauptbeat + Mechanik)* — Begegnung mit der
+   Andersweltlerin Shizu (A-Rang, Wirtin des Flammengeists **Ifrit**, Maske zur Kontrolle).
+   Beat: Ifrit-Konflikt, Shizus Ende, Rimuru nimmt sie auf ihren Wunsch auf → erhält die
+   **menschliche Form** (Rimurus Menschengestalt nach Shizu) und Ifrits Flamme; **Schwur**,
+   ihre Schüler zu schützen. Spielhook: Story-Encounter `ifrit`, `recruit`/Form-Unlock für
+   Rimuru (menschliche Gestalt als Skin/Form), Quest „Shizus Schwur", die 5 Schüler-Kinder als
+   späterer Care-/Eskort-Arc (Vol 3+).
+3. **Gründung & Aufbau von Tempest** *(Hub-Wachstum)* — vom geretteten Goblindorf zur jungen
+   Stadt: Benennung der Nation, Wasser/Infrastruktur, erste Händler. Knüpft an den vorhandenen
+   Hub-State an (mehr Stufen: nach Dwargon-Handel, nach Kijin-Beitritt).
+
+### Band 2 (LN Vol 2) — der große Bogen
+4. **Die Oger → Kijin** *(Begleiter-Arc, Naming als Beat)* — sechs Oger-Überlebende (ihr Dorf
+   von einer Ork-Armee unter einem **maskierten Majin** ausgelöscht) greifen Tempest aus einem
+   Missverständnis an. Nach Klärung benennt Rimuru sie → **Kijin** (Naming-Evolution, fast
+   erschöpfend): **Benimaru** (General, Flamme), **Shion** (Sekretärin/Leibwache, Kraft),
+   **Hakurou** (Schwertmeister/Trainer), **Kurobe** (Schmied), **Souei** (Späher/Verdeckt) —
+   **Shuna** ist bereits als Held im Spiel. Spielhook: Story-Encounter „Missverständnis",
+   recruit-character `benimaru`/`shion`/`hakurou`/`kurobe`/`souei`, sichtbarer Naming-Beat
+   (Oger→Kijin, analog Goblin→Hobgoblin), Codex-Einträge.
+5. **Orc-Disaster** *(großer Boss-Arc)* — eine Hungersnot treibt ~200.000 Orks in den Jura-Wald.
+   Der **Orc-Lord** trägt die Fähigkeit „Ausgehungerte" (alles fressen → Macht). Hintergrund:
+   **Gelmud**, der Namen verteilt, um Dämonenlords zu erzwingen. Der Orc-Lord wird zum
+   **Orc-Disaster (Geld)** — Katastrophenklasse — und frisst Gelmud. Höhepunkt: Rimuru
+   **prädiert** Geld (Power-Spike Richtung Dämonenlord-Seed). Spielhook: neue Gegner (`orc-*`,
+   `orc-lord`, `orc-disaster`), Pflicht-Bosskampf mit `victoryEffects` = Story-Flag + große
+   Belohnung; ein überlebender Hoch-Ork erbt „Geld" und tritt Tempest bei.
+6. **Die Echsenmenschen** *(Allianz)* — der Häuptling, seine fähige Tochter **Souka** und der
+   ruhmsüchtige Sohn **Gabiru** (überhebt sich, wird besiegt, später Läuterung). Allianz gegen
+   die Orks. Spielhook: Sumpf-Region/-NPCs (knüpft thematisch an das vorhandene Geistmoor an),
+   recruit/ally `gabiru`/`souka` (Gabiru war in den Band-Docs ohnehin für später vorgesehen).
+7. **Treyni & die Wald-Allianz** *(Bündnis + Schlacht)* — die Dryade **Treyni** (Hüterin des
+   Jura-Walds) bittet Rimuru um Hilfe; Tempest + Echsenmenschen + Waldgeister bilden die
+   Allianz für die große Schlacht gegen die Ork-Armee. Spielhook: Allianz-NPC `treyni`,
+   mehrstufiger Schlacht-Encounter, sichtbares „Bündnis schmieden".
+8. **Gründung der Jura-Tempest-Föderation + Milim Nava** *(Bandabschluss)* — nach dem Sieg
+   vereinen sich die Waldvölker zur **Jura-Tempest-Föderation**. Die uralte Dämonenlordin
+   **Milim Nava** (immense Macht, kindliches Wesen) taucht auf, prüft Rimuru und wird zur
+   Verbündeten — Aufhänger für die Dämonenlord-Politik späterer Bänder. Spielhook: Föderations-
+   Hub-State, `milim` als mächtiger Story-NPC/optionaler Übungs-Boss, Codex „Dämonenlords".
+
+### Umsetzungs-Reihenfolge (Vorschlag, kollisionsarm)
+- Pro Arc eine eigene Phase/Slice (eigener Worktree), zuerst **Daten** (Map, NPCs, Dialoge,
+  Encounter, Codex) + headless Tests, dann dünne Szenen-Integration.
+- Reihenfolge nach Abhängigkeit: **Kijin-Begleiter** (nutzt bestehendes recruit-System) →
+  **Orc-Disaster** (Boss + Gegner) → **Echsenmenschen/Allianz** → **Treyni/Schlacht** →
+  **Föderation/Milim**; Dwargon + Shizu als parallele Band-1-Ergänzungen.
+- Naming/Evolution überall als sichtbaren Beat zeigen (Goblin→Hobgoblin, Oger→Kijin).
