@@ -629,5 +629,5 @@ function portraitKeyForCharacter(characterId: string): string | null {
 }
 
 function isPortraitKind(value: string): value is PortraitKind {
-  return ['rimuru', 'gobta', 'shuna', 'sora', 'vael', 'lyrre', 'rigurd', 'mordrahn'].includes(value);
+  return ['rimuru', 'gobta', 'shuna', 'sora', 'vael', 'lyrre', 'rigurd', 'ranga', 'mordrahn'].includes(value);
 }

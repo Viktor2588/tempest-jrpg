@@ -399,7 +399,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 [~] **Phase 19 – Band 1 vollständig canonisieren und abschließen** *(Veldora-Benennung + Canon-Sequenz-Abnahme umgesetzt, 2026-06-28)*
 
-> **Umgesetzt:** Veldora ist überall sichtbar (NPC-Name, Dialog-Sprecher, Questtext, Codex-Titel/-Body, Reisepunkt-Text) — interne ID `sealed-storm-dragon` + Flags bleiben; `portraitKindForSpeaker` mappt „Veldora" auf das `storm-dragon`-Portrait. Abnahme-Tests: Canon-Partyfolge Rimuru → +Gobta → +Ranga (über den Rekrutierungsfluss) und Ranga am Rekrutierungszeitpunkt direkt kampftauglich; Veldora-Benennungstest. **Offen:** Rangas Nachkampf-Pakt-**Dialog** (statt Direkt-Recruit auf Sieg), Ranga prozedurales Portrait + Overworld-/Menü-Fallback, „Direwolf-Begleiter"-Resttexte, Soft-Lock-Kette (Gateway/Marker Höhle→Goblindorf→Lichtung→Benennung) und Browser-Smoke.
+> **Umgesetzt (Teil A):** Veldora ist überall sichtbar (NPC-Name, Dialog-Sprecher, Questtext, Codex-Titel/-Body, Reisepunkt-Text) — interne ID `sealed-storm-dragon` + Flags bleiben; `portraitKindForSpeaker` mappt „Veldora" auf das `storm-dragon`-Portrait. Abnahme-Tests: Canon-Partyfolge Rimuru → +Gobta → +Ranga und Ranga am Rekrutierungszeitpunkt direkt kampftauglich; Veldora-Benennungstest.
+>
+> **Umgesetzt (Teil B):** Prozedurales **Ranga-Portrait** — neuer `PortraitKind`/`PORTRAIT_KINDS`-Eintrag + `portraitSpec` (Stahl/Gold, Motiv `scout`), `portraitKindForSpeaker('Ranga')` und `isPortraitKind` (Menü-Party-Portrait) ergänzt; Battle-Sprite war bereits verdrahtet. Tests aktualisiert. („Direwolf-Begleiter"-Resttexte existieren nicht — Punkt entfällt.)
+>
+> **Offen (Teil C):** Rangas Nachkampf-Pakt-**Dialog** (statt Direkt-Recruit auf Sieg, mit sichtbarer Benennung + Fraktions-/Mount-Flags), Soft-Lock-Kette (Gateway/Marker Höhle→Goblindorf→Lichtung→Benennung) und Browser-Smoke.
 
 - **Veldora sichtbar machen:** NPC-Name, Sprecher, Dialoge, Questtexte, Codex und Portrait-Zuordnung zeigen „Veldora“. Die interne ID `sealed-storm-dragon` darf bestehen bleiben.
 - **Gobtas Beitritt:** Die Dialogoption „Goblindorf schützen“ rekrutiert Gobta nach der Goblin-Bitte. Vor diesem Beat darf Gobta weder im Menü noch im Kampf erscheinen.
