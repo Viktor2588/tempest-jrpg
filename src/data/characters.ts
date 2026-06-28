@@ -42,7 +42,8 @@ export const HEROES = [
     name: 'Gobta',
     species: 'Goblin',
     role: 'Schneller Frontkämpfer',
-    startsInParty: true,
+    // Tritt erst über die Goblin-Bitte ("Goblindorf schützen") der Party bei (Canon-Prolog).
+    startsInParty: false,
     initialLevel: 1,
     initialExperience: 0,
     baseStats: {

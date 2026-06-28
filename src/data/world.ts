@@ -1108,7 +1108,8 @@ export const DIALOGS = [
             effects: [
               { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'goblin-plea' },
               { type: 'set-flag', flag: 'story.goblin.plea', value: true },
-              { type: 'set-flag', flag: 'bond.rigurd.met', value: true }
+              { type: 'set-flag', flag: 'bond.rigurd.met', value: true },
+              { type: 'recruit-character', characterId: 'gobta' }
             ]
           },
           {
@@ -1977,7 +1978,8 @@ export const ENCOUNTERS = [
       { type: 'set-flag', flag: 'story.direwolf.defeated', value: true },
       { type: 'set-flag', flag: 'story.direwolf.pact', value: true },
       { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'direwolf-pack' },
-      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 },
+      { type: 'recruit-character', characterId: 'ranga' }
     ]
   },
   {

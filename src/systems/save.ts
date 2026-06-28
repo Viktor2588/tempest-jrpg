@@ -122,7 +122,10 @@ function carryOverMember(member: PartyMemberState): PartyMemberState {
 
 export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGameV3 {
   const active = normalizePartyMembers(save.party.active);
-  const fallbackParty = active.length > 0 ? active : createInitialParty();
+  const reserve = normalizePartyMembers(save.party.reserve);
+  const flags = normalizeBooleanRecord(save.flags);
+  const baseParty = active.length > 0 ? active : createInitialParty();
+  const fallbackParty = backfillStoryRecruits(baseParty, reserve, flags);
 
   return {
     schemaVersion: CURRENT_SAVE_VERSION,
@@ -133,16 +136,40 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
     location: normalizeLocation(save.location),
     party: {
       active: fallbackParty,
-      reserve: normalizePartyMembers(save.party.reserve),
+      reserve,
       gold: clampNonNegativeInteger(save.party.gold)
     },
     inventory: {
       stacks: normalizeInventoryStacks(save.inventory.stacks)
     },
-    flags: normalizeBooleanRecord(save.flags),
+    flags,
     quests: normalizeQuestRecord(save.quests),
     progression: normalizeProgressionState(save.progression)
   };
+}
+
+// Rückwärtskompatibilität für den story-gesteuerten Party-Aufbau: Trägt Story-Rekruten
+// anhand gesetzter Flags nach, falls ein älterer Stand sie noch nicht als Mitglieder führt
+// (z. B. vor Einführung des Rekrutierungssystems). Vorhandene Mitglieder (aktiv ODER
+// Reserve) bleiben unangetastet — es wird ausschließlich an die aktive Party ergänzt.
+function backfillStoryRecruits(
+  active: PartyMemberState[],
+  reserve: PartyMemberState[],
+  flags: Readonly<Record<string, boolean>>
+): PartyMemberState[] {
+  const present = new Set([...active, ...reserve].map((member) => member.characterId));
+  const result = [...active];
+  const ensure = (flag: string, characterId: string): void => {
+    if (!flags[flag] || present.has(characterId)) return;
+    const definition = HEROES.find((hero) => hero.id === characterId);
+    if (definition) {
+      result.push(createPartyMember(definition));
+      present.add(characterId);
+    }
+  };
+  ensure('story.goblin.plea', 'gobta');
+  ensure('story.direwolf.pact', 'ranga');
+  return result;
 }
 
 export function migrate(raw: unknown, now = new Date().toISOString()): SaveGameV3 {

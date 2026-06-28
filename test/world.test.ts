@@ -355,4 +355,21 @@ describe('Story-Rekrutierung (recruit-character)', () => {
     const roundtrip = importSave(exportSave(applyWorldState(save, world)));
     expect(roundtrip.party.active.map((member) => member.characterId)).toContain('ranga');
   });
+
+  it('rekrutiert Gobta über die Goblin-Bitte und Ranga über den Direwolf-Sieg (Canon-Prolog)', () => {
+    const state: WorldState = {
+      flags: { 'story.storm-dragon.oath': true },
+      quests: { 'slime-awakening': { status: 'active', completedStepIds: [] } },
+      inventory: [],
+      gold: 0,
+      roster: ['rimuru']
+    };
+
+    const afterPlea = chooseDialogOption(state, 'rigurd-intro', 'start', 'hear-goblin-plea');
+    expect(afterPlea.ok).toBe(true);
+    expect(afterPlea.state.world.roster).toContain('gobta');
+
+    const afterDirewolf = completeEncounter(afterPlea.state.world, 'direwolf-pack-leader');
+    expect(afterDirewolf.state.roster).toContain('ranga');
+  });
 });

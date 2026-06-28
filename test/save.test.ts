@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { HEROES } from '../src/data';
 import {
   autoSave,
   createNewSave,
@@ -7,12 +8,14 @@ import {
   LEGACY_SAVE_STORAGE_KEYS,
   loadSave,
   migrate,
+  normalize,
   resetSave,
   SAVE_STORAGE_KEY,
   startNewGamePlus,
   type StorageLike
 } from '../src/systems/save';
 import { getItemCount } from '../src/systems/inventory';
+import { createPartyMember } from '../src/systems/party';
 
 class MemoryStorage implements StorageLike {
   readonly values = new Map<string, string>();
@@ -191,5 +194,35 @@ describe('save.ts', () => {
     expect(ng.flags).toEqual({});
     expect(ng.quests).toEqual({});
     expect(ng.location.mapId).toBe('sealed-cave');
+  });
+
+  it('enthält in einem frischen Spielstand ausschließlich Rimuru', () => {
+    expect(createNewSave().party.active.map((member) => member.characterId)).toEqual(['rimuru']);
+  });
+
+  it('trägt Story-Rekruten aus Flags nach, ohne Bestehende zu entfernen (Rückwärtskompat)', () => {
+    const base = createNewSave();
+    const migrated = normalize({
+      ...base,
+      flags: { 'story.goblin.plea': true, 'story.direwolf.pact': true }
+    });
+
+    const ids = migrated.party.active.map((member) => member.characterId);
+    expect(ids).toContain('rimuru');
+    expect(ids).toContain('gobta');
+    expect(ids).toContain('ranga');
+  });
+
+  it('dupliziert einen bereits vorhandenen Rekruten nicht (z. B. Gobta in der Reserve)', () => {
+    const base = createNewSave();
+    const gobta = createPartyMember(HEROES.find((hero) => hero.id === 'gobta')!);
+    const migrated = normalize({
+      ...base,
+      party: { ...base.party, reserve: [gobta] },
+      flags: { 'story.goblin.plea': true }
+    });
+
+    const all = [...migrated.party.active, ...migrated.party.reserve].map((member) => member.characterId);
+    expect(all.filter((id) => id === 'gobta')).toHaveLength(1);
   });
 });

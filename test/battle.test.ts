@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { HEROES } from '../src/data';
 import { createInitialInventory, getItemCount } from '../src/systems/inventory';
 import {
   act,
   createDefaultBattleParty,
+  createHeroBattleUnit,
   currentActor,
   enemyTurn,
   isPlayerTurn,
@@ -12,6 +14,10 @@ import {
   type BattleState,
   type BattleUnitInput
 } from '../src/systems/battle';
+
+// Seit dem story-gesteuerten Party-Aufbau startet ein Spiel nur mit Rimuru. Für Tests, die
+// eine Mehr-Personen-Party brauchen, Gobta explizit ergänzen.
+const GOBTA = HEROES.find((hero) => hero.id === 'gobta')!;
 
 function autoPlay(state: BattleState): { status: string; steps: number } {
   let guard = 0;
@@ -195,7 +201,7 @@ function autoPlayDepth(state: BattleState): { status: string; steps: number } {
 describe('battle engine', () => {
   it('startet deterministisch mit Party, Gegnern, Inventar und aktiver Einheit', () => {
     const state = startBattle({
-      party: createDefaultBattleParty(),
+      party: [...createDefaultBattleParty(), createHeroBattleUnit(GOBTA)],
       enemyIds: ['forest-slime', 'direwolf-pup'],
       inventory: createInitialInventory(),
       seed: 123

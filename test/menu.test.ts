@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { HEROES } from '../src/data';
 import { createInitialInventory, getItemCount } from '../src/systems/inventory';
-import { createInitialParty } from '../src/systems/party';
+import { createInitialParty, createPartyMember } from '../src/systems/party';
 import {
   buildMenuView,
   calculateMemberStats,
@@ -77,7 +78,8 @@ describe('menu system', () => {
   });
 
   it('berechnet gefaltete Klassenwerte und innewohnenden Skillzugriff deterministisch', () => {
-    const gobta = createInitialParty().find((member) => member.characterId === 'gobta')!;
+    // Gobta startet seit dem story-gesteuerten Aufbau nicht mehr in der Party → direkt erzeugen.
+    const gobta = createPartyMember(HEROES.find((hero) => hero.id === 'gobta')!);
     const stats = calculateMemberStats(gobta);
     const skills = getMemberSkillDefinitions(gobta).map((skill) => skill.id);
 
