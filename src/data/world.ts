@@ -8,7 +8,9 @@ export type WorldEffect =
   | { readonly type: 'complete-quest-step'; readonly questId: string; readonly stepId: string }
   | { readonly type: 'complete-quest'; readonly questId: string }
   | { readonly type: 'add-item'; readonly itemId: string; readonly quantity: number }
-  | { readonly type: 'add-gold'; readonly amount: number };
+  | { readonly type: 'add-gold'; readonly amount: number }
+  // Nimmt eine Figur idempotent in die aktive Party auf (Story-Rekrutierung).
+  | { readonly type: 'recruit-character'; readonly characterId: string };
 
 export interface WorldRequirement {
   readonly flag?: string;

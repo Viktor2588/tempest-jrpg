@@ -587,8 +587,37 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
 
   validateQuestStepCompletionSources(data, issues);
   validateQuestCompletionSources(data, issues);
+  validateRecruitReferences(data, issues);
 
   return issues;
+}
+
+// Jeder `recruit-character`-Welteffekt muss eine gültige Heldenfigur referenzieren,
+// sonst läuft die Story-Rekrutierung ins Leere (kein Partybeitritt).
+function validateRecruitReferences(data: DataSet, issues: DataValidationIssue[]): void {
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const check = (path: string, effects: readonly WorldEffect[]): void => {
+    for (const effect of effects) {
+      if (effect.type === 'recruit-character' && !heroIds.has(effect.characterId)) {
+        issues.push({
+          path: `${path}.${effect.characterId}`,
+          message: `Welteffekt rekrutiert unbekannten Charakter '${effect.characterId}'.`
+        });
+      }
+    }
+  };
+
+  for (const encounter of data.world.encounters) {
+    check(`world.encounters.${encounter.id}.startEffects`, encounter.startEffects ?? []);
+    check(`world.encounters.${encounter.id}.victoryEffects`, encounter.victoryEffects ?? []);
+  }
+  for (const dialog of data.world.dialogs) {
+    for (const node of dialog.nodes) {
+      for (const choice of node.choices) {
+        check(`world.dialogs.${dialog.id}.${node.id}.${choice.id}.effects`, choice.effects ?? []);
+      }
+    }
+  }
 }
 
 // Jede Quest braucht eine Dialog-/Encounter-Quelle mit `complete-quest`, sonst bleibt

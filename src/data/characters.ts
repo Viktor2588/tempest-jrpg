@@ -102,5 +102,38 @@ export const HEROES = [
       armor: 'traveler-cloak',
       accessory: 'tempest-charm'
     }
+  },
+  {
+    id: 'ranga',
+    name: 'Ranga',
+    species: 'Direwolf',
+    role: 'Sturmreiter und Späher',
+    startsInParty: false,
+    initialLevel: 1,
+    initialExperience: 0,
+    baseStats: {
+      maxHp: 92,
+      maxMp: 16,
+      attack: 18,
+      defense: 13,
+      magic: 8,
+      spirit: 10,
+      agility: 18
+    },
+    growthPerLevel: {
+      maxHp: 11,
+      maxMp: 2,
+      attack: 5,
+      defense: 3,
+      magic: 1,
+      spirit: 2,
+      agility: 5
+    },
+    initialSkillIds: ['direwolf-rush', 'predator-aura', 'quick-step'],
+    startingEquipment: {
+      weapon: null,
+      armor: 'traveler-cloak',
+      accessory: null
+    }
   }
 ] as const satisfies readonly CharacterDefinition[];

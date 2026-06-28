@@ -1,8 +1,9 @@
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ENEMIES } from '../data/enemies';
-import { ITEMS, type ItemDefinition } from '../data';
+import { HEROES, ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
+import { createPartyMember } from './party';
 import { type Rng } from './rng';
 import type { QuestState, SaveGameV2 } from './save';
 import type { Vec2 } from './overworld';
@@ -15,6 +16,10 @@ export interface WorldState {
   // Höchstes Level der aktiven Party. Optional, damit bestehende WorldState-Literale
   // (Tests, Smokes) gültig bleiben; fehlt es, greift der Überlevel-Schutz nicht.
   readonly partyLevel?: number;
+  // Charakter-IDs der aktiven Party. Story-Effekte (`recruit-character`) hängen hier
+  // idempotent an; applyWorldState gleicht das auf den Save-Roster ab. Optional, damit
+  // bestehende WorldState-Literale gültig bleiben.
+  readonly roster?: readonly string[];
 }
 
 export interface DialogView {
@@ -87,17 +92,33 @@ export function createWorldState(save: SaveGameV2): WorldState {
     quests: save.quests,
     inventory: save.inventory.stacks,
     gold: save.party.gold,
-    partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0)
+    partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0),
+    roster: save.party.active.map((member) => member.characterId)
   };
 }
 
 export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2 {
+  // Rekrutierte Figuren in den aktiven Save-Roster übernehmen. Vorhandene Mitglieder
+  // (aktiv ODER Reserve) bleiben unangetastet — es werden ausschließlich neue Charaktere
+  // mit frisch erzeugtem, voll geheiltem Zustand an die aktive Party angehängt.
+  const roster = world.roster ?? save.party.active.map((member) => member.characterId);
+  const knownIds = new Set([...save.party.active, ...save.party.reserve].map((member) => member.characterId));
+  const recruits = roster.flatMap((characterId) => {
+    if (knownIds.has(characterId)) return [];
+    const hero = HEROES.find((candidate) => candidate.id === characterId);
+    return hero ? [createPartyMember(hero)] : [];
+  });
+
   return {
     ...save,
     flags: world.flags,
     quests: world.quests,
     inventory: { stacks: world.inventory },
-    party: { ...save.party, gold: world.gold }
+    party: {
+      ...save.party,
+      active: [...save.party.active, ...recruits],
+      gold: world.gold
+    }
   };
 }
 
@@ -447,7 +468,10 @@ export function completeEncounter(state: WorldState, encounterId: string): World
   };
 }
 
-function applyEffects(state: WorldState, effects: readonly WorldEffect[]): WorldState {
+// Wendet eine Liste von Welteffekten auf den WorldState an (rein/funktional). Öffentlich,
+// damit Story-Effekte – inkl. `recruit-character` – auch ohne Dialog-/Encounter-Umweg
+// testbar und programmatisch nutzbar sind.
+export function applyEffects(state: WorldState, effects: readonly WorldEffect[]): WorldState {
   return effects.reduce((current, effect) => applyEffect(current, effect), state);
 }
 
@@ -496,6 +520,13 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
       return { ...state, inventory: addInventoryItem(state.inventory, effect.itemId, effect.quantity) };
     case 'add-gold':
       return { ...state, gold: Math.max(0, state.gold + effect.amount) };
+    case 'recruit-character': {
+      // Idempotent: schon im Roster → unverändert. So bleibt ein wiederholt ausgelöster
+      // Dialog/Encounter belohnungs- und mitgliederneutral.
+      const roster = state.roster ?? [];
+      if (roster.includes(effect.characterId)) return state;
+      return { ...state, roster: [...roster, effect.characterId] };
+    }
   }
 }
 

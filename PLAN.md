@@ -383,7 +383,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 | Altcontent | Vollständiger Originalbogen samt Enden ist technisch vorhanden | Vom Canon-Hauptpfad isolieren, für alte Saves erreichbar halten und `ancestors-choice` als optional kennzeichnen |
 | QA | Headless-Prolog→Act-1 und erster Browser-Prolog-Smoke sind vorhanden | Party-Reihenfolge, kompletter Band-1→Band-2-Flow, Save-Migration und Desktop-/Mobil-E2E abdecken |
 
-[ ] **Phase 18 – Story-gesteuerte Party und Save-Grundlage**
+[~] **Phase 18 – Story-gesteuerte Party und Save-Grundlage** *(Teil 1 umgesetzt, 2026-06-28)*
+
+> **Teil 1 (erledigt):** Ranga als spielbarer Held in `HEROES` (Direwolf-Werte, Skills `direwolf-rush`/`predator-aura`/`quick-step`, Battle-Art bereits verdrahtet). Wiederverwendbares Rekrutierungssystem: neuer `recruit-character`-`WorldEffect` + optionaler `WorldState.roster`; `applyEffects` ist öffentlich/idempotent, `applyWorldState` übernimmt Rekrutierte voll geheilt in die aktive Party **ohne** Bestehende zu entfernen. `recruit-character`-Referenzen werden datenseitig validiert. Headless-Tests (Idempotenz, Persistenz, Roundtrip). **Bewusst noch offen für Teil 2:** `gobta.startsInParty=false`-Flip, Dialog-Verdrahtung (Gobta/Ranga-Beitritt) und Save-Rückwärtskompatibilität (`story.goblin.plea`/`story.direwolf.pact`-Nachtrag) — das ändert den Spielfluss und braucht die Migrationslogik.
 
 - **Startzustand korrigieren:** `gobta.startsInParty` auf `false` setzen; ein neuer Spielstand enthält ausschließlich Rimuru. `createInitialParty()` und der Default-Kampf müssen denselben Startzustand liefern.
 - **Ranga als Charakter:** Ranga in `HEROES` mit eigenen Basiswerten, Wachstum, Startskills und Ausrüstung ergänzen. Fehlende Ranga-Skills datengetrieben anlegen und durch Datenintegritätstests absichern.

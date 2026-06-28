@@ -4,10 +4,12 @@ import { getItemCount } from '../src/systems/inventory';
 import { makeRng } from '../src/systems/rng';
 import { createNewSave, exportSave, importSave } from '../src/systems/save';
 import {
+  applyEffects,
   applyWorldState,
   buildCodexView,
   buildEndingGallery,
   buildQuestLog,
+  createWorldState,
   buildShopView,
   buyItem,
   chooseDialogOption,
@@ -317,5 +319,40 @@ describe('world/dialog/shop/encounter system', () => {
     expect(persistedWorld.quests['binding-of-ancestors']?.status).toBe('completed');
     expect(persistedWorld.flags['story.act1.completed']).toBe(true);
     expect(getItemCount(persistedWorld.inventory, 'tempest-charm')).toBe(1);
+  });
+});
+
+describe('Story-Rekrutierung (recruit-character)', () => {
+  it('nimmt eine Figur idempotent in den Roster auf', () => {
+    const world = createWorldState(createNewSave());
+    const once = applyEffects(world, [{ type: 'recruit-character', characterId: 'ranga' }]);
+    const twice = applyEffects(once, [{ type: 'recruit-character', characterId: 'ranga' }]);
+
+    expect(once.roster).toContain('ranga');
+    expect(twice.roster!.filter((id) => id === 'ranga')).toHaveLength(1);
+  });
+
+  it('rekrutiert eine bereits vorhandene Figur nicht doppelt', () => {
+    const world = createWorldState(createNewSave());
+    const result = applyEffects(world, [{ type: 'recruit-character', characterId: 'rimuru' }]);
+    expect(result.roster!.filter((id) => id === 'rimuru')).toHaveLength(1);
+  });
+
+  it('persistiert Rekrutierte voll geheilt in die aktive Party und lässt Bestehende unberührt', () => {
+    const save = createNewSave();
+    const before = save.party.active.map((member) => member.characterId);
+    const world = applyEffects(createWorldState(save), [{ type: 'recruit-character', characterId: 'ranga' }]);
+    const next = applyWorldState(save, world);
+
+    expect(next.party.active.map((member) => member.characterId)).toEqual([...before, 'ranga']);
+    const ranga = next.party.active.find((member) => member.characterId === 'ranga')!;
+    expect(ranga.currentHp).toBeGreaterThan(0);
+  });
+
+  it('überlebt einen Export/Import-Roundtrip', () => {
+    const save = createNewSave();
+    const world = applyEffects(createWorldState(save), [{ type: 'recruit-character', characterId: 'ranga' }]);
+    const roundtrip = importSave(exportSave(applyWorldState(save, world)));
+    expect(roundtrip.party.active.map((member) => member.characterId)).toContain('ranga');
   });
 });
