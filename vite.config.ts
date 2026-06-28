@@ -11,7 +11,8 @@ export default defineConfig({
     // Phaser ist absichtlich die zentrale Runtime-Abhängigkeit. Für dieses
     // kleine Spiel ist ein einzelner statischer Bundle-Load pragmatischer als
     // künstliche Code-Splittung über Szenen hinweg.
-    chunkSizeWarningLimit: 1700
+    // Phaser 4 (4.2.0) ist ~220 KB größer als Phaser 3.90 → Limit angehoben.
+    chunkSizeWarningLimit: 1900
   },
   test: {
     // Spiellogik (src/systems, src/data) ist Phaser-/DOM-frei → schnelle Node-Tests.

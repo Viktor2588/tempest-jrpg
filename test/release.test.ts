@@ -28,6 +28,6 @@ describe('release configuration', () => {
   });
 
   it('dokumentiert das Build-Größenbudget für den Phaser-Single-Bundle-Ansatz', () => {
-    expect(viteConfigSource).toContain('chunkSizeWarningLimit: 1700');
+    expect(viteConfigSource).toContain('chunkSizeWarningLimit: 1900');
   });
 });

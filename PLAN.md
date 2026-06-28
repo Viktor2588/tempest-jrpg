@@ -41,7 +41,7 @@ Bewusster Neuanfang (Clean Slate) statt Migration des bestehenden Königreich-Bu
 - **Talentbäume statt Rollen (Spielerwunsch 2026-06-27):** Der Charakter-Build entsteht über **Talentbäume** (das bestehende `SKILL_TREES`-System), nicht über wählbare/umschaltbare Rollen. Frühere Rollen-/Job-Auswahl und innere Klassen sind in Basiswerte, Startskills und gated Talentknoten aufgegangen.
 
 ## Technische Entscheidungen
-- **Engine:** **Phaser 3** (Canvas/WebGL) mit **TypeScript**.
+- **Engine:** **Phaser 4** (4.2.0, neuer GPU-Renderer) mit **TypeScript**. *(Migration von Phaser 3.90 am 2026-06-28: praktisch Drop-in — null Quellcode-Änderungen, öffentliche API kompatibel; einziger Effekt ein ~220 KB größeres Bundle, daher `chunkSizeWarningLimit` 1700→1900. Branch-Experiment grün getestet, dann nach `main` übernommen.)*
 - **Build/Dev:** **Vite** (schneller Dev-Server, HMR, optimierter Build). Bewusste Abkehr vom „kein Build"-Prinzip des Vorgängers, um Typsicherheit, Module und Tests zu gewinnen.
 - **Ziel-Plattform:** **Browser & Handy** (mobile-first), Touch- **und** Tastatur-/Gamepad-Steuerung. Auslieferung als **statische Web-App** über GitHub Pages. **Kein Offline-Betrieb / kein Service Worker / keine PWA-Installation** — bewusst weggelassen, um Komplexität zu sparen.
 - **Sprache (UI/Story):** **Deutsch**.
