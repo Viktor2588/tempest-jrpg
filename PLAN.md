@@ -313,6 +313,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Neuer Content (umgesetzt):** Boss `mordrahn` (Lv. 10), 2 Locations (`alliance-march`@(12,7)/`ancestor-heart`@(15,2)), 2 Trigger-Encounter (`alliance-breach`, `mordrahn-confrontation`), 4 Codex-Einträge (`mordrahn-keeper` + `ending-freedom`/`ending-order`/`ending-true`), Act-3-Optionen an Soras Startdialog (`rally` + verzweigte `choose-destroy`/`choose-reforge`/`choose-true`).
 - **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet **alle drei Ende-Pfade** (Freiheit/Ordnung/True) inkl. Questabschluss, Ende-Flag und Codex-Unlock, plus dass `choose-true` ohne erfüllte Bindungen unsichtbar bleibt. `tsc` sauber, **96/96** grün, `build` ok. **→ Der gesamte 3-Akt-Bogen ist jetzt durchspielbar.**
 
+[x] **Ende-Bildschirm (fertig 2026-06-28, direkt auf `main`)** *(Abschluss-Payoff für die drei Enden)*
+- **Problem:** Die drei Enden zeigten sich bisher nur als Sora-Dialogzeile + Codex — kein echter Abschluss nach 3 Akten.
+- **Umsetzung:** Reiner, getesteter Helfer `getActiveEnding(state)` in `world.ts` (leitet aus `ending.*`-Flags ab, Priorität True > Ordnung > Freiheit, Titel/Text aus denselben Codex-Einträgen). Neue `EndingScene` (Titel + Ende-Text + „Weiterspielen") in `main.ts` registriert. `OverworldScene.onResume` zeigt sie **einmalig** nach gesetzter Wahl (`ending.shown`-Guard) und kehrt danach in die Welt zurück (Postgame bleibt spielbar).
+- **Abnahme (lokal verifiziert):** `tsc` sauber, **97/97** grün (`getActiveEnding`-Test: Priorität + null + Titel), `build` ok. *(Visuelles Rendern der Szene wie üblich noch im Browser zu sichten.)*
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

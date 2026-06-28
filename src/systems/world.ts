@@ -197,6 +197,36 @@ export function buildCodexView(state: WorldState): LoreEntryView[] {
   });
 }
 
+export type EndingKind = 'freedom' | 'order' | 'true';
+
+export interface EndingView {
+  readonly kind: EndingKind;
+  readonly flag: string;
+  readonly title: string;
+  readonly body: string;
+}
+
+// Reihenfolge = Priorität (True > Ordnung > Freiheit), falls je mehrere Flags
+// gesetzt wären. Titel/Text kommen aus den Codex-Einträgen, damit Ende-Bildschirm
+// und Codex dieselbe Quelle nutzen.
+const ENDINGS: ReadonlyArray<{ readonly kind: EndingKind; readonly flag: string; readonly loreId: string }> = [
+  { kind: 'true', flag: 'ending.true', loreId: 'ending-true' },
+  { kind: 'order', flag: 'ending.order', loreId: 'ending-order' },
+  { kind: 'freedom', flag: 'ending.freedom', loreId: 'ending-freedom' }
+];
+
+/** Das aktive Story-Ende (oder `null`), abgeleitet aus den `ending.*`-Flags. */
+export function getActiveEnding(state: WorldState): EndingView | null {
+  for (const ending of ENDINGS) {
+    if (state.flags[ending.flag] !== true) continue;
+    const lore = allLoreEntries.find((entry) => entry.id === ending.loreId);
+    if (lore) {
+      return { kind: ending.kind, flag: ending.flag, title: lore.title, body: lore.body };
+    }
+  }
+  return null;
+}
+
 export function getDialogView(state: WorldState, dialogId: string, nodeId: string): DialogView {
   const dialog = requireDialog(dialogId);
   const node = requireDialogNode(dialog, nodeId);

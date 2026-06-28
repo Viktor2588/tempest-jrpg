@@ -10,6 +10,7 @@ import {
   createWorldState,
   getAdjacentNpc,
   getAdjacentShop,
+  getActiveEnding,
   getMapLocations,
   getVisibleMapEncounters,
   npcHasQuestMarker,
@@ -192,6 +193,16 @@ export class OverworldScene extends Phaser.Scene {
   private onResume(): void {
     this.save = loadSave(window.localStorage) ?? this.save;
     this.drawWorldObjects();
+    this.maybeShowEnding();
+  }
+
+  // Nach der finalen Wahl (ending.*-Flag gesetzt) einmalig den Ende-Bildschirm zeigen.
+  private maybeShowEnding(): void {
+    if (!getActiveEnding(createWorldState(this.save)) || this.save.flags['ending.shown']) return;
+    this.save = { ...this.save, flags: { ...this.save.flags, 'ending.shown': true } };
+    autoSave(window.localStorage, this.save);
+    this.scene.launch('Ending');
+    this.scene.pause();
   }
 
   private drawWorldObjects(): void {

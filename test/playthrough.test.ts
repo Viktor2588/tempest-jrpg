@@ -7,6 +7,7 @@ import {
   chooseDialogOption,
   completeEncounter,
   createWorldState,
+  getActiveEnding,
   getMapEncounters,
   getMapNpcs,
   getVisibleMapEncounters,
@@ -157,6 +158,19 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!.status).toBe('completed');
     expect(createWorldState(save).flags['ending.order']).toBe(true);
     expect(codexUnlocked(save, 'ending-order')).toBe(true);
+  });
+
+  it('leitet das aktive Ende für den Ende-Bildschirm korrekt ab', () => {
+    const ending = (flags: Record<string, boolean>) =>
+      getActiveEnding({ flags, quests: {}, inventory: [], gold: 0 });
+    expect(ending({})).toBeNull();
+    expect(ending({ 'ending.freedom': true })?.kind).toBe('freedom');
+    expect(ending({ 'ending.order': true })?.kind).toBe('order');
+    expect(ending({ 'ending.true': true })?.kind).toBe('true');
+    // Priorität True > Ordnung > Freiheit, falls je mehrere gesetzt wären.
+    expect(ending({ 'ending.order': true, 'ending.true': true })?.kind).toBe('true');
+    // Titel/Text stammen aus dem passenden Codex-Eintrag.
+    expect(ending({ 'ending.freedom': true })?.title).toBe('Ende: Freiheit');
   });
 
   it('Act 3: True-Ending nur mit erfüllten Bindungen', () => {
