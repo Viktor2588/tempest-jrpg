@@ -201,7 +201,7 @@ const QUEST_PROGRESS_EFFECTS: ReadonlySet<WorldEffect['type']> = new Set([
 // Ein NPC verdient JETZT einen Quest-Marker, wenn ein Gespräch die Story/Quest
 // voranbringt: eine sichtbare (requirement-gefilterte) Dialogoption mit Quest-
 // Effekt oder gesetztem `story.*`-Flag. Datengetrieben → leuchtet automatisch
-// Sora→Vael→Lyrre→Sora zur richtigen Zeit und erlischt, wenn dort nichts zu tun ist.
+// Rigurd→Shuna/Gobta→Ranga→Rigurd zur richtigen Zeit und erlischt, wenn dort nichts zu tun ist.
 export function npcHasQuestMarker(state: WorldState, npcId: string): boolean {
   if (!npcById.has(npcId)) return false;
   return startDialogForNpc(state, npcId).choices.some((choice) =>

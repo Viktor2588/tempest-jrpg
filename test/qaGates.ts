@@ -208,15 +208,16 @@ export function runHeadlessActOnePlaythrough(seed = 1501): HeadlessPlaythroughRe
     save = playStoryEncounter(save, STORY_ENCOUNTERS[1]!, seed + 11, battles);
     save = chooseNpcOption(save, 'rigurd', 'report');
 
-    save = chooseNpcOption(save, 'sora', 'after-prologue');
-    save = chooseNpcOption(save, 'vael', 'analyze');
-    save = chooseNpcOption(save, 'lyrre', 'briefing');
-    save = chooseNpcOption(save, 'sora', 'council');
+    save = chooseNpcOption(save, 'rigurd-tempest', 'after-prologue');
+    save = chooseNpcOption(save, 'shuna', 'analyze');
+    save = chooseNpcOption(save, 'gobta', 'briefing');
+    save = chooseNpcOption(save, 'ranga-tempest', 'scout-route');
+    save = chooseNpcOption(save, 'rigurd-tempest', 'council');
     save = buyIfPossible(save, 'healing-herb', 4);
     save = buyIfPossible(save, 'mana-drop', 1);
     save = playStoryEncounter(save, STORY_ENCOUNTERS[2]!, seed + 23, battles);
     save = playStoryEncounter(save, STORY_ENCOUNTERS[3]!, seed + 37, battles);
-    save = chooseNpcOption(save, 'sora', 'report-act1');
+    save = chooseNpcOption(save, 'rigurd-tempest', 'report-act1');
 
     const roundtripped = importSave(exportSave(save), '2026-06-27T00:15:00.000Z');
     const completedQuestIds = Object.entries(roundtripped.quests)

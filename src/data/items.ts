@@ -97,7 +97,7 @@ export const ITEMS = [
   {
     id: 'ancestor-seal-fragment',
     name: 'Ahnensiegel-Fragment',
-    description: 'Ein singendes Bruchstück der Bindung der Ahnen. Vael beschreibt es als gefrorenen Donner.',
+    description: 'Ein singendes Bruchstück der Bindung der Ahnen. Shuna beschreibt es als gefrorenen Donner.',
     category: 'key',
     price: 0,
     stackable: false

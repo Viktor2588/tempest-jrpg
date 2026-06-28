@@ -32,12 +32,20 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ## Namensmigration vor Umsetzung
 
-- [ ] `Sora` als sichtbaren NPC-Namen entfernen; Questführung stattdessen über Rimuru, Rigurd, Shuna oder den Großen Weisen lösen.
-- [ ] `Vael` und `Lyrre` als sichtbare erfundene NPCs vermeiden; ihre Funktionen auf Canon-Figuren oder neutrale Systeme verteilen.
+- [x] `Sora` als sichtbaren NPC-Namen entfernen; Questführung stattdessen über Rimuru, Rigurd, Shuna oder den Großen Weisen lösen.
+- [x] `Vael` und `Lyrre` als sichtbare erfundene NPCs vermeiden; ihre Funktionen auf Canon-Figuren oder neutrale Systeme verteilen.
 - [ ] `Mordrahn` nicht als sichtbaren Canon-Ersatz verwenden; falls der Konflikt bleibt, als namenloses Echo/Systemphänomen führen, bis ein passender Canon-Bogen gewählt ist.
-- [ ] Ranga als frühen Begleiter in Dialogen, Codex und Progression explizit benennen.
-- [ ] Gobta/Gobotas story-gesteuerten Beitritt aus Band 1 übernehmen und in Band 2 nicht mehr auf eine automatisch vollständige Startparty vertrauen.
-- [ ] Interne IDs nur ändern, wenn es technisch sauber und testbar ist; sichtbare Namen haben Priorität.
+- [x] Ranga als frühen Begleiter in Dialogen, Codex und Progression explizit benennen.
+- [x] Gobta/Gobotas story-gesteuerten Beitritt aus Band 1 übernehmen und in Band 2 nicht mehr auf eine automatisch vollständige Startparty vertrauen.
+- [x] Interne IDs nur ändern, wenn es technisch sauber und testbar ist; sichtbare Namen haben Priorität.
+
+## Umgesetzt in dieser Iteration
+
+- [x] Sichtbarer Band-2-Hauptfluss läuft über Rigurd, Shuna, Gobta und Ranga statt über Sora, Vael und Lyrre.
+- [x] Quest-/Step-IDs bleiben für Save-Kompatibilität stabil: `binding-of-ancestors`, `awakening`, `gather-council`, `clear-grove`, `defeat-mordrahn-echo`, `report-sora`.
+- [x] Alte Kompatibilitätsflags bleiben intern erhalten und werden von Canon-Dialogen gesetzt: `story.vael.ready`, `story.lyrre.ready`, `bond.sora.*`, `bond.lyrre.*`.
+- [x] Sora, Vael und Lyrre sind keine sichtbaren Band-2-NPCs mehr im Tempest-Hub.
+- [x] Unit-, Smoke- und Browser-Tests laufen über die Canon-Route.
 
 ## Geplanter Storyflow
 
@@ -56,25 +64,25 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 1. Band-2-Start sauber inszenieren
 
-- [ ] Nach `slime-awakening` Abschluss nicht nur `binding-of-ancestors` starten, sondern den Spieler klar zum nächsten Canon-Anker führen: Rimuru/Rigurd/Shuna statt erfundenem NPC.
+- [x] Nach `slime-awakening` Abschluss nicht nur `binding-of-ancestors` starten, sondern den Spieler klar zum nächsten Canon-Anker führen: Rimuru/Rigurd/Shuna statt erfundenem NPC.
 - [ ] Questlog-Sortierung prüfen: `binding-of-ancestors` muss über Nebenquests stehen.
 - [ ] Tempest-Hub visuell nach dem Prolog verändern: weniger Notlager, mehr benannte Siedlung.
 - [ ] Kurzen Titel-/Loading-Hinweis für Band 2 ergänzen: „Eine Stadt braucht mehr als einen Namen.“
 
 ### 2. Rat von Tempest als spielbarer Hub-Beat
 
-- [ ] Ratsszene als Dialogkette oder eigenes `council`-Dialogschema anlegen.
-- [ ] Rigurd gibt Verwaltungs-/Versorgungsziel.
-- [ ] Gobta/Gobota und Ranga bringen Direwolf-Grenzschutz ein, falls `story.direwolf.pact` gesetzt ist.
-- [ ] Shuna bleibt zunächst Rat-/Ritualfigur und deutet Ahnen-/Schreinmagie an.
-- [ ] Kommende Grenzeskalation ohne neue erfundene NPC-Namen andeuten.
+- [x] Ratsszene als Dialogkette oder eigenes `council`-Dialogschema anlegen.
+- [x] Rigurd gibt Verwaltungs-/Versorgungsziel.
+- [x] Gobta/Gobota und Ranga bringen Direwolf-Grenzschutz ein, falls `story.direwolf.pact` gesetzt ist.
+- [x] Shuna bleibt zunächst Rat-/Ritualfigur und deutet Ahnen-/Schreinmagie an.
+- [x] Kommende Grenzeskalation ohne neue erfundene NPC-Namen andeuten.
 
 ### 3. Drei kurze Aufbauaufgaben
 
 - [ ] Vorratsbeat: Shop/Heilpunkt/Gründerhilfe mit `bond.rigurd.trust-prologue` verknüpfen.
-- [ ] Grenzbeat: Ranga-/Gobta-Scout-Moment als frühe Schnellreise-/Scout-Mechanik vorbereiten.
-- [ ] Ahnenbeat: Codex-/Lore-Freischaltung über altes Siegel, nicht nur Dialogtext.
-- [ ] Alle drei Beats müssen Flags setzen, damit Dialoge danach sichtbar reagieren können.
+- [x] Grenzbeat: Ranga-/Gobta-Scout-Moment als frühe Schnellreise-/Scout-Mechanik vorbereiten.
+- [x] Ahnenbeat: Codex-/Lore-Freischaltung über altes Siegel, nicht nur Dialogtext.
+- [x] Alle drei Beats müssen Flags setzen, damit Dialoge danach sichtbar reagieren können.
 
 ### 4. Flüsterhain als erster Band-2-Kampfraum
 
@@ -85,15 +93,15 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 5. Ahnenbindung und namenloses Echo
 
-- [ ] Technisches `mordrahn-echo` sichtbar nicht als erfundene Figur ausspielen, sondern als erstes klares Zeichen eines namenlosen Gegenspielers/Systemphänomens.
+- [x] Technisches `mordrahn-echo` sichtbar nicht als erfundene Figur ausspielen, sondern als erstes klares Zeichen eines namenlosen Gegenspielers/Systemphänomens.
 - [ ] Vor dem Kampf Codex-Hinweis oder Schreinzeichen freischalten.
-- [ ] Nach dem Kampf passenden Codex-Flag setzen und Canon-Anker/Rigurd-Dialog aktualisieren.
-- [ ] Der Gegenspieler bleibt im zweiten Band nur als Echo/Spur erkennbar; keine neue erfundene Person sichtbar einführen.
+- [x] Nach dem Kampf passenden Codex-Flag setzen und Canon-Anker/Rigurd-Dialog aktualisieren.
+- [x] Der Gegenspieler bleibt im zweiten Band nur als Echo/Spur erkennbar; keine neue erfundene Person sichtbar einführen.
 
 ### 6. Party- und Progressionsfolgen
 
-- [ ] Gobta/Gobota als festen frühen Front-/Scout-Begleiter im Band-2-Hauptflow berücksichtigen.
-- [ ] Shuna als Rat-/Ritualfigur in den Band-2-Flow holen und `shuna-ogre-line` sichtbar vorbereiten.
+- [x] Gobta/Gobota als festen frühen Front-/Scout-Begleiter im Band-2-Hauptflow berücksichtigen.
+- [x] Shuna als Rat-/Ritualfigur in den Band-2-Flow holen und `shuna-ogre-line` sichtbar vorbereiten.
 - [ ] Gobtas Direwolf-Knoten über Ranga und `wolf-fang-token` im Menü verständlicher erklären.
 - [ ] Rimurus Bindungs-/Namensprogression mit `binding-of-ancestors` verknüpfen.
 - [ ] Erste Beziehungsboni nach Rat/Hain/Schrein sichtbar machen.
@@ -107,10 +115,10 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 8. Tests und Gates
 
-- [ ] Headless-Smoke: Prologabschluss → Canon-Anker → Rat → Hain → Schrein-Echo → Questabschluss.
-- [ ] Test: `binding-of-ancestors` startet automatisch und bleibt priorisiert sichtbar.
-- [ ] Test: Direwolf-Pakt beeinflusst Band-2-Dialog oder Scout-Beat.
-- [ ] Test: Codex enthält nach Band 2 mindestens `nameless-core`, `tempest-council`, `binding-of-ancestors`, `mordrahn`.
+- [x] Headless-Smoke: Prologabschluss → Canon-Anker → Rat → Hain → Schrein-Echo → Questabschluss.
+- [x] Test: `binding-of-ancestors` startet automatisch und bleibt priorisiert sichtbar.
+- [x] Test: Direwolf-Pakt beeinflusst Band-2-Dialog oder Scout-Beat.
+- [x] Test: Codex enthält nach Band 2 mindestens `nameless-core`, `tempest-council`, `binding-of-ancestors`, `mordrahn`.
 - [ ] E2E-Smoke: Browserpfad vom abgeschlossenen Prolog bis zum ersten Band-2-Dialog.
 
 ## Definition of Done für „zweites Band technisch umgesetzt“

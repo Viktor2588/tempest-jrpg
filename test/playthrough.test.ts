@@ -106,11 +106,12 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
   it('schließt „Bindung der Ahnen" über den echten Szenen-Fluss ab und füllt den Codex', () => {
     let save = saveAfterPrologue();
 
-    // Hauptquest wurde vom Prologabschluss gestartet; Sora nimmt jetzt die Ahnenspur auf.
-    save = talk(save, 'sora', 'after-prologue'); // awakening + story.intro.seen
-    save = talk(save, 'vael', 'analyze');   // story.vael.ready
-    save = talk(save, 'lyrre', 'briefing'); // story.lyrre.ready
-    save = talk(save, 'sora', 'council');   // story.council.ready + gather-council
+    // Hauptquest wurde vom Prologabschluss gestartet; Band 2 läuft sichtbar über Canon-Figuren.
+    save = talk(save, 'rigurd-tempest', 'after-prologue'); // awakening + story.intro.seen
+    save = talk(save, 'shuna', 'analyze');                 // story.vael.ready (Legacy-Flag), story.shuna.ready
+    save = talk(save, 'gobta', 'briefing');                // story.gobta.ready
+    save = talk(save, 'ranga-tempest', 'scout-route');     // story.lyrre.ready (Legacy-Flag), story.ranga.ready
+    save = talk(save, 'rigurd-tempest', 'council');        // story.council.ready + gather-council
     // Nach dem Rat erscheint der Hain-Marker, der Schrein noch nicht.
     expect(visibleTriggerIds(save)).toContain('whispering-grove-ambush');
     expect(visibleTriggerIds(save)).not.toContain('shrine-approach');
@@ -123,7 +124,7 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = clearTriggerAt(save, { x: 21, y: 13 }); // Schrein/Boss → defeat-mordrahn-echo
     expect(visibleTriggerIds(save).filter((id) => id === 'shrine-approach')).toHaveLength(0);
 
-    save = talk(save, 'sora', 'report-act1'); // report-sora + complete-quest + Reward
+    save = talk(save, 'rigurd-tempest', 'report-act1'); // report-sora + complete-quest + Reward
 
     const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'binding-of-ancestors')!;
     expect(quest.status).toBe('completed');
@@ -141,18 +142,18 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     // Act 1 als abgeschlossen voraussetzen (Act-2-Gate).
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
 
-    expect(npcHasQuestMarker(createWorldState(save), 'lyrre')).toBe(true); // Lyrre startet Act 2
+    expect(npcHasQuestMarker(createWorldState(save), 'gobta')).toBe(true); // Gobta startet Act 2
 
-    save = talk(save, 'lyrre', 'muster');   // border-escalation aktiv + story.act2.started
+    save = talk(save, 'gobta', 'muster');   // border-escalation aktiv + story.act2.started
     expect(visibleTriggerIds(save)).toContain('marsh-frontier-clash');
     expect(visibleTriggerIds(save)).not.toContain('border-rift-vanguard');
 
     save = clearTriggerAt(save, { x: 5, y: 13 });  // Sumpfgrenze → border-clash
-    save = talk(save, 'vael', 'read-fracture');    // story.fracture.read
+    save = talk(save, 'shuna', 'read-fracture');   // story.fracture.read
     expect(visibleTriggerIds(save)).toContain('border-rift-vanguard');
 
     save = clearTriggerAt(save, { x: 22, y: 7 });  // Vorhut → break-vanguard
-    save = talk(save, 'lyrre', 'report-act2');     // complete-quest + story.act2.completed
+    save = talk(save, 'gobta', 'report-act2');     // complete-quest + story.act2.completed
 
     const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-escalation')!;
     expect(quest.status).toBe('completed');
@@ -175,7 +176,7 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
         ...(withBonds ? { 'bond.sora.trust-1': true, 'bond.lyrre.trust-1': true } : {})
       }
     };
-    save = talk(save, 'sora', 'rally');           // story.act3.started
+    save = talk(save, 'rigurd-tempest', 'rally'); // story.act3.started
     save = clearTriggerAt(save, { x: 12, y: 7 }); // Bündnismarsch → breach
     save = clearTriggerAt(save, { x: 15, y: 2 }); // Herz der Bindung → Mordrahn
     return save;
@@ -186,9 +187,9 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
   it('Act 3: schließt mit Ende „Freiheit" ab (Bindung zerstören)', () => {
     let save = act3UpToChoice(false);
     expect(codexUnlocked(save, 'mordrahn-keeper')).toBe(true);
-    expect(npcHasQuestMarker(createWorldState(save), 'sora')).toBe(true); // die Wahl steht an
+    expect(npcHasQuestMarker(createWorldState(save), 'rigurd-tempest')).toBe(true); // die Wahl steht an
 
-    save = talk(save, 'sora', 'choose-destroy');
+    save = talk(save, 'rigurd-tempest', 'choose-destroy');
     const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!;
     expect(quest.status).toBe('completed');
     expect(quest.steps.every((step) => step.completed)).toBe(true);
@@ -198,7 +199,7 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
 
   it('Act 3: schließt mit Ende „Ordnung" ab (Bindung neu schmieden)', () => {
     let save = act3UpToChoice(false);
-    save = talk(save, 'sora', 'choose-reforge');
+    save = talk(save, 'rigurd-tempest', 'choose-reforge');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!.status).toBe('completed');
     expect(createWorldState(save).flags['ending.order']).toBe(true);
     expect(codexUnlocked(save, 'ending-order')).toBe(true);
@@ -220,12 +221,12 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
   it('Act 3: True-Ending nur mit erfüllten Bindungen', () => {
     // Ohne Bindungen ist die Option nicht sichtbar.
     const noBonds = act3UpToChoice(false);
-    expect(startDialogForNpc(createWorldState(noBonds), 'sora').choices.map((c) => c.id)).not.toContain('choose-true');
+    expect(startDialogForNpc(createWorldState(noBonds), 'rigurd-tempest').choices.map((c) => c.id)).not.toContain('choose-true');
 
-    // Mit erfüllten Bindungen (Sora + Lyrre aus Act 1/2) erscheint der dritte Weg.
+    // Mit erfüllten Legacy-Bindungsflags aus Act 1/2 erscheint der dritte Weg.
     let save = act3UpToChoice(true);
-    expect(startDialogForNpc(createWorldState(save), 'sora').choices.map((c) => c.id)).toContain('choose-true');
-    save = talk(save, 'sora', 'choose-true');
+    expect(startDialogForNpc(createWorldState(save), 'rigurd-tempest').choices.map((c) => c.id)).toContain('choose-true');
+    save = talk(save, 'rigurd-tempest', 'choose-true');
     expect(createWorldState(save).flags['ending.true']).toBe(true);
     expect(codexUnlocked(save, 'ending-true')).toBe(true);
   });
@@ -247,24 +248,24 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-bog-terror')?.unlocked).toBe(true);
   });
 
-  it('Nebenquest: Vaels „Streunende Echos" ist annehm- und abschließbar', () => {
+  it('Nebenquest: Shunas „Streunende Echos" ist annehm- und abschließbar', () => {
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
 
-    save = talk(save, 'vael', 'accept-echo');      // relic-echoes aktiv + sidequest.echo.started
+    save = talk(save, 'shuna', 'accept-echo');     // relic-echoes aktiv + sidequest.echo.started
     expect(visibleTriggerIds(save)).toContain('north-rift-echo');
     save = clearTriggerAt(save, { x: 8, y: 2 });   // Echo gebannt
-    save = talk(save, 'vael', 'report-echo');      // Quest abgeschlossen + Belohnung
+    save = talk(save, 'shuna', 'report-echo');     // Quest abgeschlossen + Belohnung
 
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'relic-echoes')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-stray-echo')?.unlocked).toBe(true);
   });
 
-  it('Nebenquest: Lyrres „Grenzgänger" ist annehm- und abschließbar', () => {
+  it('Nebenquest: Gobtas „Grenzgänger" ist annehm- und abschließbar', () => {
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
-    save = talk(save, 'lyrre', 'accept-deserter');
+    save = talk(save, 'gobta', 'accept-deserter');
     expect(visibleTriggerIds(save)).toContain('east-route-deserter');
     save = clearTriggerAt(save, { x: 20, y: 5 });
-    save = talk(save, 'lyrre', 'report-deserter');
+    save = talk(save, 'gobta', 'report-deserter');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-runner')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-human-deserter')?.unlocked).toBe(true);
   });
@@ -330,13 +331,14 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     // Der komplette Act-1-Bogen ist auf dem migrierten Stand spielbar — kein Soft-Lock
     // durch fehlende neue Flags/Felder.
     save = withPrologueCompleted(save);
-    save = talk(save, 'sora', 'after-prologue');
-    save = talk(save, 'vael', 'analyze');
-    save = talk(save, 'lyrre', 'briefing');
-    save = talk(save, 'sora', 'council');
+    save = talk(save, 'rigurd-tempest', 'after-prologue');
+    save = talk(save, 'shuna', 'analyze');
+    save = talk(save, 'gobta', 'briefing');
+    save = talk(save, 'ranga-tempest', 'scout-route');
+    save = talk(save, 'rigurd-tempest', 'council');
     save = clearTriggerAt(save, { x: 14, y: 8 });
     save = clearTriggerAt(save, { x: 21, y: 13 });
-    save = talk(save, 'sora', 'report-act1');
+    save = talk(save, 'rigurd-tempest', 'report-act1');
 
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'binding-of-ancestors')!.status).toBe('completed');
     expect(codexUnlocked(save, 'nameless-core')).toBe(true);
@@ -347,12 +349,13 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
     let save = createNewSave();
 
-    // Start: zuerst der Sturmdrache; Sora/Patrouille sind bis zum Prologabschluss nicht aktiv.
+    // Start: zuerst der Sturmdrache; Canon-Rat/Patrouille sind bis zum Prologabschluss nicht aktiv.
     expect(marker(save, 'sealed-storm-dragon')).toBe(true);
-    expect(marker(save, 'sora')).toBe(false);
+    expect(marker(save, 'rigurd-tempest')).toBe(false);
+    expect(marker(save, 'shuna')).toBe(false);
+    expect(marker(save, 'gobta')).toBe(false);
+    expect(marker(save, 'ranga-tempest')).toBe(false);
     expect(marker(save, 'rigurd')).toBe(false);
-    expect(marker(save, 'vael')).toBe(false);
-    expect(marker(save, 'lyrre')).toBe(false);
 
     save = talk(save, 'sealed-storm-dragon', 'begin');
     expect(marker(save, 'sealed-storm-dragon')).toBe(true);
@@ -366,21 +369,25 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = talk(save, 'ranga', 'seal-pact');
     expect(marker(save, 'rigurd')).toBe(true);
     save = talk(save, 'rigurd', 'name-village');
-    expect(marker(save, 'sora')).toBe(true);
+    expect(marker(save, 'rigurd-tempest')).toBe(true);
     expect(marker(save, 'rigurd')).toBe(true); // post-Prolog-Patrouille ist jetzt sichtbar
 
-    save = talk(save, 'sora', 'after-prologue'); // Quest aktiv + awakening
-    // Jetzt sind Vael & Lyrre dran; bei Sora gibt es gerade nichts zu tun.
-    expect(marker(save, 'vael')).toBe(true);
-    expect(marker(save, 'lyrre')).toBe(true);
-    expect(marker(save, 'sora')).toBe(false);
+    save = talk(save, 'rigurd-tempest', 'after-prologue'); // Quest aktiv + awakening
+    // Jetzt sind Shuna und Gobta dran; Rigurd wartet auf den vollständigen Rat.
+    expect(marker(save, 'shuna')).toBe(true);
+    expect(marker(save, 'gobta')).toBe(true);
+    expect(marker(save, 'ranga-tempest')).toBe(false);
+    expect(marker(save, 'rigurd-tempest')).toBe(false);
 
-    save = talk(save, 'vael', 'analyze');
-    save = talk(save, 'lyrre', 'briefing');
-    // Vael/Lyrre erledigt → kein Marker mehr; Sora wieder dran (Rat versammeln).
-    expect(marker(save, 'vael')).toBe(false);
-    expect(marker(save, 'lyrre')).toBe(false);
-    expect(marker(save, 'sora')).toBe(true);
+    save = talk(save, 'shuna', 'analyze');
+    save = talk(save, 'gobta', 'briefing');
+    expect(marker(save, 'ranga-tempest')).toBe(true);
+    save = talk(save, 'ranga-tempest', 'scout-route');
+    // Shuna/Gobta/Ranga erledigt → kein Marker mehr; Rigurd wieder dran (Rat versammeln).
+    expect(marker(save, 'shuna')).toBe(false);
+    expect(marker(save, 'gobta')).toBe(false);
+    expect(marker(save, 'ranga-tempest')).toBe(false);
+    expect(marker(save, 'rigurd-tempest')).toBe(true);
   });
 
   it('hält NPCs, Shops, Gateways und Trigger-Encounter auf jeder Karte erreichbar', () => {

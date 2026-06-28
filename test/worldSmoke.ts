@@ -44,10 +44,11 @@ export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
     gold: 120
   };
 
-  state = chooseNpcOptionOrThrow(state, 'sora', 'after-prologue');
-  state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
-  state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
-  state = chooseNpcOptionOrThrow(state, 'sora', 'council');
+  state = chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'after-prologue');
+  state = chooseNpcOptionOrThrow(state, 'shuna', 'analyze');
+  state = chooseNpcOptionOrThrow(state, 'gobta', 'briefing');
+  state = chooseNpcOptionOrThrow(state, 'ranga-tempest', 'scout-route');
+  state = chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'council');
 
   const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, seedRng);
   if (!grove.state.encounter) throw new Error('Expected whispering-grove encounter.');
@@ -57,7 +58,7 @@ export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
   if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter.');
   state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
 
-  return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');
+  return chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'report-act1');
 }
 
 export function runSlimePrologueSmoke(seedRng: Rng): WorldState {
@@ -92,10 +93,11 @@ export function runSlimePrologueSmoke(seedRng: Rng): WorldState {
 export function runPrologueIntoActOneSmoke(seedRng: Rng): WorldState {
   let state = runSlimePrologueSmoke(seedRng);
 
-  state = chooseNpcOptionOrThrow(state, 'sora', 'after-prologue');
-  state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
-  state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
-  state = chooseNpcOptionOrThrow(state, 'sora', 'council');
+  state = chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'after-prologue');
+  state = chooseNpcOptionOrThrow(state, 'shuna', 'analyze');
+  state = chooseNpcOptionOrThrow(state, 'gobta', 'briefing');
+  state = chooseNpcOptionOrThrow(state, 'ranga-tempest', 'scout-route');
+  state = chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'council');
 
   const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, seedRng);
   if (!grove.state.encounter) throw new Error('Expected whispering-grove encounter after prologue.');
@@ -105,7 +107,7 @@ export function runPrologueIntoActOneSmoke(seedRng: Rng): WorldState {
   if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter after prologue.');
   state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
 
-  return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');
+  return chooseNpcOptionOrThrow(state, 'rigurd-tempest', 'report-act1');
 }
 
 function chooseNpcOptionOrThrow(state: WorldState, npcId: string, choiceId: string): WorldState {

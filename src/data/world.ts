@@ -200,19 +200,19 @@ export const QUESTS = [
   {
     id: 'binding-of-ancestors',
     title: 'Bindung der Ahnen',
-    description: 'Führe Sora, Vael und Lyrre durch den ersten Riss der alten Versiegelung.',
+    description: 'Führe Rigurd, Gobta, Ranga und Shuna durch den ersten Riss der alten Versiegelung.',
     actId: 'act-1',
     steps: [
       {
         id: 'awakening',
         title: 'Erwachen ohne Namen',
-        description: 'Sora findet den Schleimkern und bindet ihn in Tempests Schutzkreis ein.',
+        description: 'Rigurd sammelt Tempest nach der Benennung und macht Rimurus Schwur zum ersten Stadtziel.',
         locationId: 'tempest-hollow'
       },
       {
         id: 'gather-council',
         title: 'Rat versammeln',
-        description: 'Hole Vaels Analyse und Lyrres Grenzbericht ein.',
+        description: 'Hole Shunas Siegeldeutung, Gobtas Späherplan und Rangas Scoutbericht ein.',
         locationId: 'tempest-hollow'
       },
       {
@@ -224,13 +224,13 @@ export const QUESTS = [
       {
         id: 'defeat-mordrahn-echo',
         title: 'Echo am Ahnensiegel brechen',
-        description: 'Stelle dich Mordrahns Projektion, bevor sie das Siegel erneut verdreht.',
+        description: 'Stelle dich dem namenlosen Echo, bevor es das Siegel erneut verdreht.',
         locationId: 'ancestor-seal'
       },
       {
         id: 'report-sora',
         title: 'Gründung besiegeln',
-        description: 'Kehre mit dem Siegelbruch zu Sora zurück.',
+        description: 'Kehre mit dem Siegelbruch zu Rigurd zurück.',
         locationId: 'tempest-hollow'
       }
     ],
@@ -239,13 +239,13 @@ export const QUESTS = [
   {
     id: 'border-escalation',
     title: 'Grenzfeuer',
-    description: 'Halte die Sumpfgrenze, während Misstrauen und Mordrahns Vorhut die zerfallende Bindung ausnutzen.',
+    description: 'Halte die Sumpfgrenze, während Misstrauen und eine feindliche Vorhut die zerfallende Bindung ausnutzen.',
     actId: 'act-2',
     steps: [
       {
         id: 'muster',
         title: 'Zum Grenzlager',
-        description: 'Lyrre meldet, dass Menschenpatrouillen an der Sumpfgrenze auflaufen.',
+        description: 'Gobta meldet, dass Menschenpatrouillen an der Sumpfgrenze auflaufen.',
         locationId: 'border-camp'
       },
       {
@@ -257,7 +257,7 @@ export const QUESTS = [
       {
         id: 'read-fracture',
         title: 'Den zweiten Riss lesen',
-        description: 'Bring Vael die Grenzfunde — die Bindung zerfällt schneller, und jemand aus Tempest hat geredet.',
+        description: 'Bring Shuna die Grenzfunde — die Bindung zerfällt schneller, und jemand aus Tempest hat geredet.',
         locationId: 'tempest-hollow'
       },
       {
@@ -269,7 +269,7 @@ export const QUESTS = [
       {
         id: 'report-act2',
         title: 'Bericht: Die Bindung bröckelt',
-        description: 'Kehr zu Lyrre zurück und sichere die Grenze für den nächsten Schlag.',
+        description: 'Kehr zu Gobta zurück und sichere die Grenze für den nächsten Schlag.',
         locationId: 'border-camp'
       }
     ],
@@ -284,7 +284,7 @@ export const QUESTS = [
       {
         id: 'rally',
         title: 'Das Bündnis schmieden',
-        description: 'Vereine Tempests Monster und gemäßigte Menschen unter Soras Banner.',
+        description: 'Vereine Tempests Monster und gemäßigte Menschen unter Rimurus Banner.',
         locationId: 'tempest-hollow'
       },
       {
@@ -337,12 +337,12 @@ export const QUESTS = [
   {
     id: 'relic-echoes',
     title: 'Streunende Echos',
-    description: 'Vael bittet, die umherirrenden Geist-Echos an der alten Bruchkante zu bannen, bevor sie die Bindung weiter stören.',
+    description: 'Shuna bittet, die umherirrenden Geist-Echos an der alten Bruchkante zu bannen, bevor sie die Bindung weiter stören.',
     steps: [
       {
         id: 'accept-echo',
         title: 'Auftrag annehmen',
-        description: 'Hör dir Vaels Bitte an und mach dich zur Bruchkante auf.',
+        description: 'Hör dir Shunas Bitte an und mach dich zur Bruchkante auf.',
         locationId: 'tempest-hollow'
       },
       {
@@ -353,8 +353,8 @@ export const QUESTS = [
       },
       {
         id: 'report-echo',
-        title: 'Vael berichten',
-        description: 'Bring Vael die Messdaten des gebannten Echos.',
+        title: 'Shuna berichten',
+        description: 'Bring Shuna die Messdaten des gebannten Echos.',
         locationId: 'tempest-hollow'
       }
     ],
@@ -363,12 +363,12 @@ export const QUESTS = [
   {
     id: 'border-runner',
     title: 'Grenzgänger',
-    description: 'Lyrre bittet, einen Deserteurstrupp an der Osthandelsroute abzufangen — möglichst ohne neue Feindschaft zu säen.',
+    description: 'Gobta bittet, einen Deserteurstrupp an der Osthandelsroute abzufangen — möglichst ohne neue Feindschaft zu säen.',
     steps: [
       {
         id: 'accept-deserter',
         title: 'Auftrag annehmen',
-        description: 'Hör dir Lyrres Bitte an und zieh zur Osthandelsroute.',
+        description: 'Hör dir Gobtas Bitte an und zieh zur Osthandelsroute.',
         locationId: 'tempest-hollow'
       },
       {
@@ -379,8 +379,8 @@ export const QUESTS = [
       },
       {
         id: 'report-deserter',
-        title: 'Lyrre berichten',
-        description: 'Bring Lyrre Nachricht, dass die Route wieder sicher ist.',
+        title: 'Gobta berichten',
+        description: 'Bring Gobta Nachricht, dass die Route wieder sicher ist.',
         locationId: 'tempest-hollow'
       }
     ],
@@ -655,7 +655,7 @@ export const LOCATIONS = [
     mapId: 'tempest-start',
     position: { x: 8, y: 2 },
     description: 'Eine alte Bruchkante im Norden, an der streunende Geist-Echos der Bindung umherirren.',
-    identity: 'Optionaler Bannort: ein streunendes Echo, das Vaels Messungen stört.',
+    identity: 'Optionaler Bannort: ein streunendes Echo, das Shunas Deutung stört.',
     unlockFlag: 'sidequest.echo.started'
   },
   {
@@ -837,7 +837,7 @@ export const LORE_ENTRIES = [
     id: 'tempest-council',
     title: 'Erster Rat von Tempest',
     category: 'places',
-    body: 'Sora hält die Verteidigung, Vael liest die Magiestruktur, Lyrre beobachtet die Grenze. Zusammen bilden sie den ersten belastbaren Quest-Knoten.',
+    body: 'Rigurd hält die junge Stadt zusammen, Shuna liest die Siegelspur, Gobta plant den Grenzweg und Ranga liefert die erste Scout-Route. Zusammen bilden sie den ersten belastbaren Quest-Knoten.',
     unlockFlag: 'story.council.ready'
   },
   {
@@ -849,9 +849,9 @@ export const LORE_ENTRIES = [
   },
   {
     id: 'mordrahn',
-    title: 'Mordrahn',
+    title: 'Namenloses Echo',
     category: 'people',
-    body: 'Der Hüter der zerfallenden Bindung. Sein Echo spricht nicht wie ein Eroberer, sondern wie jemand, der eine Katastrophe um jeden Preis verhindern will.',
+    body: 'Ein Echo aus der zerfallenden Bindung. Es spricht nicht wie ein Eroberer, sondern wie eine alte Ordnung, die eine Katastrophe um jeden Preis verhindern will.',
     unlockFlag: 'story.boss.echo-defeated'
   },
   {
@@ -865,14 +865,14 @@ export const LORE_ENTRIES = [
     id: 'second-fracture',
     title: 'Der zweite Riss',
     category: 'history',
-    body: 'Vaels Messungen sind eindeutig: die Bindung zerfällt schneller, als sie sollte — entlang der Grenze, als zöge jemand gezielt an den Fäden. Und jemand aus Tempest hat den Weg verraten.',
+    body: 'Shunas Deutung ist eindeutig: die Bindung zerfällt schneller, als sie sollte — entlang der Grenze, als zöge jemand gezielt an den Fäden. Und jemand aus Tempest hat den Weg verraten.',
     unlockFlag: 'story.fracture.read'
   },
   {
     id: 'mordrahn-vanguard',
-    title: 'Mordrahns Vorhut',
+    title: 'Feindliche Vorhut',
     category: 'people',
-    body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner, die den Riss weiter aufreißen, damit ihr Hüter „die Welt retten" kann.',
+    body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner, die den Riss weiter aufreißen, damit die alte Ordnung „die Welt retten" kann.',
     unlockFlag: 'story.vanguard.broken'
   },
   {
@@ -900,7 +900,7 @@ export const LORE_ENTRIES = [
     id: 'ending-true',
     title: 'Wahres Ende: Geteilte Last',
     category: 'history',
-    body: 'Weil die Bindungen zwischen Sora, Lyrre und dem Namenlosen hielten, fand Tempest einen dritten Weg: die alte Magie nicht zu zerstören und nicht zu erzwingen, sondern auf viele Schultern zu verteilen. Kein Opfer, keine Schutzlosigkeit — nur geteilte Verantwortung.',
+    body: 'Weil die Bindungen zwischen Rigurd, Gobta, Shuna, Ranga und Rimuru hielten, fand Tempest einen dritten Weg: die alte Magie nicht zu zerstören und nicht zu erzwingen, sondern auf viele Schultern zu verteilen. Kein Opfer, keine Schutzlosigkeit — nur geteilte Verantwortung.',
     unlockFlag: 'ending.true'
   },
   {
@@ -1251,7 +1251,7 @@ export const DIALOGS = [
       {
         id: 'slime-completed',
         speaker: 'Rigurd',
-        text: 'Das Rudel weicht zurück, und die Goblins haben wieder eine Zukunft. Gib diesem Ort einen Namen — etwas, an dem wir festhalten können. Danach wartet Sora: Die alten Siegel reagieren bereits auf Tempests ersten Schwur.',
+        text: 'Das Rudel weicht zurück, und die Goblins haben wieder eine Zukunft. Gib diesem Ort einen Namen — etwas, an dem wir festhalten können. Danach sammle ich den Rat: Die alten Siegel reagieren bereits auf Tempests ersten Schwur.',
         choices: [{ id: 'end', label: 'Tempest soll es sein' }]
       },
       {
@@ -1281,13 +1281,13 @@ export const DIALOGS = [
     ]
   },
   {
-    id: 'sora-act1',
+    id: 'rigurd-act1',
     startNodeId: 'start',
     nodes: [
       {
         id: 'start',
-        speaker: 'Sora',
-        text: 'Du bist aus dem Schutzkreis gefallen wie ein Stern ohne Himmel. Wenn du Tempest helfen willst, beginnen wir mit einem Namen — und mit Verantwortung.',
+        speaker: 'Rigurd',
+        text: 'Tempest hat jetzt einen Namen. Ein Name ist aber erst stark, wenn die Leute darunter zusammenstehen. Sammeln wir Rat, Späher und Ritualwissen, bevor der Hain auf unsere Magie antwortet.',
         choices: [
           {
             id: 'begin',
@@ -1301,6 +1301,7 @@ export const DIALOGS = [
               { type: 'start-quest', questId: 'binding-of-ancestors' },
               { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'awakening' },
               { type: 'set-flag', flag: 'story.intro.seen', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.act1-met', value: true },
               { type: 'set-flag', flag: 'bond.sora.met', value: true }
             ]
           },
@@ -1316,6 +1317,7 @@ export const DIALOGS = [
             effects: [
               { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'awakening' },
               { type: 'set-flag', flag: 'story.intro.seen', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.act1-met', value: true },
               { type: 'set-flag', flag: 'bond.sora.met', value: true }
             ]
           },
@@ -1346,6 +1348,7 @@ export const DIALOGS = [
               { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'report-sora' },
               { type: 'complete-quest', questId: 'binding-of-ancestors' },
               { type: 'set-flag', flag: 'story.act1.completed', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.trust-act1', value: true },
               { type: 'set-flag', flag: 'bond.sora.trust-1', value: true },
               { type: 'add-gold', amount: 180 },
               { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
@@ -1430,62 +1433,62 @@ export const DIALOGS = [
       },
       {
         id: 'begin',
-        speaker: 'Sora',
-        text: 'Vael kann die Siegelspur lesen. Lyrre kennt die Grenze. Sprich mit beiden, dann öffnen wir den Weg in den Flüsterhain.',
+        speaker: 'Rigurd',
+        text: 'Shuna kann die Siegelspur lesen. Gobta kennt die Pfade, und Ranga findet, was wir übersehen. Sprich mit ihnen, dann öffnen wir den Weg in den Flüsterhain.',
         choices: [{ id: 'end', label: 'Ich sammle den Rat' }]
       },
       {
         id: 'council',
-        speaker: 'Sora',
-        text: 'Gut. Der Hain ist kein leerer Wald: Sporen reagieren auf Namen. Bleib zusammen, brich die Quelle und kehre zurück, bevor Mordrahn sie findet.',
+        speaker: 'Rigurd',
+        text: 'Gut. Der Hain ist kein leerer Wald: Sporen reagieren auf Namen. Bleibt zusammen, brecht die Quelle und kehrt zurück, bevor das Echo sie findet.',
         choices: [{ id: 'end', label: 'Zum Flüsterhain' }]
       },
       {
         id: 'completed',
-        speaker: 'Sora',
-        text: 'Dann ist Tempest mehr als ein Lager. Wir haben eine erste Geschichte, einen ersten Schwur — und einen Feind, der glaubt, Opfer seien Ordnung.',
+        speaker: 'Rigurd',
+        text: 'Dann ist Tempest mehr als ein Lager. Wir haben eine erste Geschichte, einen ersten Schwur — und eine Warnung, dass alte Ordnung nicht immer Schutz bedeutet.',
         choices: [{ id: 'end', label: 'Tempest steht' }]
       },
       {
         id: 'state',
-        speaker: 'Sora',
+        speaker: 'Rigurd',
         text: 'Tempest ist noch klein: ein Feuerkreis, ein Vorratszelt, ein paar Mauern. Aber jeder Name hier ist ein Versprechen, nicht nur ein Etikett.',
         choices: [{ id: 'end', label: 'Verstanden' }]
       },
       {
         id: 'rally-node',
-        speaker: 'Sora',
-        text: 'Dann ist es Zeit. Monster und gemäßigte Menschen unter einem Banner — Mordrahn rechnet nicht damit. Brich seine Linie und stell ihn am Herz der Bindung.',
+        speaker: 'Rigurd',
+        text: 'Dann ist es Zeit. Monster und gemäßigte Menschen unter einem Banner — die alte Ordnung rechnet nicht damit. Brich ihre Linie und stell dich dem Herz der Bindung.',
         choices: [{ id: 'end', label: 'Zum Bündnismarsch' }]
       },
       {
         id: 'end-freedom',
-        speaker: 'Sora',
+        speaker: 'Rigurd',
         text: 'Die Bindung ist zerschlagen. Wir sind frei — und schutzlos. Tempest beginnt ohne Netz, aber als unsere eigene Wahl. Das tragen wir gemeinsam.',
         choices: [{ id: 'end', label: 'Frei und verantwortlich' }]
       },
       {
         id: 'end-order',
-        speaker: 'Sora',
+        speaker: 'Rigurd',
         text: 'Wir haben sie neu geschmiedet — ohne Opfer, aber zu einem Preis, den wir selbst zahlen. Sicherheit, die uns ein Stück der Freiheit kostet. Auch das ist eine Gründung.',
         choices: [{ id: 'end', label: 'Geordnet, aber wachsam' }]
       },
       {
         id: 'end-true',
-        speaker: 'Sora',
+        speaker: 'Rigurd',
         text: 'Weil unsere Bindungen hielten, mussten wir nicht wählen zwischen Opfer und Schutzlosigkeit. Wir verteilen die alte Last auf viele Schultern — kein Held trägt sie allein. So bleibt Tempest.',
         choices: [{ id: 'end', label: 'Geteilte Last' }]
       }
     ]
   },
   {
-    id: 'vael-council',
+    id: 'shuna-ritual',
     startNodeId: 'start',
     nodes: [
       {
         id: 'start',
-        speaker: 'Vael',
-        text: 'Ich habe die Risse kartiert. Sie ziehen vom Flüsterhain bis zum alten Schrein — als hätte jemand die Bindung absichtlich unter Spannung gesetzt.',
+        speaker: 'Shuna',
+        text: 'Die Fäden der Magie zittern vom Flüsterhain bis zum alten Schrein. Jemand oder etwas spannt die Bindung, als wolle es Tempests neuen Namen prüfen.',
         choices: [
           {
             id: 'analyze',
@@ -1496,6 +1499,7 @@ export const DIALOGS = [
               { notFlag: 'story.vael.ready' }
             ],
             effects: [
+              { type: 'set-flag', flag: 'story.shuna.ready', value: true },
               { type: 'set-flag', flag: 'story.vael.ready', value: true },
               { type: 'set-flag', flag: 'codex.seal-theory', value: true }
             ]
@@ -1557,44 +1561,44 @@ export const DIALOGS = [
       },
       {
         id: 'ready',
-        speaker: 'Vael',
-        text: 'Nimm diesen Befund zu Sora. Wenn der Hain reagiert, suche nach einem Fragment: Es sollte wie gefrorener Donner klingen.',
+        speaker: 'Shuna',
+        text: 'Nimm diese Deutung zu Rigurd. Wenn der Hain reagiert, suche nach einem Fragment: Es sollte wie gefrorener Donner klingen.',
         choices: [{ id: 'end', label: 'Zum Rat' }]
       },
       {
         id: 'after',
-        speaker: 'Vael',
+        speaker: 'Shuna',
         text: 'Die Signatur ist nicht wild. Jemand lenkt sie. Das macht mir mehr Angst als jede Bestie im Hain.',
         choices: [{ id: 'end', label: 'Ich passe auf' }]
       },
       {
         id: 'fracture',
-        speaker: 'Vael',
+        speaker: 'Shuna',
         text: 'Die Grenzfunde bestätigen es: die Bindung zerfällt schneller als natürlich — entlang genau der Route, die ihr genommen habt. Jemand aus Tempest hat geredet. Brich die Vorhut am Grenzriss, bevor sie ihn ganz aufreißt.',
         choices: [{ id: 'end', label: 'Zum Grenzriss' }]
       },
       {
         id: 'echo-accepted',
-        speaker: 'Vael',
+        speaker: 'Shuna',
         text: 'An der nördlichen Bruchkante irrt ein streunendes Echo umher und verzerrt meine Messungen. Bann es — vorsichtig, es ist magisch, nicht körperlich.',
         choices: [{ id: 'end', label: 'Zur Bruchkante' }]
       },
       {
         id: 'echo-done',
-        speaker: 'Vael',
+        speaker: 'Shuna',
         text: 'Die Messdaten sind jetzt sauber — und beunruhigend klar. Danke. Nimm das hier; du hast es dir verdient.',
         choices: [{ id: 'end', label: 'Bis bald' }]
       }
     ]
   },
   {
-    id: 'lyrre-border',
+    id: 'gobta-border',
     startNodeId: 'start',
     nodes: [
       {
         id: 'start',
-        speaker: 'Lyrre',
-        text: 'Die Menschenpatrouillen bleiben auf Abstand, aber ihre Späher zählen unsere Feuer. Wenn Tempest wachsen will, muss es sichtbar stark und sichtbar fair sein.',
+        speaker: 'Gobta',
+        text: 'Die Pfade um Tempest sind unruhig. Ranga wittert alte Magie im Hain und ich kenne die kurzen Wege. Wenn wir klug laufen, sieht uns niemand als Horde.',
         choices: [
           {
             id: 'briefing',
@@ -1605,8 +1609,8 @@ export const DIALOGS = [
               { notFlag: 'story.lyrre.ready' }
             ],
             effects: [
-              { type: 'set-flag', flag: 'story.lyrre.ready', value: true },
-              { type: 'set-flag', flag: 'bond.lyrre.met', value: true }
+              { type: 'set-flag', flag: 'story.gobta.ready', value: true },
+              { type: 'set-flag', flag: 'bond.gobta.met', value: true }
             ]
           },
           {
@@ -1641,6 +1645,7 @@ export const DIALOGS = [
               { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'report-act2' },
               { type: 'complete-quest', questId: 'border-escalation' },
               { type: 'set-flag', flag: 'story.act2.completed', value: true },
+              { type: 'set-flag', flag: 'bond.gobta.trust-act2', value: true },
               { type: 'set-flag', flag: 'bond.lyrre.trust-1', value: true },
               { type: 'add-gold', amount: 240 },
               { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
@@ -1684,37 +1689,37 @@ export const DIALOGS = [
       },
       {
         id: 'ready',
-        speaker: 'Lyrre',
-        text: 'Ich begleite euch bis zum Hainrand. Wenn ein Mensch Monster nur als Horde sieht, muss Tempest das Gegenbeispiel werden.',
-        choices: [{ id: 'end', label: 'Zum Rat' }]
+        speaker: 'Gobta',
+        text: 'Ich markiere den Pfad bis zum Hainrand. Ranga soll danach die Spur prüfen — der findet, was ich übersehe.',
+        choices: [{ id: 'end', label: 'Ranga folgt der Spur' }]
       },
       {
         id: 'deserter-accepted',
-        speaker: 'Lyrre',
+        speaker: 'Gobta',
         text: 'An der Osthandelsroute plündert ein Deserteurstrupp. Stell sie — aber lass Überlebende laufen, wenn du kannst. Tempest braucht Beispiele, keine Leichen.',
         choices: [{ id: 'end', label: 'Zur Osthandelsroute' }]
       },
       {
         id: 'deserter-done',
-        speaker: 'Lyrre',
+        speaker: 'Gobta',
         text: 'Die Route ist wieder offen, und du hast nicht mehr Blut vergossen als nötig. Genau so gewinnt Tempest Vertrauen. Danke.',
         choices: [{ id: 'end', label: 'Verstanden' }]
       },
       {
         id: 'after',
-        speaker: 'Lyrre',
-        text: 'Noch greifen sie nicht an. Aber Misstrauen ist auch eine Waffe — sie braucht nur länger, bis man die Wunde sieht.',
+        speaker: 'Gobta',
+        text: 'Noch greift niemand an. Aber Misstrauen riecht Ranga schon, bevor jemand eine Waffe zieht.',
         choices: [{ id: 'end', label: 'Verstanden' }]
       },
       {
         id: 'muster',
-        speaker: 'Lyrre',
+        speaker: 'Gobta',
         text: 'Es ist soweit: Patrouillen sammeln sich an der Sumpfgrenze. Halt sie zurück, ohne ein Massaker zu provozieren — wir wollen eine Grenze, kein Feuer.',
         choices: [{ id: 'end', label: 'Zur Sumpfgrenze' }]
       },
       {
         id: 'act2-done',
-        speaker: 'Lyrre',
+        speaker: 'Gobta',
         text: 'Die Vorhut ist gebrochen, die Grenze hält — fürs Erste. Aber wir wissen jetzt: jemand zieht an der Bindung, und jemand aus Tempest hat ihm den Weg gezeigt.',
         choices: [{ id: 'end', label: 'Tempest hält' }]
       }
@@ -1871,6 +1876,52 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Willkommen, Ranga' }]
       }
     ]
+  },
+  {
+    id: 'ranga-scout',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Ranga',
+        text: 'Ranga hebt den Kopf. Gobtas Markierungen liegen auf dem Pfad, aber der Geruch darunter ist alt — Erde, Sporen und ein fremdes Echo.',
+        choices: [
+          {
+            id: 'scout-route',
+            label: 'Scoutbericht annehmen',
+            nextNodeId: 'scouted',
+            requirements: [
+              { questStatus: { questId: 'binding-of-ancestors', status: 'active' } },
+              { flag: 'story.gobta.ready' },
+              { notFlag: 'story.ranga.ready' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.ranga.ready', value: true },
+              { type: 'set-flag', flag: 'story.lyrre.ready', value: true }
+            ]
+          },
+          {
+            id: 'after',
+            label: 'Scoutbericht wiederholen',
+            nextNodeId: 'after',
+            requirements: [{ flag: 'story.ranga.ready' }]
+          },
+          { id: 'end', label: 'Später' }
+        ]
+      },
+      {
+        id: 'scouted',
+        speaker: 'Ranga',
+        text: 'Rangas Spur ist klar: Der Hain reagiert nicht auf Hunger, sondern auf Namen. Mit diesem Weg kann Rigurd den Rat losschicken.',
+        choices: [{ id: 'end', label: 'Zum Rat zurück' }]
+      },
+      {
+        id: 'after',
+        speaker: 'Ranga',
+        text: 'Der sichere Pfad bleibt markiert. Wenn Tempest später schneller reisen will, beginnt die Route hier.',
+        choices: [{ id: 'end', label: 'Guter Junge' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -1902,28 +1953,40 @@ export const NPCS = [
     color: 0xe9c56c
   },
   {
-    id: 'sora',
-    name: 'Sora',
+    id: 'rigurd-tempest',
+    name: 'Rigurd',
     mapId: 'tempest-start',
     position: { x: 2, y: 4 },
-    dialogId: 'sora-act1',
-    color: 0xff8a6b
+    dialogId: 'rigurd-act1',
+    color: 0xe9c56c,
+    requirements: [{ flag: 'story.slime-prologue.completed' }]
   },
   {
-    id: 'vael',
-    name: 'Vael',
+    id: 'shuna',
+    name: 'Shuna',
     mapId: 'tempest-start',
     position: { x: 7, y: 3 },
-    dialogId: 'vael-council',
-    color: 0x8fd7ff
+    dialogId: 'shuna-ritual',
+    color: 0xf0b7ff,
+    requirements: [{ flag: 'story.slime-prologue.completed' }]
   },
   {
-    id: 'lyrre',
-    name: 'Lyrre',
+    id: 'gobta',
+    name: 'Gobta',
     mapId: 'tempest-start',
     position: { x: 8, y: 5 },
-    dialogId: 'lyrre-border',
-    color: 0x9ff0a4
+    dialogId: 'gobta-border',
+    color: 0x9ff0a4,
+    requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'ranga-tempest',
+    name: 'Ranga',
+    mapId: 'tempest-start',
+    position: { x: 9, y: 5 },
+    dialogId: 'ranga-scout',
+    color: 0x9fb6d6,
+    requirements: [{ flag: 'story.direwolf.pact' }]
   },
   {
     id: 'eir',

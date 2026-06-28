@@ -144,14 +144,15 @@ describe('world/dialog/shop/encounter system', () => {
       inventory: [],
       gold: 120
     };
-    state = chooseDialogOption(state, 'sora-act1', 'start', 'after-prologue').state.world;
+    state = chooseDialogOption(state, 'rigurd-act1', 'start', 'after-prologue').state.world;
 
     const blocked = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, makeRng(2));
     expect(blocked.state.encounter).toBeNull();
 
-    state = chooseDialogOption(state, 'vael-council', 'start', 'analyze').state.world;
-    state = chooseDialogOption(state, 'lyrre-border', 'start', 'briefing').state.world;
-    state = chooseDialogOption(state, 'sora-act1', 'start', 'council').state.world;
+    state = chooseDialogOption(state, 'shuna-ritual', 'start', 'analyze').state.world;
+    state = chooseDialogOption(state, 'gobta-border', 'start', 'briefing').state.world;
+    state = chooseDialogOption(state, 'ranga-scout', 'start', 'scout-route').state.world;
+    state = chooseDialogOption(state, 'rigurd-act1', 'start', 'council').state.world;
 
     const activeLocations = getMapLocations('tempest-start', state).map((location) => location.id);
     expect(activeLocations).toContain('whispering-grove');
@@ -236,7 +237,7 @@ describe('world/dialog/shop/encounter system', () => {
     expect(world.flags['story.slime-prologue.completed']).toBe(true);
     expect(world.flags['story.act1.completed']).toBe(true);
     expect(world.flags['story.intro.seen']).toBe(true);
-    expect(world.flags['bond.sora.met']).toBe(true);
+    expect(world.flags['bond.rigurd.act1-met']).toBe(true);
   });
 
   it('priorisiert aktive Quests im Quest-Log vor abgeschlossenen und unentdeckten', () => {
