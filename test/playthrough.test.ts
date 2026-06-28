@@ -9,14 +9,16 @@ import {
   createWorldState,
   getActiveEnding,
   getMapEncounters,
+  getMapLocations,
   getMapNpcs,
+  getMapShops,
   getVisibleMapEncounters,
   npcHasQuestMarker,
   resolveEncounter,
   startDialogForNpc
 } from '../src/systems/world';
-import { JURA_FIELD } from '../src/data/maps';
-import { isWalkable, type Vec2 } from '../src/systems/overworld';
+import { MAPS, getMap } from '../src/data/maps';
+import { isWalkable, type TileMap, type Vec2 } from '../src/systems/overworld';
 import { makeRng } from '../src/systems/rng';
 
 const MAP_ID = 'tempest-start';
@@ -264,35 +266,58 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(marker(save, 'sora')).toBe(true);
   });
 
-  it('hält jeden Quest-NPC und Story-Encounter auf der Karte erreichbar', () => {
-    // Flood-Fill der begehbaren Kacheln ab dem Spawn (4er-Nachbarschaft).
-    const reachable = new Set<string>();
+  it('hält NPCs, Shops, Gateways und Trigger-Encounter auf jeder Karte erreichbar', () => {
     const key = (x: number, y: number) => `${x},${y}`;
-    const stack: Vec2[] = [JURA_FIELD.spawn];
-    while (stack.length) {
-      const { x, y } = stack.pop()!;
-      if (x < 0 || y < 0 || x >= JURA_FIELD.width || y >= JURA_FIELD.height) continue;
-      if (!isWalkable(JURA_FIELD, x, y) || reachable.has(key(x, y))) continue;
-      reachable.add(key(x, y));
-      stack.push({ x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 });
-    }
+    const reachableSet = (map: TileMap): Set<string> => {
+      const set = new Set<string>();
+      const stack: Vec2[] = [map.spawn];
+      while (stack.length) {
+        const { x, y } = stack.pop()!;
+        if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
+        if (!isWalkable(map, x, y) || set.has(key(x, y))) continue;
+        set.add(key(x, y));
+        stack.push({ x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 });
+      }
+      return set;
+    };
+    // getAdjacent* nutzt Manhattan ≤ 1 → eine erreichbare Kachel in Reichweite genügt.
+    const inReach = (set: Set<string>, pos: Vec2) => [...set].some((k) => {
+      const [rx, ry] = k.split(',').map(Number);
+      return Math.abs(rx! - pos.x) + Math.abs(ry! - pos.y) <= 1;
+    });
 
-    // NPCs: getAdjacentNpc nutzt Manhattan ≤ 1 → eine erreichbare Kachel in Reichweite genügt.
-    for (const npc of getMapNpcs(MAP_ID)) {
-      const ok = [...reachable].some((k) => {
-        const [rx, ry] = k.split(',').map(Number);
-        return Math.abs(rx! - npc.position.x) + Math.abs(ry! - npc.position.y) <= 1;
-      });
-      expect(ok, `NPC '${npc.id}' bei (${npc.position.x},${npc.position.y}) ist nicht erreichbar`).toBe(true);
+    for (const mapId of Object.keys(MAPS)) {
+      const reach = reachableSet(getMap(mapId));
+      for (const npc of getMapNpcs(mapId)) {
+        expect(inReach(reach, npc.position), `NPC '${npc.id}' auf '${mapId}' nicht erreichbar`).toBe(true);
+      }
+      for (const shop of getMapShops(mapId)) {
+        expect(inReach(reach, shop.position), `Shop '${shop.id}' auf '${mapId}' nicht erreichbar`).toBe(true);
+      }
+      for (const loc of getMapLocations(mapId)) {
+        if (loc.travelTo) {
+          expect(inReach(reach, loc.position), `Gateway '${loc.id}' auf '${mapId}' nicht erreichbar`).toBe(true);
+        }
+      }
+      for (const enc of getMapEncounters(mapId)) {
+        if (enc.kind === 'trigger' && enc.position) {
+          expect(reach.has(key(enc.position.x, enc.position.y)), `Trigger '${enc.id}' auf '${mapId}' nicht erreichbar`).toBe(true);
+        }
+      }
     }
+  });
 
-    // Trigger-Encounter: der Spieler muss die Kachel betreten → sie muss erreichbar sein.
-    for (const enc of getMapEncounters(MAP_ID)) {
-      if (enc.kind !== 'trigger' || !enc.position) continue;
-      expect(
-        reachable.has(key(enc.position.x, enc.position.y)),
-        `Encounter '${enc.id}' bei (${enc.position.x},${enc.position.y}) ist nicht erreichbar`
-      ).toBe(true);
+  it('Reise-Gateways zeigen auf gültige, begehbare Zielorte', () => {
+    for (const mapId of Object.keys(MAPS)) {
+      for (const loc of getMapLocations(mapId)) {
+        if (!loc.travelTo) continue;
+        const target = MAPS[loc.travelTo.mapId];
+        expect(target, `Gateway '${loc.id}' → unbekannte Karte '${loc.travelTo.mapId}'`).toBeDefined();
+        expect(
+          isWalkable(target!, loc.travelTo.x, loc.travelTo.y),
+          `Gateway '${loc.id}' → Zielposition (${loc.travelTo.x},${loc.travelTo.y}) nicht begehbar`
+        ).toBe(true);
+      }
     }
   });
 });

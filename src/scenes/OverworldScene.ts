@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
-import { JURA_FIELD } from '../data/maps';
+import { getMap } from '../data/maps';
 import { NPCS, SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
-import { tryStep, WALL, type Dir, type Vec2 } from '../systems/overworld';
+import { isWalkable, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { makeRng } from '../systems/rng';
 import {
   applyWorldState,
   createWorldState,
   getAdjacentNpc,
   getAdjacentShop,
+  getAdjacentTravel,
   getActiveEnding,
   getMapLocations,
   getVisibleMapEncounters,
@@ -18,17 +19,18 @@ import {
 } from '../systems/world';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
-import { battleWipe, fadeIn } from './transition';
+import { battleWipe, fadeIn, fadeToScene } from './transition';
 
 const TILE = 48;
 const MOVE_MS = 130;
-const MAP_ID = 'tempest-start';
 
 // Oberwelt: rendert das Kachelraster, bewegt den Spieler rasterweise (Tastatur +
 // Touch-Steuerkreuz) und folgt mit der Kamera. Bewegung/Kollision kommt aus
 // der reinen systems/overworld-Logik.
 export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
+  private mapId = 'tempest-start';
+  private map!: TileMap;
   private player!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
   private worldLayer?: Phaser.GameObjects.Container;
   private moving = false;
@@ -43,8 +45,9 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   create(): void {
-    const map = JURA_FIELD;
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    this.mapId = this.save.location.mapId;
+    const map = this.map = getMap(this.mapId);
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
     playMusic('overworld');
     // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
@@ -82,9 +85,9 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     // Spieler — echtes CC0-Sprite → Platzhalter → Rechteck.
-    this.pos = this.save.location.mapId === MAP_ID
-      ? { x: this.save.location.x, y: this.save.location.y }
-      : { ...map.spawn };
+    // Gespeicherte Position nur übernehmen, wenn sie auf der aktuellen Karte begehbar ist.
+    const saved = { x: this.save.location.x, y: this.save.location.y };
+    this.pos = isWalkable(map, saved.x, saved.y) ? saved : { ...map.spawn };
     const heroKey = this.textures.exists('sprite-hero') ? 'sprite-hero'
       : (this.textures.exists('ph-hero') ? 'ph-hero' : null);
     this.player = heroKey
@@ -173,7 +176,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private step(dir: Dir): void {
-    const next = tryStep(JURA_FIELD, this.pos, dir);
+    const next = tryStep(this.map, this.pos, dir);
     if (next.x === this.pos.x && next.y === this.pos.y) return; // blockiert
     this.pos = next;
     this.moving = true;
@@ -213,14 +216,16 @@ export class OverworldScene extends Phaser.Scene {
     else this.worldLayer = this.add.container(0, 0);
     const layer = this.worldLayer;
     const world = createWorldState(this.save);
-    for (const location of getMapLocations(MAP_ID, world)) {
+    for (const location of getMapLocations(this.mapId, world)) {
       const color = location.kind === 'city'
         ? 0x476bff
         : location.kind === 'outpost'
           ? 0x4f8a55
           : location.kind === 'dungeon'
             ? 0x7350a8
-            : 0xd2b35f;
+            : location.kind === 'gateway'
+              ? 0x68d7ff
+              : 0xd2b35f;
       layer.add(this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
         .setStrokeStyle(2, color, 0.85));
       layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
@@ -228,9 +233,15 @@ export class OverworldScene extends Phaser.Scene {
         fontSize: '10px',
         color: '#e9eef7'
       }).setOrigin(0.5));
+      // Gateways bekommen ein Reise-Symbol, damit klar ist, dass man hier die Region wechselt.
+      if (location.kind === 'gateway') {
+        layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y), '⇄', {
+          fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeeff'
+        }).setOrigin(0.5));
+      }
     }
 
-    const triggerEncounters = getVisibleMapEncounters(MAP_ID, world).filter(isTriggerEncounterForMap);
+    const triggerEncounters = getVisibleMapEncounters(this.mapId, world).filter(isPlacedTrigger);
     for (const encounter of triggerEncounters) {
       layer.add(this.add.rectangle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.72, TILE * 0.72, 0x633050, 0.55)
         .setStrokeStyle(2, 0xff8aa0, 0.8));
@@ -241,7 +252,7 @@ export class OverworldScene extends Phaser.Scene {
       }).setOrigin(0.5));
     }
 
-    for (const npc of NPCS.filter((item) => item.mapId === MAP_ID)) {
+    for (const npc of NPCS.filter((item) => item.mapId === this.mapId)) {
       layer.add(this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
         .setStrokeStyle(2, 0xfff1aa, 0.9));
       layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 34, npc.name, {
@@ -261,7 +272,7 @@ export class OverworldScene extends Phaser.Scene {
       }
     }
 
-    for (const shop of SHOPS.filter((item) => item.mapId === MAP_ID)) {
+    for (const shop of SHOPS.filter((item) => item.mapId === this.mapId)) {
       layer.add(this.add.rectangle(this.cx(shop.position.x), this.cy(shop.position.y), TILE * 0.7, TILE * 0.7, 0x2f6f55, 0.95)
         .setStrokeStyle(2, 0x8affc1, 0.9));
       layer.add(this.add.text(this.cx(shop.position.x), this.cy(shop.position.y), '店', {
@@ -274,16 +285,27 @@ export class OverworldScene extends Phaser.Scene {
 
   private interact(): void {
     if (this.moving) return;
-    const npc = getAdjacentNpc(MAP_ID, this.pos);
+    const npc = getAdjacentNpc(this.mapId, this.pos);
     if (npc) {
       this.scene.launch('Dialogue', { npcId: npc.id });
       this.scene.pause();
       return;
     }
-    const shop = getAdjacentShop(MAP_ID, this.pos);
+    const shop = getAdjacentShop(this.mapId, this.pos);
     if (shop) {
       this.scene.launch('Shop', { shopId: shop.id });
       this.scene.pause();
+      return;
+    }
+    const gate = getAdjacentTravel(this.mapId, this.pos);
+    if (gate?.travelTo) {
+      // Region wechseln: Standort im Save setzen und die Szene mit der Zielkarte neu starten.
+      this.save = {
+        ...this.save,
+        location: { mapId: gate.travelTo.mapId, x: gate.travelTo.x, y: gate.travelTo.y, facing: 'down' }
+      };
+      autoSave(window.localStorage, this.save);
+      fadeToScene(this, 'Overworld');
     }
   }
 
@@ -292,7 +314,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = loadSave(window.localStorage) ?? this.save;
     const result = resolveEncounter(
       createWorldState(this.save),
-      MAP_ID,
+      this.mapId,
       this.pos,
       makeRng((this.save.seed + this.stepCount * 101 + this.pos.x * 17 + this.pos.y * 31) >>> 0)
     );
@@ -311,7 +333,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = {
       ...this.save,
       location: {
-        mapId: MAP_ID,
+        mapId: this.mapId,
         x: this.pos.x,
         y: this.pos.y,
         facing: facing === 'up' || facing === 'down' || facing === 'left' || facing === 'right' ? facing : 'down'
@@ -337,8 +359,10 @@ export class OverworldScene extends Phaser.Scene {
   }
 }
 
-function isTriggerEncounterForMap(
+// Eingabe ist bereits map-gefiltert (getVisibleMapEncounters(mapId)) → nur noch
+// auf platzierte Trigger prüfen.
+function isPlacedTrigger(
   encounter: EncounterDefinition
 ): encounter is EncounterDefinition & { readonly position: Vec2 } {
-  return encounter.mapId === MAP_ID && encounter.kind === 'trigger' && !!encounter.position;
+  return encounter.kind === 'trigger' && !!encounter.position;
 }

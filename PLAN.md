@@ -329,6 +329,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **`apex-bounty` („Apex: Urdirewolf", Rigurd, Postgame):** gated `story.act3.completed`. Superboss `elder-direwolf` (Lv. 12), Encounter @(13,13), große Belohnung + Codex `bestiary-elder-direwolf` — Anreiz nach dem Finale.
 - **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet beide Quests (inkl. Postgame-Gate: Apex erst nach Act 3 sichtbar); Marker-/Erreichbarkeit @(20,5)/(13,13) automatisch. `tsc` sauber, **101/101** grün, `build` ok.
 
+[x] **Zweite Region: Geistmoor (fertig 2026-06-28, direkt auf `main`)** *(erster Multi-Map-Schritt)*
+- **Engine:** `maps.ts` bekommt eine **Map-Registry** (`MAPS` + `getMap(mapId)`) und eine zweite, programmatisch erzeugte Karte `spirit-marsh`. `OverworldScene` wird **map-dynamisch**: rendert/bewegt über `getMap(save.location.mapId)` statt der fest verdrahteten `JURA_FIELD`/`MAP_ID`.
+- **Reise:** neues optionales `travelTo` an `WorldLocationDefinition` + `getAdjacentTravel`. Bidirektionale **Gateways** (Pfad ins Geistmoor ↔ zurück) wechseln `save.location` und laden die Zielkarte (`scene.restart`).
+- **Content (modest):** Geistmoor mit eigenem Spawn/Landmark, einem Shop, 2–3 Encountern (vorhandene Gegner) und einem Rückweg-Gateway; weiterer Ausbau später.
+- **Umgesetzt:** `maps.ts` mit generischem Builder, `SPIRIT_MARSH` (22×14), `MAPS`/`getMap`. `OverworldScene` rendert/bewegt/interagiert komplett über `this.mapId`+`this.map` (= `getMap(save.location.mapId)`); `travelTo` an Locations + `getAdjacentTravel`; bidirektionale Gateways (⇄-Symbol, eigene Farbe) wechseln per sanftem Fade. Geistmoor: Spawn, Landmark `marsh-mire`, Shop `marsh-trader`, 1 Zufalls- + 1 Landmark-Trigger-Encounter, Codex `geistmoor`. Positions-Walkability beim Laden abgesichert.
+- **Abnahme (lokal verifiziert):** Datenintegrität grün; `playthrough.test` prüft Erreichbarkeit von NPCs/Shops/Gateways/Triggern **je gegen ihre eigene Karte** (beide Maps) + Travel-Konsistenz (jedes `travelTo` → existierende Karte + begehbare Zielkachel). `tsc` sauber, **102/102** grün, `build` ok. *(Visuelles Reisen/2. Karte noch im Browser zu sichten.)*
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

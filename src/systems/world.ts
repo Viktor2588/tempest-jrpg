@@ -133,6 +133,13 @@ export function getAdjacentShop(mapId: string, position: Vec2): ShopDefinition |
   return getMapShops(mapId).find((shop) => isAdjacentOrSame(shop.position, position));
 }
 
+// Gateway-Location (mit travelTo) in Reichweite → für den Regionswechsel.
+export function getAdjacentTravel(mapId: string, position: Vec2): WorldLocationDefinition | undefined {
+  return allLocations.find((location) =>
+    location.mapId === mapId && !!location.travelTo && isAdjacentOrSame(location.position, position)
+  );
+}
+
 export function startDialogForNpc(state: WorldState, npcId: string): DialogView {
   const npc = requireNpc(npcId);
   return getDialogView(state, npc.dialogId, requireDialog(npc.dialogId).startNodeId);

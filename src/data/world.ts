@@ -1,6 +1,6 @@
 import type { Vec2 } from '../systems/overworld';
 
-export type WorldLocationKind = 'city' | 'outpost' | 'dungeon' | 'shrine';
+export type WorldLocationKind = 'city' | 'outpost' | 'dungeon' | 'shrine' | 'gateway';
 
 export type WorldEffect =
   | { readonly type: 'set-flag'; readonly flag: string; readonly value: boolean }
@@ -55,6 +55,8 @@ export interface WorldLocationDefinition {
   readonly description: string;
   readonly identity: string;
   readonly unlockFlag?: string;
+  // Gateway in eine andere Region: Interaktion versetzt den Spieler dorthin.
+  readonly travelTo?: { readonly mapId: string; readonly x: number; readonly y: number };
 }
 
 export interface LoreEntryDefinition {
@@ -486,6 +488,35 @@ export const LOCATIONS = [
     description: 'Eine tiefe Senke im Süden, in der ein uralter Urdirewolf sein Revier hält.',
     identity: 'Optionaler Apex-Bosskampf (Postgame): der Urdirewolf.',
     unlockFlag: 'sidequest.apex.started'
+  },
+  {
+    id: 'gate-to-marsh',
+    name: 'Pfad ins Geistmoor',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 1, y: 7 },
+    description: 'Ein vernebelter Trampelpfad, der westlich aus dem Hain ins Geistmoor führt.',
+    identity: 'Reisepunkt: Übergang in die zweite Region (Geistmoor).',
+    travelTo: { mapId: 'spirit-marsh', x: 2, y: 2 }
+  },
+  {
+    id: 'gate-to-tempest',
+    name: 'Pfad nach Tempest',
+    kind: 'gateway',
+    mapId: 'spirit-marsh',
+    position: { x: 1, y: 2 },
+    description: 'Der Rückweg aus dem Moor zurück in den Tempest-Hain.',
+    identity: 'Reisepunkt: zurück in die erste Region.',
+    travelTo: { mapId: 'tempest-start', x: 2, y: 7 }
+  },
+  {
+    id: 'marsh-mire',
+    name: 'Nebelmoor-Tiefe',
+    kind: 'dungeon',
+    mapId: 'spirit-marsh',
+    position: { x: 10, y: 2 },
+    description: 'Das Herz des Geistmoors, in dem Sporen und alte Echos dichter werden.',
+    identity: 'Erkundungszone des Geistmoors: zähe Begegnungen und Stimmung.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -594,6 +625,13 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Der Stammvater aller Direwölfe — ein Apex-Räuber von gewaltiger Kraft und Geschwindigkeit. Nur erdgebundene Magie bringt den Koloss ins Wanken. Ein Sieg über ihn ist ein Prüfstein.',
     unlockFlag: 'sidequest.apex.cleared'
+  },
+  {
+    id: 'geistmoor',
+    title: 'Das Geistmoor',
+    category: 'places',
+    body: 'Westlich von Tempest dehnt sich ein nebliges Moor, in dem Sporen, Echsenmenschen und losgerissene Echos der Bindung hausen. Wer die Nebelmoor-Tiefe bezwingt, beweist, dass Tempests Reichweite über den Hain hinauswächst.',
+    unlockFlag: 'marsh.guardian.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -1221,6 +1259,15 @@ export const SHOPS = [
     itemIds: ['healing-herb', 'mana-drop'],
     buyMultiplier: 1.1,
     sellMultiplier: 0.45
+  },
+  {
+    id: 'marsh-trader',
+    name: 'Moorhändlerin',
+    mapId: 'spirit-marsh',
+    position: { x: 3, y: 5 },
+    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm'],
+    buyMultiplier: 1.15,
+    sellMultiplier: 0.5
   }
 ] as const satisfies readonly ShopDefinition[];
 
@@ -1416,6 +1463,26 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.apex.cleared', value: true },
       { type: 'complete-quest-step', questId: 'apex-bounty', stepId: 'hunt-apex' }
+    ]
+  },
+  {
+    id: 'marsh-wilds',
+    mapId: 'spirit-marsh',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 9 },
+    enemyIds: ['spore-moth', 'lizardman-acolyte'],
+    chance: 0.14
+  },
+  {
+    id: 'marsh-mire-guardian',
+    mapId: 'spirit-marsh',
+    kind: 'trigger',
+    position: { x: 16, y: 10 },
+    enemyIds: ['lizardman-acolyte', 'stray-echo'],
+    chance: 1,
+    victoryEffects: [
+      { type: 'set-flag', flag: 'marsh.guardian.cleared', value: true },
+      { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
