@@ -241,28 +241,20 @@ export class MenuScene extends Phaser.Scene {
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
-      const y = 160 + index * 88;
-      this.panel(300, y, 290, 46);
-      this.layer.add(this.add.text(318, y - 14, slotLabel(slot), {
-        fontFamily: 'sans-serif',
-        fontSize: '10px',
-        color: '#9fb2cc'
+      const y = 150 + index * 100;
+      this.panel(300, y, 290, 92);
+      this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
-      this.layer.add(this.add.text(
-        318,
-        y + 4,
-        `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`,
-        {
-        fontFamily: 'sans-serif',
-        fontSize: '13px',
-        color: '#e9eef7'
-        }
-      ));
+      this.layer.add(this.add.text(318, y - 20, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#e9eef7'
+      }));
       if (item) {
-        this.button(500, y, 78, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
+        // Aktionen in einer Zeile unten im Panel — überlappen den Item-Namen nicht mehr.
+        this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
         if (item.enchantment && enchantmentLevel < item.enchantment.maxLevel) {
           const cost = item.enchantment.goldCostPerLevel * (enchantmentLevel + 1);
-          this.button(300, y + 25, 278, `Verzaubern · ${cost} Gold`, () => {
+          this.button(310, y + 24, 184, `Verzaubern · ${cost} Gold`, () => {
             const result = enchantEquipment(
               summary.member,
               this.save.progression,
