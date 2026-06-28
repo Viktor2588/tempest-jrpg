@@ -60,12 +60,54 @@ function visibleTriggerIds(save: SaveGameV2, mapId: string = MAP_ID): string[] {
     .map((enc) => enc.id);
 }
 
+function withPrologueCompleted(save: SaveGameV2): SaveGameV2 {
+  return {
+    ...save,
+    flags: {
+      ...save.flags,
+      'story.slime.awakened': true,
+      'story.storm-dragon.oath': true,
+      'story.goblin.plea': true,
+      'story.direwolf.defeated': true,
+      'story.direwolf.pact': true,
+      'story.slime-prologue.completed': true,
+      'story.tempest.named': true,
+      'faction.direwolves.respected': true,
+      'mount.direwolf.seed': true,
+      'progression.gobta.wolf-fang-token': true,
+      'bond.rigurd.trust-prologue': true
+    },
+    quests: {
+      ...save.quests,
+      'slime-awakening': {
+        status: 'completed',
+        completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+      },
+      'binding-of-ancestors': {
+        status: 'active',
+        completedStepIds: []
+      }
+    },
+    inventory: {
+      stacks: [
+        ...save.inventory.stacks,
+        { itemId: 'sealed-cave-crystal', quantity: 1 },
+        { itemId: 'wolf-fang-token', quantity: 1 }
+      ]
+    }
+  };
+}
+
+function saveAfterPrologue(): SaveGameV2 {
+  return withPrologueCompleted(createNewSave());
+}
+
 describe('Act-1-Durchspielen (szenentreu)', () => {
   it('schließt „Bindung der Ahnen" über den echten Szenen-Fluss ab und füllt den Codex', () => {
-    let save = createNewSave();
+    let save = saveAfterPrologue();
 
-    // Hauptquest startet vor Sora: nur dann ist sie sichtbar/aktivierbar.
-    save = talk(save, 'sora', 'begin');     // Quest aktiv + awakening + story.intro.seen
+    // Hauptquest wurde vom Prologabschluss gestartet; Sora nimmt jetzt die Ahnenspur auf.
+    save = talk(save, 'sora', 'after-prologue'); // awakening + story.intro.seen
     save = talk(save, 'vael', 'analyze');   // story.vael.ready
     save = talk(save, 'lyrre', 'briefing'); // story.lyrre.ready
     save = talk(save, 'sora', 'council');   // story.council.ready + gather-council
@@ -287,7 +329,8 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
 
     // Der komplette Act-1-Bogen ist auf dem migrierten Stand spielbar — kein Soft-Lock
     // durch fehlende neue Flags/Felder.
-    save = talk(save, 'sora', 'begin');
+    save = withPrologueCompleted(save);
+    save = talk(save, 'sora', 'after-prologue');
     save = talk(save, 'vael', 'analyze');
     save = talk(save, 'lyrre', 'briefing');
     save = talk(save, 'sora', 'council');
@@ -304,13 +347,25 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
     let save = createNewSave();
 
-    // Start: Sora (Story) und Rigurd (Patrouille) bieten je eine Aktion; Vael/Lyrre noch nicht.
-    expect(marker(save, 'sora')).toBe(true);
-    expect(marker(save, 'rigurd')).toBe(true);
+    // Start: zuerst der Sturmdrache; Sora/Patrouille sind bis zum Prologabschluss nicht aktiv.
+    expect(marker(save, 'sealed-storm-dragon')).toBe(true);
+    expect(marker(save, 'sora')).toBe(false);
+    expect(marker(save, 'rigurd')).toBe(false);
     expect(marker(save, 'vael')).toBe(false);
     expect(marker(save, 'lyrre')).toBe(false);
 
-    save = talk(save, 'sora', 'begin'); // Quest aktiv
+    save = talk(save, 'sealed-storm-dragon', 'begin');
+    expect(marker(save, 'sealed-storm-dragon')).toBe(true);
+    save = talk(save, 'sealed-storm-dragon', 'oath');
+    expect(marker(save, 'rigurd')).toBe(true);
+    save = talk(save, 'rigurd', 'hear-goblin-plea');
+    save = clearTriggerAt(save, { x: 9, y: 5 }, 'direwolf-den');
+    expect(marker(save, 'rigurd')).toBe(true);
+    save = talk(save, 'rigurd', 'name-village');
+    expect(marker(save, 'sora')).toBe(true);
+    expect(marker(save, 'rigurd')).toBe(true); // post-Prolog-Patrouille ist jetzt sichtbar
+
+    save = talk(save, 'sora', 'after-prologue'); // Quest aktiv + awakening
     // Jetzt sind Vael & Lyrre dran; bei Sora gibt es gerade nichts zu tun.
     expect(marker(save, 'vael')).toBe(true);
     expect(marker(save, 'lyrre')).toBe(true);

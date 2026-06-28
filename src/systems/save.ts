@@ -223,10 +223,10 @@ export function resetSave(storage: StorageLike, key = SAVE_STORAGE_KEY): void {
 }
 
 const DEFAULT_LOCATION: SaveLocation = {
-  mapId: 'tempest-start',
-  x: 4,
+  mapId: 'sealed-cave',
+  x: 7,
   y: 6,
-  facing: 'down'
+  facing: 'up'
 };
 
 function migrateV1(raw: Record<string, unknown>, now: string): SaveGameV3 {

@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { generatePlaceholderTextures } from '../render/placeholderArt';
 import { generatePortraitTextures } from '../render/portraitAtlas';
 import { generateVfxTextures } from '../render/vfxAtlas';
+import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtlas';
 import {
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
@@ -80,6 +81,8 @@ export class PreloadScene extends Phaser.Scene {
     generatePortraitTextures(this);
     // Prozeduraler Pixel-VFX-Atlas (vfx-<kind>) für Kampf-Feedback.
     generateVfxTextures(this);
+    // Prozedurale Prolog-Arenen (Höhle/Lichtung), bis dedizierte CC0-BGs vorliegen.
+    generatePrologueBattleBackgrounds(this);
     this.scene.start('Title');
   }
 
@@ -109,6 +112,8 @@ export class PreloadScene extends Phaser.Scene {
       'sprite-enemy-mordrahn',
       ...Object.values(PARTY_BATTLE_ART),
       ...Object.values(BATTLE_ARENA_TEXTURES)
-    ].forEach((key) => this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR));
+    ].forEach((key) => {
+      if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    });
   }
 }

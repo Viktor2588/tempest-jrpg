@@ -15,6 +15,9 @@ describe('Battle-Art-Zuordnung', () => {
   });
 
   it('ordnet jeder Region ihre Arena zu', () => {
+    expect(battleArenaForMap('sealed-cave').textureKey).toBe(BATTLE_ARENA_TEXTURES['sealed-cave']);
+    expect(battleArenaForMap('direwolf-den').textureKey).toBe(BATTLE_ARENA_TEXTURES['direwolf-den']);
+    expect(battleArenaForMap('goblin-village').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-grove']);
     expect(battleArenaForMap('tempest-start').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-grove']);
     expect(battleArenaForMap('spirit-marsh').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-marsh']);
     expect(battleArenaForMap('spirit-highlands').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-highlands']);

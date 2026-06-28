@@ -22,11 +22,25 @@ import {
   type WorldState
 } from '../src/systems/world';
 import { validateGameData } from './dataValidation';
-import { runActOneStorySliceSmoke, runMiniFlowSmoke } from './worldSmoke';
+import {
+  runActOneStorySliceSmoke,
+  runMiniFlowSmoke,
+  runPrologueIntoActOneSmoke,
+  runSlimePrologueSmoke
+} from './worldSmoke';
 
 function emptyWorld(): WorldState {
   return {
     flags: {},
+    quests: {},
+    inventory: [],
+    gold: 120
+  };
+}
+
+function postPrologueWorld(): WorldState {
+  return {
+    flags: { 'story.slime-prologue.completed': true },
     quests: {},
     inventory: [],
     gold: 120
@@ -39,7 +53,7 @@ describe('world/dialog/shop/encounter system', () => {
   });
 
   it('startet Rigurd-Dialog, setzt Quest und Bindungsflag', () => {
-    const state = emptyWorld();
+    const state = postPrologueWorld();
     const intro = startDialogForNpc(state, 'rigurd');
     const accepted = chooseDialogOption(state, intro.dialogId, intro.nodeId, 'accept');
 
@@ -49,8 +63,13 @@ describe('world/dialog/shop/encounter system', () => {
     expect(accepted.state.next?.nodeId).toBe('accepted');
   });
 
+  it('gated die erste Patrouille bis nach dem Schleim-Prolog', () => {
+    expect(startDialogForNpc(emptyWorld(), 'rigurd').choices.map((choice) => choice.id)).not.toContain('accept');
+    expect(startDialogForNpc(postPrologueWorld(), 'rigurd').choices.map((choice) => choice.id)).toContain('accept');
+  });
+
   it('schaltet Report-Dialog erst nach Trainingsbegegnung frei und vergibt Belohnung', () => {
-    const accepted = chooseDialogOption(emptyWorld(), 'rigurd-intro', 'start', 'accept').state.world;
+    const accepted = chooseDialogOption(postPrologueWorld(), 'rigurd-intro', 'start', 'accept').state.world;
     const beforeEncounter = startDialogForNpc(accepted, 'rigurd');
     expect(beforeEncounter.choices.map((choice) => choice.id)).not.toContain('report');
 
@@ -84,7 +103,8 @@ describe('world/dialog/shop/encounter system', () => {
   });
 
   it('findet benachbarte NPCs und Shops für Interaktion', () => {
-    expect(getAdjacentNpc('tempest-start', { x: 2, y: 3 })?.id).toBe('rigurd');
+    expect(getAdjacentNpc('goblin-village', { x: 8, y: 6 })?.id).toBe('rigurd');
+    expect(getAdjacentShop('goblin-village', { x: 10, y: 7 })?.id).toBe('goblin-hearth');
     expect(getAdjacentShop('tempest-start', { x: 5, y: 4 })?.id).toBe('tempest-supply');
     expect(getAdjacentNpc('tempest-start', { x: 10, y: 10 })).toBeUndefined();
   });
@@ -114,7 +134,13 @@ describe('world/dialog/shop/encounter system', () => {
   });
 
   it('gated den Story-Dungeon über Rat-Flags und führt Questlog/Lore mit', () => {
-    let state = chooseDialogOption(emptyWorld(), 'sora-act1', 'start', 'begin').state.world;
+    let state: WorldState = {
+      flags: { 'story.slime-prologue.completed': true },
+      quests: { 'binding-of-ancestors': { status: 'active', completedStepIds: [] } },
+      inventory: [],
+      gold: 120
+    };
+    state = chooseDialogOption(state, 'sora-act1', 'start', 'after-prologue').state.world;
 
     const blocked = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, makeRng(2));
     expect(blocked.state.encounter).toBeNull();
@@ -142,6 +168,71 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getItemCount(completed.state.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(repeated.state).toEqual(completed.state);
     expect(getMapLocations('tempest-start', completed.state).map((location) => location.id)).toContain('ancestor-seal');
+  });
+
+  it('spielt den Schleim-Prolog Höhle → Goblindorf → Direwolf → Benennung headless durch', () => {
+    const world = runSlimePrologueSmoke(makeRng(6));
+    const quest = buildQuestLog(world).find((entry) => entry.id === 'slime-awakening')!;
+    const unlockedLore = buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id);
+
+    expect(quest.status).toBe('completed');
+    expect(quest.steps.every((step) => step.completed)).toBe(true);
+    expect(world.flags['story.slime.awakened']).toBe(true);
+    expect(world.flags['story.storm-dragon.oath']).toBe(true);
+    expect(world.flags['story.goblin.plea']).toBe(true);
+    expect(world.flags['story.direwolf.defeated']).toBe(true);
+    expect(world.flags['story.slime-prologue.completed']).toBe(true);
+    expect(world.flags['faction.direwolves.respected']).toBe(true);
+    expect(world.flags['mount.direwolf.seed']).toBe(true);
+    expect(world.flags['progression.gobta.wolf-fang-token']).toBe(true);
+    expect(world.quests['binding-of-ancestors']?.status).toBe('active');
+    expect(world.quests['binding-of-ancestors']?.completedStepIds).toEqual([]);
+    expect(world.gold).toBe(220);
+    expect(getItemCount(world.inventory, 'sealed-cave-crystal')).toBe(1);
+    expect(getItemCount(world.inventory, 'wolf-fang-token')).toBe(1);
+    expect(getItemCount(world.inventory, 'healing-herb')).toBe(1);
+    expect(unlockedLore).toEqual([
+      'slime-awakening',
+      'tutorial-movement-questlog',
+      'sealed-storm-dragon',
+      'tutorial-codex-oath',
+      'goblin-village',
+      'tutorial-direwolf-boss',
+      'direwolf-pact',
+      'direwolf-faction',
+      'direwolf-mount-seed',
+      'gobta-rider-path',
+      'first-tempest-naming',
+      'storm-dragon-future-ally'
+    ]);
+  });
+
+  it('macht Rigurds Prologvertrauen als einmalige Gründerhilfe nutzbar', () => {
+    const prologue = runSlimePrologueSmoke(makeRng(7));
+    const dialog = startDialogForNpc(prologue, 'rigurd');
+    expect(dialog.choices.map((choice) => choice.id)).toContain('founder-supplies');
+
+    const claimed = chooseDialogOption(prologue, dialog.dialogId, dialog.nodeId, 'founder-supplies');
+    expect(claimed.ok).toBe(true);
+    expect(claimed.state.world.flags['bond.rigurd.founder-supplies']).toBe(true);
+    expect(getItemCount(claimed.state.world.inventory, 'healing-herb')).toBe(3);
+    expect(getItemCount(claimed.state.world.inventory, 'mana-drop')).toBe(1);
+    expect(startDialogForNpc(claimed.state.world, 'rigurd').choices.map((choice) => choice.id))
+      .not.toContain('founder-supplies');
+  });
+
+  it('führt vom Prologabschluss direkt in Act 1 weiter', () => {
+    const world = runPrologueIntoActOneSmoke(makeRng(9));
+    const prologue = buildQuestLog(world).find((entry) => entry.id === 'slime-awakening')!;
+    const actOne = buildQuestLog(world).find((entry) => entry.id === 'binding-of-ancestors')!;
+
+    expect(prologue.status).toBe('completed');
+    expect(actOne.status).toBe('completed');
+    expect(actOne.steps.every((step) => step.completed)).toBe(true);
+    expect(world.flags['story.slime-prologue.completed']).toBe(true);
+    expect(world.flags['story.act1.completed']).toBe(true);
+    expect(world.flags['story.intro.seen']).toBe(true);
+    expect(world.flags['bond.sora.met']).toBe(true);
   });
 
   it('priorisiert aktive Quests im Quest-Log vor abgeschlossenen und unentdeckten', () => {
@@ -222,7 +313,7 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getItemCount(world.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(getItemCount(world.inventory, 'tempest-charm')).toBe(1);
     expect(buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id))
-      .toEqual(['nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']);
+      .toEqual(['first-tempest-naming', 'storm-dragon-future-ally', 'nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']);
     expect(persistedWorld.quests['binding-of-ancestors']?.status).toBe('completed');
     expect(persistedWorld.flags['story.act1.completed']).toBe(true);
     expect(getItemCount(persistedWorld.inventory, 'tempest-charm')).toBe(1);

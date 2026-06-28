@@ -44,6 +44,27 @@ export const ENEMIES = [
     drops: [{ itemId: 'mana-drop', chance: 0.15 }]
   },
   {
+    id: 'direwolf-alpha',
+    name: 'Direwolf-Anführer',
+    level: 3,
+    element: 'neutral',
+    stats: {
+      maxHp: 88,
+      maxMp: 12,
+      attack: 19,
+      defense: 12,
+      magic: 7,
+      spirit: 10,
+      agility: 18
+    },
+    skillIds: ['direwolf-rush', 'quick-step'],
+    weaknesses: ['earth'],
+    resistances: [],
+    experienceReward: 36,
+    goldReward: 24,
+    drops: [{ itemId: 'mana-drop', chance: 0.25 }]
+  },
+  {
     id: 'spore-moth',
     name: 'Sporenmotte',
     level: 2,

@@ -127,6 +127,45 @@ export interface EncounterDefinition {
 
 export const QUESTS = [
   {
+    id: 'slime-awakening',
+    title: 'Schleim-Prolog',
+    description: 'Erlebe Rimurus erste Schritte: Höhlenerwachen, Schwur, Goblindorf, Direwolf-Bedrohung und die erste Gründungsidee.',
+    actId: 'prologue',
+    steps: [
+      {
+        id: 'cave-awakening',
+        title: 'In der Höhle erwachen',
+        description: 'Ordne Rimurus neue Schleimform in der versiegelten Höhle.',
+        locationId: 'sealed-cave'
+      },
+      {
+        id: 'storm-dragon-oath',
+        title: 'Den Sturmschwur schließen',
+        description: 'Sprich mit dem versiegelten Sturmdrachen und nimm den ersten Schwur mit nach draußen.',
+        locationId: 'sealed-cave'
+      },
+      {
+        id: 'goblin-plea',
+        title: 'Die Bitte der Goblins hören',
+        description: 'Rigurd sucht Schutz vor einem Direwolf-Rudel, das das Dorf bedrängt.',
+        locationId: 'goblin-village'
+      },
+      {
+        id: 'direwolf-pack',
+        title: 'Das Rudel stoppen',
+        description: 'Stell den Direwolf-Anführer an der östlichen Lichtung und zwinge das Rudel zum Rückzug.',
+        locationId: 'direwolf-den'
+      },
+      {
+        id: 'name-the-village',
+        title: 'Die Siedlung benennen',
+        description: 'Kehre zu Rigurd zurück und mach aus verstreuten Hütten den ersten Kern von Tempest.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 100, itemIds: ['wolf-fang-token'] }
+  },
+  {
     id: 'first-patrol',
     title: 'Erste Patrouille',
     description: 'Hilf Rigurd, den Rand von Tempest zu sichern.',
@@ -433,6 +472,99 @@ export const LOCATIONS = [
     identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.'
   },
   {
+    id: 'sealed-cave',
+    name: 'Versiegelte Höhle',
+    kind: 'dungeon',
+    mapId: 'sealed-cave',
+    position: { x: 7, y: 2 },
+    description: 'Eine stille Höhle voller Kristalle, Wasseradern und einer gewaltigen versiegelten Präsenz.',
+    identity: 'Prolog-Ort: Schleim-Erwachen, erster Schwur und Tutorial für Storyflags.'
+  },
+  {
+    id: 'goblin-village',
+    name: 'Goblindorf',
+    kind: 'outpost',
+    mapId: 'goblin-village',
+    position: { x: 8, y: 6 },
+    description: 'Ein verletzliches Dorf aus einfachen Hütten, das Schutz vor einem Direwolf-Rudel sucht.',
+    identity: 'Prolog-Hub: Bitte der Goblins und Übergang vom Überleben zur Gemeinschaft.',
+    unlockFlag: 'story.storm-dragon.oath'
+  },
+  {
+    id: 'direwolf-den',
+    name: 'Direwolf-Lichtung',
+    kind: 'dungeon',
+    mapId: 'direwolf-den',
+    position: { x: 9, y: 4 },
+    description: 'Eine windige Lichtung, auf der das Rudel seine Angriffe sammelt.',
+    identity: 'Prolog-Bossort: Direwolf-Anführer plus Rudeldruck als erster echter Prüfstein.',
+    unlockFlag: 'story.goblin.plea'
+  },
+  {
+    id: 'cave-gate-goblin',
+    name: 'Höhlenausgang zum Goblindorf',
+    kind: 'gateway',
+    mapId: 'sealed-cave',
+    position: { x: 14, y: 7 },
+    description: 'Ein heller Spalt am Ende des Kristallpfads. Nach dem Sturmschwur weist er sichtbar zur Oberfläche.',
+    identity: 'Prolog-Reisepunkt: führt nach dem Schwur direkt zum Goblindorf.',
+    unlockFlag: 'story.storm-dragon.oath',
+    travelTo: { mapId: 'goblin-village', x: 2, y: 6 }
+  },
+  {
+    id: 'goblin-gate-cave',
+    name: 'Pfad zurück zur Höhle',
+    kind: 'gateway',
+    mapId: 'goblin-village',
+    position: { x: 1, y: 6 },
+    description: 'Der kurze Rückweg zur versiegelten Höhle.',
+    identity: 'Prolog-Reisepunkt: zurück zum Sturmdrachen-Dialoganker.',
+    travelTo: { mapId: 'sealed-cave', x: 13, y: 7 }
+  },
+  {
+    id: 'goblin-gate-direwolf',
+    name: 'Ostpfad zur Direwolf-Lichtung',
+    kind: 'gateway',
+    mapId: 'goblin-village',
+    position: { x: 16, y: 6 },
+    description: 'Ein zertrampelter Ostpfad mit frischen Wolfsspuren.',
+    identity: 'Prolog-Reisepunkt: leitet nach Rigurds Bitte klar zur Bossarena.',
+    unlockFlag: 'story.goblin.plea',
+    travelTo: { mapId: 'direwolf-den', x: 2, y: 6 }
+  },
+  {
+    id: 'direwolf-gate-goblin',
+    name: 'Rückweg zum Goblindorf',
+    kind: 'gateway',
+    mapId: 'direwolf-den',
+    position: { x: 1, y: 6 },
+    description: 'Der Rückweg aus der Lichtung, mit dem Rudel im Nacken oder im Pakt.',
+    identity: 'Prolog-Reisepunkt: zurück zu Rigurd und zur Benennung.',
+    travelTo: { mapId: 'goblin-village', x: 15, y: 6 }
+  },
+  {
+    id: 'goblin-gate-tempest',
+    name: 'Pfad nach Tempest',
+    kind: 'gateway',
+    mapId: 'goblin-village',
+    position: { x: 8, y: 10 },
+    description: 'Der neue Hauptpfad von der benannten Siedlung in den Tempest-Hain.',
+    identity: 'Post-Prolog-Reisepunkt: öffnet den Übergang in die bestehende Hauptregion.',
+    unlockFlag: 'story.slime-prologue.completed',
+    travelTo: { mapId: 'tempest-start', x: 3, y: 5 }
+  },
+  {
+    id: 'gate-to-goblin-village',
+    name: 'Pfad zum Goblindorf',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 3, y: 6 },
+    description: 'Der Rückweg zum ersten Dorfkern, aus dem Tempest gewachsen ist.',
+    identity: 'Post-Prolog-Reisepunkt: zurück zu Rigurd, Dorfhilfe und frühen Paktfolgen.',
+    unlockFlag: 'story.slime-prologue.completed',
+    travelTo: { mapId: 'goblin-village', x: 8, y: 9 }
+  },
+  {
     id: 'border-camp',
     name: 'Grenzlager Ost',
     kind: 'outpost',
@@ -606,6 +738,90 @@ export const LOCATIONS = [
 
 export const LORE_ENTRIES = [
   {
+    id: 'slime-awakening',
+    title: 'Prolog: Schleim-Erwachen',
+    category: 'history',
+    body: 'Rimurus erster spielbarer Zustand ist kein verlorener Menschentext, sondern ein klares Systemziel: neue Form prüfen, Welt lesen, Schwur tragen.',
+    unlockFlag: 'story.slime.awakened'
+  },
+  {
+    id: 'tutorial-movement-questlog',
+    title: 'Tutorial: Bewegen, Reden, Questlog',
+    category: 'systems',
+    body: 'Der Prolog beginnt bewusst in einem kleinen Raum: bewegen, mit dem Sturmdrachen interagieren und danach im Menü das Questlog prüfen. Jede neue Markierung folgt aus einem Flag oder Quest-Schritt.',
+    unlockFlag: 'story.slime.awakened'
+  },
+  {
+    id: 'sealed-storm-dragon',
+    title: 'Der versiegelte Sturmdrache',
+    category: 'people',
+    body: 'Eine gewaltige Präsenz in der Höhle. Der Prolog nutzt sie als sicheren Dialoganker: kein Bosskampf, sondern ein Schwur, der spätere Bindungen vorbereitet.',
+    unlockFlag: 'story.storm-dragon.oath'
+  },
+  {
+    id: 'tutorial-codex-oath',
+    title: 'Tutorial: Codex und Schwüre',
+    category: 'systems',
+    body: 'Der Sturmschwur zeigt, wie der Codex funktioniert: wichtige Weltbegriffe werden nicht in langen Erklärblöcken versteckt, sondern beim Erleben freigeschaltet.',
+    unlockFlag: 'story.storm-dragon.oath'
+  },
+  {
+    id: 'goblin-village',
+    title: 'Das erste Goblindorf',
+    category: 'places',
+    body: 'Die Goblins sind der erste soziale Prüfstein: Rimurus Kraft zählt erst, wenn sie Schutz, Vertrauen und gemeinsame Regeln erzeugt.',
+    unlockFlag: 'story.goblin.plea'
+  },
+  {
+    id: 'tutorial-direwolf-boss',
+    title: 'Tutorial: Bosskampf und Teamleiste',
+    category: 'systems',
+    body: 'Der Direwolf-Anführer ist der erste Boss-Prüfstein: Verteidigen, Items und Teamleiste sind hier wichtiger als blindes Angreifen. Der Sieg endet als Pakt, nicht als Auslöschung.',
+    unlockFlag: 'story.goblin.plea'
+  },
+  {
+    id: 'direwolf-pact',
+    title: 'Der Direwolf-Pakt',
+    category: 'history',
+    body: 'Der Sieg über den Rudelführer beendet die Jagd nicht durch Auslöschung, sondern durch Dominanz und Verhandlung. Das macht aus Feinden künftige Nachbarn.',
+    unlockFlag: 'story.direwolf.defeated'
+  },
+  {
+    id: 'direwolf-faction',
+    title: 'Direwolf-Rudel: Fraktion',
+    category: 'people',
+    body: 'Das Rudel akzeptiert Tempest nicht als Besitzer, sondern als stärkeren Vertragspartner. Spätere Reaktionen können auf Respekt, Paktstatus und gemeinsame Grenzverteidigung aufbauen.',
+    unlockFlag: 'faction.direwolves.respected'
+  },
+  {
+    id: 'direwolf-mount-seed',
+    title: 'Direwolf-Rudel: Reittiere',
+    category: 'systems',
+    body: 'Der Pakt legt den Systemhaken für spätere Direwolf-Reittiere: schnelle Reise, Sonderbewegung oder ein Kampf-Opening können darauf aufbauen, ohne im Prolog sofort aktiv zu sein.',
+    unlockFlag: 'mount.direwolf.seed'
+  },
+  {
+    id: 'gobta-rider-path',
+    title: 'Gobtas Reiterpfad',
+    category: 'systems',
+    body: 'Das Wolfsfang-Abzeichen markiert Gobtas spätere Direwolf-Progression. Reiter-Talente sollen erst sinnvoll werden, wenn Tempest den Rudelpakt wirklich geschlossen hat.',
+    unlockFlag: 'progression.gobta.wolf-fang-token'
+  },
+  {
+    id: 'first-tempest-naming',
+    title: 'Die erste Benennung',
+    category: 'history',
+    body: 'Nach Höhle, Goblins und Direwolf-Rudel wird die Siedlung benannt. Technisch markiert dieses Flag den Abschluss des spielbaren Prologs.',
+    unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
+    id: 'storm-dragon-future-ally',
+    title: 'Vormerkung: Sturmdrache als späterer Gefährte',
+    category: 'systems',
+    body: 'Im frühen Spiel bleibt der Sturmdrache Dialog- und Codex-Anker. Seine spielbare Rückkehr ist als späterer Arc-Haken vorgemerkt, nicht als Prolog-Partyrolle.',
+    unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
     id: 'nameless-core',
     title: 'Der Namenlose',
     category: 'people',
@@ -742,6 +958,103 @@ export const LORE_ENTRIES = [
 
 export const DIALOGS = [
   {
+    id: 'sealed-storm-dragon',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Versiegelter Sturmdrache',
+        text: 'Ein Schleim, der sprechen lernt, bevor er versteht, was er ist. Beweg dich, sprich mit mir, und prüfe danach dein Questlog — so ordnest du zuerst deine Form; danach reden wir über Schwüre.',
+        choices: [
+          {
+            id: 'begin',
+            label: 'Schleimform ordnen',
+            nextNodeId: 'awakened',
+            requirements: [{ questStatus: { questId: 'slime-awakening', status: 'inactive' } }],
+            effects: [
+              { type: 'start-quest', questId: 'slime-awakening' },
+              { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'cave-awakening' },
+              { type: 'set-flag', flag: 'story.slime.awakened', value: true }
+            ]
+          },
+          {
+            id: 'oath',
+            label: 'Sturmschwur schließen',
+            nextNodeId: 'oath',
+            requirements: [
+              { questStatus: { questId: 'slime-awakening', status: 'active' } },
+              { questStep: { questId: 'slime-awakening', stepId: 'cave-awakening' } },
+              { missingQuestStep: { questId: 'slime-awakening', stepId: 'storm-dragon-oath' } }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'storm-dragon-oath' },
+              { type: 'set-flag', flag: 'story.storm-dragon.oath', value: true },
+              { type: 'add-item', itemId: 'sealed-cave-crystal', quantity: 1 }
+            ]
+          },
+          {
+            id: 'after-oath',
+            label: 'Den Schwur erinnern',
+            nextNodeId: 'after-oath',
+            requirements: [
+              { flag: 'story.storm-dragon.oath' },
+              { notFlag: 'story.slime-prologue.completed' }
+            ]
+          },
+          {
+            id: 'clear-sky',
+            label: 'Über Tempest sprechen',
+            nextNodeId: 'clear-sky',
+            requirements: [{ flag: 'story.slime-prologue.completed' }]
+          },
+          {
+            id: 'end',
+            label: 'Später'
+          }
+        ]
+      },
+      {
+        id: 'awakened',
+        speaker: 'Versiegelter Sturmdrache',
+        text: 'Gut. Du kannst dich bewegen, aufnehmen, widerstehen. Dein Codex hält solche Schwüre fest, sobald du sie erlebst. Nimm nun einen mit: Kraft ohne Gemeinschaft bleibt nur Hunger.',
+        choices: [
+          {
+            id: 'oath',
+            label: 'Schwur annehmen',
+            nextNodeId: 'oath',
+            requirements: [
+              { questStatus: { questId: 'slime-awakening', status: 'active' } },
+              { missingQuestStep: { questId: 'slime-awakening', stepId: 'storm-dragon-oath' } }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'storm-dragon-oath' },
+              { type: 'set-flag', flag: 'story.storm-dragon.oath', value: true },
+              { type: 'add-item', itemId: 'sealed-cave-crystal', quantity: 1 }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'oath',
+        speaker: 'Versiegelter Sturmdrache',
+        text: 'Draußen wartet ein kleines Dorf. Der Höhlenausgang ist jetzt offen. Wenn du dort nur ein Monster bist, endet alles in Angst. Wenn du ein Name wirst, beginnt eine Stadt.',
+        choices: [{ id: 'end', label: 'Zur Oberfläche' }]
+      },
+      {
+        id: 'after-oath',
+        speaker: 'Versiegelter Sturmdrache',
+        text: 'Der Schwur ist einfach: Beschütze, was kleiner ist als du — und lerne von dem, was sich trotzdem vor dich stellt.',
+        choices: [{ id: 'end', label: 'Ich gehe weiter' }]
+      },
+      {
+        id: 'clear-sky',
+        speaker: 'Versiegelter Sturmdrache',
+        text: 'Die erste Siedlung steht. Merk dir das Gefühl: Eine Stadt beginnt nicht mit Mauern, sondern mit Leuten, die bleiben wollen.',
+        choices: [{ id: 'end', label: 'Tempest wächst' }]
+      }
+    ]
+  },
+  {
     id: 'rigurd-intro',
     startNodeId: 'start',
     nodes: [
@@ -754,7 +1067,10 @@ export const DIALOGS = [
             id: 'accept',
             label: 'Patrouille übernehmen',
             nextNodeId: 'accepted',
-            requirements: [{ questStatus: { questId: 'first-patrol', status: 'inactive' } }],
+            requirements: [
+              { flag: 'story.slime-prologue.completed' },
+              { questStatus: { questId: 'first-patrol', status: 'inactive' } }
+            ],
             effects: [
               { type: 'start-quest', questId: 'first-patrol' },
               { type: 'complete-quest-step', questId: 'first-patrol', stepId: 'accepted' },
@@ -775,6 +1091,59 @@ export const DIALOGS = [
               { type: 'complete-quest', questId: 'first-patrol' },
               { type: 'set-flag', flag: 'bond.rigurd.trust-1', value: true },
               { type: 'add-gold', amount: 60 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
+            id: 'hear-goblin-plea',
+            label: 'Goblindorf schützen',
+            nextNodeId: 'slime-plea',
+            requirements: [
+              { questStatus: { questId: 'slime-awakening', status: 'active' } },
+              { flag: 'story.storm-dragon.oath' },
+              { missingQuestStep: { questId: 'slime-awakening', stepId: 'goblin-plea' } }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'goblin-plea' },
+              { type: 'set-flag', flag: 'story.goblin.plea', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.met', value: true }
+            ]
+          },
+          {
+            id: 'name-village',
+            label: 'Siedlung benennen',
+            nextNodeId: 'slime-completed',
+            requirements: [
+              { questStatus: { questId: 'slime-awakening', status: 'active' } },
+              { flag: 'story.direwolf.defeated' },
+              { missingQuestStep: { questId: 'slime-awakening', stepId: 'name-the-village' } }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'name-the-village' },
+              { type: 'complete-quest', questId: 'slime-awakening' },
+              { type: 'set-flag', flag: 'story.slime-prologue.completed', value: true },
+              { type: 'set-flag', flag: 'story.tempest.named', value: true },
+              { type: 'set-flag', flag: 'story.act1.started', value: true },
+              { type: 'set-flag', flag: 'faction.direwolves.respected', value: true },
+              { type: 'set-flag', flag: 'mount.direwolf.seed', value: true },
+              { type: 'set-flag', flag: 'progression.gobta.wolf-fang-token', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.trust-prologue', value: true },
+              { type: 'start-quest', questId: 'binding-of-ancestors' },
+              { type: 'add-gold', amount: 100 },
+              { type: 'add-item', itemId: 'wolf-fang-token', quantity: 1 }
+            ]
+          },
+          {
+            id: 'founder-supplies',
+            label: 'Gründerhilfe abholen',
+            nextNodeId: 'founder-supplies',
+            requirements: [
+              { flag: 'bond.rigurd.trust-prologue' },
+              { notFlag: 'bond.rigurd.founder-supplies' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'bond.rigurd.founder-supplies', value: true },
+              { type: 'add-item', itemId: 'healing-herb', quantity: 2 },
               { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
             ]
           },
@@ -868,6 +1237,24 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Danke' }]
       },
       {
+        id: 'slime-plea',
+        speaker: 'Rigurd',
+        text: 'Unser Dorf ist klein und das Rudel schnell. Der Ostpfad führt zur Lichtung. Nimm Kräuter mit, verteidige dich, wenn das Rudel Druck macht, und stopp den Anführer — dann können wir zum ersten Mal bleiben statt fliehen.',
+        choices: [{ id: 'end', label: 'Zur Direwolf-Lichtung' }]
+      },
+      {
+        id: 'slime-completed',
+        speaker: 'Rigurd',
+        text: 'Das Rudel weicht zurück, und die Goblins haben wieder eine Zukunft. Gib diesem Ort einen Namen — etwas, an dem wir festhalten können. Danach wartet Sora: Die alten Siegel reagieren bereits auf Tempests ersten Schwur.',
+        choices: [{ id: 'end', label: 'Tempest soll es sein' }]
+      },
+      {
+        id: 'founder-supplies',
+        speaker: 'Rigurd',
+        text: 'Du hast uns nicht nur gerettet, du hast uns einen Anfang gegeben. Nimm diese Vorräte. Solange Tempest klein ist, zählt jede Handreichung doppelt.',
+        choices: [{ id: 'end', label: 'Danke, Rigurd' }]
+      },
+      {
         id: 'bog-accepted',
         speaker: 'Rigurd',
         text: 'Der Sumpfschrecken haust im Westsumpf und reißt Handelstiere. Erleg ihn — das Kopfgeld ist es wert.',
@@ -900,9 +1287,27 @@ export const DIALOGS = [
             id: 'begin',
             label: 'Erinnerung ordnen',
             nextNodeId: 'begin',
-            requirements: [{ questStatus: { questId: 'binding-of-ancestors', status: 'inactive' } }],
+            requirements: [
+              { flag: 'story.slime-prologue.completed' },
+              { questStatus: { questId: 'binding-of-ancestors', status: 'inactive' } }
+            ],
             effects: [
               { type: 'start-quest', questId: 'binding-of-ancestors' },
+              { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'awakening' },
+              { type: 'set-flag', flag: 'story.intro.seen', value: true },
+              { type: 'set-flag', flag: 'bond.sora.met', value: true }
+            ]
+          },
+          {
+            id: 'after-prologue',
+            label: 'Ahnenspur aufnehmen',
+            nextNodeId: 'begin',
+            requirements: [
+              { questStatus: { questId: 'binding-of-ancestors', status: 'active' } },
+              { flag: 'story.slime-prologue.completed' },
+              { missingQuestStep: { questId: 'binding-of-ancestors', stepId: 'awakening' } }
+            ],
+            effects: [
               { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'awakening' },
               { type: 'set-flag', flag: 'story.intro.seen', value: true },
               { type: 'set-flag', flag: 'bond.sora.met', value: true }
@@ -1429,10 +1834,18 @@ export const DIALOGS = [
 
 export const NPCS = [
   {
+    id: 'sealed-storm-dragon',
+    name: 'Versiegelter Sturmdrache',
+    mapId: 'sealed-cave',
+    position: { x: 7, y: 3 },
+    dialogId: 'sealed-storm-dragon',
+    color: 0x6ec6ff
+  },
+  {
     id: 'rigurd',
     name: 'Rigurd',
-    mapId: 'tempest-start',
-    position: { x: 3, y: 3 },
+    mapId: 'goblin-village',
+    position: { x: 8, y: 5 },
     dialogId: 'rigurd-intro',
     color: 0xe9c56c
   },
@@ -1479,6 +1892,15 @@ export const NPCS = [
 ] as const satisfies readonly NpcDefinition[];
 
 export const SHOPS = [
+  {
+    id: 'goblin-hearth',
+    name: 'Goblin-Heilstelle',
+    mapId: 'goblin-village',
+    position: { x: 10, y: 6 },
+    itemIds: ['healing-herb', 'mana-drop'],
+    buyMultiplier: 0.9,
+    sellMultiplier: 0.45
+  },
   {
     id: 'tempest-supply',
     name: 'Tempest-Vorrat',
@@ -1537,6 +1959,24 @@ export const ENCOUNTERS = [
     bounds: { x: 14, y: 6, width: 8, height: 8 },
     enemyIds: ['forest-slime'],
     chance: 0.12
+  },
+  {
+    id: 'direwolf-pack-leader',
+    mapId: 'direwolf-den',
+    kind: 'trigger',
+    position: { x: 9, y: 5 },
+    enemyIds: ['direwolf-alpha', 'direwolf-pup'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.goblin.plea' },
+      { notFlag: 'story.direwolf.defeated' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.direwolf.defeated', value: true },
+      { type: 'set-flag', flag: 'story.direwolf.pact', value: true },
+      { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'direwolf-pack' },
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+    ]
   },
   {
     id: 'marsh-border-watch',

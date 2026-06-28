@@ -10,7 +10,7 @@ import {
 
 export function runMiniFlowSmoke(seedRng: Rng): WorldState {
   let state: WorldState = {
-    flags: {},
+    flags: { 'story.slime-prologue.completed': true },
     quests: {},
     inventory: [],
     gold: 120
@@ -38,13 +38,13 @@ export function runMiniFlowSmoke(seedRng: Rng): WorldState {
 
 export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
   let state: WorldState = {
-    flags: {},
-    quests: {},
+    flags: { 'story.slime-prologue.completed': true },
+    quests: { 'binding-of-ancestors': { status: 'active', completedStepIds: [] } },
     inventory: [],
     gold: 120
   };
 
-  state = chooseNpcOptionOrThrow(state, 'sora', 'begin');
+  state = chooseNpcOptionOrThrow(state, 'sora', 'after-prologue');
   state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
   state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
   state = chooseNpcOptionOrThrow(state, 'sora', 'council');
@@ -55,6 +55,51 @@ export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
 
   const shrine = resolveEncounter(state, 'tempest-start', { x: 21, y: 13 }, seedRng);
   if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter.');
+  state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
+
+  return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');
+}
+
+export function runSlimePrologueSmoke(seedRng: Rng): WorldState {
+  let state: WorldState = {
+    flags: {},
+    quests: {},
+    inventory: [],
+    gold: 120
+  };
+
+  const dragonIntro = startDialogForNpc(state, 'sealed-storm-dragon');
+  const awakened = chooseDialogOption(state, dragonIntro.dialogId, dragonIntro.nodeId, 'begin');
+  if (!awakened.ok || !awakened.state.next) throw new Error(awakened.message);
+  state = awakened.state.world;
+
+  const oath = chooseDialogOption(state, awakened.state.next.dialogId, awakened.state.next.nodeId, 'oath');
+  if (!oath.ok) throw new Error(oath.message);
+  state = oath.state.world;
+
+  state = chooseNpcOptionOrThrow(state, 'rigurd', 'hear-goblin-plea');
+
+  const pack = resolveEncounter(state, 'direwolf-den', { x: 9, y: 5 }, seedRng);
+  if (!pack.state.encounter) throw new Error('Expected direwolf-pack encounter.');
+  state = completeEncounter(pack.state.world, pack.state.encounter.id).state;
+
+  return chooseNpcOptionOrThrow(state, 'rigurd', 'name-village');
+}
+
+export function runPrologueIntoActOneSmoke(seedRng: Rng): WorldState {
+  let state = runSlimePrologueSmoke(seedRng);
+
+  state = chooseNpcOptionOrThrow(state, 'sora', 'after-prologue');
+  state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
+  state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
+  state = chooseNpcOptionOrThrow(state, 'sora', 'council');
+
+  const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, seedRng);
+  if (!grove.state.encounter) throw new Error('Expected whispering-grove encounter after prologue.');
+  state = completeEncounter(grove.state.world, grove.state.encounter.id).state;
+
+  const shrine = resolveEncounter(state, 'tempest-start', { x: 21, y: 13 }, seedRng);
+  if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter after prologue.');
   state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
 
   return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');

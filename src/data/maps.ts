@@ -27,6 +27,21 @@ export const JURA_FIELD: TileMap = buildMap(24, 16, [
   [4, 2, 2, 3], [11, 3, 2, 3], [6, 9, 4, 2], [16, 8, 2, 4], [10, 11, 3, 2], [18, 3, 2, 2]
 ], { x: 2, y: 2 });
 
+// Prolog 1: Versiegelte Höhle (16×10, enger Kristallpfad mit zentraler Kammer).
+export const SEALED_CAVE: TileMap = buildMap(16, 10, [
+  [3, 2, 2, 2], [11, 2, 2, 2], [6, 5, 1, 2], [9, 5, 1, 2]
+], { x: 7, y: 7 });
+
+// Prolog 2: Goblindorf (18×12, kleiner Hub mit Hütteninseln und offenem Dorfplatz).
+export const GOBLIN_VILLAGE: TileMap = buildMap(18, 12, [
+  [3, 2, 3, 2], [12, 2, 3, 2], [3, 8, 3, 2], [12, 8, 3, 2], [8, 3, 2, 2]
+], { x: 2, y: 6 });
+
+// Prolog 3: Direwolf-Lichtung (18×12, offene Bossarena mit seitlichen Flankenhindernissen).
+export const DIREWOLF_CLEARING: TileMap = buildMap(18, 12, [
+  [4, 2, 2, 3], [12, 2, 2, 3], [4, 8, 2, 2], [12, 8, 2, 2], [8, 1, 2, 2]
+], { x: 2, y: 6 });
+
 // Region 2: Geistmoor (22×14, offener mit verstreuten Moorinseln).
 export const SPIRIT_MARSH: TileMap = buildMap(22, 14, [
   [5, 3, 2, 2], [9, 5, 3, 2], [14, 3, 2, 3], [7, 9, 2, 2], [13, 9, 3, 2], [17, 6, 2, 3]
@@ -40,6 +55,9 @@ export const SPIRIT_HIGHLANDS: TileMap = buildMap(24, 14, [
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
+  'sealed-cave': SEALED_CAVE,
+  'goblin-village': GOBLIN_VILLAGE,
+  'direwolf-den': DIREWOLF_CLEARING,
   'tempest-start': JURA_FIELD,
   'spirit-marsh': SPIRIT_MARSH,
   'spirit-highlands': SPIRIT_HIGHLANDS

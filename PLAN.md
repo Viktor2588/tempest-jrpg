@@ -351,6 +351,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **WebP-Optimierung (2026-06-28):** alle zehn gemalten Kampfassets (Kreaturenatlas, drei Gegner-Cutouts, drei Party-Cutouts, drei Arenen) von PNG/JPG auf WebP umgestellt; Cutouts behalten ihren Alpha-Kanal. Assetblock von ca. **6,7 MB auf 1,4 MB** reduziert (rund **79 %**); Browser-Smoke bestätigt identisches Rendering.
 - **Abnahme:** `bun run typecheck` sauber, `bun run test` → **123/123** grün, `bun run build` grün; Desktop- und 390×844-Playwright-Smoke ohne Konsolenfehler oder Layout-Überlappung.
 
+[~] **Phase 17 – Browser-Smoke in CI (in Bearbeitung 2026-06-28, direkt auf `main`)**
+- **Projektlokaler E2E-Smoke:** Playwright startet den Vite-Server selbst und prüft Title → Overworld → Battle sowie Menü-Öffnen/-Schließen über echte Canvas-Eingaben.
+- **Render-Gates:** Desktop (1440×900) und Mobil (390×844), keine `pageerror`-/Console-Errors, sichtbares Canvas mit nichtleerem Pixelinhalt und Screenshots als Fehlerartefakte.
+- **CI-Wiring:** Chromium wird in CI installiert; Smoke läuft auf Pull Requests/Feature-Branches und vor dem Pages-Deploy auf `main`.
+- **Abnahme:** lokaler Smoke, Typecheck, Vitest und Produktionsbuild grün; GitHub-Workflow-Syntax valide.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

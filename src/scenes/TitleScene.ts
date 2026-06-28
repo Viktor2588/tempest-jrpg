@@ -49,10 +49,11 @@ export class TitleScene extends Phaser.Scene {
     overlay.add(this.add.rectangle(cx, cy, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.82));
     overlay.add(this.add.text(cx, cy - 110, 'Willkommen!', { fontFamily: 'serif', fontSize: '30px', color: '#e9c56c' }).setOrigin(0.5));
     const lines = [
+      '🕳 Start: Du erwachst in der versiegelten Höhle',
       '🚶 Bewegen: WASD/Pfeiltasten oder das Touch-Steuerkreuz',
-      '⚔ Kämpfe: rundenbasiert — Angriff, Magie, Verteidigen, Fliehen',
-      '🎯 Schwächen ausnutzen: das richtige Element trifft härter',
-      '⚙ Lautstärke & Bewegung jederzeit unter Optionen anpassbar'
+      '◆ Interaktion: Sprich zuerst mit dem Sturmdrachen',
+      '📜 Questlog/Codex: Öffne das Menü, um Ziele und neue Lore zu prüfen',
+      '⚔ Bosskämpfe: Angriff, Skills, Items, Verteidigen und Teamleiste nutzen'
     ];
     lines.forEach((l, i) => overlay.add(this.add.text(cx, cy - 50 + i * 30, l, { fontFamily: 'sans-serif', fontSize: '16px', color: '#cdd8ea' }).setOrigin(0.5)));
     const bg = this.add.rectangle(cx, cy + 100, 200, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();

@@ -10,6 +10,7 @@ import {
 } from '../systems/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { loadSettings, textCharDelayMs } from '../systems/settings';
+import { playSfx, type SfxName } from '../audio/sfx';
 import { portraitKeyForSpeaker } from '../render/portraitAtlas';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 
@@ -101,6 +102,7 @@ export class DialogueScene extends Phaser.Scene {
   }
 
   private choose(choiceId: string): void {
+    const choice = this.view.choices.find((candidate) => candidate.id === choiceId);
     const result = chooseDialogOption(
       createWorldState(this.save),
       this.view.dialogId,
@@ -109,6 +111,7 @@ export class DialogueScene extends Phaser.Scene {
     );
     this.save = applyWorldState(this.save, result.state.world);
     autoSave(window.localStorage, this.save);
+    playSfx(this.sfxForChoice(choice));
 
     if (!result.ok || !result.state.next) {
       this.close();
@@ -117,6 +120,17 @@ export class DialogueScene extends Phaser.Scene {
 
     this.view = result.state.next;
     this.refresh();
+  }
+
+  private sfxForChoice(choice: DialogView['choices'][number] | undefined): SfxName {
+    const effects = choice?.effects ?? [];
+    if (effects.some((effect) => effect.type === 'complete-quest')) return 'victory';
+    if (effects.some((effect) =>
+      effect.type === 'set-flag'
+      && (effect.flag === 'story.storm-dragon.oath' || effect.flag.endsWith('.pact'))
+      && effect.value
+    )) return 'magic';
+    return 'confirm';
   }
 
   private close(): void {

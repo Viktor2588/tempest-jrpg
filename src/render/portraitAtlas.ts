@@ -25,6 +25,8 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'lyrre';
     case 'rigurd':
       return 'rigurd';
+    case 'versiegelter sturmdrache':
+      return 'storm-dragon';
     case 'mordrahn':
     case 'mordrahns echo':
       return 'mordrahn';
@@ -121,6 +123,15 @@ function drawBust(
       g.fillRect(22, 15, 20, 6);
       g.fillStyle(outline, 0.7);
       g.fillRect(25, 39, 14, 7);
+      break;
+    case 'dragon':
+      g.fillStyle(accent, 0.95);
+      g.fillTriangle(17, 22, 5, 11, 21, 30);
+      g.fillTriangle(47, 22, 59, 11, 43, 30);
+      g.fillStyle(outline, 0.85);
+      g.fillTriangle(25, 16, 32, 4, 39, 16);
+      g.fillStyle(accent, 0.8);
+      g.fillRect(21, 39, 22, 4);
       break;
     case 'shadow':
       g.fillStyle(outline, 0.85);

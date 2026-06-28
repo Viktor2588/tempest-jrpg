@@ -23,4 +23,34 @@ describe('Game-Datenintegrität', () => {
       message: "Unbekannter Skill 'missing-skill'."
     });
   });
+
+  it('meldet Quest-Schritte ohne abschließende Dialog- oder Encounter-Quelle', () => {
+    const quest = GAME_DATA.world.quests[0]!;
+    const issues = validateGameData({
+      ...GAME_DATA,
+      world: {
+        ...GAME_DATA.world,
+        quests: [
+          {
+            ...quest,
+            steps: [
+              ...quest.steps,
+              {
+                id: 'orphan-step',
+                title: 'Verwaister Schritt',
+                description: 'Dieser Schritt wird absichtlich von keiner Quelle abgeschlossen.',
+                locationId: 'tempest-hollow'
+              }
+            ]
+          },
+          ...GAME_DATA.world.quests.slice(1)
+        ]
+      }
+    });
+
+    expect(issues).toContainEqual({
+      path: `world.quests.${quest.id}.steps.orphan-step.completion`,
+      message: `Quest-Schritt '${quest.id}.orphan-step' hat keine Dialog- oder Encounter-Quelle, die ihn abschließt.`
+    });
+  });
 });

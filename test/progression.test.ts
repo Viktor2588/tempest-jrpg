@@ -70,11 +70,17 @@ describe('progression system', () => {
     expect(afterExploration.discoveredRegionIds).toContain('marsh-border');
 
     let knightState = grantSkillPoints(afterBond, 'gobta', 4).state;
-    for (const nodeId of ['gobta-pack-footwork', 'gobta-rider-feint', 'gobta-tempest-knight']) {
-      const unlocked = unlockSkillNode(gobta, knightState, nodeId);
-      expect(unlocked.ok).toBe(true);
-      knightState = unlocked.state;
-    }
+    const direwolfContext = { flags: { 'progression.gobta.wolf-fang-token': true } };
+    const footwork = unlockSkillNode(gobta, knightState, 'gobta-pack-footwork');
+    expect(footwork.ok).toBe(true);
+    knightState = footwork.state;
+    expect(unlockSkillNode(gobta, knightState, 'gobta-rider-feint').ok).toBe(false);
+    const riderFeint = unlockSkillNode(gobta, knightState, 'gobta-rider-feint', direwolfContext);
+    expect(riderFeint.ok).toBe(true);
+    knightState = riderFeint.state;
+    const tempestKnight = unlockSkillNode(gobta, knightState, 'gobta-tempest-knight', direwolfContext);
+    expect(tempestKnight.ok).toBe(true);
+    knightState = tempestKnight.state;
     expect(getProgressionSkillIds(gobta, knightState)).toContain('direwolf-rush');
     expect(calculateProgressionStats(gobta, knightState).defense)
       .toBeGreaterThan(calculateProgressionStats(gobta, baseState).defense);

@@ -79,6 +79,22 @@ export const ITEMS = [
     startingQuantity: 1
   },
   {
+    id: 'sealed-cave-crystal',
+    name: 'Höhlenkristall',
+    description: 'Ein stumm schwingender Kristall aus der versiegelten Höhle. Er markiert Rimurus ersten Schwur.',
+    category: 'key',
+    price: 0,
+    stackable: false
+  },
+  {
+    id: 'wolf-fang-token',
+    name: 'Wolfsfang-Abzeichen',
+    description: 'Ein Zeichen, dass das Direwolf-Rudel die junge Siedlung nicht länger als Beute betrachtet.',
+    category: 'key',
+    price: 0,
+    stackable: false
+  },
+  {
     id: 'ancestor-seal-fragment',
     name: 'Ahnensiegel-Fragment',
     description: 'Ein singendes Bruchstück der Bindung der Ahnen. Vael beschreibt es als gefrorenen Donner.',

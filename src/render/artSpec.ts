@@ -62,6 +62,7 @@ export type PortraitKind =
   | 'vael'
   | 'lyrre'
   | 'rigurd'
+  | 'storm-dragon'
   | 'mordrahn';
 
 export type PortraitMotif =
@@ -72,6 +73,7 @@ export type PortraitMotif =
   | 'mage'
   | 'scout'
   | 'elder'
+  | 'dragon'
   | 'shadow';
 
 export type UiSkinKind = 'panel' | 'button' | 'button-active' | 'button-danger' | 'button-success';
@@ -144,6 +146,7 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'vael',
   'lyrre',
   'rigurd',
+  'storm-dragon',
   'mordrahn'
 ] as const;
 
@@ -202,6 +205,8 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.mist, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'rigurd':
       return { size: 64, base: PALETTE.stone, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
+    case 'storm-dragon':
+      return { size: 64, base: PALETTE.water, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'dragon' };
     case 'mordrahn':
       return { size: 64, base: PALETTE.enemy, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'shadow' };
     default:

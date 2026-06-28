@@ -585,7 +585,45 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     }
   }
 
+  validateQuestStepCompletionSources(data, issues);
+
   return issues;
+}
+
+function validateQuestStepCompletionSources(data: DataSet, issues: DataValidationIssue[]): void {
+  const completionSources = new Set<string>();
+  const recordCompletions = (effects: readonly WorldEffect[]): void => {
+    for (const effect of effects) {
+      if (effect.type === 'complete-quest-step') {
+        completionSources.add(`${effect.questId}.${effect.stepId}`);
+      }
+    }
+  };
+
+  for (const encounter of data.world.encounters) {
+    recordCompletions(encounter.startEffects ?? []);
+    recordCompletions(encounter.victoryEffects ?? []);
+  }
+
+  for (const dialog of data.world.dialogs) {
+    for (const node of dialog.nodes) {
+      for (const choice of node.choices) {
+        recordCompletions(choice.effects ?? []);
+      }
+    }
+  }
+
+  for (const quest of data.world.quests) {
+    for (const step of quest.steps) {
+      const key = `${quest.id}.${step.id}`;
+      if (!completionSources.has(key)) {
+        issues.push({
+          path: `world.quests.${quest.id}.steps.${step.id}.completion`,
+          message: `Quest-Schritt '${key}' hat keine Dialog- oder Encounter-Quelle, die ihn abschließt.`
+        });
+      }
+    }
+  }
 }
 
 function validateWorldEffects(

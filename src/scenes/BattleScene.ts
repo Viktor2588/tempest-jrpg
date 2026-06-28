@@ -343,6 +343,7 @@ export class BattleScene extends Phaser.Scene {
       fontStyle: 'bold',
       color: '#e6f4ff'
     }).setOrigin(0.5));
+    this.drawEncounterTutorialHint(view.teamMeter);
 
     if (this.mode === 'menu') this.drawMenu();
     else if (this.mode === 'skills') this.drawSkillList();
@@ -593,6 +594,9 @@ export class BattleScene extends Phaser.Scene {
     if (!this.resultAnnounced) {
       this.resultAnnounced = true;
       playSfx(won ? 'victory' : status === 'fled' ? 'cancel' : 'defeat');
+      if (won && this.encounterId === 'direwolf-pack-leader') {
+        this.time.delayedCall(220, () => playSfx('magic'));
+      }
       if (!loadSettings(window.localStorage).reducedMotion) {
         if (won) this.cameras.main.flash(300, 80, 70, 30);
         else this.cameras.main.shake(260, 0.01);
@@ -622,7 +626,17 @@ export class BattleScene extends Phaser.Scene {
         }).setOrigin(0.5));
       }
     }
-    this.button(GAME_WIDTH / 2 - 90, 345, 'Zurück zur Welt', () => this.scene.start('Overworld'));
+    const pactMessage = won && this.encounterId === 'direwolf-pack-leader'
+      ? 'Das Rudel senkt die Köpfe. Der Sieg endet als Pakt, nicht als Auslöschung.'
+      : null;
+    if (pactMessage) {
+      this.layer.add(this.add.text(GAME_WIDTH / 2, 338, pactMessage, {
+        fontFamily: 'sans-serif',
+        fontSize: '14px',
+        color: '#ffd6de'
+      }).setOrigin(0.5));
+    }
+    this.button(GAME_WIDTH / 2 - 90, pactMessage ? 382 : 345, 'Zurück zur Welt', () => this.scene.start('Overworld'));
   }
 
   private applyBattleResult(status: string): void {
@@ -646,6 +660,21 @@ export class BattleScene extends Phaser.Scene {
       this.pendingTeamPartnerId = null;
       this.refresh();
     }, 180, '13px');
+  }
+
+  private drawEncounterTutorialHint(teamMeter: number): void {
+    if (this.encounterId !== 'direwolf-pack-leader') return;
+    const teamText = teamMeter >= 100 ? 'Team-Angriff bereit' : `Teamleiste ${teamMeter}/100`;
+    this.layer.add(this.add.text(
+      GAME_WIDTH / 2,
+      70,
+      `Boss-Tutorial: Schwächen mit Skills prüfen, bei Rudeldruck verteidigen, Buffs/Items nutzen · ${teamText}`,
+      {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#ffd6de'
+      }
+    ).setOrigin(0.5));
   }
 
   private button(

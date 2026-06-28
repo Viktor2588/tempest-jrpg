@@ -118,8 +118,8 @@ export const PROGRESSION_REGIONS = [
     name: 'Tempest-Hain',
     chapterId: 'chapter-1',
     baselineLevel: 3,
-    encounterIds: ['training-clearing', 'east-grass', 'whispering-grove-ambush'],
-    enemyIds: ['forest-slime', 'direwolf-pup', 'spore-moth', 'orc-scout']
+    encounterIds: ['training-clearing', 'east-grass', 'direwolf-pack-leader', 'whispering-grove-ambush'],
+    enemyIds: ['forest-slime', 'direwolf-pup', 'direwolf-alpha', 'spore-moth', 'orc-scout']
   },
   {
     id: 'marsh-border',
@@ -154,9 +154,9 @@ export const PROGRESSION_LINES = [
     characterId: 'gobta',
     name: 'Hobgoblin-Reiter',
     speciesLine: 'Goblin → Hobgoblin-Wächter',
-    regionId: 'marsh-border',
-    rivalEnemyIds: ['direwolf-pup', 'orc-scout'],
-    description: 'Gobtas Linie verbindet schnelle Goblin-Technik mit Direwolf-Teamdruck.'
+    regionId: 'tempest-grove',
+    rivalEnemyIds: ['direwolf-pup', 'direwolf-alpha', 'orc-scout'],
+    description: 'Gobtas Linie verbindet schnelle Goblin-Technik mit dem frühen Direwolf-Pakt von Tempest.'
   },
   {
     id: 'shuna-ogre-line',
@@ -347,6 +347,13 @@ export const RELATIONSHIPS = [
         requiredLevel: 2,
         title: 'Rudeltraining',
         summary: 'Gobta lernt, seine Finte mit Rangas Sprintfenstern zu verzahnen.'
+      },
+      {
+        id: 'wolf-fang-first-ride',
+        requiredLevel: 1,
+        title: 'Erster Ritt am Dorfrand',
+        summary: 'Das Wolfsfang-Abzeichen macht Gobtas Reiterpfad greifbar: kein Mount-System im Prolog, aber ein klarer Pakt für später.',
+        flagId: 'progression.gobta.wolf-fang-token'
       }
     ]
   },
@@ -472,10 +479,11 @@ export const SKILL_TREES = [
       {
         id: 'gobta-rider-feint',
         name: 'Reiterfinte',
-        description: 'Lehrt den Schnellen Schritt.',
+        description: 'Lehrt den Schnellen Schritt, sobald Tempests Direwolf-Pakt Gobtas Reiterpfad eröffnet.',
         cost: 1,
         requiredLevel: 4,
         requiredNodeIds: ['gobta-pack-footwork'],
+        requiredFlag: 'progression.gobta.wolf-fang-token',
         skillId: 'quick-step'
       },
       {

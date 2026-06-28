@@ -61,6 +61,12 @@ describe('save.ts', () => {
     const loaded = importSave(exportSave(changed), '2026-06-26T10:05:00.000Z');
 
     expect(loaded.schemaVersion).toBe(3);
+    expect(loaded.location).toEqual({
+      mapId: 'sealed-cave',
+      x: 7,
+      y: 6,
+      facing: 'up'
+    });
     expect(loaded.party.gold).toBe(250);
     expect(loaded.playtimeSeconds).toBe(90);
     expect(getItemCount(loaded.inventory.stacks, 'healing-herb')).toBe(7);
@@ -184,6 +190,6 @@ describe('save.ts', () => {
     // Story zurückgesetzt.
     expect(ng.flags).toEqual({});
     expect(ng.quests).toEqual({});
-    expect(ng.location.mapId).toBe('tempest-start');
+    expect(ng.location.mapId).toBe('sealed-cave');
   });
 });

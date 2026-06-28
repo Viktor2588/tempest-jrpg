@@ -80,12 +80,13 @@ describe('artSpec', () => {
       'vael',
       'lyrre',
       'rigurd',
+      'storm-dragon',
       'mordrahn'
     ]);
     for (const kind of PORTRAIT_KINDS) {
       const spec = portraitSpec(kind);
       expect(spec.size).toBe(64);
-      expect(['slime', 'goblin', 'priest', 'warrior', 'mage', 'scout', 'elder', 'shadow'])
+      expect(['slime', 'goblin', 'priest', 'warrior', 'mage', 'scout', 'elder', 'dragon', 'shadow'])
         .toContain(spec.motif);
       for (const c of [spec.base, spec.accent, spec.outline, spec.background]) {
         expect(c).toMatch(HEX);

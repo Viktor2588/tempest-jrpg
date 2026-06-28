@@ -71,12 +71,14 @@ export interface OverworldBudget {
 const AUTO_BATTLE_STEP_LIMIT = 900;
 const STORY_ENCOUNTERS: ReadonlyArray<{
   readonly id: string;
+  readonly mapId: string;
   readonly position: Vec2;
   readonly chapterId: string;
 }> = [
-  { id: 'training-clearing', position: { x: 20, y: 12 }, chapterId: 'chapter-1' },
-  { id: 'whispering-grove-ambush', position: { x: 14, y: 8 }, chapterId: 'chapter-2' },
-  { id: 'shrine-approach', position: { x: 21, y: 13 }, chapterId: 'chapter-3' }
+  { id: 'direwolf-pack-leader', mapId: 'direwolf-den', position: { x: 9, y: 5 }, chapterId: 'chapter-1' },
+  { id: 'training-clearing', mapId: 'tempest-start', position: { x: 20, y: 12 }, chapterId: 'chapter-1' },
+  { id: 'whispering-grove-ambush', mapId: 'tempest-start', position: { x: 14, y: 8 }, chapterId: 'chapter-2' },
+  { id: 'shrine-approach', mapId: 'tempest-start', position: { x: 21, y: 13 }, chapterId: 'chapter-3' }
 ];
 
 const TALENT_PRIORITIES: Readonly<Record<string, readonly string[]>> = {
@@ -182,19 +184,25 @@ export function runHeadlessActOnePlaythrough(seed = 1501): HeadlessPlaythroughRe
   try {
     let save = createNewSave({ seed, now: '2026-06-27T00:00:00.000Z' });
 
+    save = chooseNpcOption(save, 'sealed-storm-dragon', 'begin');
+    save = chooseNpcOption(save, 'sealed-storm-dragon', 'oath');
+    save = chooseNpcOption(save, 'rigurd', 'hear-goblin-plea');
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[0]!, seed + 5, battles);
+    save = chooseNpcOption(save, 'rigurd', 'name-village');
+
     save = chooseNpcOption(save, 'rigurd', 'accept');
     save = buyIfPossible(save, 'healing-herb', 2);
-    save = playStoryEncounter(save, STORY_ENCOUNTERS[0]!, seed + 11, battles);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[1]!, seed + 11, battles);
     save = chooseNpcOption(save, 'rigurd', 'report');
 
-    save = chooseNpcOption(save, 'sora', 'begin');
+    save = chooseNpcOption(save, 'sora', 'after-prologue');
     save = chooseNpcOption(save, 'vael', 'analyze');
     save = chooseNpcOption(save, 'lyrre', 'briefing');
     save = chooseNpcOption(save, 'sora', 'council');
     save = buyIfPossible(save, 'healing-herb', 4);
     save = buyIfPossible(save, 'mana-drop', 1);
-    save = playStoryEncounter(save, STORY_ENCOUNTERS[1]!, seed + 23, battles);
-    save = playStoryEncounter(save, STORY_ENCOUNTERS[2]!, seed + 37, battles);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[2]!, seed + 23, battles);
+    save = playStoryEncounter(save, STORY_ENCOUNTERS[3]!, seed + 37, battles);
     save = chooseNpcOption(save, 'sora', 'report-act1');
 
     const roundtripped = importSave(exportSave(save), '2026-06-27T00:15:00.000Z');
@@ -205,6 +213,9 @@ export function runHeadlessActOnePlaythrough(seed = 1501): HeadlessPlaythroughRe
 
     if (!completedQuestIds.includes('first-patrol')) {
       issues.push({ path: 'qa.playthrough.first-patrol', message: 'Erste Patrouille wurde nicht abgeschlossen.' });
+    }
+    if (!completedQuestIds.includes('slime-awakening')) {
+      issues.push({ path: 'qa.playthrough.slime-awakening', message: 'Schleim-Prolog wurde nicht abgeschlossen.' });
     }
     if (!completedQuestIds.includes('binding-of-ancestors')) {
       issues.push({ path: 'qa.playthrough.binding-of-ancestors', message: 'Act-1-Quest wurde nicht abgeschlossen.' });
@@ -350,7 +361,7 @@ function playStoryEncounter(
 ): SaveGameV2 {
   const encounterResult = resolveEncounter(
     createWorldState(save),
-    'tempest-start',
+    storyEncounter.mapId,
     storyEncounter.position,
     makeRng(seed)
   );

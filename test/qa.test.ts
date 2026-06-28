@@ -49,8 +49,9 @@ describe('phase 15 QA gates', () => {
 
     expect(result.issues).toEqual([]);
     expect(result.ok).toBe(true);
-    expect(result.completedQuestIds).toEqual(['binding-of-ancestors', 'first-patrol']);
+    expect(result.completedQuestIds).toEqual(['binding-of-ancestors', 'first-patrol', 'slime-awakening']);
     expect(result.battles.map((battle) => battle.encounterId)).toEqual([
+      'direwolf-pack-leader',
       'training-clearing',
       'whispering-grove-ambush',
       'shrine-approach'
