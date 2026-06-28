@@ -54,6 +54,7 @@ export interface LoreEntryView {
   readonly title: string;
   readonly category: LoreEntryDefinition['category'];
   readonly unlocked: boolean;
+  readonly newlyUnlocked: boolean;
   readonly body: string | null;
 }
 
@@ -271,6 +272,7 @@ export function buildCodexView(state: WorldState): LoreEntryView[] {
       title: entry.title,
       category: entry.category,
       unlocked,
+      newlyUnlocked: unlocked && entry.unlockFlag?.startsWith('codex.') === true,
       body: unlocked ? entry.body : null
     };
   });

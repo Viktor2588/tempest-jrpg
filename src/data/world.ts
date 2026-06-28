@@ -477,6 +477,36 @@ export const LOCATIONS = [
     identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.'
   },
   {
+    id: 'tempest-council-plaza',
+    name: 'Ratsplatz von Tempest',
+    kind: 'outpost',
+    mapId: 'tempest-start',
+    position: { x: 4, y: 5 },
+    description: 'Ein befestigter Feuerkreis, an dem Rigurd die ersten Aufgaben der jungen Stadt sammelt.',
+    identity: 'Post-Prolog-Hubmarker: macht den Rat von Tempest als Zentrum der Band-2-Route sichtbar.',
+    unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
+    id: 'tempest-name-stone',
+    name: 'Namensstein',
+    kind: 'shrine',
+    mapId: 'tempest-start',
+    position: { x: 5, y: 6 },
+    description: 'Ein einfacher Stein mit dem neuen Stadtnamen — noch roh, aber für alle sichtbar.',
+    identity: 'Post-Prolog-Hubmarker: zeigt, dass aus dem Notlager eine benannte Siedlung geworden ist.',
+    unlockFlag: 'story.tempest.named'
+  },
+  {
+    id: 'tempest-palisade',
+    name: 'Tempest-Palisade',
+    kind: 'outpost',
+    mapId: 'tempest-start',
+    position: { x: 6, y: 5 },
+    description: 'Frisch gesetzte Holzpfähle und Wachtücher markieren den Übergang von Lager zu Stadt.',
+    identity: 'Post-Prolog-Hubmarker: weniger Notlager, mehr sichtbare Siedlungsstruktur.',
+    unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
     id: 'sealed-cave',
     name: 'Versiegelte Höhle',
     kind: 'dungeon',
@@ -1479,7 +1509,7 @@ export const DIALOGS = [
       {
         id: 'state',
         speaker: 'Rigurd',
-        text: 'Tempest ist noch klein: ein Feuerkreis, ein Vorratszelt, ein paar Mauern. Aber jeder Name hier ist ein Versprechen, nicht nur ein Etikett.',
+        text: 'Tempest ist noch klein: Ratsplatz, Namensstein, Vorratszelt und Palisade. Aber jeder sichtbare Pfahl sagt dasselbe: Der Name ist ein Versprechen, nicht nur ein Etikett.',
         choices: [{ id: 'end', label: 'Verstanden' }]
       },
       {

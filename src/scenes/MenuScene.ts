@@ -512,10 +512,11 @@ export class MenuScene extends Phaser.Scene {
     entries.forEach((entry, index) => {
       const y = 158 + index * 86;
       this.panel(300, y, 590, 68);
-      this.layer.add(this.add.text(318, y - 24, `${entry.unlocked ? '◈' : '◇'} ${entry.title}`, {
+      const marker = entry.unlocked ? (entry.newlyUnlocked ? '✦ NEU' : '◈') : '◇';
+      this.layer.add(this.add.text(318, y - 24, `${marker} ${entry.title}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
-        color: entry.unlocked ? '#e9c56c' : '#6f83a5'
+        color: entry.newlyUnlocked ? '#8dffc2' : (entry.unlocked ? '#e9c56c' : '#6f83a5')
       }));
       this.layer.add(this.add.text(318, y - 2, entry.unlocked ? entry.body ?? '' : 'Noch nicht entdeckt.', {
         fontFamily: 'sans-serif',
