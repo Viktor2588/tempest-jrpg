@@ -336,6 +336,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Umgesetzt:** `maps.ts` mit generischem Builder, `SPIRIT_MARSH` (22×14), `MAPS`/`getMap`. `OverworldScene` rendert/bewegt/interagiert komplett über `this.mapId`+`this.map` (= `getMap(save.location.mapId)`); `travelTo` an Locations + `getAdjacentTravel`; bidirektionale Gateways (⇄-Symbol, eigene Farbe) wechseln per sanftem Fade. Geistmoor: Spawn, Landmark `marsh-mire`, Shop `marsh-trader`, 1 Zufalls- + 1 Landmark-Trigger-Encounter, Codex `geistmoor`. Positions-Walkability beim Laden abgesichert.
 - **Abnahme (lokal verifiziert):** Datenintegrität grün; `playthrough.test` prüft Erreichbarkeit von NPCs/Shops/Gateways/Triggern **je gegen ihre eigene Karte** (beide Maps) + Travel-Konsistenz (jedes `travelTo` → existierende Karte + begehbare Zielkachel). `tsc` sauber, **102/102** grün, `build` ok. *(Visuelles Reisen/2. Karte noch im Browser zu sichten.)*
 
+[x] **Dritte Region: Geisterschrein (fertig 2026-06-28, direkt auf `main`)** *(Multi-Map-Erweiterung — reine Daten, dank fertiger Engine)*
+- **Kette:** `tempest-start ↔ spirit-marsh ↔ spirit-highlands`. Neues Gateway-Paar Geistmoor↔Geisterschrein (Ostrand des Moors).
+- **Karte:** `SPIRIT_HIGHLANDS` (24×14) über den vorhandenen Builder/`MAPS`-Registry; keine Szenen-/Systemänderung (Overworld ist bereits map-dynamisch).
+- **Content:** Geisterschrein mit Spawn, Landmark `shrine-summit`, Shop, 2 Encountern (spätere Gegner) und Codex `geisterschrein`.
+- **Umgesetzt:** `SPIRIT_HIGHLANDS` (24×14) in `MAPS`; Gateway-Paar Geistmoor↔Geisterschrein (Moor-Ostrand @(20,7) ↔ Hochland @(1,7)); Geisterschrein mit Spawn, Landmark `shrine-summit`, Shop `shrine-rest`, 1 Zufalls- + 1 Trigger-Encounter (`shrine-summit-guardian` mit `mordrahn-vanguard`), Codex `geisterschrein`. **Keine Code-Änderung** — alles über die fertige map-dynamische Engine.
+- **Abnahme (lokal verifiziert):** Reachability-/Travel-Tests greifen automatisch über alle **3 Karten** (NPCs/Shops/Gateways/Trigger erreichbar; jedes `travelTo` → existierende Karte + begehbare Zielkachel); Datenintegrität grün; `tsc` sauber, **105/105** grün, `build` ok. *(Visuelles Hochland im Browser noch zu sichten.)*
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

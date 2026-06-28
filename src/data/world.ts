@@ -517,6 +517,35 @@ export const LOCATIONS = [
     position: { x: 10, y: 2 },
     description: 'Das Herz des Geistmoors, in dem Sporen und alte Echos dichter werden.',
     identity: 'Erkundungszone des Geistmoors: zähe Begegnungen und Stimmung.'
+  },
+  {
+    id: 'gate-to-highlands',
+    name: 'Aufstieg zum Schrein',
+    kind: 'gateway',
+    mapId: 'spirit-marsh',
+    position: { x: 20, y: 7 },
+    description: 'Ein steiler Pfad am Ostrand des Moors, der ins Geisterschrein-Hochland führt.',
+    identity: 'Reisepunkt: Übergang in die dritte Region (Geisterschrein).',
+    travelTo: { mapId: 'spirit-highlands', x: 2, y: 7 }
+  },
+  {
+    id: 'gate-to-marsh-back',
+    name: 'Abstieg ins Moor',
+    kind: 'gateway',
+    mapId: 'spirit-highlands',
+    position: { x: 1, y: 7 },
+    description: 'Der Rückweg vom Hochland hinab ins Geistmoor.',
+    identity: 'Reisepunkt: zurück ins Geistmoor.',
+    travelTo: { mapId: 'spirit-marsh', x: 19, y: 7 }
+  },
+  {
+    id: 'shrine-summit',
+    name: 'Schreingipfel',
+    kind: 'shrine',
+    mapId: 'spirit-highlands',
+    position: { x: 12, y: 3 },
+    description: 'Die windumtoste Spitze des Geisterschreins, an der die ältesten Echos der Bindung nachhallen.',
+    identity: 'Erkundungs-/Bossort des Hochlands: stärkste optionale Begegnungen.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -632,6 +661,13 @@ export const LORE_ENTRIES = [
     category: 'places',
     body: 'Westlich von Tempest dehnt sich ein nebliges Moor, in dem Sporen, Echsenmenschen und losgerissene Echos der Bindung hausen. Wer die Nebelmoor-Tiefe bezwingt, beweist, dass Tempests Reichweite über den Hain hinauswächst.',
     unlockFlag: 'marsh.guardian.cleared'
+  },
+  {
+    id: 'geisterschrein',
+    title: 'Das Geisterschrein-Hochland',
+    category: 'places',
+    body: 'Jenseits des Moors steigt das Land zu windumtosten Schreinterrassen an, wo die ältesten Echos der Bindung nachhallen. Der Schreingipfel gilt als härteste Prüfung außerhalb der Hauptgeschichte — und als Ort, an dem Tempests Späher die nächste Grenze erahnen.',
+    unlockFlag: 'highlands.guardian.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -1268,6 +1304,15 @@ export const SHOPS = [
     itemIds: ['healing-herb', 'mana-drop', 'tempest-charm'],
     buyMultiplier: 1.15,
     sellMultiplier: 0.5
+  },
+  {
+    id: 'shrine-rest',
+    name: 'Schreinrast',
+    mapId: 'spirit-highlands',
+    position: { x: 4, y: 4 },
+    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm'],
+    buyMultiplier: 1.2,
+    sellMultiplier: 0.5
   }
 ] as const satisfies readonly ShopDefinition[];
 
@@ -1482,6 +1527,26 @@ export const ENCOUNTERS = [
     chance: 1,
     victoryEffects: [
       { type: 'set-flag', flag: 'marsh.guardian.cleared', value: true },
+      { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+    ]
+  },
+  {
+    id: 'highlands-wilds',
+    mapId: 'spirit-highlands',
+    kind: 'random',
+    bounds: { x: 3, y: 2, width: 18, height: 10 },
+    enemyIds: ['lizardman-acolyte', 'mordrahn-vanguard'],
+    chance: 0.13
+  },
+  {
+    id: 'shrine-summit-guardian',
+    mapId: 'spirit-highlands',
+    kind: 'trigger',
+    position: { x: 18, y: 5 },
+    enemyIds: ['mordrahn-vanguard', 'stray-echo'],
+    chance: 1,
+    victoryEffects: [
+      { type: 'set-flag', flag: 'highlands.guardian.cleared', value: true },
       { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
     ]
   }

@@ -32,11 +32,17 @@ export const SPIRIT_MARSH: TileMap = buildMap(22, 14, [
   [5, 3, 2, 2], [9, 5, 3, 2], [14, 3, 2, 3], [7, 9, 2, 2], [13, 9, 3, 2], [17, 6, 2, 3]
 ], { x: 2, y: 2 });
 
+// Region 3: Geisterschrein-Hochland (24×14, kantiger mit Schreinterrassen).
+export const SPIRIT_HIGHLANDS: TileMap = buildMap(24, 14, [
+  [6, 2, 2, 3], [10, 6, 3, 2], [14, 8, 2, 3], [17, 2, 2, 3], [8, 11, 3, 2], [20, 6, 2, 3]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
   'tempest-start': JURA_FIELD,
-  'spirit-marsh': SPIRIT_MARSH
+  'spirit-marsh': SPIRIT_MARSH,
+  'spirit-highlands': SPIRIT_HIGHLANDS
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
