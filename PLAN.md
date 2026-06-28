@@ -371,17 +371,17 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 **Ziel:** `erstes_band.md` und `zweites_band.md` bilden einen zusammenhängenden, speicherbaren Canon-Hauptpfad: Rimuru startet allein, Gobta und Ranga treten story-gesteuert bei, Band 1 endet mit Tempests erster Benennung und Band 2 führt ohne erfundene Haupt-NPCs durch Rat, Aufbau, Flüsterhain und namenloses Echo. `border-escalation` bleibt am Ende eine freiwillige Überleitung; `ancestors-choice` bleibt optionaler Alt-/Nebencontent.
 
-### Bestandsabgleich vom 2026-06-28
+### Bestandsabgleich vom 2026-06-28, aktualisiert nach Band-2-Slices
 
-| Bereich | Bereits vorhanden | Noch erforderlich |
+| Bereich | Aktueller Stand | Offen |
 | --- | --- | --- |
-| Band-1-Quest | `slime-awakening`, Höhle, Goblindorf, Direwolf-Arena, Benennung und Übergang sind durchspielbar | Veldora sichtbar benennen; Gobta/Ranga real und story-gesteuert rekrutieren |
-| Party | Rimuru, Gobta und Shuna als Charakterdaten; aktive/reserve Party wird gespeichert | Gobta aus der Startparty entfernen; Ranga als Held ergänzen; idempotenten Rekrutierungseffekt und Save-Backfill bauen |
-| Band-2-Quest | `binding-of-ancestors`, Hainkampf, Echo-Kampf, Questlog/Codex/Marker und Tests existieren | Sichtbaren Sora/Vael/Lyrre/Mordrahn-Hauptpfad durch Rigurd/Gobta/Ranga/Shuna und ein namenloses Echo ersetzen |
-| Tempest-Hub | Karte, Shops, Marker und mehrere Storyorte sind vorhanden | Hub-Zustand nach Band 1, Canon-Rat und sichtbarkeitsabhängige NPCs ergänzen |
-| Ranga-Systeme | Direwolf-Pakt, Fraktions-/Mount-Flags und Gobta-Talentgates sind vorbereitet | Ranga-Charakter, Kampfprofil, Scout-Vorschau, entdeckte Schnellreisepunkte und UI-Zugang umsetzen |
-| Altcontent | Vollständiger Originalbogen samt Enden ist technisch vorhanden | Vom Canon-Hauptpfad isolieren, für alte Saves erreichbar halten und `ancestors-choice` als optional kennzeichnen |
-| QA | Headless-Prolog→Act-1 und erster Browser-Prolog-Smoke sind vorhanden | Party-Reihenfolge, kompletter Band-1→Band-2-Flow, Save-Migration und Desktop-/Mobil-E2E abdecken |
+| Band-1-Quest | `slime-awakening` ist canonisiert: Veldora sichtbar, Gobta über die Goblin-Bitte, Ranga über den Pakt-Dialog, Benennung startet Band 2. | Nur Politur/Rekrutierungsinszenierung. |
+| Party | Neuer Save startet allein mit Rimuru; Gobta und Ranga werden idempotent rekrutiert und per Save-Backfill kompatibel ergänzt. | Gabiru/weitere Canon-Figuren gehören zu späteren Bänden. |
+| Band-2-Quest | `binding-of-ancestors` läuft sichtbar über Rigurd, Shuna, Gobta und Ranga; Flüsterhain, Ahnensiegel, Namenloses Echo und Abschluss sind durchspielbar. Quest-/Step-IDs bleiben save-kompatibel. | `border-escalation`/Band-3+-Canonisierung separat. |
+| Tempest-Hub | Post-Prolog-Hubmarker, Ratsplatz/Namensstein/Palisade, Band-2-Titelhinweis, Codex-NEU-Signal und Canon-NPC-Sichtbarkeit sind umgesetzt. | Weitere Hub-Politur: Sound, Partygespräche, Ruhepunkt. |
+| Ranga-Systeme | Ranga ist Held, Portrait-/Battle-Zuordnung existiert; Band-2-Scoutbeat und Gobta/Ranga-Talent-/Bindungsbezug sind umgesetzt. | Echte Schnellreise-/Scout-Auswahl bleibt Phase 21. |
+| Altcontent | Sora/Vael/Lyrre treiben neue Band-2-Hauptsaves nicht mehr sichtbar; interne Legacy-Flags bleiben für Save-Kompatibilität erhalten. | Vollständige Legacy-Arc-Isolation, optionale Einordnung von `ancestors-choice`, Codex-/Portrait-Bereinigung. |
+| QA | Headless-Band-1→Band-2-Flows, Questmarker, Save-/Codex-Gates, Browser-E2E Desktop/Mobil und Flüsterhain-Kampfzone sind getestet. | Phase 22 bleibt als explizites Integrations-/Migrations-Gate für die gesamte Matrix. |
 
 [x] **Phase 18 – Story-gesteuerte Party und Save-Grundlage** *(vollständig, 2026-06-28)*
 
@@ -414,28 +414,34 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Abnahme-Tests:** Partyfolge Rimuru → Rimuru+Gobta → Rimuru+Gobta+Ranga; Ranga kann am Rekrutierungszeitpunkt in einem Kampf eingesetzt werden; vollständiger Headless-Prolog und Browser-Smoke auf Desktop/Mobil.
 - **Definition of Done Band 1:** alle offenen Punkte aus `erstes_band.md` sind erledigt, der neue Save startet allein und der Prolog endet ohne externe Anleitung in Tempest.
 
-[~] **Phase 20 – Band 2 auf den Canon-Hauptpfad umbauen** *(Slice 1: NPC-Sichtbarkeit, 2026-06-28)*
+[x] **Phase 20 – Band 2 auf den Canon-Hauptpfad umbauen** *(vollständig für den aktuellen Canon-Hauptpfad, 2026-06-28)*
 
 > **Umgesetzt (Slice 1 — Fundament):** Datengetriebene **NPC-Sichtbarkeit**: `NpcDefinition.requirements` (optional) + `getMapNpcs(mapId, state?)`/`getAdjacentNpc(…, state?)` filtern Story-Anforderungen (analog `getMapLocations`); OverworldScene rendert/interagiert state-gefiltert. Erste Nutzung: Ranga-NPC erscheint erst nach `story.direwolf.defeated` (nicht vor dem Kampf). Ohne State (Reachability) bleiben alle NPCs sichtbar. Headless-Test. **Diese Infrastruktur ermöglicht** Legacy-Isolation (Sora/Vael/Lyrre ausblenden) und „Tempest als Zustand" (Canon-NPCs zur richtigen Zeit) für die folgenden Slices.
 >
-> **Umgesetzt (Slice 2 — Namenloses Echo):** Der Siegel-Gegner `mordrahn-echo` erscheint im Kampf sichtbar als **„Namenloses Echo"** (interne ID stabil); Battle-View-Test. Die Codex-/Legacy-Namensbereinigung (Eintrag `mordrahn` mit Canon/Legacy-Compat-Flag) gehört zur Phase-21-Codex-Bereinigung, um nicht mit dem Legacy-Boss zu kollidieren.
+> **Umgesetzt (Slice 2 — Namenloses Echo):** Der Siegel-Gegner `mordrahn-echo` erscheint im Kampf sichtbar als **„Namenloses Echo"** (interne ID stabil); Battle-View-Test. Quest-/Codex-Texte im Band-2-Hauptfluss vermeiden die alte Figur als sichtbaren Hauptgegner.
 >
-> **Offen (Haupt-Slice):** Band-2-Flow über Rigurd/Gobta/Ranga/Shuna (Rat + 3 Pflichtbeats → Flüsterhain → namenloses Echo → Abschluss) — die große Re-Route des `sora-act1`-getriebenen Quest-Flusses; danach Legacy-Figuren (Sora/Vael/Lyrre) aus dem Canon-Hauptpfad nehmen (via NPC-Sichtbarkeit aus Slice 1), stabile Quest-/Step-IDs beibehalten, freiwilliger „Grenzfeuer"-Hook.
+> **Umgesetzt (Slice 3 — Canon-Re-Route):** Der sichtbare Band-2-Hauptfluss läuft nicht mehr über Sora/Vael/Lyrre, sondern über **Rigurd → Shuna/Gobta/Ranga → Rigurd**. `binding-of-ancestors` und die bestehenden Step-IDs bleiben stabil (`awakening`, `gather-council`, `clear-grove`, `defeat-mordrahn-echo`, `report-sora`); Legacy-Flags (`story.vael.ready`, `story.lyrre.ready`, `bond.sora.*`, `bond.lyrre.*`) werden intern weiter gesetzt, aber von Canon-Dialogen ausgelöst. Tests/Smokes laufen über die Canon-Route.
+>
+> **Umgesetzt (Slice 4 — Präsentation/Orientierung):** Band-2-Titelhinweis **„Eine Stadt braucht mehr als einen Namen."**, Post-Prolog-Hubmarker (`tempest-council-plaza`, `tempest-name-stone`, `tempest-palisade`), Rigurd-Reaktion auf die sichtbare Siedlungsstruktur und Codex-NEU-Signal für frisch freigeschaltete Einträge.
+>
+> **Umgesetzt (Slice 5 — Flüsterhain):** Der Flüsterhain hat einen klar abgegrenzten Overworld-Bereich (`bounds`), die Overworld zeichnet Dungeon-Zonen sichtbar, der Pflichtkampf `whispering-grove-ambush` ist testseitig gegen Level-Ausreißer abgesichert, und der Rat schaltet den Tutorial-Codex **Status, Schwächen und Teamleiste** frei.
+>
+> **Abnahme (lokal verifiziert und nach `origin/main` gepusht):** `tsc --noEmit`, `vitest run` (**158/158**) und `playwright test` (**6/6**) grün; `main` synchron mit `origin/main` nach `401e4e2`.
 
-- **Stabile IDs beibehalten:** Quest-ID `binding-of-ancestors` und möglichst auch bestehende Step-IDs bleiben für alte Saves bestehen. Titel, Beschreibungen, Dialogquellen und sichtbare Gegnernamen werden inhaltlich neu zugeordnet.
-- **Canon-Rollen festlegen:** Rigurd führt Verwaltung/Versorgung und den Abschluss; Gobta und Ranga übernehmen Grenz-/Scoutbericht; Shuna ist Rat-/Ritualfigur und liest die Ahnenzeichen. Rimuru bzw. der Große Weise liefert nur innere Analyse, keinen neuen erfundenen NPC.
-- **Band-2-Flow umsetzen:**
+- [x] **Stabile IDs beibehalten:** Quest-ID `binding-of-ancestors` und bestehende Step-IDs bleiben für alte Saves bestehen. Titel, Beschreibungen, Dialogquellen und sichtbare Gegnernamen wurden inhaltlich neu zugeordnet.
+- [x] **Canon-Rollen festlegen:** Rigurd führt Verwaltung/Versorgung und den Abschluss; Gobta und Ranga übernehmen Grenz-/Scoutbericht; Shuna ist Rat-/Ritualfigur und liest die Ahnenzeichen. Rimuru bzw. der Große Weise bleibt innerer Analyseanker, kein neuer erfundener NPC.
+- [x] **Band-2-Flow umsetzen:**
   1. Nach der Benennung führt ein klarer Marker zu Rigurd oder Shuna in Tempest.
   2. Der erste Rat zeigt Rigurd, Gobta, Ranga und Shuna als Beteiligte.
   3. Drei kurze Pflichtbeats setzen getrennte Flags: Gründer-/Vorratshilfe, Gobta-/Ranga-Scout und Shunas Ritual-/Ahnenzeichen.
   4. Erst nach diesen Beats öffnet sich der Pflichtkampf im Flüsterhain.
   5. Danach folgt der Kampf gegen ein sichtbar namenloses Echo am Siegel.
   6. Der Bericht bei Rigurd/Shuna schließt `binding-of-ancestors` und markiert Band 2 als abgeschlossen.
-- **Keine erfundenen Hauptfiguren:** Sora, Vael und Lyrre treiben keinen Schritt der Canon-Hauptquest mehr voran. `mordrahn-echo` darf vorerst interne Gegner-ID bleiben, erscheint im Kampf, Questlog und Codex jedoch nur als „Namenloses Echo“.
-- **Tempest als Zustand:** NPCs, Marker, Texte und mindestens sichtbare Hub-Dekorationen wechseln nach `story.slime-prologue.completed` vom beschädigten Goblindorf zur jungen Siedlung.
-- **NPC-Sichtbarkeit datengetrieben:** `NpcDefinition`/World-Queries erhalten Story-Anforderungen, damit Canon-Figuren zum richtigen Zeitpunkt und Legacy-Figuren nicht dauerhaft nebeneinander auf der Karte stehen.
-- **Freiwilliger Folge-Hook:** Nach Band 2 bietet Rigurd oder Ranga „Grenzfeuer“ freiwillig an. Ablehnen lässt den Hauptpfad sauber abgeschlossen; Annehmen startet `border-escalation` genau einmal. Die weitere Canon-Umsetzung gehört zu Band 3.
-- **Abnahme:** `binding-of-ancestors` ist von einem Band-1-Save aus ohne Sora/Vael/Lyrre vollständig abschließbar; Questmarker, Codex und Save/Load bilden jeden Schritt korrekt ab.
+- [x] **Keine erfundenen Hauptfiguren:** Sora, Vael und Lyrre treiben keinen Schritt der Canon-Hauptquest mehr voran. `mordrahn-echo` bleibt interne Gegner-ID, erscheint im Band-2-Hauptpfad aber sichtbar als „Namenloses Echo“.
+- [x] **Tempest als Zustand:** NPCs, Marker, Texte und sichtbare Hub-Dekorationen wechseln nach `story.slime-prologue.completed` zur jungen Siedlung.
+- [x] **NPC-Sichtbarkeit datengetrieben:** `NpcDefinition`/World-Queries filtern Story-Anforderungen, damit Canon-Figuren zum richtigen Zeitpunkt sichtbar sind.
+- [x] **Freiwilliger Folge-Hook:** Nach Band 2 startet `border-escalation` nicht automatisch, sondern freiwillig über Gobtas Grenzlage-Dialog.
+- [x] **Abnahme:** `binding-of-ancestors` ist von einem Band-1-Save aus ohne Sora/Vael/Lyrre vollständig abschließbar; Questmarker, Codex und Save/Load bilden jeden Schritt korrekt ab.
 
 [ ] **Phase 21 – Ranga-Scout, Schnellreise und Legacy-Isolation**
 
@@ -462,14 +468,16 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 **Ziel:** Nach der technischen Integration sollen beide Bände wie ein zusammenhängendes JRPG-Kapitel wirken. Priorität: Tempest-Wachstum → Rekrutierungsszenen → Partygespräche → Kapitelübergänge → Boss-Nachspiel.
 
-- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 erhält eine eigene Titelzeile statt eines unbemerkten Questwechsels.
-- **Tempest sichtbar wachsen lassen:** Gebäude-/Dekorationszustand, NPC-Positionen, Umgebungsdialoge und Händlerangebot reagieren mindestens auf Prologabschluss, Rat und Band-2-Abschluss.
+**Bereits aus Phase 20 vorgezogen:** Band-2-Titelzeile, erstes sichtbares Tempest-Wachstum (Ratsplatz/Namensstein/Palisade), Codex-NEU-Signal, Hain-Zonenanzeige und Flüsterhain-Kampf-Tutorial. Phase 23 bleibt für Inszenierung, Sound, Partygespräche, Ruhepunkt und Boss-/Bandabschluss offen.
+
+- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 hat bereits eine eigene Titelzeile; offen sind Einblendung/Abschluss/Rückblick.
+- **Tempest sichtbar wachsen lassen:** Gebäude-/Dekorationszustand, NPC-Positionen, Umgebungsdialoge und Händlerangebot reagieren mindestens auf Prologabschluss, Rat und Band-2-Abschluss. Erste Post-Prolog-Marker und Rigurd-Reaktion sind umgesetzt; weitere Zustände bleiben offen.
 - **Rekrutierungs- und Benennungsszenen:** Gobtas Beitritt, Rangas Pakt und Tempests erste Benennung erhalten jeweils einen klaren visuellen und akustischen Moment statt nur Flags und Questtext.
 - **Partygespräche:** kurze optionale Dialoge zwischen Rimuru, Gobta, Ranga und Shuna nach Direwolf-Kampf, Rat, Flüsterhain und Echo. Gespräche dürfen Codex-/Beziehungsfortschritt geben, aber den Hauptpfad nicht blockieren.
-- **Wegführung:** eine verfolgte Hauptquest, eindeutige Minimap-Ziele und verständliche Hinweise für gesperrte Wege. Der Spieler muss jederzeit erkennen können, wer oder welcher Ort den nächsten Pflichtbeat fortsetzt.
+- **Wegführung:** eine verfolgte Hauptquest, eindeutige Minimap-Ziele und verständliche Hinweise für gesperrte Wege. Questmarker, Questlog-Priorisierung und Hain-Zonenanzeige sind umgesetzt; echte verfolgte Zielmarkierung bleibt offen.
 - **Boss-Nachspiel:** Direwolf und namenloses Echo erhalten Abschlusssequenz, Belohnungsübersicht, freigeschaltete Fähigkeiten/Systeme und sichtbare Reaktionen im Hub.
 - **Ranga-Reisegefühl:** Schnellreise erhält eine kurze überspringbare Reiseanimation, Scout-Bericht und kleine optionale Entdeckungen; „reduzierte Bewegung“ zeigt eine sofortige Variante.
-- **Adaptive Tutorials:** Schwächen/Teamleiste beim Direwolf, Status-/Magieeffekte beim Echo und Scout-/Schnellreise erst bei ihrer tatsächlichen Freischaltung erklären. Bereits verstandene Hinweise bleiben überspringbar.
+- **Adaptive Tutorials:** Schwächen/Teamleiste beim Direwolf, Status-/Magieeffekte beim Echo und Scout-/Schnellreise erst bei ihrer tatsächlichen Freischaltung erklären. Flüsterhain-Tutorial für Status/Schwächen/Teamleiste ist umgesetzt; weitere situative Hinweise bleiben offen.
 - **Ruhepunkt:** Tempest erhält einen klaren Lager-/Gasthauspunkt zum Heilen, Speichern, Partygespräch und späteren Wechseln zwischen aktiver Gruppe und Reserve.
 - **Bandabschluss:** Zusammenfassung von rekrutierten Figuren, Bindungen, Codex-Fortschritt und wichtigen Entscheidungen sowie eine spoilerarme Vorschau auf Band 3.
 - **Präsentationsregeln:** alle Sequenzen bleiben kurz, überspringbar und touch-tauglich; keine langen ununterbrochenen Textblöcke oder Pflichtanimationen.
@@ -494,7 +502,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 5. **Minimap/Regions-Anzeige:** bei jetzt 3 Karten fehlt eine „Wo bin ich / wohin"-Orientierung.
 
 **Priorität MITTEL — Spielgefühl & Onboarding**
-6. **Kampftiefe sichtbar machen:** Break-Leiste, Team-Meter und Reaktionsfenster existieren mechanisch, werden aber kaum erklärt/hervorgehoben → optionales Kampf-Tutorial + klarere HUD-Hinweise.
+6. **Kampftiefe sichtbar machen:** Break-Leiste, Team-Meter und Reaktionsfenster existieren mechanisch, werden aber kaum erklärt/hervorgehoben → optionales Kampf-Tutorial + klarere HUD-Hinweise. ✅ *(2026-06-28, Band-2-Flüsterhain-Slice teilweise umgesetzt)*: Rat vor dem Flüsterhain schaltet einen Codex-Tutorialeintrag zu Status, Schwächen und Teamleiste frei; offen bleiben HUD-Hervorhebung/Break-Reaktionsfenster direkt im Kampf.
 7. **Quest-Log:** „aktive Quest verfolgen"/Sortierung, sobald viele Quests offen sind. ✅ *(2026-06-28)*: `buildQuestLog` sortiert jetzt aktiv→abgeschlossen→offen (stabil); das Menü blendet unentdeckte Quests aus (kein Flut/Spoiler), zeigt aktive als volle Panels mit Wegführung + abgeschlossene kompakt einzeilig als Archiv und einen „Aktiv N · Abgeschlossen M"-Zähler. Behebt zugleich den Overflow (Canvas nur 540px, das alte Layout lief ab der 3. Quest aus dem Bild).
 
 **Priorität MITTEL — Progression & Replay**
