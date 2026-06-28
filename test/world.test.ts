@@ -6,6 +6,7 @@ import { createNewSave, exportSave, importSave } from '../src/systems/save';
 import {
   applyWorldState,
   buildCodexView,
+  buildEndingGallery,
   buildQuestLog,
   buildShopView,
   buyItem,
@@ -158,6 +159,24 @@ describe('world/dialog/shop/encounter system', () => {
     expect(buildQuestLog(state)[0]!.id).toBe('shrine-vigil');
     expect(statuses.indexOf('active')).toBeLessThan(statuses.indexOf('completed'));
     expect(statuses.indexOf('completed')).toBeLessThan(statuses.indexOf('inactive'));
+  });
+
+  it('verdeckt ungesehene Enden in der Galerie und enthüllt erreichte', () => {
+    const gallery = buildEndingGallery(['true']);
+    const trueEnding = gallery.find((entry) => entry.kind === 'true')!;
+    const hidden = gallery.filter((entry) => entry.kind !== 'true');
+
+    expect(gallery).toHaveLength(3);
+    expect(trueEnding).toMatchObject({
+      title: 'Wahres Ende: Geteilte Last',
+      seen: true
+    });
+    expect(trueEnding.body).not.toBeNull();
+    expect(hidden.every((entry) =>
+      !entry.seen
+      && entry.title === '??? — noch nicht erreicht'
+      && entry.body === null
+    )).toBe(true);
   });
 
   it('lässt Zufallsmonster bei großem Levelvorsprung ausweichen', () => {

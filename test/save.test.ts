@@ -9,6 +9,7 @@ import {
   migrate,
   resetSave,
   SAVE_STORAGE_KEY,
+  startNewGamePlus,
   type StorageLike
 } from '../src/systems/save';
 import { getItemCount } from '../src/systems/inventory';
@@ -155,5 +156,34 @@ describe('save.ts', () => {
 
     resetSave(storage);
     expect(loadSave(storage)).toBeNull();
+  });
+
+  it('trägt bei New Game+ Fortschritt mit, setzt aber die Story zurück und heilt die Party', () => {
+    const base = createNewSave({ now: '2026-06-26T10:00:00.000Z', seed: 7 });
+    const leveled = {
+      ...base,
+      party: {
+        ...base.party,
+        active: base.party.active.map((member) => ({ ...member, level: 12, currentHp: 1, currentMp: 0 })),
+        gold: 999
+      },
+      flags: { 'story.act1.completed': true, 'ending.true': true },
+      quests: { 'binding-of-ancestors': { status: 'completed' as const, completedStepIds: ['gather-council'] } },
+      location: { mapId: 'spirit-highlands', x: 5, y: 5, facing: 'up' as const },
+      progression: { ...base.progression, skillPointsByCharacterId: { rimuru: 4 } }
+    };
+
+    const ng = startNewGamePlus(leveled, '2026-06-27T00:00:00.000Z');
+
+    // Mitgetragen: Level, Gold, Progression.
+    expect(ng.party.active[0]!.level).toBe(12);
+    expect(ng.party.gold).toBe(999);
+    expect(ng.progression.skillPointsByCharacterId.rimuru).toBe(4);
+    // Voll geheilt.
+    expect(ng.party.active[0]!.currentHp).toBeGreaterThan(1);
+    // Story zurückgesetzt.
+    expect(ng.flags).toEqual({});
+    expect(ng.quests).toEqual({});
+    expect(ng.location.mapId).toBe('tempest-start');
   });
 });

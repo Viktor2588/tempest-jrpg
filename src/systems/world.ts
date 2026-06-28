@@ -257,6 +257,30 @@ const ENDINGS: ReadonlyArray<{ readonly kind: EndingKind; readonly flag: string;
   { kind: 'freedom', flag: 'ending.freedom', loreId: 'ending-freedom' }
 ];
 
+export interface EndingGalleryEntry {
+  readonly kind: EndingKind;
+  readonly title: string;
+  readonly body: string | null; // null, solange das Ende noch nicht erreicht wurde
+  readonly seen: boolean;
+}
+
+// Ende-Galerie für den Abschlussbildschirm: zeigt alle drei Enden, deckt Titel/Text
+// aber nur für bereits gesehene auf (aus dem persistenten Profil). So lassen sich über
+// New Game+ die übrigen Enden nachholen, ohne sie vorab zu spoilern.
+export function buildEndingGallery(seenKinds: readonly string[]): EndingGalleryEntry[] {
+  const seen = new Set(seenKinds);
+  return ENDINGS.map((ending) => {
+    const lore = allLoreEntries.find((entry) => entry.id === ending.loreId);
+    const isSeen = seen.has(ending.kind);
+    return {
+      kind: ending.kind,
+      title: isSeen ? (lore?.title ?? ending.kind) : '??? — noch nicht erreicht',
+      body: isSeen ? (lore?.body ?? null) : null,
+      seen: isSeen
+    };
+  });
+}
+
 /** Das aktive Story-Ende (oder `null`), abgeleitet aus den `ending.*`-Flags. */
 export function getActiveEnding(state: WorldState): EndingView | null {
   for (const ending of ENDINGS) {

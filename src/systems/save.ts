@@ -86,6 +86,40 @@ export function createNewSave(options: CreateSaveOptions = {}): SaveGameV3 {
   };
 }
 
+// New Game+: startet eine frische Story (Flags/Quests/Ort zurückgesetzt), trägt aber
+// Party-Level/-Skills, Ausrüstung, Inventar, Gold und Progression mit. Die Party wird
+// dabei voll geheilt, damit der neue Durchgang nicht mit angeschlagenem Team beginnt.
+export function startNewGamePlus(save: SaveGameV3, now = new Date().toISOString()): SaveGameV3 {
+  const fresh = createNewSave({ now, seed: save.seed });
+  return normalize(
+    {
+      ...fresh,
+      createdAt: save.createdAt,
+      party: {
+        active: save.party.active.map(carryOverMember),
+        reserve: save.party.reserve.map(carryOverMember),
+        gold: save.party.gold
+      },
+      inventory: save.inventory,
+      progression: save.progression
+    },
+    now
+  );
+}
+
+function carryOverMember(member: PartyMemberState): PartyMemberState {
+  const definition = HEROES.find((hero) => hero.id === member.characterId);
+  if (!definition) return member;
+  // Über createPartyMember neu aufbauen → currentHp/MP = Maximum (volle Heilung),
+  // Level/Erfahrung/erlernte Skills bleiben erhalten; Name/Ausrüstung übernehmen.
+  const restored = createPartyMember(definition, {
+    level: member.level,
+    experience: member.experience,
+    learnedSkillIds: member.learnedSkillIds
+  });
+  return { ...restored, name: member.name, equipment: member.equipment };
+}
+
 export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGameV3 {
   const active = normalizePartyMembers(save.party.active);
   const fallbackParty = active.length > 0 ? active : createInitialParty();
