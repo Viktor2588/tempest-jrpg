@@ -412,38 +412,48 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawQuestLog(): void {
-    this.sectionTitle('Quests & Story');
-    const quests = buildQuestLog(createWorldState(this.save));
-    quests.forEach((quest, index) => {
-      const y = 160 + index * 132;
-      const status = quest.status === 'completed'
-        ? 'Abgeschlossen'
-        : quest.status === 'active'
-          ? 'Aktiv'
-          : 'Offen';
+    const allQuests = buildQuestLog(createWorldState(this.save));
+    const activeCount = allQuests.filter((q) => q.status === 'active').length;
+    const doneCount = allQuests.filter((q) => q.status === 'completed').length;
+    this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
+    // Unentdeckte/noch nicht angenommene Quests ausblenden: sie würden das Log fluten
+    // und Inhalte spoilern. buildQuestLog liefert aktive zuerst, dann abgeschlossene.
+    const quests = allQuests.filter((q) => q.status !== 'inactive');
+    if (quests.length === 0) {
+      this.layer.add(this.add.text(318, 170, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#9fb2cc'
+      }));
+      return;
+    }
+    // Aktive Quests als volle Panels mit Wegführung (das „Verfolgte"); der Canvas ist
+    // nur 540px hoch, also passen max. 3 Panels — mehr aktive Quests gibt es praktisch nie.
+    const active = quests.filter((q) => q.status === 'active').slice(0, 3);
+    const completed = quests.filter((q) => q.status === 'completed');
+    let cursorY = 160;
+    active.forEach((quest) => {
+      const y = cursorY;
       this.panel(300, y, 590, 108);
-      this.layer.add(this.add.text(318, y - 42, `${quest.title} · ${status}`, {
+      this.layer.add(this.add.text(318, y - 42, `${quest.title} · Aktiv`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
-        color: quest.status === 'completed' ? '#8dffc2' : quest.status === 'active' ? '#e9c56c' : '#9fb2cc'
+        color: '#e9c56c'
       }));
-      // Aktive Quests zeigen den aktuellen Schritt als Wegführung statt der generischen Beschreibung.
-      const currentStep = quest.status === 'active' ? quest.steps.find((step) => step.current) : undefined;
+      const currentStep = quest.steps.find((step) => step.current);
       this.layer.add(this.add.text(318, y - 18, currentStep ? `→ ${currentStep.description}` : quest.description, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: currentStep ? '#e9c56c' : '#9fb2cc',
         wordWrap: { width: 535 }
       }));
-      const visibleSteps = quest.steps
-        .filter((step) => step.completed || step.current || quest.status === 'completed')
-        .slice(0, 3);
+      const visibleSteps = quest.steps.filter((step) => step.completed || step.current).slice(0, 3);
       visibleSteps.forEach((step, stepIndex) => {
-        const marker = step.completed ? '✓' : step.current ? '◆' : '·';
+        const marker = step.completed ? '✓' : '◆';
         this.layer.add(this.add.text(318, y + 12 + stepIndex * 18, `${marker} ${step.title}`, {
           fontFamily: 'sans-serif',
           fontSize: '12px',
-          color: step.completed ? '#8dffc2' : step.current ? '#e9eef7' : '#6f83a5'
+          color: step.completed ? '#8dffc2' : '#e9eef7'
         }));
       });
       this.layer.add(this.add.text(704, y + 44, `Belohnung: ${quest.rewardGold} Gold`, {
@@ -451,7 +461,35 @@ export class MenuScene extends Phaser.Scene {
         fontSize: '11px',
         color: '#e9c56c'
       }));
+      cursorY += 132;
     });
+    // Abgeschlossene Quests kompakt einzeilig als Archiv, soweit Platz bleibt.
+    if (completed.length > 0) {
+      if (active.length === 0) cursorY = 196; // Abstand zum Sektionstitel, wenn keine aktive Quest oben steht.
+      this.layer.add(this.add.text(318, cursorY - 28, 'Abgeschlossen', {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#8dffc2'
+      }));
+      let lineY = cursorY - 4;
+      const maxLines = Math.max(0, Math.floor((524 - lineY) / 22));
+      completed.slice(0, maxLines).forEach((quest) => {
+        this.layer.add(this.add.text(318, lineY, `✓ ${quest.title}`, {
+          fontFamily: 'sans-serif',
+          fontSize: '13px',
+          color: '#6f9a86'
+        }));
+        lineY += 22;
+      });
+      const hidden = completed.length - Math.min(maxLines, completed.length);
+      if (hidden > 0) {
+        this.layer.add(this.add.text(318, lineY, `… +${hidden} weitere abgeschlossen`, {
+          fontFamily: 'sans-serif',
+          fontSize: '12px',
+          color: '#6f83a5'
+        }));
+      }
+    }
   }
 
   private drawCodex(): void {

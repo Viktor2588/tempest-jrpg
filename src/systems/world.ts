@@ -163,8 +163,17 @@ export function npcHasQuestMarker(state: WorldState, npcId: string): boolean {
   );
 }
 
+// Quest-Log-Priorität: aktive Quests (aktuelle Ziele) zuerst, dann abgeschlossene
+// als Archiv, unentdeckte/„offene" zuletzt. So bleibt das Verfolgen fokussiert,
+// auch wenn viele Quests existieren. Innerhalb einer Gruppe bleibt die QUESTS-Reihenfolge.
+const QUEST_STATUS_ORDER: Record<QuestLogEntryView['status'], number> = {
+  active: 0,
+  completed: 1,
+  inactive: 2
+};
+
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
-  return QUESTS.map((quest) => {
+  const entries = QUESTS.map((quest) => {
     const questState = state.quests[quest.id];
     const status = questState?.status ?? 'inactive';
     const completedStepIds = new Set(questState?.completedStepIds ?? []);
@@ -189,6 +198,11 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
       rewardItemIds: quest.reward?.itemIds ?? []
     };
   });
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((a, b) =>
+      QUEST_STATUS_ORDER[a.entry.status] - QUEST_STATUS_ORDER[b.entry.status] || a.index - b.index)
+    .map(({ entry }) => entry);
 }
 
 export function buildCodexView(state: WorldState): LoreEntryView[] {

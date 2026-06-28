@@ -363,7 +363,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 
 **Priorität MITTEL — Spielgefühl & Onboarding**
 6. **Kampftiefe sichtbar machen:** Break-Leiste, Team-Meter und Reaktionsfenster existieren mechanisch, werden aber kaum erklärt/hervorgehoben → optionales Kampf-Tutorial + klarere HUD-Hinweise.
-7. **Quest-Log:** „aktive Quest verfolgen"/Sortierung, sobald viele Quests offen sind (aktuell 5 Quests + Nebenquests).
+7. **Quest-Log:** „aktive Quest verfolgen"/Sortierung, sobald viele Quests offen sind. ✅ *(2026-06-28)*: `buildQuestLog` sortiert jetzt aktiv→abgeschlossen→offen (stabil); das Menü blendet unentdeckte Quests aus (kein Flut/Spoiler), zeigt aktive als volle Panels mit Wegführung + abgeschlossene kompakt einzeilig als Archiv und einen „Aktiv N · Abgeschlossen M"-Zähler. Behebt zugleich den Overflow (Canvas nur 540px, das alte Layout lief ab der 3. Quest aus dem Bild).
 
 **Priorität MITTEL — Progression & Replay**
 8. **NG+ / Ende-Galerie:** andere Enden ohne Komplett-Replay erlebbar; Bonus/Anerkennung fürs True Ending.

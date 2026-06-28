@@ -142,6 +142,23 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getMapLocations('tempest-start', completed.state).map((location) => location.id)).toContain('ancestor-seal');
   });
 
+  it('priorisiert aktive Quests im Quest-Log vor abgeschlossenen und unentdeckten', () => {
+    // Späte Quest aktiv, frühe Quest abgeschlossen → der Sort muss umordnen, nicht die QUESTS-Reihenfolge spiegeln.
+    const state: WorldState = {
+      flags: {},
+      quests: {
+        'first-patrol': { status: 'completed', completedStepIds: [] },
+        'shrine-vigil': { status: 'active', completedStepIds: [] }
+      },
+      inventory: [],
+      gold: 0
+    };
+    const statuses = buildQuestLog(state).map((quest) => quest.status);
+    expect(buildQuestLog(state)[0]!.id).toBe('shrine-vigil');
+    expect(statuses.indexOf('active')).toBeLessThan(statuses.indexOf('completed'));
+    expect(statuses.indexOf('completed')).toBeLessThan(statuses.indexOf('inactive'));
+  });
+
   it('spielt den Act-1-Story-Slice Intro → Stadt → Quest → Dungeon → Boss → Belohnung headless durch und persistiert ihn', () => {
     const world = runActOneStorySliceSmoke(makeRng(8));
     const quest = buildQuestLog(world).find((entry) => entry.id === 'binding-of-ancestors')!;
