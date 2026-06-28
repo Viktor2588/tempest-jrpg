@@ -370,8 +370,16 @@ describe('Story-Rekrutierung (recruit-character)', () => {
     expect(afterPlea.ok).toBe(true);
     expect(afterPlea.state.world.roster).toContain('gobta');
 
+    // Direwolf-Sieg unterwirft das Rudel (setzt story.direwolf.defeated), rekrutiert aber noch nicht.
     const afterDirewolf = completeEncounter(afterPlea.state.world, 'direwolf-pack-leader');
-    expect(afterDirewolf.state.roster).toContain('ranga');
+    expect(afterDirewolf.state.roster).not.toContain('ranga');
+    expect(afterDirewolf.state.flags['story.direwolf.defeated']).toBe(true);
+
+    // Erst Rangas Pakt-Dialog rekrutiert ihn und setzt story.direwolf.pact.
+    const afterPact = chooseDialogOption(afterDirewolf.state, 'ranga-pact', 'start', 'seal-pact');
+    expect(afterPact.ok).toBe(true);
+    expect(afterPact.state.world.roster).toContain('ranga');
+    expect(afterPact.state.world.flags['story.direwolf.pact']).toBe(true);
   });
 
   it('Canon-Partyfolge: Rimuru → +Gobta → +Ranga, Ranga sofort kampftauglich', () => {

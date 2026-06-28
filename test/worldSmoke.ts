@@ -83,6 +83,9 @@ export function runSlimePrologueSmoke(seedRng: Rng): WorldState {
   if (!pack.state.encounter) throw new Error('Expected direwolf-pack encounter.');
   state = completeEncounter(pack.state.world, pack.state.encounter.id).state;
 
+  // Pakt mit Ranga: rekrutiert Ranga und schaltet die Benennung frei.
+  state = chooseNpcOptionOrThrow(state, 'ranga', 'seal-pact');
+
   return chooseNpcOptionOrThrow(state, 'rigurd', 'name-village');
 }
 

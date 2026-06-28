@@ -1119,6 +1119,7 @@ export const DIALOGS = [
             requirements: [
               { questStatus: { questId: 'slime-awakening', status: 'active' } },
               { flag: 'story.direwolf.defeated' },
+              { flag: 'story.direwolf.pact' },
               { missingQuestStep: { questId: 'slime-awakening', stepId: 'name-the-village' } }
             ],
             effects: [
@@ -1127,9 +1128,8 @@ export const DIALOGS = [
               { type: 'set-flag', flag: 'story.slime-prologue.completed', value: true },
               { type: 'set-flag', flag: 'story.tempest.named', value: true },
               { type: 'set-flag', flag: 'story.act1.started', value: true },
-              { type: 'set-flag', flag: 'faction.direwolves.respected', value: true },
-              { type: 'set-flag', flag: 'mount.direwolf.seed', value: true },
-              { type: 'set-flag', flag: 'progression.gobta.wolf-fang-token', value: true },
+              // Fraktions-/Mount-/Gobta-Flags stammen jetzt aus Rangas Pakt-Dialog
+              // (Benennung ist hinter `story.direwolf.pact` gegated → bereits gesetzt).
               { type: 'set-flag', flag: 'bond.rigurd.trust-prologue', value: true },
               { type: 'start-quest', questId: 'binding-of-ancestors' },
               { type: 'add-gold', amount: 100 },
@@ -1832,6 +1832,42 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Gern geschehen' }]
       }
     ]
+  },
+  {
+    id: 'ranga-pact',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Ranga',
+        text: 'Der große Wolf des Rudels senkt den Kopf. Seit du das Rudel bezwungen hast, mustert er dich mit ruhigen Augen — bereit, einen Pakt einzugehen.',
+        choices: [
+          {
+            id: 'seal-pact',
+            label: 'Den Pakt mit Ranga schließen',
+            nextNodeId: 'pact-sealed',
+            requirements: [
+              { flag: 'story.direwolf.defeated' },
+              { notFlag: 'story.direwolf.pact' }
+            ],
+            effects: [
+              { type: 'recruit-character', characterId: 'ranga' },
+              { type: 'set-flag', flag: 'story.direwolf.pact', value: true },
+              { type: 'set-flag', flag: 'faction.direwolves.respected', value: true },
+              { type: 'set-flag', flag: 'mount.direwolf.seed', value: true },
+              { type: 'set-flag', flag: 'progression.gobta.wolf-fang-token', value: true }
+            ]
+          },
+          { id: 'end', label: 'Noch nicht' }
+        ]
+      },
+      {
+        id: 'pact-sealed',
+        speaker: 'Ranga',
+        text: 'Der Wolf — Ranga — tritt an deine Seite. Von nun an jagt er mit Tempest und trägt dich, wohin der Sturm auch zieht.',
+        choices: [{ id: 'end', label: 'Willkommen, Ranga' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -1843,6 +1879,14 @@ export const NPCS = [
     position: { x: 7, y: 3 },
     dialogId: 'sealed-storm-dragon',
     color: 0x6ec6ff
+  },
+  {
+    id: 'ranga',
+    name: 'Ranga',
+    mapId: 'direwolf-den',
+    position: { x: 10, y: 5 },
+    dialogId: 'ranga-pact',
+    color: 0x9fb6d6
   },
   {
     id: 'rigurd',
@@ -1975,11 +2019,10 @@ export const ENCOUNTERS = [
       { notFlag: 'story.direwolf.defeated' }
     ],
     victoryEffects: [
+      // Sieg = Unterwerfung. Pakt + Rekrutierung folgen im anschließenden Ranga-Dialog.
       { type: 'set-flag', flag: 'story.direwolf.defeated', value: true },
-      { type: 'set-flag', flag: 'story.direwolf.pact', value: true },
       { type: 'complete-quest-step', questId: 'slime-awakening', stepId: 'direwolf-pack' },
-      { type: 'add-item', itemId: 'healing-herb', quantity: 1 },
-      { type: 'recruit-character', characterId: 'ranga' }
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
     ]
   },
   {

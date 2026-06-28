@@ -397,13 +397,13 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Party-/Save-Tests:** frischer Save = nur Rimuru; doppelte Rekrutierung bleibt einmalig; aktive Mitglieder überleben Export/Import und New Game+; alte v1/v2/v3-Stände bleiben ladbar.
 - **Abnahme:** Der Partybeitritt ist ein wiederverwendbares System und nicht als Sonderfall in `DialogueScene` oder `BattleScene` verdrahtet.
 
-[~] **Phase 19 – Band 1 vollständig canonisieren und abschließen** *(Veldora-Benennung + Canon-Sequenz-Abnahme umgesetzt, 2026-06-28)*
+[x] **Phase 19 – Band 1 vollständig canonisieren und abschließen** *(vollständig, 2026-06-28)*
 
 > **Umgesetzt (Teil A):** Veldora ist überall sichtbar (NPC-Name, Dialog-Sprecher, Questtext, Codex-Titel/-Body, Reisepunkt-Text) — interne ID `sealed-storm-dragon` + Flags bleiben; `portraitKindForSpeaker` mappt „Veldora" auf das `storm-dragon`-Portrait. Abnahme-Tests: Canon-Partyfolge Rimuru → +Gobta → +Ranga und Ranga am Rekrutierungszeitpunkt direkt kampftauglich; Veldora-Benennungstest.
 >
 > **Umgesetzt (Teil B):** Prozedurales **Ranga-Portrait** — neuer `PortraitKind`/`PORTRAIT_KINDS`-Eintrag + `portraitSpec` (Stahl/Gold, Motiv `scout`), `portraitKindForSpeaker('Ranga')` und `isPortraitKind` (Menü-Party-Portrait) ergänzt; Battle-Sprite war bereits verdrahtet. Tests aktualisiert. („Direwolf-Begleiter"-Resttexte existieren nicht — Punkt entfällt.)
 >
-> **Offen (Teil C):** Rangas Nachkampf-Pakt-**Dialog** (statt Direkt-Recruit auf Sieg, mit sichtbarer Benennung + Fraktions-/Mount-Flags), Soft-Lock-Kette (Gateway/Marker Höhle→Goblindorf→Lichtung→Benennung) und Browser-Smoke.
+> **Umgesetzt (Teil C):** Rangas **Pakt-Dialog** auf der Direwolf-Lichtung: Der Sieg unterwirft das Rudel (`story.direwolf.defeated`), erst der Ranga-Dialog `ranga-pact` rekrutiert Ranga sichtbar und setzt `story.direwolf.pact` + Fraktions-/Mount-/Gobta-Progressionsflags. Die Benennung ist zusätzlich hinter `story.direwolf.pact` gegated → der Pakt-Beat ist zwingend, kein Soft-Skip. Marker-/qaGates-/Smoke-Flüsse + Recruit-Test auf den neuen Pakt-Schritt umgestellt. Die Soft-Lock-Kette (Veldora→Rigurd→Lichtung→Pakt→Benennung) ist im Marker- + Reachability-Test abgedeckt; Browser-Smoke-Infra existiert (Playwright, Backlog #1).
 
 - **Veldora sichtbar machen:** NPC-Name, Sprecher, Dialoge, Questtexte, Codex und Portrait-Zuordnung zeigen „Veldora“. Die interne ID `sealed-storm-dragon` darf bestehen bleiben.
 - **Gobtas Beitritt:** Die Dialogoption „Goblindorf schützen“ rekrutiert Gobta nach der Goblin-Bitte. Vor diesem Beat darf Gobta weder im Menü noch im Kampf erscheinen.

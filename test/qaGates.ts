@@ -200,6 +200,7 @@ export function runHeadlessActOnePlaythrough(seed = 1501): HeadlessPlaythroughRe
     save = chooseNpcOption(save, 'sealed-storm-dragon', 'oath');
     save = chooseNpcOption(save, 'rigurd', 'hear-goblin-plea');
     save = playStoryEncounter(save, STORY_ENCOUNTERS[0]!, seed + 5, battles);
+    save = chooseNpcOption(save, 'ranga', 'seal-pact');
     save = chooseNpcOption(save, 'rigurd', 'name-village');
 
     save = chooseNpcOption(save, 'rigurd', 'accept');

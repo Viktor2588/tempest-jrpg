@@ -360,6 +360,10 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(marker(save, 'rigurd')).toBe(true);
     save = talk(save, 'rigurd', 'hear-goblin-plea');
     save = clearTriggerAt(save, { x: 9, y: 5 }, 'direwolf-den');
+    // Nach dem Sieg schließt erst Rangas Pakt die Benennung auf; Rigurd hat solange keinen Marker.
+    expect(marker(save, 'ranga')).toBe(true);
+    expect(marker(save, 'rigurd')).toBe(false);
+    save = talk(save, 'ranga', 'seal-pact');
     expect(marker(save, 'rigurd')).toBe(true);
     save = talk(save, 'rigurd', 'name-village');
     expect(marker(save, 'sora')).toBe(true);
