@@ -21,7 +21,7 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
-import { loadSettings } from '../systems/settings';
+import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
@@ -60,6 +60,7 @@ export class BattleScene extends Phaser.Scene {
 
   create(data: { enemyIds?: string[]; encounterId?: string }): void {
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;
     this.state = startBattle({
       party: createProgressionBattleParty(
@@ -69,6 +70,10 @@ export class BattleScene extends Phaser.Scene {
       enemyIds: data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
       inventory: this.save.inventory.stacks,
       teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
+      damageMultipliers: {
+        party: playerDamageMultiplier(settings),
+        enemy: enemyDamageMultiplier(settings)
+      },
       seed: (Date.now() & 0x7fffffff) || 1
     });
     this.resultAnnounced = false;

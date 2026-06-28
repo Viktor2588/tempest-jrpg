@@ -222,6 +222,82 @@ describe('battle engine', () => {
     expect(renderView(a).log).toEqual(renderView(b).log);
   });
 
+  it('wendet Schadensmultiplikatoren getrennt für Party und Gegner an', () => {
+    const party: BattleUnitInput[] = [{
+      sourceId: 'damage-probe-hero',
+      name: 'Prüfer',
+      side: 'party',
+      level: 4,
+      stats: {
+        maxHp: 220,
+        maxMp: 0,
+        attack: 28,
+        defense: 14,
+        magic: 8,
+        spirit: 12,
+        agility: 20
+      },
+      element: 'neutral',
+      weaknesses: [],
+      resistances: [],
+      skillIds: []
+    }];
+    const enemies: BattleUnitInput[] = [{
+      sourceId: 'damage-probe-enemy',
+      name: 'Prüfbestie',
+      side: 'enemy',
+      level: 4,
+      stats: {
+        maxHp: 420,
+        maxMp: 0,
+        attack: 26,
+        defense: 8,
+        magic: 8,
+        spirit: 8,
+        agility: 1
+      },
+      element: 'neutral',
+      weaknesses: [],
+      resistances: [],
+      skillIds: []
+    }];
+
+    const partyDamage = (multiplier: number): number => {
+      const state = startBattle({
+        party,
+        enemies,
+        damageMultipliers: { party: multiplier, enemy: 1 },
+        seed: 515
+      });
+      const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+      const target = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+      state.activeId = actor.id;
+      const before = target.hp;
+      act(state, { type: 'attack', targetId: target.id });
+      return before - target.hp;
+    };
+
+    const enemyDamage = (multiplier: number): number => {
+      const state = startBattle({
+        party,
+        enemies,
+        damageMultipliers: { party: 1, enemy: multiplier },
+        seed: 515
+      });
+      const actor = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+      const target = state.combatants.find((combatant) => combatant.side === 'party')!;
+      state.activeId = actor.id;
+      const before = target.hp;
+      enemyTurn(state);
+      return before - target.hp;
+    };
+
+    expect(partyDamage(1.25)).toBeGreaterThan(partyDamage(1));
+    expect(partyDamage(0.75)).toBeLessThan(partyDamage(1));
+    expect(enemyDamage(1.4)).toBeGreaterThan(enemyDamage(1));
+    expect(enemyDamage(0.7)).toBeLessThan(enemyDamage(1));
+  });
+
   it('vergibt EP, Gold und deterministische Drops beim Sieg', () => {
     const strongParty = createDefaultBattleParty().map((member) => ({
       ...member,
