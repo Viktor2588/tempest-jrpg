@@ -2,189 +2,143 @@
 
 ## Leitlinie
 
-Das vierte Band orientiert sich am Canon-Bogen um die heranziehende Ork-Armee, die Echsenmenschen und den Marsch in den Krieg. Tempest muss erstmals nicht nur ein Dorf oder eine Grenze schützen, sondern mehrere Gruppen koordinieren. Rimuru führt, Benimaru übernimmt die militärische Planung, Gobta und Ranga erkunden Wege und Truppenbewegungen, Souei beschafft Informationen, während Shuna, Shion, Hakurou und Kurobe ihre festen Rollen in Tempest erhalten. Der Band führt den Orkkrieg bis zum vollständigen Endkampf gegen Geld und schließt diesen Konflikt innerhalb von Band 4 ab, ohne Dialoge oder Szenen aus dem Manga wörtlich zu übernehmen.
+Das vierte Band soll die vorbereitete Grenz- und Ahnenkrise in eine echte Bündnisentscheidung überführen. Nach Band 3 ist klar: Tempest kann nicht nur reagieren. Rimuru muss verschiedene Gruppen zusammenbringen, den Ursprung der Risse erreichen und entscheiden, wie Tempest mit alter Macht, Freiheit und Schutz umgeht. Die Umsetzung bleibt Canon-first bei sichtbaren Namen; bestehende Projektnamen und technische IDs werden als Platzhalter behandelt, bis sie sauber ersetzt sind.
 
-## Projektregel: Canon-first
+## Projektregel: Originalnamen
 
-- Sichtbare Figuren und Orte verwenden originale Tensura-Namen.
-- Keine neuen erfundenen Haupt-NPCs für Rollen, die Canon-Figuren übernehmen können.
-- Bestehende technische IDs dürfen zunächst intern bleiben, sichtbare Namen werden vor der Umsetzung migriert.
-- Gobta ist früher aktiver Partybegleiter.
-- Ranga ist früher aktiver Partybegleiter sowie Scout-/Schnellreise-Anker.
-- Gabiru wird im Verlauf des Orkkriegs als aktives Partymitglied freigeschaltet.
-
-## Kontinuitätsvoraussetzung
-
-Bevor Band 4 vollständig umgesetzt wird, müssen die Oger/Kijin aus dem vorherigen Storyabschnitt eingeführt und benannt sein:
-
-- Benimaru
-- Shuna
-- Shion
-- Souei
-- Hakurou
-- Kurobe
-
-Der bisherige Band-3-Plan enthält diesen Canon-Übergang noch nicht vollständig. Er muss vor der Band-4-Implementierung ergänzt oder als eigener Zwischenbogen umgesetzt werden. Das bestehende `ancestors-choice`-Gerüst bleibt vorerst als optionale Original-Nebenhandlung erhalten und darf den Canon-Hauptpfad von Band 4 nicht blockieren.
+Sichtbare Figuren sollen originale Tensura-Namen verwenden. Gobta/Gobota bleibt früher aktiver Begleiter, Ranga bleibt früher Companion und Reiseanker. Erfunden wirkende Projektnamen aus alten Daten (`Sora`, `Vael`, `Lyrre`, `Mordrahn`) dürfen in technischen IDs vorerst bestehen, sollen aber im sichtbaren Text durch Canon-Figuren, den Großen Weisen, neutrale Rollen oder namenlose Phänomene ersetzt werden.
 
 ## Zielbild
 
-- Band 4 beginnt mit einer Warnung vor einer ungewöhnlich großen Ork-Armee.
-- Treyni führt die Bedrohung als Dryade und Beobachterin des Jura-Waldes ein.
-- Gabiru und die Echsenmenschen werden als schwierige, aber notwendige Verbündete aufgebaut.
-- Gelmud bleibt zunächst Manipulator im Hintergrund.
-- Der Orc Lord Geld wird als Zentrum der Bedrohung vorbereitet.
-- Benimaru übernimmt die Schlachtplanung, Souei Aufklärung, Hakurou Ausbildung, Shuna Ritual/Versorgung und Shion Frontschutz.
-- Gobta bleibt aktiver Begleiter und erhält einen glaubwürdigen Scout-/Überlebensmoment.
-- Ranga erhält einen regulären Partyplatz und ermöglicht zusätzlich Aufklärung und schnelle Reise.
-- Gabiru wird im Verlauf des Bündnisses als aktives Partymitglied freigeschaltet.
-- Eine separate Kriegskarte zeigt Fronten, Aufklärung, sichere Routen und Missionsziele.
-- Der Band endet mit dem vollständigen Kampf gegen Geld und dem Abschluss des Orkkriegs.
+- Band 4 startet freiwillig nach `story.act2.completed`.
+- Hauptquest ist `ancestors-choice` / „Die Wahl der Ahnen“.
+- Rimuru führt ein Bündnis zusammen, statt nur einzelne Kämpfe zu gewinnen.
+- Gobta/Gobota und Ranga bleiben frühe Begleiter und liefern Scout-/Frontnutzen.
+- Shuna bleibt zunächst Ritual-/Ratfigur, bekommt aber mehr Gewicht bei Ahnen- und Schutzmagie.
+- Der bisher indirekte Gegenspieler wird im vierten Band einem konkreten Canon-Arc zugeordnet und nicht als eigener erfundener Hauptgegner weitergeführt.
+- Das Band endet nicht nur mit Sieg, sondern mit einer Entscheidung: Freiheit, Ordnung oder geteilte Last.
+- Die Entscheidung wird zunächst nur dokumentiert und inszeniert, verändert aber noch keine späteren Karten oder Folgequests.
+- Band 5 startet später als neuer optionaler Arc im Tempest-Hub.
 
-## Technischer Ausgangspunkt
+## Aktueller technischer Anker im Projekt
 
 | Bereich | Vorhandener Stand | Nutzung für Band 4 |
 | --- | --- | --- |
-| Party | Rimuru und Gobta sind technisch vorhanden, Shuna vorbereitet | Gobta story-gaten; Ranga und Gabiru als aktive Mitglieder sowie Kijin-Rollen ergänzen |
-| Gegner | `orc-scout` existiert | Ork-Armee um Soldaten, Kommandanten, Gelmud und Geld erweitern |
-| Karten | Tempest-, Hain- und Sumpfkarten existieren | Jura-Marschroute, Echsenmenschen-Gebiet und Schlachtfeld ergänzen |
-| Scout-System | Direwolf-Pakt/Scout ist in Band 2–3 geplant | Ranga als Partymitglied sowie für Kartenaufklärung und Schnellreise nutzen |
-| Progression | Gobta-/Shuna-Linien existieren | Benimaru-/Shion-/Souei-/Hakurou-Rollen ergänzen |
-| Bestehender Act 3 | `ancestors-choice` ist technisch vorhanden | Als optionale, vom Canon-Hauptpfad getrennte Nebenhandlung erhalten |
+| Hauptquest | `ancestors-choice` mit Steps `rally`, `breach`, `confront`, `choose` | Als kompletter Band-4-Arc ausbauen |
+| Startbedingung | `story.act2.completed` | Freiwilliger Start nach Band 3 |
+| Startdialog | Aktuell über technischen Storyanker bei `rally` | Sichtbar auf Canon-Anker migrieren |
+| Kämpfe | `alliance-breach`, `mordrahn-confrontation` | Bündnismarsch und finaler Konflikt |
+| Endings | `ending.freedom`, `ending.order`, `ending.true` | Drei klare Band-4-Ausgänge |
+| Bindungen | `bond.sora.trust-1`, `bond.lyrre.trust-1` | Auf Canon-/neutrale Bindungsflags migrieren |
 
 ## Geplanter Storyflow
 
 | Schritt | Spielbeat | Technische Umsetzung |
 | --- | --- | --- |
-| 1 | Treyni warnt Tempest | Hauptquest für den Orkkrieg starten, Codex-Eintrag zur Ork-Armee |
-| 2 | Kriegsrat in Tempest | Benimaru plant, Souei meldet Spuren, Shuna/Shion sichern das Dorf |
-| 3 | Gobta und Ranga erkunden die Marschroute | Scout-Mission mit Gefahrenvorschau und Schnellreisepunkt |
-| 4 | Kontakt zu Gabiru und den Echsenmenschen | Dialog-/Entscheidungsbeat über Stolz, Bündnis und Missverständnisse |
-| 5 | Gelmuds Einfluss wird sichtbar | Codex/Spur statt sofortiger Bosskampf |
-| 6 | Tempests Streitmacht marschiert | Mehrteilige Kriegsroute mit Supportrollen der Kijin |
-| 7 | Schlacht im Sumpfgebiet | Mehrere Encounter-Ziele statt eines einzigen Standardkampfs |
-| 8 | Ranga und die Tempest-Wölfe wenden einen Frontabschnitt | Rangas Party- und Scout-Fähigkeiten erhalten sichtbaren Kampfnutzen |
-| 9 | Gabiru entscheidet sich für das gemeinsame Vorgehen | Gabiru wird als aktives Partymitglied freigeschaltet |
-| 10 | Benimaru bricht die gegnerische Formation | Kommandantenbegegnung öffnet den Weg zu Gelmud und Geld |
-| 11 | Gelmuds Manipulation wird aufgedeckt | Konfrontation beendet seine Kontrolle über den Konflikt |
-| 12 | Vollständiger Endkampf gegen Geld | Mehrphasiger Bosskampf mit erzählerischem Abschluss des Orkkriegs |
-| 13 | Nachspiel und Neuordnung | Konsequenzen, Codex-Abschluss und Hook für den nächsten Canon-Bogen |
+| 1 | Nach Grenzfeuer wird der nächste Schritt freiwillig angeboten | `ancestors-choice` bleibt unsichtbar/inaktiv, bis Spieler beim Canon-Anker startet |
+| 2 | Rimuru schmiedet ein Bündnis | Step `rally`, sichtbare Beteiligung von Rigurd, Gobta/Gobota, Ranga und Shuna |
+| 3 | Verbündete Rollen werden festgelegt | Gobta/Gobota als Scout/Front, Ranga als Bewegung/Eröffnung, Shuna als Ritualschutz |
+| 4 | Bündnismarsch zur tiefen Bindung | Encounter `alliance-breach`, Step `breach` |
+| 5 | Wahrheit des Gegenspielers wird sichtbar | Vor dem Finale Codex-/Dialog-Enthüllung, keine erfundenen Namen ohne Canon-Migration |
+| 6 | Finaler Konflikt an der Ahnenbindung | Encounter `mordrahn-confrontation` technisch nutzen, sichtbar ggf. neutralisieren |
+| 7 | Entscheidung über das Siegel | Step `choose`: Freiheit, Ordnung oder dritter Weg |
+| 8 | Epilog für Tempest | Auswirkungen im Hub, Codex, Party-/Bindungsboni und mögliche Band-5-Hooks |
 
 ## Umsetzungspakete
 
-### 1. Gobta und Ranga als frühe Partymitglieder
+### 1. Freiwilliger Band-4-Start
 
-- [ ] Gobta spätestens nach der Goblin-Bitte dauerhaft als aktives Partymitglied führen.
-- [ ] Ranga nach dem Direwolf-Pakt als reguläres aktives Partymitglied freischalten.
-- [ ] Partyverwaltung und Kampfaufstellung für Rimuru, Gobta, Ranga und spätere Mitglieder vorbereiten.
-- [ ] Gobta im Kriegsrat nicht nur als Witzfigur behandeln: Ortskenntnis, Überleben und unerwartete Kompetenz zeigen.
-- [ ] Ranga-Scout auf der Weltkarte für Truppenspuren, Gefahrenstufen und Schnellreisepunkte einsetzen.
-- [ ] Gemeinsame Gobta-/Ranga-Kombinationsaktion oder Kampf-Opening vorbereiten.
+- [ ] Sicherstellen, dass `ancestors-choice` nach Band 3 nicht automatisch startet.
+- [ ] Startdialog bei einem Canon-Anker anbieten, sobald `story.act2.completed` gesetzt ist.
+- [ ] Questlog-Hinweis: „Das Bündnis wartet“, aber ohne Zwang.
+- [ ] Tests ergänzen: sichtbar nach Band 3, aktiv erst nach Startdialog.
 
-### 2. Oger/Kijin-Gruppe vervollständigen
+### 2. Namens- und Rollenmigration
 
-- [ ] Benimaru als militärischen Anführer und späteren Party-/Support-Charakter anlegen.
-- [ ] Shion als Frontschutz und offensiven Partycharakter vorbereiten.
-- [ ] Souei als Scout-/Spionage-Support einführen.
-- [ ] Hakurou als Trainings-/Kampfmentor einbauen.
-- [ ] Kurobe als Schmied und Ausrüstungsprogression nutzen.
-- [ ] Shuna bleibt zunächst Ritual-/Supportfigur, kann aber situationsabhängig als Heilerin verfügbar werden.
+- [ ] Sichtbare Texte von `Sora`, `Vael`, `Lyrre`, `Mordrahn` entfernen oder neutralisieren.
+- [ ] Funktionen auf Canon-Anker verteilen: Großer Weiser für Analyse, Rigurd für Stadt, Shuna für Ritual, Gobta/Gobota und Ranga für Bewegung/Scout.
+- [ ] Interne IDs nur anfassen, wenn Tests und Save-Kompatibilität sauber bleiben.
+- [ ] Codex-Einträge so umschreiben, dass sie ohne erfundene Namen verständlich sind.
 
-### 3. Treyni und die Ork-Bedrohung
+### 3. Bündnis schmieden
 
-- [ ] Treyni als Canon-NPC mit Portrait, Codex und Warnungsdialog anlegen.
-- [ ] Neue Hauptquest für den Orkkrieg definieren.
-- [ ] Ork-Armee nicht nur über Dialog erklären: Spuren, Flüchtlinge, leere Lager und Scout-Berichte zeigen.
-- [ ] Gelmud zunächst nur über Befehle, Magiespuren und manipulierte Untergebene aufbauen.
+- [ ] Step `rally` als spielbare Rat-/Bündnisszene inszenieren.
+- [ ] Rigurd bringt Stadt-/Versorgungslogik ein.
+- [ ] Gobta/Gobota bringt frühe Gefährtenperspektive ein und bekommt eigene Dialogentscheidungen im Bündnisrat.
+- [ ] Ranga bringt Direwolf-/Scoutvorteil ein.
+- [ ] Shuna markiert die rituelle Gefahr der Ahnenbindung.
+- [ ] Optional: stärkere Bindungen öffnen zusätzliche Dialogzeilen, aber blockieren den Hauptflow nicht.
 
-### 4. Echsenmenschen und Gabiru
+### 4. Bündnismarsch und Breach-Kampf
 
-- [ ] Gebiet der Echsenmenschen als Hub oder große Teilkarte anlegen.
-- [ ] Gabiru mit selbstbewusstem, aber nicht rein lächerlichem Dialogprofil einführen.
-- [ ] Stammesführer der Echsenmenschen als Bündnispartner anlegen.
-- [ ] Missverständnis-/Überlegenheitsbeat spielbar machen, ohne den Hauptflow unnötig zu blockieren.
-- [ ] Bündnisstatus als Flag für Schlachtunterstützung speichern.
-- [ ] Gabiru nach seiner Entscheidung für das Bündnis als aktives Partymitglied freischalten.
-- [ ] Eigenes Kampfprofil, Progression und Partygespräche für Gabiru anlegen.
+- [ ] `alliance-breach` als Band-4-Pflichtkampf inszenieren.
+- [ ] Eigene Karte oder klarer Abschnitt für den Bündnismarsch.
+- [ ] Ranga-Scout kann vor dem Kampf Vorteil geben: Initiative, Karte, Warnung oder Schnellreisepunkt.
+- [ ] Gegnergruppe auf Band-4-Niveau balancen.
+- [ ] Sieg narrativ als Durchbruch, nicht als endgültiges Finale darstellen.
 
-### 5. Kriegskarte und Marsch
+### 5. Finale Konfrontation
 
-- [ ] Separate Kriegskarte als Übersicht über Frontabschnitte, Truppenbewegungen und Einsatzziele bauen.
-- [ ] Kriegskarte klar von normalen begehbaren Overworld- und Gebietskarten trennen.
-- [ ] Von der Kriegskarte aus freigeschaltete Scout-, Rettungs- und Kampfmissionen anwählbar machen.
-- [ ] Status der Frontabschnitte nach Missionen sichtbar aktualisieren.
-- [ ] Ranga-Schnellreise nur zu bereits erkundeten sicheren Punkten erlauben.
-- [ ] Souei-Aufklärung kann Begegnungen markieren oder optionale Hinterhalte verhindern.
-- [ ] Versorgung über Shuna/Kurobe vor dem Marsch vorbereiten.
-- [ ] Kriegsfortschritt im Questlog klarer als normale Einzelquest darstellen.
+- [ ] Technischen Kampf `mordrahn-confrontation` sichtbar auf einen konkreten Canon-Arc migrieren.
+- [ ] Vor dem Kampf eine kurze Enthüllung einbauen: Warum die Bindung gefährlich ist.
+- [ ] Bossmechanik sollte Entscheidungsthema spiegeln: Kontrolle, Freiheit, geteilte Last.
+- [ ] Ranga im Band-4-Finale als vollwertiges Kampfmitglied einbinden, nicht nur als Scout-/Opening-Bonus.
+- [ ] Nach Sieg nicht sofort Ende auslösen, sondern zur bewussten Entscheidung führen.
 
-### 6. Ork-Armee und Schlachtstruktur
+### 6. Drei Entscheidungen
 
-- [ ] Gegnerdaten ergänzen: Ork-Soldat, Ork-Kommandant, Elite-Ork und ggf. Gelmud-Beschworene.
-- [ ] Schlacht in mehrere Ziele teilen: Flanke halten, Verbündete retten, Kommandanten brechen.
-- [ ] Nicht jeder Gegner muss vollständig besiegt werden; Rückzug, Moralbruch und Formation sollen zählen.
-- [ ] Benimarus Befehle und Rangas Scoutinformationen als aktive Vorteile nutzbar machen.
-- [ ] Eigenes Battle-Background für Sumpfschlacht/Orkfront anlegen.
-- [ ] Vollständigen Geld-Bosskampf mit mehreren klar lesbaren Phasen anlegen.
-- [ ] Bossphasen mit Hunger-/Regenerationsdruck, Gruppenkoordination und Rimurus Abschlussaktion verzahnen.
+- [ ] Freiheit: Bindung zerstören, Tempest bleibt selbstbestimmt, aber verletzlicher.
+- [ ] Ordnung: Bindung neu schmieden, Tempest erhält Schutz, zahlt aber Preis.
+- [ ] Geteilte Last: nur mit erfüllten Bindungsflags; Verantwortung wird verteilt.
+- [ ] UI klar machen, welche Entscheidung welche Konsequenz bedeutet.
+- [ ] Entscheidungen in Save-Flags, Codex und Epilog sichtbar machen.
+- [ ] Entscheidungen noch nicht auf spätere Karten, Quests oder Band-5-Startbedingungen auswirken lassen.
 
-### 7. Bandabschluss und Folge-Hook
+### 7. Party- und Progressionsfolgen
 
-- [ ] Gelmuds Manipulation vor dem Endkampf vollständig aufdecken und erzählerisch auflösen.
-- [ ] Geld als finalen Band-4-Boss vollständig bekämpfbar machen.
-- [ ] Gelds Niederlage und die Folgen für die überlebenden Orks in einer Abschlusssequenz behandeln.
-- [ ] Abschlussdialog mit klarer Neuordnung des Jura-Waldes und Hook für Band 5.
-- [ ] Canon-Fortschritt getrennt vom optionalen `ancestors-choice`-Original-Arc speichern.
-- [ ] `ancestors-choice` jederzeit als Nebenhandlung pausierbar halten, ohne den Orkkrieg zu blockieren.
+- [ ] Gobta/Gobota nach Band 4 als dauerhaft etablierter Begleiter absichern.
+- [ ] Ranga als vollwertiges Kampfmitglied im Finale bestätigen und spätere Mount-/Companion-Rolle weiter vorbereiten.
+- [ ] Shunas Ritualrolle als spätere aktive Partyoption vorbereiten, aber nicht erzwingen.
+- [ ] Rimurus Bindungsprogression an die gewählte Entscheidung koppeln.
+- [ ] Der dritte Weg verlangt belegbare Bindungen, nicht nur Questabschluss.
 
-### 8. Progression und Belohnungen
+### 8. Präsentation
 
-- [ ] Gobta erhält Scout-/Überlebensprogression statt nur Direwolf-Angriff.
-- [ ] Ranga erhält Party-Progression plus Weltfähigkeiten: Spurensuche, Schnellreise und Kampf-Opening.
-- [ ] Gabiru erhält eigene aktive Fähigkeiten und eine Progressionslinie für Speer-/Luftangriffe.
-- [ ] Benimaru schaltet Kommandoboni oder Feuerangriff frei.
-- [ ] Souei verbessert Begegnungsvorschau/Hinterhaltsschutz.
-- [ ] Hakurou öffnet Trainingsknoten für Rimuru und Gobta.
-- [ ] Kurobe erweitert Schmiede-/Ausrüstungsoptionen.
+- [ ] Finale Battle-Background für Ahnenherz/Siegelkern ergänzen.
+- [ ] VFX für Bindungsbruch, Neuschmiedung und geteilte Last differenzieren.
+- [ ] Soundhinweise für Bündnis, Finale und Entscheidung trennen.
+- [ ] Epilog im Tempest-Hub sichtbar machen: NPC-Reaktionen und Codex-Folgeeinträge.
 
-### 9. Präsentation
+### 9. Tests und Gates
 
-- [ ] Portraits für Treyni, Gabiru, Benimaru, Shion, Souei, Hakurou, Kurobe, Geld und Gelmud vorbereiten.
-- [ ] Ranga außerhalb von Kämpfen als sichtbaren Partybegleiter oder Scout-Symbol darstellen.
-- [ ] Ork-Armee visuell als Masse zeigen, ohne hunderte aktive Einheiten rendern zu müssen.
-- [ ] Musik/SFX für Kriegsrat, Marsch, Scoutmeldung und Schlacht differenzieren.
-- [ ] Canon-Codex für Kijin, Echsenmenschen, Ork-Armee, Gelmud und Orc Lord anlegen.
-
-### 10. Tests und Gates
-
-- [ ] Test: Höhlenstart enthält nur Rimuru; Gobta tritt story-gesteuert früh bei.
-- [ ] Test: Ranga wird erst nach Direwolf-Pakt als aktives Partymitglied verfügbar.
-- [ ] Test: Gabiru tritt erst nach dem Bündnisentscheid der aktiven Party bei.
-- [ ] Test: Ranga und Gabiru lassen sich regulär in die Kampfaufstellung setzen und nach Save/Load wiederherstellen.
-- [ ] Headless-Smoke: Treyni-Warnung → Kriegsrat → Ranga-Scout → Gabiru/Echsenmenschen → Marsch → Gelmud → Geld.
-- [ ] Test: Scout-/Schnellreiseziele benötigen vorherige Erkundung.
-- [ ] Test: Kriegskarte zeigt nur freigeschaltete Einsätze und aktualisiert abgeschlossene Frontziele.
-- [ ] Test: Bündnisstatus der Echsenmenschen verändert die Schlacht.
-- [ ] Test: Gobta, Ranga und Kijin-Support bleiben nach Save/Load erhalten.
-- [ ] Test: `ancestors-choice` kann parallel aktiv, pausiert oder ungestartet sein, ohne den Canon-Hauptpfad zu sperren.
-- [ ] E2E-Smoke: Kriegsrat bis zum vollständigen Geld-Endkampf und Nachspiel.
+- [ ] Headless-Smoke: Band 3 abgeschlossen → Band 4 freiwillig starten → Rally → Breach → Finale → Entscheidung.
+- [ ] Test: `ancestors-choice` startet nicht automatisch nach `story.act2.completed`.
+- [ ] Test: Gobta/Gobota und Ranga bleiben im Band-4-Flow verfügbar.
+- [ ] Test: Ranga ist im Band-4-Finale als vollwertiges Kampfmitglied verfügbar.
+- [ ] Test: Gobta/Gobota-Dialogentscheidung im Bündnisrat setzt nachvollziehbares Flag, blockiert aber keinen Hauptpfad.
+- [ ] Test: alle drei Endings setzen exakt ihre Flags.
+- [ ] Test: True Ending ist nur mit erfüllten Bindungsbedingungen sichtbar.
+- [ ] Test: Band 5 wird nach Band 4 nur als optionaler Tempest-Hub-Arc vorbereitet, nicht automatisch gestartet.
+- [ ] E2E-Smoke: Browserpfad von Band-4-Start bis mindestens Rally-Szene.
 
 ## Definition of Done für „viertes Band technisch umgesetzt“
 
-- Gobta ist als früher aktiver Begleiter korrekt story-gated und nicht bereits in Veldoras Höhle vorhanden.
-- Ranga ist nach dem Direwolf-Pakt als aktives Partymitglied sichtbar und mechanisch relevant.
-- Benimaru, Shuna, Shion, Souei, Hakurou und Kurobe sind mit klaren Canon-Rollen eingeführt.
-- Treyni startet einen nachvollziehbaren Orkkriegsbogen.
-- Gabiru ist nach dem Bündnisentscheid aktives Partymitglied; die Echsenmenschen sind als Fraktion und Verbündete spielbar eingebunden.
-- Die separate Kriegskarte bildet Fronten, Aufklärung, Einsatzauswahl und Kriegsfortschritt verständlich ab.
-- Die Ork-Armee wird über Scout-, Karten- und Schlachtmechaniken als große Bedrohung dargestellt.
-- Gelmuds Rolle ist aufgedeckt und der vollständige mehrphasige Endkampf gegen Geld ist abgeschlossen.
-- `ancestors-choice` bleibt als optionale Nebenhandlung erhalten und blockiert den Canon-Hauptpfad nicht.
+- Ein abgeschlossener Band-3-Spielstand bietet einen freiwilligen, klar erkennbaren Band-4-Start.
+- Sichtbare Storytexte verwenden Canon-Namen oder neutrale Rollen, keine neuen erfundenen NPC-Namen.
+- Gobta/Gobota ist als früher Begleiter etabliert; Ranga ist als früher Companion und Scout-/Reiseanker etabliert.
+- Ranga ist im Band-4-Finale vollwertiges Kampfmitglied.
+- Gobta/Gobota erhält im Bündnisrat eigene Dialogentscheidungen.
+- `ancestors-choice` läuft vollständig durch Bündnis, Durchbruch, Konfrontation und Entscheidung.
+- Die drei Entscheidungen sind im UI verständlich, im Save unterscheidbar und im Codex nachvollziehbar.
+- Die drei Entscheidungen verändern vorerst keine späteren Karten oder Folgequests.
+- Der dritte Weg verlangt echte Bindungs-/Vertrauensvoraussetzungen.
+- Band 5 wird als optionaler neuer Arc im Tempest-Hub vorbereitet.
 - Typecheck, Unit-/Smoke-Tests und ein Browser-Smoke laufen grün.
 
 ## Getroffene Designentscheidungen
 
-- Band 4 endet mit dem vollständigen Kampf gegen Geld und schließt den Orkkrieg ab.
-- Gabiru wird als aktives Partymitglied freigeschaltet.
-- Ranga erhält einen regulären Partyplatz; Scout- und Schnellreisefunktionen bleiben zusätzlich bestehen.
-- Der Krieg erhält eine separate Übersichtskarte neben den normalen begehbaren Karten.
-- `ancestors-choice` bleibt vorerst als optionale Original-Nebenhandlung erhalten.
+- Der sichtbare Band-4-Gegenspieler soll einem konkreten Canon-Arc zugeordnet werden.
+- Ranga soll im Band-4-Finale als vollwertiges Kampfmitglied auftreten.
+- Gobta/Gobota soll eigene Dialogentscheidungen im Bündnisrat bekommen.
+- Die Entscheidung über Freiheit/Ordnung/geteilte Last soll vorerst keine späteren Karten oder Folgequests verändern.
+- Band 5 soll als neuer optionaler Arc im Tempest-Hub starten, nicht direkt automatisch aus dem Ending.

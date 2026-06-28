@@ -2,7 +2,7 @@
 
 ## Leitlinie
 
-Das dritte Band führt Tempest aus der inneren Aufbauphase an die Grenze. Nach Rat, Ahnenzeichen und erstem Echo wird sichtbar, dass Tempest nicht isoliert wachsen kann: Menschenpatrouillen, Sumpfwege, Gerüchte und eine feindliche Vorhut testen, ob die junge Stadt stark bleiben kann, ohne sofort zum Feindbild zu werden. Der Band soll als Grenz- und Vertrauensbogen funktionieren: ein Canon-Anker für die Grenzlage wird wichtiger, der Große Weise oder eine passende Canon-Figur liest die Risse, Gobta und Ranga liefern Scout-/Schnellreise-Nutzen, und Tempest lernt, Konflikte kontrolliert zu gewinnen.
+Das dritte Band führt Tempest aus der inneren Aufbauphase an die Grenze. Nach Rat, Ahnenzeichen und erstem Echo wird sichtbar, dass Tempest nicht isoliert wachsen kann: Menschenpatrouillen, Sumpfwege, Gerüchte und eine feindliche Vorhut testen, ob die junge Stadt stark bleiben kann, ohne sofort zum Feindbild zu werden. Der Band soll als Grenz- und Vertrauensbogen funktionieren: ein Canon-Anker für die Grenzlage wird wichtiger, der Große Weise oder eine passende Canon-Figur liest die Risse, Gobta/Gobota und Ranga liefern Scout-/Schnellreise-Nutzen, und Tempest lernt, Konflikte kontrolliert zu gewinnen.
 
 ## Projektregel: Originalnamen
 
@@ -16,7 +16,7 @@ Wie in Band 2 gilt: sichtbare Figuren sollen Canon-Namen verwenden. Bestehende P
 - Der Fokus liegt auf Grenze, Sumpfpfaden, Menschenkontakt und einer feindlichen Vorhut.
 - Der Gegenspieler bleibt noch indirekt: Vorhut, Risse, Manipulation, aber kein finaler persönlicher Kampf.
 - Der Direwolf-Pakt liefert über Ranga erstmals praktischen Nutzen über Scout-/Schnellreise-Mechanik.
-- Gobta bleibt aktiver früher Partybegleiter und bildet mit Ranga das Scout-Duo des Bands.
+- Gobta/Gobota bleibt aktiver früher Partybegleiter und bildet mit Ranga das Scout-Duo des Bands.
 - Der Band endet mit `story.act2.completed` und einem klaren, aber freiwilligen Übergang zur nächsten Hauptquest bei einem Canon-Anker.
 
 ## Aktueller technischer Anker im Projekt
@@ -36,7 +36,7 @@ Wie in Band 2 gilt: sichtbare Figuren sollen Canon-Namen verwenden. Bestehende P
 | Schritt | Spielbeat | Technische Umsetzung |
 | --- | --- | --- |
 | 1 | Ein Canon-Anker meldet Grenzfeuer | Dialogoption `Grenzlage hören` startet `border-escalation`, Step `muster` |
-| 2 | Scout-Route wird geöffnet | Ranga-/Gobta-Scout aktiviert Schnellreise oder Gefahrenvorschau zur Sumpfgrenze |
+| 2 | Scout-Route wird geöffnet | Ranga-/Gobta/Gobota-Scout aktiviert Schnellreise oder Gefahrenvorschau zur Sumpfgrenze |
 | 3 | Erste Patrouille an der Sumpfgrenze | Encounter `marsh-frontier-clash`, Step `border-clash`, Flag `story.border.cleared` |
 | 4 | Canon-Anker mahnt kontrollierten Sieg an | Nachkampf-Dialog: Grenze halten, keine Eskalation provozieren |
 | 5 | Großer Weiser/Canon-Anker liest Grenzfunde | Dialog `read-fracture`, Step `read-fracture`, Hinweis auf Verrat/Leck in Tempest |
@@ -65,8 +65,8 @@ Wie in Band 2 gilt: sichtbare Figuren sollen Canon-Namen verwenden. Bestehende P
 
 - [ ] Voraussetzung: `story.direwolf.pact` oder `mount.direwolf.seed`.
 - [ ] Scout-Funktion zunächst klein halten: bekannte sichere Punkte zwischen Tempest, Dorf und Sumpfgrenze.
-- [ ] Gobta/Ranga-Dialog einbauen, der die Mechanik erklärt.
-- [ ] Gobta bleibt aktives Partymitglied; Ranga läuft als Companion oder Reiseaktion, solange kein vollständiger Tier-Party-Slot existiert.
+- [ ] Gobta/Gobota-/Ranga-Dialog einbauen, der die Mechanik erklärt.
+- [ ] Gobta/Gobota bleibt aktives Partymitglied; Ranga läuft als Companion oder Reiseaktion, solange kein vollständiger Tier-Party-Slot existiert.
 - [ ] Schnellreise nicht kampflos missbrauchen lassen: nur nach entdecktem Gateway oder abgeschlossenem Scout-Beat.
 - [ ] Testen, dass alte Saves ohne Direwolf-Pakt nicht kaputtgehen.
 
@@ -102,7 +102,7 @@ Wie in Band 2 gilt: sichtbare Figuren sollen Canon-Namen verwenden. Bestehende P
 ### 8. Party- und Progressionsfolgen
 
 - [ ] Band-3-Vertrauen sichtbar machen: aktuelles `bond.lyrre.trust-1` auf Canon-Bindungsflag migrieren oder neutral als Grenzvertrauen führen.
-- [ ] Gobta/Direwolf-Progression durch Scout-Mechanik im Skilltree klarer erklären.
+- [ ] Gobta/Gobota-/Direwolf-Progression durch Scout-Mechanik im Skilltree klarer erklären.
 - [ ] Rimuru erhält Grenz-/Bindungsprogression nach `story.fracture.read`.
 - [ ] Shuna bleibt weiterhin Rat-/Ritualstütze, kann aber im Abschluss die Folgen der Risse deuten.
 
@@ -138,5 +138,5 @@ Wie in Band 2 gilt: sichtbare Figuren sollen Canon-Namen verwenden. Bestehende P
 - Soll `spirit-marsh` in Band 3 vollständig geöffnet werden oder nur als Grenzstreifen mit späterer Moorvertiefung?
 - Welche Canon-Figur übernimmt im Band-3-Hauptkampf die taktische Support-Rolle?
 - Soll der Verrats-/Leck-Hinweis konkret auf eine Figur zeigen oder vorerst anonym bleiben?
-- Soll die Ranga-Schnellreise über Menü, Gateway-Interaktion oder Gobta-/Ranga-Dialog ausgelöst werden?
+- Soll die Ranga-Schnellreise über Menü, Gateway-Interaktion oder Gobta/Gobota-/Ranga-Dialog ausgelöst werden?
 - Soll `ancestors-choice` nach Band 3 nur sichtbar werden oder aktiv als „Band 4 beginnt“-Hinweis im Questlog erscheinen?

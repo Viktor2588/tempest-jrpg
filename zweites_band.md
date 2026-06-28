@@ -13,8 +13,8 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 - Band 1 endet mit `story.slime-prologue.completed` und startet `binding-of-ancestors`.
 - Band 2 beginnt direkt danach in Tempest und macht die neue Siedlung spielerisch greifbar.
 - Der zentrale Konflikt ist nicht nur ein stärkerer Gegner, sondern eine Belastungsprobe für Tempests erste Bindungen.
-- Rimuru, Rigurd, Gobta, Ranga und Shuna sollen klare Rollen im Flow bekommen.
-- Gobta ist ab Band 2 durchgehend früher aktiver Partybegleiter; Ranga begleitet Rimuru als Scout-/Reiseanker.
+- Rimuru, Rigurd, Gobta/Gobota, Ranga und Shuna sollen klare Rollen im Flow bekommen.
+- Gobta/Gobota ist ab Band 2 durchgehend früher aktiver Partybegleiter; Ranga begleitet Rimuru als Scout-/Reiseanker.
 - Das Direwolf-Rudel aus Band 1 wirkt über Ranga als Folgeentscheidung weiter: Grenzschutz, schnelle Bewegung, Gobta-Progression.
 - Der Band endet mit einer klaren Eskalation in Richtung `border-escalation` und bereitet einen größeren Folgekonflikt vor.
 - Der Band bleibt zunächst bei der bestehenden Vorlage: Tempest/Hain als Kern, Moor/Schrein nur als vorbereitete Folgeorte.
@@ -36,7 +36,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 - [ ] `Vael` und `Lyrre` als sichtbare erfundene NPCs vermeiden; ihre Funktionen auf Canon-Figuren oder neutrale Systeme verteilen.
 - [ ] `Mordrahn` nicht als sichtbaren Canon-Ersatz verwenden; falls der Konflikt bleibt, als namenloses Echo/Systemphänomen führen, bis ein passender Canon-Bogen gewählt ist.
 - [ ] Ranga als frühen Begleiter in Dialogen, Codex und Progression explizit benennen.
-- [ ] Gobtas story-gesteuerten Beitritt aus Band 1 übernehmen und in Band 2 nicht mehr auf eine automatisch vollständige Startparty vertrauen.
+- [ ] Gobta/Gobotas story-gesteuerten Beitritt aus Band 1 übernehmen und in Band 2 nicht mehr auf eine automatisch vollständige Startparty vertrauen.
 - [ ] Interne IDs nur ändern, wenn es technisch sauber und testbar ist; sichtbare Namen haben Priorität.
 
 ## Geplanter Storyflow
@@ -45,7 +45,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 | --- | --- | --- |
 | 1 | Tempest sammelt sich nach der ersten Benennung | `binding-of-ancestors` als aktive Hauptquest im Questlog priorisieren |
 | 2 | Rimuru/der Große Weise erklärt, dass der Name der Stadt alte Siegel berührt | Dialogoption ohne erfundenen NPC-Namen: Step `awakening`, Codex `nameless-core` |
-| 3 | Erster Rat von Tempest | Ratsszene mit Rigurd, Gobta, Ranga und Shuna als sichtbare Beteiligte |
+| 3 | Erster Rat von Tempest | Ratsszene mit Rigurd, Gobta/Gobota, Ranga und Shuna als sichtbare Beteiligte |
 | 4 | Aufgaben werden verteilt | Drei kurze Sub-Beats: Vorräte, Ranga-Scout, Ahnenzeichen |
 | 5 | Flüsterhain wird gesichert | Encounter `whispering-grove-ambush` als erster Band-2-Kampf |
 | 6 | Das erste namenlose Echo erscheint | `shrine-approach` oder eigener Zwischenkampf als Warnung, noch nicht Finale |
@@ -65,7 +65,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [ ] Ratsszene als Dialogkette oder eigenes `council`-Dialogschema anlegen.
 - [ ] Rigurd gibt Verwaltungs-/Versorgungsziel.
-- [ ] Gobta und Ranga bringen Direwolf-Grenzschutz ein, falls `story.direwolf.pact` gesetzt ist.
+- [ ] Gobta/Gobota und Ranga bringen Direwolf-Grenzschutz ein, falls `story.direwolf.pact` gesetzt ist.
 - [ ] Shuna bleibt zunächst Rat-/Ritualfigur und deutet Ahnen-/Schreinmagie an.
 - [ ] Kommende Grenzeskalation ohne neue erfundene NPC-Namen andeuten.
 
@@ -92,7 +92,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 6. Party- und Progressionsfolgen
 
-- [ ] Gobta als festen frühen Front-/Scout-Begleiter im Band-2-Hauptflow berücksichtigen.
+- [ ] Gobta/Gobota als festen frühen Front-/Scout-Begleiter im Band-2-Hauptflow berücksichtigen.
 - [ ] Shuna als Rat-/Ritualfigur in den Band-2-Flow holen und `shuna-ogre-line` sichtbar vorbereiten.
 - [ ] Gobtas Direwolf-Knoten über Ranga und `wolf-fang-token` im Menü verständlicher erklären.
 - [ ] Rimurus Bindungs-/Namensprogression mit `binding-of-ancestors` verknüpfen.

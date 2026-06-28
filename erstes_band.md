@@ -6,7 +6,7 @@ Der erste Tensura-Storybogen soll technisch als spielbarer JRPG-Prolog funktioni
 
 ## Projektregel: Originalnamen
 
-Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen Tensura-Namen verwendet werden. Für bessere Orientierung sollen sichtbare Figuren, Orte und Begleiter künftig mit Canon-Namen geführt werden: Rimuru, Veldora, Rigurd, Gobta und Ranga statt generischer oder erfundener Platzhalter. Bestehende technische IDs können intern vorerst bleiben, sichtbare Namen und Planungsdokumente sollen aber auf die Canon-Namen migrieren.
+Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen Tensura-Namen verwendet werden. Für bessere Orientierung sollen sichtbare Figuren, Orte und Begleiter künftig mit Canon-Namen geführt werden: Rimuru, Veldora, Rigurd, Gobta/Gobota und Ranga statt generischer oder erfundener Platzhalter. Bestehende technische IDs können intern vorerst bleiben, sichtbare Namen und Planungsdokumente sollen aber auf die Canon-Namen migrieren.
 
 ## Umgesetzt
 
@@ -42,13 +42,13 @@ Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen 
 ## Nachtrag: Ranga und Canon-Namen
 
 - [ ] Veldora als sichtbaren Namen für den Sturmdrachen verwenden, `sealed-storm-dragon` nur als interne ID behalten.
-- [ ] Gobta als frühen aktiven Begleiter einführen: Höhlenstart zunächst nur mit Rimuru, Beitritt nach der Goblin-Bitte oder spätestens nach der ersten Benennung.
-- [ ] Aktuelles `startsInParty: true` für Gobta durch einen story-gesteuerten Beitritt ersetzen, damit er nicht bereits in Veldoras Höhle mitläuft.
+- [ ] Gobta/Gobota als frühen aktiven Begleiter einführen: Höhlenstart zunächst nur mit Rimuru, Beitritt nach der Goblin-Bitte oder spätestens nach der ersten Benennung.
+- [ ] Aktuelles `startsInParty: true` für Gobta/Gobota durch einen story-gesteuerten Beitritt ersetzen, damit er nicht bereits in Veldoras Höhle mitläuft.
 - [ ] Ranga nach dem Direwolf-Boss als frühen Begleiter einführen.
 - [ ] `wolf-fang-token` und `story.direwolf.pact` mit Ranga statt nur generischem Direwolf-Rudel erklären.
 - [ ] Ranga als Companion-/Scout-/Mount-Seed vorbereiten: zunächst Begleiter und Reiseanker, später Kampf- oder Mount-Funktion.
 - [ ] Dialoge nach dem Rudelkampf so anpassen, dass die Unterwerfung/der Pakt zu Ranga als persönlichem Begleiter führt.
-- [ ] Party-Reihenfolge testen: Rimuru allein → Gobta tritt bei → Ranga wird nach dem Rudelkampf als Begleiter freigeschaltet.
+- [ ] Party-Reihenfolge testen: Rimuru allein → Gobta/Gobota tritt bei → Ranga wird nach dem Rudelkampf als Begleiter freigeschaltet.
 
 ## Nächste sinnvolle Ausbaustufen
 
@@ -75,7 +75,7 @@ Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen 
 
 ### 4. Party- und Bindungsfolgen
 
-- [ ] Gobta früh im Goblindorf als aktiven Begleiter beitreten lassen.
+- [ ] Gobta/Gobota früh im Goblindorf als aktiven Begleiter beitreten lassen.
 - [x] Nach dem Prolog Gobta klarer motivieren und mit Ranga einen Direwolf-Begleiter als frühe Bindungs-/Reiterfantasie vorbereiten.
 - [x] Direwolf-Rudel als Fraktion ausbauen: Respekt-/Paktstatus, spätere Dialogreaktionen und eigene Codex-Fortschreibung.
 - [x] Direwolf-Rudel als Mount-System vorbereiten: schnelle Reise, Spezialbewegung oder Kampf-Opening erst später aktivieren.
@@ -113,4 +113,4 @@ Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen 
 - Das Direwolf-Rudel soll alle drei Rollen tragen: eigene Fraktion, späteres Mount-System und Progressionsanker für Gobta.
 - `binding-of-ancestors` soll direkt nach dem Prolog starten, nicht optional bei einem späteren NPC liegen bleiben.
 - Sichtbare Namen sollen auf Canon-Namen migrieren: Veldora statt nur „Sturmdrache“, Ranga statt generischer Direwolf-Begleiter.
-- Gobta ist der erste frühe Partybegleiter; Ranga folgt als früher Companion nach dem Direwolf-Kampf.
+- Gobta/Gobota ist der erste frühe Partybegleiter; Ranga folgt als früher Companion nach dem Direwolf-Kampf.
