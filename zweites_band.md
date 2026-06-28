@@ -34,7 +34,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [x] `Sora` als sichtbaren NPC-Namen entfernen; Questführung stattdessen über Rimuru, Rigurd, Shuna oder den Großen Weisen lösen.
 - [x] `Vael` und `Lyrre` als sichtbare erfundene NPCs vermeiden; ihre Funktionen auf Canon-Figuren oder neutrale Systeme verteilen.
-- [ ] `Mordrahn` nicht als sichtbaren Canon-Ersatz verwenden; falls der Konflikt bleibt, als namenloses Echo/Systemphänomen führen, bis ein passender Canon-Bogen gewählt ist.
+- [x] `Mordrahn` nicht als sichtbaren Canon-Ersatz verwenden; der Band-2-Hauptpfad führt den Gegner sichtbar als Namenloses Echo/Systemphänomen, während technische IDs save-kompatibel bleiben.
 - [x] Ranga als frühen Begleiter in Dialogen, Codex und Progression explizit benennen.
 - [x] Gobta/Gobotas story-gesteuerten Beitritt aus Band 1 übernehmen und in Band 2 nicht mehr auf eine automatisch vollständige Startparty vertrauen.
 - [x] Interne IDs nur ändern, wenn es technisch sauber und testbar ist; sichtbare Namen haben Priorität.
@@ -108,7 +108,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 7. Präsentation
 
-- [ ] Portraits/Platzhalter für Rimuru, Rigurd, Gobta, Ranga, Shuna und ggf. namenloses Echo prüfen.
+- [x] Portraits/Platzhalter für Rimuru, Rigurd, Gobta, Ranga, Shuna und das namenlose Echo prüfen.
 - [x] Tempest-Hub nach Band-1-Abschluss mit neuen Markern/NPC-Reaktionen aktualisieren.
 - [ ] Soundhinweise für Rat, Ahnenzeichen und Echo-Kampf differenzieren.
 - [x] Codex-Neueinträge nach Freischaltung klarer signalisieren.
@@ -119,7 +119,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 - [x] Test: `binding-of-ancestors` startet automatisch und bleibt priorisiert sichtbar.
 - [x] Test: Direwolf-Pakt beeinflusst Band-2-Dialog oder Scout-Beat.
 - [x] Test: Codex enthält nach Band 2 mindestens `nameless-core`, `tempest-council`, `binding-of-ancestors`, `ancestor-seal-warning`, `mordrahn`.
-- [x] E2E-Smoke: Browserpfad vom abgeschlossenen Prolog bis zum ersten Band-2-Dialog.
+- [x] E2E-Smoke: Browserpfad vom abgeschlossenen Prolog bis zum ersten Band-2-Dialog, ersten Flüsterhain-Kampf und Band-2-Abschlussdialog.
 
 ## Definition of Done für „zweites Band technisch umgesetzt“
 
