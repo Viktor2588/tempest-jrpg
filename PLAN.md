@@ -618,3 +618,64 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
   **Orc-Disaster** (Boss + Gegner) → **Echsenmenschen/Allianz** → **Treyni/Schlacht** →
   **Föderation/Milim**; Dwargon + Shizu als parallele Band-1-Ergänzungen.
 - Naming/Evolution überall als sichtbaren Beat zeigen (Goblin→Hobgoblin, Oger→Kijin).
+
+## Vertiefung: mehr Detail-Content aus LN Band 1 & 2 (2026-06-28)
+
+### Erweiterte Canon-Figuren (Roster + Rollen)
+- **Kijin (Ex-Oger):** **Benimaru** (Samurai-General, Schwarzflamme) · **Shuna** (Priesterin,
+  Analyse/Weben/Kochen — bereits im Spiel) · **Shion** (Sekretärin/Leibwache, monströse Kraft,
+  berüchtigt schlechte Köchin) · **Hakurou** (alter Schwertmeister, Rimurus Trainer) ·
+  **Kurobe** (Meisterschmied, schmiedet Rimurus Katana) · **Souei** (Verdeckt/Spionage).
+- **Zwerge (Dwargon):** **Kaijin** (Meisterhandwerker) · **Garm** (Waffenschmied) · **Dord**
+  (Rüstung/Holz) · **Myrd** (ältester Bruder/Maurer) · König **Gazel Dwargo** (Schwertheld,
+  späterer Sparringspartner/Verbündeter) · Minister **Vesta** (Intrigant → spätere Läuterung
+  als Forscher).
+- **Echsenmenschen:** der **Häuptling** · **Souka** (loyale, fähige Kommandantin) · **Gabiru**
+  (ruhmsüchtiger Sohn, Fall + Läuterung, tritt später als Tempest-Offizier bei).
+- **Wald/Geister:** **Treyni** (Dryade, Hüterin des Jura-Walds; weitere Dryaden-Schwestern als
+  Flavor).
+- **Andersweltler:** **Shizu (Shizue Izawa)** + ihre fünf Schüler **Kenya, Ryota, Gale, Alice,
+  Chloe** (späterer Care-/Eskort-Arc; Chloe ist langfristig storyrelevant).
+- **Menschen-Kontakte:** die drei Abenteurer **Kaval** (Schwert), **Eren/Elen** (Magierin, verdeckt
+  von Adel) und **Gido** (Axt) · **Fuze** (Gildenmeister der Free Guild in **Blumund**) → erster
+  geordneter Menschen-/Handelskontakt.
+- **Orks:** **Gelmud** (Namensgeber-Intrigant) · der **Orc-Lord → Orc-Disaster „Geld"** (tragisch,
+  Hungersnot — kein simpler Bösewicht) · ein überlebender **Hoch-Ork** erbt den Namen „Geld" und
+  führt die Orks als Aufbauhelfer in Tempest.
+- **Dämonenlords:** **Milim Nava** (uralt, „Zerstörerin", Drachenblut, kindlich, honigsüchtig →
+  über Honig zur Freundin).
+
+### Zusätzliche Beats / Sub-Arcs (über die 8 Haupt-Arcs hinaus)
+- **Veldora-Freundschaft + Predator-Versiegelung:** Manga-/Erzähl-Gag, Namensbund („Tempest" als
+  Veldoras Nachname, den Rimuru übernimmt → später Jura-Tempest-Föderation); Veldora wird in
+  Rimuru analysiert/freigelesen (langfristiger Hook).
+- **Free-Guild/Blumund + die drei Abenteurer:** erster Menschenkontakt, Eskort-/Erkundungsquest,
+  Handelsabkommen — Tempest tritt aus der Isolation.
+- **Crafting-Strang:** **Hipokte-Heilkraut** (aus der Höhle) → **Vollheiltrank** (Spitzen-Heilung,
+  wird Tempests Handelsgut) · **Magic-Ore → Magisteel** · Kurobes **Katana** für Rimuru.
+- **Spirit-Cave (Elementargeister):** Rimuru bringt Shizus todkranke Kinder zu den Geistern, damit
+  je ein Elementargeist ihren Körper stabilisiert (beginnt hier, reicht in Band 3+).
+- **Orks als Aufbauhelfer:** nach Geld werden die verschonten Orks zu unermüdlichen Bauarbeitern —
+  sichtbares Hub-Wachstum + neuer Begleit-/Fraktionsstrang.
+
+### Konkrete Content-Bausteine (Daten, an Bestehendes angeknüpft)
+- **Regionen/Maps:** `dwargon` (Zwergenstadt/Schmiede) · `blumund` (Menschenstadt + Free Guild) ·
+  `lizardman-marsh` (Echsen-Sumpf — thematisch nah am Geistmoor) · `spirit-cave` (Geisterhöhle) ·
+  `jura-battlefield` (Ork-Schlacht).
+- **Gegner:** `orc-grunt`/`orc-soldier`/`orc-lord`/`orc-disaster` (Boss) · `ifrit` (Flammengeist,
+  Story-Boss) · weitere `direwolf`-/Wald-Varianten · maskierter Majin (vorgeschoben für Gelmud).
+- **Items:** `hipokte-herb` · `magic-ore`/`magisteel` · `full-potion` (Vollheiltrank) ·
+  `kurobe-katana` (Rimuru-Waffe).
+- **Skills/Formen:** Rimurus **menschliche Form** (Shizu, als Skin/Form-Unlock) + **Ifrit-Flamme**
+  (Feuer-Skill) · Naming-Evolution als Mechanik-Beat (Oger→Kijin, Goblin→Hobgoblin, Ork→Hoch-Ork).
+- **Codex/Lore-Einträge:** „Die Wahren Drachen" (Veldora=Sturm, Velzard=Eis, Velgrynd=Glut,
+  Veldanava=Sternkönig/Ursprung) · „Dämonenlords & das Benennen" (Gelmuds Schema) · „Andersweltler
+  & Beschwörung" (Shizu, die Kinder, Leon als ferner Haken) · „Die Free Guild" · „Magicule & Magie".
+
+### Treue-Hinweise (für die Umsetzung)
+- **Naming kostet Magicules** → als dramatischer, sichtbarer Beat zeigen (Rimuru erschöpft sich,
+  muss „schlafen"/regenerieren) — passt zum vorhandenen Recruit/Evolution-System.
+- **Geld** ist tragisch (Hungersnot der Orks), kein reiner Antagonist; Rimuru übernimmt ihre Bürde.
+- **Milim** ist Test + Freundschaft, kein klassischer Bosskampf-Sieg.
+- **Eigenständig bleiben:** keine 1:1-Adaption — Beats/Figuren als datengetriebene JRPG-Bausteine,
+  sichtbare Canon-Namen, stabile interne IDs (Projektregel der Band-Docs).
