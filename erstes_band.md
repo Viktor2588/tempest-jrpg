@@ -36,19 +36,19 @@ Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen 
 | 1 | Rimuru erwacht als Schleim in der Höhle | Karte `sealed-cave`; Dialogoption startet `slime-awakening`, setzt `story.slime.awakened` |
 | 2 | Veldora, der versiegelte Sturmdrache, wird zum ersten Bindungsanker | Queststep `storm-dragon-oath`, Flag `story.storm-dragon.oath`, Item `sealed-cave-crystal`, Gateway zum Dorf |
 | 3 | Goblins bitten um Schutz | Karte `goblin-village`; Rigurd-Option schließt Step `goblin-plea`, setzt `story.goblin.plea` |
-| 4 | Direwolf-Rudel wird an der Lichtung gestellt; Ranga soll daraus als früher Begleiter hervorgehen | Karte `direwolf-den`; Trigger-Encounter `direwolf-pack-leader`, Gegner `direwolf-alpha` + `direwolf-pup` |
+| 4 | Direwolf-Rudel wird an der Lichtung gestellt; Ranga geht daraus als früher Begleiter hervor | Karte `direwolf-den`; Trigger-Encounter `direwolf-pack-leader`, Gegner `direwolf-alpha` + `direwolf-pup` |
 | 5 | Das Dorf erhält seinen ersten Namen | Rigurd-Abschluss setzt `story.slime-prologue.completed`, vergibt Gold und `wolf-fang-token`, öffnet Pfad nach Tempest |
 
 ## Nachtrag: Ranga und Canon-Namen
 
-- [ ] Veldora als sichtbaren Namen für den Sturmdrachen verwenden, `sealed-storm-dragon` nur als interne ID behalten.
-- [ ] Gobta/Gobota als frühen aktiven Begleiter einführen: Höhlenstart zunächst nur mit Rimuru, Beitritt nach der Goblin-Bitte oder spätestens nach der ersten Benennung.
-- [ ] Aktuelles `startsInParty: true` für Gobta/Gobota durch einen story-gesteuerten Beitritt ersetzen, damit er nicht bereits in Veldoras Höhle mitläuft.
-- [ ] Ranga nach dem Direwolf-Boss als frühen Begleiter einführen.
-- [ ] `wolf-fang-token` und `story.direwolf.pact` mit Ranga statt nur generischem Direwolf-Rudel erklären.
-- [ ] Ranga als Companion-/Scout-/Mount-Seed vorbereiten: zunächst Begleiter und Reiseanker, später Kampf- oder Mount-Funktion.
-- [ ] Dialoge nach dem Rudelkampf so anpassen, dass die Unterwerfung/der Pakt zu Ranga als persönlichem Begleiter führt.
-- [ ] Party-Reihenfolge testen: Rimuru allein → Gobta/Gobota tritt bei → Ranga wird nach dem Rudelkampf als Begleiter freigeschaltet.
+- [x] Veldora als sichtbaren Namen für den Sturmdrachen verwenden, `sealed-storm-dragon` nur als interne ID behalten.
+- [x] Gobta/Gobota als frühen aktiven Begleiter einführen: Höhlenstart zunächst nur mit Rimuru, Beitritt nach der Goblin-Bitte oder spätestens nach der ersten Benennung.
+- [x] Aktuelles `startsInParty: true` für Gobta/Gobota durch einen story-gesteuerten Beitritt ersetzen, damit er nicht bereits in Veldoras Höhle mitläuft.
+- [x] Ranga nach dem Direwolf-Boss als frühen Begleiter einführen.
+- [x] `wolf-fang-token` und `story.direwolf.pact` mit Ranga statt nur generischem Direwolf-Rudel erklären.
+- [x] Ranga als Companion-/Scout-/Mount-Seed vorbereiten: Begleiter, Reiseanker und sichere Schnellreiseziele sind technisch umgesetzt.
+- [x] Dialoge nach dem Rudelkampf so anpassen, dass die Unterwerfung/der Pakt zu Ranga als persönlichem Begleiter führt.
+- [x] Party-Reihenfolge testen: Rimuru allein → Gobta/Gobota tritt bei → Ranga wird nach dem Rudelkampf als Begleiter freigeschaltet.
 
 ## Nächste sinnvolle Ausbaustufen
 
@@ -75,7 +75,7 @@ Da das Projekt vorerst ein privates Hobbyprojekt bleibt, dürfen die originalen 
 
 ### 4. Party- und Bindungsfolgen
 
-- [ ] Gobta/Gobota früh im Goblindorf als aktiven Begleiter beitreten lassen.
+- [x] Gobta/Gobota früh im Goblindorf als aktiven Begleiter beitreten lassen.
 - [x] Nach dem Prolog Gobta klarer motivieren und mit Ranga einen Direwolf-Begleiter als frühe Bindungs-/Reiterfantasie vorbereiten.
 - [x] Direwolf-Rudel als Fraktion ausbauen: Respekt-/Paktstatus, spätere Dialogreaktionen und eigene Codex-Fortschreibung.
 - [x] Direwolf-Rudel als Mount-System vorbereiten: schnelle Reise, Spezialbewegung oder Kampf-Opening erst später aktivieren.

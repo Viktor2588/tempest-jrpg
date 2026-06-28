@@ -381,7 +381,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 | Tempest-Hub | Post-Prolog-Hubmarker, Ratsplatz/Namensstein/Palisade, Band-2-Titelhinweis, Codex-NEU-Signal und Canon-NPC-Sichtbarkeit sind umgesetzt. | Weitere Hub-Politur: Sound, Partygespräche, Ruhepunkt. |
 | Ranga-Systeme | Ranga ist Held, Portrait-/Battle-Zuordnung existiert; Band-2-Scoutbeat, Scout-/Reisemenü, entdeckte sichere Schnellreiseziele und Gobta/Ranga-Talent-/Bindungsbezug sind umgesetzt. | Reiseanimation/Politur bleibt Phase 23. |
 | Altcontent | Sora/Vael/Lyrre treiben neue Band-2-Hauptsaves nicht mehr sichtbar; alte Originalbogen-/Ending-Saves bekommen ein Compat-Flag; `ancestors-choice` ist nicht mehr Canon-Hauptquest-priorisiert; gesperrte Legacy-Codexnamen werden verdeckt. | Spätere inhaltliche Neubewertung von `border-escalation`/Band 3+ bleibt separat. |
-| QA | Headless-Band-1→Band-2-Flows, Questmarker, Save-/Codex-Gates, Ranga-Reise-/Legacy-Tests, Browser-E2E Desktop/Mobil, Build und Flüsterhain-Kampfzone sind getestet. | Phase 22 bleibt als explizites Integrations-/Migrations-Gate für die gesamte Matrix. |
+| QA | Headless-Band-1→Band-2-Flow, Checkpoint-Roundtrips, Migrationsmatrix, Daten-Gates, Questmarker, Save-/Codex-Gates, Ranga-Reise-/Legacy-Tests, Browser-E2E Desktop/Mobil, Build und Flüsterhain-Kampfzone sind getestet. | Nächster offener Block ist Phase 23 Erlebnis-Politur. |
 
 [x] **Phase 18 – Story-gesteuerte Party und Save-Grundlage** *(vollständig, 2026-06-28)*
 
@@ -457,16 +457,20 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - [x] **Codex-/Portrait-Bereinigung:** Gesperrte Legacy-Codex-Einträge können eigene `lockedTitle` verwenden; `mordrahn-keeper` verrät im gesperrten Canon-Modus keinen alten Eigennamen. Sichtbare Canon-Figuren von Band 1/2 sind weiterhin in Portrait-/Sprecher-Mapping enthalten.
 - [x] **Abnahme:** Neuer Canon-Save enthält keine sichtbare Legacy-Hauptfigur; alter Originalbogen-Save erhält Compat-Flag; Schnellreise funktioniert nur über mit Ranga entdeckte sichere Ziele.
 
-[ ] **Phase 22 – Band-1-/Band-2-Integrations-Gate**
+[x] **Phase 22 – Band-1-/Band-2-Integrations-Gate** *(vollständig, 2026-06-28)*
 
-- **Headless-Gesamtflow:** neuer Save → Veldora → Gobta-Beitritt → Direwolf-Boss → Ranga-Pakt/Beitritt → Tempest-Benennung → Rat → drei Aufbauaufgaben → Flüsterhain → namenloses Echo → Band-2-Abschluss.
-- **Checkpoint-Tests:** Save/Load jeweils vor und nach Gobta-Beitritt, Ranga-Pakt, Rat, Hain und Echo; keine doppelten Belohnungen, Mitglieder oder Questschritte.
-- **Migrationsmatrix:** alter Save ohne Prologflags, alter Save mitten in `binding-of-ancestors`, abgeschlossener alter Act-1-Save und New Game+ werden migriert und bleiben spielbar.
-- **Daten-Gates:** jeder Queststep besitzt eine erreichbare Abschlussquelle; alle sichtbaren NPCs/Encounter/Gateways liegen auf begehbaren Kacheln; alle Charakter-, Skill-, Portrait-, Codex- und Gegnerreferenzen sind gültig.
-- **Browser-E2E:** Desktop und 390×844 prüfen mindestens frischen Start/Party, Band-1-Abschluss, Canon-Rat, ersten Band-2-Kampf und Questabschluss ohne Console-/Renderfehler.
-- **Release-Gates:** `bun run typecheck`, `bun run test`, `bun run test:e2e` und `bun run build` grün.
-- **Dokumentation:** erledigte Punkte in `erstes_band.md` und `zweites_band.md` abhaken; verbleibende Aufgaben dürfen ausschließlich Band 3+ oder optionale Politur betreffen.
-- **Definition of Done:** Band 1 und 2 sind in einem frischen Durchlauf zusammenhängend spielbar, verwenden im sichtbaren Hauptpfad nur die festgelegten Canon-Figuren und bleiben mit bestehenden Spielständen kompatibel.
+> **Umgesetzt:** Explizites Phase-22-Testfile `test/phase22Integration.test.ts` mit frischem Band-1→Band-2-Gesamtflow, Save/Load-Checkpoints und Migrationsmatrix; Browser-Smoke erweitert auf ersten Flüsterhain-Kampf und Band-2-Abschlussdialog.
+>
+> **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck`, `npx --yes bun@latest run test` (**170/170**), `npx --yes bun@latest run build` und `npx --yes bun@latest run test:e2e` (**10/10**) grün.
+
+- [x] **Headless-Gesamtflow:** neuer Save → Veldora → Gobta-Beitritt → Direwolf-Boss → Ranga-Pakt/Beitritt → Tempest-Benennung → Rat → drei Aufbauaufgaben → Flüsterhain → namenloses Echo → Band-2-Abschluss.
+- [x] **Checkpoint-Tests:** Save/Load jeweils vor und nach Gobta-Beitritt, Ranga-Pakt, Rat, Hain und Echo; keine doppelten Belohnungen, Mitglieder oder Questschritte.
+- [x] **Migrationsmatrix:** alter Save ohne Prologflags, alter Save mitten in `binding-of-ancestors`, abgeschlossener alter Act-1-Save und New Game+ werden migriert und bleiben spielbar.
+- [x] **Daten-Gates:** jeder Queststep besitzt eine erreichbare Abschlussquelle; alle sichtbaren NPCs/Encounter/Gateways liegen auf begehbaren Kacheln; alle Charakter-, Skill-, Portrait-, Codex- und Gegnerreferenzen sind gültig.
+- [x] **Browser-E2E:** Desktop und 390×844 prüfen frischen Start/Party, Band-1-Abschluss, Canon-Rat, ersten Band-2-Kampf und Questabschluss ohne Console-/Renderfehler.
+- [x] **Release-Gates:** `typecheck`, `test`, `build` und `test:e2e` grün.
+- [x] **Dokumentation:** erledigte Punkte in `erstes_band.md` und `zweites_band.md` abgehakt; verbleibende Aufgaben liegen bei Band 3+ oder optionaler Politur.
+- [x] **Definition of Done:** Band 1 und 2 sind in einem frischen Durchlauf zusammenhängend spielbar, verwenden im sichtbaren Hauptpfad nur die festgelegten Canon-Figuren und bleiben mit bestehenden Spielständen kompatibel.
 
 [ ] **Phase 23 – Erlebnis-Politur für Band 1 und Band 2**
 
