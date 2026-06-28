@@ -1,7 +1,7 @@
-import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS } from '../data/world';
-import { JURA_FIELD } from '../data/maps';
-import { SKILL_TREES } from '../data';
-import { chooseAutoAction } from './autoBattle';
+import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS } from '../src/data/world';
+import { JURA_FIELD } from '../src/data/maps';
+import { SKILL_TREES } from '../src/data';
+import { chooseAutoAction } from '../src/systems/autoBattle';
 import {
   act,
   enemyTurn,
@@ -10,30 +10,28 @@ import {
   startBattle,
   type BattleState,
   type BattleStatus
-} from './battle';
-import { normalizeInventoryStacks } from './inventory';
-import { layoutOverworldHud, allHudRects, type ViewportSize } from './mobileLayout';
-import { useItem, type MenuGameState } from './menu';
+} from '../src/systems/battle';
+import { applyBattleResultToSave } from '../src/systems/battleResult';
+import { layoutOverworldHud, allHudRects, type ViewportSize } from '../src/systems/mobileLayout';
+import { useItem, type MenuGameState } from '../src/systems/menu';
 import {
   analyzeProgressionBalance,
-  applyBattleProgressionRewards,
   calculateProgressionStats,
   calculateStartingTeamMeter,
   createProgressionBattleParty,
   unlockSkillNode
-} from './progression';
-import { makeRng } from './rng';
-import { createNewSave, exportSave, importSave, type SaveGameV2 } from './save';
+} from '../src/systems/progression';
+import { makeRng } from '../src/systems/rng';
+import { createNewSave, exportSave, importSave, type SaveGameV2 } from '../src/systems/save';
 import {
   applyWorldState,
   buyItem,
   chooseDialogOption,
-  completeEncounter,
   createWorldState,
   resolveEncounter,
   startDialogForNpc
-} from './world';
-import type { Vec2 } from './overworld';
+} from '../src/systems/world';
+import type { Vec2 } from '../src/systems/overworld';
 
 export interface QaIssue {
   readonly path: string;
@@ -303,43 +301,10 @@ function playStoryEncounter(
     throw new Error(`Encounter '${encounter.id}' ended with '${summary.status}' after ${summary.steps} steps.`);
   }
 
-  const view = renderView(battle);
-  const progression = applyBattleProgressionRewards(
-    save.party.active,
-    save.party.reserve,
-    save.progression,
-    view.rewards.experience,
-    storyEncounter.chapterId
-  );
-  const active = progression.active.map((member) => {
-    const previous = save.party.active.find((candidate) => candidate.characterId === member.characterId);
-    const combatant = view.party.find((candidate) => candidate.sourceId === member.characterId);
-    if (!previous || !combatant) {
-      return member;
-    }
-    const hpGrowth = Math.max(0, member.currentHp - previous.currentHp);
-    const mpGrowth = Math.max(0, member.currentMp - previous.currentMp);
-    const stats = calculateProgressionStats(member, progression.state);
-    return {
-      ...member,
-      currentHp: Math.min(stats.maxHp, Math.max(1, combatant.hp + hpGrowth)),
-      currentMp: Math.min(stats.maxMp, Math.max(0, combatant.mp + mpGrowth))
-    };
+  save = applyBattleResultToSave(save, renderView(battle), {
+    encounterId: encounter.id,
+    chapterId: storyEncounter.chapterId
   });
-
-  save = {
-    ...save,
-    party: {
-      active,
-      reserve: progression.reserve,
-      gold: save.party.gold + view.rewards.gold
-    },
-    inventory: {
-      stacks: normalizeInventoryStacks([...view.inventory, ...view.rewards.items])
-    },
-    progression: progression.state
-  };
-  save = applyWorldState(save, completeEncounter(createWorldState(save), encounter.id).state);
   save = spendUsefulTalentPoints(save);
   return recoverWithInventory(save);
 }

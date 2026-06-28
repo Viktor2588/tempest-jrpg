@@ -50,6 +50,33 @@ export function addStats(base: StatBlock, bonus: Partial<StatBlock> = {}): StatB
   };
 }
 
+export function addPartialStats(a: Partial<StatBlock>, b: Partial<StatBlock>): Partial<StatBlock> {
+  return {
+    maxHp: (a.maxHp ?? 0) + (b.maxHp ?? 0),
+    maxMp: (a.maxMp ?? 0) + (b.maxMp ?? 0),
+    attack: (a.attack ?? 0) + (b.attack ?? 0),
+    defense: (a.defense ?? 0) + (b.defense ?? 0),
+    magic: (a.magic ?? 0) + (b.magic ?? 0),
+    spirit: (a.spirit ?? 0) + (b.spirit ?? 0),
+    agility: (a.agility ?? 0) + (b.agility ?? 0)
+  };
+}
+
+export function multiplyPartialStats(
+  stats: Partial<StatBlock>,
+  multiplier: number
+): Partial<StatBlock> {
+  return {
+    maxHp: (stats.maxHp ?? 0) * multiplier,
+    maxMp: (stats.maxMp ?? 0) * multiplier,
+    attack: (stats.attack ?? 0) * multiplier,
+    defense: (stats.defense ?? 0) * multiplier,
+    magic: (stats.magic ?? 0) * multiplier,
+    spirit: (stats.spirit ?? 0) * multiplier,
+    agility: (stats.agility ?? 0) * multiplier
+  };
+}
+
 export function scaleStats(base: StatBlock, growthPerLevel: StatBlock, level: number): StatBlock {
   const steps = clampLevel(level) - 1;
   return {

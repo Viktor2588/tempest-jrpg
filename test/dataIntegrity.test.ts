@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { GAME_DATA, validateGameData } from '../src/data';
+import { GAME_DATA } from '../src/data';
+import { validateGameData } from './dataValidation';
 
 describe('Game-Datenintegrität', () => {
   it('hat eindeutige IDs und gültige Referenzen im ersten Content-Set', () => {

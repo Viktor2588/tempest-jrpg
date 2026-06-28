@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateGameData, GAME_DATA } from '../src/data';
+import { GAME_DATA } from '../src/data';
 import { getItemCount } from '../src/systems/inventory';
 import { makeRng } from '../src/systems/rng';
 import { createNewSave, exportSave, importSave } from '../src/systems/save';
@@ -15,12 +15,12 @@ import {
   getAdjacentShop,
   getMapLocations,
   resolveEncounter,
-  runActOneStorySliceSmoke,
-  runMiniFlowSmoke,
   sellItem,
   startDialogForNpc,
   type WorldState
 } from '../src/systems/world';
+import { validateGameData } from './dataValidation';
+import { runActOneStorySliceSmoke, runMiniFlowSmoke } from './worldSmoke';
 
 function emptyWorld(): WorldState {
   return {

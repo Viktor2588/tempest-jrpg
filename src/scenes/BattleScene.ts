@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { ITEMS, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
-import { normalizeInventoryStacks } from '../systems/inventory';
 import {
   act,
   currentActor,
@@ -14,11 +13,10 @@ import {
   type CombatantView
 } from '../systems/battle';
 import {
-  applyBattleProgressionRewards,
-  calculateProgressionStats,
   calculateStartingTeamMeter,
   createProgressionBattleParty
 } from '../systems/progression';
+import { applyBattleResultToSave } from '../systems/battleResult';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
@@ -26,10 +24,9 @@ import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
-import { addUiButtonBackground } from '../render/uiSkin';
+import { addUiTextButton } from '../render/uiSkin';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
-import { applyWorldState, completeEncounter, createWorldState } from '../systems/world';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
 
@@ -562,64 +559,9 @@ export class BattleScene extends Phaser.Scene {
 
   private applyBattleResult(status: string): void {
     const view = renderView(this.state);
-    const progressionResult = status === 'won'
-      ? applyBattleProgressionRewards(
-          this.save.party.active,
-          this.save.party.reserve,
-          this.save.progression,
-          view.rewards.experience
-        )
-      : {
-          active: this.save.party.active,
-          reserve: this.save.party.reserve,
-          state: this.save.progression,
-          grantedSkillPoints: 0
-        };
-    const progression = progressionResult.state;
-    const active = progressionResult.active.map((member) => {
-      if (status === 'lost') {
-        return member;
-      }
-      const previous = this.save.party.active.find(
-        (candidate) => candidate.characterId === member.characterId
-      );
-      const combatant = view.party.find((candidate) => candidate.sourceId === member.characterId);
-      if (!previous || !combatant) {
-        return member;
-      }
-      const hpGrowth = Math.max(0, member.currentHp - previous.currentHp);
-      const mpGrowth = Math.max(0, member.currentMp - previous.currentMp);
-      const stats = calculateProgressionStats(
-        member,
-        progression
-      );
-      return {
-        ...member,
-        currentHp: Math.min(stats.maxHp, Math.max(1, combatant.hp + hpGrowth)),
-        currentMp: Math.min(stats.maxMp, Math.max(0, combatant.mp + mpGrowth))
-      };
-    });
-    const inventory = status === 'won'
-      ? normalizeInventoryStacks([...view.inventory, ...view.rewards.items])
-      : normalizeInventoryStacks(view.inventory);
-
-    let nextSave: SaveGameV2 = {
-      ...this.save,
-      party: {
-        active,
-        reserve: progressionResult.reserve,
-        gold: this.save.party.gold + (status === 'won' ? view.rewards.gold : 0)
-      },
-      inventory: { stacks: inventory },
-      progression
-    };
-
-    if (status === 'won' && this.encounterId) {
-      const completed = completeEncounter(createWorldState(nextSave), this.encounterId);
-      nextSave = applyWorldState(nextSave, completed.state);
-    }
-
-    this.save = autoSave(window.localStorage, nextSave);
+    this.save = autoSave(window.localStorage, applyBattleResultToSave(this.save, view, {
+      encounterId: status === 'won' ? this.encounterId : null
+    }));
   }
 
   private drawHint(text: string): void {
@@ -638,17 +580,9 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private button(x: number, y: number, label: string, callback: () => void): void {
-    const background = addUiButtonBackground(this, x, y, 190, 44);
-    const text = this.add.text(x + 12, y, label, {
-      fontFamily: 'sans-serif',
-      fontSize: '14px',
-      color: '#e9eef7'
-    }).setOrigin(0, 0.5);
-    background.on('pointerover', () => background.setFillStyle(0x274062, 1));
-    background.on('pointerout', () => background.setFillStyle(0x1b2940, 0.95));
-    background.on('pointerdown', callback);
-    this.layer.add(background);
-    this.layer.add(text);
+    this.layer.add(addUiTextButton(this, x, y, 190, label, callback, {
+      idleAlpha: 0.95
+    }));
   }
 
   private flash(message: string): void {

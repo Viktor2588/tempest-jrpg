@@ -1,0 +1,70 @@
+import type { Rng } from '../src/systems/rng';
+import {
+  buyItem,
+  chooseDialogOption,
+  completeEncounter,
+  resolveEncounter,
+  startDialogForNpc,
+  type WorldState
+} from '../src/systems/world';
+
+export function runMiniFlowSmoke(seedRng: Rng): WorldState {
+  let state: WorldState = {
+    flags: {},
+    quests: {},
+    inventory: [],
+    gold: 120
+  };
+
+  const intro = startDialogForNpc(state, 'rigurd');
+  const accepted = chooseDialogOption(state, intro.dialogId, intro.nodeId, 'accept');
+  state = accepted.state.world;
+
+  const bought = buyItem(state, 'tempest-supply', 'healing-herb', 1);
+  if (!bought.ok) throw new Error(bought.message);
+  state = bought.state;
+
+  const encounter = resolveEncounter(state, 'tempest-start', { x: 20, y: 12 }, seedRng);
+  if (!encounter.state.encounter) throw new Error('Expected trigger encounter.');
+  const completedEncounter = completeEncounter(encounter.state.world, encounter.state.encounter.id);
+  state = completedEncounter.state;
+
+  const report = startDialogForNpc(state, 'rigurd');
+  const completed = chooseDialogOption(state, report.dialogId, report.nodeId, 'report');
+  state = completed.state.world;
+
+  return state;
+}
+
+export function runActOneStorySliceSmoke(seedRng: Rng): WorldState {
+  let state: WorldState = {
+    flags: {},
+    quests: {},
+    inventory: [],
+    gold: 120
+  };
+
+  state = chooseNpcOptionOrThrow(state, 'sora', 'begin');
+  state = chooseNpcOptionOrThrow(state, 'vael', 'analyze');
+  state = chooseNpcOptionOrThrow(state, 'lyrre', 'briefing');
+  state = chooseNpcOptionOrThrow(state, 'sora', 'council');
+
+  const grove = resolveEncounter(state, 'tempest-start', { x: 14, y: 8 }, seedRng);
+  if (!grove.state.encounter) throw new Error('Expected whispering-grove encounter.');
+  state = completeEncounter(grove.state.world, grove.state.encounter.id).state;
+
+  const shrine = resolveEncounter(state, 'tempest-start', { x: 21, y: 13 }, seedRng);
+  if (!shrine.state.encounter) throw new Error('Expected ancestor-seal encounter.');
+  state = completeEncounter(shrine.state.world, shrine.state.encounter.id).state;
+
+  return chooseNpcOptionOrThrow(state, 'sora', 'report-act1');
+}
+
+function chooseNpcOptionOrThrow(state: WorldState, npcId: string, choiceId: string): WorldState {
+  const dialog = startDialogForNpc(state, npcId);
+  const result = chooseDialogOption(state, dialog.dialogId, dialog.nodeId, choiceId);
+  if (!result.ok) {
+    throw new Error(result.message);
+  }
+  return result.state.world;
+}

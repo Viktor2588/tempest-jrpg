@@ -106,7 +106,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 [x] **Phase 2 – Datenmodell & Speichern (fertig 2026-06-26)**
 - Typisierte Datenstruktur ergänzt: `src/data/types.ts` plus erstes Content-Set für Helden/Monster, Skills, Items und Gegner (`characters.ts`, `skills.ts`, `items.ts`, `enemies.ts`).
-- Datenintegrität zentral prüfbar: `src/data/index.ts` exportiert `GAME_DATA` und `validateGameData()` für eindeutige IDs, Skill-/Item-/Equipment-Referenzen, Drop-Chancen und Basiswerte.
+- Datenintegrität zentral prüfbar: `src/data/index.ts` exportiert `GAME_DATA`; die Testvalidierung `test/dataValidation.ts` prüft eindeutige IDs, Skill-/Item-/Equipment-Referenzen, Drop-Chancen und Basiswerte.
 - Erste reine Systemmodule ergänzt: `stats.ts` (Level/EP/Werte), `party.ts` (Initialparty/PartyMember-State), `inventory.ts` (Stacks/Startinventar/Normalisierung).
 - `save.ts`: versioniertes Schema (aktuell `SaveGameV3`), `createNewSave()`, `normalize()`, `migrate()`, `exportSave()`, `importSave()`, `loadSave()`, `writeSave()`, `autoSave()`, `resetSave()` über eine testbare `StorageLike`-Abstraktion.
 - Migration eines alten v1-Formats abgedeckt: alte Party-/Inventar-/Positionsdaten werden ins aktuelle Schema überführt, unbekannte Figuren werden verworfen, ungültige Werte normalisiert.
@@ -256,7 +256,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
   - **Abnahme (lokal verifiziert):** `npx --yes bun@latest run typecheck` sauber, `test` → **81/81** grün, `build` grün.
 
 [x] **Phase 15 – Balance, QA & Mobile-Politur** *(fertig 2026-06-27, Worktree `worktree/tempest-phase-15-qa`)*
-- **Erweiterte QA-Gates:** neues reines `src/systems/qa.ts` prüft Phase-15-Balance (`analyzePhase15Balance`), ein mobiles Overworld-Renderbudget (`estimateOverworldBudget`/`analyzeOverworldBudget`) und einen vollständigen **Headless-Act-1-Durchspieltest** (`runHeadlessActOnePlaythrough`) mit Dialogen, Shop-Käufen, drei Story-Encountern, Auto-Kampf, Rewards, Progression, Questabschluss und Save-Export/Import.
+- **Erweiterte QA-Gates:** reines Testmodul `test/qaGates.ts` prüft Phase-15-Balance (`analyzePhase15Balance`), ein mobiles Overworld-Renderbudget (`estimateOverworldBudget`/`analyzeOverworldBudget`) und einen vollständigen **Headless-Act-1-Durchspieltest** (`runHeadlessActOnePlaythrough`) mit Dialogen, Shop-Käufen, drei Story-Encountern, Auto-Kampf, Rewards, Progression, Questabschluss und Save-Export/Import.
 - **Mobile-Layout-Politur:** `src/systems/mobileLayout.ts` macht das Overworld-HUD testbar. `OverworldScene` nutzt dieselbe Layoutquelle; der Kampfbutton wurde von 38px auf ≥44px korrigiert, und das D-Pad liegt auf 390×844 innerhalb sicherer Bounds ohne überlappende Touch-Ziele.
 - **Auto-Kampf robuster:** `chooseAutoAction` nutzt jetzt Heilitems und MP-Items aus dem Kampf-Inventar, damit QA-/Auto-Durchläufe nicht an fehlender manueller Item-Nutzung hängen.
 - **Test `test/qa.test.ts`:** 4 neue Checks (390×844/960×540 HUD-Layout, mobiles Renderbudget, erweiterte Balance, kompletter Headless-Act-1-Playthrough). `test/autoBattle.test.ts` prüft zusätzlich automatische Heilitem-Nutzung.

@@ -29,7 +29,7 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildCodexView, buildQuestLog, createWorldState } from '../systems/world';
-import { addUiButtonBackground, addUiPanel, addUiPortraitFrame } from '../render/uiSkin';
+import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { portraitKey } from '../render/portraitAtlas';
 import type { PortraitKind } from '../render/artSpec';
 
@@ -558,18 +558,13 @@ export class MenuScene extends Phaser.Scene {
     callback: () => void,
     color = 0x1b2940
   ): void {
-    const height = MENU_TOUCH_TARGET_PX;
-    const background = addUiButtonBackground(this, x, y, width, height, color);
-    const text = this.add.text(x + 10, y, label, {
-      fontFamily: 'sans-serif',
+    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+      height: MENU_TOUCH_TARGET_PX,
+      fill: color,
+      idleAlpha: 0.96,
       fontSize: '13px',
-      color: '#e9eef7'
-    }).setOrigin(0, 0.5);
-    background.on('pointerover', () => background.setFillStyle(0x274062, 1));
-    background.on('pointerout', () => background.setFillStyle(color, 0.96));
-    background.on('pointerdown', callback);
-    this.layer.add(background);
-    this.layer.add(text);
+      textOffsetX: 10
+    }));
   }
 
   private drawPortrait(characterId: string, x: number, y: number, size: number): void {

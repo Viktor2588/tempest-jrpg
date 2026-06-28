@@ -2,10 +2,7 @@
 // 64×64-Busts für Story-/Menüfiguren, bis echte CC0-Portraits eingepflegt sind.
 import Phaser from 'phaser';
 import { PORTRAIT_KINDS, portraitSpec, type PortraitKind, type PortraitMotif } from './artSpec';
-
-function hex(color: string): number {
-  return Phaser.Display.Color.HexStringToColor(color).color;
-}
+import { hexColor } from './color';
 
 export function portraitKey(kind: PortraitKind): string {
   return 'portrait-' + kind;
@@ -54,18 +51,18 @@ export function generatePortraitTextures(
     const g = scene.make.graphics({ x: 0, y: 0 }, false);
     const s = spec.size;
 
-    g.fillStyle(hex(spec.background), 1);
+    g.fillStyle(hexColor(spec.background), 1);
     g.fillRect(0, 0, s, s);
-    g.fillStyle(hex(spec.outline), 1);
+    g.fillStyle(hexColor(spec.outline), 1);
     g.fillRect(0, 0, s, 1);
     g.fillRect(0, s - 1, s, 1);
     g.fillRect(0, 0, 1, s);
     g.fillRect(s - 1, 0, 1, s);
-    g.fillStyle(hex(spec.accent), 0.22);
+    g.fillStyle(hexColor(spec.accent), 0.22);
     g.fillRect(4, 4, s - 8, 4);
     g.fillRect(4, 10, 4, s - 14);
 
-    drawBust(g, s, spec.motif, hex(spec.base), hex(spec.accent), hex(spec.outline));
+    drawBust(g, s, spec.motif, hexColor(spec.base), hexColor(spec.accent), hexColor(spec.outline));
 
     g.generateTexture(key, s, s);
     g.destroy();

@@ -1,0 +1,96 @@
+import type { ElementType, StatusEffectId } from '../data';
+import type {
+  BattleRewards,
+  BattleState,
+  BattleStatus,
+  Combatant,
+  QueuedReaction,
+  Side
+} from './battle';
+import type { InventoryStack } from './inventory';
+
+export interface CombatantView {
+  readonly id: string;
+  readonly sourceId: string;
+  readonly name: string;
+  readonly formName: string | null;
+  readonly side: Side;
+  readonly level: number;
+  readonly hp: number;
+  readonly maxHp: number;
+  readonly mp: number;
+  readonly maxMp: number;
+  readonly element: ElementType;
+  readonly skillIds: readonly string[];
+  readonly synergyPartnerIds: readonly string[];
+  readonly statuses: readonly StatusEffectId[];
+  readonly reaction: QueuedReaction | null;
+  readonly breakGauge: number;
+  readonly breakGaugeMax: number;
+  readonly phaseIndex: number;
+  readonly dead: boolean;
+  readonly guarding: boolean;
+  readonly active: boolean;
+}
+
+export interface BattleView {
+  readonly status: BattleStatus;
+  readonly party: readonly CombatantView[];
+  readonly enemies: readonly CombatantView[];
+  readonly activeId: string | null;
+  readonly teamMeter: number;
+  readonly log: readonly string[];
+  readonly rewards: BattleRewards;
+  readonly inventory: readonly InventoryStack[];
+  readonly turn: number;
+  readonly round: number;
+}
+
+export function renderView(state: BattleState): BattleView {
+  return {
+    status: state.status,
+    party: state.combatants
+      .filter((combatant) => combatant.side === 'party')
+      .map((combatant) => renderCombatant(combatant, state.activeId)),
+    enemies: state.combatants
+      .filter((combatant) => combatant.side === 'enemy')
+      .map((combatant) => renderCombatant(combatant, state.activeId)),
+    activeId: state.activeId,
+    teamMeter: state.teamMeter,
+    log: [...state.log],
+    rewards: {
+      experience: state.rewards.experience,
+      gold: state.rewards.gold,
+      items: [...state.rewards.items]
+    },
+    inventory: [...state.inventory],
+    turn: state.turns,
+    round: state.round
+  };
+}
+
+function renderCombatant(combatant: Combatant, activeId: string | null): CombatantView {
+  return {
+    id: combatant.id,
+    sourceId: combatant.sourceId,
+    name: combatant.name,
+    formName: combatant.formName,
+    side: combatant.side,
+    level: combatant.level,
+    hp: combatant.hp,
+    maxHp: combatant.maxHp,
+    mp: combatant.mp,
+    maxMp: combatant.maxMp,
+    element: combatant.element,
+    skillIds: [...combatant.skillIds],
+    synergyPartnerIds: [...combatant.synergyPartnerIds],
+    statuses: combatant.statuses.map((status) => status.id),
+    reaction: combatant.reaction,
+    breakGauge: combatant.breakGauge,
+    breakGaugeMax: combatant.breakGaugeMax,
+    phaseIndex: combatant.phaseIndex,
+    dead: combatant.dead,
+    guarding: combatant.guarding,
+    active: combatant.id === activeId
+  };
+}

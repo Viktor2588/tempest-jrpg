@@ -10,7 +10,7 @@ import {
   analyzePhase15Balance,
   estimateOverworldBudget,
   runHeadlessActOnePlaythrough
-} from '../src/systems/qa';
+} from './qaGates';
 
 describe('phase 15 QA gates', () => {
   it('hält das mobile Overworld-HUD innerhalb sicherer Touch- und Layout-Grenzen', () => {

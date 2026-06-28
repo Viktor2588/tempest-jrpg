@@ -11,7 +11,7 @@ import {
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { loadSettings, textCharDelayMs } from '../systems/settings';
 import { portraitKeyForSpeaker } from '../render/portraitAtlas';
-import { addUiButtonBackground, addUiPanel, addUiPortraitFrame } from '../render/uiSkin';
+import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 
 export class DialogueScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -129,17 +129,9 @@ export class DialogueScene extends Phaser.Scene {
   }
 
   private button(x: number, y: number, width: number, label: string, callback: () => void): void {
-    const bg = addUiButtonBackground(this, x, y, width, 44);
-    const text = this.add.text(x + 12, y, label, {
-      fontFamily: 'sans-serif',
-      fontSize: '14px',
-      color: '#e9eef7'
-    }).setOrigin(0, 0.5);
-    bg.on('pointerover', () => bg.setFillStyle(0x274062, 1));
-    bg.on('pointerout', () => bg.setFillStyle(0x1b2940, 0.98));
-    bg.on('pointerdown', callback);
-    this.layer.add(bg);
-    this.layer.add(text);
+    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+      idleAlpha: 0.98
+    }));
   }
 
   private drawPortrait(speaker: string, x: number, y: number, size: number): boolean {

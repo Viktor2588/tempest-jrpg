@@ -16,7 +16,7 @@ import {
   type InventoryStack
 } from './inventory';
 import type { PartyMemberState } from './party';
-import { addStats, scaleStats } from './stats';
+import { addPartialStats, addStats, scaleStats } from './stats';
 
 export const MENU_TOUCH_TARGET_PX = 44;
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory'];
@@ -110,7 +110,7 @@ export function calculateEquipmentBonus(member: PartyMemberState): Partial<StatB
   return EQUIPMENT_SLOTS.reduce<Partial<StatBlock>>((bonus, slot) => {
     const itemId = member.equipment[slot];
     const item = itemId ? itemById.get(itemId) : undefined;
-    return addStatsPartial(bonus, item?.statBonus ?? {});
+    return addPartialStats(bonus, item?.statBonus ?? {});
   }, {});
 }
 
@@ -267,18 +267,6 @@ function normalizePartyResources(state: MenuGameState): MenuGameState {
         currentMp: clampResource(member.currentMp, stats.maxMp)
       };
     })
-  };
-}
-
-function addStatsPartial(a: Partial<StatBlock>, b: Partial<StatBlock>): Partial<StatBlock> {
-  return {
-    maxHp: (a.maxHp ?? 0) + (b.maxHp ?? 0),
-    maxMp: (a.maxMp ?? 0) + (b.maxMp ?? 0),
-    attack: (a.attack ?? 0) + (b.attack ?? 0),
-    defense: (a.defense ?? 0) + (b.defense ?? 0),
-    magic: (a.magic ?? 0) + (b.magic ?? 0),
-    spirit: (a.spirit ?? 0) + (b.spirit ?? 0),
-    agility: (a.agility ?? 0) + (b.agility ?? 0)
   };
 }
 

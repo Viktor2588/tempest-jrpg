@@ -10,7 +10,7 @@ import {
   type ShopView,
   type WorldState
 } from '../systems/world';
-import { addUiButtonBackground, addUiPanel } from '../render/uiSkin';
+import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 
 export class ShopScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -89,16 +89,11 @@ export class ShopScene extends Phaser.Scene {
   }
 
   private button(x: number, y: number, width: number, label: string, callback: () => void, color = 0x1b2940): void {
-    const bg = addUiButtonBackground(this, x, y, width, 44, color);
-    const text = this.add.text(x + 10, y, label, {
-      fontFamily: 'sans-serif',
+    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+      fill: color,
+      idleAlpha: 0.98,
       fontSize: '13px',
-      color: '#e9eef7'
-    }).setOrigin(0, 0.5);
-    bg.on('pointerover', () => bg.setFillStyle(0x274062, 1));
-    bg.on('pointerout', () => bg.setFillStyle(color, 0.98));
-    bg.on('pointerdown', callback);
-    this.layer.add(bg);
-    this.layer.add(text);
+      textOffsetX: 10
+    }));
   }
 }
