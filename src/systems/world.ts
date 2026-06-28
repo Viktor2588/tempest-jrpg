@@ -182,6 +182,18 @@ export function getAdjacentTravel(mapId: string, position: Vec2, state?: WorldSt
   );
 }
 
+// Gateway-Location exakt UNTER dem Spieler (nicht nur benachbart): der Regionswechsel
+// löst erst aus, wenn man auf der Übergangskachel steht — nicht schon ein Feld davor.
+export function getTravelAtTile(mapId: string, position: Vec2, state?: WorldState): WorldLocationDefinition | undefined {
+  return allLocations.find((location) =>
+    location.mapId === mapId
+    && !!location.travelTo
+    && (!state || !location.unlockFlag || state.flags[location.unlockFlag] === true)
+    && location.position.x === position.x
+    && location.position.y === position.y
+  );
+}
+
 // Überlevel-Schutz: Höchstlevel der Gegner einer Begegnung; ist die Party
 // OVERLEVEL_AVOIDANCE_GAP Stufen darüber, weichen Zufallsmonster aus.
 const enemyLevelById = new Map<string, number>(ENEMIES.map((enemy) => [enemy.id, enemy.level]));

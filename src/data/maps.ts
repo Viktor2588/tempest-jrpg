@@ -67,3 +67,19 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
 export function getMap(mapId: string): TileMap {
   return MAPS[mapId] ?? JURA_FIELD;
 }
+
+// Sichtbare Gebietsnamen für den Orientierungs-Indikator. Tempest existiert zu
+// Spielbeginn noch nicht — das Startgebiet ist der Jura-Wald.
+const MAP_NAMES: Readonly<Record<string, string>> = {
+  'sealed-cave': 'Versiegelte Höhle',
+  'goblin-village': 'Goblin-Dorf',
+  'direwolf-den': 'Direwolf-Lichtung',
+  'tempest-start': 'Jura-Wald',
+  'spirit-marsh': 'Geistmoor',
+  'spirit-highlands': 'Geisterschrein-Hochland'
+};
+
+/** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */
+export function getMapName(mapId: string): string {
+  return MAP_NAMES[mapId] ?? 'Unbekanntes Gebiet';
+}

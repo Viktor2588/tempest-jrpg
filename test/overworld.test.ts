@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseMap, isWalkable, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
-import { JURA_FIELD } from '../src/data/maps';
+import { JURA_FIELD, getMapName } from '../src/data/maps';
 
 const MAP = parseMap([
   '#####',
@@ -48,5 +48,11 @@ describe('overworld grid', () => {
   it('das Spielfeld JURA_FIELD ist umrandet und hat einen begehbaren Spawn', () => {
     expect(JURA_FIELD.tiles[0]!.every((t) => t === WALL)).toBe(true); // obere Randwand
     expect(isWalkable(JURA_FIELD, JURA_FIELD.spawn.x, JURA_FIELD.spawn.y)).toBe(true);
+  });
+
+  it('getMapName liefert sichtbare Gebietsnamen (Start = Jura-Wald, nicht Tempest)', () => {
+    expect(getMapName('tempest-start')).toBe('Jura-Wald');
+    expect(getMapName('goblin-village')).toBe('Goblin-Dorf');
+    expect(getMapName('spirit-marsh')).toBe('Geistmoor');
   });
 });

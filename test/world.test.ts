@@ -18,6 +18,7 @@ import {
   getAdjacentNpc,
   getAdjacentShop,
   getAdjacentTravel,
+  getTravelAtTile,
   getMapLocations,
   getMapNpcs,
   resolveEncounter,
@@ -379,6 +380,15 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getAdjacentTravel('tempest-start', pos, open)?.id).toBe('gate-to-marsh');
     // Ohne State (Reachability-Sicht) bleibt das Gateway sichtbar.
     expect(getAdjacentTravel('tempest-start', pos)?.id).toBe('gate-to-marsh');
+  });
+
+  it('reist nur, wenn man genau auf der Gateway-Kachel steht (nicht ein Feld davor)', () => {
+    const open: WorldState = { flags: { 'story.act2.completed': true }, quests: {}, inventory: [], gold: 0 };
+    // gate-to-marsh liegt auf (1,7): exakt darauf → Übergang.
+    expect(getTravelAtTile('tempest-start', { x: 1, y: 7 }, open)?.id).toBe('gate-to-marsh');
+    // Direkt daneben (2,7): kein Übergang mehr — vorher hätte getAdjacentTravel ausgelöst.
+    expect(getTravelAtTile('tempest-start', { x: 2, y: 7 }, open)).toBeUndefined();
+    expect(getAdjacentTravel('tempest-start', { x: 2, y: 7 }, open)?.id).toBe('gate-to-marsh');
   });
 
   it('spielt den Act-1-Story-Slice Intro → Stadt → Quest → Dungeon → Boss → Belohnung headless durch und persistiert ihn', () => {

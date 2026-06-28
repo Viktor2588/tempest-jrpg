@@ -183,7 +183,7 @@ export const QUESTS = [
   {
     id: 'first-patrol',
     title: 'Erste Patrouille',
-    description: 'Hilf Rigurd, den Rand von Tempest zu sichern.',
+    description: 'Hilf Rigurd, den Rand des Jura-Walds zu sichern.',
     actId: 'act-1',
     steps: [
       {
@@ -1131,7 +1131,7 @@ export const DIALOGS = [
       {
         id: 'start',
         speaker: 'Rigurd',
-        text: 'Willkommen am Rand von Tempest. Wir brauchen eine kurze Patrouille, bevor die Händler öffnen.',
+        text: 'Willkommen am Rand des Jura-Walds. Wir brauchen eine kurze Patrouille, bevor die Händler öffnen.',
         choices: [
           {
             id: 'accept',

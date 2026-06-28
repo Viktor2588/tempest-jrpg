@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { getMap } from '../data/maps';
+import { getMap, getMapName } from '../data/maps';
 import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
@@ -12,10 +12,10 @@ import {
   createWorldState,
   getAdjacentNpc,
   getAdjacentShop,
-  getAdjacentTravel,
   getActiveEnding,
   getMapLocations,
   getMapNpcs,
+  getTravelAtTile,
   getVisibleMapEncounters,
   npcHasQuestMarker,
   resolveEncounter
@@ -262,6 +262,14 @@ export class OverworldScene extends Phaser.Scene {
     this.minimapPlayerDot = this.add.circle(0, 0, Math.max(2, model.cell * 0.7), 0x9ff0ff).setStrokeStyle(1, 0xffffff, 0.9);
     layer.add(this.minimapPlayerDot);
     this.updateMinimapPlayer();
+
+    // Gebietsindikator direkt unter der Minimap.
+    layer.add(this.add.text(
+      this.minimapOriginX + model.width / 2,
+      this.minimapOriginY + model.height + 9,
+      getMapName(this.mapId),
+      { fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff' }
+    ).setOrigin(0.5, 0));
   }
 
   private updateMinimapPlayer(): void {
@@ -379,7 +387,7 @@ export class OverworldScene extends Phaser.Scene {
       this.scene.pause();
       return;
     }
-    const gate = getAdjacentTravel(this.mapId, this.pos, createWorldState(this.save));
+    const gate = getTravelAtTile(this.mapId, this.pos, createWorldState(this.save));
     if (gate?.travelTo) {
       // Region wechseln: Standort im Save setzen und die Szene mit der Zielkarte neu starten.
       this.save = this.withCurrentRangaTravelDiscovery({
