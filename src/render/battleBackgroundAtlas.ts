@@ -4,8 +4,8 @@ import { BATTLE_ARENA_TEXTURES } from './battleArt';
 const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
 
-// Prozedurale Prolog-Arenen: eigene Hintergründe ohne neue externe Assets.
-// Die regulären Regionshintergründe bleiben echte CC0-Bitmap-Assets.
+// Prozedurale Fallback-Arenen für alte Builds oder fehlgeschlagene Asset-Ladevorgänge.
+// Wenn die dedizierten WebP-Hintergründe geladen wurden, bleiben ihre Texturen erhalten.
 export function generatePrologueBattleBackgrounds(scene: Phaser.Scene): void {
   generateSealedCave(scene);
   generateDirewolfDen(scene);

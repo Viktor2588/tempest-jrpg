@@ -27,8 +27,12 @@ import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
 import rimuruBattleUrl from '../assets/sprites/party-rimuru.webp';
 import gobtaBattleUrl from '../assets/sprites/party-gobta.webp';
+import rangaBattleUrl from '../assets/sprites/party-ranga.webp';
 import shunaBattleUrl from '../assets/sprites/party-shuna.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
+import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
+import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
+import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
 import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.webp';
 
@@ -66,8 +70,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
     this.load.image(PARTY_BATTLE_ART.rimuru, rimuruBattleUrl);
     this.load.image(PARTY_BATTLE_ART.gobta, gobtaBattleUrl);
+    this.load.image(PARTY_BATTLE_ART.ranga, rangaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.shuna, shunaBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-highlands'], spiritHighlandsBattleUrl);
   }
@@ -81,7 +89,7 @@ export class PreloadScene extends Phaser.Scene {
     generatePortraitTextures(this);
     // Prozeduraler Pixel-VFX-Atlas (vfx-<kind>) für Kampf-Feedback.
     generateVfxTextures(this);
-    // Prozedurale Prolog-Arenen (Höhle/Lichtung), bis dedizierte CC0-BGs vorliegen.
+    // Prozedurale Fallbacks, falls die dedizierten Prolog-WebPs nicht geladen wurden.
     generatePrologueBattleBackgrounds(this);
     this.scene.start('Title');
   }

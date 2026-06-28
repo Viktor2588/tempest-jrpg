@@ -10,6 +10,7 @@ describe('Battle-Art-Zuordnung', () => {
   it('liefert für alle spielbaren Figuren eigene Kampfillustrationen', () => {
     expect(partyBattleTextureFor('rimuru')).toBe(PARTY_BATTLE_ART.rimuru);
     expect(partyBattleTextureFor('gobta')).toBe(PARTY_BATTLE_ART.gobta);
+    expect(partyBattleTextureFor('ranga')).toBe(PARTY_BATTLE_ART.ranga);
     expect(partyBattleTextureFor('shuna')).toBe(PARTY_BATTLE_ART.shuna);
     expect(partyBattleTextureFor('unknown')).toBeNull();
   });
@@ -21,6 +22,12 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('tempest-start').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-grove']);
     expect(battleArenaForMap('spirit-marsh').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-marsh']);
     expect(battleArenaForMap('spirit-highlands').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-highlands']);
+  });
+
+  it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
+    expect(battleArenaForMap('tempest-start', 'shrine-approach').textureKey)
+      .toBe(BATTLE_ARENA_TEXTURES['ancestor-seal']);
+    expect(battleArenaForMap('tempest-start', 'unknown').kind).toBe('tempest-grove');
   });
 
   it('fällt für alte oder unbekannte Karten auf den Tempest-Hain zurück', () => {

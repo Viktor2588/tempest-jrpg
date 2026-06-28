@@ -92,7 +92,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private drawArena(): void {
-    const arena = battleArenaForMap(this.save.location.mapId);
+    const arena = battleArenaForMap(this.save.location.mapId, this.encounterId);
     if (this.textures.exists(arena.textureKey)) {
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, arena.textureKey)
         .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
