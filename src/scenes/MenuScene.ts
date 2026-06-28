@@ -460,61 +460,62 @@ export class MenuScene extends Phaser.Scene {
     // und Inhalte spoilern. buildQuestLog liefert aktive zuerst, dann abgeschlossene.
     const quests = allQuests.filter((q) => q.status !== 'inactive');
     if (quests.length === 0) {
-      this.layer.add(this.add.text(318, 170, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
+      this.layer.add(this.add.text(42, 180, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
         fontFamily: 'sans-serif',
         fontSize: '13px',
         color: '#9fb2cc'
       }));
       return;
     }
-    // Aktive Quests als volle Panels mit Wegführung (das „Verfolgte"); der Canvas ist
-    // nur 540px hoch, also passen max. 3 Panels — mehr aktive Quests gibt es praktisch nie.
+    // Auf der Quests-Seite ist die Party-Leiste ausgeblendet → volle Breite (x=24..924).
+    // Start tief genug, damit das erste Panel den Sektionstitel nicht überdeckt.
     const active = quests.filter((q) => q.status === 'active').slice(0, 3);
     const completed = quests.filter((q) => q.status === 'completed');
-    let cursorY = 160;
+    let cursorY = 196;
     active.forEach((quest) => {
       const y = cursorY;
-      this.panel(300, y, 590, 108);
-      this.layer.add(this.add.text(318, y - 42, `${quest.title} · Aktiv`, {
+      this.panel(24, y, 900, 108);
+      this.layer.add(this.add.text(42, y - 42, `${quest.title} · Aktiv`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
         color: '#e9c56c'
       }));
-      const currentStep = quest.steps.find((step) => step.current);
-      this.layer.add(this.add.text(318, y - 18, currentStep ? `→ ${currentStep.description}` : quest.description, {
+      // Belohnung oben rechts im Panel (nicht mehr auf der unteren Kante).
+      this.layer.add(this.add.text(906, y - 41, `Belohnung: ${quest.rewardGold} Gold`, {
         fontFamily: 'sans-serif',
-        fontSize: '11px',
+        fontSize: '12px',
+        color: '#e9c56c'
+      }).setOrigin(1, 0));
+      const currentStep = quest.steps.find((step) => step.current);
+      this.layer.add(this.add.text(42, y - 16, currentStep ? `→ ${currentStep.description}` : quest.description, {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
         color: currentStep ? '#e9c56c' : '#9fb2cc',
-        wordWrap: { width: 535 }
+        wordWrap: { width: 850 }
       }));
       const visibleSteps = quest.steps.filter((step) => step.completed || step.current).slice(0, 3);
       visibleSteps.forEach((step, stepIndex) => {
         const marker = step.completed ? '✓' : '◆';
-        this.layer.add(this.add.text(318, y + 12 + stepIndex * 18, `${marker} ${step.title}`, {
+        this.layer.add(this.add.text(42, y + 14 + stepIndex * 18, `${marker} ${step.title}`, {
           fontFamily: 'sans-serif',
           fontSize: '12px',
           color: step.completed ? '#8dffc2' : '#e9eef7'
         }));
       });
-      this.layer.add(this.add.text(704, y + 44, `Belohnung: ${quest.rewardGold} Gold`, {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: '#e9c56c'
-      }));
-      cursorY += 132;
+      cursorY += 122;
     });
     // Abgeschlossene Quests kompakt einzeilig als Archiv, soweit Platz bleibt.
     if (completed.length > 0) {
-      if (active.length === 0) cursorY = 196; // Abstand zum Sektionstitel, wenn keine aktive Quest oben steht.
-      this.layer.add(this.add.text(318, cursorY - 28, 'Abgeschlossen', {
+      if (active.length === 0) cursorY = 196;
+      this.layer.add(this.add.text(42, cursorY - 30, 'Abgeschlossen', {
         fontFamily: 'sans-serif',
         fontSize: '13px',
         color: '#8dffc2'
       }));
-      let lineY = cursorY - 4;
+      let lineY = cursorY - 6;
       const maxLines = Math.max(0, Math.floor((524 - lineY) / 22));
       completed.slice(0, maxLines).forEach((quest) => {
-        this.layer.add(this.add.text(318, lineY, `✓ ${quest.title}`, {
+        this.layer.add(this.add.text(42, lineY, `✓ ${quest.title}`, {
           fontFamily: 'sans-serif',
           fontSize: '13px',
           color: '#6f9a86'
@@ -523,7 +524,7 @@ export class MenuScene extends Phaser.Scene {
       });
       const hidden = completed.length - Math.min(maxLines, completed.length);
       if (hidden > 0) {
-        this.layer.add(this.add.text(318, lineY, `… +${hidden} weitere abgeschlossen`, {
+        this.layer.add(this.add.text(42, lineY, `… +${hidden} weitere abgeschlossen`, {
           fontFamily: 'sans-serif',
           fontSize: '12px',
           color: '#6f83a5'
