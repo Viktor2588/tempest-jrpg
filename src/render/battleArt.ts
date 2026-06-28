@@ -7,6 +7,7 @@ export const PARTY_BATTLE_ART = {
 
 export type BattleArenaKind =
   | 'tempest-grove'
+  | 'whispering-grove'
   | 'sealed-cave'
   | 'direwolf-den'
   | 'ancestor-seal'
@@ -15,6 +16,7 @@ export type BattleArenaKind =
 
 export const BATTLE_ARENA_TEXTURES = {
   'tempest-grove': 'battle-bg-tempest-grove',
+  'whispering-grove': 'battle-bg-whispering-grove',
   'sealed-cave': 'battle-bg-sealed-cave',
   'direwolf-den': 'battle-bg-direwolf-den',
   'ancestor-seal': 'battle-bg-ancestor-seal',
@@ -32,6 +34,7 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
+  'whispering-grove-ambush': 'whispering-grove',
   'shrine-approach': 'ancestor-seal'
 };
 

@@ -85,6 +85,93 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   expect(browserErrors).toEqual([]);
 });
 
+test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im Browser', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.addInitScript(() => {
+    window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
+      masterVolume: 0,
+      musicVolume: 0,
+      sfxVolume: 0,
+      reducedMotion: true,
+      seenTutorial: true,
+      difficulty: 'normal',
+      textSpeed: 'sofort',
+      highContrast: false,
+      colorblind: 'aus'
+    }));
+    window.localStorage.setItem('tempest-chronik.save.v3', JSON.stringify({
+      schemaVersion: 3,
+      createdAt: '2026-06-28T00:00:00.000Z',
+      updatedAt: '2026-06-28T00:00:00.000Z',
+      seed: 12,
+      playtimeSeconds: 0,
+      location: { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+      party: {
+        active: [
+          { characterId: 'rimuru' },
+          { characterId: 'gobta' },
+          { characterId: 'ranga' }
+        ],
+        reserve: [],
+        gold: 220
+      },
+      inventory: { stacks: [{ itemId: 'wolf-fang-token', quantity: 1 }] },
+      flags: {
+        'story.slime.awakened': true,
+        'story.storm-dragon.oath': true,
+        'story.goblin.plea': true,
+        'story.direwolf.defeated': true,
+        'story.direwolf.pact': true,
+        'story.slime-prologue.completed': true,
+        'story.tempest.named': true,
+        'bond.rigurd.trust-prologue': true,
+        'progression.gobta.wolf-fang-token': true
+      },
+      quests: {
+        'slime-awakening': {
+          status: 'completed',
+          completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+        },
+        'binding-of-ancestors': {
+          status: 'active',
+          completedStepIds: []
+        }
+      },
+      progression: {
+        evolutionIdsByCharacterId: {},
+        relationshipPoints: {},
+        discoveredRegionIds: [],
+        skillPointsByCharacterId: {},
+        unlockedSkillNodeIdsByCharacterId: {},
+        enchantmentLevelsByEquipmentKey: {}
+      }
+    }));
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 150, 398);
+  await page.waitForTimeout(250);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['story.intro.seen']).toBe(true);
+  expect(save.flags['bond.rigurd.act1-met']).toBe(true);
+  expect(save.quests['binding-of-ancestors'].completedStepIds).toContain('awakening');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
   const box = await page.locator('canvas').boundingBox();
   if (!box) throw new Error('Game canvas not found');

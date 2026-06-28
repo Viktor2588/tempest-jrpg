@@ -133,7 +133,7 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     // Codex muss sich entlang Act 1 füllen — die vier Act-1-Einträge sind entsperrt.
     const codex = buildCodexView(createWorldState(save));
     const unlocked = (id: string) => codex.find((entry) => entry.id === id)?.unlocked === true;
-    for (const id of ['nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']) {
+    for (const id of ['nameless-core', 'tempest-council', 'binding-of-ancestors', 'ancestor-seal-warning', 'mordrahn']) {
       expect(unlocked(id), `Act-1-Codex '${id}' blieb verschlossen`).toBe(true);
     }
   });

@@ -65,7 +65,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 ### 1. Band-2-Start sauber inszenieren
 
 - [x] Nach `slime-awakening` Abschluss nicht nur `binding-of-ancestors` starten, sondern den Spieler klar zum nächsten Canon-Anker führen: Rimuru/Rigurd/Shuna statt erfundenem NPC.
-- [ ] Questlog-Sortierung prüfen: `binding-of-ancestors` muss über Nebenquests stehen.
+- [x] Questlog-Sortierung prüfen: `binding-of-ancestors` muss über Nebenquests stehen.
 - [ ] Tempest-Hub visuell nach dem Prolog verändern: weniger Notlager, mehr benannte Siedlung.
 - [ ] Kurzen Titel-/Loading-Hinweis für Band 2 ergänzen: „Eine Stadt braucht mehr als einen Namen.“
 
@@ -79,7 +79,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 ### 3. Drei kurze Aufbauaufgaben
 
-- [ ] Vorratsbeat: Shop/Heilpunkt/Gründerhilfe mit `bond.rigurd.trust-prologue` verknüpfen.
+- [x] Vorratsbeat: Shop/Heilpunkt/Gründerhilfe mit `bond.rigurd.trust-prologue` verknüpfen.
 - [x] Grenzbeat: Ranga-/Gobta-Scout-Moment als frühe Schnellreise-/Scout-Mechanik vorbereiten.
 - [x] Ahnenbeat: Codex-/Lore-Freischaltung über altes Siegel, nicht nur Dialogtext.
 - [x] Alle drei Beats müssen Flags setzen, damit Dialoge danach sichtbar reagieren können.
@@ -88,13 +88,13 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [ ] Eigene Mini-Map oder klar abgegrenzten Bereich für den Flüsterhain anlegen.
 - [ ] Encounter `whispering-grove-ambush` als Band-2-Pflichtkampf prüfen und ggf. balancen.
-- [ ] Battle-Hintergrund für Hain/Echo-Störung ergänzen.
+- [x] Battle-Hintergrund für Hain/Echo-Störung ergänzen.
 - [ ] Kampf-Tutorial erweitern: Status, Magieschwäche und Teamleiste statt nur Angriff/Verteidigung.
 
 ### 5. Ahnenbindung und namenloses Echo
 
 - [x] Technisches `mordrahn-echo` sichtbar nicht als erfundene Figur ausspielen, sondern als erstes klares Zeichen eines namenlosen Gegenspielers/Systemphänomens.
-- [ ] Vor dem Kampf Codex-Hinweis oder Schreinzeichen freischalten.
+- [x] Vor dem Kampf Codex-Hinweis oder Schreinzeichen freischalten.
 - [x] Nach dem Kampf passenden Codex-Flag setzen und Canon-Anker/Rigurd-Dialog aktualisieren.
 - [x] Der Gegenspieler bleibt im zweiten Band nur als Echo/Spur erkennbar; keine neue erfundene Person sichtbar einführen.
 
@@ -102,9 +102,9 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [x] Gobta/Gobota als festen frühen Front-/Scout-Begleiter im Band-2-Hauptflow berücksichtigen.
 - [x] Shuna als Rat-/Ritualfigur in den Band-2-Flow holen und `shuna-ogre-line` sichtbar vorbereiten.
-- [ ] Gobtas Direwolf-Knoten über Ranga und `wolf-fang-token` im Menü verständlicher erklären.
-- [ ] Rimurus Bindungs-/Namensprogression mit `binding-of-ancestors` verknüpfen.
-- [ ] Erste Beziehungsboni nach Rat/Hain/Schrein sichtbar machen.
+- [x] Gobtas Direwolf-Knoten über Ranga und `wolf-fang-token` im Menü verständlicher erklären.
+- [x] Rimurus Bindungs-/Namensprogression mit `binding-of-ancestors` verknüpfen.
+- [x] Erste Beziehungsboni nach Rat/Hain/Schrein sichtbar machen.
 
 ### 7. Präsentation
 
@@ -118,8 +118,8 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 - [x] Headless-Smoke: Prologabschluss → Canon-Anker → Rat → Hain → Schrein-Echo → Questabschluss.
 - [x] Test: `binding-of-ancestors` startet automatisch und bleibt priorisiert sichtbar.
 - [x] Test: Direwolf-Pakt beeinflusst Band-2-Dialog oder Scout-Beat.
-- [x] Test: Codex enthält nach Band 2 mindestens `nameless-core`, `tempest-council`, `binding-of-ancestors`, `mordrahn`.
-- [ ] E2E-Smoke: Browserpfad vom abgeschlossenen Prolog bis zum ersten Band-2-Dialog.
+- [x] Test: Codex enthält nach Band 2 mindestens `nameless-core`, `tempest-council`, `binding-of-ancestors`, `ancestor-seal-warning`, `mordrahn`.
+- [x] E2E-Smoke: Browserpfad vom abgeschlossenen Prolog bis zum ersten Band-2-Dialog.
 
 ## Definition of Done für „zweites Band technisch umgesetzt“
 

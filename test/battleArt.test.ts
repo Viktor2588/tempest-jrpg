@@ -25,6 +25,8 @@ describe('Battle-Art-Zuordnung', () => {
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
+    expect(battleArenaForMap('tempest-start', 'whispering-grove-ambush').textureKey)
+      .toBe(BATTLE_ARENA_TEXTURES['whispering-grove']);
     expect(battleArenaForMap('tempest-start', 'shrine-approach').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['ancestor-seal']);
     expect(battleArenaForMap('tempest-start', 'unknown').kind).toBe('tempest-grove');

@@ -726,8 +726,7 @@ export function applyBattleProgressionRewards(
   const caughtUp = catchUpReserveMembers(active, rewardedReserve, chapterId);
   const activeCharacterIds = new Set(active.map((member) => member.characterId));
   for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
-    if (relationship.partnerKind === 'party'
-      && activeCharacterIds.has(relationship.characterId)
+    if (activeCharacterIds.has(relationship.characterId)
       && activeCharacterIds.has(relationship.partnerId)) {
       nextState = grantRelationshipPoints(nextState, relationship.id, 5).state;
     }

@@ -3,6 +3,7 @@ import {
   HEROES,
   PROGRESSION_LINES,
   PROGRESSION_REGIONS,
+  SKILL_TREES,
   type CharacterDefinition
 } from '../src/data';
 import {
@@ -19,6 +20,7 @@ import {
   calculateProgressionStats,
   calculateStartingTeamMeter,
   catchUpReserveMembers,
+  canUnlockSkillNode,
   canEvolve,
   createProgressionState,
   createProgressionBattleParty,
@@ -105,6 +107,28 @@ describe('progression system', () => {
     });
     expect(spiritWeaver.ok).toBe(true);
     expect(getProgressionSkillIds(shuna, spiritWeaver.state)).toContain('sacred-weave');
+  });
+
+  it('erklärt Gobtas Wolfsfang-Knoten und bindet Rimurus Ahnenknoten an Act 1', () => {
+    const gobtaTree = SKILL_TREES.find((tree) => tree.characterId === 'gobta')!;
+    const riderFeint = gobtaTree.nodes.find((node) => node.id === 'gobta-rider-feint')!;
+    expect(riderFeint.requiredFlag).toBe('progression.gobta.wolf-fang-token');
+    expect(riderFeint.description).toContain('Ranga');
+    expect(riderFeint.description).toContain('Wolfsfang-Abzeichen');
+
+    const rimuru = createPartyMember(hero('rimuru'), { level: 4 });
+    let state = grantSkillPoints(createProgressionState(), 'rimuru', 2).state;
+    const fluidCore = unlockSkillNode(rimuru, state, 'rimuru-fluid-core');
+    expect(fluidCore.ok).toBe(true);
+    state = fluidCore.state;
+
+    expect(canUnlockSkillNode(rimuru, state, 'rimuru-ancestor-binding').ok).toBe(false);
+    const unlocked = unlockSkillNode(rimuru, state, 'rimuru-ancestor-binding', {
+      flags: { 'story.act1.completed': true }
+    });
+    expect(unlocked.ok).toBe(true);
+    expect(calculateProgressionStats(rimuru, unlocked.state).spirit)
+      .toBeGreaterThan(calculateProgressionStats(rimuru, state).spirit);
   });
 
   it('wendet Beziehungsboni nachvollziehbar auf Charakterwerte an', () => {
@@ -227,6 +251,24 @@ describe('progression system', () => {
     expect(result.grantedSkillPoints).toBeGreaterThan(0);
     expect(result.state.relationshipPoints['rimuru-gobta']).toBe(5);
     expect(result.reserve[0]!.level).toBeGreaterThan(1);
+  });
+
+  it('vergibt auch Gobta/Ranga-Bindung, wenn beide gemeinsam aktiv kämpfen', () => {
+    const active = [
+      createPartyMember(hero('rimuru'), { level: 4 }),
+      createPartyMember(hero('gobta'), { level: 4 }),
+      createPartyMember(hero('ranga'), { level: 4 })
+    ];
+    const result = applyBattleProgressionRewards(
+      active,
+      [],
+      createProgressionState(),
+      10,
+      'chapter-1'
+    );
+
+    expect(result.state.relationshipPoints['rimuru-gobta']).toBe(5);
+    expect(result.state.relationshipPoints['gobta-ranga']).toBe(5);
   });
 
   it('liefert mehrere Linien, Regionen und monotone Balance-Bänder', () => {

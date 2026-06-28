@@ -213,13 +213,15 @@ export function npcHasQuestMarker(state: WorldState, npcId: string): boolean {
 }
 
 // Quest-Log-Priorität: aktive Quests (aktuelle Ziele) zuerst, dann abgeschlossene
-// als Archiv, unentdeckte/„offene" zuletzt. So bleibt das Verfolgen fokussiert,
-// auch wenn viele Quests existieren. Innerhalb einer Gruppe bleibt die QUESTS-Reihenfolge.
+// als Archiv, unentdeckte/„offene" zuletzt. Aktive Hauptquests stehen zusätzlich
+// vor aktiven Nebenquests, damit der nächste Storyanker nicht unter optionalen
+// Aufgaben verschwindet. Innerhalb einer Gruppe bleibt die QUESTS-Reihenfolge.
 const QUEST_STATUS_ORDER: Record<QuestLogEntryView['status'], number> = {
   active: 0,
   completed: 1,
   inactive: 2
 };
+const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation', 'ancestors-choice']);
 
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
   const entries = QUESTS.map((quest) => {
@@ -249,8 +251,15 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
   });
   return entries
     .map((entry, index) => ({ entry, index }))
-    .sort((a, b) =>
-      QUEST_STATUS_ORDER[a.entry.status] - QUEST_STATUS_ORDER[b.entry.status] || a.index - b.index)
+    .sort((a, b) => {
+      const statusOrder = QUEST_STATUS_ORDER[a.entry.status] - QUEST_STATUS_ORDER[b.entry.status];
+      if (statusOrder !== 0) return statusOrder;
+      if (a.entry.status === 'active') {
+        const mainOrder = Number(!MAIN_QUEST_IDS.has(a.entry.id)) - Number(!MAIN_QUEST_IDS.has(b.entry.id));
+        if (mainOrder !== 0) return mainOrder;
+      }
+      return a.index - b.index;
+    })
     .map(({ entry }) => entry);
 }
 

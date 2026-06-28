@@ -170,6 +170,9 @@ describe('world/dialog/shop/encounter system', () => {
     const repeated = completeEncounter(completed.state, grove.state.encounter!.id);
 
     expect(completed.state.flags['story.grove.cleared']).toBe(true);
+    expect(completed.state.flags['codex.ancestor-seal-warning']).toBe(true);
+    expect(buildCodexView(completed.state).find((entry) => entry.id === 'ancestor-seal-warning')?.unlocked)
+      .toBe(true);
     expect(getItemCount(completed.state.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(repeated.state).toEqual(completed.state);
     expect(getMapLocations('tempest-start', completed.state).map((location) => location.id)).toContain('ancestor-seal');
@@ -226,6 +229,26 @@ describe('world/dialog/shop/encounter system', () => {
       .not.toContain('founder-supplies');
   });
 
+  it('macht die Gründerhilfe auch im Band-2-Tempest-Hub verfügbar', () => {
+    const state: WorldState = {
+      flags: {
+        'story.slime-prologue.completed': true,
+        'bond.rigurd.trust-prologue': true
+      },
+      quests: { 'binding-of-ancestors': { status: 'active', completedStepIds: [] } },
+      inventory: [],
+      gold: 120
+    };
+    const dialog = startDialogForNpc(state, 'rigurd-tempest');
+    expect(dialog.choices.map((choice) => choice.id)).toContain('founder-supplies');
+
+    const claimed = chooseDialogOption(state, dialog.dialogId, dialog.nodeId, 'founder-supplies');
+    expect(claimed.ok).toBe(true);
+    expect(claimed.state.world.flags['bond.rigurd.founder-supplies']).toBe(true);
+    expect(getItemCount(claimed.state.world.inventory, 'healing-herb')).toBe(2);
+    expect(getItemCount(claimed.state.world.inventory, 'mana-drop')).toBe(1);
+  });
+
   it('führt vom Prologabschluss direkt in Act 1 weiter', () => {
     const world = runPrologueIntoActOneSmoke(makeRng(9));
     const prologue = buildQuestLog(world).find((entry) => entry.id === 'slime-awakening')!;
@@ -255,6 +278,20 @@ describe('world/dialog/shop/encounter system', () => {
     expect(buildQuestLog(state)[0]!.id).toBe('shrine-vigil');
     expect(statuses.indexOf('active')).toBeLessThan(statuses.indexOf('completed'));
     expect(statuses.indexOf('completed')).toBeLessThan(statuses.indexOf('inactive'));
+  });
+
+  it('priorisiert aktive Hauptquests vor aktiven Nebenquests', () => {
+    const state: WorldState = {
+      flags: {},
+      quests: {
+        'first-patrol': { status: 'active', completedStepIds: [] },
+        'binding-of-ancestors': { status: 'active', completedStepIds: [] }
+      },
+      inventory: [],
+      gold: 0
+    };
+
+    expect(buildQuestLog(state)[0]!.id).toBe('binding-of-ancestors');
   });
 
   it('verdeckt ungesehene Enden in der Galerie und enthüllt erreichte', () => {
@@ -318,7 +355,15 @@ describe('world/dialog/shop/encounter system', () => {
     expect(getItemCount(world.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(getItemCount(world.inventory, 'tempest-charm')).toBe(1);
     expect(buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id))
-      .toEqual(['first-tempest-naming', 'storm-dragon-future-ally', 'nameless-core', 'tempest-council', 'binding-of-ancestors', 'mordrahn']);
+      .toEqual([
+        'first-tempest-naming',
+        'storm-dragon-future-ally',
+        'nameless-core',
+        'tempest-council',
+        'binding-of-ancestors',
+        'ancestor-seal-warning',
+        'mordrahn'
+      ]);
     expect(persistedWorld.quests['binding-of-ancestors']?.status).toBe('completed');
     expect(persistedWorld.flags['story.act1.completed']).toBe(true);
     expect(getItemCount(persistedWorld.inventory, 'tempest-charm')).toBe(1);

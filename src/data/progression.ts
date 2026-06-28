@@ -431,6 +431,16 @@ export const SKILL_TREES = [
         skillId: 'venom-spit'
       },
       {
+        id: 'rimuru-ancestor-binding',
+        name: 'Ahnenbindung',
+        description: 'Verarbeitet den Abschluss der Bindung der Ahnen zu stabilerer Namensmagie.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        requiredFlag: 'story.act1.completed',
+        statBonus: { maxMp: 4, spirit: 2 }
+      },
+      {
         id: 'rimuru-marsh-runner',
         name: 'Marschenläufer-Instinkt',
         description: 'Wandelt Sumpferkundung in Tempo und robuste Geländekontrolle um.',
@@ -479,7 +489,7 @@ export const SKILL_TREES = [
       {
         id: 'gobta-rider-feint',
         name: 'Reiterfinte',
-        description: 'Lehrt den Schnellen Schritt, sobald Tempests Direwolf-Pakt Gobtas Reiterpfad eröffnet.',
+        description: 'Lehrt den Schnellen Schritt, sobald Rangas Pakt und das Wolfsfang-Abzeichen Gobtas Reiterpfad eröffnen.',
         cost: 1,
         requiredLevel: 4,
         requiredNodeIds: ['gobta-pack-footwork'],

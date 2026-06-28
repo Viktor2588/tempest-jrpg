@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { EquipmentSlot } from '../data';
+import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import {
   buildMenuView,
@@ -381,7 +381,8 @@ export class MenuScene extends Phaser.Scene {
         });
         this.applyProgressionResult(result);
       }, unlocked ? 0x1f3a2f : 0x1b2940);
-      this.layer.add(this.add.text(522, y - 14, node.description, {
+      const requirementHint = this.describeSkillRequirement(node);
+      this.layer.add(this.add.text(522, y - 14, requirementHint ? `${node.description}\n${requirementHint}` : node.description, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#9fb2cc',
@@ -409,6 +410,19 @@ export class MenuScene extends Phaser.Scene {
         }
       ));
     });
+  }
+
+  private describeSkillRequirement(node: SkillTreeNodeDefinition): string | null {
+    if (node.requiredFlag === 'progression.gobta.wolf-fang-token') {
+      return 'Benötigt: Rangas Pakt + Wolfsfang-Abzeichen';
+    }
+    if (node.requiredFlag === 'story.act1.completed') {
+      return 'Benötigt: Bindung der Ahnen abgeschlossen';
+    }
+    if (node.requiredFlag === 'bond.rigurd.trust-1') {
+      return 'Benötigt: Rigurds Vertrauen';
+    }
+    return node.requiredFlag ? 'Benötigt: Story-Fortschritt' : null;
   }
 
   private drawQuestLog(): void {

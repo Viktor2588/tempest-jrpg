@@ -595,7 +595,7 @@ export const LOCATIONS = [
     mapId: 'tempest-start',
     position: { x: 21, y: 13 },
     description: 'Ein gebrochener Schrein, an dem die Bindung der Ahnen hörbar knirscht.',
-    identity: 'Boss-Ort: klare Arena, Siegelmechanik und Mordrahns moralischer Konflikt.',
+    identity: 'Boss-Ort: klare Arena, Siegelmechanik und ein namenloser Gegenzug der alten Ordnung.',
     unlockFlag: 'story.grove.cleared'
   },
   {
@@ -846,6 +846,13 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Eine alte Ordnungsmagie, die Monsterstämme vor Auslöschung bewahrte, aber Namen, Freiheit und Opfer miteinander verknotet.',
     unlockFlag: 'story.grove.cleared'
+  },
+  {
+    id: 'ancestor-seal-warning',
+    title: 'Warnung am Ahnensiegel',
+    category: 'systems',
+    body: 'Das Fragment aus dem Flüsterhain klingt wie gefrorener Donner. Shunas Warnung ist klar: Am Schrein wartet kein gewöhnliches Monster, sondern ein Echo der alten Ordnung.',
+    unlockFlag: 'codex.ancestor-seal-warning'
   },
   {
     id: 'mordrahn',
@@ -1355,6 +1362,20 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'founder-supplies',
+            label: 'Gründerhilfe organisieren',
+            nextNodeId: 'founder-supplies',
+            requirements: [
+              { flag: 'bond.rigurd.trust-prologue' },
+              { notFlag: 'bond.rigurd.founder-supplies' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'bond.rigurd.founder-supplies', value: true },
+              { type: 'add-item', itemId: 'healing-herb', quantity: 2 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
             id: 'rally',
             label: 'Das Bündnis schmieden',
             nextNodeId: 'rally-node',
@@ -1448,6 +1469,12 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Dann ist Tempest mehr als ein Lager. Wir haben eine erste Geschichte, einen ersten Schwur — und eine Warnung, dass alte Ordnung nicht immer Schutz bedeutet.',
         choices: [{ id: 'end', label: 'Tempest steht' }]
+      },
+      {
+        id: 'founder-supplies',
+        speaker: 'Rigurd',
+        text: 'Wir haben die Vorräte ins neue Tempest-Zelt gebracht. Nimm Kräuter und Manatropfen mit, bevor ihr zum Hain geht — Shunas Warnung reicht mir.',
+        choices: [{ id: 'end', label: 'Vorräte gesichert' }]
       },
       {
         id: 'state',
@@ -2115,6 +2142,7 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'story.grove.cleared', value: true },
       { type: 'set-flag', flag: 'codex.binding-of-ancestors', value: true },
+      { type: 'set-flag', flag: 'codex.ancestor-seal-warning', value: true },
       { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'clear-grove' },
       { type: 'add-item', itemId: 'ancestor-seal-fragment', quantity: 1 }
     ]
