@@ -414,7 +414,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Abnahme-Tests:** Partyfolge Rimuru → Rimuru+Gobta → Rimuru+Gobta+Ranga; Ranga kann am Rekrutierungszeitpunkt in einem Kampf eingesetzt werden; vollständiger Headless-Prolog und Browser-Smoke auf Desktop/Mobil.
 - **Definition of Done Band 1:** alle offenen Punkte aus `erstes_band.md` sind erledigt, der neue Save startet allein und der Prolog endet ohne externe Anleitung in Tempest.
 
-[ ] **Phase 20 – Band 2 auf den Canon-Hauptpfad umbauen**
+[~] **Phase 20 – Band 2 auf den Canon-Hauptpfad umbauen** *(Slice 1: NPC-Sichtbarkeit, 2026-06-28)*
+
+> **Umgesetzt (Slice 1 — Fundament):** Datengetriebene **NPC-Sichtbarkeit**: `NpcDefinition.requirements` (optional) + `getMapNpcs(mapId, state?)`/`getAdjacentNpc(…, state?)` filtern Story-Anforderungen (analog `getMapLocations`); OverworldScene rendert/interagiert state-gefiltert. Erste Nutzung: Ranga-NPC erscheint erst nach `story.direwolf.defeated` (nicht vor dem Kampf). Ohne State (Reachability) bleiben alle NPCs sichtbar. Headless-Test. **Diese Infrastruktur ermöglicht** Legacy-Isolation (Sora/Vael/Lyrre ausblenden) und „Tempest als Zustand" (Canon-NPCs zur richtigen Zeit) für die folgenden Slices.
+>
+> **Offen (folgende Slices):** Band-2-Flow über Rigurd/Gobta/Ranga/Shuna (Rat + 3 Pflichtbeats → Flüsterhain → namenloses Echo → Abschluss), `mordrahn-echo` sichtbar als „Namenloses Echo", Legacy-Figuren aus dem Canon-Hauptpfad nehmen, stabile Quest-/Step-IDs beibehalten, freiwilliger „Grenzfeuer"-Hook.
 
 - **Stabile IDs beibehalten:** Quest-ID `binding-of-ancestors` und möglichst auch bestehende Step-IDs bleiben für alte Saves bestehen. Titel, Beschreibungen, Dialogquellen und sichtbare Gegnernamen werden inhaltlich neu zugeordnet.
 - **Canon-Rollen festlegen:** Rigurd führt Verwaltung/Versorgung und den Abschluss; Gobta und Ranga übernehmen Grenz-/Scoutbericht; Shuna ist Rat-/Ritualfigur und liest die Ahnenzeichen. Rimuru bzw. der Große Weise liefert nur innere Analyse, keinen neuen erfundenen NPC.

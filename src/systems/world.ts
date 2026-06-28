@@ -85,6 +85,7 @@ const shopById = new Map<string, ShopDefinition>(SHOPS.map((shop) => [shop.id, s
 const itemById: ReadonlyMap<string, ItemDefinition> = new Map(ITEMS.map((item) => [item.id, item]));
 const allLocations: readonly WorldLocationDefinition[] = LOCATIONS;
 const allLoreEntries: readonly LoreEntryDefinition[] = LORE_ENTRIES;
+const allNpcs: readonly NpcDefinition[] = NPCS;
 
 export function createWorldState(save: SaveGameV2): WorldState {
   return {
@@ -122,8 +123,14 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
   };
 }
 
-export function getMapNpcs(mapId: string): NpcDefinition[] {
-  return NPCS.filter((npc) => npc.mapId === mapId);
+// Mit `state` werden NPCs nach ihren Story-Anforderungen gefiltert (datengetriebene
+// Sichtbarkeit). Ohne `state` werden alle NPCs der Karte zurückgegeben (z. B. für
+// Reachability-Prüfungen, die jede potenzielle Position abdecken sollen).
+export function getMapNpcs(mapId: string, state?: WorldState): NpcDefinition[] {
+  return allNpcs.filter((npc) =>
+    npc.mapId === mapId
+    && (!state || requirementsMet(state, npc.requirements ?? []))
+  );
 }
 
 export function getMapShops(mapId: string): ShopDefinition[] {
@@ -151,8 +158,8 @@ export function getMapLocations(mapId: string, state?: WorldState): WorldLocatio
   );
 }
 
-export function getAdjacentNpc(mapId: string, position: Vec2): NpcDefinition | undefined {
-  return getMapNpcs(mapId).find((npc) => isAdjacentOrSame(npc.position, position));
+export function getAdjacentNpc(mapId: string, position: Vec2, state?: WorldState): NpcDefinition | undefined {
+  return getMapNpcs(mapId, state).find((npc) => isAdjacentOrSame(npc.position, position));
 }
 
 export function getAdjacentShop(mapId: string, position: Vec2): ShopDefinition | undefined {

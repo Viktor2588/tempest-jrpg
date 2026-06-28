@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { getMap } from '../data/maps';
-import { NPCS, SHOPS, type EncounterDefinition } from '../data/world';
+import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
@@ -14,6 +14,7 @@ import {
   getAdjacentTravel,
   getActiveEnding,
   getMapLocations,
+  getMapNpcs,
   getVisibleMapEncounters,
   npcHasQuestMarker,
   resolveEncounter
@@ -225,7 +226,7 @@ export class OverworldScene extends Phaser.Scene {
         kind: location.kind === 'gateway' ? 'gateway' : 'landmark'
       });
     }
-    for (const npc of NPCS.filter((item) => item.mapId === this.mapId)) {
+    for (const npc of getMapNpcs(this.mapId, world)) {
       markers.push({ x: npc.position.x, y: npc.position.y, kind: 'npc' });
     }
 
@@ -315,7 +316,7 @@ export class OverworldScene extends Phaser.Scene {
       }).setOrigin(0.5));
     }
 
-    for (const npc of NPCS.filter((item) => item.mapId === this.mapId)) {
+    for (const npc of getMapNpcs(this.mapId, world)) {
       layer.add(this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
         .setStrokeStyle(2, 0xfff1aa, 0.9));
       layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 34, npc.name, {
@@ -348,7 +349,7 @@ export class OverworldScene extends Phaser.Scene {
 
   private interact(): void {
     if (this.moving) return;
-    const npc = getAdjacentNpc(this.mapId, this.pos);
+    const npc = getAdjacentNpc(this.mapId, this.pos, createWorldState(this.save));
     if (npc) {
       this.scene.launch('Dialogue', { npcId: npc.id });
       this.scene.pause();

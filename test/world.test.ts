@@ -19,6 +19,7 @@ import {
   getAdjacentShop,
   getAdjacentTravel,
   getMapLocations,
+  getMapNpcs,
   resolveEncounter,
   sellItem,
   startDialogForNpc,
@@ -408,5 +409,21 @@ describe('Canon-Benennung (Band 1)', () => {
     const view = startDialogForNpc(emptyWorld(), 'sealed-storm-dragon');
     expect(view.speaker).toBe('Veldora');
     expect(buildCodexView(emptyWorld()).find((entry) => entry.id === 'sealed-storm-dragon')?.title).toBe('Veldora, der Sturmdrache');
+  });
+});
+
+describe('Datengetriebene NPC-Sichtbarkeit', () => {
+  it('blendet den Ranga-NPC bis zum Direwolf-Sieg aus', () => {
+    const before = emptyWorld();
+    const after: WorldState = { ...before, flags: { 'story.direwolf.defeated': true } };
+
+    expect(getMapNpcs('direwolf-den', before).some((npc) => npc.id === 'ranga')).toBe(false);
+    expect(getMapNpcs('direwolf-den', after).some((npc) => npc.id === 'ranga')).toBe(true);
+    // Ohne State (Reachability-Sicht) bleibt der NPC sichtbar.
+    expect(getMapNpcs('direwolf-den').some((npc) => npc.id === 'ranga')).toBe(true);
+
+    // Interaktion respektiert die Sichtbarkeit.
+    expect(getAdjacentNpc('direwolf-den', { x: 10, y: 5 }, before)).toBeUndefined();
+    expect(getAdjacentNpc('direwolf-den', { x: 10, y: 5 }, after)?.id).toBe('ranga');
   });
 });

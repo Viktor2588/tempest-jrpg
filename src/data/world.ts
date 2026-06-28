@@ -97,6 +97,9 @@ export interface NpcDefinition {
   readonly position: Vec2;
   readonly dialogId: string;
   readonly color: number;
+  // Optionale Story-Sichtbarkeit: Der NPC erscheint (und ist ansprechbar) erst, wenn
+  // alle Anforderungen erfüllt sind. Fehlt das Feld, ist der NPC immer sichtbar.
+  readonly requirements?: readonly WorldRequirement[];
 }
 
 export interface ShopDefinition {
@@ -1886,7 +1889,9 @@ export const NPCS = [
     mapId: 'direwolf-den',
     position: { x: 10, y: 5 },
     dialogId: 'ranga-pact',
-    color: 0x9fb6d6
+    color: 0x9fb6d6,
+    // Erscheint erst, wenn das Rudel unterworfen ist — nicht vor dem Kampf.
+    requirements: [{ flag: 'story.direwolf.defeated' }]
   },
   {
     id: 'rigurd',
