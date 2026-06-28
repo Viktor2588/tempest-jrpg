@@ -297,7 +297,7 @@ export class OverworldScene extends Phaser.Scene {
       this.scene.pause();
       return;
     }
-    const gate = getAdjacentTravel(this.mapId, this.pos);
+    const gate = getAdjacentTravel(this.mapId, this.pos, createWorldState(this.save));
     if (gate?.travelTo) {
       // Region wechseln: Standort im Save setzen und die Szene mit der Zielkarte neu starten.
       this.save = {

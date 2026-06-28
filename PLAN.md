@@ -343,6 +343,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Umgesetzt:** `SPIRIT_HIGHLANDS` (24×14) in `MAPS`; Gateway-Paar Geistmoor↔Geisterschrein (Moor-Ostrand @(20,7) ↔ Hochland @(1,7)); Geisterschrein mit Spawn, Landmark `shrine-summit`, Shop `shrine-rest`, 1 Zufalls- + 1 Trigger-Encounter (`shrine-summit-guardian` mit `mordrahn-vanguard`), Codex `geisterschrein`. **Keine Code-Änderung** — alles über die fertige map-dynamische Engine.
 - **Abnahme (lokal verifiziert):** Reachability-/Travel-Tests greifen automatisch über alle **3 Karten** (NPCs/Shops/Gateways/Trigger erreichbar; jedes `travelTo` → existierende Karte + begehbare Zielkachel); Datenintegrität grün; `tsc` sauber, **105/105** grün, `build` ok. *(Visuelles Hochland im Browser noch zu sichten.)*
 
+[~] **Phase 16 – Kampfpräsentation: Party-Art, regionale Arenen & HUD (in Bearbeitung 2026-06-28, direkt auf `main`)**
+- **Neue Imagegen-Assets:** drei eigenständige, freigestellte Kampfillustrationen für Rimuru, Gobta und Shuna sowie drei breite Arenen für Tempest-Hain, Geistmoor und Geisterschrein. Stil und Blickrichtung orientieren sich an den bereits integrierten Kingdom-Kreaturen; alle Quellen und Generierungsangaben werden in `ASSETS.md` dokumentiert.
+- **Datengetriebene Art-Zuordnung:** Party-Art wird über `sourceId`, Arena-Art über die aktuelle `mapId` gewählt; beide Pfade behalten bestehende Sprite-/Farb-Fallbacks. Mapping und Vollständigkeit werden headless getestet.
+- **Battle-HUD-Politur:** regionale Vollbild-Arena mit lesbarer Abdunklung, klarer Zuganzeige, grafischer Team-Leiste, ruhigerer Einheitenhierarchie und kompakter Aktionsleiste. Touch-Ziele bleiben mindestens 44 px hoch; Gegner-/Party-Karten, Log und Befehle dürfen sich bei 960×540 nicht überdecken.
+- **Abnahme:** `bun run typecheck`, vollständige Vitest-Suite und Produktionsbuild grün; Desktop- und 390×844-Browser-Smoke ohne Konsolenfehler oder Layout-Überlappung.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.
@@ -374,3 +380,11 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 11. **Asset-/Szenen-Lazy-Loading je Region** (Bundle ~1,85 MB nach Phaser 4) — bewusst aufgeschoben; bei wachsendem Content sinnvoll.
 12. **Offene Phase-13-Politur:** längere CC0-Musik-Loops statt kurzer Jingles, echte CC0-Portraits statt prozeduraler Busts, mehr Tile-/Sprite-Varianz.
 13. **Balance-Pass mit neuem Content:** Levelkurve über 3 Regionen + Postgame-Superboss + Act-2/3-Bosse formal gegen ein Level-/Schwierigkeitsband testen (erweitert `analyzePhase15Balance`).
+
+## QoL-Änderungen (Userwunsch, 2026-06-28)
+[x] **A — Überlevel-Schutz** ✅: Wenn die Party signifikant über dem Gebietslevel liegt, greifen Zufallsmonster nicht mehr an.
+- **Umsetzung:** `WorldState.partyLevel` (optional) aus `max(active party level)` in `createWorldState`. In `resolveEncounter` werden **nur Zufallsbegegnungen** übersprungen, wenn `partyLevel − maxEnemyLevel(encounter) ≥ OVERLEVEL_AVOIDANCE_GAP` (=5). Trigger-/Story-Encounter bleiben immer aktiv. Headless-Test in `world.test`.
+[~] **B — Minimap:** Karten scrollen (Kamera folgt, Map > Screen) → Orientierung fehlt.
+- **Umsetzung:** `src/systems/minimap.ts` `buildMinimap(mapW, mapH, marker[])` → testbares Pixel-Modell (Zellgröße/Scaling/Clamping). Marker-Radar (Spieler/Gateway/NPC/Landmark) als fixiertes Panel oben rechts in der `OverworldScene`; Spieler-Punkt folgt der Bewegung. Keine Wand-Tiles (Renderbudget).
+[x] **C — Grenzriss-Gate** ✅: Der `gate-to-marsh` (Pfad ins Geistmoor) öffnet erst nach Abschluss von „Grenzfeuer" (border-escalation, Höhepunkt am Grenzriss).
+- **Umsetzung:** `unlockFlag: 'story.act2.completed'` an `gate-to-marsh`. `getMapLocations` filtert bereits per Flag (Marker verschwindet); `getAdjacentTravel` bekommt denselben Flag-Filter (Reise blockiert bis freigeschaltet). Rückweg-Gateways bleiben offen.

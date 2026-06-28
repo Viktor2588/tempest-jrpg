@@ -549,6 +549,9 @@ export const LOCATIONS = [
     position: { x: 1, y: 7 },
     description: 'Ein vernebelter Trampelpfad, der westlich aus dem Hain ins Geistmoor führt.',
     identity: 'Reisepunkt: Übergang in die zweite Region (Geistmoor).',
+    // Öffnet erst nach „Grenzfeuer" (border-escalation): der Pfad nach Westen wird
+    // frei, sobald die Vorhut am Grenzriss gebrochen ist.
+    unlockFlag: 'story.act2.completed',
     travelTo: { mapId: 'spirit-marsh', x: 2, y: 2 }
   },
   {

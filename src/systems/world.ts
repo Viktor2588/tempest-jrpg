@@ -1,4 +1,5 @@
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
+import { ENEMIES } from '../data/enemies';
 import { ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
@@ -11,6 +12,9 @@ export interface WorldState {
   readonly quests: Readonly<Record<string, QuestState>>;
   readonly inventory: readonly InventoryStack[];
   readonly gold: number;
+  // Höchstes Level der aktiven Party. Optional, damit bestehende WorldState-Literale
+  // (Tests, Smokes) gültig bleiben; fehlt es, greift der Überlevel-Schutz nicht.
+  readonly partyLevel?: number;
 }
 
 export interface DialogView {
@@ -82,7 +86,8 @@ export function createWorldState(save: SaveGameV2): WorldState {
     flags: save.flags,
     quests: save.quests,
     inventory: save.inventory.stacks,
-    gold: save.party.gold
+    gold: save.party.gold,
+    partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0)
   };
 }
 
@@ -134,10 +139,26 @@ export function getAdjacentShop(mapId: string, position: Vec2): ShopDefinition |
 }
 
 // Gateway-Location (mit travelTo) in Reichweite → für den Regionswechsel.
-export function getAdjacentTravel(mapId: string, position: Vec2): WorldLocationDefinition | undefined {
+// Mit `state` wird derselbe unlockFlag-Filter wie in getMapLocations angewandt,
+// damit gesperrte Reisepunkte (z. B. Geistmoor erst nach „Grenzfeuer") nicht reisen.
+export function getAdjacentTravel(mapId: string, position: Vec2, state?: WorldState): WorldLocationDefinition | undefined {
   return allLocations.find((location) =>
-    location.mapId === mapId && !!location.travelTo && isAdjacentOrSame(location.position, position)
+    location.mapId === mapId
+    && !!location.travelTo
+    && (!state || !location.unlockFlag || state.flags[location.unlockFlag] === true)
+    && isAdjacentOrSame(location.position, position)
   );
+}
+
+// Überlevel-Schutz: Höchstlevel der Gegner einer Begegnung; ist die Party
+// OVERLEVEL_AVOIDANCE_GAP Stufen darüber, weichen Zufallsmonster aus.
+const enemyLevelById = new Map<string, number>(ENEMIES.map((enemy) => [enemy.id, enemy.level]));
+const OVERLEVEL_AVOIDANCE_GAP = 5;
+
+function partyOutlevels(state: WorldState, encounter: EncounterDefinition): boolean {
+  if (state.partyLevel === undefined) return false;
+  const enemyLevel = Math.max(0, ...encounter.enemyIds.map((id) => enemyLevelById.get(id) ?? 0));
+  return state.partyLevel - enemyLevel >= OVERLEVEL_AVOIDANCE_GAP;
 }
 
 export function startDialogForNpc(state: WorldState, npcId: string): DialogView {
@@ -369,6 +390,8 @@ export function resolveEncounter(
     && encounter.bounds
     && inBounds(position, encounter.bounds)
     && requirementsMet(state, encounter.requirements ?? [])
+    // Zu starke Party → Zufallsmonster greifen nicht mehr an (rng bleibt unverbraucht).
+    && !partyOutlevels(state, encounter)
     && rng() < encounter.chance
   );
 

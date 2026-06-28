@@ -13,6 +13,7 @@ import {
   completeEncounter,
   getAdjacentNpc,
   getAdjacentShop,
+  getAdjacentTravel,
   getMapLocations,
   resolveEncounter,
   sellItem,
@@ -157,6 +158,29 @@ describe('world/dialog/shop/encounter system', () => {
     expect(buildQuestLog(state)[0]!.id).toBe('shrine-vigil');
     expect(statuses.indexOf('active')).toBeLessThan(statuses.indexOf('completed'));
     expect(statuses.indexOf('completed')).toBeLessThan(statuses.indexOf('inactive'));
+  });
+
+  it('lässt Zufallsmonster bei großem Levelvorsprung ausweichen', () => {
+    const base: WorldState = { flags: {}, quests: {}, inventory: [], gold: 0 };
+    const always = () => 0; // immer < chance → würde normalerweise auslösen
+    const pos = { x: 15, y: 7 }; // im east-grass-Bereich (forest-slime, Lvl 1)
+
+    // 5 Stufen Vorsprung → Monster weichen aus, keine Begegnung trotz garantiertem Roll.
+    expect(resolveEncounter({ ...base, partyLevel: 6 }, 'tempest-start', pos, always).state.encounter).toBeNull();
+    // Gleichlevelig → Begegnung wie gehabt.
+    expect(resolveEncounter({ ...base, partyLevel: 1 }, 'tempest-start', pos, always).state.encounter?.id).toBe('east-grass');
+  });
+
+  it('öffnet den Pfad ins Geistmoor erst nach Abschluss von „Grenzfeuer"', () => {
+    const pos = { x: 1, y: 7 }; // direkt am gate-to-marsh
+    const locked: WorldState = { flags: {}, quests: {}, inventory: [], gold: 0 };
+    expect(getAdjacentTravel('tempest-start', pos, locked)).toBeUndefined();
+    expect(getMapLocations('tempest-start', locked).some((l) => l.id === 'gate-to-marsh')).toBe(false);
+
+    const open: WorldState = { ...locked, flags: { 'story.act2.completed': true } };
+    expect(getAdjacentTravel('tempest-start', pos, open)?.id).toBe('gate-to-marsh');
+    // Ohne State (Reachability-Sicht) bleibt das Gateway sichtbar.
+    expect(getAdjacentTravel('tempest-start', pos)?.id).toBe('gate-to-marsh');
   });
 
   it('spielt den Act-1-Story-Slice Intro → Stadt → Quest → Dungeon → Boss → Belohnung headless durch und persistiert ihn', () => {
