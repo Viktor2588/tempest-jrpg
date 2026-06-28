@@ -4,6 +4,7 @@ import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
+import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldTutorial } from '../systems/tutorial';
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { makeRng } from '../systems/rng';
@@ -168,6 +169,39 @@ export class OverworldScene extends Phaser.Scene {
     this.add.text(menuRect.x, menuRect.y, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
+
+    // Einmaliges Steuerungs-Tutorial beim allerersten Spielstart (Save-Flag-gegated).
+    if (shouldShowOverworldTutorial(this.save.flags)) this.showControlTutorial();
+  }
+
+  // Erklärt Laufen/Interagieren/Menü direkt im Spiel und merkt sich den Abschluss.
+  private showControlTutorial(): void {
+    const cx = this.scale.width / 2;
+    const overlay = this.add.container(0, 0).setScrollFactor(0).setDepth(40);
+    overlay.add(this.add.rectangle(cx, this.scale.height / 2, this.scale.width, this.scale.height, 0x05070c, 0.82));
+    overlay.add(this.add.rectangle(cx, 250, 520, 320, 0x0a0f18, 0.96).setStrokeStyle(2, 0x68d7ff, 0.7));
+    overlay.add(this.add.text(cx, 130, 'Steuerung', { fontFamily: 'serif', fontSize: '28px', color: '#e9c56c' }).setOrigin(0.5));
+
+    OVERWORLD_TUTORIAL_HINTS.forEach((hint, index) => {
+      const y = 172 + index * 80;
+      overlay.add(this.add.text(cx - 232, y, hint.icon, { fontFamily: 'sans-serif', fontSize: '26px', color: '#cdeaff' }).setOrigin(0, 0.5));
+      overlay.add(this.add.text(cx - 188, y - 16, hint.title, { fontFamily: 'sans-serif', fontSize: '16px', color: '#e9c56c' }));
+      overlay.add(this.add.text(cx - 188, y + 4, hint.body, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', wordWrap: { width: 400 }
+      }));
+    });
+
+    const btn = this.add.rectangle(cx, 372, 220, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
+    overlay.add(btn);
+    overlay.add(this.add.text(cx, 372, 'Verstanden', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5));
+
+    const dismiss = (): void => {
+      this.save = { ...this.save, flags: { ...this.save.flags, [OVERWORLD_TUTORIAL_FLAG]: true } };
+      autoSave(window.localStorage, this.save);
+      overlay.destroy();
+    };
+    btn.on('pointerdown', dismiss);
+    this.input.keyboard?.once('keydown-ESC', dismiss); // ESC ist sonst nicht belegt
   }
 
   override update(): void {

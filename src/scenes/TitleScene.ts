@@ -59,7 +59,7 @@ export class TitleScene extends Phaser.Scene {
     const lines = [
       '🕳 Start: Du erwachst in der versiegelten Höhle',
       '🚶 Bewegen: WASD/Pfeiltasten oder das Touch-Steuerkreuz',
-      '◆ Interaktion: Sprich zuerst mit dem Sturmdrachen',
+      '◆ Interaktion: Sprich zuerst mit Veldora',
       '📜 Questlog/Codex: Öffne das Menü, um Ziele und neue Lore zu prüfen',
       '⚔ Bosskämpfe: Angriff, Skills, Items, Verteidigen und Teamleiste nutzen'
     ];
