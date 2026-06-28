@@ -6,6 +6,7 @@ import {
   MIN_TOUCH_TARGET_PX
 } from '../src/systems/mobileLayout';
 import {
+  analyzeEncounterBalance,
   analyzeOverworldBudget,
   analyzePhase15Balance,
   estimateOverworldBudget,
@@ -37,6 +38,10 @@ describe('phase 15 QA gates', () => {
 
   it('meldet keine erweiterten Balance-Probleme', () => {
     expect(analyzePhase15Balance()).toEqual([]);
+  });
+
+  it('hält Encounter-Referenzen gültig und die ambiente Regionsschwierigkeit monoton steigend', () => {
+    expect(analyzeEncounterBalance()).toEqual([]);
   });
 
   it('spielt Act 1 headless inkl. Dialogen, Kämpfen, Rewards und Save-Roundtrip durch', () => {

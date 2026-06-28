@@ -379,7 +379,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 10. **`src/data/world.ts` (~1500 Z.) in Module splitten** (quests/dialogs/encounters/locations/lore) → Wartbarkeit + weniger Merge-Konflikte bei Parallelarbeit.
 11. **Asset-/Szenen-Lazy-Loading je Region** (Bundle ~1,85 MB nach Phaser 4) — bewusst aufgeschoben; bei wachsendem Content sinnvoll.
 12. **Offene Phase-13-Politur:** längere CC0-Musik-Loops statt kurzer Jingles, echte CC0-Portraits statt prozeduraler Busts, mehr Tile-/Sprite-Varianz.
-13. **Balance-Pass mit neuem Content:** Levelkurve über 3 Regionen + Postgame-Superboss + Act-2/3-Bosse formal gegen ein Level-/Schwierigkeitsband testen (erweitert `analyzePhase15Balance`).
+13. **Balance-Pass mit neuem Content:** Levelkurve über 3 Regionen + Postgame-Superboss + Act-2/3-Bosse formal gegen ein Level-/Schwierigkeitsband testen (erweitert `analyzePhase15Balance`). ✅ *(2026-06-28)*: `analyzeEncounterBalance` (in `analyzePhase15Balance` eingefaltet) prüft (1) jeder Encounter referenziert echte Gegner mit Level ≥ 1 und (2) die ambiente Zufallsschwierigkeit steigt entlang der Reisekette (BFS über den Gateway-Graphen ab `tempest-start`) monoton — keine Region ist ein Rückschritt. Story-Trigger/Bosse dürfen spiken. Daten sind aktuell stimmig (tempest 1–4 → marsh 2–5 → highlands 5–8); der Gate sichert das gegen künftigen Content-Drift.
 
 ## QoL-Änderungen (Userwunsch, 2026-06-28)
 [x] **A — Überlevel-Schutz** ✅: Wenn die Party signifikant über dem Gebietslevel liegt, greifen Zufallsmonster nicht mehr an.

@@ -1,4 +1,5 @@
-import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS } from '../src/data/world';
+import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS, type WorldLocationDefinition } from '../src/data/world';
+import { ENEMIES } from '../src/data/enemies';
 import { JURA_FIELD } from '../src/data/maps';
 import { SKILL_TREES } from '../src/data';
 import { chooseAutoAction } from '../src/systems/autoBattle';
@@ -83,11 +84,72 @@ const TALENT_PRIORITIES: Readonly<Record<string, readonly string[]>> = {
   gobta: ['gobta-pack-footwork', 'gobta-rider-feint', 'gobta-marsh-runner', 'gobta-tempest-knight']
 };
 
+// Reisereihenfolge der Regionen aus dem Gateway-Graphen (BFS ab Start), damit der
+// Balance-Check ohne hartkodierte Kartenliste der tatsächlichen Spielprogression folgt.
+function regionTravelOrder(startMapId: string): string[] {
+  const order: string[] = [];
+  const seen = new Set<string>();
+  const queue = [startMapId];
+  while (queue.length > 0) {
+    const mapId = queue.shift()!;
+    if (seen.has(mapId)) continue;
+    seen.add(mapId);
+    order.push(mapId);
+    for (const location of LOCATIONS as readonly WorldLocationDefinition[]) {
+      if (location.mapId === mapId && location.travelTo && !seen.has(location.travelTo.mapId)) {
+        queue.push(location.travelTo.mapId);
+      }
+    }
+  }
+  return order;
+}
+
+// Encounter-/Regionsbalance: (1) jeder Encounter referenziert echte Gegner mit Level ≥ 1,
+// (2) die ambiente (Zufalls-)Schwierigkeit steigt entlang der Reisekette monoton — keine
+// Region ist ein Rückschritt. Story-Trigger (Bosse) dürfen spiken und werden nicht gewertet.
+export function analyzeEncounterBalance(): QaIssue[] {
+  const issues: QaIssue[] = [];
+  const levelOf = new Map<string, number>(ENEMIES.map((enemy) => [enemy.id, enemy.level]));
+
+  for (const encounter of ENCOUNTERS) {
+    for (const enemyId of encounter.enemyIds) {
+      const level = levelOf.get(enemyId);
+      if (level === undefined) {
+        issues.push({ path: `qa.balance.encounter.${encounter.id}.${enemyId}`, message: 'Begegnung referenziert unbekannten Gegner.' });
+      } else if (level < 1) {
+        issues.push({ path: `qa.balance.encounter.${encounter.id}.${enemyId}`, message: 'Gegnerlevel ist kleiner als 1.' });
+      }
+    }
+  }
+
+  let previous: { floor: number; ceil: number; mapId: string } | null = null;
+  for (const mapId of regionTravelOrder('tempest-start')) {
+    const ambient = ENCOUNTERS
+      .filter((encounter) => encounter.mapId === mapId && encounter.kind === 'random')
+      .flatMap((encounter) => encounter.enemyIds.map((id) => levelOf.get(id) ?? 0));
+    if (ambient.length === 0) continue; // Regionen ohne Zufallskämpfe (reine Story) überspringen
+    const floor = Math.min(...ambient);
+    const ceil = Math.max(...ambient);
+    if (previous) {
+      if (floor < previous.floor) {
+        issues.push({ path: `qa.balance.region.${mapId}.floor`, message: `Ambiente Mindestschwierigkeit fällt gegenüber '${previous.mapId}'.` });
+      }
+      if (ceil < previous.ceil) {
+        issues.push({ path: `qa.balance.region.${mapId}.ceil`, message: `Ambiente Maximalschwierigkeit fällt gegenüber '${previous.mapId}'.` });
+      }
+    }
+    previous = { floor, ceil, mapId };
+  }
+
+  return issues;
+}
+
 export function analyzePhase15Balance(): QaIssue[] {
   const issues: QaIssue[] = analyzeProgressionBalance().map((issue) => ({
     path: issue.path,
     message: issue.message
   }));
+  issues.push(...analyzeEncounterBalance());
 
   for (const tree of SKILL_TREES) {
     const localNodeIds = new Set(tree.nodes.map((node) => node.id));
