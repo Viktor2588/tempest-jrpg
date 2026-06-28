@@ -128,8 +128,9 @@ export const ENEMIES = [
     drops: [{ itemId: 'mana-drop', chance: 0.22 }]
   },
   {
+    // Canon-Hauptpfad: erscheint sichtbar als „Namenloses Echo"; interne ID bleibt stabil.
     id: 'mordrahn-echo',
-    name: 'Mordrahns Echo',
+    name: 'Namenloses Echo',
     level: 6,
     element: 'shadow',
     stats: {

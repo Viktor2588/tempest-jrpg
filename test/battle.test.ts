@@ -215,6 +215,12 @@ describe('battle engine', () => {
     expect(currentActor(state)).toBeTruthy();
   });
 
+  it('zeigt das Siegel-Echo im Kampf als „Namenloses Echo" (Canon-Hauptpfad)', () => {
+    const state = startBattle({ party: createDefaultBattleParty(), enemyIds: ['mordrahn-echo'], seed: 5 });
+    const enemy = renderView(state).enemies.find((unit) => !unit.dead);
+    expect(enemy?.name).toBe('Namenloses Echo');
+  });
+
   it('ist bei gleichem Seed reproduzierbar', () => {
     const a = startBattle({ party: createDefaultBattleParty(), enemyIds: ['forest-slime', 'spore-moth'], seed: 777 });
     const b = startBattle({ party: createDefaultBattleParty(), enemyIds: ['forest-slime', 'spore-moth'], seed: 777 });
