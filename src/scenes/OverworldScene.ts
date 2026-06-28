@@ -4,7 +4,7 @@ import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
-import { isWalkable, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
+import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { makeRng } from '../systems/rng';
 import {
@@ -187,7 +187,12 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private step(dir: Dir): void {
-    const next = tryStep(this.map, this.pos, dir);
+    // Sichtbare NPCs blockieren ihre Kachel (Kollision) — man bleibt davor stehen
+    // und kann sie von dort ansprechen, statt durch sie hindurchzulaufen.
+    const blocked = new Set(
+      getMapNpcs(this.mapId, createWorldState(this.save)).map((npc) => tileKey(npc.position.x, npc.position.y))
+    );
+    const next = tryStep(this.map, this.pos, dir, blocked);
     if (next.x === this.pos.x && next.y === this.pos.y) return; // blockiert
     this.pos = next;
     this.moving = true;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMap, isWalkable, tryStep, WALL, FLOOR } from '../src/systems/overworld';
+import { parseMap, isWalkable, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
 import { JURA_FIELD } from '../src/data/maps';
 
 const MAP = parseMap([
@@ -33,6 +33,16 @@ describe('overworld grid', () => {
     expect(tryStep(MAP, { x: 1, y: 1 }, 'left')).toEqual({ x: 1, y: 1 }); // Wand links → blockiert
     // gegen das Innenhindernis (2,2) von (1,2) nach rechts → blockiert
     expect(tryStep(MAP, { x: 1, y: 2 }, 'right')).toEqual({ x: 1, y: 2 });
+  });
+
+  it('tryStep blockiert von Entitäten besetzte Kacheln (NPC-Kollision)', () => {
+    const blocked = new Set([tileKey(2, 1)]); // NPC steht auf (2,1)
+    // Ziel (2,1) ist begehbarer Boden, aber von einem NPC besetzt → man bleibt stehen.
+    expect(tryStep(MAP, { x: 1, y: 1 }, 'right', blocked)).toEqual({ x: 1, y: 1 });
+    // Freie Richtung bleibt begehbar.
+    expect(tryStep(MAP, { x: 1, y: 1 }, 'down', blocked)).toEqual({ x: 1, y: 2 });
+    // Ohne Blockierset verhält sich tryStep wie zuvor.
+    expect(tryStep(MAP, { x: 1, y: 1 }, 'right')).toEqual({ x: 2, y: 1 });
   });
 
   it('das Spielfeld JURA_FIELD ist umrandet und hat einen begehbaren Spawn', () => {

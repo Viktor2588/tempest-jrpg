@@ -25,6 +25,11 @@ export interface TileMap {
   spawn: Vec2;
 }
 
+/** Stabiler Schlüssel einer Kachel für Blockier-Sets (Entitäten-Kollision). */
+export function tileKey(x: number, y: number): string {
+  return `${x},${y}`;
+}
+
 /** true, wenn die Kachel im Raster liegt und keine Wand ist. */
 export function isWalkable(map: TileMap, x: number, y: number): boolean {
   if (x < 0 || y < 0 || x >= map.width || y >= map.height) return false;
@@ -32,12 +37,16 @@ export function isWalkable(map: TileMap, x: number, y: number): boolean {
 }
 
 /** Ein Rasterschritt in eine Richtung. Liefert die Zielkachel, oder die
- *  Ausgangskachel (unverändert), wenn der Weg blockiert/außerhalb ist. */
-export function tryStep(map: TileMap, pos: Vec2, dir: Dir): Vec2 {
+ *  Ausgangskachel (unverändert), wenn der Weg blockiert/außerhalb ist.
+ *  `blocked` enthält von Entitäten (z. B. NPCs) besetzte Kacheln (via `tileKey`),
+ *  die nicht betreten werden dürfen — die Wand-Begehbarkeit bleibt unberührt. */
+export function tryStep(map: TileMap, pos: Vec2, dir: Dir, blocked?: ReadonlySet<string>): Vec2 {
   const v = DIR_VEC[dir];
   const nx = pos.x + v.x;
   const ny = pos.y + v.y;
-  return isWalkable(map, nx, ny) ? { x: nx, y: ny } : { x: pos.x, y: pos.y };
+  if (!isWalkable(map, nx, ny)) return { x: pos.x, y: pos.y };
+  if (blocked?.has(tileKey(nx, ny))) return { x: pos.x, y: pos.y };
+  return { x: nx, y: ny };
 }
 
 /** Baut eine TileMap aus ASCII-Zeilen: '#' = Wand, alles andere = Boden. */
