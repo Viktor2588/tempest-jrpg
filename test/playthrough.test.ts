@@ -121,6 +121,57 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(unlocked('mordrahn-vanguard')).toBe(true);
   });
 
+  // Act 3 bis zum Wahl-Dialog spielen (Bündnis → Durchbruch → Mordrahn).
+  function act3UpToChoice(withBonds: boolean): SaveGameV2 {
+    let save: SaveGameV2 = {
+      ...createNewSave(),
+      flags: {
+        'story.act2.completed': true,
+        ...(withBonds ? { 'bond.sora.trust-1': true, 'bond.lyrre.trust-1': true } : {})
+      }
+    };
+    save = talk(save, 'sora', 'rally');           // story.act3.started
+    save = clearTriggerAt(save, { x: 12, y: 7 }); // Bündnismarsch → breach
+    save = clearTriggerAt(save, { x: 15, y: 2 }); // Herz der Bindung → Mordrahn
+    return save;
+  }
+  const codexUnlocked = (save: SaveGameV2, id: string) =>
+    buildCodexView(createWorldState(save)).find((entry) => entry.id === id)?.unlocked === true;
+
+  it('Act 3: schließt mit Ende „Freiheit" ab (Bindung zerstören)', () => {
+    let save = act3UpToChoice(false);
+    expect(codexUnlocked(save, 'mordrahn-keeper')).toBe(true);
+    expect(npcHasQuestMarker(createWorldState(save), 'sora')).toBe(true); // die Wahl steht an
+
+    save = talk(save, 'sora', 'choose-destroy');
+    const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!;
+    expect(quest.status).toBe('completed');
+    expect(quest.steps.every((step) => step.completed)).toBe(true);
+    expect(createWorldState(save).flags['ending.freedom']).toBe(true);
+    expect(codexUnlocked(save, 'ending-freedom')).toBe(true);
+  });
+
+  it('Act 3: schließt mit Ende „Ordnung" ab (Bindung neu schmieden)', () => {
+    let save = act3UpToChoice(false);
+    save = talk(save, 'sora', 'choose-reforge');
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!.status).toBe('completed');
+    expect(createWorldState(save).flags['ending.order']).toBe(true);
+    expect(codexUnlocked(save, 'ending-order')).toBe(true);
+  });
+
+  it('Act 3: True-Ending nur mit erfüllten Bindungen', () => {
+    // Ohne Bindungen ist die Option nicht sichtbar.
+    const noBonds = act3UpToChoice(false);
+    expect(startDialogForNpc(createWorldState(noBonds), 'sora').choices.map((c) => c.id)).not.toContain('choose-true');
+
+    // Mit erfüllten Bindungen (Sora + Lyrre aus Act 1/2) erscheint der dritte Weg.
+    let save = act3UpToChoice(true);
+    expect(startDialogForNpc(createWorldState(save), 'sora').choices.map((c) => c.id)).toContain('choose-true');
+    save = talk(save, 'sora', 'choose-true');
+    expect(createWorldState(save).flags['ending.true']).toBe(true);
+    expect(codexUnlocked(save, 'ending-true')).toBe(true);
+  });
+
   it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {
     const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
     let save = createNewSave();

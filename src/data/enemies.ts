@@ -168,5 +168,26 @@ export const ENEMIES = [
     experienceReward: 140,
     goldReward: 110,
     drops: [{ itemId: 'mana-drop', chance: 0.4 }]
+  },
+  {
+    id: 'mordrahn',
+    name: 'Mordrahn, Hüter der Bindung',
+    level: 10,
+    element: 'shadow',
+    stats: {
+      maxHp: 224,
+      maxMp: 52,
+      attack: 28,
+      defense: 22,
+      magic: 32,
+      spirit: 24,
+      agility: 18
+    },
+    skillIds: ['spirit-bind', 'venom-spit', 'water-blade', 'storm-gust'],
+    weaknesses: ['holy', 'wind'],
+    resistances: ['shadow'],
+    experienceReward: 220,
+    goldReward: 180,
+    drops: [{ itemId: 'tempest-charm', chance: 0.5 }]
   }
 ] as const satisfies readonly EnemyDefinition[];

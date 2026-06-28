@@ -302,6 +302,17 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Neuer Content (umgesetzt):** 2 Gegner (`human-lancer`, `mordrahn-vanguard`), 2 Locations (`marsh-frontier`/`border-rift` mit unlockFlags), 3 Codex-Einträge (`border-fires`/`second-fracture`/`mordrahn-vanguard`), 2 Trigger-Encounter (`marsh-frontier-clash`@(5,13), `border-rift-vanguard`@(22,7)), Act-2-Optionen an Lyrre- (`muster`/`report-act2`) und Vael-Startdialog (`read-fracture`). Quest-Marker + Encounter-Marker greifen automatisch (datengetrieben).
 - **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` um einen Act-2-Durchlauf erweitert (Lyrre→Sumpfgrenze→Vael→Grenzriss→Lyrre, Questabschluss + 3 Codex-Unlocks; Marker-/Erreichbarkeits-Tests decken die neuen Encounter automatisch ab). `tsc` sauber, **93/93** grün, `build` ok.
 
+[x] **Act 3 – Finale: Die Wahl der Ahnen (fertig 2026-06-28, direkt auf `main`)** *(Story-Content, Abschluss des akzeptierten 3-Akt-Bogens)*
+- **Thema (lt. Story-Design):** Bündnis (Monster + gemäßigte Menschen) gegen **Mordrahn**; finale **Wahl** an der Bindung: **zerstören** (Freiheit/Risiko) vs. **neu schmieden** (Ordnung/Opfer) → **2 Enden + True Ending** über erfüllte Bindungen. Gated durch `story.act2.completed`.
+- **Quest `ancestors-choice` („Die Wahl der Ahnen", actId `act-3`), 4 Schritte (1 Dialog + 2 Encounter + Wahl-Dialog):**
+  1. `rally` (Sora, gated `act2.completed`+Quest inaktiv) → `story.act3.started`.
+  2. `breach` — Trigger-Encounter „Mordrahns Linie" (gated `act3.started`, ¬`breach.cleared`) → `story.breach.cleared`.
+  3. `confront` — Trigger-Encounter Boss **Mordrahn** (gated `breach.cleared`, ¬`mordrahn.defeated`) → `story.mordrahn.defeated` + Codex.
+  4. `the-choice` — Wahl-Dialog (Sora, gated `mordrahn.defeated`): **3 verzweigte Optionen** → `complete-quest` + `story.act3.completed` + genau ein Ende-Flag:
+     - `destroy` → `ending.freedom`; `reforge` → `ending.order`; `true-path` (gated `bond.sora.trust-1`+`bond.lyrre.trust-1`) → `ending.true`. Jedes Ende entsperrt einen eigenen Codex-Eintrag.
+- **Neuer Content (umgesetzt):** Boss `mordrahn` (Lv. 10), 2 Locations (`alliance-march`@(12,7)/`ancestor-heart`@(15,2)), 2 Trigger-Encounter (`alliance-breach`, `mordrahn-confrontation`), 4 Codex-Einträge (`mordrahn-keeper` + `ending-freedom`/`ending-order`/`ending-true`), Act-3-Optionen an Soras Startdialog (`rally` + verzweigte `choose-destroy`/`choose-reforge`/`choose-true`).
+- **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet **alle drei Ende-Pfade** (Freiheit/Ordnung/True) inkl. Questabschluss, Ende-Flag und Codex-Unlock, plus dass `choose-true` ohne erfüllte Bindungen unsichtbar bleibt. `tsc` sauber, **96/96** grün, `build` ok. **→ Der gesamte 3-Akt-Bogen ist jetzt durchspielbar.**
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

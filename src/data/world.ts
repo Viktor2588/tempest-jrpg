@@ -228,6 +228,39 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 240, itemIds: ['mana-drop'] }
+  },
+  {
+    id: 'ancestors-choice',
+    title: 'Die Wahl der Ahnen',
+    description: 'Schmiede ein Bündnis, stelle dich Mordrahn an der Bindung und entscheide über das Schicksal des Siegels.',
+    actId: 'act-3',
+    steps: [
+      {
+        id: 'rally',
+        title: 'Das Bündnis schmieden',
+        description: 'Vereine Tempests Monster und gemäßigte Menschen unter Soras Banner.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'breach',
+        title: 'Mordrahns Linie durchbrechen',
+        description: 'Schlag dich zur tiefen Bindung durch, bevor Mordrahn das Siegel neu schmiedet.',
+        locationId: 'alliance-march'
+      },
+      {
+        id: 'confront',
+        title: 'Mordrahn stellen',
+        description: 'Stell dich dem Hüter der Bindung — kein Echo, kein Stellvertreter mehr.',
+        locationId: 'ancestor-heart'
+      },
+      {
+        id: 'choose',
+        title: 'Über die Bindung entscheiden',
+        description: 'Zerstöre die Bindung (Freiheit) oder schmiede sie neu (Ordnung) — oder finde mit erfüllten Bindungen einen dritten Weg.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 400, itemIds: ['tempest-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -289,6 +322,26 @@ export const LOCATIONS = [
     description: 'Ein neuer Spalt in der Bindung, an dem Mordrahns Vorhut die Versiegelung weiter aufbricht.',
     identity: 'Act-2-Bosskampf: Mordrahns Vorhut und der sichtbare Beweis, dass die Bindung schneller zerfällt.',
     unlockFlag: 'story.fracture.read'
+  },
+  {
+    id: 'alliance-march',
+    name: 'Bündnismarsch',
+    kind: 'dungeon',
+    mapId: 'tempest-start',
+    position: { x: 12, y: 7 },
+    description: 'Der Vormarsch des Bündnisses aus Monstern und gemäßigten Menschen gegen Mordrahns Linie.',
+    identity: 'Act-3-Durchbruch: gemeinsame Front, in der Tempests Bündnis zum ersten Mal Seite an Seite kämpft.',
+    unlockFlag: 'story.act3.started'
+  },
+  {
+    id: 'ancestor-heart',
+    name: 'Herz der Bindung',
+    kind: 'shrine',
+    mapId: 'tempest-start',
+    position: { x: 15, y: 2 },
+    description: 'Die tiefe Kammer, in der die Bindung der Ahnen pulst — und an der Mordrahn seine letzte Entscheidung erzwingen will.',
+    identity: 'Act-3-Finale: Mordrahn selbst und die Wahl, die Bindung zu zerstören oder neu zu schmieden.',
+    unlockFlag: 'story.breach.cleared'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -341,6 +394,34 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner, die den Riss weiter aufreißen, damit ihr Hüter „die Welt retten" kann.',
     unlockFlag: 'story.vanguard.broken'
+  },
+  {
+    id: 'mordrahn-keeper',
+    title: 'Der Hüter und sein Opfer',
+    category: 'people',
+    body: 'Mordrahn war der letzte Wächter der Bindung. Um den ewigen Zerfall aufzuhalten, wollte er sie mit einem Massenopfer neu schmieden — keine Bosheit, sondern eine Verzweiflung, die jeden Preis zahlt. Besiegt, aber nicht widerlegt: die Frage, was mit der Bindung geschehen soll, bleibt.',
+    unlockFlag: 'story.mordrahn.defeated'
+  },
+  {
+    id: 'ending-freedom',
+    title: 'Ende: Freiheit',
+    category: 'history',
+    body: 'Die Bindung wurde zerschlagen. Monster und Menschen sind frei von der alten Ordnungsmagie — und von ihrem Schutz. Tempest beginnt ohne Netz: gefährlicher, aber selbstbestimmt.',
+    unlockFlag: 'ending.freedom'
+  },
+  {
+    id: 'ending-order',
+    title: 'Ende: Ordnung',
+    category: 'history',
+    body: 'Die Bindung wurde neu geschmiedet — ohne Massenopfer, aber mit einem Preis, den Tempest selbst trägt. Sicherheit auf Kosten eines Teils der Freiheit, die man gerade erst gewonnen hatte.',
+    unlockFlag: 'ending.order'
+  },
+  {
+    id: 'ending-true',
+    title: 'Wahres Ende: Geteilte Last',
+    category: 'history',
+    body: 'Weil die Bindungen zwischen Sora, Lyrre und dem Namenlosen hielten, fand Tempest einen dritten Weg: die alte Magie nicht zu zerstören und nicht zu erzwingen, sondern auf viele Schultern zu verteilen. Kein Opfer, keine Schutzlosigkeit — nur geteilte Verantwortung.',
+    unlockFlag: 'ending.true'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -463,6 +544,76 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'rally',
+            label: 'Das Bündnis schmieden',
+            nextNodeId: 'rally-node',
+            requirements: [
+              { flag: 'story.act2.completed' },
+              { questStatus: { questId: 'ancestors-choice', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'ancestors-choice' },
+              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'rally' },
+              { type: 'set-flag', flag: 'story.act3.started', value: true }
+            ]
+          },
+          {
+            id: 'choose-destroy',
+            label: 'Bindung zerstören (Freiheit)',
+            nextNodeId: 'end-freedom',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { flag: 'story.mordrahn.defeated' },
+              { notFlag: 'story.act3.completed' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'choose' },
+              { type: 'complete-quest', questId: 'ancestors-choice' },
+              { type: 'set-flag', flag: 'story.act3.completed', value: true },
+              { type: 'set-flag', flag: 'ending.freedom', value: true },
+              { type: 'add-gold', amount: 400 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
+            id: 'choose-reforge',
+            label: 'Bindung neu schmieden (Ordnung)',
+            nextNodeId: 'end-order',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { flag: 'story.mordrahn.defeated' },
+              { notFlag: 'story.act3.completed' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'choose' },
+              { type: 'complete-quest', questId: 'ancestors-choice' },
+              { type: 'set-flag', flag: 'story.act3.completed', value: true },
+              { type: 'set-flag', flag: 'ending.order', value: true },
+              { type: 'add-gold', amount: 400 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
+            id: 'choose-true',
+            label: 'Die Last teilen (nur mit starken Bindungen)',
+            nextNodeId: 'end-true',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { flag: 'story.mordrahn.defeated' },
+              { notFlag: 'story.act3.completed' },
+              { flag: 'bond.sora.trust-1' },
+              { flag: 'bond.lyrre.trust-1' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'choose' },
+              { type: 'complete-quest', questId: 'ancestors-choice' },
+              { type: 'set-flag', flag: 'story.act3.completed', value: true },
+              { type: 'set-flag', flag: 'ending.true', value: true },
+              { type: 'add-gold', amount: 600 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 2 }
+            ]
+          },
+          {
             id: 'state',
             label: 'Was ist Tempest?',
             nextNodeId: 'state'
@@ -492,6 +643,30 @@ export const DIALOGS = [
         speaker: 'Sora',
         text: 'Tempest ist noch klein: ein Feuerkreis, ein Vorratszelt, ein paar Mauern. Aber jeder Name hier ist ein Versprechen, nicht nur ein Etikett.',
         choices: [{ id: 'end', label: 'Verstanden' }]
+      },
+      {
+        id: 'rally-node',
+        speaker: 'Sora',
+        text: 'Dann ist es Zeit. Monster und gemäßigte Menschen unter einem Banner — Mordrahn rechnet nicht damit. Brich seine Linie und stell ihn am Herz der Bindung.',
+        choices: [{ id: 'end', label: 'Zum Bündnismarsch' }]
+      },
+      {
+        id: 'end-freedom',
+        speaker: 'Sora',
+        text: 'Die Bindung ist zerschlagen. Wir sind frei — und schutzlos. Tempest beginnt ohne Netz, aber als unsere eigene Wahl. Das tragen wir gemeinsam.',
+        choices: [{ id: 'end', label: 'Frei und verantwortlich' }]
+      },
+      {
+        id: 'end-order',
+        speaker: 'Sora',
+        text: 'Wir haben sie neu geschmiedet — ohne Opfer, aber zu einem Preis, den wir selbst zahlen. Sicherheit, die uns ein Stück der Freiheit kostet. Auch das ist eine Gründung.',
+        choices: [{ id: 'end', label: 'Geordnet, aber wachsam' }]
+      },
+      {
+        id: 'end-true',
+        speaker: 'Sora',
+        text: 'Weil unsere Bindungen hielten, mussten wir nicht wählen zwischen Opfer und Schutzlosigkeit. Wir verteilen die alte Last auf viele Schultern — kein Held trägt sie allein. So bleibt Tempest.',
+        choices: [{ id: 'end', label: 'Geteilte Last' }]
       }
     ]
   },
@@ -807,6 +982,39 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'story.vanguard.broken', value: true },
       { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'break-vanguard' }
+    ]
+  },
+  {
+    id: 'alliance-breach',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 12, y: 7 },
+    enemyIds: ['mordrahn-vanguard', 'human-lancer'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.act3.started' },
+      { notFlag: 'story.breach.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.breach.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'breach' }
+    ]
+  },
+  {
+    id: 'mordrahn-confrontation',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 15, y: 2 },
+    enemyIds: ['mordrahn'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.breach.cleared' },
+      { notFlag: 'story.mordrahn.defeated' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.mordrahn.defeated', value: true },
+      { type: 'set-flag', flag: 'codex.mordrahn-keeper', value: true },
+      { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'confront' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
