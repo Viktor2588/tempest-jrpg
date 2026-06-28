@@ -5,6 +5,7 @@ import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/s
 import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
 import { isWalkable, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
+import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { makeRng } from '../systems/rng';
 import {
   applyWorldState,
@@ -53,6 +54,7 @@ export class OverworldScene extends Phaser.Scene {
 
   create(): void {
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.mapId = this.save.location.mapId;
     const map = this.map = getMap(this.mapId);
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
@@ -205,6 +207,7 @@ export class OverworldScene extends Phaser.Scene {
 
   private onResume(): void {
     this.save = loadSave(window.localStorage) ?? this.save;
+    this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
     this.maybeShowEnding();
@@ -374,10 +377,10 @@ export class OverworldScene extends Phaser.Scene {
     const gate = getAdjacentTravel(this.mapId, this.pos, createWorldState(this.save));
     if (gate?.travelTo) {
       // Region wechseln: Standort im Save setzen und die Szene mit der Zielkarte neu starten.
-      this.save = {
+      this.save = this.withCurrentRangaTravelDiscovery({
         ...this.save,
         location: { mapId: gate.travelTo.mapId, x: gate.travelTo.x, y: gate.travelTo.y, facing: 'down' }
-      };
+      });
       autoSave(window.localStorage, this.save);
       fadeToScene(this, 'Overworld');
     }
@@ -404,7 +407,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private persistPosition(facing: Dir): void {
-    this.save = {
+    this.save = this.withCurrentRangaTravelDiscovery({
       ...this.save,
       location: {
         mapId: this.mapId,
@@ -412,8 +415,13 @@ export class OverworldScene extends Phaser.Scene {
         y: this.pos.y,
         facing: facing === 'up' || facing === 'down' || facing === 'left' || facing === 'right' ? facing : 'down'
       }
-    };
+    });
     autoSave(window.localStorage, this.save);
+  }
+
+  private withCurrentRangaTravelDiscovery(save: SaveGameV2): SaveGameV2 {
+    const flags = discoverRangaTravelFlags(createWorldState(save), save.location);
+    return flags === save.flags ? save : autoSave(window.localStorage, { ...save, flags });
   }
 
   private cx(tileX: number): number { return tileX * TILE + TILE / 2; }

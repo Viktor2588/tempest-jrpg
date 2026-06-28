@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
 import {
   buildMenuView,
   EQUIPMENT_SLOTS,
@@ -33,7 +34,7 @@ import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSki
 import { portraitKey } from '../render/portraitAtlas';
 import type { PortraitKind } from '../render/artSpec';
 
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex';
+type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
@@ -42,7 +43,8 @@ const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'status', label: 'Status' },
   { id: 'growth', label: 'Talente' },
   { id: 'quests', label: 'Quests' },
-  { id: 'codex', label: 'Codex' }
+  { id: 'codex', label: 'Codex' },
+  { id: 'travel', label: 'Ranga' }
 ];
 
 export class MenuScene extends Phaser.Scene {
@@ -113,7 +115,8 @@ export class MenuScene extends Phaser.Scene {
     else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
     else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
     else if (this.selectedTab === 'quests') this.drawQuestLog();
-    else this.drawCodex();
+    else if (this.selectedTab === 'codex') this.drawCodex();
+    else this.drawRangaTravel();
   }
 
   private drawMemberList(view: MenuView): void {
@@ -527,6 +530,58 @@ export class MenuScene extends Phaser.Scene {
     });
   }
 
+  private drawRangaTravel(): void {
+    const view = buildRangaTravelView(createWorldState(this.save), this.save.location);
+    this.sectionTitle('Ranga-Scout & Schnellreise');
+
+    this.panel(300, 170, 590, 92);
+    this.drawPortrait('ranga', 348, 170, 56);
+    this.layer.add(this.add.text(392, 132, view.scout.title, {
+      fontFamily: 'sans-serif',
+      fontSize: '16px',
+      color: view.enabled ? '#e9c56c' : '#6f83a5'
+    }));
+    this.layer.add(this.add.text(392, 156, view.scout.body, {
+      fontFamily: 'sans-serif',
+      fontSize: '12px',
+      color: '#cbd6e8',
+      wordWrap: { width: 470 }
+    }));
+    if (view.scout.warning) {
+      this.layer.add(this.add.text(392, 206, `⚠ ${view.scout.warning}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#ffd6de',
+        wordWrap: { width: 470 }
+      }));
+    }
+
+    this.layer.add(this.add.text(300, 238, 'Entdeckte sichere Reisepunkte', {
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      color: '#cdeaff'
+    }));
+    view.destinations.forEach((destination, index) => {
+      const y = 278 + index * 44;
+      const label = `${destination.name} · ${destination.dangerLabel}`;
+      const clickable = destination.status === 'available';
+      this.button(300, y, 238, label, () => {
+        if (!clickable) {
+          this.message = destination.reason;
+          this.refresh();
+          return;
+        }
+        this.fastTravelWithRanga(destination.id);
+      }, travelStatusColor(destination.status));
+      this.layer.add(this.add.text(552, y - 13, destination.reason, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: clickable ? '#8dffc2' : '#9fb2cc',
+        wordWrap: { width: 330 }
+      }));
+    });
+  }
+
   private applyResult(result: { ok: boolean; state: MenuGameState; message: string }): void {
     this.state = result.state;
     this.message = result.message;
@@ -586,6 +641,22 @@ export class MenuScene extends Phaser.Scene {
     });
   }
 
+  private fastTravelWithRanga(destinationId: string): void {
+    const result = resolveRangaTravel(createWorldState(this.save), this.save.location, destinationId);
+    this.message = result.message;
+    if (!result.ok || !result.location) {
+      this.refresh();
+      return;
+    }
+    this.save = autoSave(window.localStorage, {
+      ...this.save,
+      location: result.location
+    });
+    this.scene.stop('Overworld');
+    this.scene.stop();
+    this.scene.start('Overworld');
+  }
+
   private close(): void {
     this.scene.resume('Overworld');
     this.scene.stop();
@@ -634,6 +705,14 @@ function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'weapon') return 'Waffe';
   if (slot === 'armor') return 'Rüstung';
   return 'Accessoire';
+}
+
+function travelStatusColor(status: RangaTravelStatus): number {
+  if (status === 'available') return 0x1f3a2f;
+  if (status === 'current') return 0x30506f;
+  if (status === 'unknown') return 0x2b3140;
+  if (status === 'unsafe') return 0x4a2f34;
+  return 0x242b38;
 }
 
 function portraitKeyForCharacter(characterId: string): string | null {

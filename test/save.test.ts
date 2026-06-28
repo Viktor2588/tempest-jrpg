@@ -197,7 +197,9 @@ describe('save.ts', () => {
   });
 
   it('enthält in einem frischen Spielstand ausschließlich Rimuru', () => {
-    expect(createNewSave().party.active.map((member) => member.characterId)).toEqual(['rimuru']);
+    const save = createNewSave();
+    expect(save.party.active.map((member) => member.characterId)).toEqual(['rimuru']);
+    expect(save.flags['compat.legacyArc.visible']).toBeUndefined();
   });
 
   it('trägt Story-Rekruten aus Flags nach, ohne Bestehende zu entfernen (Rückwärtskompat)', () => {
@@ -224,5 +226,19 @@ describe('save.ts', () => {
 
     const all = [...migrated.party.active, ...migrated.party.reserve].map((member) => member.characterId);
     expect(all.filter((id) => id === 'gobta')).toHaveLength(1);
+  });
+
+  it('markiert alte Originalbogen-Saves für Legacy-Kompatibilität', () => {
+    const base = createNewSave();
+    const migrated = normalize({
+      ...base,
+      flags: { 'story.act3.started': true },
+      quests: {
+        'ancestors-choice': { status: 'active', completedStepIds: ['rally'] }
+      }
+    });
+
+    expect(migrated.flags['compat.legacyArc.visible']).toBe(true);
+    expect(migrated.flags['story.original-arc.optional']).toBe(true);
   });
 });
