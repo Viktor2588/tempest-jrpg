@@ -1,6 +1,6 @@
 import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS, type WorldLocationDefinition } from '../src/data/world';
 import { ENEMIES } from '../src/data/enemies';
-import { JURA_FIELD } from '../src/data/maps';
+import { JURA_FIELD, MAPS } from '../src/data/maps';
 import { SKILL_TREES } from '../src/data';
 import { chooseAutoAction } from '../src/systems/autoBattle';
 import {
@@ -107,8 +107,10 @@ function regionTravelOrder(startMapId: string): string[] {
 }
 
 // Encounter-/Regionsbalance: (1) jeder Encounter referenziert echte Gegner mit Level ≥ 1,
-// (2) die ambiente (Zufalls-)Schwierigkeit steigt entlang der Reisekette monoton — keine
-// Region ist ein Rückschritt. Story-Trigger (Bosse) dürfen spiken und werden nicht gewertet.
+// (2) jede registrierte Karte ist über Gateways vom echten Startort erreichbar (keine
+// verwaiste Region), (3) die ambiente (Zufalls-)Schwierigkeit steigt entlang der
+// Reisekette monoton — keine Region ist ein Rückschritt. Story-Trigger (Bosse) dürfen
+// spiken und werden nicht gewertet.
 export function analyzeEncounterBalance(): QaIssue[] {
   const issues: QaIssue[] = [];
   const levelOf = new Map<string, number>(ENEMIES.map((enemy) => [enemy.id, enemy.level]));
@@ -124,8 +126,18 @@ export function analyzeEncounterBalance(): QaIssue[] {
     }
   }
 
+  // Vom tatsächlichen Startort der Reise folgen (statt hartkodiert), damit der Gate
+  // auch neue Prolog-/Vorregionen automatisch abdeckt.
+  const travelOrder = regionTravelOrder(createNewSave().location.mapId);
+  const reachable = new Set(travelOrder);
+  for (const mapId of Object.keys(MAPS)) {
+    if (!reachable.has(mapId)) {
+      issues.push({ path: `qa.balance.region.${mapId}.unreachable`, message: 'Karte ist über kein Gateway vom Start aus erreichbar.' });
+    }
+  }
+
   let previous: { floor: number; ceil: number; mapId: string } | null = null;
-  for (const mapId of regionTravelOrder('tempest-start')) {
+  for (const mapId of travelOrder) {
     const ambient = ENCOUNTERS
       .filter((encounter) => encounter.mapId === mapId && encounter.kind === 'random')
       .flatMap((encounter) => encounter.enemyIds.map((id) => levelOf.get(id) ?? 0));
