@@ -29,7 +29,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildCodexView, buildQuestLog, createWorldState } from '../systems/world';
+import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { portraitKey } from '../render/portraitAtlas';
 import type { PortraitKind } from '../render/artSpec';
@@ -69,6 +69,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
+  private selectedQuestId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
 
@@ -115,6 +116,7 @@ export class MenuScene extends Phaser.Scene {
         // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
+        this.selectedQuestId = null;
         this.refresh();
       }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
     });
@@ -419,42 +421,32 @@ export class MenuScene extends Phaser.Scene {
       }));
       return;
     }
-    // Auf der Quests-Seite ist die Party-Leiste ausgeblendet → volle Breite (x=24..924).
-    // Start tief genug, damit das erste Panel den Sektionstitel nicht überdeckt.
+    // Detailansicht einer angetippten Quest (Übersicht bleibt Zusammenfassung).
+    const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
+    if (detail) {
+      this.drawQuestDetail(detail);
+      return;
+    }
+    // Übersicht: aktive Quests als Zusammenfassung (Titel + aktueller Schritt + „Details").
     const active = quests.filter((q) => q.status === 'active').slice(0, 3);
     const completed = quests.filter((q) => q.status === 'completed');
-    let cursorY = 196;
+    let cursorY = 192;
     active.forEach((quest) => {
       const y = cursorY;
-      this.panel(24, y, 900, 108);
-      this.layer.add(this.add.text(42, y - 42, `${quest.title} · Aktiv`, {
-        fontFamily: 'sans-serif',
-        fontSize: '15px',
-        color: '#e9c56c'
+      this.panel(24, y, 900, 92);
+      this.layer.add(this.add.text(42, y - 30, `${quest.title} · Aktiv`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
       }));
-      // Belohnung oben rechts im Panel (nicht mehr auf der unteren Kante).
-      this.layer.add(this.add.text(906, y - 41, `Belohnung: ${quest.rewardGold} Gold`, {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: '#e9c56c'
+      this.layer.add(this.add.text(906, y - 29, `Belohnung: ${quest.rewardGold} Gold`, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'
       }).setOrigin(1, 0));
       const currentStep = quest.steps.find((step) => step.current);
-      this.layer.add(this.add.text(42, y - 16, currentStep ? `→ ${currentStep.description}` : quest.description, {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: currentStep ? '#e9c56c' : '#9fb2cc',
-        wordWrap: { width: 850 }
+      this.layer.add(this.add.text(42, y - 4, currentStep ? `→ ${currentStep.description}` : quest.description, {
+        fontFamily: 'sans-serif', fontSize: '12px',
+        color: currentStep ? '#e9c56c' : '#9fb2cc', wordWrap: { width: 700 }
       }));
-      const visibleSteps = quest.steps.filter((step) => step.completed || step.current).slice(0, 3);
-      visibleSteps.forEach((step, stepIndex) => {
-        const marker = step.completed ? '✓' : '◆';
-        this.layer.add(this.add.text(42, y + 14 + stepIndex * 18, `${marker} ${step.title}`, {
-          fontFamily: 'sans-serif',
-          fontSize: '12px',
-          color: step.completed ? '#8dffc2' : '#e9eef7'
-        }));
-      });
-      cursorY += 122;
+      this.button(800, y + 16, 110, 'Details ›', () => { this.selectedQuestId = quest.id; this.refresh(); });
+      cursorY += 106;
     });
     // Abgeschlossene Quests kompakt einzeilig als Archiv, soweit Platz bleibt.
     if (completed.length > 0) {
@@ -483,6 +475,32 @@ export class MenuScene extends Phaser.Scene {
         }));
       }
     }
+  }
+
+  private drawQuestDetail(quest: QuestLogEntryView): void {
+    this.sectionTitle('Quest-Details');
+    this.button(744, 116, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
+
+    this.layer.add(this.add.text(42, 158, quest.title, { fontFamily: 'sans-serif', fontSize: '20px', color: '#e9c56c' }));
+    const statusLabel = quest.status === 'active' ? 'Aktiv' : 'Abgeschlossen';
+    const rewardItems = quest.rewardItemIds.length > 0 ? ` · Items: ${quest.rewardItemIds.join(', ')}` : '';
+    this.layer.add(this.add.text(42, 188, `Status: ${statusLabel} · Belohnung: ${quest.rewardGold} Gold${rewardItems}`, {
+      fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+    }));
+    this.layer.add(this.add.text(42, 212, quest.description, {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', wordWrap: { width: 880 }
+    }));
+
+    this.layer.add(this.add.text(42, 254, 'Schritte', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
+    quest.steps.forEach((step, index) => {
+      const marker = step.completed ? '✓' : step.current ? '◆' : '·';
+      const color = step.completed ? '#8dffc2' : step.current ? '#e9c56c' : '#9fb2cc';
+      const sy = 282 + index * 42;
+      this.layer.add(this.add.text(42, sy, `${marker} ${step.title}`, { fontFamily: 'sans-serif', fontSize: '13px', color }));
+      this.layer.add(this.add.text(66, sy + 16, step.description, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 840 }
+      }));
+    });
   }
 
   private drawCodex(): void {
