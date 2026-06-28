@@ -313,6 +313,58 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 90, itemIds: ['healing-herb'] }
+  },
+  {
+    id: 'border-runner',
+    title: 'Grenzgänger',
+    description: 'Lyrre bittet, einen Deserteurstrupp an der Osthandelsroute abzufangen — möglichst ohne neue Feindschaft zu säen.',
+    steps: [
+      {
+        id: 'accept-deserter',
+        title: 'Auftrag annehmen',
+        description: 'Hör dir Lyrres Bitte an und zieh zur Osthandelsroute.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'stop-deserter',
+        title: 'Deserteure stellen',
+        description: 'Fang den Deserteurstrupp an der Osthandelsroute ab.',
+        locationId: 'east-route'
+      },
+      {
+        id: 'report-deserter',
+        title: 'Lyrre berichten',
+        description: 'Bring Lyrre Nachricht, dass die Route wieder sicher ist.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 110, itemIds: ['mana-drop'] }
+  },
+  {
+    id: 'apex-bounty',
+    title: 'Apex: Urdirewolf',
+    description: 'Ein uralter Urdirewolf ist erwacht — Rigurds gefährlichstes Kopfgeld, nur für gestählte Helden.',
+    steps: [
+      {
+        id: 'accept-apex',
+        title: 'Apex-Kopfgeld annehmen',
+        description: 'Nimm Rigurds gefährlichstes Kopfgeld an.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-apex',
+        title: 'Urdirewolf erlegen',
+        description: 'Stell und erlege den Urdirewolf in der Südsenke.',
+        locationId: 'south-hollow'
+      },
+      {
+        id: 'report-apex',
+        title: 'Apex-Kopfgeld kassieren',
+        description: 'Bring Rigurd den Beweis des Apex-Jagderfolgs.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 300, itemIds: ['tempest-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -414,6 +466,26 @@ export const LOCATIONS = [
     description: 'Eine alte Bruchkante im Norden, an der streunende Geist-Echos der Bindung umherirren.',
     identity: 'Optionaler Bannort: ein streunendes Echo, das Vaels Messungen stört.',
     unlockFlag: 'sidequest.echo.started'
+  },
+  {
+    id: 'east-route',
+    name: 'Osthandelsroute',
+    kind: 'outpost',
+    mapId: 'tempest-start',
+    position: { x: 20, y: 5 },
+    description: 'Die östliche Handelsroute, auf der ein Deserteurstrupp Reisende schikaniert.',
+    identity: 'Optionaler Abfangort: Deserteur-Söldner an der Grenze.',
+    unlockFlag: 'sidequest.deserter.started'
+  },
+  {
+    id: 'south-hollow',
+    name: 'Südsenke',
+    kind: 'dungeon',
+    mapId: 'tempest-start',
+    position: { x: 13, y: 13 },
+    description: 'Eine tiefe Senke im Süden, in der ein uralter Urdirewolf sein Revier hält.',
+    identity: 'Optionaler Apex-Bosskampf (Postgame): der Urdirewolf.',
+    unlockFlag: 'sidequest.apex.started'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -508,6 +580,20 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Ein losgerissenes Bruchstück der Bindung, das als Geist umherirrt. Körperlich kaum greifbar, aber magisch gefährlich; heilige und windgebundene Magie zerstreut es.',
     unlockFlag: 'sidequest.echo.cleared'
+  },
+  {
+    id: 'bestiary-human-deserter',
+    title: 'Bestiarium: Deserteur-Söldner',
+    category: 'people',
+    body: 'Fahnenflüchtige Söldner, die zwischen den Fronten plündern. Diszipliniert und schnell, aber ohne Magie — Schattenmagie bricht ihre Moral am ehesten.',
+    unlockFlag: 'sidequest.deserter.cleared'
+  },
+  {
+    id: 'bestiary-elder-direwolf',
+    title: 'Bestiarium: Urdirewolf',
+    category: 'people',
+    body: 'Der Stammvater aller Direwölfe — ein Apex-Räuber von gewaltiger Kraft und Geschwindigkeit. Nur erdgebundene Magie bringt den Koloss ins Wanken. Ein Sieg über ihn ist ein Prüfstein.',
+    unlockFlag: 'sidequest.apex.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -579,6 +665,35 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'accept-apex',
+            label: 'Apex-Kopfgeld: Urdirewolf',
+            nextNodeId: 'apex-accepted',
+            requirements: [
+              { flag: 'story.act3.completed' },
+              { questStatus: { questId: 'apex-bounty', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'apex-bounty' },
+              { type: 'complete-quest-step', questId: 'apex-bounty', stepId: 'accept-apex' },
+              { type: 'set-flag', flag: 'sidequest.apex.started', value: true }
+            ]
+          },
+          {
+            id: 'report-apex',
+            label: 'Apex-Kopfgeld kassieren',
+            nextNodeId: 'apex-paid',
+            requirements: [
+              { questStatus: { questId: 'apex-bounty', status: 'active' } },
+              { flag: 'sidequest.apex.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'apex-bounty', stepId: 'report-apex' },
+              { type: 'complete-quest', questId: 'apex-bounty' },
+              { type: 'add-gold', amount: 300 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
             id: 'bye',
             label: 'Später',
             nextNodeId: 'bye'
@@ -590,6 +705,18 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Gut. Der Trainingspfad im Osten ist sicher genug, aber bleib wachsam.',
         choices: [{ id: 'end', label: 'Los geht’s' }]
+      },
+      {
+        id: 'apex-accepted',
+        speaker: 'Rigurd',
+        text: 'Du willst den Urdirewolf? Mutig. Er hält die Südsenke seit Generationen. Nur wer Mordrahn bezwungen hat, sollte das überhaupt erwägen. Viel Glück — du wirst es brauchen.',
+        choices: [{ id: 'end', label: 'Zur Südsenke' }]
+      },
+      {
+        id: 'apex-paid',
+        speaker: 'Rigurd',
+        text: 'Beim Sturm — du hast ihn wirklich erlegt. Das ist eine Legende wert. Hier, das volle Apex-Kopfgeld. Tempest verneigt sich.',
+        choices: [{ id: 'end', label: 'Erledigt' }]
       },
       {
         id: 'completed',
@@ -966,6 +1093,36 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'accept-deserter',
+            label: 'Grenzgänger abfangen',
+            nextNodeId: 'deserter-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'border-runner', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'border-runner' },
+              { type: 'complete-quest-step', questId: 'border-runner', stepId: 'accept-deserter' },
+              { type: 'set-flag', flag: 'sidequest.deserter.started', value: true }
+            ]
+          },
+          {
+            id: 'report-deserter',
+            label: 'Route gesichert melden',
+            nextNodeId: 'deserter-done',
+            requirements: [
+              { questStatus: { questId: 'border-runner', status: 'active' } },
+              { flag: 'sidequest.deserter.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'border-runner', stepId: 'report-deserter' },
+              { type: 'complete-quest', questId: 'border-runner' },
+              { type: 'set-flag', flag: 'bond.lyrre.trust-2', value: true },
+              { type: 'add-gold', amount: 110 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
             id: 'end',
             label: 'Später'
           }
@@ -976,6 +1133,18 @@ export const DIALOGS = [
         speaker: 'Lyrre',
         text: 'Ich begleite euch bis zum Hainrand. Wenn ein Mensch Monster nur als Horde sieht, muss Tempest das Gegenbeispiel werden.',
         choices: [{ id: 'end', label: 'Zum Rat' }]
+      },
+      {
+        id: 'deserter-accepted',
+        speaker: 'Lyrre',
+        text: 'An der Osthandelsroute plündert ein Deserteurstrupp. Stell sie — aber lass Überlebende laufen, wenn du kannst. Tempest braucht Beispiele, keine Leichen.',
+        choices: [{ id: 'end', label: 'Zur Osthandelsroute' }]
+      },
+      {
+        id: 'deserter-done',
+        speaker: 'Lyrre',
+        text: 'Die Route ist wieder offen, und du hast nicht mehr Blut vergossen als nötig. Genau so gewinnt Tempest Vertrauen. Danke.',
+        choices: [{ id: 'end', label: 'Verstanden' }]
       },
       {
         id: 'after',
@@ -1215,6 +1384,38 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.echo.cleared', value: true },
       { type: 'complete-quest-step', questId: 'relic-echoes', stepId: 'clear-echo' }
+    ]
+  },
+  {
+    id: 'east-route-deserter',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 20, y: 5 },
+    enemyIds: ['human-deserter', 'human-lancer'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.deserter.started' },
+      { notFlag: 'sidequest.deserter.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.deserter.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'border-runner', stepId: 'stop-deserter' }
+    ]
+  },
+  {
+    id: 'south-hollow-apex',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 13, y: 13 },
+    enemyIds: ['elder-direwolf'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.apex.started' },
+      { notFlag: 'sidequest.apex.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.apex.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'apex-bounty', stepId: 'hunt-apex' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

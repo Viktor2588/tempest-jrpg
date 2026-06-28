@@ -215,6 +215,31 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-stray-echo')?.unlocked).toBe(true);
   });
 
+  it('Nebenquest: Lyrres „Grenzgänger" ist annehm- und abschließbar', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+    save = talk(save, 'lyrre', 'accept-deserter');
+    expect(visibleTriggerIds(save)).toContain('east-route-deserter');
+    save = clearTriggerAt(save, { x: 20, y: 5 });
+    save = talk(save, 'lyrre', 'report-deserter');
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-runner')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-human-deserter')?.unlocked).toBe(true);
+  });
+
+  it('Nebenquest (Postgame): Rigurds Apex-Kopfgeld „Urdirewolf" ist erst nach Act 3 verfügbar', () => {
+    // Vor Act-3-Abschluss ist das Apex-Kopfgeld nicht sichtbar.
+    const preGame = createNewSave();
+    expect(startDialogForNpc(createWorldState(preGame), 'rigurd').choices.map((c) => c.id)).not.toContain('accept-apex');
+
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act3.completed': true } };
+    expect(startDialogForNpc(createWorldState(save), 'rigurd').choices.map((c) => c.id)).toContain('accept-apex');
+    save = talk(save, 'rigurd', 'accept-apex');
+    expect(visibleTriggerIds(save)).toContain('south-hollow-apex');
+    save = clearTriggerAt(save, { x: 13, y: 13 });
+    save = talk(save, 'rigurd', 'report-apex');
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'apex-bounty')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-elder-direwolf')?.unlocked).toBe(true);
+  });
+
   it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {
     const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
     let save = createNewSave();

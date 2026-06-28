@@ -324,6 +324,11 @@ test/                  Vitest-Suiten gegen src/systems & src/data
   - **`relic-echoes` („Streunende Echos", Vael):** gated `story.act1.completed`. Neuer Gegner `stray-echo`, Encounter @(8,2), Codex `bestiary-stray-echo`.
 - **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet beide Nebenquests (Annahme→Kampf→Bericht, Questabschluss + Bestiarium-Codex); Marker-/Erreichbarkeitstests decken die neuen Encounter @(2,8)/(8,2) automatisch. `tsc` sauber, **99/99** grün, `build` ok. Quest-Marker + Encounter-Marker leiten automatisch (datengetrieben).
 
+[x] **Mehr Content: Nebenquests Welle 2 (fertig 2026-06-28, direkt auf `main`)** *(Spielerwunsch „mehr Content")*
+- **`border-runner` („Grenzgänger", Lyrre):** gated `story.act1.completed`. Neuer Gegner `human-deserter` (Deserteurstrupp), Encounter @(20,5), Codex `bestiary-human-deserter`, setzt zusätzlich `bond.lyrre`-Flag (thematisch).
+- **`apex-bounty` („Apex: Urdirewolf", Rigurd, Postgame):** gated `story.act3.completed`. Superboss `elder-direwolf` (Lv. 12), Encounter @(13,13), große Belohnung + Codex `bestiary-elder-direwolf` — Anreiz nach dem Finale.
+- **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet beide Quests (inkl. Postgame-Gate: Apex erst nach Act 3 sichtbar); Marker-/Erreichbarkeit @(20,5)/(13,13) automatisch. `tsc` sauber, **101/101** grün, `build` ok.
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

@@ -231,5 +231,47 @@ export const ENEMIES = [
     experienceReward: 90,
     goldReward: 70,
     drops: [{ itemId: 'mana-drop', chance: 0.45 }]
+  },
+  {
+    id: 'human-deserter',
+    name: 'Deserteur-Söldner',
+    level: 6,
+    element: 'neutral',
+    stats: {
+      maxHp: 102,
+      maxMp: 10,
+      attack: 23,
+      defense: 16,
+      magic: 8,
+      spirit: 11,
+      agility: 18
+    },
+    skillIds: ['goblin-feint', 'battle-cry'],
+    weaknesses: ['shadow'],
+    resistances: [],
+    experienceReward: 70,
+    goldReward: 58,
+    drops: [{ itemId: 'tempest-training-sword', chance: 0.1 }]
+  },
+  {
+    id: 'elder-direwolf',
+    name: 'Urdirewolf',
+    level: 12,
+    element: 'neutral',
+    stats: {
+      maxHp: 320,
+      maxMp: 30,
+      attack: 36,
+      defense: 26,
+      magic: 14,
+      spirit: 20,
+      agility: 28
+    },
+    skillIds: ['direwolf-rush', 'goblin-feint', 'quick-step'],
+    weaknesses: ['earth'],
+    resistances: ['neutral'],
+    experienceReward: 320,
+    goldReward: 260,
+    drops: [{ itemId: 'tempest-charm', chance: 0.6 }]
   }
 ] as const satisfies readonly EnemyDefinition[];
