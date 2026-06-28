@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { chooseAutoAction } from '../src/systems/autoBattle';
 import {
-  act, enemyTurn, isPlayerTurn, renderView, startBattle, createDefaultBattleParty
+  act,
+  createDefaultBattleParty,
+  enemyTurn,
+  isPlayerTurn,
+  renderView,
+  startBattle,
+  type BattleUnitInput
 } from '../src/systems/battle';
 import { ENEMIES } from '../src/data';
 
@@ -21,6 +27,59 @@ function autoRun(seed: number, enemyIds: string[]) {
     }
   }
   return { status: renderView(state).status, steps: guard };
+}
+
+function autoHero(
+  sourceId: string,
+  name: string,
+  overrides: Partial<BattleUnitInput> = {}
+): BattleUnitInput {
+  return {
+    sourceId,
+    name,
+    side: 'party',
+    level: 6,
+    stats: {
+      maxHp: 150,
+      maxMp: 60,
+      attack: 24,
+      defense: 18,
+      magic: 25,
+      spirit: 18,
+      agility: 20
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: ['slime-strike', 'water-blade'],
+    ...overrides
+  };
+}
+
+function autoEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
+  return {
+    sourceId: 'auto-test-enemy',
+    name: 'Prüfgegner',
+    side: 'enemy',
+    level: 5,
+    stats: {
+      maxHp: 200,
+      maxMp: 20,
+      attack: 18,
+      defense: 12,
+      magic: 12,
+      spirit: 10,
+      agility: 8
+    },
+    element: 'fire',
+    weaknesses: ['water'],
+    resistances: ['fire'],
+    skillIds: [],
+    experienceReward: 10,
+    goldReward: 5,
+    drops: [],
+    ...overrides
+  };
 }
 
 describe('autoBattle', () => {
@@ -48,6 +107,45 @@ describe('autoBattle', () => {
       type: 'item',
       itemId: 'healing-herb',
       targetId: hero.id
+    });
+  });
+
+  it('nutzt volle Team-Leiste für Synergieangriffe', () => {
+    const state = startBattle({
+      party: [
+        autoHero('rimuru', 'Rimuru', { synergyPartnerIds: ['gobta'] }),
+        autoHero('gobta', 'Gobta', { synergyPartnerIds: ['rimuru'] })
+      ],
+      enemies: [autoEnemy()],
+      teamMeter: 100,
+      seed: 9
+    });
+    const actor = state.combatants.find((combatant) => combatant.sourceId === 'rimuru')!;
+    const partner = state.combatants.find((combatant) => combatant.sourceId === 'gobta')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'team-attack',
+      partnerId: partner.id,
+      targetId: enemy.id
+    });
+  });
+
+  it('bevorzugt Schwächen-Skills gegenüber billigeren neutralen Skills', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', { skillIds: ['slime-strike', 'water-blade'] })],
+      enemies: [autoEnemy()],
+      seed: 10
+    });
+    const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'skill',
+      skillId: 'water-blade',
+      targetId: enemy.id
     });
   });
 

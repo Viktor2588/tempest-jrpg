@@ -1,7 +1,7 @@
 // Auto-Kampf: wählt eine sinnvolle Aktion für die aktive Party-Einheit.
 // Phaser-/DOM-frei → headless testbar. Heuristik: erst Heilung bei niedrigem LP,
-// sonst günstigste verfügbare Schadensfähigkeit, sonst normaler Angriff — Ziel
-// ist der Gegner mit den wenigsten LP.
+// dann volle Team-Leisten, danach wirkungsvolle Schadensfähigkeiten und zuletzt
+// normaler Angriff.
 import { act, currentActor, renderView, type BattleState } from './battle';
 import { ITEMS, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
@@ -11,6 +11,7 @@ export type BattleAction = Parameters<typeof act>[1];
 
 const HEAL_THRESHOLD = 0.4;
 const MP_RESTORE_THRESHOLD = 0.35;
+const TEAM_ATTACK_THRESHOLD = 100;
 const itemDefinitions: readonly ItemDefinition[] = ITEMS;
 
 function skillsOf(ids: readonly string[]): SkillDefinition[] {
@@ -28,6 +29,7 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
   const view = renderView(state);
   const enemies = view.enemies.filter((e) => !e.dead);
   const allies = view.party.filter((p) => !p.dead);
+  const enemyStates = state.combatants.filter((combatant) => combatant.side === 'enemy' && !combatant.dead);
   if (!enemies.length) return null;
 
   const known = skillsOf(actor.skillIds).filter((s) => actor.mp >= s.costMp);
@@ -44,15 +46,27 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
     return { type: 'item', itemId: healItem.id, targetId: lowAlly.id };
   }
 
-  const target = enemies.slice().sort((a, b) => a.hp - b.hp)[0]!;
+  const target = chooseTarget(enemyStates) ?? enemies.slice().sort((a, b) => a.hp - b.hp)[0]!;
 
-  // 2) Günstigste Schadensfähigkeit (kein Heal), falls bezahlbar.
-  const damage = known
-    .filter((s) => !s.tags.includes('heal') && s.target !== 'self' && s.target !== 'single-ally')
-    .sort((a, b) => a.costMp - b.costMp)[0];
+  const synergyPartner = allies.find((candidate) =>
+    candidate.id !== actor.id
+    && (
+      actor.synergyPartnerIds.includes(candidate.sourceId)
+      || candidate.synergyPartnerIds.includes(actor.sourceId)
+    )
+  );
+  if (view.teamMeter >= TEAM_ATTACK_THRESHOLD && synergyPartner) {
+    return { type: 'team-attack', partnerId: synergyPartner.id, targetId: target.id };
+  }
+
+  // 2) Wirkungsvollste Schadensfähigkeit, gewichtet nach Schwäche/Resistenz und AoE-Wert.
+  const damage = chooseDamageSkill(
+    known.filter((s) => !s.tags.includes('heal') && s.target !== 'self' && s.target !== 'single-ally'),
+    enemyStates
+  );
   if (damage) {
-    if (damage.target === 'all-enemies') return { type: 'skill', skillId: damage.id };
-    return { type: 'skill', skillId: damage.id, targetId: target.id };
+    if (damage.skill.target === 'all-enemies') return { type: 'skill', skillId: damage.skill.id };
+    return { type: 'skill', skillId: damage.skill.id, targetId: damage.targetId ?? target.id };
   }
 
   const nextDamageSkill = allKnownSkills
@@ -68,6 +82,64 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
 
   // 3) Standardangriff.
   return { type: 'attack', targetId: target.id };
+}
+
+function chooseTarget(enemies: BattleState['combatants']): BattleState['combatants'][number] | undefined {
+  return enemies.slice().sort((a, b) => {
+    const aBroken = a.statuses.some((status) => status.id === 'guard-break') ? 1 : 0;
+    const bBroken = b.statuses.some((status) => status.id === 'guard-break') ? 1 : 0;
+    return bBroken - aBroken
+      || b.phaseIndex - a.phaseIndex
+      || (a.hp / a.maxHp) - (b.hp / b.maxHp);
+  })[0];
+}
+
+function chooseDamageSkill(
+  skills: readonly SkillDefinition[],
+  enemies: BattleState['combatants']
+): { skill: SkillDefinition; targetId?: string } | null {
+  let best: { skill: SkillDefinition; targetId?: string; score: number } | null = null;
+
+  for (const skill of skills) {
+    if (skill.target === 'all-enemies') {
+      const score = enemies.reduce((sum, enemy) => sum + scoreSkillTarget(skill, enemy), 0);
+      best = keepBest(best, { skill, score });
+      continue;
+    }
+
+    for (const enemy of enemies) {
+      best = keepBest(best, {
+        skill,
+        targetId: enemy.id,
+        score: scoreSkillTarget(skill, enemy)
+      });
+    }
+  }
+
+  return best ? { skill: best.skill, targetId: best.targetId } : null;
+}
+
+function keepBest<T extends { score: number }>(current: T | null, candidate: T): T {
+  if (!current || candidate.score > current.score) {
+    return candidate;
+  }
+  return current;
+}
+
+function scoreSkillTarget(
+  skill: SkillDefinition,
+  enemy: BattleState['combatants'][number]
+): number {
+  const element = enemy.weaknesses.includes(skill.element)
+    ? 1.85
+    : (enemy.resistances.includes(skill.element) || enemy.element === skill.element ? 0.45 : 1);
+  const breakPressure = enemy.weaknesses.includes(skill.element)
+    ? Math.max(0, enemy.breakGaugeMax - enemy.breakGauge + 1) * 6
+    : 0;
+  const phasePressure = enemy.phaseIndex > 0 ? 10 : 0;
+  const woundPressure = (1 - enemy.hp / enemy.maxHp) * 8;
+
+  return skill.power * element + breakPressure + phasePressure + woundPressure - skill.costMp * 1.5;
 }
 
 function consumableItem(
