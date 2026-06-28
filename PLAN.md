@@ -397,7 +397,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Party-/Save-Tests:** frischer Save = nur Rimuru; doppelte Rekrutierung bleibt einmalig; aktive Mitglieder überleben Export/Import und New Game+; alte v1/v2/v3-Stände bleiben ladbar.
 - **Abnahme:** Der Partybeitritt ist ein wiederverwendbares System und nicht als Sonderfall in `DialogueScene` oder `BattleScene` verdrahtet.
 
-[ ] **Phase 19 – Band 1 vollständig canonisieren und abschließen**
+[~] **Phase 19 – Band 1 vollständig canonisieren und abschließen** *(Veldora-Benennung + Canon-Sequenz-Abnahme umgesetzt, 2026-06-28)*
+
+> **Umgesetzt:** Veldora ist überall sichtbar (NPC-Name, Dialog-Sprecher, Questtext, Codex-Titel/-Body, Reisepunkt-Text) — interne ID `sealed-storm-dragon` + Flags bleiben; `portraitKindForSpeaker` mappt „Veldora" auf das `storm-dragon`-Portrait. Abnahme-Tests: Canon-Partyfolge Rimuru → +Gobta → +Ranga (über den Rekrutierungsfluss) und Ranga am Rekrutierungszeitpunkt direkt kampftauglich; Veldora-Benennungstest. **Offen:** Rangas Nachkampf-Pakt-**Dialog** (statt Direkt-Recruit auf Sieg), Ranga prozedurales Portrait + Overworld-/Menü-Fallback, „Direwolf-Begleiter"-Resttexte, Soft-Lock-Kette (Gateway/Marker Höhle→Goblindorf→Lichtung→Benennung) und Browser-Smoke.
 
 - **Veldora sichtbar machen:** NPC-Name, Sprecher, Dialoge, Questtexte, Codex und Portrait-Zuordnung zeigen „Veldora“. Die interne ID `sealed-storm-dragon` darf bestehen bleiben.
 - **Gobtas Beitritt:** Die Dialogoption „Goblindorf schützen“ rekrutiert Gobta nach der Goblin-Bitte. Vor diesem Beat darf Gobta weder im Menü noch im Kampf erscheinen.

@@ -25,6 +25,7 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'lyrre';
     case 'rigurd':
       return 'rigurd';
+    case 'veldora':
     case 'versiegelter sturmdrache':
       return 'storm-dragon';
     case 'mordrahn':

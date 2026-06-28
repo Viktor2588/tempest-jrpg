@@ -3,6 +3,7 @@ import { GAME_DATA } from '../src/data';
 import { getItemCount } from '../src/systems/inventory';
 import { makeRng } from '../src/systems/rng';
 import { createNewSave, exportSave, importSave } from '../src/systems/save';
+import { createBattlePartyFromMembers } from '../src/systems/battle';
 import {
   applyEffects,
   applyWorldState,
@@ -371,5 +372,33 @@ describe('Story-Rekrutierung (recruit-character)', () => {
 
     const afterDirewolf = completeEncounter(afterPlea.state.world, 'direwolf-pack-leader');
     expect(afterDirewolf.state.roster).toContain('ranga');
+  });
+
+  it('Canon-Partyfolge: Rimuru → +Gobta → +Ranga, Ranga sofort kampftauglich', () => {
+    const fresh = createNewSave();
+    expect(fresh.party.active.map((member) => member.characterId)).toEqual(['rimuru']);
+
+    const afterGobta = applyWorldState(
+      fresh,
+      applyEffects(createWorldState(fresh), [{ type: 'recruit-character', characterId: 'gobta' }])
+    );
+    expect(afterGobta.party.active.map((member) => member.characterId)).toEqual(['rimuru', 'gobta']);
+
+    const afterRanga = applyWorldState(
+      afterGobta,
+      applyEffects(createWorldState(afterGobta), [{ type: 'recruit-character', characterId: 'ranga' }])
+    );
+    expect(afterRanga.party.active.map((member) => member.characterId)).toEqual(['rimuru', 'gobta', 'ranga']);
+
+    // Alle drei (inkl. Ranga) sind am Rekrutierungszeitpunkt als Kampfeinheiten verwendbar.
+    expect(createBattlePartyFromMembers(afterRanga.party.active)).toHaveLength(3);
+  });
+});
+
+describe('Canon-Benennung (Band 1)', () => {
+  it('zeigt den Sturmdrachen sichtbar als „Veldora"', () => {
+    const view = startDialogForNpc(emptyWorld(), 'sealed-storm-dragon');
+    expect(view.speaker).toBe('Veldora');
+    expect(buildCodexView(emptyWorld()).find((entry) => entry.id === 'sealed-storm-dragon')?.title).toBe('Veldora, der Sturmdrache');
   });
 });

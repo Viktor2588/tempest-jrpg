@@ -143,7 +143,7 @@ export const QUESTS = [
       {
         id: 'storm-dragon-oath',
         title: 'Den Sturmschwur schließen',
-        description: 'Sprich mit dem versiegelten Sturmdrachen und nimm den ersten Schwur mit nach draußen.',
+        description: 'Sprich mit Veldora und nimm den ersten Schwur mit nach draußen.',
         locationId: 'sealed-cave'
       },
       {
@@ -520,7 +520,7 @@ export const LOCATIONS = [
     mapId: 'goblin-village',
     position: { x: 1, y: 6 },
     description: 'Der kurze Rückweg zur versiegelten Höhle.',
-    identity: 'Prolog-Reisepunkt: zurück zum Sturmdrachen-Dialoganker.',
+    identity: 'Prolog-Reisepunkt: zurück zu Veldoras Dialoganker.',
     travelTo: { mapId: 'sealed-cave', x: 13, y: 7 }
   },
   {
@@ -750,14 +750,14 @@ export const LORE_ENTRIES = [
     id: 'tutorial-movement-questlog',
     title: 'Tutorial: Bewegen, Reden, Questlog',
     category: 'systems',
-    body: 'Der Prolog beginnt bewusst in einem kleinen Raum: bewegen, mit dem Sturmdrachen interagieren und danach im Menü das Questlog prüfen. Jede neue Markierung folgt aus einem Flag oder Quest-Schritt.',
+    body: 'Der Prolog beginnt bewusst in einem kleinen Raum: bewegen, mit Veldora interagieren und danach im Menü das Questlog prüfen. Jede neue Markierung folgt aus einem Flag oder Quest-Schritt.',
     unlockFlag: 'story.slime.awakened'
   },
   {
     id: 'sealed-storm-dragon',
-    title: 'Der versiegelte Sturmdrache',
+    title: 'Veldora, der Sturmdrache',
     category: 'people',
-    body: 'Eine gewaltige Präsenz in der Höhle. Der Prolog nutzt sie als sicheren Dialoganker: kein Bosskampf, sondern ein Schwur, der spätere Bindungen vorbereitet.',
+    body: 'Eine gewaltige, versiegelte Präsenz in der Höhle, die sich Rimuru als Veldora zu erkennen gibt. Der Prolog nutzt ihn als sicheren Dialoganker: kein Bosskampf, sondern ein Schwur, der spätere Bindungen vorbereitet.',
     unlockFlag: 'story.storm-dragon.oath'
   },
   {
@@ -818,9 +818,9 @@ export const LORE_ENTRIES = [
   },
   {
     id: 'storm-dragon-future-ally',
-    title: 'Vormerkung: Sturmdrache als späterer Gefährte',
+    title: 'Vormerkung: Veldora als späterer Gefährte',
     category: 'systems',
-    body: 'Im frühen Spiel bleibt der Sturmdrache Dialog- und Codex-Anker. Seine spielbare Rückkehr ist als späterer Arc-Haken vorgemerkt, nicht als Prolog-Partyrolle.',
+    body: 'Im frühen Spiel bleibt Veldora Dialog- und Codex-Anker. Seine spielbare Rückkehr ist als späterer Arc-Haken vorgemerkt, nicht als Prolog-Partyrolle.',
     unlockFlag: 'story.slime-prologue.completed'
   },
   {
@@ -965,7 +965,7 @@ export const DIALOGS = [
     nodes: [
       {
         id: 'start',
-        speaker: 'Versiegelter Sturmdrache',
+        speaker: 'Veldora',
         text: 'Ein Schleim, der sprechen lernt, bevor er versteht, was er ist. Beweg dich, sprich mit mir, und prüfe danach dein Questlog — so ordnest du zuerst deine Form; danach reden wir über Schwüre.',
         choices: [
           {
@@ -1017,7 +1017,7 @@ export const DIALOGS = [
       },
       {
         id: 'awakened',
-        speaker: 'Versiegelter Sturmdrache',
+        speaker: 'Veldora',
         text: 'Gut. Du kannst dich bewegen, aufnehmen, widerstehen. Dein Codex hält solche Schwüre fest, sobald du sie erlebst. Nimm nun einen mit: Kraft ohne Gemeinschaft bleibt nur Hunger.',
         choices: [
           {
@@ -1038,19 +1038,19 @@ export const DIALOGS = [
       },
       {
         id: 'oath',
-        speaker: 'Versiegelter Sturmdrache',
+        speaker: 'Veldora',
         text: 'Draußen wartet ein kleines Dorf. Der Höhlenausgang ist jetzt offen. Wenn du dort nur ein Monster bist, endet alles in Angst. Wenn du ein Name wirst, beginnt eine Stadt.',
         choices: [{ id: 'end', label: 'Zur Oberfläche' }]
       },
       {
         id: 'after-oath',
-        speaker: 'Versiegelter Sturmdrache',
+        speaker: 'Veldora',
         text: 'Der Schwur ist einfach: Beschütze, was kleiner ist als du — und lerne von dem, was sich trotzdem vor dich stellt.',
         choices: [{ id: 'end', label: 'Ich gehe weiter' }]
       },
       {
         id: 'clear-sky',
-        speaker: 'Versiegelter Sturmdrache',
+        speaker: 'Veldora',
         text: 'Die erste Siedlung steht. Merk dir das Gefühl: Eine Stadt beginnt nicht mit Mauern, sondern mit Leuten, die bleiben wollen.',
         choices: [{ id: 'end', label: 'Tempest wächst' }]
       }
@@ -1838,7 +1838,7 @@ export const DIALOGS = [
 export const NPCS = [
   {
     id: 'sealed-storm-dragon',
-    name: 'Versiegelter Sturmdrache',
+    name: 'Veldora',
     mapId: 'sealed-cave',
     position: { x: 7, y: 3 },
     dialogId: 'sealed-storm-dragon',
