@@ -586,8 +586,44 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   }
 
   validateQuestStepCompletionSources(data, issues);
+  validateQuestCompletionSources(data, issues);
 
   return issues;
+}
+
+// Jede Quest braucht eine Dialog-/Encounter-Quelle mit `complete-quest`, sonst bleibt
+// sie nach Abschluss aller Schritte ewig „aktiv": Belohnung und questStatus-Gating
+// (Folgequests/Gateways) lösen nie aus → Soft-Lock. Ergänzt das Step-Level-Gate.
+function validateQuestCompletionSources(data: DataSet, issues: DataValidationIssue[]): void {
+  const completionSources = new Set<string>();
+  const record = (effects: readonly WorldEffect[]): void => {
+    for (const effect of effects) {
+      if (effect.type === 'complete-quest') {
+        completionSources.add(effect.questId);
+      }
+    }
+  };
+
+  for (const encounter of data.world.encounters) {
+    record(encounter.startEffects ?? []);
+    record(encounter.victoryEffects ?? []);
+  }
+  for (const dialog of data.world.dialogs) {
+    for (const node of dialog.nodes) {
+      for (const choice of node.choices) {
+        record(choice.effects ?? []);
+      }
+    }
+  }
+
+  for (const quest of data.world.quests) {
+    if (!completionSources.has(quest.id)) {
+      issues.push({
+        path: `world.quests.${quest.id}.completion`,
+        message: `Quest '${quest.id}' hat keine Dialog- oder Encounter-Quelle, die sie auf 'completed' setzt (Soft-Lock-Risiko).`
+      });
+    }
+  }
 }
 
 function validateQuestStepCompletionSources(data: DataSet, issues: DataValidationIssue[]): void {

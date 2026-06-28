@@ -53,4 +53,23 @@ describe('Game-Datenintegrität', () => {
       message: `Quest-Schritt '${quest.id}.orphan-step' hat keine Dialog- oder Encounter-Quelle, die ihn abschließt.`
     });
   });
+
+  it('meldet Quests ohne abschließende complete-quest-Quelle', () => {
+    const base = GAME_DATA.world.quests[0]!;
+    const issues = validateGameData({
+      ...GAME_DATA,
+      world: {
+        ...GAME_DATA.world,
+        quests: [
+          ...GAME_DATA.world.quests,
+          { ...base, id: 'orphan-quest', steps: [] }
+        ]
+      }
+    });
+
+    expect(issues).toContainEqual({
+      path: 'world.quests.orphan-quest.completion',
+      message: "Quest 'orphan-quest' hat keine Dialog- oder Encounter-Quelle, die sie auf 'completed' setzt (Soft-Lock-Risiko)."
+    });
+  });
 });
