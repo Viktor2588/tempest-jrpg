@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createNewSave, type SaveGameV2 } from '../src/systems/save';
+import { createNewSave, migrate, type SaveGameV2 } from '../src/systems/save';
 import {
   applyWorldState,
   buildCodexView,
@@ -240,6 +240,38 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = talk(save, 'rigurd', 'report-apex');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'apex-bounty')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-elder-direwolf')?.unlocked).toBe(true);
+  });
+
+  it('Save-Kompatibilität: alter v1-Stand migriert und der Act-1-Bogen bleibt voll spielbar', () => {
+    // Ein „alter" Spielstand aus der Zeit vor Talenten/Regionen/neuen Flags.
+    let save: SaveGameV2 = migrate({
+      schemaVersion: 1,
+      createdAt: '2026-06-01T00:00:00.000Z',
+      seed: 7,
+      mapId: 'old-field',
+      x: 3,
+      y: 9,
+      facing: 'left',
+      gold: 50,
+      activeParty: [{ id: 'rimuru', level: 3, xp: 240, learnedSkillIds: ['water-blade'] }],
+      inventory: { 'healing-herb': 2 },
+      flags: { introComplete: true }
+    }, '2026-06-28T00:00:00.000Z');
+    expect(save.schemaVersion).toBe(3);
+
+    // Der komplette Act-1-Bogen ist auf dem migrierten Stand spielbar — kein Soft-Lock
+    // durch fehlende neue Flags/Felder.
+    save = talk(save, 'sora', 'begin');
+    save = talk(save, 'vael', 'analyze');
+    save = talk(save, 'lyrre', 'briefing');
+    save = talk(save, 'sora', 'council');
+    save = clearTriggerAt(save, { x: 14, y: 8 });
+    save = clearTriggerAt(save, { x: 21, y: 13 });
+    save = talk(save, 'sora', 'report-act1');
+
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'binding-of-ancestors')!.status).toBe('completed');
+    expect(codexUnlocked(save, 'nameless-core')).toBe(true);
+    expect(createWorldState(save).flags['story.act1.completed']).toBe(true);
   });
 
   it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {

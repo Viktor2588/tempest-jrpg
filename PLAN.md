@@ -354,7 +354,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 
 **Priorität HOCH — Korrektheit/QA (genau die Bug-Klasse, die uns mehrfach getroffen hat)**
 1. **Browser-Smoke in CI (Playwright):** bootet das Spiel headless im Browser, schießt Screenshots von Title/Overworld/Battle/Menü/Dialog/Ende und prüft auf Konsolenfehler. → fängt **Szenen-/Render-Regressionen**, die unsere Headless-Vitest-Tests prinzipiell nicht sehen können (z. B. der `worldLayer`-Stale-Container-Bug, Menü-Overlaps, HP-Leiste über dem Sprite, fehlende Marker). Größter ROI, weil fast jeder gemeldete Bug visueller/szenischer Natur war.
-2. **Save-Kompatibilitäts-Test:** einen alten Save (vor Talenten/Regionen/neuen `story.*`/`sidequest.*`-Flags) laden und einen vollen Playthrough fahren → keine Soft-Locks durch Schema-/Content-Drift bei künftigen Erweiterungen.
+2. **Save-Kompatibilitäts-Test** ✅ *(2026-06-28)*: `playthrough.test` migriert einen alten v1-Stand auf v3 und spielt den kompletten Act-1-Bogen darauf durch (Questabschluss + Codex + `story.act1.completed`) → kein Soft-Lock durch Schema-/Content-Drift. Künftig pro großem Content-Schritt erweiterbar.
 
 **Priorität MITTEL — Welt lebendiger machen (die neuen Regionen sind aktuell reine Kampfzonen)**
 3. **Pro-Karte-Tile-Theming:** Geistmoor/Geisterschrein nutzen dasselbe Tileset wie der Hain → sie sehen identisch aus. Eigene Paletten/Tiles je Region (Moor = dunkler/Wasser, Hochland = Stein/Wind) → die Regionen fühlen sich wie eigene Orte an.
