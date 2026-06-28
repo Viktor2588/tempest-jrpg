@@ -186,6 +186,35 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(codexUnlocked(save, 'ending-true')).toBe(true);
   });
 
+  it('Nebenquest: Rigurds Kopfgeld „Sumpfschrecken" ist annehm- und abschließbar', () => {
+    // first-patrol als abgeschlossen voraussetzen (Gate fürs Kopfgeld).
+    let save: SaveGameV2 = {
+      ...createNewSave(),
+      quests: { 'first-patrol': { status: 'completed', completedStepIds: ['accepted', 'training-cleared', 'reported'] } }
+    };
+    expect(npcHasQuestMarker(createWorldState(save), 'rigurd')).toBe(true); // Kopfgeld verfügbar
+
+    save = talk(save, 'rigurd', 'accept-bog');     // bounty-bog aktiv + sidequest.bog.started
+    expect(visibleTriggerIds(save)).toContain('west-bog-hunt');
+    save = clearTriggerAt(save, { x: 2, y: 8 });   // Sumpfschrecken erlegt
+    save = talk(save, 'rigurd', 'report-bog');     // Quest abgeschlossen + Belohnung
+
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'bounty-bog')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-bog-terror')?.unlocked).toBe(true);
+  });
+
+  it('Nebenquest: Vaels „Streunende Echos" ist annehm- und abschließbar', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+
+    save = talk(save, 'vael', 'accept-echo');      // relic-echoes aktiv + sidequest.echo.started
+    expect(visibleTriggerIds(save)).toContain('north-rift-echo');
+    save = clearTriggerAt(save, { x: 8, y: 2 });   // Echo gebannt
+    save = talk(save, 'vael', 'report-echo');      // Quest abgeschlossen + Belohnung
+
+    expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'relic-echoes')!.status).toBe('completed');
+    expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-stray-echo')?.unlocked).toBe(true);
+  });
+
   it('zeigt den Quest-Marker am jeweils richtigen NPC entlang der Story', () => {
     const marker = (save: SaveGameV2, npcId: string) => npcHasQuestMarker(createWorldState(save), npcId);
     let save = createNewSave();

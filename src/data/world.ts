@@ -261,6 +261,58 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 400, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'bounty-bog',
+    title: 'Kopfgeld: Sumpfschrecken',
+    description: 'Rigurds Kopfgeld auf das Vieh, das die Wege am Westsumpf unsicher macht.',
+    steps: [
+      {
+        id: 'accept-bog',
+        title: 'Kopfgeld annehmen',
+        description: 'Nimm Rigurds Auftrag an, den Sumpfschrecken zu erlegen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-bog',
+        title: 'Sumpfschrecken erlegen',
+        description: 'Stell und erlege das Vieh am Westsumpf.',
+        locationId: 'west-bog'
+      },
+      {
+        id: 'report-bog',
+        title: 'Kopfgeld kassieren',
+        description: 'Bring Rigurd den Beweis und kassiere das Kopfgeld.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 120, itemIds: ['mana-drop'] }
+  },
+  {
+    id: 'relic-echoes',
+    title: 'Streunende Echos',
+    description: 'Vael bittet, die umherirrenden Geist-Echos an der alten Bruchkante zu bannen, bevor sie die Bindung weiter stören.',
+    steps: [
+      {
+        id: 'accept-echo',
+        title: 'Auftrag annehmen',
+        description: 'Hör dir Vaels Bitte an und mach dich zur Bruchkante auf.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'clear-echo',
+        title: 'Echo bannen',
+        description: 'Bann das streunende Echo an der nördlichen Bruchkante.',
+        locationId: 'north-rift'
+      },
+      {
+        id: 'report-echo',
+        title: 'Vael berichten',
+        description: 'Bring Vael die Messdaten des gebannten Echos.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 90, itemIds: ['healing-herb'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -342,6 +394,26 @@ export const LOCATIONS = [
     description: 'Die tiefe Kammer, in der die Bindung der Ahnen pulst — und an der Mordrahn seine letzte Entscheidung erzwingen will.',
     identity: 'Act-3-Finale: Mordrahn selbst und die Wahl, die Bindung zu zerstören oder neu zu schmieden.',
     unlockFlag: 'story.breach.cleared'
+  },
+  {
+    id: 'west-bog',
+    name: 'Westsumpf',
+    kind: 'dungeon',
+    mapId: 'tempest-start',
+    position: { x: 2, y: 8 },
+    description: 'Ein zäher Morast westlich der Stadt, in dem ein Sumpfschrecken die Handelspfade unsicher macht.',
+    identity: 'Optionaler Jagdort: Kopfgeld-Begegnung mit dem Sumpfschrecken.',
+    unlockFlag: 'sidequest.bog.started'
+  },
+  {
+    id: 'north-rift',
+    name: 'Nördliche Bruchkante',
+    kind: 'shrine',
+    mapId: 'tempest-start',
+    position: { x: 8, y: 2 },
+    description: 'Eine alte Bruchkante im Norden, an der streunende Geist-Echos der Bindung umherirren.',
+    identity: 'Optionaler Bannort: ein streunendes Echo, das Vaels Messungen stört.',
+    unlockFlag: 'sidequest.echo.started'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -422,6 +494,20 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Weil die Bindungen zwischen Sora, Lyrre und dem Namenlosen hielten, fand Tempest einen dritten Weg: die alte Magie nicht zu zerstören und nicht zu erzwingen, sondern auf viele Schultern zu verteilen. Kein Opfer, keine Schutzlosigkeit — nur geteilte Verantwortung.',
     unlockFlag: 'ending.true'
+  },
+  {
+    id: 'bestiary-bog-terror',
+    title: 'Bestiarium: Sumpfschrecken',
+    category: 'people',
+    body: 'Ein gepanzerter Morastkoloss, der sich von Schlamm und Aas nährt. Träge, aber zäh und überraschend stark — Wind und Feuer setzen seiner feuchten Panzerung am meisten zu.',
+    unlockFlag: 'sidequest.bog.cleared'
+  },
+  {
+    id: 'bestiary-stray-echo',
+    title: 'Bestiarium: Streunendes Echo',
+    category: 'people',
+    body: 'Ein losgerissenes Bruchstück der Bindung, das als Geist umherirrt. Körperlich kaum greifbar, aber magisch gefährlich; heilige und windgebundene Magie zerstreut es.',
+    unlockFlag: 'sidequest.echo.cleared'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -464,6 +550,35 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'accept-bog',
+            label: 'Kopfgeld: Sumpfschrecken',
+            nextNodeId: 'bog-accepted',
+            requirements: [
+              { questStatus: { questId: 'first-patrol', status: 'completed' } },
+              { questStatus: { questId: 'bounty-bog', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'bounty-bog' },
+              { type: 'complete-quest-step', questId: 'bounty-bog', stepId: 'accept-bog' },
+              { type: 'set-flag', flag: 'sidequest.bog.started', value: true }
+            ]
+          },
+          {
+            id: 'report-bog',
+            label: 'Kopfgeld kassieren',
+            nextNodeId: 'bog-paid',
+            requirements: [
+              { questStatus: { questId: 'bounty-bog', status: 'active' } },
+              { flag: 'sidequest.bog.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'bounty-bog', stepId: 'report-bog' },
+              { type: 'complete-quest', questId: 'bounty-bog' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
             id: 'bye',
             label: 'Später',
             nextNodeId: 'bye'
@@ -481,6 +596,18 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Sehr gut. Tempest merkt sich zuverlässige Hilfe. Nimm diese kleine Belohnung.',
         choices: [{ id: 'end', label: 'Danke' }]
+      },
+      {
+        id: 'bog-accepted',
+        speaker: 'Rigurd',
+        text: 'Der Sumpfschrecken haust im Westsumpf und reißt Handelstiere. Erleg ihn — das Kopfgeld ist es wert.',
+        choices: [{ id: 'end', label: 'Zum Westsumpf' }]
+      },
+      {
+        id: 'bog-paid',
+        speaker: 'Rigurd',
+        text: 'Sauber erlegt. Die Pfade sind wieder offen — hier, dein Kopfgeld. Tempest dankt dir.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
       },
       {
         id: 'bye',
@@ -713,6 +840,35 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'accept-echo',
+            label: 'Streunende Echos bannen',
+            nextNodeId: 'echo-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'relic-echoes', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'relic-echoes' },
+              { type: 'complete-quest-step', questId: 'relic-echoes', stepId: 'accept-echo' },
+              { type: 'set-flag', flag: 'sidequest.echo.started', value: true }
+            ]
+          },
+          {
+            id: 'report-echo',
+            label: 'Echo-Messdaten bringen',
+            nextNodeId: 'echo-done',
+            requirements: [
+              { questStatus: { questId: 'relic-echoes', status: 'active' } },
+              { flag: 'sidequest.echo.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'relic-echoes', stepId: 'report-echo' },
+              { type: 'complete-quest', questId: 'relic-echoes' },
+              { type: 'add-gold', amount: 90 },
+              { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+            ]
+          },
+          {
             id: 'end',
             label: 'Später'
           }
@@ -735,6 +891,18 @@ export const DIALOGS = [
         speaker: 'Vael',
         text: 'Die Grenzfunde bestätigen es: die Bindung zerfällt schneller als natürlich — entlang genau der Route, die ihr genommen habt. Jemand aus Tempest hat geredet. Brich die Vorhut am Grenzriss, bevor sie ihn ganz aufreißt.',
         choices: [{ id: 'end', label: 'Zum Grenzriss' }]
+      },
+      {
+        id: 'echo-accepted',
+        speaker: 'Vael',
+        text: 'An der nördlichen Bruchkante irrt ein streunendes Echo umher und verzerrt meine Messungen. Bann es — vorsichtig, es ist magisch, nicht körperlich.',
+        choices: [{ id: 'end', label: 'Zur Bruchkante' }]
+      },
+      {
+        id: 'echo-done',
+        speaker: 'Vael',
+        text: 'Die Messdaten sind jetzt sauber — und beunruhigend klar. Danke. Nimm das hier; du hast es dir verdient.',
+        choices: [{ id: 'end', label: 'Bis bald' }]
       }
     ]
   },
@@ -1015,6 +1183,38 @@ export const ENCOUNTERS = [
       { type: 'set-flag', flag: 'story.mordrahn.defeated', value: true },
       { type: 'set-flag', flag: 'codex.mordrahn-keeper', value: true },
       { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'confront' }
+    ]
+  },
+  {
+    id: 'west-bog-hunt',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 2, y: 8 },
+    enemyIds: ['bog-terror'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.bog.started' },
+      { notFlag: 'sidequest.bog.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.bog.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'bounty-bog', stepId: 'hunt-bog' }
+    ]
+  },
+  {
+    id: 'north-rift-echo',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 8, y: 2 },
+    enemyIds: ['stray-echo'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.echo.started' },
+      { notFlag: 'sidequest.echo.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.echo.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'relic-echoes', stepId: 'clear-echo' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

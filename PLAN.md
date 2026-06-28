@@ -318,6 +318,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - **Umsetzung:** Reiner, getesteter Helfer `getActiveEnding(state)` in `world.ts` (leitet aus `ending.*`-Flags ab, Priorität True > Ordnung > Freiheit, Titel/Text aus denselben Codex-Einträgen). Neue `EndingScene` (Titel + Ende-Text + „Weiterspielen") in `main.ts` registriert. `OverworldScene.onResume` zeigt sie **einmalig** nach gesetzter Wahl (`ending.shown`-Guard) und kehrt danach in die Welt zurück (Postgame bleibt spielbar).
 - **Abnahme (lokal verifiziert):** `tsc` sauber, **97/97** grün (`getActiveEnding`-Test: Priorität + null + Titel), `build` ok. *(Visuelles Rendern der Szene wie üblich noch im Browser zu sichten.)*
 
+[x] **Mehr Content: optionale Nebenquests (fertig 2026-06-28, direkt auf `main`)** *(Spielerwunsch „mehr Content")*
+- **Idee:** Optionale Kopfgeld-/Erkundungsquests, die die vorhandenen Systeme (Quest/Marker/Codex/Encounter) wiederverwenden → robust + automatische Wegführung. Jede: 3 Schritte (Annahme-Dialog → gated Trigger-Encounter mit neuem Gegner → Bericht-Dialog), neuer Gegner + Bestiarium-Codex-Eintrag + Gold/Item-Belohnung.
+  - **`bounty-bog` („Kopfgeld: Sumpfschrecken", Rigurd):** gated `first-patrol` abgeschlossen. Neuer Gegner `bog-terror`, Encounter @(2,8), Codex `bestiary-bog-terror`.
+  - **`relic-echoes` („Streunende Echos", Vael):** gated `story.act1.completed`. Neuer Gegner `stray-echo`, Encounter @(8,2), Codex `bestiary-stray-echo`.
+- **Abnahme (lokal verifiziert):** Datenintegrität grün; `test/playthrough.test.ts` testet beide Nebenquests (Annahme→Kampf→Bericht, Questabschluss + Bestiarium-Codex); Marker-/Erreichbarkeitstests decken die neuen Encounter @(2,8)/(8,2) automatisch. `tsc` sauber, **99/99** grün, `build` ok. Quest-Marker + Encounter-Marker leiten automatisch (datengetrieben).
+
 ## Verifikation (Methodik)
 - **Headless-Logik:** `bun run test` (Vitest) gegen `src/systems` & `src/data` — Kampf-Determinismus, Save-Roundtrip/Migration, Datenintegrität, Talentbäume, Beziehungen, Aufholmechaniken, Balance-Bänder.
 - **Typsicherheit:** `tsc --noEmit` in CI.

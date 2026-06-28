@@ -189,5 +189,47 @@ export const ENEMIES = [
     experienceReward: 220,
     goldReward: 180,
     drops: [{ itemId: 'tempest-charm', chance: 0.5 }]
+  },
+  {
+    id: 'bog-terror',
+    name: 'Sumpfschrecken',
+    level: 7,
+    element: 'earth',
+    stats: {
+      maxHp: 168,
+      maxMp: 16,
+      attack: 25,
+      defense: 22,
+      magic: 9,
+      spirit: 14,
+      agility: 10
+    },
+    skillIds: ['venom-spit', 'goblin-feint'],
+    weaknesses: ['wind', 'fire'],
+    resistances: ['earth', 'water'],
+    experienceReward: 120,
+    goldReward: 95,
+    drops: [{ itemId: 'healing-herb', chance: 0.5 }]
+  },
+  {
+    id: 'stray-echo',
+    name: 'Streunendes Echo',
+    level: 6,
+    element: 'shadow',
+    stats: {
+      maxHp: 104,
+      maxMp: 36,
+      attack: 13,
+      defense: 12,
+      magic: 24,
+      spirit: 20,
+      agility: 19
+    },
+    skillIds: ['spirit-bind', 'water-blade'],
+    weaknesses: ['holy', 'wind'],
+    resistances: ['shadow'],
+    experienceReward: 90,
+    goldReward: 70,
+    drops: [{ itemId: 'mana-drop', chance: 0.45 }]
   }
 ] as const satisfies readonly EnemyDefinition[];
