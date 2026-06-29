@@ -16,6 +16,8 @@ import {
   type InventoryStack
 } from './inventory';
 import type { PartyMemberState } from './party';
+import { getChapterSummary, type ChapterSummary } from './chapterBanner';
+import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
 
 export const MENU_TOUCH_TARGET_PX = 44;
@@ -25,6 +27,8 @@ export interface MenuGameState {
   readonly party: readonly PartyMemberState[];
   readonly inventory: readonly InventoryStack[];
   readonly gold: number;
+  readonly flags?: Readonly<Record<string, boolean>>;
+  readonly quests?: Readonly<Record<string, QuestState>>;
 }
 
 export interface MenuResult<TState = MenuGameState> {
@@ -52,6 +56,7 @@ export interface MenuView {
   readonly members: readonly MemberSummary[];
   readonly inventory: readonly InventoryItemView[];
   readonly gold: number;
+  readonly story: ChapterSummary | null;
 }
 
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
@@ -77,8 +82,25 @@ export function buildMenuView(state: MenuGameState): MenuView {
       return summary ? [summary] : [];
     }),
     inventory: getSortedInventory(state.inventory),
-    gold: state.gold
+    gold: state.gold,
+    story: buildMenuStorySummary(state)
   };
+}
+
+function buildMenuStorySummary(state: MenuGameState): ChapterSummary | null {
+  if (!state.flags || !state.quests) return null;
+  return getChapterSummary({
+    flags: state.flags,
+    quests: state.quests,
+    party: {
+      active: state.party,
+      reserve: [],
+      gold: state.gold
+    },
+    inventory: {
+      stacks: state.inventory
+    }
+  });
 }
 
 export function getMemberSummary(member: PartyMemberState): MemberSummary | null {

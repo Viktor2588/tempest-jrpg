@@ -77,6 +77,35 @@ describe('menu system', () => {
     ]);
   });
 
+  it('liefert optional ein Kapitel-Summary für den Quest-/Story-Tab', () => {
+    const party = [
+      ...createInitialParty(),
+      createPartyMember(HEROES.find((hero) => hero.id === 'gobta')!),
+      createPartyMember(HEROES.find((hero) => hero.id === 'ranga')!)
+    ];
+    const view = buildMenuView({
+      party,
+      inventory: [...createInitialInventory(), { itemId: 'tempest-charm', quantity: 1 }],
+      gold: 300,
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.act1.completed': true
+      },
+      quests: {
+        'binding-of-ancestors': {
+          status: 'completed',
+          completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+        }
+      }
+    });
+
+    expect(view.story?.banner.kicker).toBe('Band 2');
+    expect(view.story?.recap).toContain('Band 1 und Band 2 sind abgeschlossen');
+    expect(view.story?.nextObjective).toContain('Optional');
+    expect(view.story?.highlights).toContain('Gobta ist beigetreten');
+    expect(view.story?.highlights).toContain('Belohnung: Tempest-Talisman erhalten');
+  });
+
   it('berechnet gefaltete Klassenwerte und innewohnenden Skillzugriff deterministisch', () => {
     // Gobta startet seit dem story-gesteuerten Aufbau nicht mehr in der Party → direkt erzeugen.
     const gobta = createPartyMember(HEROES.find((hero) => hero.id === 'gobta')!);

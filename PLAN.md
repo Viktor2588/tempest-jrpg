@@ -481,8 +481,12 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 > **Slice 1 umgesetzt (2026-06-29):** Tempest-Lager als Post-Prolog-Ruhepunkt, aktive Party-Heilung, erste optionale Partygespräche nach Ranga-Pakt/Rat/Hain/Echo sowie `getChapterSummary` für Rückblick, nächstes Ziel, Party-/Rat-/Scout-Highlights und Boss-/Belohnungsnachspiel.
 >
 > **Abnahme (Slice 1 lokal verifiziert):** `npx --yes bun@latest run typecheck`, `npx --yes bun@latest run test` (**181/181**), `npx --yes bun@latest run build` und `npx --yes bun@latest run test:e2e` (**10/10**) grün.
+>
+> **Slice 2 umgesetzt (2026-06-29):** Das Kapitel-Summary ist im Quest-/Story-Tab sichtbar: Bandtitel, Rückblick, nächstes Ziel und bis zu drei Highlights werden aus dem Menü-Viewmodel gezeichnet. Der Browser-Smoke öffnet den Quest-/Story-Tab explizit.
+>
+> **Abnahme (Slice 2 lokal verifiziert):** `npx --yes bun@latest run typecheck`, `npx --yes bun@latest run test` (**182/182**), `npx --yes bun@latest run build` und `npx --yes bun@latest run test:e2e` (**10/10**) grün.
 
-- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 hat bereits eine eigene Titelzeile; ein testgesichertes Summary-Modell liefert Rückblick/Nächstes Ziel/Highlights. Offen bleibt die sichtbare UI-Einblendung.
+- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 hat bereits eine eigene Titelzeile; ein testgesichertes Summary-Modell liefert Rückblick/Nächstes Ziel/Highlights und ist im Quest-/Story-Tab sichtbar. Offen bleiben eigene Übergangs-/Abschlusssequenzen außerhalb des Menüs.
 - **Tempest sichtbar wachsen lassen:** Gebäude-/Dekorationszustand, NPC-Positionen, Umgebungsdialoge und Händlerangebot reagieren mindestens auf Prologabschluss, Rat und Band-2-Abschluss. Erste Post-Prolog-Marker und Rigurd-Reaktion sind umgesetzt; weitere Zustände bleiben offen.
 - **Rekrutierungs- und Benennungsszenen:** Gobtas Beitritt, Rangas Pakt und Tempests erste Benennung erhalten jeweils einen klaren visuellen und akustischen Moment statt nur Flags und Questtext.
 - **Partygespräche:** kurze optionale Dialoge zwischen Rimuru, Gobta, Ranga und Shuna nach Direwolf-Kampf, Rat, Flüsterhain und Echo. Der erste Lagerdialog-Satz ist optional, einmalig gegated und setzt nur Beziehungs-/Partytalk-Flags; weitere Figurenreaktionen und Präsentationspolitur bleiben offen.

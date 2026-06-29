@@ -26,6 +26,8 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   await page.keyboard.press('m');
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
+  await clickGamePoint(page, 636, 94); // Quest-/Story-Tab mit Kapitel-Summary
+  await expectCanvasContent(page);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(250);
 
