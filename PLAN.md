@@ -679,3 +679,72 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 - **Milim** ist Test + Freundschaft, kein klassischer Bosskampf-Sieg.
 - **Eigenständig bleiben:** keine 1:1-Adaption — Beats/Figuren als datengetriebene JRPG-Bausteine,
   sichtbare Canon-Namen, stabile interne IDs (Projektregel der Band-Docs).
+
+## Noch mehr Band 1 & 2: Detail-Questketten & Welt-Tiefe (2026-06-29)
+
+### A) Fertige Questketten-Entwürfe (beat-für-beat, am Datenmodell)
+> Format wie im Spiel: Quest mit `steps` (locationId), Dialog-`effects` (`start-quest`,
+> `complete-quest-step`, `recruit-character`, `set-flag`, `add-item`), Encounter mit
+> `victoryEffects`, Codex `unlockFlag`. Sichtbare Canon-Namen, stabile interne IDs.
+
+**A1 — Oger → Kijin** *(Begleiter-Arc; nutzt recruit-character + Naming-Beat)*
+- Quest `ogre-pact` „Die Oger und das Missverständnis":
+  1. `ogre-assault` — sechs Oger greifen Tempest an (Benimaru voraus): Trigger-Encounter
+     `ogre-vanguard` (Benimaru-Oger + 2 Oger) → `set-flag story.ogre.clash`.
+  2. `clear-misunderstanding` — Dialog: die **Orks** (nicht Tempest) zerstörten ihr Dorf →
+     `set-flag story.ogre.truce` + Codex „Die Oger".
+  3. `name-the-six` — Rimuru benennt sie (Naming-Beat: Magicule-Erschöpfung als Text/Effekt):
+     `recruit-character` benimaru/shion/hakurou/kurobe/souei (Shuna ist da) + `set-flag story.kijin.named`.
+  4. `kurobe-katana` — Kurobe schmiedet eine Katana → `add-item kurobe-katana`.
+  - Belohnung: 6 Kijin, Codex „Kijin", Katana. Folge-Hook: Hakurou-Training (Talentknoten).
+
+**A2 — Zwergenkönigreich Dwargon** *(neue Region `dwargon` + Handwerk)*
+- Quest `dwargon-craft` „Handwerk aus Dwargon":
+  1. `enter-dwargon` — Gateway vom Jura-Wald, Markt/Schmiede, Codex „Dwargon".
+  2. `tavern-incident` — Vesta-Faktion provoziert Kaijin → `set-flag story.kaijin.trouble`.
+  3. `gazel-judgment` — König **Gazel Dwargo**, Kompromiss/Exil → `set-flag story.kaijin.exiled`.
+  4. `recruit-smiths` — `recruit-character kaijin` (+ Garm/Dord/Myrd als Helfer/Fraktion) +
+     `set-flag craft.smithing.unlocked` → Shop/Crafting-Tier frei, Magisteel-Rezepte.
+  - Belohnung: Schmieden/Bau, Codex „Gazel Dwargo".
+
+**A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)*
+- Quest `orc-disaster` „Die Hungersnot der Orks" (Regionen `lizardman-marsh`, `jura-battlefield`):
+  1. `treyni-plea` — **Treyni** warnt vor der Ork-Armee + Gelmuds Namen-Schema → Codex „Treyni".
+  2. `lizard-alliance` — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
+     `set-flag story.lizard.allied` (Gabiru fällt, spätere Läuterung).
+  3. `march-of-orcs` — Pflicht-Encounter Ork-Vorhut (`orc-soldier` × n) → `set-flag story.orc.engaged`.
+  4. `geld-disaster` — **Boss** `orc-disaster` (Geld; frisst Gelmud im Vorspann). victory →
+     Rimuru **prädiert** Geld: `set-flag story.geld.devoured` + großer Power-Spike/Belohnung.
+  5. `found-federation` — Gründung der **Jura-Tempest-Föderation** (Hub-State-Wechsel); ein
+     Hoch-Ork erbt „Geld", Orks treten bei (`set-flag faction.orcs.joined`).
+  6. `milim-arrives` — **Milim Nava** prüft Rimuru → Freundschaft (Honig!), Codex „Dämonenlords".
+  - Belohnung: Föderation, Orks als Aufbauhelfer, Milim als Story-NPC.
+
+### B) Weitere Canon-Figuren & Welt-Details (Flavor/Codex)
+- **Goblin-Hierarchie:** Rigurd (Patriarch) + benannte Goblins (Rigur als Wache, Gobta, Gobichi,
+  Gobtsu, Gobzo); die Hobgoblin-Wachen.
+- **Dryaden-Schwestern:** Treyni, Trya, Triah (Hüterinnen des Walds).
+- **Gabirus Gefolge:** „Gabirus Hundert" (loyale Echsenmenschen, später komödiantisch wiederkehrend).
+- **Vesta-Läuterung:** der Dwargon-Minister wird später reuiger Forscher in Tempest.
+- **Veldora-Flavor:** Manga-Begeisterung, „Kuaaaa-ha-ha!"-Lachen, der Namensbund als echte Freundschaft.
+- **Ranga & die Tempest-Wölfe:** Rangas Rudel als Reit-/Späher-Einheit (knüpft an Schnellreise an).
+
+### C) Systeme & Lore aus den LN (Codex + Mechanik-Inspiration)
+- **Magicule (Magie-Energie):** Grundlage für Naming/Evolution/Magie; Naming **kostet** viel →
+  dramatischer Beat (Rimuru erschöpft sich).
+- **Monster-Evolution:** durch Benennen ODER durch Fressen/Besiegen starker Gegner → neue Form
+  (passt zum vorhandenen Evolution-System).
+- **Rimurus Skills:** **Predator/Gula** (speichern, analysieren, nachahmen, abtrennen) + **Großer
+  Weiser** (Analyse, Paralleldenken, Auto-Kampf) — als Flavor/Codex und optionale Mechanik.
+- **Die Wahren Drachen:** Veldora (Sturm), Velzard (Eis), Velgrynd (Glut), Veldanava (Sternkönig/Ursprung).
+- **Dämonenlords & Walpurgis:** das „Benennen" erschafft Maous (Gelmuds Ziel); Milim als eine der
+  ältesten — Aufhänger für eine spätere Dämonenlord-Versammlung.
+- **Andersweltler & Beschwörung:** Shizu, die Kinder, **Leon Cromwell** (beschwor Shizu als Kind) als
+  fernes Rimuru-Ziel.
+
+### D) Wirtschaft & Diplomatie (Hub-Tiefe)
+- **Vollheiltrank** (aus Hipokte-Kraut) als Tempests Killer-Handelsgut; **Magisteel** als
+  Premium-Werkstoff; Shunas Seide/Kleidung als weitere Güter.
+- **Föderations-Mitglieder:** Hobgoblins, Kijin, Tempest-Wölfe, Echsenmenschen, Dryaden, Orks.
+- **Außenbeziehungen (Diplomatie-Stufen im Hub):** Dwargon (Handel), Blumund (kleiner Verbündeter,
+  Free Guild/Fuze), Englesia (Akademie + Shizus Kinder) → schrittweise freischaltbar.
