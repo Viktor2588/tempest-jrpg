@@ -1,7 +1,13 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
-import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
+import {
+  buildRangaJourneyView,
+  buildRangaTravelView,
+  resolveRangaTravel,
+  type RangaJourneyView,
+  type RangaTravelStatus
+} from '../systems/rangaTravel';
 import {
   buildMenuView,
   EQUIPMENT_SLOTS,
@@ -29,6 +35,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
+import { loadSettings } from '../systems/settings';
 import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { portraitKey } from '../render/portraitAtlas';
@@ -72,6 +79,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedQuestId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
+  private travelingWithRanga = false;
 
   constructor() {
     super('Menu');
@@ -714,24 +722,84 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private fastTravelWithRanga(destinationId: string): void {
-    const result = resolveRangaTravel(createWorldState(this.save), this.save.location, destinationId);
+    const world = createWorldState(this.save);
+    const travelView = buildRangaTravelView(world, this.save.location);
+    const destination = travelView.destinations.find((item) => item.id === destinationId);
+    const result = resolveRangaTravel(world, this.save.location, destinationId);
     this.message = result.message;
-    if (!result.ok || !result.location) {
+    if (!result.ok || !result.location || !destination) {
       this.refresh();
       return;
     }
-    this.save = autoSave(window.localStorage, {
-      ...this.save,
-      location: result.location
+    const finishTravel = (): void => {
+      this.travelingWithRanga = false;
+      this.save = autoSave(window.localStorage, {
+        ...this.save,
+        location: result.location!
+      });
+      this.scene.stop('Overworld');
+      this.scene.stop();
+      this.scene.start('Overworld');
+    };
+    const journey = buildRangaJourneyView(destination, {
+      reducedMotion: loadSettings(window.localStorage).reducedMotion
     });
-    this.scene.stop('Overworld');
-    this.scene.stop();
-    this.scene.start('Overworld');
+    if (journey.mode === 'instant') {
+      finishTravel();
+      return;
+    }
+    this.showRangaJourney(journey, finishTravel);
   }
 
   private close(): void {
+    if (this.travelingWithRanga) return;
     this.scene.resume('Overworld');
     this.scene.stop();
+  }
+
+  private showRangaJourney(journey: RangaJourneyView, onComplete: () => void): void {
+    this.travelingWithRanga = true;
+    const overlay = this.add.container(0, 0).setDepth(50);
+    const backdrop = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.74)
+      .setInteractive();
+    overlay.add(backdrop);
+    overlay.add(addUiPanel(this, 176, 116, GAME_WIDTH - 352, 264, { originY: 0, alpha: 0.98 }));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 146, journey.title, {
+      fontFamily: 'serif',
+      fontSize: '27px',
+      color: '#e9c56c'
+    }).setOrigin(0.5, 0));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 200, journey.body, {
+      fontFamily: 'sans-serif',
+      fontSize: '16px',
+      color: '#e9eef7',
+      align: 'center',
+      wordWrap: { width: GAME_WIDTH - 430 }
+    }).setOrigin(0.5, 0));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 272, journey.routeNote, {
+      fontFamily: 'sans-serif',
+      fontSize: '12px',
+      color: '#9fb2cc',
+      align: 'center',
+      wordWrap: { width: GAME_WIDTH - 430 }
+    }).setOrigin(0.5, 0));
+
+    let done = false;
+    const finish = (): void => {
+      if (done) return;
+      done = true;
+      overlay.destroy();
+      onComplete();
+    };
+    overlay.add(addUiTextButton(this, GAME_WIDTH / 2 - 116, 330, 232, 'Reise überspringen', finish, {
+      idleAlpha: 0.98,
+      fill: 0x1f4550,
+      textOffsetX: 28
+    }));
+    backdrop.on('pointerdown', finish);
+    this.input.keyboard?.once('keydown-SPACE', finish);
+    this.input.keyboard?.once('keydown-ENTER', finish);
+    this.time.delayedCall(journey.durationMs, finish);
   }
 
   private sectionTitle(label: string): void {
