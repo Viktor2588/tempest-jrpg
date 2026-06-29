@@ -7,6 +7,7 @@ import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../sys
 import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldTutorial } from '../systems/tutorial';
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
+import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { makeRng } from '../systems/rng';
@@ -74,12 +75,9 @@ export class OverworldScene extends Phaser.Scene {
     // Schrein nach dem Hain-Sieg) verschwinden → Spieler bleibt stecken.
     this.worldLayer = undefined;
 
-    // Kacheln: echte CC0-Kenney-Kacheln bevorzugt → Platzhalter → Rechteck-Fallback.
+    // Kacheln: regionale Imagegen-Tiles → echte CC0-Kenney-Kacheln → Platzhalter → Rechteck-Fallback.
     const tileKey = (wall: boolean): string | null => {
-      const real = wall ? 'tile-wall' : 'tile-grass';
-      if (this.textures.exists(real)) return real;
-      const ph = wall ? 'ph-tile-wall' : 'ph-tile-grass';
-      return this.textures.exists(ph) ? ph : null;
+      return firstAvailableOverworldTileTexture(this.mapId, wall, (textureKey) => this.textures.exists(textureKey));
     };
     const g = this.add.graphics();
     for (let y = 0; y < map.height; y++) {

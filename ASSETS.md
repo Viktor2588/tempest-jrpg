@@ -27,6 +27,10 @@ Lizenzzeile.
 | `tiles/grass.png` | Boden-Kachel (Tiny Town `tile_0000`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
 | `tiles/wall.png` | Wand-/Stein-Kachel (Tiny Town `tile_0104`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
 | `tiles/path.png` | Pfad-/Erd-Kachel (Tiny Town `tile_0025`) | https://kenney.nl/assets/tiny-town | Kenney | CC0 |
+| `tiles/tile-marsh-floor.webp` | Geistmoor-Bodentile, 128×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: dunkler, feuchter Moorboden mit spirituellen Cyanlichtern als regionales Overworld-Tile | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `tiles/tile-marsh-wall.webp` | Geistmoor-Wand-/Hindernistile, 128×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: moosige Wurzel-/Steinbarrieren als klar blockierendes Moor-Tile | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `tiles/tile-highlands-floor.webp` | Geisterschrein-Hochland-Bodentile, 128×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: heller Schiefer-/Steinboden mit Gras, Blüten und Windmagie als regionales Overworld-Tile | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `tiles/tile-highlands-wall.webp` | Geisterschrein-Hochland-Wand-/Hindernistile, 128×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: erhöhte Schieferfelsen und Schreinausläufer als klar blockierendes Hochland-Tile | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/hero.png` | Held/Spieler (Tiny Dungeon `tile_0088`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/overworld-rimuru-slime.webp` | Rimuru als blauer Oberwelt-Schleim, transparenter Spieler-Sprite | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Prompt-Zweck: freundlicher blauer Slime als steuerbare Hauptfigur, transparente/chroma-bereinigte Sprite-Silhouette | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-slime.png` | Gegner Schleim (Tiny Dungeon `tile_0108`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |

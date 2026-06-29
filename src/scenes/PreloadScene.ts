@@ -17,6 +17,16 @@ import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
 import grassUrl from '../assets/tiles/grass.png';
 import wallUrl from '../assets/tiles/wall.png';
 import pathUrl from '../assets/tiles/path.png';
+import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
+import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
+import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
+import highlandsWallTileUrl from '../assets/tiles/tile-highlands-wall.webp';
+import {
+  HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
+  HIGHLANDS_WALL_TILE_TEXTURE_KEY,
+  MARSH_FLOOR_TILE_TEXTURE_KEY,
+  MARSH_WALL_TILE_TEXTURE_KEY
+} from '../render/overworldTileArt';
 // Echte CC0-Charakter-/Gegner-Sprites (Kenney „Tiny Dungeon", CC0 — siehe ASSETS.md).
 import heroUrl from '../assets/sprites/hero.png';
 import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
@@ -68,6 +78,10 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tile-grass', grassUrl);
     this.load.image('tile-wall', wallUrl);
     this.load.image('tile-path', pathUrl);
+    this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
+    this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
+    this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
+    this.load.image(HIGHLANDS_WALL_TILE_TEXTURE_KEY, highlandsWallTileUrl);
     // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
     this.load.image('sprite-hero', heroUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -133,6 +147,10 @@ export class PreloadScene extends Phaser.Scene {
 
     [
       KINGDOM_UNIT_TEXTURE_KEY,
+      MARSH_FLOOR_TILE_TEXTURE_KEY,
+      MARSH_WALL_TILE_TEXTURE_KEY,
+      HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
+      HIGHLANDS_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       portraitKey('rimuru'),
