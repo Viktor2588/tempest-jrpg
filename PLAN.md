@@ -472,7 +472,7 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - [x] **Dokumentation:** erledigte Punkte in `erstes_band.md` und `zweites_band.md` abgehakt; verbleibende Aufgaben liegen bei Band 3+ oder optionaler Politur.
 - [x] **Definition of Done:** Band 1 und 2 sind in einem frischen Durchlauf zusammenhängend spielbar, verwenden im sichtbaren Hauptpfad nur die festgelegten Canon-Figuren und bleiben mit bestehenden Spielständen kompatibel.
 
-[~] **Phase 23 – Erlebnis-Politur für Band 1 und Band 2** *(in Bearbeitung, 2026-06-29)*
+[x] **Phase 23 – Erlebnis-Politur für Band 1 und Band 2** *(vollständig, 2026-06-29)*
 
 **Ziel:** Nach der technischen Integration sollen beide Bände wie ein zusammenhängendes JRPG-Kapitel wirken. Priorität: Tempest-Wachstum → Rekrutierungsszenen → Partygespräche → Kapitelübergänge → Boss-Nachspiel.
 
@@ -489,19 +489,27 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 > **Slice 3 umgesetzt (2026-06-29):** Aktives Hauptziel wird datengetrieben aus dem aktuellen Queststep abgeleitet (`getTrackedQuestObjective`) und als Zieltext unter der Minimap sowie als violetter Objective-Marker auf Minimap/Weltkarte angezeigt. Gesperrte Zielorte bleiben im Hinweis sichtbar, bekommen aber erst nach Unlock/Scout einen Marker.
 >
 > **Abnahme (Slice 3 lokal verifiziert):** `npx --yes bun@latest run typecheck`, `npx --yes bun@latest run test` (**184/184**), `npx --yes bun@latest run build` und `npx --yes bun@latest run test:e2e` (**10/10**) grün.
+>
+> **Slice 4 umgesetzt (2026-06-29):** Ein wiederverwendbares Meilenstein-System inszeniert Gobtas Beitritt, Direwolf-Sieg, Rangas Pakt, Tempests Benennung, ersten Rat, namenloses Echo und Band-2-Abschluss. Alte fortgeschrittene Saves sehen nur den neuesten relevanten Meilenstein; Bestätigungen sind persistent und idempotent.
+>
+> **Slice 5 umgesetzt (2026-06-29):** Ranga-Schnellreise läuft über eine eigene, überspringbare Reiseszene mit Ranga-Cutout, Bewegungsreduktion und drei einmaligen optionalen Routenfunden. Desktop-/Mobil-E2E prüft Reise, Fund, Belohnung und Zielort.
+>
+> **Slice 6 umgesetzt (2026-06-29):** aktive Dreiergruppe plus Reserveverwaltung, überlaufende Story-Rekruten automatisch in Reserve, Menütausch, expliziter Lager-Speicherpunkt, drei Tempest-Wachstumsstufen (Marker, Rigurd-Position/-Dialog, Händlersortiment) und adaptive Direwolf-/Hain-/Echo-Kampftipps.
+>
+> **Finale Abnahme:** `bun run typecheck`, `bun run test` (**200/200**), `bun run build` ohne Chunkwarnung und `bun run test:e2e` (**16/16**) grün. Phaser wird als stabiler Vendor-Chunk ausgeliefert.
 
-- **Kapitelübergänge:** kurze Einblendungen für Bandstart/-abschluss, knapper Rückblick und klar hervorgehobenes nächstes Hauptziel. Band 2 hat bereits eine eigene Titelzeile; ein testgesichertes Summary-Modell liefert Rückblick/Nächstes Ziel/Highlights und ist im Quest-/Story-Tab sichtbar. Offen bleiben eigene Übergangs-/Abschlusssequenzen außerhalb des Menüs.
-- **Tempest sichtbar wachsen lassen:** Gebäude-/Dekorationszustand, NPC-Positionen, Umgebungsdialoge und Händlerangebot reagieren mindestens auf Prologabschluss, Rat und Band-2-Abschluss. Erste Post-Prolog-Marker und Rigurd-Reaktion sind umgesetzt; weitere Zustände bleiben offen.
-- **Rekrutierungs- und Benennungsszenen:** Gobtas Beitritt, Rangas Pakt und Tempests erste Benennung erhalten jeweils einen klaren visuellen und akustischen Moment statt nur Flags und Questtext.
-- **Partygespräche:** kurze optionale Dialoge zwischen Rimuru, Gobta, Ranga und Shuna nach Direwolf-Kampf, Rat, Flüsterhain und Echo. Der erste Lagerdialog-Satz ist optional, einmalig gegated und setzt nur Beziehungs-/Partytalk-Flags; weitere Figurenreaktionen und Präsentationspolitur bleiben offen.
-- **Wegführung:** eine verfolgte Hauptquest, eindeutige Minimap-Ziele und verständliche Hinweise für gesperrte Wege. Questmarker, Questlog-Priorisierung, Hain-Zonenanzeige und ein getracktes Hauptziel mit Minimap-/Weltmarker sind umgesetzt; offen bleiben optionale Komfortfunktionen wie manuelles Pinning mehrerer Nebenquests.
-- **Boss-Nachspiel:** Direwolf und namenloses Echo erhalten Abschlusssequenz, Belohnungsübersicht, freigeschaltete Fähigkeiten/Systeme und sichtbare Reaktionen im Hub. Für das namenlose Echo existiert nun ein Summary-/Lager-Nachspiel; Sequenz und Belohnungsbildschirm bleiben offen.
-- **Ranga-Reisegefühl:** Schnellreise und Scout-Bericht sind technisch umgesetzt; offen bleiben kurze überspringbare Reiseanimation, kleine optionale Entdeckungen und „reduzierte Bewegung“ als sofortige Variante.
-- **Adaptive Tutorials:** Schwächen/Teamleiste beim Direwolf, Status-/Magieeffekte beim Echo und Scout-/Schnellreise erst bei ihrer tatsächlichen Freischaltung erklären. Flüsterhain-Tutorial für Status/Schwächen/Teamleiste ist umgesetzt; weitere situative Hinweise bleiben offen.
-- **Ruhepunkt:** Tempest erhält einen klaren Lager-/Gasthauspunkt zum Heilen, Speichern, Partygespräch und späteren Wechseln zwischen aktiver Gruppe und Reserve. Heilen und Partygespräche sind umgesetzt; Speichern/Reservewechsel bleiben offen.
-- **Bandabschluss:** Zusammenfassung von rekrutierten Figuren, Bindungen, Codex-Fortschritt und wichtigen Entscheidungen sowie eine spoilerarme Vorschau auf Band 3. Summary-Daten sind vorbereitet; UI und Band-3-Vorschau bleiben offen.
-- **Präsentationsregeln:** alle Sequenzen bleiben kurz, überspringbar und touch-tauglich; keine langen ununterbrochenen Textblöcke oder Pflichtanimationen.
-- **Abnahme:** Desktop und 390×844 zeigen Kapitelübergänge, Rekrutierung, Hub-Wachstum, Boss-Nachspiel und Abschluss ohne Überlappungen oder Console-Fehler; Headless-Tests sichern Zustandswechsel und Einmaligkeit der Belohnungen.
+- [x] **Kapitelübergänge:** Bandtitel, Rückblick, nächstes Ziel, Meilenstein-Overlay und persistenter Bandabschluss.
+- [x] **Tempest sichtbar wachsen lassen:** Marker, Rigurd-Positionen/-Dialoge und Vorratssortiment reagieren auf Prolog, Rat, Kijin-Benennung und Band-2-Abschluss.
+- [x] **Rekrutierungs- und Benennungsszenen:** Gobta, Ranga und Tempests Name erhalten eigene kurze audiovisuelle Meilensteine.
+- [x] **Partygespräche:** optionale, einmalige Lagerdialoge nach Pakt, Rat, Hain und Echo.
+- [x] **Wegführung:** aktive Hauptquest, Zieltext, Minimap-/Weltmarker, gesperrte Zielhinweise und Questlog-Priorisierung.
+- [x] **Boss-Nachspiel:** Direwolf und namenloses Echo erhalten Abschluss-Meilenstein, nächste Aufgabe und Hub-Reaktion.
+- [x] **Ranga-Reisegefühl:** überspringbare Reiseinszenierung, reduzierte Bewegung und optionale einmalige Entdeckungen.
+- [x] **Adaptive Tutorials:** Direwolf-, Hain- und Echo-Hinweise erscheinen einmalig beim tatsächlichen Encounter; Scout-/Reisehinweise erst nach Rangas Pakt.
+- [x] **Ruhepunkt:** Heilen, explizit speichern, Partygespräche und aktive Gruppe/Reserve verwalten.
+- [x] **Bandabschluss:** Summary und Meilenstein zeigen Rekruten, Fortschritt, Belohnung und freiwilligen Band-3-Hook.
+- [x] **Präsentationsregeln:** Sequenzen sind kurz, überspringbar, touch-tauglich und respektieren reduzierte Bewegung.
+- [x] **Abnahme:** Desktop und 390×844 prüfen Meilenstein, Reise, Partytausch und Storyflows ohne Console-/Renderfehler; Headless-Tests sichern Zustandswechsel und Einmaligkeit.
 
 
 phase 24 Userfeedback

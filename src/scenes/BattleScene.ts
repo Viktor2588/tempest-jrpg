@@ -25,10 +25,12 @@ import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiTextButton } from '../render/uiSkin';
+import { addUiPanel } from '../render/uiSkin';
 import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
 import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
+import { getBattleTutorial } from '../systems/battleTutorial';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
 
@@ -89,6 +91,50 @@ export class BattleScene extends Phaser.Scene {
     this.input.once('pointerdown', unlockAudio);
     this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
+    this.showEncounterTutorial();
+  }
+
+  private showEncounterTutorial(): void {
+    const tutorial = getBattleTutorial(this.encounterId, this.save.flags);
+    if (!tutorial) return;
+
+    this.save = autoSave(window.localStorage, {
+      ...this.save,
+      flags: { ...this.save.flags, [tutorial.flag]: true }
+    });
+    const overlay = this.add.container(0, 0).setDepth(120);
+    const blocker = this.add.rectangle(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2,
+      GAME_WIDTH,
+      GAME_HEIGHT,
+      0x05070c,
+      0.78
+    ).setInteractive();
+    overlay.add(blocker);
+    overlay.add(addUiPanel(this, 180, 108, 600, 330, { originY: 0 }));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 145, tutorial.title, {
+      fontFamily: 'serif',
+      fontSize: '27px',
+      color: '#e9c56c'
+    }).setOrigin(0.5));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 198, tutorial.body, {
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      color: '#cbd6e8',
+      align: 'center',
+      wordWrap: { width: 500 }
+    }).setOrigin(0.5));
+    tutorial.tips.forEach((tip, index) => {
+      overlay.add(this.add.text(245, 255 + index * 34, `◆ ${tip}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '14px',
+        color: '#cdeaff'
+      }));
+    });
+    overlay.add(addUiTextButton(this, 380, 393, 200, 'Verstanden', () => {
+      overlay.destroy();
+    }, { height: 46, fill: 0x1b2940, fontSize: '15px' }));
   }
 
   private drawArena(): void {

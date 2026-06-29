@@ -461,11 +461,15 @@ export function chooseDialogOption(
 
 export function buildShopView(state: WorldState, shopId: string): ShopView {
   const shop = requireShop(shopId);
+  const itemRequirements = new Map(
+    (shop.itemRequirements ?? []).map((entry) => [entry.itemId, entry.requirements])
+  );
   return {
     id: shop.id,
     name: shop.name,
     gold: state.gold,
     items: shop.itemIds.flatMap((itemId): ShopItemView[] => {
+      if (!requirementsMet(state, itemRequirements.get(itemId) ?? [])) return [];
       const item = itemById.get(itemId);
       if (!item) return [];
       return [{

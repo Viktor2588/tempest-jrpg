@@ -133,6 +133,49 @@ describe('world/dialog/shop/encounter system', () => {
     }
   });
 
+  it('zeigt Tempests Wachstum nach Prolog, Rat und Band-2-Abschluss in drei Stufen', () => {
+    const prologue = postPrologueWorld();
+    const council: WorldState = {
+      ...prologue,
+      flags: { ...prologue.flags, 'story.council.ready': true }
+    };
+    const established: WorldState = {
+      ...council,
+      flags: { ...council.flags, 'story.act1.completed': true }
+    };
+
+    expect(getMapLocations('tempest-start', prologue).map((location) => location.id))
+      .not.toContain('tempest-council-board');
+    expect(getMapLocations('tempest-start', council).map((location) => location.id))
+      .toContain('tempest-council-board');
+    expect(getMapLocations('tempest-start', established).map((location) => location.id))
+      .toContain('tempest-echo-ward');
+
+    expect(getMapNpcs('tempest-start', prologue).find((npc) => npc.name === 'Rigurd')?.position)
+      .toEqual({ x: 2, y: 4 });
+    expect(getMapNpcs('tempest-start', council).find((npc) => npc.name === 'Rigurd')?.position)
+      .toEqual({ x: 3, y: 6 });
+    expect(getMapNpcs('tempest-start', established).find((npc) => npc.name === 'Rigurd')?.position)
+      .toEqual({ x: 4, y: 7 });
+  });
+
+  it('erweitert Tempests Händlerangebot nach Rat und Kijin-Benennung', () => {
+    const baseItems = buildShopView(postPrologueWorld(), 'tempest-supply').items.map((item) => item.itemId);
+    const councilItems = buildShopView({
+      ...postPrologueWorld(),
+      flags: { ...postPrologueWorld().flags, 'story.council.ready': true }
+    }, 'tempest-supply').items.map((item) => item.itemId);
+    const kijinItems = buildShopView({
+      ...postPrologueWorld(),
+      flags: { ...postPrologueWorld().flags, 'story.council.ready': true, 'story.kijin.named': true }
+    }, 'tempest-supply').items.map((item) => item.itemId);
+
+    expect(baseItems).not.toContain('tempest-charm');
+    expect(councilItems).toContain('tempest-charm');
+    expect(councilItems).not.toContain('kurobe-katana');
+    expect(kijinItems).toContain('kurobe-katana');
+  });
+
   it('schaltet das Tempest-Lager nach dem Prolog als sicheren Ruhepunkt frei', () => {
     const beforeLocations = getMapLocations('tempest-start', emptyWorld()).map((location) => location.id);
     const beforeNpcs = getMapNpcs('tempest-start', emptyWorld()).map((npc) => npc.id);

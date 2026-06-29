@@ -239,7 +239,7 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+    location: { mapId: 'tempest-start', x: 3, y: 7, facing: 'up' },
     inventory: { stacks: [{ itemId: 'wolf-fang-token', quantity: 1 }, { itemId: 'ancestor-seal-fragment', quantity: 1 }] },
     flags: {
       'story.intro.seen': true,

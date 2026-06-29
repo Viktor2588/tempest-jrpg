@@ -127,7 +127,17 @@ export class DialogueScene extends Phaser.Scene {
     if (effects.some((effect) => effect.type === 'complete-quest')) return 'victory';
     if (effects.some((effect) =>
       effect.type === 'set-flag'
-      && (effect.flag === 'story.storm-dragon.oath' || effect.flag.endsWith('.pact'))
+      && effect.flag === 'story.council.ready'
+      && effect.value
+    )) return 'victory';
+    if (effects.some((effect) =>
+      effect.type === 'set-flag'
+      && (
+        effect.flag === 'story.storm-dragon.oath'
+        || effect.flag === 'story.shuna.ready'
+        || effect.flag === 'story.vael.ready'
+        || effect.flag.endsWith('.pact')
+      )
       && effect.value
     )) return 'magic';
     return 'confirm';
