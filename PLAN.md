@@ -818,3 +818,63 @@ Neue Items dazu (Vorschlag): `magic-ore`, `magisteel`, `full-potion`*, `geld-cor
 - **Andersweltler & Beschwörung:** Magie ruft Menschen aus „unserer" Welt; sie tragen Skills/Hunger
   nach Magie; **Leon Cromwell** (beschwor Shizu als Kind) als fernes Rimuru-Ziel; die Westliche
   Heilige Kirche/Hinata als Foreshadow für spätere Bänder.
+
+## Band 1 & 2: Item-Datenblätter + Kijin-Talentbäume (2026-06-29)
+
+> Schema-valide. Items: `category` consumable/weapon/armor/accessory/key, optional
+> `equipmentSlot`/`equipmentSetId`/`enchantment`/`statBonus`/`effect`. Talentknoten: `cost`,
+> `requiredLevel` (aufsteigend entlang `requiredNodeIds`), optional `skillId`/`statBonus`/
+> `requiredFlag`. Die Kijin-Bäume setzen die fünf Kijin als HEROES voraus (Oger→Kijin-Arc).
+
+### Neue Items (`src/data/items.ts`)
+```ts
+{ id: 'hipokte-herb', name: 'Hipokte-Kraut', description: 'Heilkraut aus der versiegelten Höhle; Grundlage für stärkere Tränke.', category: 'consumable', price: 30, stackable: true, effect: { kind: 'heal-hp', amount: 80 } },
+{ id: 'full-potion', name: 'Vollheiltrank', description: 'Tempests Spitzenheilung aus destilliertem Hipokte-Kraut — stellt alle LP wieder her.', category: 'consumable', price: 220, stackable: true, effect: { kind: 'heal-hp', amount: 999 } },
+{ id: 'magic-ore', name: 'Magisches Erz', description: 'Magicule-getränktes Roherz; Rohstoff für Magisteel und Magiewerkzeuge.', category: 'key', price: 45, stackable: true },
+{ id: 'magisteel', name: 'Magisteel', description: 'Aus magischem Erz und Magicules veredelt; überlegener Schmiedewerkstoff.', category: 'key', price: 140, stackable: true },
+{ id: 'geld-core', name: 'Geld-Kern', description: 'Verdichteter Kern des Orc-Disasters — Beweis und Evolutionsmaterial.', category: 'key', price: 0, stackable: false },
+{ id: 'spirit-ember', name: 'Geistglut', description: 'Ifrits gebändigte Flamme; entzündet eine Feuer-Affinität/-Form.', category: 'key', price: 0, stackable: false },
+{ id: 'kurobe-katana', name: 'Kurobes Katana', description: 'Von Meister Kurobe aus Magisteel geschmiedet — scharf wie ein Schwur.', category: 'weapon', price: 0, stackable: false, equipmentSlot: 'weapon', enchantment: { maxLevel: 5, goldCostPerLevel: 120, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 14, agility: 3 } },
+{ id: 'kijin-haori', name: 'Kijin-Haori', description: 'Von Shuna gewebte Kampfrobe der Kijin — leicht und widerstandsfähig.', category: 'armor', price: 260, stackable: false, equipmentSlot: 'armor', statBonus: { defense: 8, spirit: 4, magic: 2 } },
+{ id: 'oni-mask', name: 'Oni-Maske', description: 'Eine Maske im Erbe Shizus — schärft den Geist im Kampf.', category: 'accessory', price: 300, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 4, spirit: 4, maxMp: 8 } }
+```
+
+### Kijin-Talentbäume (`src/data/progression.ts` → `SKILL_TREES`)
+> Nutzen die neuen Skills (`black-flame`, `war-cry`, `iron-guard`, `ogre-smash`) und vorhandene
+> (`quick-step`, `battle-cry`, `venom-spit`). `requiredLevel` steigt entlang der Ketten (Balance-Gate).
+```ts
+{ id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
+  { id: 'benimaru-flame-core', name: 'Flammenkern', description: 'Grundlage der Schwarzflamme.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { magic: 2, attack: 1 } },
+  { id: 'benimaru-black-flame', name: 'Schwarzflamme', description: 'Erlernt die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 4, requiredNodeIds: ['benimaru-flame-core'], skillId: 'black-flame' },
+  { id: 'benimaru-general-aura', name: 'Generals-Aura', description: 'Anführerpräsenz stärkt den Angriff.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-core'], skillId: 'war-cry' },
+  { id: 'benimaru-hellfire', name: 'Höllenbrand', description: 'Meisterschaft über die Flamme.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-black-flame'], statBonus: { magic: 4, attack: 3 } }
+] },
+{ id: 'shion-tree', characterId: 'shion', name: 'Stahlfaust-Leibwache', nodes: [
+  { id: 'shion-iron-body', name: 'Eisenkörper', description: 'Monströse Konstitution.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { maxHp: 18, defense: 2 } },
+  { id: 'shion-ogre-smash', name: 'Oger-Wucht', description: 'Erlernt den erderschütternden Hieb.', cost: 1, requiredLevel: 4, requiredNodeIds: ['shion-iron-body'], skillId: 'ogre-smash' },
+  { id: 'shion-bulwark', name: 'Bollwerk', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-iron-body'], skillId: 'iron-guard' },
+  { id: 'shion-titan-grip', name: 'Titanengriff', description: 'Rohe Kraft am Limit.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-ogre-smash'], statBonus: { attack: 5, maxHp: 20 } }
+] },
+{ id: 'hakurou-tree', characterId: 'hakurou', name: 'Schwertheiliger', nodes: [
+  { id: 'hakurou-stance', name: 'Stille Haltung', description: 'Grundlage der Schwertkunst.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 2, attack: 2 } },
+  { id: 'hakurou-flash-step', name: 'Blitzschritt', description: 'Erlernt das schnelle Vorstoßen.', cost: 1, requiredLevel: 4, requiredNodeIds: ['hakurou-stance'], skillId: 'quick-step' },
+  { id: 'hakurou-mentor', name: 'Lehrmeister', description: 'Anleitung stählt das Team.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-stance'], skillId: 'battle-cry' },
+  { id: 'hakurou-god-speed', name: 'Götterschnelle', description: 'Vollendung des Schwertwegs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-flash-step'], statBonus: { agility: 5, attack: 4 } }
+] },
+{ id: 'kurobe-tree', characterId: 'kurobe', name: 'Meisterschmied', nodes: [
+  { id: 'kurobe-forge-arm', name: 'Schmiedearm', description: 'Schmiedekraft und Härte.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { attack: 2, defense: 2 } },
+  { id: 'kurobe-tempered', name: 'Gehärtet', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 4, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'iron-guard' },
+  { id: 'kurobe-magisteel-edge', name: 'Magisteel-Schneide', description: 'Magisteel schärft den Hieb.', cost: 1, requiredLevel: 6, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'ogre-smash' },
+  { id: 'kurobe-masterwork', name: 'Meisterwerk', description: 'Vollendete Schmiedekunst.', cost: 2, requiredLevel: 9, requiredNodeIds: ['kurobe-tempered'], statBonus: { defense: 5, attack: 3 } }
+] },
+{ id: 'souei-tree', characterId: 'souei', name: 'Schattenklinge', nodes: [
+  { id: 'souei-silent-step', name: 'Lautloser Schritt', description: 'Verdeckte Beweglichkeit.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 3 } },
+  { id: 'souei-venom', name: 'Giftklinge', description: 'Erlernt den vergifteten Stoß.', cost: 1, requiredLevel: 4, requiredNodeIds: ['souei-silent-step'], skillId: 'venom-spit' },
+  { id: 'souei-shadow-strike', name: 'Schattenstoß', description: 'Schneller Vorstoß aus dem Schatten.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-silent-step'], skillId: 'quick-step' },
+  { id: 'souei-assassinate', name: 'Meucheln', description: 'Tödliche Präzision.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-venom'], statBonus: { agility: 4, attack: 4 } }
+] }
+```
+**Hinweis Datenintegrität:** `validateGameData` prüft `skillTrees.characterId ∈ heroIds` und das
+Balance-Gate verlangt `requiredLevel(Vorgänger) ≤ requiredLevel(Knoten)` — beides hier eingehalten,
+sobald die fünf Kijin als HEROES existieren. Items wie `kurobe-katana` können als
+Quest-/Talent-Belohnung (Oger→Kijin) vergeben werden.
