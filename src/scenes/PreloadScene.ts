@@ -55,6 +55,11 @@ import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
 import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.webp';
+import ogreRuinsBattleUrl from '../assets/backgrounds/battle-ogre-ruins.webp';
+import orcBattlefieldBattleUrl from '../assets/backgrounds/battle-orc-battlefield.webp';
+import lizardmanMarshBattleUrl from '../assets/backgrounds/battle-lizardman-marsh.webp';
+import spiritCaveBattleUrl from '../assets/backgrounds/battle-spirit-cave.webp';
+import milimArrivalBattleUrl from '../assets/backgrounds/battle-milim-arrival.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -110,6 +115,11 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-highlands'], spiritHighlandsBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['ogre-ruins'], ogreRuinsBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['orc-battlefield'], orcBattlefieldBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['lizardman-marsh'], lizardmanMarshBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['spirit-cave'], spiritCaveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['milim-arrival'], milimArrivalBattleUrl);
   }
 
   create(): void {
