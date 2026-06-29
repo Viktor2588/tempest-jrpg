@@ -110,7 +110,7 @@ Da das Projekt vorerst privat bleibt, sollen sichtbare Figuren und Begleiter mit
 
 - [x] Portraits/Platzhalter für Rimuru, Rigurd, Gobta, Ranga, Shuna und das namenlose Echo prüfen.
 - [x] Tempest-Hub nach Band-1-Abschluss mit neuen Markern/NPC-Reaktionen aktualisieren.
-- [ ] Soundhinweise für Rat, Ahnenzeichen und Echo-Kampf differenzieren.
+- [x] Soundhinweise für Rat, Ahnenzeichen und Echo-Kampf differenzieren.
 - [x] Codex-Neueinträge nach Freischaltung klarer signalisieren.
 
 ### 8. Tests und Gates

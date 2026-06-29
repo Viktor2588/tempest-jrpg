@@ -8,10 +8,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'es2020',
-    // Phaser ist absichtlich die zentrale Runtime-Abhängigkeit. Für dieses
-    // kleine Spiel ist ein einzelner statischer Bundle-Load pragmatischer als
-    // künstliche Code-Splittung über Szenen hinweg.
-    // Phaser 4 (4.2.0) ist ~220 KB größer als Phaser 3.90 → Limit angehoben.
+    // Phaser bleibt die zentrale Runtime-Abhängigkeit, wird aber als stabiler
+    // Vendor-Chunk ausgeliefert. Dadurch wächst der eigentliche Spielcode mit
+    // neuen Bänden weiter, ohne das mobile Chunkbudget zu überschreiten.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          phaser: ['phaser']
+        }
+      }
+    },
     chunkSizeWarningLimit: 1900
   },
   test: {

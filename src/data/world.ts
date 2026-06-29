@@ -120,6 +120,10 @@ export interface ShopDefinition {
   readonly mapId: string;
   readonly position: Vec2;
   readonly itemIds: readonly string[];
+  readonly itemRequirements?: readonly {
+    readonly itemId: string;
+    readonly requirements: readonly WorldRequirement[];
+  }[];
   readonly buyMultiplier: number;
   readonly sellMultiplier: number;
 }
@@ -527,6 +531,26 @@ export const LOCATIONS = [
     description: 'Ein geschützter Lagerkreis mit Wasser, Decken und genug Ruhe für kurze Absprachen.',
     identity: 'Ruhepunkt: Heilen, Speichern und kurze optionale Partygespräche zwischen den Hauptbeats.',
     unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
+    id: 'tempest-council-board',
+    name: 'Tafel des Rates',
+    kind: 'city',
+    mapId: 'tempest-start',
+    position: { x: 4, y: 6 },
+    description: 'Auf der ersten Ratstafel stehen Versorgung, Hainroute und Shunas Siegelzeichen nebeneinander.',
+    identity: 'Band-2-Hubmarker: Der Rat verändert Tempest sichtbar von einer Ansammlung Hütten zu einer organisierten Stadt.',
+    unlockFlag: 'story.council.ready'
+  },
+  {
+    id: 'tempest-echo-ward',
+    name: 'Siegelwacht',
+    kind: 'shrine',
+    mapId: 'tempest-start',
+    position: { x: 5, y: 7 },
+    description: 'Ein kleiner Schutzstein erinnert an das gebrochene Echo und markiert Tempests erste gemeinsam bestandene Krise.',
+    identity: 'Band-2-Abschlussmarker: Das Ahnensiegel wird Teil von Tempests sichtbarer Geschichte.',
+    unlockFlag: 'story.act1.completed'
   },
   {
     id: 'sealed-cave',
@@ -1557,7 +1581,23 @@ export const DIALOGS = [
           {
             id: 'state',
             label: 'Was ist Tempest?',
-            nextNodeId: 'state'
+            nextNodeId: 'state',
+            requirements: [{ notFlag: 'story.council.ready' }]
+          },
+          {
+            id: 'state-council',
+            label: 'Wie verändert der Rat Tempest?',
+            nextNodeId: 'state-council',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { notFlag: 'story.act1.completed' }
+            ]
+          },
+          {
+            id: 'state-established',
+            label: 'Was bleibt nach dem Echo?',
+            nextNodeId: 'state-established',
+            requirements: [{ flag: 'story.act1.completed' }]
           }
         ]
       },
@@ -1590,6 +1630,18 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Tempest ist noch klein: Ratsplatz, Namensstein, Vorratszelt und Palisade. Aber jeder sichtbare Pfahl sagt dasselbe: Der Name ist ein Versprechen, nicht nur ein Etikett.',
         choices: [{ id: 'end', label: 'Verstanden' }]
+      },
+      {
+        id: 'state-council',
+        speaker: 'Rigurd',
+        text: 'Seit dem ersten Rat laufen Vorräte, Patrouillen und Shunas Ritualzeichen nicht mehr nebeneinander her. Die neue Tafel zeigt jedem, wer Verantwortung trägt.',
+        choices: [{ id: 'end', label: 'Der Rat gibt Tempest Form' }]
+      },
+      {
+        id: 'state-established',
+        speaker: 'Rigurd',
+        text: 'Die Siegelwacht erinnert uns an das Echo. Händler führen bessere Vorräte, Späher melden sichere Wege, und kein Beschluss gehört nur noch einer Person.',
+        choices: [{ id: 'end', label: 'Tempest wächst weiter' }]
       },
       {
         id: 'rally-node',
@@ -2120,6 +2172,15 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'save',
+            label: 'Spielstand am Lager sichern',
+            nextNodeId: 'saved',
+            requirements: [{ flag: 'story.slime-prologue.completed' }],
+            effects: [
+              { type: 'set-flag', flag: 'rest.tempest.saved', value: true }
+            ]
+          },
+          {
             id: 'talk-ranga-pact',
             label: 'Gespräch: Gobta und Ranga',
             nextNodeId: 'talk-ranga-pact',
@@ -2179,6 +2240,12 @@ export const DIALOGS = [
         speaker: 'Tempest-Lager',
         text: 'Kräuterduft, warmes Wasser und ein paar ruhige Atemzüge reichen. Die aktive Gruppe ist wieder einsatzbereit.',
         choices: [{ id: 'end', label: 'Zurück nach Tempest' }]
+      },
+      {
+        id: 'saved',
+        speaker: 'Tempest-Lager',
+        text: 'Der aktuelle Stand ist gesichert. Party, Inventar, Quests und Position bleiben erhalten.',
+        choices: [{ id: 'end', label: 'Weiter' }]
       },
       {
         id: 'talk-ranga-pact',
@@ -2242,7 +2309,31 @@ export const NPCS = [
     position: { x: 2, y: 4 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
-    requirements: [{ flag: 'story.slime-prologue.completed' }]
+    requirements: [
+      { flag: 'story.slime-prologue.completed' },
+      { notFlag: 'story.council.ready' }
+    ]
+  },
+  {
+    id: 'rigurd-council',
+    name: 'Rigurd',
+    mapId: 'tempest-start',
+    position: { x: 3, y: 6 },
+    dialogId: 'rigurd-act1',
+    color: 0xe9c56c,
+    requirements: [
+      { flag: 'story.council.ready' },
+      { notFlag: 'story.act1.completed' }
+    ]
+  },
+  {
+    id: 'rigurd-established',
+    name: 'Rigurd',
+    mapId: 'tempest-start',
+    position: { x: 4, y: 7 },
+    dialogId: 'rigurd-act1',
+    color: 0xe9c56c,
+    requirements: [{ flag: 'story.act1.completed' }]
   },
   {
     id: 'shuna',
@@ -2324,6 +2415,28 @@ export const SHOPS = [
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
     itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
+    itemRequirements: [
+      {
+        itemId: 'tempest-charm',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'hipokte-herb',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'kurobe-katana',
+        requirements: [{ flag: 'story.kijin.named' }]
+      },
+      {
+        itemId: 'kijin-haori',
+        requirements: [{ flag: 'story.kijin.named' }]
+      },
+      {
+        itemId: 'oni-mask',
+        requirements: [{ flag: 'story.kijin.named' }]
+      }
+    ],
     buyMultiplier: 1,
     sellMultiplier: 0.5
   },

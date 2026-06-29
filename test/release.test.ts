@@ -27,7 +27,8 @@ describe('release configuration', () => {
     expect(viteConfigSource).not.toMatch(/serviceWorker/i);
   });
 
-  it('dokumentiert das Build-Größenbudget für den Phaser-Single-Bundle-Ansatz', () => {
+  it('dokumentiert das Build-Größenbudget und trennt Phaser als Vendor-Chunk', () => {
     expect(viteConfigSource).toContain('chunkSizeWarningLimit: 1900');
+    expect(viteConfigSource).toContain("phaser: ['phaser']");
   });
 });

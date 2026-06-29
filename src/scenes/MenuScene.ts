@@ -1,13 +1,8 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
-import {
-  buildRangaJourneyView,
-  buildRangaTravelView,
-  resolveRangaTravel,
-  type RangaJourneyView,
-  type RangaTravelStatus
-} from '../systems/rangaTravel';
+import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
+import { canPresentRangaJourney } from '../systems/rangaJourney';
 import {
   buildMenuView,
   EQUIPMENT_SLOTS,
@@ -15,9 +10,11 @@ import {
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
+  applyPartyFormationToMenuState,
   unequipItem,
   useItem
 } from '../systems/menu';
+import { activateReserveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
   enchantEquipment,
@@ -35,7 +32,6 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { loadSettings } from '../systems/settings';
 import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { portraitKey } from '../render/portraitAtlas';
@@ -79,7 +75,6 @@ export class MenuScene extends Phaser.Scene {
   private selectedQuestId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
-  private travelingWithRanga = false;
 
   constructor() {
     super('Menu');
@@ -89,6 +84,7 @@ export class MenuScene extends Phaser.Scene {
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.state = {
       party: this.save.party.active,
+      reserve: this.save.party.reserve,
       inventory: this.save.inventory.stacks,
       gold: this.save.party.gold,
       flags: this.save.flags,
@@ -183,8 +179,13 @@ export class MenuScene extends Phaser.Scene {
 
   private drawParty(_selectedName: string, view: MenuView): void {
     this.sectionTitle('Party-Übersicht');
+    this.layer.add(this.add.text(300, 136, 'Aktive Gruppe · maximal 3', {
+      fontFamily: 'sans-serif',
+      fontSize: '13px',
+      color: '#cdeaff'
+    }));
     view.members.forEach((summary, index) => {
-      const y = 154 + index * 78;
+      const y = 176 + index * 96;
       const stats = calculateProgressionStats(
         summary.member,
         this.save.progression
@@ -193,28 +194,47 @@ export class MenuScene extends Phaser.Scene {
         this.save.progression,
         summary.member.characterId
       )?.formName ?? summary.character.species;
-      this.panel(300, y, 600, 66);
+      this.panel(300, y, 370, 82);
       this.drawPortrait(summary.member.characterId, 336, y, 46);
-      this.layer.add(this.add.text(372, y - 24, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+      this.layer.add(this.add.text(372, y - 31, `${summary.member.name} · ${formName}`, {
         fontFamily: 'sans-serif',
-        fontSize: '15px',
-        color: '#e9eef7'
+        fontSize: '15px', color: index === this.selectedMemberIndex ? '#e9c56c' : '#e9eef7'
       }));
-      this.layer.add(this.add.text(372, y, `LP ${summary.member.currentHp}/${stats.maxHp}  MP ${summary.member.currentMp}/${stats.maxMp}  ATK ${stats.attack}  DEF ${stats.defense}  MAG ${stats.magic}  SPI ${stats.spirit}  AGI ${stats.agility}`, {
-        fontFamily: 'sans-serif',
-        fontSize: '13px',
-        color: '#9fb2cc'
+      this.layer.add(this.add.text(372, y - 8, summary.character.role, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
-      const skills = getProgressionSkills(
-        summary.member,
-        this.save.progression
-      );
-      this.layer.add(this.add.text(372, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
+      this.layer.add(this.add.text(372, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
-        color: '#6f83a5'
+        color: '#9fb2cc'
       }));
     });
+
+    this.layer.add(this.add.text(690, 136, 'Reserve', {
+      fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff'
+    }));
+    if (view.reserveMembers.length === 0) {
+      this.layer.add(this.add.text(690, 166, 'Noch keine Reserve.', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
+      }));
+    }
+    view.reserveMembers.slice(0, 6).forEach((summary, index) => {
+      const y = 182 + index * 54;
+      this.button(690, y, 190, `${summary.member.name} · Lv.${summary.member.level}`, () => {
+        const selectedActive = view.members[this.selectedMemberIndex]?.member.characterId;
+        const formation = activateReserveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          selectedActive
+        );
+        this.applyResult(applyPartyFormationToMenuState(this.state, formation));
+      }, 0x243447);
+    });
+    if (view.reserveMembers.length > 0) {
+      this.layer.add(this.add.text(690, 500, 'Bei voller Gruppe ersetzt der Klick\ndas links ausgewählte Mitglied.', {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
+      }));
+    }
   }
 
   private drawInventory(view: MenuView, characterId: string): void {
@@ -671,6 +691,7 @@ export class MenuScene extends Phaser.Scene {
         party: {
           ...this.save.party,
           active: this.state.party,
+          reserve: this.state.reserve ?? [],
           gold: this.state.gold
         },
         inventory: {
@@ -702,7 +723,8 @@ export class MenuScene extends Phaser.Scene {
       ...this.save,
       party: {
         ...this.save.party,
-        active: this.state.party
+        active: this.state.party,
+        reserve: this.state.reserve ?? []
       }
     };
   }
@@ -713,6 +735,7 @@ export class MenuScene extends Phaser.Scene {
       party: {
         ...this.save.party,
         active: this.state.party,
+        reserve: this.state.reserve ?? [],
         gold: this.state.gold
       },
       inventory: {
@@ -723,83 +746,24 @@ export class MenuScene extends Phaser.Scene {
 
   private fastTravelWithRanga(destinationId: string): void {
     const world = createWorldState(this.save);
-    const travelView = buildRangaTravelView(world, this.save.location);
-    const destination = travelView.destinations.find((item) => item.id === destinationId);
     const result = resolveRangaTravel(world, this.save.location, destinationId);
     this.message = result.message;
-    if (!result.ok || !result.location || !destination) {
+    if (!canPresentRangaJourney(result)) {
       this.refresh();
       return;
     }
-    const finishTravel = (): void => {
-      this.travelingWithRanga = false;
-      this.save = autoSave(window.localStorage, {
-        ...this.save,
-        location: result.location!
-      });
-      this.scene.stop('Overworld');
-      this.scene.stop();
-      this.scene.start('Overworld');
-    };
-    const journey = buildRangaJourneyView(destination, {
-      reducedMotion: loadSettings(window.localStorage).reducedMotion
+    this.scene.stop('Overworld');
+    this.scene.stop();
+    this.scene.start('RangaJourney', {
+      destinationId: result.destinationId,
+      destinationName: result.destinationName,
+      location: result.location
     });
-    if (journey.mode === 'instant') {
-      finishTravel();
-      return;
-    }
-    this.showRangaJourney(journey, finishTravel);
   }
 
   private close(): void {
-    if (this.travelingWithRanga) return;
     this.scene.resume('Overworld');
     this.scene.stop();
-  }
-
-  private showRangaJourney(journey: RangaJourneyView, onComplete: () => void): void {
-    this.travelingWithRanga = true;
-    const overlay = this.add.container(0, 0).setDepth(50);
-    const backdrop = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.74)
-      .setInteractive();
-    overlay.add(backdrop);
-    overlay.add(addUiPanel(this, 176, 116, GAME_WIDTH - 352, 264, { originY: 0, alpha: 0.98 }));
-    overlay.add(this.add.text(GAME_WIDTH / 2, 146, journey.title, {
-      fontFamily: 'serif',
-      fontSize: '27px',
-      color: '#e9c56c'
-    }).setOrigin(0.5, 0));
-    overlay.add(this.add.text(GAME_WIDTH / 2, 200, journey.body, {
-      fontFamily: 'sans-serif',
-      fontSize: '16px',
-      color: '#e9eef7',
-      align: 'center',
-      wordWrap: { width: GAME_WIDTH - 430 }
-    }).setOrigin(0.5, 0));
-    overlay.add(this.add.text(GAME_WIDTH / 2, 272, journey.routeNote, {
-      fontFamily: 'sans-serif',
-      fontSize: '12px',
-      color: '#9fb2cc',
-      align: 'center',
-      wordWrap: { width: GAME_WIDTH - 430 }
-    }).setOrigin(0.5, 0));
-
-    let done = false;
-    const finish = (): void => {
-      if (done) return;
-      done = true;
-      overlay.destroy();
-      onComplete();
-    };
-    overlay.add(addUiTextButton(this, GAME_WIDTH / 2 - 116, 330, 232, 'Reise überspringen', finish, {
-      idleAlpha: 0.98,
-      fill: 0x1f4550,
-      textOffsetX: 28
-    }));
-    backdrop.on('pointerdown', finish);
-    this.input.keyboard?.once('keydown-SPACE', finish);
-    this.input.keyboard?.once('keydown-ENTER', finish);
-    this.time.delayedCall(journey.durationMs, finish);
   }
 
   private sectionTitle(label: string): void {

@@ -132,7 +132,12 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
         'story.slime-prologue.completed': true,
         'story.tempest.named': true,
         'bond.rigurd.trust-prologue': true,
-        'progression.gobta.wolf-fang-token': true
+        'progression.gobta.wolf-fang-token': true,
+        'milestone.gobta-joins.shown': true,
+        'milestone.direwolf-victory.shown': true,
+        'milestone.ranga-joins.shown': true,
+        'milestone.band-one-complete.shown': true,
+        'tutorial.overworld.seen': true
       },
       quests: {
         'slime-awakening': {
@@ -193,7 +198,8 @@ test('Band 2 → erster Flüsterhain-Kampf rendert im Browser', async ({ page })
       'story.council.ready': true,
       'scout.whispering-grove': true,
       'scout.border-route': true,
-      'scout.ambush.whispering-grove': true
+      'scout.ambush.whispering-grove': true,
+      'milestone.first-council.shown': true
     },
     quests: {
       'slime-awakening': {
@@ -233,7 +239,7 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+    location: { mapId: 'tempest-start', x: 3, y: 7, facing: 'up' },
     inventory: { stacks: [{ itemId: 'wolf-fang-token', quantity: 1 }, { itemId: 'ancestor-seal-fragment', quantity: 1 }] },
     flags: {
       'story.intro.seen': true,
@@ -249,7 +255,9 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
       'scout.border-route': true,
       'codex.binding-of-ancestors': true,
       'codex.ancestor-seal-warning': true,
-      'codex.mordrahn': true
+      'codex.mordrahn': true,
+      'milestone.first-council.shown': true,
+      'milestone.nameless-echo-defeated.shown': true
     },
     quests: {
       'slime-awakening': {
@@ -282,6 +290,122 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   expect(browserErrors).toEqual([]);
 });
 
+test('Band-2-Abschluss zeigt ein einmaliges Kapitel-Meilenstein-Overlay', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: {
+      'story.intro.seen': true,
+      'story.council.ready': true,
+      'story.grove.cleared': true,
+      'story.boss.echo-defeated': true,
+      'story.act1.completed': true
+    },
+    quests: {
+      'slime-awakening': {
+        status: 'completed',
+        completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+      },
+      'binding-of-ancestors': {
+        status: 'completed',
+        completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+      }
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await expectCanvasContent(page);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['milestone.band-two-complete.shown']).toBe(true);
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(250);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: {
+      'travel.ranga.discovered.goblin-village': true,
+      'travel.ranga.discovered.tempest-hollow': true
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 840, 94); // Ranga-Tab
+  await clickGamePoint(page, 410, 322); // Goblindorf
+  await page.waitForTimeout(700);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 560, 360); // optionale Kräuterspur untersuchen
+  await page.waitForTimeout(500);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('goblin-village');
+  expect(save.flags['travel.ranga.discovery.herb-trail']).toBe(true);
+  expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'healing-herb')).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    party: {
+      active: [
+        { characterId: 'rimuru' },
+        { characterId: 'gobta' },
+        { characterId: 'ranga' }
+      ],
+      reserve: [{ characterId: 'shuna' }],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 120, 240); // Gobta als Tauschplatz auswählen
+  await clickGamePoint(page, 780, 182); // Shuna aus der Reserve aktivieren
+  await page.waitForTimeout(250);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.party.active.map((member: { characterId: string }) => member.characterId))
+    .toEqual(['rimuru', 'shuna', 'ranga']);
+  expect(save.party.reserve.map((member: { characterId: string }) => member.characterId))
+    .toEqual(['gobta']);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
@@ -304,6 +428,7 @@ function bandTwoBrowserSave(overrides: {
   readonly flags?: Record<string, boolean>;
   readonly quests?: Record<string, unknown>;
   readonly inventory?: Record<string, unknown>;
+  readonly party?: Record<string, unknown>;
 } = {}): Record<string, unknown> {
   const baseFlags = {
     'story.slime.awakened': true,
@@ -316,7 +441,12 @@ function bandTwoBrowserSave(overrides: {
     'bond.rigurd.trust-prologue': true,
     'progression.gobta.wolf-fang-token': true,
     'faction.direwolves.respected': true,
-    'mount.direwolf.seed': true
+    'mount.direwolf.seed': true,
+    'milestone.gobta-joins.shown': true,
+    'milestone.direwolf-victory.shown': true,
+    'milestone.ranga-joins.shown': true,
+    'milestone.band-one-complete.shown': true,
+    'tutorial.overworld.seen': true
   };
   return {
     schemaVersion: 3,
@@ -325,7 +455,7 @@ function bandTwoBrowserSave(overrides: {
     seed: 22,
     playtimeSeconds: 0,
     location: overrides.location ?? { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
-    party: {
+    party: overrides.party ?? {
       active: [
         { characterId: 'rimuru' },
         { characterId: 'gobta' },

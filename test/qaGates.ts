@@ -311,7 +311,13 @@ export function estimateOverworldBudget(viewport: ViewportSize = { width: 960, h
   const worldMarkerObjects = Math.max(...[...mapIds].map((mapId) => (
     LOCATIONS.filter((l) => l.mapId === mapId).length
     + ENCOUNTERS.filter((e) => e.mapId === mapId && e.kind === 'trigger').length
-    + NPCS.filter((n) => n.mapId === mapId).length
+    // Mehrere Definitionen derselben Figur/Dialogrolle bilden story-abhängige
+    // Positionen ab (z. B. Rigurd vor Rat / nach Rat / nach Band 2), sind aber
+    // durch requirements gegenseitig exklusiv und nie gleichzeitig gerendert.
+    + new Set(
+      NPCS.filter((n) => n.mapId === mapId)
+        .map((n) => `${n.name}:${n.dialogId}`)
+    ).size
     + SHOPS.filter((s) => s.mapId === mapId).length
   ) * 2));
   const hudTargets = allHudRects(layoutOverworldHud(viewport)).length;

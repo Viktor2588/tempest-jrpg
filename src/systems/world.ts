@@ -4,6 +4,7 @@ import { HEROES, ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
 import { createPartyMember, type PartyMemberState } from './party';
+import { MAX_ACTIVE_PARTY_SIZE } from './partyFormation';
 import { type Rng } from './rng';
 import type { QuestState, SaveGameV2 } from './save';
 import type { Vec2 } from './overworld';
@@ -16,8 +17,8 @@ export interface WorldState {
   // Höchstes Level der aktiven Party. Optional, damit bestehende WorldState-Literale
   // (Tests, Smokes) gültig bleiben; fehlt es, greift der Überlevel-Schutz nicht.
   readonly partyLevel?: number;
-  // Charakter-IDs der aktiven Party. Story-Effekte (`recruit-character`) hängen hier
-  // idempotent an; applyWorldState gleicht das auf den Save-Roster ab. Optional, damit
+  // Charakter-IDs der aktiven Party und Reserve. Story-Effekte (`recruit-character`)
+  // hängen hier idempotent an; applyWorldState gleicht das auf den Save-Roster ab. Optional, damit
   // bestehende WorldState-Literale gültig bleiben.
   readonly roster?: readonly string[];
   // Aktive Party-Ressourcen für Welt-Effekte wie Ruhepunkte. Optional, damit
@@ -112,15 +113,15 @@ export function createWorldState(save: SaveGameV2): WorldState {
     inventory: save.inventory.stacks,
     gold: save.party.gold,
     partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0),
-    roster: save.party.active.map((member) => member.characterId),
+    roster: [...save.party.active, ...save.party.reserve].map((member) => member.characterId),
     party: save.party.active
   };
 }
 
 export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2 {
-  // Rekrutierte Figuren in den aktiven Save-Roster übernehmen. Vorhandene Mitglieder
-  // (aktiv ODER Reserve) bleiben unangetastet — es werden ausschließlich neue Charaktere
-  // mit frisch erzeugtem, voll geheiltem Zustand an die aktive Party angehängt.
+  // Rekrutierte Figuren in den Save-Roster übernehmen. Vorhandene Mitglieder
+  // (aktiv ODER Reserve) bleiben unangetastet. Freie Plätze der aktiven Dreiergruppe
+  // werden zuerst gefüllt; weitere Rekruten landen voll geheilt in der Reserve.
   const roster = world.roster ?? save.party.active.map((member) => member.characterId);
   const knownIds = new Set([...save.party.active, ...save.party.reserve].map((member) => member.characterId));
   const recruits = roster.flatMap((characterId) => {
@@ -130,6 +131,9 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
   });
   const worldMembersById = new Map((world.party ?? []).map((member) => [member.characterId, member]));
   const active = save.party.active.map((member) => worldMembersById.get(member.characterId) ?? member);
+  const openSlots = Math.max(0, MAX_ACTIVE_PARTY_SIZE - active.length);
+  const activeRecruits = recruits.slice(0, openSlots);
+  const reserveRecruits = recruits.slice(openSlots);
 
   return {
     ...save,
@@ -138,7 +142,8 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
     inventory: { stacks: world.inventory },
     party: {
       ...save.party,
-      active: [...active, ...recruits],
+      active: [...active, ...activeRecruits],
+      reserve: [...save.party.reserve, ...reserveRecruits],
       gold: world.gold
     }
   };
@@ -456,11 +461,15 @@ export function chooseDialogOption(
 
 export function buildShopView(state: WorldState, shopId: string): ShopView {
   const shop = requireShop(shopId);
+  const itemRequirements = new Map(
+    (shop.itemRequirements ?? []).map((entry) => [entry.itemId, entry.requirements])
+  );
   return {
     id: shop.id,
     name: shop.name,
     gold: state.gold,
     items: shop.itemIds.flatMap((itemId): ShopItemView[] => {
+      if (!requirementsMet(state, itemRequirements.get(itemId) ?? [])) return [];
       const item = itemById.get(itemId);
       if (!item) return [];
       return [{

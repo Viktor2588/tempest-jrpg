@@ -36,6 +36,8 @@ export interface RangaTravelResult {
   readonly ok: boolean;
   readonly location: SaveLocation | null;
   readonly message: string;
+  readonly destinationId?: string;
+  readonly destinationName?: string;
 }
 
 export interface RangaJourneyView {
@@ -158,7 +160,9 @@ export function resolveRangaTravel(
       y: destination.y,
       facing: 'down'
     },
-    message: `Ranga bringt dich nach ${destination.name}.`
+    message: `Ranga bringt dich nach ${destination.name}.`,
+    destinationId: destination.id,
+    destinationName: destination.name
   };
 }
 

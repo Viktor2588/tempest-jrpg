@@ -106,6 +106,20 @@ describe('menu system', () => {
     expect(view.story?.highlights).toContain('Belohnung: Tempest-Talisman erhalten');
   });
 
+  it('zeigt aktive Gruppe und Reserve getrennt im Menü-View', () => {
+    const rimuru = createInitialParty()[0]!;
+    const shuna = createPartyMember(HEROES.find((hero) => hero.id === 'shuna')!);
+    const view = buildMenuView({
+      party: [rimuru],
+      reserve: [shuna],
+      inventory: [],
+      gold: 0
+    });
+
+    expect(view.members.map((entry) => entry.member.characterId)).toEqual(['rimuru']);
+    expect(view.reserveMembers.map((entry) => entry.member.characterId)).toEqual(['shuna']);
+  });
+
   it('berechnet gefaltete Klassenwerte und innewohnenden Skillzugriff deterministisch', () => {
     // Gobta startet seit dem story-gesteuerten Aufbau nicht mehr in der Party → direkt erzeugen.
     const gobta = createPartyMember(HEROES.find((hero) => hero.id === 'gobta')!);
