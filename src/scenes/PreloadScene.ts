@@ -33,6 +33,11 @@ import rimuruBattleUrl from '../assets/sprites/party-rimuru.webp';
 import gobtaBattleUrl from '../assets/sprites/party-gobta.webp';
 import rangaBattleUrl from '../assets/sprites/party-ranga.webp';
 import shunaBattleUrl from '../assets/sprites/party-shuna.webp';
+import rimuruPortraitUrl from '../assets/sprites/portrait-rimuru.webp';
+import gobtaPortraitUrl from '../assets/sprites/portrait-gobta.webp';
+import shunaPortraitUrl from '../assets/sprites/portrait-shuna.webp';
+import rigurdPortraitUrl from '../assets/sprites/portrait-rigurd.webp';
+import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
@@ -79,6 +84,11 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(PARTY_BATTLE_ART.gobta, gobtaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.ranga, rangaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.shuna, shunaBattleUrl);
+    this.load.image(portraitKey('rimuru'), rimuruPortraitUrl);
+    this.load.image(portraitKey('gobta'), gobtaPortraitUrl);
+    this.load.image(portraitKey('shuna'), shunaPortraitUrl);
+    this.load.image(portraitKey('rigurd'), rigurdPortraitUrl);
+    this.load.image(portraitKey('ranga'), rangaPortraitUrl);
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
@@ -125,6 +135,11 @@ export class PreloadScene extends Phaser.Scene {
       KINGDOM_UNIT_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
+      portraitKey('rimuru'),
+      portraitKey('gobta'),
+      portraitKey('shuna'),
+      portraitKey('rigurd'),
+      portraitKey('ranga'),
       portraitKey('storm-dragon'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
