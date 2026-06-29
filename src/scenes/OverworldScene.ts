@@ -7,6 +7,7 @@ import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../sys
 import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldTutorial } from '../systems/tutorial';
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
+import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { makeRng } from '../systems/rng';
 import {
   applyWorldState,
@@ -166,7 +167,11 @@ export class OverworldScene extends Phaser.Scene {
     menuBtn.on('pointerdown', openMenu);
 
     // Einmaliges Steuerungs-Tutorial beim allerersten Spielstart (Save-Flag-gegated).
-    if (shouldShowOverworldTutorial(this.save.flags)) this.showControlTutorial();
+    if (shouldShowOverworldTutorial(this.save.flags)) {
+      this.showControlTutorial();
+    } else {
+      this.time.delayedCall(180, () => this.maybeShowMilestone());
+    }
   }
 
   // Erklärt Laufen/Interagieren/Menü direkt im Spiel und merkt sich den Abschluss.
@@ -194,6 +199,7 @@ export class OverworldScene extends Phaser.Scene {
       this.save = { ...this.save, flags: { ...this.save.flags, [OVERWORLD_TUTORIAL_FLAG]: true } };
       autoSave(window.localStorage, this.save);
       overlay.destroy();
+      this.time.delayedCall(180, () => this.maybeShowMilestone());
     };
     btn.on('pointerdown', dismiss);
     this.input.keyboard?.once('keydown-ESC', dismiss); // ESC ist sonst nicht belegt
@@ -244,7 +250,23 @@ export class OverworldScene extends Phaser.Scene {
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
+    if (this.maybeShowMilestone()) return;
     this.maybeShowEnding();
+  }
+
+  private maybeShowMilestone(): boolean {
+    if (this.scene.isActive('Milestone') || this.scene.isActive('Ending')) return false;
+    const milestone = getPendingMilestone(this.save);
+    if (!milestone) return false;
+
+    this.save = {
+      ...this.save,
+      flags: acknowledgeMilestone(this.save.flags, milestone.id)
+    };
+    autoSave(window.localStorage, this.save);
+    this.scene.launch('Milestone', { milestoneId: milestone.id });
+    this.scene.pause();
+    return true;
   }
 
   // Fixierte Minimap oben rechts: Marker-Radar (Spieler/Gateway/NPC/Landmark) zur

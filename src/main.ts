@@ -9,6 +9,7 @@ import { MenuScene } from './scenes/MenuScene';
 import { ShopScene } from './scenes/ShopScene';
 import { OptionsScene } from './scenes/OptionsScene';
 import { EndingScene } from './scenes/EndingScene';
+import { MilestoneScene } from './scenes/MilestoneScene';
 
 // Referenzauflösung (16:9, Querformat). Skaliert per FIT auf Handy & Desktop.
 export const GAME_WIDTH = 960;
@@ -25,5 +26,17 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BootScene, PreloadScene, TitleScene, OverworldScene, BattleScene, MenuScene, DialogueScene, ShopScene, OptionsScene, EndingScene]
+  scene: [
+    BootScene,
+    PreloadScene,
+    TitleScene,
+    OverworldScene,
+    BattleScene,
+    MenuScene,
+    DialogueScene,
+    ShopScene,
+    OptionsScene,
+    EndingScene,
+    MilestoneScene
+  ]
 });

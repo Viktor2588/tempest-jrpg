@@ -132,7 +132,12 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
         'story.slime-prologue.completed': true,
         'story.tempest.named': true,
         'bond.rigurd.trust-prologue': true,
-        'progression.gobta.wolf-fang-token': true
+        'progression.gobta.wolf-fang-token': true,
+        'milestone.gobta-joins.shown': true,
+        'milestone.direwolf-victory.shown': true,
+        'milestone.ranga-joins.shown': true,
+        'milestone.band-one-complete.shown': true,
+        'tutorial.overworld.seen': true
       },
       quests: {
         'slime-awakening': {
@@ -193,7 +198,8 @@ test('Band 2 → erster Flüsterhain-Kampf rendert im Browser', async ({ page })
       'story.council.ready': true,
       'scout.whispering-grove': true,
       'scout.border-route': true,
-      'scout.ambush.whispering-grove': true
+      'scout.ambush.whispering-grove': true,
+      'milestone.first-council.shown': true
     },
     quests: {
       'slime-awakening': {
@@ -249,7 +255,9 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
       'scout.border-route': true,
       'codex.binding-of-ancestors': true,
       'codex.ancestor-seal-warning': true,
-      'codex.mordrahn': true
+      'codex.mordrahn': true,
+      'milestone.first-council.shown': true,
+      'milestone.nameless-echo-defeated.shown': true
     },
     quests: {
       'slime-awakening': {
@@ -278,6 +286,47 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   expect(save.quests['binding-of-ancestors'].status).toBe('completed');
   expect(save.flags['story.act1.completed']).toBe(true);
   expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'tempest-charm')).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Band-2-Abschluss zeigt ein einmaliges Kapitel-Meilenstein-Overlay', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: {
+      'story.intro.seen': true,
+      'story.council.ready': true,
+      'story.grove.cleared': true,
+      'story.boss.echo-defeated': true,
+      'story.act1.completed': true
+    },
+    quests: {
+      'slime-awakening': {
+        status: 'completed',
+        completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+      },
+      'binding-of-ancestors': {
+        status: 'completed',
+        completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+      }
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await expectCanvasContent(page);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['milestone.band-two-complete.shown']).toBe(true);
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(250);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -316,7 +365,12 @@ function bandTwoBrowserSave(overrides: {
     'bond.rigurd.trust-prologue': true,
     'progression.gobta.wolf-fang-token': true,
     'faction.direwolves.respected': true,
-    'mount.direwolf.seed': true
+    'mount.direwolf.seed': true,
+    'milestone.gobta-joins.shown': true,
+    'milestone.direwolf-victory.shown': true,
+    'milestone.ranga-joins.shown': true,
+    'milestone.band-one-complete.shown': true,
+    'tutorial.overworld.seen': true
   };
   return {
     schemaVersion: 3,
