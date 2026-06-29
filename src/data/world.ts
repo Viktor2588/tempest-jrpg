@@ -9,6 +9,8 @@ export type WorldEffect =
   | { readonly type: 'complete-quest'; readonly questId: string }
   | { readonly type: 'add-item'; readonly itemId: string; readonly quantity: number }
   | { readonly type: 'add-gold'; readonly amount: number }
+  // Heilt die aktive Party vollständig; wird für sichere Ruhepunkte genutzt.
+  | { readonly type: 'restore-party' }
   // Nimmt eine Figur idempotent in die aktive Party auf (Story-Rekrutierung).
   | { readonly type: 'recruit-character'; readonly characterId: string };
 
@@ -514,6 +516,16 @@ export const LOCATIONS = [
     position: { x: 6, y: 5 },
     description: 'Frisch gesetzte Holzpfähle und Wachtücher markieren den Übergang von Lager zu Stadt.',
     identity: 'Post-Prolog-Hubmarker: weniger Notlager, mehr sichtbare Siedlungsstruktur.',
+    unlockFlag: 'story.slime-prologue.completed'
+  },
+  {
+    id: 'tempest-rest-camp',
+    name: 'Tempest-Lager',
+    kind: 'outpost',
+    mapId: 'tempest-start',
+    position: { x: 7, y: 7 },
+    description: 'Ein geschützter Lagerkreis mit Wasser, Decken und genug Ruhe für kurze Absprachen.',
+    identity: 'Ruhepunkt: Heilen, Speichern und kurze optionale Partygespräche zwischen den Hauptbeats.',
     unlockFlag: 'story.slime-prologue.completed'
   },
   {
@@ -2049,6 +2061,112 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
       }
     ]
+  },
+  {
+    id: 'tempest-rest',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Tempest-Lager',
+        text: 'Das Lagerfeuer brennt niedrig. Hier kann die Gruppe verschnaufen, Wunden schließen und kurz besprechen, was gerade geschehen ist.',
+        choices: [
+          {
+            id: 'rest',
+            label: 'Rasten und Kräfte sammeln',
+            nextNodeId: 'rested',
+            requirements: [{ flag: 'story.slime-prologue.completed' }],
+            effects: [
+              { type: 'restore-party' },
+              { type: 'set-flag', flag: 'rest.tempest.used', value: true }
+            ]
+          },
+          {
+            id: 'talk-ranga-pact',
+            label: 'Gespräch: Gobta und Ranga',
+            nextNodeId: 'talk-ranga-pact',
+            requirements: [
+              { flag: 'story.direwolf.pact' },
+              { notFlag: 'partytalk.ranga-pact' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'partytalk.ranga-pact', value: true },
+              { type: 'set-flag', flag: 'bond.gobta.ranga-camp', value: true }
+            ]
+          },
+          {
+            id: 'talk-council',
+            label: 'Gespräch: Erster Rat',
+            nextNodeId: 'talk-council',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { notFlag: 'partytalk.first-council' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'partytalk.first-council', value: true },
+              { type: 'set-flag', flag: 'bond.shuna.council-camp', value: true }
+            ]
+          },
+          {
+            id: 'talk-grove',
+            label: 'Gespräch: Nach dem Flüsterhain',
+            nextNodeId: 'talk-grove',
+            requirements: [
+              { flag: 'story.grove.cleared' },
+              { notFlag: 'partytalk.after-grove' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'partytalk.after-grove', value: true },
+              { type: 'set-flag', flag: 'bond.ranga.grove-camp', value: true }
+            ]
+          },
+          {
+            id: 'talk-echo',
+            label: 'Gespräch: Nach dem Echo',
+            nextNodeId: 'talk-echo',
+            requirements: [
+              { flag: 'story.boss.echo-defeated' },
+              { notFlag: 'partytalk.after-echo' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'partytalk.after-echo', value: true },
+              { type: 'set-flag', flag: 'bond.rigurd.echo-camp', value: true }
+            ]
+          },
+          { id: 'end', label: 'Weiterziehen' }
+        ]
+      },
+      {
+        id: 'rested',
+        speaker: 'Tempest-Lager',
+        text: 'Kräuterduft, warmes Wasser und ein paar ruhige Atemzüge reichen. Die aktive Gruppe ist wieder einsatzbereit.',
+        choices: [{ id: 'end', label: 'Zurück nach Tempest' }]
+      },
+      {
+        id: 'talk-ranga-pact',
+        speaker: 'Gobta',
+        text: 'Gobta grinst, während Ranga sich ans Feuer legt: „Wenn ich auf ihm reiten darf, komme ich nie wieder zu spät.“ Ranga antwortet nur mit einem zufriedenen Knurren.',
+        choices: [{ id: 'end', label: 'Die beiden verstehen sich' }]
+      },
+      {
+        id: 'talk-council',
+        speaker: 'Shuna',
+        text: 'Shuna legt die Siegelzeichen ins Feuerlicht. „Ein Rat ist kein Ritual, Rimuru. Aber wenn alle ihren Platz kennen, wird aus Angst eine Form.“',
+        choices: [{ id: 'end', label: 'Tempest nimmt Form an' }]
+      },
+      {
+        id: 'talk-grove',
+        speaker: 'Ranga',
+        text: 'Ranga hebt die Schnauze. „Der Hain roch nach Namen, nicht nach Beute.“ Gobta nickt sofort: „Also beim nächsten Mal erst Shuna fragen, dann kämpfen.“',
+        choices: [{ id: 'end', label: 'Gute Lektion' }]
+      },
+      {
+        id: 'talk-echo',
+        speaker: 'Rigurd',
+        text: 'Rigurd betrachtet den Namensstein. „Das Echo wollte Ordnung ohne Menschen darin. Tempest muss das Gegenteil beweisen: Ordnung, weil Leute bleiben wollen.“',
+        choices: [{ id: 'end', label: 'Das ist Tempests Aufgabe' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2139,6 +2257,15 @@ export const NPCS = [
     dialogId: 'kijin-naming',
     color: 0xd66c6c,
     // Die geflüchteten Oger erscheinen im Dorf, sobald das Slime-Prolog-Kapitel steht.
+    requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'tempest-camp',
+    name: 'Tempest-Lager',
+    mapId: 'tempest-start',
+    position: { x: 7, y: 7 },
+    dialogId: 'tempest-rest',
+    color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
   }
 ] as const satisfies readonly NpcDefinition[];

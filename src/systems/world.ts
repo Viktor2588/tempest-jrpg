@@ -3,7 +3,7 @@ import { ENEMIES } from '../data/enemies';
 import { HEROES, ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
-import { createPartyMember } from './party';
+import { createPartyMember, type PartyMemberState } from './party';
 import { type Rng } from './rng';
 import type { QuestState, SaveGameV2 } from './save';
 import type { Vec2 } from './overworld';
@@ -20,6 +20,9 @@ export interface WorldState {
   // idempotent an; applyWorldState gleicht das auf den Save-Roster ab. Optional, damit
   // bestehende WorldState-Literale gültig bleiben.
   readonly roster?: readonly string[];
+  // Aktive Party-Ressourcen für Welt-Effekte wie Ruhepunkte. Optional, damit
+  // bestehende WorldState-Literale gültig bleiben.
+  readonly party?: readonly PartyMemberState[];
 }
 
 export interface DialogView {
@@ -95,7 +98,8 @@ export function createWorldState(save: SaveGameV2): WorldState {
     inventory: save.inventory.stacks,
     gold: save.party.gold,
     partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0),
-    roster: save.party.active.map((member) => member.characterId)
+    roster: save.party.active.map((member) => member.characterId),
+    party: save.party.active
   };
 }
 
@@ -110,6 +114,8 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
     const hero = HEROES.find((candidate) => candidate.id === characterId);
     return hero ? [createPartyMember(hero)] : [];
   });
+  const worldMembersById = new Map((world.party ?? []).map((member) => [member.characterId, member]));
+  const active = save.party.active.map((member) => worldMembersById.get(member.characterId) ?? member);
 
   return {
     ...save,
@@ -118,7 +124,7 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
     inventory: { stacks: world.inventory },
     party: {
       ...save.party,
-      active: [...save.party.active, ...recruits],
+      active: [...active, ...recruits],
       gold: world.gold
     }
   };
@@ -555,6 +561,10 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
       return { ...state, inventory: addInventoryItem(state.inventory, effect.itemId, effect.quantity) };
     case 'add-gold':
       return { ...state, gold: Math.max(0, state.gold + effect.amount) };
+    case 'restore-party':
+      return state.party
+        ? { ...state, party: state.party.map(restorePartyMember) }
+        : state;
     case 'recruit-character': {
       // Idempotent: schon im Roster → unverändert. So bleibt ein wiederholt ausgelöster
       // Dialog/Encounter belohnungs- und mitgliederneutral.
@@ -563,6 +573,21 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
       return { ...state, roster: [...roster, effect.characterId] };
     }
   }
+}
+
+function restorePartyMember(member: PartyMemberState): PartyMemberState {
+  const hero = HEROES.find((candidate) => candidate.id === member.characterId);
+  if (!hero) return member;
+  const restored = createPartyMember(hero, {
+    level: member.level,
+    experience: member.experience,
+    learnedSkillIds: member.learnedSkillIds
+  });
+  return {
+    ...member,
+    currentHp: restored.currentHp,
+    currentMp: restored.currentMp
+  };
 }
 
 function requirementsMet(state: WorldState, requirements: readonly WorldRequirement[]): boolean {
