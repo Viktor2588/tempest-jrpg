@@ -479,6 +479,38 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'geld-disaster',
+    title: 'Der hungernde Heerzug',
+    description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
+    steps: [
+      {
+        id: 'plea',
+        title: 'Treynis Warnung hören',
+        description: 'Triff die Waldhüterin Treyni am Rand des Schlachtfelds und höre von Gelmuds Namensschema.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'march',
+        title: 'Die Ork-Vorhut brechen',
+        description: 'Halte die anstürmende Ork-Vorhut auf dem Jura-Schlachtfeld auf.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'geld',
+        title: 'Den Orc-Disaster stellen',
+        description: 'Stelle dich „Geld", dem hungernden Katastrophen-Ork, im Herzen der Schlacht.',
+        locationId: 'battlefield-heart'
+      },
+      {
+        id: 'federation',
+        title: 'Die Föderation gründen',
+        description: 'Vereine die Waldvölker zur Jura-Tempest-Föderation.',
+        locationId: 'battlefield-heart'
+      }
+    ],
+    reward: { gold: 320, itemIds: ['famine-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -817,6 +849,48 @@ export const LOCATIONS = [
     position: { x: 12, y: 3 },
     description: 'Die windumtoste Spitze des Geisterschreins, an der die ältesten Echos der Bindung nachhallen.',
     identity: 'Erkundungs-/Bossort des Hochlands: stärkste optionale Begegnungen.'
+  },
+  {
+    id: 'gate-to-battlefield',
+    name: 'Marschpfad zum Heerfeld',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 2 },
+    description: 'Ein breitgetretener Heerpfad, der nach Norden zum offenen Jura-Schlachtfeld führt.',
+    identity: 'Reisepunkt: Übergang zum Orc-Disaster-Set-Piece (Jura-Schlachtfeld).',
+    // Öffnet, sobald die Kijin Tempest geschworen haben — Tempest zieht in den Ork-Krieg.
+    unlockFlag: 'faction.kijin.sworn',
+    travelTo: { mapId: 'jura-battlefield', x: 2, y: 7 }
+  },
+  {
+    id: 'battlefield-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'jura-battlefield',
+    position: { x: 1, y: 7 },
+    description: 'Der Pfad vom Heerfeld zurück in den geschützten Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 2 }
+  },
+  {
+    id: 'battlefield-front',
+    name: 'Heerfeld-Vorhut',
+    kind: 'outpost',
+    mapId: 'jura-battlefield',
+    position: { x: 6, y: 7 },
+    bounds: { x: 3, y: 5, width: 8, height: 5 },
+    description: 'Der westliche Rand des Schlachtfelds, an dem Treyni warnt und die Ork-Vorhut anbrandet.',
+    identity: 'Story-Frontlinie: Treynis Warnung und der erste Zusammenstoß mit der Ork-Armee.'
+  },
+  {
+    id: 'battlefield-heart',
+    name: 'Auge der Schlacht',
+    kind: 'dungeon',
+    mapId: 'jura-battlefield',
+    position: { x: 15, y: 6 },
+    bounds: { x: 13, y: 4, width: 6, height: 5 },
+    description: 'Das Herz des Heerzugs, in dem „Geld" die Gefallenen verschlingt — und in dem später die Föderation entsteht.',
+    identity: 'Bossort: der Orc-Disaster „Geld" und der Gründungsbeat der Jura-Tempest-Föderation.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1097,6 +1171,30 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Hunger trieb die Orks zu einer einzigen, verzweifelten Schlacht. In ihrer Mitte erwachte „Geld" — der Orc-Disaster, der die Gefallenen verschlang und mit jeder Mahlzeit wuchs. Die geflüchteten Oger sahen ihr Dorf in diesem Heerzug untergehen.',
     unlockFlag: 'faction.kijin.sworn'
+  },
+  {
+    id: 'treyni',
+    title: 'Treyni, Hüterin des Jura-Walds',
+    lockedTitle: 'Eine Stimme aus dem Wald',
+    category: 'people',
+    body: 'Die Dryade Treyni wacht über den Großen Jura-Wald. Sie durchschaut Gelmuds Spiel — der einem Ork-Lord einen Namen gibt, um eine Katastrophe (und damit einen neuen Dämonenlord) zu erzwingen. Ihre Warnung bringt Tempest und die Waldvölker zusammen.',
+    unlockFlag: 'story.treyni.met'
+  },
+  {
+    id: 'jura-federation',
+    title: 'Die Jura-Tempest-Föderation',
+    lockedTitle: 'Ein Bündnis der Waldvölker',
+    category: 'places',
+    body: 'Nach dem Fall des Orc-Disasters vereinen sich Hobgoblins, Kijin, Tempest-Wölfe, Echsenmenschen und die verschonten Orks zur Jura-Tempest-Föderation. Aus geretteten Feinden werden unermüdliche Aufbauhelfer — Tempest tritt aus der Isolation.',
+    unlockFlag: 'faction.orcs.joined'
+  },
+  {
+    id: 'demon-lords',
+    title: 'Dämonenlords & das Benennen',
+    lockedTitle: 'Mächte jenseits der Katastrophenklasse',
+    category: 'systems',
+    body: 'Genug Macht — etwa durch Predation — kann eine „Saat" zum Dämonenlord legen. Gelmuds Namensschema zielte genau darauf. Milim Nava, eine der ältesten Dämonenlords, prüft Rimuru: kein klassischer Sieg, sondern ein Test, der über Honig zur Freundschaft wird.',
+    unlockFlag: 'story.milim.met'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2272,6 +2370,99 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Das ist Tempests Aufgabe' }]
       }
     ]
+  },
+  {
+    id: 'treyni-plea',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Treyni',
+        text: 'Die Dryade tritt aus dem Schatten der Bäume. „Slime-Herr von Tempest — der Hunger treibt eine Ork-Armee in meinen Wald. Ein gewisser Gelmud hat ihrem Lord einen Namen geschenkt, um eine Katastrophe zu erzwingen. Stell dich ihm, und die Waldvölker stehen an deiner Seite.“',
+        choices: [
+          {
+            id: 'accept',
+            label: 'Tempest stellt sich dem Heerzug',
+            nextNodeId: 'rally',
+            requirements: [{ notFlag: 'story.orc.engaged' }],
+            effects: [
+              { type: 'start-quest', questId: 'geld-disaster' },
+              { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'plea' },
+              { type: 'set-flag', flag: 'story.treyni.met', value: true }
+            ]
+          },
+          { id: 'leave', label: 'Noch nicht bereit' }
+        ]
+      },
+      {
+        id: 'rally',
+        speaker: 'Treyni',
+        text: 'Treyni nickt ernst. „Dann beginnt es. Die Vorhut bricht bereits durch das Unterholz — halte sie auf, ehe sie das Lager erreicht.“',
+        choices: [{ id: 'end', label: 'In die Schlacht' }]
+      }
+    ]
+  },
+  {
+    id: 'geld-federation',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Rigurd',
+        text: 'Über dem stillgewordenen Heerfeld hebt Rigurd die Stimme. „Geld ist gefallen — und du hast seinen Hunger genommen, nicht nur sein Leben. Die verschonten Orks, die Echsenmenschen, die Waldgeister … sie alle blicken auf Tempest. Schmieden wir daraus ein Bündnis?“',
+        choices: [
+          {
+            id: 'found',
+            label: 'Die Jura-Tempest-Föderation gründen',
+            nextNodeId: 'founded',
+            requirements: [{ notFlag: 'faction.orcs.joined' }],
+            effects: [
+              { type: 'set-flag', flag: 'faction.orcs.joined', value: true },
+              { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'federation' },
+              { type: 'complete-quest', questId: 'geld-disaster' },
+              { type: 'add-gold', amount: 320 },
+              { type: 'add-item', itemId: 'famine-charm', quantity: 1 }
+            ]
+          },
+          { id: 'wait', label: 'Den Völkern noch Zeit geben' }
+        ]
+      },
+      {
+        id: 'founded',
+        speaker: 'Rigurd',
+        text: 'Jubel brandet auf. „So sei es — die Jura-Tempest-Föderation steht! Ein überlebender Hoch-Ork trägt nun den Namen Geld und führt die Orks als Aufbauhelfer. Tempest ist keine Insel mehr.“',
+        choices: [{ id: 'end', label: 'Ein neuer Anfang' }]
+      }
+    ]
+  },
+  {
+    id: 'milim-honey',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Milim Nava',
+        text: 'Ein kleines Mädchen mit uralten Augen landet vor Rimuru. „Du hast einen Disaster verschlungen! Bist du stark? Bist du interessant? Kämpf mit mir — oder …“ Ihr Blick fällt auf das Honiggefäß in Rimurus Hand.',
+        choices: [
+          {
+            id: 'honey',
+            label: 'Ihr den Honig anbieten',
+            nextNodeId: 'friends',
+            requirements: [{ notFlag: 'story.milim.met' }],
+            effects: [
+              { type: 'set-flag', flag: 'story.milim.met', value: true }
+            ]
+          },
+          { id: 'later', label: 'Vorsichtig ausweichen' }
+        ]
+      },
+      {
+        id: 'friends',
+        speaker: 'Milim Nava',
+        text: 'Milims Augen leuchten. „DAS ist ja köstlich! Gut — wir sind jetzt Freunde! Wenn du jemals eine Dämonenlordin an deiner Seite brauchst, ruf nach Milim!“ Aus dem Test wurde ein Bündnis.',
+        choices: [{ id: 'end', label: 'Willkommen, Milim' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2396,6 +2587,36 @@ export const NPCS = [
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'treyni-battlefield',
+    name: 'Treyni',
+    mapId: 'jura-battlefield',
+    position: { x: 4, y: 7 },
+    dialogId: 'treyni-plea',
+    color: 0x9fe6a0,
+    // Verschwindet, sobald die Schlacht eröffnet ist (ihre Warnung ist getan).
+    requirements: [{ notFlag: 'story.orc.engaged' }]
+  },
+  {
+    id: 'geld-federation-herald',
+    name: 'Rigurd',
+    mapId: 'jura-battlefield',
+    position: { x: 12, y: 4 },
+    dialogId: 'geld-federation',
+    color: 0xe9c56c,
+    // Tritt erst nach dem Sieg über Geld auf, um die Föderation zu gründen.
+    requirements: [{ flag: 'story.geld.devoured' }]
+  },
+  {
+    id: 'milim-battlefield',
+    name: 'Milim Nava',
+    mapId: 'jura-battlefield',
+    position: { x: 18, y: 6 },
+    dialogId: 'milim-honey',
+    color: 0xff7fbf,
+    // Erscheint, sobald die Föderation steht — als Test, der zur Freundschaft wird.
+    requirements: [{ flag: 'faction.orcs.joined' }]
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -2753,6 +2974,40 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.vigil.cleared', value: true },
       { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'banish-echo' }
+    ]
+  },
+  {
+    id: 'orc-vanguard',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 9, y: 7 },
+    enemyIds: ['orc-general', 'orc-soldier'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.treyni.met' },
+      { notFlag: 'story.orc.engaged' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.orc.engaged', value: true },
+      { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'march' },
+      { type: 'add-item', itemId: 'orc-tusk', quantity: 1 }
+    ]
+  },
+  {
+    id: 'geld-disaster-boss',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 15, y: 6 },
+    enemyIds: ['orc-disaster'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.orc.engaged' },
+      { notFlag: 'story.geld.devoured' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.geld.devoured', value: true },
+      { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'geld' },
+      { type: 'add-item', itemId: 'geld-core', quantity: 1 }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

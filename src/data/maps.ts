@@ -52,6 +52,13 @@ export const SPIRIT_HIGHLANDS: TileMap = buildMap(24, 14, [
   [6, 2, 2, 3], [10, 6, 3, 2], [14, 8, 2, 3], [17, 2, 2, 3], [8, 11, 3, 2], [20, 6, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-2-Schlachtregion: Jura-Schlachtfeld (24×14, offenes Heerfeld mit verstreuter
+// Deckung). Reine Story-/Trigger-Begegnungen (Ork-Vorhut, Orc-Disaster „Geld"),
+// keine Zufallskämpfe — ein Set-Piece, kein Grindgebiet.
+export const JURA_BATTLEFIELD: TileMap = buildMap(24, 14, [
+  [4, 3, 2, 2], [10, 2, 3, 2], [17, 3, 2, 2], [6, 9, 3, 2], [14, 9, 3, 2], [19, 8, 2, 3]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -60,7 +67,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'direwolf-den': DIREWOLF_CLEARING,
   'tempest-start': JURA_FIELD,
   'spirit-marsh': SPIRIT_MARSH,
-  'spirit-highlands': SPIRIT_HIGHLANDS
+  'spirit-highlands': SPIRIT_HIGHLANDS,
+  'jura-battlefield': JURA_BATTLEFIELD
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -76,7 +84,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'direwolf-den': 'Direwolf-Lichtung',
   'tempest-start': 'Jura-Wald',
   'spirit-marsh': 'Geistmoor',
-  'spirit-highlands': 'Geisterschrein-Hochland'
+  'spirit-highlands': 'Geisterschrein-Hochland',
+  'jura-battlefield': 'Jura-Schlachtfeld'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */
