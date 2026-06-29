@@ -521,6 +521,15 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Phase 26 – Regionale Imagegen-Overworld-Tiles** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-26-region-tiles`)*
 > **✅ Status (2026-06-29):** Der Backlog-Punkt „Pro-Karte-Tile-Theming" ist für Geistmoor und Geisterschrein-Hochland geschlossen: beide Regionen nutzen eigene, auf 128×128-WebP optimierte Imagegen-Boden-/Wandtiles statt Jura-Gras/Jura-Wand. Die Auswahl läuft über ein reines Mapping mit Fallbacks auf Legacy-Kenney-Tiles und prozedurale Platzhalter. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (216/216), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil).
 
+[x] **Phase 28 – Orc-Disaster-Arc (Canon Band 2, Arc A3)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-28-orc-disaster`, Branch `phase-28-orc-disaster`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase (kollisionsfrei zu den parallelen Render-/Asset-Branches). Der bislang verwaiste Band-2-Bossinhalt ist jetzt spielbar.
+> - **Neue Schlachtregion `jura-battlefield`** (`maps.ts`): offenes Heerfeld, nur Trigger-/Story-Begegnungen (keine Zufallskämpfe → Balance-Gate überspringt sie), über Gateway erreichbar.
+> - **Gateway** vom Jura-Wald (gated über `faction.kijin.sworn` — nach dem Kijin-Schwur zieht Tempest in den Ork-Krieg) + Rücktor.
+> - **Questline `geld-disaster`**: Treynis Warnung → Ork-Vorhut brechen (`orc-general`/`orc-soldier`) → Boss `orc-disaster` „Geld" stellen → Jura-Tempest-Föderation gründen. Belohnung 320 Gold + Hungeramulett; verschont/„prädiert" Geld als Story-Beat, Orks treten als Aufbauhelfer bei.
+> - **Wiring der verwaisten Bossgegner** (`orc-disaster` u. a.) in echte Encounter mit `victoryEffects`.
+> - **NPCs** Treyni, Föderations-Rigurd, **Milim** (Honig-Pakt statt Bosskampf — Canon-treu); Codex „Treyni"/„Jura-Tempest-Föderation"/„Dämonenlords & das Benennen".
+> - **Abnahme:** `bun run typecheck`, `bun run test` (**221/221**, inkl. 5 neue Orc-Disaster-Checks), `bun run build`.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -733,7 +742,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
      `set-flag craft.smithing.unlocked` → Shop/Crafting-Tier frei, Magisteel-Rezepte.
   - Belohnung: Schmieden/Bau, Codex „Gazel Dwargo".
 
-**A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)*
+**A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)* — ✅ **Kernbogen umgesetzt in Phase 28** (Treyni-Warnung → Ork-Vorhut → Geld-Boss → Föderation + Milim-Honig-Pakt; Echsenmenschen/Gabiru-Allianz `lizard-alliance` als optionaler Folge-Slice offen).
 - Quest `orc-disaster` „Die Hungersnot der Orks" (Regionen `lizardman-marsh`, `jura-battlefield`):
   1. `treyni-plea` — **Treyni** warnt vor der Ork-Armee + Gelmuds Namen-Schema → Codex „Treyni".
   2. `lizard-alliance` — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
