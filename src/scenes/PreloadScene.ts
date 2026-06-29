@@ -1,14 +1,16 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { generatePlaceholderTextures } from '../render/placeholderArt';
-import { generatePortraitTextures } from '../render/portraitAtlas';
+import { generatePortraitTextures, portraitKey } from '../render/portraitAtlas';
 import { generateVfxTextures } from '../render/vfxAtlas';
 import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtlas';
 import {
+  FOREST_SLIME_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY
 } from '../render/enemyArt';
+import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
@@ -17,7 +19,9 @@ import wallUrl from '../assets/tiles/wall.png';
 import pathUrl from '../assets/tiles/path.png';
 // Echte CC0-Charakter-/Gegner-Sprites (Kenney „Tiny Dungeon", CC0 — siehe ASSETS.md).
 import heroUrl from '../assets/sprites/hero.png';
+import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
 import enemySlimeUrl from '../assets/sprites/enemy-slime.png';
+import enemyForestSlimeUrl from '../assets/sprites/enemy-forest-slime.webp';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
@@ -29,6 +33,7 @@ import rimuruBattleUrl from '../assets/sprites/party-rimuru.webp';
 import gobtaBattleUrl from '../assets/sprites/party-gobta.webp';
 import rangaBattleUrl from '../assets/sprites/party-ranga.webp';
 import shunaBattleUrl from '../assets/sprites/party-shuna.webp';
+import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
@@ -60,7 +65,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tile-path', pathUrl);
     // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
     this.load.image('sprite-hero', heroUrl);
+    this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
     this.load.image('sprite-enemy-slime', enemySlimeUrl);
+    this.load.image(FOREST_SLIME_TEXTURE_KEY, enemyForestSlimeUrl);
     this.load.image('sprite-enemy-wolf', enemyWolfUrl);
     this.load.image('sprite-enemy-imp', enemyImpUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreUrl);
@@ -72,6 +79,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(PARTY_BATTLE_ART.gobta, gobtaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.ranga, rangaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.shuna, shunaBattleUrl);
+    this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
@@ -115,6 +123,9 @@ export class PreloadScene extends Phaser.Scene {
 
     [
       KINGDOM_UNIT_TEXTURE_KEY,
+      OVERWORLD_RIMURU_TEXTURE_KEY,
+      FOREST_SLIME_TEXTURE_KEY,
+      portraitKey('storm-dragon'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',

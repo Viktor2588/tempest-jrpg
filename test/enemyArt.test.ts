@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/data';
 import {
+  FOREST_SLIME_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
@@ -14,11 +15,15 @@ describe('Gegner-Art-Mapping', () => {
     }
   });
 
-  it('nutzt den Kingdom-Atlas für die wiederkehrenden Kreaturenlinien', () => {
+  it('nutzt das grüne Spezialasset für den Waldschleim', () => {
     expect(enemyArtFor('forest-slime', 'Waldschleim')).toMatchObject({
-      textureKey: KINGDOM_UNIT_TEXTURE_KEY,
-      frame: 'slime'
+      textureKey: FOREST_SLIME_TEXTURE_KEY,
+      fallbackKind: 'enemy-slime'
     });
+    expect(enemyArtFor('forest-slime', 'Waldschleim').frame).toBeUndefined();
+  });
+
+  it('nutzt den Kingdom-Atlas für die wiederkehrenden Kreaturenlinien', () => {
     expect(enemyArtFor('spore-moth', 'Sporenmotte')).toMatchObject({
       textureKey: KINGDOM_UNIT_TEXTURE_KEY,
       frame: 'insect'

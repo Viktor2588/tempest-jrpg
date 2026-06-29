@@ -6,6 +6,7 @@ import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
 import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldTutorial } from '../systems/tutorial';
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
+import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { makeRng } from '../systems/rng';
@@ -96,12 +97,11 @@ export class OverworldScene extends Phaser.Scene {
       }
     }
 
-    // Spieler — echtes CC0-Sprite → Platzhalter → Rechteck.
+    // Spieler — Rimuru-Schleim-Asset → Legacy-CC0-Sprite → Platzhalter → Rechteck.
     // Gespeicherte Position nur übernehmen, wenn sie auf der aktuellen Karte begehbar ist.
     const saved = { x: this.save.location.x, y: this.save.location.y };
     this.pos = isWalkable(map, saved.x, saved.y) ? saved : { ...map.spawn };
-    const heroKey = this.textures.exists('sprite-hero') ? 'sprite-hero'
-      : (this.textures.exists('ph-hero') ? 'ph-hero' : null);
+    const heroKey = firstAvailableOverworldPlayerTexture((textureKey) => this.textures.exists(textureKey));
     this.player = heroKey
       ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
       : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);

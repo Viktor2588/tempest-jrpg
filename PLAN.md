@@ -512,8 +512,8 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 - [x] **Abnahme:** Desktop und 390×844 prüfen Meilenstein, Reise, Partytausch und Storyflows ohne Console-/Renderfehler; Headless-Tests sichern Zustandswechsel und Einmaligkeit.
 
 
-phase 24 Userfeedback
-> **✅ Status (2026-06-28):** Alle Punkte umgesetzt — NPC-Kollisionen, Gateway-on-tile, Gebietsindikator, Rigurd/„Jura-Wald", Sieg-Dialogbox, Menü-Rework (Party-Leiste/Beschreibungen/Codex-Paginierung/Quest-Log-Vollbreite/Status-Reorg/Equipment-Layout/Quest-Detailansicht), HUD (nur Menü unter Minimap), Steuerungs-Tutorial. Ranga-Schnellreise-Gating war bereits vom Story-Writer. **Offen nur:** Bild-Assets (imagegen — Asset-Pipeline) und die Shuna-Pacing-Frage (Story-Design).
+[x] **Phase 24 – Userfeedback: Bild-Assets** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-24-assets`)*
+> **✅ Status (2026-06-29):** Alle Nicht-Asset-Punkte waren bereits umgesetzt; die verbliebenen Bild-Asset-Punkte sind jetzt integriert: Rimuru nutzt in der Oberwelt das blaue Schleim-Asset, der Waldschleim nutzt das grüne Spezialasset, und Veldora ersetzt das prozedurale Sturmdrachen-Portrait durch ein dediziertes Imagegen-Portrait. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (211/211), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil). **Separat offen:** Shuna-Pacing-Frage (Story-Design).
 
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 

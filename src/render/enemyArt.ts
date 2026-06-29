@@ -1,6 +1,7 @@
 import type { PlaceholderKind } from './artSpec';
 
 export const KINGDOM_UNIT_TEXTURE_KEY = 'sprite-kingdom-units';
+export const FOREST_SLIME_TEXTURE_KEY = 'sprite-enemy-forest-slime';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -39,7 +40,7 @@ export interface EnemyArtSpec {
 }
 
 const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
-  'forest-slime': kingdomFrame('slime', 'enemy-slime'),
+  'forest-slime': generatedTexture(FOREST_SLIME_TEXTURE_KEY, 'enemy-slime'),
   'direwolf-pup': kingdomFrame('wolf', 'enemy-wolf'),
   'spore-moth': kingdomFrame('insect', 'enemy-moth'),
   'orc-scout': kingdomFrame('orc', 'enemy-orc'),
