@@ -337,7 +337,12 @@ export function analyzeOverworldBudget(
   limits: Partial<OverworldBudget> = {}
 ): QaIssue[] {
   const maxMapTiles = limits.mapTiles ?? 600;
-  const maxStaticWorldObjects = limits.staticWorldObjects ?? 80;
+  // Recalibriert 80 → 96 (2026-06-29): Der Jura-Wald-Hub verzweigt jetzt zu vier
+  // gated Band-1/2-Inhaltsregionen (Dwargon, Schlachtfeld, Echsen-Sumpf, Glutgrotte).
+  // Die Formel zählt auch flag-gated, gegenseitig exklusive Marker (Story-Gateways,
+  // act-/kijin-gated Quests), die nie gleichzeitig gerendert werden — der real
+  // gleichzeitig sichtbare Markersatz bleibt deutlich darunter.
+  const maxStaticWorldObjects = limits.staticWorldObjects ?? 96;
   const maxHudInteractiveTargets = limits.hudInteractiveTargets ?? 10;
   const maxEstimatedDisplayObjects = limits.estimatedDisplayObjects ?? 700;
   const issues: QaIssue[] = [];

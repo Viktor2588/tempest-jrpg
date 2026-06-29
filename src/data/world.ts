@@ -505,6 +505,96 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 120, itemIds: ['magisteel'] }
+  },
+  {
+    id: 'geld-disaster',
+    title: 'Der hungernde Heerzug',
+    description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
+    steps: [
+      {
+        id: 'plea',
+        title: 'Treynis Warnung hören',
+        description: 'Triff die Waldhüterin Treyni am Rand des Schlachtfelds und höre von Gelmuds Namensschema.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'march',
+        title: 'Die Ork-Vorhut brechen',
+        description: 'Halte die anstürmende Ork-Vorhut auf dem Jura-Schlachtfeld auf.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'geld',
+        title: 'Den Orc-Disaster stellen',
+        description: 'Stelle dich „Geld", dem hungernden Katastrophen-Ork, im Herzen der Schlacht.',
+        locationId: 'battlefield-heart'
+      },
+      {
+        id: 'federation',
+        title: 'Die Föderation gründen',
+        description: 'Vereine die Waldvölker zur Jura-Tempest-Föderation.',
+        locationId: 'battlefield-heart'
+      }
+    ],
+    reward: { gold: 320, itemIds: ['famine-charm'] }
+  },
+  {
+    id: 'lizard-alliance',
+    title: 'Das Bündnis der Echsenmenschen',
+    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru gedemütigt werden, ehe die Echsenmenschen ein Bündnis schließen.',
+    steps: [
+      {
+        id: 'parley',
+        title: 'Souka anhören',
+        description: 'Triff Kommandantin Souka am Rand des Echsen-Sumpfs.',
+        locationId: 'lizard-marsh-camp'
+      },
+      {
+        id: 'humble',
+        title: 'Gabirus Hochmut brechen',
+        description: 'Stell den ruhmsüchtigen Gabiru und seine Wache im Herzen des Sumpfs.',
+        locationId: 'lizard-marsh-heart'
+      },
+      {
+        id: 'ally',
+        title: 'Das Bündnis besiegeln',
+        description: 'Kehre zu Souka zurück und schließe das Bündnis gegen die Orks.',
+        locationId: 'lizard-marsh-camp'
+      }
+    ],
+    reward: { gold: 200, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'shizu-vow',
+    title: 'Shizus Schwur',
+    description: 'In der Glutgrotte ringt die Andersweltlerin Shizu mit dem Flammengeist Ifrit — angestachelt von einem maskierten Majin. Befreie sie und trage ihren letzten Schwur weiter.',
+    steps: [
+      {
+        id: 'meet-shizu',
+        title: 'Shizu treffen',
+        description: 'Triff die maskierte Andersweltlerin Shizu am Eingang der Glutgrotte.',
+        locationId: 'ember-hollow-entrance'
+      },
+      {
+        id: 'masked-majin',
+        title: 'Den maskierten Majin vertreiben',
+        description: 'Stell den maskierten Majin, der Ifrit gegen Shizu aufstachelt.',
+        locationId: 'ember-hollow-core'
+      },
+      {
+        id: 'ifrit',
+        title: 'Ifrit bezwingen',
+        description: 'Bezwinge den entfesselten Flammengeist Ifrit und befreie Shizu.',
+        locationId: 'ember-hollow-core'
+      },
+      {
+        id: 'vow',
+        title: 'Shizus Schwur tragen',
+        description: 'Nimm Shizu auf ihren Wunsch in dich auf und schwöre, ihre Schüler zu schützen.',
+        locationId: 'ember-hollow-entrance'
+      }
+    ],
+    reward: { gold: 260, itemIds: ['spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -885,6 +975,129 @@ export const LOCATIONS = [
     position: { x: 12, y: 4 },
     description: 'Eine wuchtige Halle aus Stein und Magisteel, in der König Gazel Dwargo Recht spricht.',
     identity: 'Gerichts-/Story-Ort: Gazels Urteil im Zwischenfall um Kaijin.'
+  },
+  {
+    id: 'gate-to-battlefield',
+    name: 'Marschpfad zum Heerfeld',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 2 },
+    description: 'Ein breitgetretener Heerpfad, der nach Norden zum offenen Jura-Schlachtfeld führt.',
+    identity: 'Reisepunkt: Übergang zum Orc-Disaster-Set-Piece (Jura-Schlachtfeld).',
+    unlockFlag: 'faction.kijin.sworn',
+    travelTo: { mapId: 'jura-battlefield', x: 2, y: 7 }
+  },
+  {
+    id: 'battlefield-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'jura-battlefield',
+    position: { x: 1, y: 7 },
+    description: 'Der Pfad vom Heerfeld zurück in den geschützten Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 2 }
+  },
+  {
+    id: 'battlefield-front',
+    name: 'Heerfeld-Vorhut',
+    kind: 'outpost',
+    mapId: 'jura-battlefield',
+    position: { x: 6, y: 7 },
+    bounds: { x: 3, y: 5, width: 8, height: 5 },
+    description: 'Der westliche Rand des Schlachtfelds, an dem Treyni warnt und die Ork-Vorhut anbrandet.',
+    identity: 'Story-Frontlinie: Treynis Warnung und der erste Zusammenstoß mit der Ork-Armee.'
+  },
+  {
+    id: 'battlefield-heart',
+    name: 'Auge der Schlacht',
+    kind: 'dungeon',
+    mapId: 'jura-battlefield',
+    position: { x: 15, y: 6 },
+    bounds: { x: 13, y: 4, width: 6, height: 5 },
+    description: 'Das Herz des Heerzugs, in dem „Geld" die Gefallenen verschlingt — und in dem später die Föderation entsteht.',
+    identity: 'Bossort: der Orc-Disaster „Geld" und der Gründungsbeat der Jura-Tempest-Föderation.'
+  },
+  {
+    id: 'gate-to-lizard-marsh',
+    name: 'Sumpfpfad zum Echsenvolk',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 13 },
+    description: 'Ein feuchter Pfad, der südöstlich aus dem Jura-Wald in den Echsen-Sumpf führt.',
+    identity: 'Reisepunkt: Übergang zur Band-2-Allianzregion (Echsen-Sumpf).',
+    unlockFlag: 'faction.kijin.sworn',
+    travelTo: { mapId: 'lizardman-marsh', x: 2, y: 7 }
+  },
+  {
+    id: 'lizard-marsh-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'lizardman-marsh',
+    position: { x: 1, y: 7 },
+    description: 'Der Pfad aus dem Echsen-Sumpf zurück in den Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 13 }
+  },
+  {
+    id: 'lizard-marsh-camp',
+    name: 'Echsenlager am Schilf',
+    kind: 'outpost',
+    mapId: 'lizardman-marsh',
+    position: { x: 5, y: 7 },
+    bounds: { x: 3, y: 5, width: 6, height: 5 },
+    description: 'Ein bewachtes Lager der Echsenmenschen, in dem Kommandantin Souka die Stellung hält.',
+    identity: 'Story-Treffpunkt: Soukas Warnung und der Bündnis-Beat.'
+  },
+  {
+    id: 'lizard-marsh-heart',
+    name: 'Schilfkessel',
+    kind: 'dungeon',
+    mapId: 'lizardman-marsh',
+    position: { x: 13, y: 6 },
+    bounds: { x: 11, y: 4, width: 6, height: 5 },
+    description: 'Ein offener Wasserkessel, in dem Gabiru mit „Gabirus Hundert" prahlt — und auf die Probe gestellt wird.',
+    identity: 'Bossort: das Duell gegen den überheblichen Gabiru.'
+  },
+  {
+    id: 'gate-to-ember-hollow',
+    name: 'Pfad zur Glutgrotte',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 5 },
+    description: 'Ein heißer Spalt im Fels am Ostrand des Jura-Walds, aus dem Rauch und ein fernes Lodern dringen.',
+    identity: 'Reisepunkt: Übergang zur Band-1-Story-Region (Glutgrotte / Shizus Episode).',
+    unlockFlag: 'story.kijin.named',
+    travelTo: { mapId: 'ember-hollow', x: 2, y: 6 }
+  },
+  {
+    id: 'ember-hollow-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'ember-hollow',
+    position: { x: 1, y: 6 },
+    description: 'Der Weg aus der schwülen Grotte zurück in den kühlen Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 5 }
+  },
+  {
+    id: 'ember-hollow-entrance',
+    name: 'Glutgrotten-Vorhalle',
+    kind: 'outpost',
+    mapId: 'ember-hollow',
+    position: { x: 5, y: 6 },
+    bounds: { x: 3, y: 4, width: 6, height: 5 },
+    description: 'Die rauchige Vorhalle der Grotte, in der Shizu mit ihrer Maske gegen Ifrits Drang ankämpft.',
+    identity: 'Story-Treffpunkt: Shizus erste Begegnung und ihr letzter Schwur.'
+  },
+  {
+    id: 'ember-hollow-core',
+    name: 'Lavakammer',
+    kind: 'dungeon',
+    mapId: 'ember-hollow',
+    position: { x: 14, y: 6 },
+    bounds: { x: 12, y: 4, width: 6, height: 5 },
+    description: 'Das glühende Herz der Grotte, in dem ein maskierter Majin den Flammengeist Ifrit entfesselt.',
+    identity: 'Bossort: maskierter Majin und der Greater Spirit Ifrit.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1181,6 +1394,70 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Der Schwertheld auf Dwargons Thron. Hart, aber gerecht: Sein Urteil im Zwischenfall um Kaijin öffnet Tempest den Weg zur Schmiedekunst der Zwerge — und legt den Grundstein einer späteren Freundschaft.',
     unlockFlag: 'craft.smithing.unlocked'
+  },
+  {
+    id: 'treyni',
+    title: 'Treyni, Hüterin des Jura-Walds',
+    lockedTitle: 'Eine Stimme aus dem Wald',
+    category: 'people',
+    body: 'Die Dryade Treyni wacht über den Großen Jura-Wald. Sie durchschaut Gelmuds Spiel — der einem Ork-Lord einen Namen gibt, um eine Katastrophe (und damit einen neuen Dämonenlord) zu erzwingen. Ihre Warnung bringt Tempest und die Waldvölker zusammen.',
+    unlockFlag: 'story.treyni.met'
+  },
+  {
+    id: 'jura-federation',
+    title: 'Die Jura-Tempest-Föderation',
+    lockedTitle: 'Ein Bündnis der Waldvölker',
+    category: 'places',
+    body: 'Nach dem Fall des Orc-Disasters vereinen sich Hobgoblins, Kijin, Tempest-Wölfe, Echsenmenschen und die verschonten Orks zur Jura-Tempest-Föderation. Aus geretteten Feinden werden unermüdliche Aufbauhelfer — Tempest tritt aus der Isolation.',
+    unlockFlag: 'faction.orcs.joined'
+  },
+  {
+    id: 'demon-lords',
+    title: 'Dämonenlords & das Benennen',
+    lockedTitle: 'Mächte jenseits der Katastrophenklasse',
+    category: 'systems',
+    body: 'Genug Macht — etwa durch Predation — kann eine „Saat" zum Dämonenlord legen. Gelmuds Namensschema zielte genau darauf. Milim Nava, eine der ältesten Dämonenlords, prüft Rimuru: kein klassischer Sieg, sondern ein Test, der über Honig zur Freundschaft wird.',
+    unlockFlag: 'story.milim.met'
+  },
+  {
+    id: 'lizardfolk',
+    title: 'Die Echsenmenschen des Sumpfs',
+    lockedTitle: 'Stimmen aus dem Schilf',
+    category: 'people',
+    body: 'Ein stolzes Sumpfvolk: der besonnene Häuptling, seine loyale und fähige Kommandantin Souka — und sein ruhmsüchtiger Sohn Gabiru, der sich mit „Gabirus Hundert" gern selbst überschätzt. Gegen die Ork-Armee zählt nur, ob sie zusammenstehen.',
+    unlockFlag: 'story.lizard.met'
+  },
+  {
+    id: 'lizard-pact',
+    title: 'Das Sumpf-Bündnis',
+    lockedTitle: 'Ein unfertiges Bündnis',
+    category: 'places',
+    body: 'Erst Gabirus Niederlage öffnet den Echsenmenschen die Augen: Souka und der Häuptling schließen ein Bündnis mit Tempest gegen den Heerzug. Gabiru zieht sich beschämt zurück — seine Läuterung und sein späterer Beitritt als Tempest-Offizier zeichnen sich erst ab.',
+    unlockFlag: 'story.lizard.allied'
+  },
+  {
+    id: 'shizu',
+    title: 'Shizu, die Andersweltlerin',
+    lockedTitle: 'Eine maskierte Fremde',
+    category: 'people',
+    body: 'Shizue Izawa — als Kind in diese Welt gerufen und zur Wirtin des Flammengeists Ifrit gemacht. Ihre Maske bändigt das Feuer in ihr. A-Rang-Abenteurerin, von Güte erfüllt: ihr letzter Wunsch gilt nicht Rache, sondern dem Schutz der Kinder, die ihr Schicksal teilen.',
+    unlockFlag: 'story.shizu.met'
+  },
+  {
+    id: 'ifrit-spirit',
+    title: 'Ifrit, der Flammengeist',
+    lockedTitle: 'Ein Lodern in der Tiefe',
+    category: 'people',
+    body: 'Ein Greater Spirit des Feuers, der in Shizu gebunden war. Von einem maskierten Majin aufgestachelt, bricht er los. Bezwungen wird seine Flamme zu einer Affinität, die Rimuru in sich aufnimmt — die Geistglut.',
+    unlockFlag: 'story.ifrit.subdued'
+  },
+  {
+    id: 'otherworlders',
+    title: 'Andersweltler & menschliche Gestalt',
+    lockedTitle: 'Rufe aus einer anderen Welt',
+    category: 'systems',
+    body: 'Magie ruft Menschen aus einer anderen Welt; sie tragen besondere Gaben und einen Hunger nach Magie. Indem Rimuru Shizu auf ihren Wunsch in sich aufnimmt, gewinnt er ihre menschliche Gestalt und Ifrits Flamme — und den Schwur, ihre fünf Schüler zu schützen (ein ferner Faden bis zu Leon Cromwell).',
+    unlockFlag: 'story.shizu.vow'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2423,6 +2700,205 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
       }
     ]
+  },
+  {
+    id: 'treyni-plea',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Treyni',
+        text: 'Die Dryade tritt aus dem Schatten der Bäume. „Slime-Herr von Tempest — der Hunger treibt eine Ork-Armee in meinen Wald. Ein gewisser Gelmud hat ihrem Lord einen Namen geschenkt, um eine Katastrophe zu erzwingen. Stell dich ihm, und die Waldvölker stehen an deiner Seite.“',
+        choices: [
+          {
+            id: 'accept',
+            label: 'Tempest stellt sich dem Heerzug',
+            nextNodeId: 'rally',
+            requirements: [{ notFlag: 'story.orc.engaged' }],
+            effects: [
+              { type: 'start-quest', questId: 'geld-disaster' },
+              { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'plea' },
+              { type: 'set-flag', flag: 'story.treyni.met', value: true }
+            ]
+          },
+          { id: 'leave', label: 'Noch nicht bereit' }
+        ]
+      },
+      {
+        id: 'rally',
+        speaker: 'Treyni',
+        text: 'Treyni nickt ernst. „Dann beginnt es. Die Vorhut bricht bereits durch das Unterholz — halte sie auf, ehe sie das Lager erreicht.“',
+        choices: [{ id: 'end', label: 'In die Schlacht' }]
+      }
+    ]
+  },
+  {
+    id: 'geld-federation',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Rigurd',
+        text: 'Über dem stillgewordenen Heerfeld hebt Rigurd die Stimme. „Geld ist gefallen — und du hast seinen Hunger genommen, nicht nur sein Leben. Die verschonten Orks, die Echsenmenschen, die Waldgeister … sie alle blicken auf Tempest. Schmieden wir daraus ein Bündnis?“',
+        choices: [
+          {
+            id: 'found',
+            label: 'Die Jura-Tempest-Föderation gründen',
+            nextNodeId: 'founded',
+            requirements: [{ notFlag: 'faction.orcs.joined' }],
+            effects: [
+              { type: 'set-flag', flag: 'faction.orcs.joined', value: true },
+              { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'federation' },
+              { type: 'complete-quest', questId: 'geld-disaster' },
+              { type: 'add-gold', amount: 320 },
+              { type: 'add-item', itemId: 'famine-charm', quantity: 1 }
+            ]
+          },
+          { id: 'wait', label: 'Den Völkern noch Zeit geben' }
+        ]
+      },
+      {
+        id: 'founded',
+        speaker: 'Rigurd',
+        text: 'Jubel brandet auf. „So sei es — die Jura-Tempest-Föderation steht! Ein überlebender Hoch-Ork trägt nun den Namen Geld und führt die Orks als Aufbauhelfer. Tempest ist keine Insel mehr.“',
+        choices: [{ id: 'end', label: 'Ein neuer Anfang' }]
+      }
+    ]
+  },
+  {
+    id: 'milim-honey',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Milim Nava',
+        text: 'Ein kleines Mädchen mit uralten Augen landet vor Rimuru. „Du hast einen Disaster verschlungen! Bist du stark? Bist du interessant? Kämpf mit mir — oder …“ Ihr Blick fällt auf das Honiggefäß in Rimurus Hand.',
+        choices: [
+          {
+            id: 'honey',
+            label: 'Ihr den Honig anbieten',
+            nextNodeId: 'friends',
+            requirements: [{ notFlag: 'story.milim.met' }],
+            effects: [
+              { type: 'set-flag', flag: 'story.milim.met', value: true }
+            ]
+          },
+          { id: 'later', label: 'Vorsichtig ausweichen' }
+        ]
+      },
+      {
+        id: 'friends',
+        speaker: 'Milim Nava',
+        text: 'Milims Augen leuchten. „DAS ist ja köstlich! Gut — wir sind jetzt Freunde! Wenn du jemals eine Dämonenlordin an deiner Seite brauchst, ruf nach Milim!“ Aus dem Test wurde ein Bündnis.',
+        choices: [{ id: 'end', label: 'Willkommen, Milim' }]
+      }
+    ]
+  },
+  {
+    id: 'souka-alliance',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Souka',
+        text: 'Die Kommandantin der Echsenmenschen misst Rimuru kühl. „Die Orks marschieren — und mein Häuptling sucht Verbündete. Doch sein Sohn Gabiru glaubt, sein Speer allein genüge. Beweist Tempest seine Stärke, ehe wir uns binden.“',
+        choices: [
+          {
+            id: 'parley',
+            label: 'Soukas Warnung annehmen',
+            nextNodeId: 'await-duel',
+            requirements: [{ notFlag: 'story.lizard.met' }],
+            effects: [
+              { type: 'start-quest', questId: 'lizard-alliance' },
+              { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'parley' },
+              { type: 'set-flag', flag: 'story.lizard.met', value: true }
+            ]
+          },
+          {
+            id: 'seal',
+            label: 'Das Bündnis besiegeln',
+            nextNodeId: 'allied',
+            requirements: [
+              { flag: 'story.gabiru.humbled' },
+              { notFlag: 'story.lizard.allied' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.lizard.allied', value: true },
+              { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
+              { type: 'complete-quest', questId: 'lizard-alliance' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          { id: 'leave', label: 'Später wiederkommen' }
+        ]
+      },
+      {
+        id: 'await-duel',
+        speaker: 'Souka',
+        text: 'Souka deutet zum Schilfkessel. „Gabiru wartet dort mit seiner Garde. Brich seinen Hochmut — danach hört auch er auf Vernunft.“',
+        choices: [{ id: 'end', label: 'Zum Schilfkessel' }]
+      },
+      {
+        id: 'allied',
+        speaker: 'Souka',
+        text: 'Souka verneigt sich knapp. „Gabiru kniet — sein Stolz ist gebrochen, nicht sein Mut. Die Echsenmenschen stehen nun an Tempests Seite. Den Rest seiner Läuterung trägt Gabiru selbst.“',
+        choices: [{ id: 'end', label: 'Für das Bündnis' }]
+      }
+    ]
+  },
+  {
+    id: 'shizu-vow',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Shizu',
+        text: 'Hinter einer feinen Maske mustert dich eine müde Frau. „Ein maskierter Majin hat das Feuer in mir geweckt — Ifrit will heraus. Ich halte ihn, so lange ich kann. Bitte … nimm dem Majin die Schnur, ehe die Flamme alles verschlingt.“',
+        choices: [
+          {
+            id: 'meet',
+            label: 'Shizu beistehen',
+            nextNodeId: 'await',
+            requirements: [{ notFlag: 'story.shizu.met' }],
+            effects: [
+              { type: 'start-quest', questId: 'shizu-vow' },
+              { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'meet-shizu' },
+              { type: 'set-flag', flag: 'story.shizu.met', value: true }
+            ]
+          },
+          {
+            id: 'take-vow',
+            label: 'Shizus letzten Schwur annehmen',
+            nextNodeId: 'vowed',
+            requirements: [
+              { flag: 'story.ifrit.subdued' },
+              { notFlag: 'story.shizu.vow' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.shizu.vow', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'vow' },
+              { type: 'complete-quest', questId: 'shizu-vow' },
+              { type: 'add-gold', amount: 260 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          },
+          { id: 'leave', label: 'Noch einen Moment' }
+        ]
+      },
+      {
+        id: 'await',
+        speaker: 'Shizu',
+        text: 'Shizu presst die Maske fester an. „Der Majin treibt sich tiefer in der Lavakammer herum. Brich seine Kontrolle — dann stelle dich Ifrit selbst.“',
+        choices: [{ id: 'end', label: 'In die Lavakammer' }]
+      },
+      {
+        id: 'vowed',
+        speaker: 'Shizu',
+        text: 'Ihre Maske fällt. „Danke … beschütze die Kinder, die wie ich gerufen wurden.“ Mit ihrem letzten Wunsch nimmt Rimuru sie in sich auf — und gewinnt eine menschliche Gestalt und Ifrits Flamme. Ein Schwur, der weit über diesen Tag hinausreicht.',
+        choices: [{ id: 'end', label: 'Ich schwöre es' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2565,6 +3041,52 @@ export const NPCS = [
     color: 0xd2a679,
     // Erscheint erst nach Gazels Urteil (Schmiedekunst freigeschaltet).
     requirements: [{ flag: 'craft.smithing.unlocked' }]
+  },
+  {
+    id: 'treyni-battlefield',
+    name: 'Treyni',
+    mapId: 'jura-battlefield',
+    position: { x: 4, y: 7 },
+    dialogId: 'treyni-plea',
+    color: 0x9fe6a0,
+    // Verschwindet, sobald die Schlacht eröffnet ist (ihre Warnung ist getan).
+    requirements: [{ notFlag: 'story.orc.engaged' }]
+  },
+  {
+    id: 'geld-federation-herald',
+    name: 'Rigurd',
+    mapId: 'jura-battlefield',
+    position: { x: 12, y: 4 },
+    dialogId: 'geld-federation',
+    color: 0xe9c56c,
+    // Tritt erst nach dem Sieg über Geld auf, um die Föderation zu gründen.
+    requirements: [{ flag: 'story.geld.devoured' }]
+  },
+  {
+    id: 'milim-battlefield',
+    name: 'Milim Nava',
+    mapId: 'jura-battlefield',
+    position: { x: 18, y: 6 },
+    dialogId: 'milim-honey',
+    color: 0xff7fbf,
+    // Erscheint, sobald die Föderation steht — als Test, der zur Freundschaft wird.
+    requirements: [{ flag: 'faction.orcs.joined' }]
+  },
+  {
+    id: 'souka-marsh',
+    name: 'Souka',
+    mapId: 'lizardman-marsh',
+    position: { x: 4, y: 6 },
+    dialogId: 'souka-alliance',
+    color: 0x6fc7a8
+  },
+  {
+    id: 'shizu-grotto',
+    name: 'Shizu',
+    mapId: 'ember-hollow',
+    position: { x: 4, y: 5 },
+    dialogId: 'shizu-vow',
+    color: 0xe8a04a
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -2954,6 +3476,91 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.vigil.cleared', value: true },
       { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'banish-echo' }
+    ]
+  },
+  {
+    id: 'orc-vanguard',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 9, y: 7 },
+    enemyIds: ['orc-general', 'orc-soldier'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.treyni.met' },
+      { notFlag: 'story.orc.engaged' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.orc.engaged', value: true },
+      { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'march' },
+      { type: 'add-item', itemId: 'orc-tusk', quantity: 1 }
+    ]
+  },
+  {
+    id: 'geld-disaster-boss',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 15, y: 6 },
+    enemyIds: ['orc-disaster'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.orc.engaged' },
+      { notFlag: 'story.geld.devoured' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.geld.devoured', value: true },
+      { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'geld' },
+      { type: 'add-item', itemId: 'geld-core', quantity: 1 }
+    ]
+  },
+  {
+    id: 'gabiru-duel',
+    mapId: 'lizardman-marsh',
+    kind: 'trigger',
+    position: { x: 13, y: 6 },
+    enemyIds: ['gabiru', 'lizardman-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.lizard.met' },
+      { notFlag: 'story.gabiru.humbled' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.gabiru.humbled', value: true },
+      { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'humble' },
+      { type: 'add-item', itemId: 'wolf-fang-token', quantity: 1 }
+    ]
+  },
+  {
+    id: 'masked-majin-ambush',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 9, y: 6 },
+    enemyIds: ['masked-majin'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.shizu.met' },
+      { notFlag: 'story.majin.repelled' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.majin.repelled', value: true },
+      { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'masked-majin' },
+      { type: 'add-item', itemId: 'magic-ore', quantity: 1 }
+    ]
+  },
+  {
+    id: 'ifrit-boss',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 14, y: 6 },
+    enemyIds: ['ifrit'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.majin.repelled' },
+      { notFlag: 'story.ifrit.subdued' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.ifrit.subdued', value: true },
+      { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'ifrit' },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

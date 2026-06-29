@@ -59,6 +59,27 @@ export const DWARGON: TileMap = buildMap(24, 14, [
   [3, 2, 2, 2], [16, 2, 3, 2], [20, 3, 2, 3], [3, 10, 2, 2], [16, 9, 3, 3], [20, 9, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-2-Schlachtregion: Jura-Schlachtfeld (24×14, offenes Heerfeld mit verstreuter
+// Deckung). Reine Story-/Trigger-Begegnungen (Ork-Vorhut, Orc-Disaster „Geld"),
+// keine Zufallskämpfe — ein Set-Piece, kein Grindgebiet.
+export const JURA_BATTLEFIELD: TileMap = buildMap(24, 14, [
+  [4, 3, 2, 2], [10, 2, 3, 2], [17, 3, 2, 2], [6, 9, 3, 2], [14, 9, 3, 2], [19, 8, 2, 3]
+], { x: 2, y: 7 });
+
+// Band-2-Allianzregion: Echsen-Sumpf (22×14, Wasserläufe und Schilfinseln).
+// Reine Story-/Trigger-Begegnungen (Echsenkrieger, Gabiru-Duell), keine
+// Zufallskämpfe — eine fokussierte Bündnis-Episode, kein Grindgebiet.
+export const LIZARDMAN_MARSH: TileMap = buildMap(22, 14, [
+  [3, 3, 2, 2], [9, 3, 2, 2], [15, 3, 2, 3], [6, 9, 2, 2], [12, 9, 3, 2], [17, 7, 2, 3]
+], { x: 2, y: 7 });
+
+// Band-1-Story-Region: Glutgrotte (20×12, enge Lavakammer mit Felsblöcken).
+// Reine Trigger-/Story-Begegnungen (maskierter Majin, Flammengeist Ifrit),
+// keine Zufallskämpfe — Shizus Episode als fokussiertes Set-Piece.
+export const EMBER_HOLLOW: TileMap = buildMap(20, 12, [
+  [4, 2, 2, 2], [10, 2, 3, 2], [14, 3, 2, 2], [5, 7, 3, 2], [12, 7, 3, 2]
+], { x: 2, y: 6 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -68,7 +89,10 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'tempest-start': JURA_FIELD,
   'spirit-marsh': SPIRIT_MARSH,
   'spirit-highlands': SPIRIT_HIGHLANDS,
-  'dwargon': DWARGON
+  'dwargon': DWARGON,
+  'jura-battlefield': JURA_BATTLEFIELD,
+  'lizardman-marsh': LIZARDMAN_MARSH,
+  'ember-hollow': EMBER_HOLLOW
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -85,7 +109,10 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'tempest-start': 'Jura-Wald',
   'spirit-marsh': 'Geistmoor',
   'spirit-highlands': 'Geisterschrein-Hochland',
-  'dwargon': 'Dwargon'
+  'dwargon': 'Dwargon',
+  'jura-battlefield': 'Jura-Schlachtfeld',
+  'lizardman-marsh': 'Echsen-Sumpf',
+  'ember-hollow': 'Glutgrotte'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

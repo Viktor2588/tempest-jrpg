@@ -530,6 +530,17 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 > - **Drei Dwargon-Shops** (`dwargon-smithy`/`-apothecary`/`-trader`) auf begehbaren Kacheln; Premium-Magisteel-Ausrüstung erst nach `craft.smithing.unlocked`.
 > - **Abnahme:** `bun run typecheck`, `bun run test` (**222/222**, inkl. 6 neue Dwargon-Checks), `bun run build` (nur bekannter Phaser-Vendor-Chunk). Branch auf aktuellen `main` (Phase 26) rebased.
 
+[x] **Phase 28 – Orc-Disaster-Arc (Canon Band 2, Arc A3)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-28-orc-disaster`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase. Neue Trigger-Region `jura-battlefield` (keine Zufallskämpfe → Balance-Gate überspringt sie), Gateway vom Jura-Wald (gated über `faction.kijin.sworn`) + Rücktor. Questline `geld-disaster`: Treynis Warnung → Ork-Vorhut brechen (`orc-general`/`orc-soldier`) → Boss `orc-disaster` „Geld" → Jura-Tempest-Föderation gründen (320 Gold + Hungeramulett). Verkabelt die verwaisten Bossgegner. NPCs Treyni, Föderations-Rigurd, **Milim** (Honig-Pakt, kein Bosskampf — Canon-treu); Codex Treyni/Föderation/Dämonenlords. Abnahme: `typecheck`, `test` (221/221, 5 neue), `build`.
+
+[x] **Phase 29 – Echsenmenschen/Gabiru-Allianz (Canon Band 2, Arc A3 `lizard-alliance`)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-29-lizard-alliance`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase. Neue Trigger-Region `lizardman-marsh` (Echsen-Sumpf), Gateway vom Jura-Wald (gated über `faction.kijin.sworn`) + Rücktor. Questline `lizard-alliance`: Soukas Warnung → den überheblichen **Gabiru** im Schilfkessel demütigen (Boss `gabiru` + `lizardman-warrior`) → Bündnis besiegeln (200 Gold + Tempest-Charm). Gabirus spielbarer Beitritt bleibt canon-treu „spätere Läuterung". NPC Souka (zweistufiger Dialog); Codex Echsenmenschen/Sumpf-Bündnis. Abnahme: `typecheck`, `test` (221/221, 5 neue), `build`.
+
+[x] **Phase 30 – Shizu & Ifrit (Canon Band 1)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-30-shizu-ifrit`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase. Neue Trigger-Region `ember-hollow` (Glutgrotte), Gateway vom Jura-Wald (gated über `story.kijin.named`) + Rücktor. Questline `shizu-vow`: Shizu treffen → maskierten **Majin** vertreiben → **Ifrit** bezwingen → Shizus Schwur tragen (Rimuru gewinnt menschliche Gestalt + Ifrit-Flamme, symbolisiert durch die Geistglut `spirit-ember`; 260 Gold). Verkabelt die letzten verwaisten Bossgegner. NPC Shizu (zweistufiger Dialog); Codex Shizu/Ifrit/Andersweltler. Abnahme: `typecheck`, `test` (221/221, 5 neue), `build`.
+
+> **Integration (2026-06-29):** Phasen 27–30 in `main` gemergt. Konflikte (additive Array-Enden in `world.ts`/`maps.ts`) sauber aufgelöst; Gesamtsuite **237/237** grün, `build` ok. Der Jura-Wald-Hub verzweigt nun zu vier Band-1/2-Regionen → `analyzeOverworldBudget`-Markercap von 80 auf 96 rekalibriert (gated, gegenseitig exklusive Marker).
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -605,7 +616,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
    schaltet **Schmieden/Bau/Ausrüstungstier** frei. Spielhook: neue Map `dwargon`, Gateway vom
    Jura-Wald, recruit-character `kaijin`, Shop/Crafting-Erweiterung, Codex „Dwargon", Vesta als
    späterer optionaler Forscher.
-2. **Shizu (Shizue Izawa) & Ifrit** *(emotionaler Hauptbeat + Mechanik)* — Begegnung mit der
+2. **Shizu (Shizue Izawa) & Ifrit** *(emotionaler Hauptbeat + Mechanik)* — ✅ **umgesetzt in Phase 30** (Region `ember-hollow`, Quest `shizu-vow`: Majin → Ifrit → Schwur, Geistglut-Belohnung; 5 Schüler-Kinder als späterer Arc offen). Begegnung mit der
    Andersweltlerin Shizu (A-Rang, Wirtin des Flammengeists **Ifrit**, Maske zur Kontrolle).
    Beat: Ifrit-Konflikt, Shizus Ende, Rimuru nimmt sie auf ihren Wunsch auf → erhält die
    **menschliche Form** (Rimurus Menschengestalt nach Shizu) und Ifrits Flamme; **Schwur**,
@@ -742,10 +753,10 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
      `set-flag craft.smithing.unlocked` → Shop/Crafting-Tier frei, Magisteel-Rezepte.
   - Belohnung: Schmieden/Bau, Codex „Gazel Dwargo".
 
-**A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)*
+**A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)* — ✅ **umgesetzt in Phase 28 + 29** (Treyni → Vorhut → Geld-Boss → Föderation + Milim-Honig-Pakt; Echsenmenschen/Gabiru-Allianz als `lizard-alliance`-Slice).
 - Quest `orc-disaster` „Die Hungersnot der Orks" (Regionen `lizardman-marsh`, `jura-battlefield`):
   1. `treyni-plea` — **Treyni** warnt vor der Ork-Armee + Gelmuds Namen-Schema → Codex „Treyni".
-  2. `lizard-alliance` — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
+  2. `lizard-alliance` — ✅ **umgesetzt in Phase 29** (Region `lizardman-marsh`, Souka-Parley, Gabiru-Duell, Bündnis) — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
      `set-flag story.lizard.allied` (Gabiru fällt, spätere Läuterung).
   3. `march-of-orcs` — Pflicht-Encounter Ork-Vorhut (`orc-soldier` × n) → `set-flag story.orc.engaged`.
   4. `geld-disaster` — **Boss** `orc-disaster` (Geld; frisst Gelmud im Vorspann). victory →
