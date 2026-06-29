@@ -521,6 +521,16 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Phase 26 – Regionale Imagegen-Overworld-Tiles** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-26-region-tiles`)*
 > **✅ Status (2026-06-29):** Der Backlog-Punkt „Pro-Karte-Tile-Theming" ist für Geistmoor und Geisterschrein-Hochland geschlossen: beide Regionen nutzen eigene, auf 128×128-WebP optimierte Imagegen-Boden-/Wandtiles statt Jura-Gras/Jura-Wand. Die Auswahl läuft über ein reines Mapping mit Fallbacks auf Legacy-Kenney-Tiles und prozedurale Platzhalter. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (216/216), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil).
 
+> **Parallele Canon-Content-Branches (Band 1/2, je eigener Worktree, Daten/Welt-only — warten auf Merge):** **Phase 27** `phase-27-dwargon` (Arc A2: Region `dwargon`, Kaijin-Recruit, Schmiede-Shops), **Phase 28** `phase-28-orc-disaster` (Arc A3-Kern: `jura-battlefield`, Geld-Boss, Föderation, Milim).
+
+[x] **Phase 29 – Echsenmenschen/Gabiru-Allianz (Canon Band 2, Arc A3 `lizard-alliance`)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-29-lizard-alliance`, Branch `phase-29-lizard-alliance`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase (kollisionsfrei zu den parallelen Render-/Asset-Branches). Bringt die verwaisten Gegner `gabiru` + `lizardman-warrior` ins Spiel.
+> - **Neue Allianzregion `lizardman-marsh`** (`maps.ts`): Echsen-Sumpf, nur Trigger-/Story-Begegnungen (keine Zufallskämpfe → Balance-Gate überspringt sie), über Gateway erreichbar.
+> - **Gateway** vom Jura-Wald (gated über `faction.kijin.sworn`, eigene Reisekachel) + Rücktor.
+> - **Questline `lizard-alliance`**: Soukas Warnung → den überheblichen **Gabiru** im Schilfkessel demütigen (Boss `gabiru` + `lizardman-warrior`) → Bündnis besiegeln. Belohnung 200 Gold + Tempest-Charm. Gabirus spielbarer Beitritt bleibt canon-treu „spätere Läuterung".
+> - **NPC** Souka mit zweistufigem Dialog (Parley/Bündnis); Codex „Die Echsenmenschen"/„Das Sumpf-Bündnis".
+> - **Abnahme:** `bun run typecheck`, `bun run test` (**221/221**, inkl. 5 neue Checks), `bun run build`.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -736,7 +746,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 **A3 — Orc-Disaster** *(großer Bogen: Allianz → Schlacht → Predation → Föderation)*
 - Quest `orc-disaster` „Die Hungersnot der Orks" (Regionen `lizardman-marsh`, `jura-battlefield`):
   1. `treyni-plea` — **Treyni** warnt vor der Ork-Armee + Gelmuds Namen-Schema → Codex „Treyni".
-  2. `lizard-alliance` — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
+  2. `lizard-alliance` — ✅ **umgesetzt in Phase 29** (Region `lizardman-marsh`, Souka-Parley, Gabiru-Duell, Bündnis) — Echsen-Sumpf: Gabirus Hochmut korrigieren, Souka/Häuptling →
      `set-flag story.lizard.allied` (Gabiru fällt, spätere Läuterung).
   3. `march-of-orcs` — Pflicht-Encounter Ork-Vorhut (`orc-soldier` × n) → `set-flag story.orc.engaged`.
   4. `geld-disaster` — **Boss** `orc-disaster` (Geld; frisst Gelmud im Vorspann). victory →
