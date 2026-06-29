@@ -52,6 +52,13 @@ export const SPIRIT_HIGHLANDS: TileMap = buildMap(24, 14, [
   [6, 2, 2, 3], [10, 6, 3, 2], [14, 8, 2, 3], [17, 2, 2, 3], [8, 11, 3, 2], [20, 6, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-1-Story-Region: Glutgrotte (20×12, enge Lavakammer mit Felsblöcken).
+// Reine Trigger-/Story-Begegnungen (maskierter Majin, Flammengeist Ifrit),
+// keine Zufallskämpfe — Shizus Episode als fokussiertes Set-Piece.
+export const EMBER_HOLLOW: TileMap = buildMap(20, 12, [
+  [4, 2, 2, 2], [10, 2, 3, 2], [14, 3, 2, 2], [5, 7, 3, 2], [12, 7, 3, 2]
+], { x: 2, y: 6 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -60,7 +67,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'direwolf-den': DIREWOLF_CLEARING,
   'tempest-start': JURA_FIELD,
   'spirit-marsh': SPIRIT_MARSH,
-  'spirit-highlands': SPIRIT_HIGHLANDS
+  'spirit-highlands': SPIRIT_HIGHLANDS,
+  'ember-hollow': EMBER_HOLLOW
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -76,7 +84,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'direwolf-den': 'Direwolf-Lichtung',
   'tempest-start': 'Jura-Wald',
   'spirit-marsh': 'Geistmoor',
-  'spirit-highlands': 'Geisterschrein-Hochland'
+  'spirit-highlands': 'Geisterschrein-Hochland',
+  'ember-hollow': 'Glutgrotte'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

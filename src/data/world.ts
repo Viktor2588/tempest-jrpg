@@ -479,6 +479,38 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'shizu-vow',
+    title: 'Shizus Schwur',
+    description: 'In der Glutgrotte ringt die Andersweltlerin Shizu mit dem Flammengeist Ifrit — angestachelt von einem maskierten Majin. Befreie sie und trage ihren letzten Schwur weiter.',
+    steps: [
+      {
+        id: 'meet-shizu',
+        title: 'Shizu treffen',
+        description: 'Triff die maskierte Andersweltlerin Shizu am Eingang der Glutgrotte.',
+        locationId: 'ember-hollow-entrance'
+      },
+      {
+        id: 'masked-majin',
+        title: 'Den maskierten Majin vertreiben',
+        description: 'Stell den maskierten Majin, der Ifrit gegen Shizu aufstachelt.',
+        locationId: 'ember-hollow-core'
+      },
+      {
+        id: 'ifrit',
+        title: 'Ifrit bezwingen',
+        description: 'Bezwinge den entfesselten Flammengeist Ifrit und befreie Shizu.',
+        locationId: 'ember-hollow-core'
+      },
+      {
+        id: 'vow',
+        title: 'Shizus Schwur tragen',
+        description: 'Nimm Shizu auf ihren Wunsch in dich auf und schwöre, ihre Schüler zu schützen.',
+        locationId: 'ember-hollow-entrance'
+      }
+    ],
+    reward: { gold: 260, itemIds: ['spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -817,6 +849,48 @@ export const LOCATIONS = [
     position: { x: 12, y: 3 },
     description: 'Die windumtoste Spitze des Geisterschreins, an der die ältesten Echos der Bindung nachhallen.',
     identity: 'Erkundungs-/Bossort des Hochlands: stärkste optionale Begegnungen.'
+  },
+  {
+    id: 'gate-to-ember-hollow',
+    name: 'Pfad zur Glutgrotte',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 5 },
+    description: 'Ein heißer Spalt im Fels am Ostrand des Jura-Walds, aus dem Rauch und ein fernes Lodern dringen.',
+    identity: 'Reisepunkt: Übergang zur Band-1-Story-Region (Glutgrotte / Shizus Episode).',
+    // Öffnet nach dem Kijin-Schwur — der entfesselte Flammengeist ist ein Prüfstein für gestählte Helden.
+    unlockFlag: 'story.kijin.named',
+    travelTo: { mapId: 'ember-hollow', x: 2, y: 6 }
+  },
+  {
+    id: 'ember-hollow-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'ember-hollow',
+    position: { x: 1, y: 6 },
+    description: 'Der Weg aus der schwülen Grotte zurück in den kühlen Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 5 }
+  },
+  {
+    id: 'ember-hollow-entrance',
+    name: 'Glutgrotten-Vorhalle',
+    kind: 'outpost',
+    mapId: 'ember-hollow',
+    position: { x: 5, y: 6 },
+    bounds: { x: 3, y: 4, width: 6, height: 5 },
+    description: 'Die rauchige Vorhalle der Grotte, in der Shizu mit ihrer Maske gegen Ifrits Drang ankämpft.',
+    identity: 'Story-Treffpunkt: Shizus erste Begegnung und ihr letzter Schwur.'
+  },
+  {
+    id: 'ember-hollow-core',
+    name: 'Lavakammer',
+    kind: 'dungeon',
+    mapId: 'ember-hollow',
+    position: { x: 14, y: 6 },
+    bounds: { x: 12, y: 4, width: 6, height: 5 },
+    description: 'Das glühende Herz der Grotte, in dem ein maskierter Majin den Flammengeist Ifrit entfesselt.',
+    identity: 'Bossort: maskierter Majin und der Greater Spirit Ifrit.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1097,6 +1171,30 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Hunger trieb die Orks zu einer einzigen, verzweifelten Schlacht. In ihrer Mitte erwachte „Geld" — der Orc-Disaster, der die Gefallenen verschlang und mit jeder Mahlzeit wuchs. Die geflüchteten Oger sahen ihr Dorf in diesem Heerzug untergehen.',
     unlockFlag: 'faction.kijin.sworn'
+  },
+  {
+    id: 'shizu',
+    title: 'Shizu, die Andersweltlerin',
+    lockedTitle: 'Eine maskierte Fremde',
+    category: 'people',
+    body: 'Shizue Izawa — als Kind in diese Welt gerufen und zur Wirtin des Flammengeists Ifrit gemacht. Ihre Maske bändigt das Feuer in ihr. A-Rang-Abenteurerin, von Güte erfüllt: ihr letzter Wunsch gilt nicht Rache, sondern dem Schutz der Kinder, die ihr Schicksal teilen.',
+    unlockFlag: 'story.shizu.met'
+  },
+  {
+    id: 'ifrit-spirit',
+    title: 'Ifrit, der Flammengeist',
+    lockedTitle: 'Ein Lodern in der Tiefe',
+    category: 'people',
+    body: 'Ein Greater Spirit des Feuers, der in Shizu gebunden war. Von einem maskierten Majin aufgestachelt, bricht er los. Bezwungen wird seine Flamme zu einer Affinität, die Rimuru in sich aufnimmt — die Geistglut.',
+    unlockFlag: 'story.ifrit.subdued'
+  },
+  {
+    id: 'otherworlders',
+    title: 'Andersweltler & menschliche Gestalt',
+    lockedTitle: 'Rufe aus einer anderen Welt',
+    category: 'systems',
+    body: 'Magie ruft Menschen aus einer anderen Welt; sie tragen besondere Gaben und einen Hunger nach Magie. Indem Rimuru Shizu auf ihren Wunsch in sich aufnimmt, gewinnt er ihre menschliche Gestalt und Ifrits Flamme — und den Schwur, ihre fünf Schüler zu schützen (ein ferner Faden bis zu Leon Cromwell).',
+    unlockFlag: 'story.shizu.vow'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2272,6 +2370,59 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Das ist Tempests Aufgabe' }]
       }
     ]
+  },
+  {
+    id: 'shizu-vow',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Shizu',
+        text: 'Hinter einer feinen Maske mustert dich eine müde Frau. „Ein maskierter Majin hat das Feuer in mir geweckt — Ifrit will heraus. Ich halte ihn, so lange ich kann. Bitte … nimm dem Majin die Schnur, ehe die Flamme alles verschlingt.“',
+        choices: [
+          {
+            id: 'meet',
+            label: 'Shizu beistehen',
+            nextNodeId: 'await',
+            requirements: [{ notFlag: 'story.shizu.met' }],
+            effects: [
+              { type: 'start-quest', questId: 'shizu-vow' },
+              { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'meet-shizu' },
+              { type: 'set-flag', flag: 'story.shizu.met', value: true }
+            ]
+          },
+          {
+            id: 'take-vow',
+            label: 'Shizus letzten Schwur annehmen',
+            nextNodeId: 'vowed',
+            requirements: [
+              { flag: 'story.ifrit.subdued' },
+              { notFlag: 'story.shizu.vow' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.shizu.vow', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'vow' },
+              { type: 'complete-quest', questId: 'shizu-vow' },
+              { type: 'add-gold', amount: 260 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          },
+          { id: 'leave', label: 'Noch einen Moment' }
+        ]
+      },
+      {
+        id: 'await',
+        speaker: 'Shizu',
+        text: 'Shizu presst die Maske fester an. „Der Majin treibt sich tiefer in der Lavakammer herum. Brich seine Kontrolle — dann stelle dich Ifrit selbst.“',
+        choices: [{ id: 'end', label: 'In die Lavakammer' }]
+      },
+      {
+        id: 'vowed',
+        speaker: 'Shizu',
+        text: 'Ihre Maske fällt. „Danke … beschütze die Kinder, die wie ich gerufen wurden.“ Mit ihrem letzten Wunsch nimmt Rimuru sie in sich auf — und gewinnt eine menschliche Gestalt und Ifrits Flamme. Ein Schwur, der weit über diesen Tag hinausreicht.',
+        choices: [{ id: 'end', label: 'Ich schwöre es' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2396,6 +2547,14 @@ export const NPCS = [
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'shizu-grotto',
+    name: 'Shizu',
+    mapId: 'ember-hollow',
+    position: { x: 4, y: 5 },
+    dialogId: 'shizu-vow',
+    color: 0xe8a04a
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -2753,6 +2912,40 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.vigil.cleared', value: true },
       { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'banish-echo' }
+    ]
+  },
+  {
+    id: 'masked-majin-ambush',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 9, y: 6 },
+    enemyIds: ['masked-majin'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.shizu.met' },
+      { notFlag: 'story.majin.repelled' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.majin.repelled', value: true },
+      { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'masked-majin' },
+      { type: 'add-item', itemId: 'magic-ore', quantity: 1 }
+    ]
+  },
+  {
+    id: 'ifrit-boss',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 14, y: 6 },
+    enemyIds: ['ifrit'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.majin.repelled' },
+      { notFlag: 'story.ifrit.subdued' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.ifrit.subdued', value: true },
+      { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'ifrit' },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
