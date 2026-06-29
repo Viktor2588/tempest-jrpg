@@ -833,6 +833,13 @@ export const LORE_ENTRIES = [
     unlockFlag: 'codex.tutorial-grove-combat'
   },
   {
+    id: 'tutorial-echo-boss',
+    title: 'Tutorial: Echo-Boss und Magieeffekte',
+    category: 'systems',
+    body: 'Nach dem Flüsterhain zeigt das Ahnensiegel eine Boss-Signatur. Prüfe Magieeffekte, halte MP für Heilung/Antwortfenster zurück und nutze Teamzüge erst, wenn das Echo seine alte Ordnung offenlegt.',
+    unlockFlag: 'codex.tutorial-echo-boss'
+  },
+  {
     id: 'goblin-village',
     title: 'Das erste Goblindorf',
     category: 'places',
@@ -843,7 +850,7 @@ export const LORE_ENTRIES = [
     id: 'tutorial-direwolf-boss',
     title: 'Tutorial: Bosskampf und Teamleiste',
     category: 'systems',
-    body: 'Der Direwolf-Anführer ist der erste Boss-Prüfstein: Verteidigen, Items und Teamleiste sind hier wichtiger als blindes Angreifen. Der Sieg endet als Pakt, nicht als Auslöschung.',
+    body: 'Der Direwolf-Anführer ist der erste Boss-Prüfstein: Verteidigen, Items, Schwächefenster und Teamleiste sind hier wichtiger als blindes Angreifen. Der Sieg endet als Pakt, nicht als Auslöschung.',
     unlockFlag: 'story.goblin.plea'
   },
   {
@@ -873,6 +880,13 @@ export const LORE_ENTRIES = [
     category: 'systems',
     body: 'Ranga unterscheidet zwischen sicheren Reisepunkten und gefährlichen Spuren. Tempest kann nur zu Orten schnellreisen, die real besucht, im Save markiert und aktuell sicher sind; Hain und Grenzroute werden zuerst nur gescoutet.',
     unlockFlag: 'story.direwolf.pact'
+  },
+  {
+    id: 'tutorial-ranga-fast-travel',
+    title: 'Tutorial: Sichere Ranga-Schnellreise',
+    category: 'systems',
+    body: 'Schnellreise wird erst praktisch, wenn Ranga einen Ort wirklich gerochen und als sicheren Reisepunkt gespeichert hat. Unbesuchte oder unsichere Orte bleiben Scout-Hinweise, keine Teleports.',
+    unlockFlag: 'travel.ranga.discovered.tempest-hollow'
   },
   {
     id: 'gobta-rider-path',
@@ -2404,6 +2418,7 @@ export const ENCOUNTERS = [
       { type: 'set-flag', flag: 'story.grove.cleared', value: true },
       { type: 'set-flag', flag: 'codex.binding-of-ancestors', value: true },
       { type: 'set-flag', flag: 'codex.ancestor-seal-warning', value: true },
+      { type: 'set-flag', flag: 'codex.tutorial-echo-boss', value: true },
       { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'clear-grove' },
       { type: 'add-item', itemId: 'ancestor-seal-fragment', quantity: 1 }
     ]

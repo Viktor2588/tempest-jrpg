@@ -143,4 +143,28 @@ describe('Ranga-Scout und Schnellreise', () => {
     expect(entry.title).toBe('Unbekannter Hüter');
     expect(entry.body).toBeNull();
   });
+
+  it('erklärt Ranga-Schnellreise erst nach real entdecktem sicherem Reisepunkt', () => {
+    const before = buildCodexView({
+      flags: { 'story.direwolf.pact': true },
+      quests: {},
+      inventory: [],
+      gold: 0
+    }).find((candidate) => candidate.id === 'tutorial-ranga-fast-travel')!;
+
+    const after = buildCodexView({
+      flags: {
+        'story.direwolf.pact': true,
+        [rangaTravelFlag('tempest-hollow')]: true
+      },
+      quests: {},
+      inventory: [],
+      gold: 0
+    }).find((candidate) => candidate.id === 'tutorial-ranga-fast-travel')!;
+
+    expect(before.unlocked).toBe(false);
+    expect(after.unlocked).toBe(true);
+    expect(after.body).toContain('wirklich gerochen');
+    expect(after.body).toContain('keine Teleports');
+  });
 });

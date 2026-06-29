@@ -280,10 +280,15 @@ describe('world/dialog/shop/encounter system', () => {
 
     expect(completed.state.flags['story.grove.cleared']).toBe(true);
     expect(completed.state.flags['codex.ancestor-seal-warning']).toBe(true);
+    expect(completed.state.flags['codex.tutorial-echo-boss']).toBe(true);
     expect(buildCodexView(completed.state).find((entry) => entry.id === 'ancestor-seal-warning')?.unlocked)
       .toBe(true);
     expect(buildCodexView(completed.state).find((entry) => entry.id === 'ancestor-seal-warning')?.newlyUnlocked)
       .toBe(true);
+    const echoTutorial = buildCodexView(completed.state).find((entry) => entry.id === 'tutorial-echo-boss')!;
+    expect(echoTutorial.unlocked).toBe(true);
+    expect(echoTutorial.body).toContain('Magieeffekte');
+    expect(echoTutorial.body).toContain('Teamzüge');
     expect(getItemCount(completed.state.inventory, 'ancestor-seal-fragment')).toBe(1);
     expect(repeated.state).toEqual(completed.state);
     expect(getMapLocations('tempest-start', completed.state).map((location) => location.id)).toContain('ancestor-seal');
@@ -523,6 +528,7 @@ describe('world/dialog/shop/encounter system', () => {
     expect(buildCodexView(world).filter((entry) => entry.unlocked).map((entry) => entry.id))
       .toEqual([
         'tutorial-grove-combat',
+        'tutorial-echo-boss',
         'first-tempest-naming',
         'storm-dragon-future-ally',
         'nameless-core',
