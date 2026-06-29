@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createNewSave, type SaveGameV2 } from '../src/systems/save';
 import {
+  buildRangaJourneyView,
   buildRangaTravelView,
   discoverRangaTravelFlags,
   rangaTravelFlag,
@@ -63,6 +64,33 @@ describe('Ranga-Scout und Schnellreise', () => {
       ok: true,
       location: { mapId: 'goblin-village', x: 8, y: 6 }
     });
+  });
+
+  it('liefert ein kurzes Ranga-Reisemoment und eine Reduced-Motion-Sofortvariante', () => {
+    const save = saveWith({
+      'story.direwolf.pact': true,
+      'story.storm-dragon.oath': true,
+      [rangaTravelFlag('sealed-cave')]: true,
+      [rangaTravelFlag('goblin-village')]: true
+    }, { mapId: 'sealed-cave', x: 7, y: 6, facing: 'up' });
+    const destination = buildRangaTravelView(createWorldState(save), save.location)
+      .destinations.find((item) => item.id === 'goblin-village')!;
+
+    const cinematic = buildRangaJourneyView(destination, { reducedMotion: false });
+    expect(cinematic).toMatchObject({
+      mode: 'cinematic',
+      title: 'Ranga trägt dich nach Goblindorf',
+      durationMs: 1200
+    });
+    expect(cinematic.body).toContain('Geruchsspur');
+    expect(cinematic.routeNote).toContain('Sicher');
+
+    const instant = buildRangaJourneyView(destination, { reducedMotion: true });
+    expect(instant).toMatchObject({
+      mode: 'instant',
+      durationMs: 0
+    });
+    expect(instant.body).toContain('sofort abgeschlossen');
   });
 
   it('blockiert bekannte, aber aktuell unsichere Fernrouten', () => {

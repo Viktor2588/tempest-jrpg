@@ -38,6 +38,14 @@ export interface RangaTravelResult {
   readonly message: string;
 }
 
+export interface RangaJourneyView {
+  readonly mode: 'cinematic' | 'instant';
+  readonly title: string;
+  readonly body: string;
+  readonly routeNote: string;
+  readonly durationMs: number;
+}
+
 interface RangaTravelPointDefinition {
   readonly id: string;
   readonly locationId: string;
@@ -151,6 +159,22 @@ export function resolveRangaTravel(
       facing: 'down'
     },
     message: `Ranga bringt dich nach ${destination.name}.`
+  };
+}
+
+export function buildRangaJourneyView(
+  destination: Pick<RangaTravelDestinationView, 'name' | 'dangerLevel' | 'dangerLabel' | 'description'>,
+  options: { readonly reducedMotion: boolean }
+): RangaJourneyView {
+  const routeNote = routeNoteForDanger(destination.dangerLevel);
+  return {
+    mode: options.reducedMotion ? 'instant' : 'cinematic',
+    title: `Ranga trägt dich nach ${destination.name}`,
+    body: options.reducedMotion
+      ? 'Reduzierte Bewegung ist aktiv: Die Reise wird sofort abgeschlossen.'
+      : `Wind drückt die Gräser flach. Ranga folgt einer sicheren Geruchsspur und hält kurz vor ${destination.name}.`,
+    routeNote: `${destination.dangerLabel}: ${routeNote} ${destination.description}`,
+    durationMs: options.reducedMotion ? 0 : 1200
   };
 }
 
@@ -275,6 +299,12 @@ function dangerLabel(level: RangaDangerLevel): string {
   if (level === 'safe') return 'Sicher';
   if (level === 'watch') return 'Wachsam';
   return 'Gefährlich';
+}
+
+function routeNoteForDanger(level: RangaDangerLevel): string {
+  if (level === 'safe') return 'Ranga nimmt eine ruhige Route ohne Umwege.';
+  if (level === 'watch') return 'Ranga hält die Ohren oben und meidet offene Schneisen.';
+  return 'Ranga sprintet nur bis zum letzten sicheren Punkt.';
 }
 
 function statusReason(status: RangaTravelStatus): string {
