@@ -479,6 +479,32 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'dwargon-craft',
+    title: 'Handwerk aus Dwargon',
+    description: 'Reise ins Bewaffnete Königreich Dwargon, schlichte den Zwischenfall um Kaijin und gewinne Tempest die Schmiedekunst der Zwerge.',
+    steps: [
+      {
+        id: 'enter',
+        title: 'Dwargon betreten',
+        description: 'Folge dem Bergpfad aus dem Jura-Wald in die Schmiedestadt Dwargon.',
+        locationId: 'dwargon-market'
+      },
+      {
+        id: 'judgment',
+        title: 'Gazels Urteil hören',
+        description: 'Tritt im Thronsaal vor König Gazel Dwargo und vertritt Kaijins Sache.',
+        locationId: 'dwargon-throne'
+      },
+      {
+        id: 'smiths',
+        title: 'Kaijin gewinnen',
+        description: 'Lade Kaijin und seine Brüder ein, Tempests Schmiede aufzubauen.',
+        locationId: 'dwargon-market'
+      }
+    ],
+    reward: { gold: 120, itemIds: ['magisteel'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -817,6 +843,48 @@ export const LOCATIONS = [
     position: { x: 12, y: 3 },
     description: 'Die windumtoste Spitze des Geisterschreins, an der die ältesten Echos der Bindung nachhallen.',
     identity: 'Erkundungs-/Bossort des Hochlands: stärkste optionale Begegnungen.'
+  },
+  {
+    id: 'gate-to-dwargon',
+    name: 'Bergpfad nach Dwargon',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 8 },
+    description: 'Ein befestigter Handelspfad, der vom Ostrand des Jura-Walds zum Bewaffneten Königreich Dwargon führt.',
+    identity: 'Reisepunkt: Übergang in die Band-2-Nebenregion Dwargon (Handel & Schmiedekunst).',
+    // Öffnet, sobald die Kijin benannt sind — Kurobes Schmiedekunst weckt das
+    // Interesse an Dwargons Esse.
+    unlockFlag: 'story.kijin.named',
+    travelTo: { mapId: 'dwargon', x: 2, y: 7 }
+  },
+  {
+    id: 'dwargon-gate-tempest',
+    name: 'Tor zurück zum Jura-Wald',
+    kind: 'gateway',
+    mapId: 'dwargon',
+    position: { x: 1, y: 7 },
+    description: 'Das große Steintor Dwargons, durch das der Pfad zurück in den Jura-Wald führt.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 8 }
+  },
+  {
+    id: 'dwargon-market',
+    name: 'Dwargon-Werkstattviertel',
+    kind: 'city',
+    mapId: 'dwargon',
+    position: { x: 9, y: 7 },
+    bounds: { x: 5, y: 3, width: 12, height: 8 },
+    description: 'Ambosse hämmern, Essen glühen: das Handwerksherz Dwargons mit Schmiede, Apotheke und Handelskontor.',
+    identity: 'Sicherer Stadt-Hub: Zwergenschmiede, Magisteel-Handel und Kaijins Werkstatt.'
+  },
+  {
+    id: 'dwargon-throne',
+    name: 'Dwargon-Thronsaal',
+    kind: 'city',
+    mapId: 'dwargon',
+    position: { x: 12, y: 4 },
+    description: 'Eine wuchtige Halle aus Stein und Magisteel, in der König Gazel Dwargo Recht spricht.',
+    identity: 'Gerichts-/Story-Ort: Gazels Urteil im Zwischenfall um Kaijin.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1097,6 +1165,22 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Hunger trieb die Orks zu einer einzigen, verzweifelten Schlacht. In ihrer Mitte erwachte „Geld" — der Orc-Disaster, der die Gefallenen verschlang und mit jeder Mahlzeit wuchs. Die geflüchteten Oger sahen ihr Dorf in diesem Heerzug untergehen.',
     unlockFlag: 'faction.kijin.sworn'
+  },
+  {
+    id: 'dwargon',
+    title: 'Dwargon, das Bewaffnete Königreich',
+    lockedTitle: 'Gerüchte aus den Bergen',
+    category: 'places',
+    body: 'Eine Bergfeste aus Stein und Magisteel: Dwargons Werkstätten gelten als die besten der bekannten Welt. Hinter Markt und Esse liegt eine strenge Ordnung — und ein Königshof, an dem Recht über Handwerk und Ehre wacht.',
+    unlockFlag: 'story.dwargon.entered'
+  },
+  {
+    id: 'gazel-dwargo',
+    title: 'König Gazel Dwargo',
+    lockedTitle: 'Der Heldenkönig',
+    category: 'people',
+    body: 'Der Schwertheld auf Dwargons Thron. Hart, aber gerecht: Sein Urteil im Zwischenfall um Kaijin öffnet Tempest den Weg zur Schmiedekunst der Zwerge — und legt den Grundstein einer späteren Freundschaft.',
+    unlockFlag: 'craft.smithing.unlocked'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2272,6 +2356,73 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Das ist Tempests Aufgabe' }]
       }
     ]
+  },
+  {
+    id: 'gazel-dwargo',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'König Gazel Dwargo',
+        text: 'Der Heldenkönig mustert den Schleim. „Ein Zwischenfall in der Werkstatt — Minister Vestas Faktion bezichtigt meinen Meisteringenieur Kaijin. Du sprichst für ihn? Dann höre mein Urteil.“',
+        choices: [
+          {
+            id: 'plead',
+            label: 'Für Kaijin sprechen',
+            nextNodeId: 'verdict',
+            requirements: [{ notFlag: 'craft.smithing.unlocked' }],
+            effects: [
+              { type: 'start-quest', questId: 'dwargon-craft' },
+              { type: 'complete-quest-step', questId: 'dwargon-craft', stepId: 'enter' },
+              { type: 'complete-quest-step', questId: 'dwargon-craft', stepId: 'judgment' },
+              { type: 'set-flag', flag: 'story.dwargon.entered', value: true },
+              { type: 'set-flag', flag: 'craft.smithing.unlocked', value: true }
+            ]
+          },
+          { id: 'leave', label: 'Später wiederkommen' }
+        ]
+      },
+      {
+        id: 'verdict',
+        speaker: 'König Gazel Dwargo',
+        text: 'Gazel nickt langsam. „Kaijin und seine Brüder verlassen Dwargon ehrenhaft — kein Exil, sondern ein Auftrag. Geh zu ihm an der Schmiede; baut etwas, das diese Welt noch nicht gesehen hat.“',
+        choices: [{ id: 'end', label: 'Danke, Heldenkönig' }]
+      }
+    ]
+  },
+  {
+    id: 'kaijin-forge',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Kaijin',
+        text: 'Der Meisteringenieur wischt sich Ruß von den Händen. „Der König hat gesprochen — und du bist für mich eingestanden. Garm, Dord und Myrd sind bereit. Sag das Wort, und wir bauen Tempest eine echte Schmiede.“',
+        choices: [
+          {
+            id: 'recruit',
+            label: 'Komm mit nach Tempest',
+            nextNodeId: 'joined',
+            requirements: [{ flag: 'craft.smithing.unlocked' }, { notFlag: 'faction.dwargon.allied' }],
+            effects: [
+              { type: 'recruit-character', characterId: 'kaijin' },
+              { type: 'set-flag', flag: 'faction.dwargon.allied', value: true },
+              { type: 'complete-quest-step', questId: 'dwargon-craft', stepId: 'smiths' },
+              { type: 'complete-quest', questId: 'dwargon-craft' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+            ]
+          },
+          { id: 'end', label: 'Bald — haltet euch bereit' }
+        ]
+      },
+      {
+        id: 'joined',
+        speaker: 'Kaijin',
+        text: 'Kaijin lacht dröhnend. „Dann ist es beschlossen! Magisteel, Magiewerkzeug, eine Esse, die nie erlischt — Dwargons Handwerk gehört nun auch Tempest.“',
+        choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2396,6 +2547,24 @@ export const NPCS = [
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'gazel-dwargo',
+    name: 'König Gazel Dwargo',
+    mapId: 'dwargon',
+    position: { x: 12, y: 3 },
+    dialogId: 'gazel-dwargo',
+    color: 0xc9d4e0
+  },
+  {
+    id: 'kaijin-dwargon',
+    name: 'Kaijin',
+    mapId: 'dwargon',
+    position: { x: 6, y: 9 },
+    dialogId: 'kaijin-forge',
+    color: 0xd2a679,
+    // Erscheint erst nach Gazels Urteil (Schmiedekunst freigeschaltet).
+    requirements: [{ flag: 'craft.smithing.unlocked' }]
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -2466,6 +2635,38 @@ export const SHOPS = [
     itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
     buyMultiplier: 1.2,
     sellMultiplier: 0.5
+  },
+  {
+    id: 'dwargon-smithy',
+    name: 'Dwargon-Schmiede',
+    mapId: 'dwargon',
+    position: { x: 6, y: 4 },
+    itemIds: ['magisteel-blade', 'dwarf-plate', 'forge-band', 'magisteel'],
+    itemRequirements: [
+      { itemId: 'magisteel-blade', requirements: [{ flag: 'craft.smithing.unlocked' }] },
+      { itemId: 'dwarf-plate', requirements: [{ flag: 'craft.smithing.unlocked' }] },
+      { itemId: 'forge-band', requirements: [{ flag: 'craft.smithing.unlocked' }] }
+    ],
+    buyMultiplier: 1.1,
+    sellMultiplier: 0.5
+  },
+  {
+    id: 'dwargon-apothecary',
+    name: 'Dwargon-Apotheke',
+    mapId: 'dwargon',
+    position: { x: 11, y: 4 },
+    itemIds: ['healing-herb', 'mana-drop', 'hipokte-herb', 'full-potion'],
+    buyMultiplier: 1,
+    sellMultiplier: 0.5
+  },
+  {
+    id: 'dwargon-trader',
+    name: 'Dwargon-Handelskontor',
+    mapId: 'dwargon',
+    position: { x: 8, y: 9 },
+    itemIds: ['magic-ore', 'magisteel', 'tempest-charm'],
+    buyMultiplier: 1,
+    sellMultiplier: 0.55
   }
 ] as const satisfies readonly ShopDefinition[];
 
