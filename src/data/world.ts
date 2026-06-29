@@ -2011,6 +2011,44 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Guter Junge' }]
       }
     ]
+  },
+  {
+    id: 'kijin-naming',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Hakurou',
+        text: 'Sechs Oger haben ihr Dorf an die Orks verloren und in Tempest Zuflucht gefunden. Der alte Schwertmeister verneigt sich: „Slime-Herr, gib uns Namen — und wir folgen dir als Kijin, bis der Sturm sich legt.“',
+        choices: [
+          {
+            id: 'name-them',
+            label: 'Die Oger benennen (Benimaru, Shion, Hakurou, Kurobe, Souei)',
+            nextNodeId: 'named',
+            requirements: [
+              { flag: 'story.slime-prologue.completed' },
+              { notFlag: 'story.kijin.named' }
+            ],
+            effects: [
+              { type: 'recruit-character', characterId: 'benimaru' },
+              { type: 'recruit-character', characterId: 'shion' },
+              { type: 'recruit-character', characterId: 'hakurou' },
+              { type: 'recruit-character', characterId: 'kurobe' },
+              { type: 'recruit-character', characterId: 'souei' },
+              { type: 'set-flag', flag: 'story.kijin.named', value: true },
+              { type: 'set-flag', flag: 'faction.kijin.sworn', value: true }
+            ]
+          },
+          { id: 'end', label: 'Noch nicht' }
+        ]
+      },
+      {
+        id: 'named',
+        speaker: 'Hakurou',
+        text: 'Mit jedem Namen lodert die Magie auf — die Oger steigen zu Kijin auf. Benimaru, Shion, Hakurou, Kurobe und Souei knien nieder und schwören Tempest ewige Gefolgschaft.',
+        choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2092,6 +2130,16 @@ export const NPCS = [
     position: { x: 3, y: 9 },
     dialogId: 'kael-shrine',
     color: 0xbcd2ff
+  },
+  {
+    id: 'hakurou-camp',
+    name: 'Hakurou',
+    mapId: 'tempest-start',
+    position: { x: 6, y: 5 },
+    dialogId: 'kijin-naming',
+    color: 0xd66c6c,
+    // Die geflüchteten Oger erscheinen im Dorf, sobald das Slime-Prolog-Kapitel steht.
+    requirements: [{ flag: 'story.slime-prologue.completed' }]
   }
 ] as const satisfies readonly NpcDefinition[];
 
