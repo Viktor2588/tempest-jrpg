@@ -52,6 +52,13 @@ export const SPIRIT_HIGHLANDS: TileMap = buildMap(24, 14, [
   [6, 2, 2, 3], [10, 6, 3, 2], [14, 8, 2, 3], [17, 2, 2, 3], [8, 11, 3, 2], [20, 6, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-2-Allianzregion: Echsen-Sumpf (22×14, Wasserläufe und Schilfinseln).
+// Reine Story-/Trigger-Begegnungen (Echsenkrieger, Gabiru-Duell), keine
+// Zufallskämpfe — eine fokussierte Bündnis-Episode, kein Grindgebiet.
+export const LIZARDMAN_MARSH: TileMap = buildMap(22, 14, [
+  [3, 3, 2, 2], [9, 3, 2, 2], [15, 3, 2, 3], [6, 9, 2, 2], [12, 9, 3, 2], [17, 7, 2, 3]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -60,7 +67,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'direwolf-den': DIREWOLF_CLEARING,
   'tempest-start': JURA_FIELD,
   'spirit-marsh': SPIRIT_MARSH,
-  'spirit-highlands': SPIRIT_HIGHLANDS
+  'spirit-highlands': SPIRIT_HIGHLANDS,
+  'lizardman-marsh': LIZARDMAN_MARSH
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -76,7 +84,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'direwolf-den': 'Direwolf-Lichtung',
   'tempest-start': 'Jura-Wald',
   'spirit-marsh': 'Geistmoor',
-  'spirit-highlands': 'Geisterschrein-Hochland'
+  'spirit-highlands': 'Geisterschrein-Hochland',
+  'lizardman-marsh': 'Echsen-Sumpf'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

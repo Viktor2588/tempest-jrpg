@@ -479,6 +479,32 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['tempest-charm'] }
+  },
+  {
+    id: 'lizard-alliance',
+    title: 'Das Bündnis der Echsenmenschen',
+    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru gedemütigt werden, ehe die Echsenmenschen ein Bündnis schließen.',
+    steps: [
+      {
+        id: 'parley',
+        title: 'Souka anhören',
+        description: 'Triff Kommandantin Souka am Rand des Echsen-Sumpfs.',
+        locationId: 'lizard-marsh-camp'
+      },
+      {
+        id: 'humble',
+        title: 'Gabirus Hochmut brechen',
+        description: 'Stell den ruhmsüchtigen Gabiru und seine Wache im Herzen des Sumpfs.',
+        locationId: 'lizard-marsh-heart'
+      },
+      {
+        id: 'ally',
+        title: 'Das Bündnis besiegeln',
+        description: 'Kehre zu Souka zurück und schließe das Bündnis gegen die Orks.',
+        locationId: 'lizard-marsh-camp'
+      }
+    ],
+    reward: { gold: 200, itemIds: ['tempest-charm'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -817,6 +843,48 @@ export const LOCATIONS = [
     position: { x: 12, y: 3 },
     description: 'Die windumtoste Spitze des Geisterschreins, an der die ältesten Echos der Bindung nachhallen.',
     identity: 'Erkundungs-/Bossort des Hochlands: stärkste optionale Begegnungen.'
+  },
+  {
+    id: 'gate-to-lizard-marsh',
+    name: 'Sumpfpfad zum Echsenvolk',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 22, y: 13 },
+    description: 'Ein feuchter Pfad, der südöstlich aus dem Jura-Wald in den Echsen-Sumpf führt.',
+    identity: 'Reisepunkt: Übergang zur Band-2-Allianzregion (Echsen-Sumpf).',
+    // Öffnet nach dem Kijin-Schwur — Tempest sucht Verbündete gegen die Ork-Armee.
+    unlockFlag: 'faction.kijin.sworn',
+    travelTo: { mapId: 'lizardman-marsh', x: 2, y: 7 }
+  },
+  {
+    id: 'lizard-marsh-gate-tempest',
+    name: 'Rückweg in den Jura-Wald',
+    kind: 'gateway',
+    mapId: 'lizardman-marsh',
+    position: { x: 1, y: 7 },
+    description: 'Der Pfad aus dem Echsen-Sumpf zurück in den Jura-Wald.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 22, y: 13 }
+  },
+  {
+    id: 'lizard-marsh-camp',
+    name: 'Echsenlager am Schilf',
+    kind: 'outpost',
+    mapId: 'lizardman-marsh',
+    position: { x: 5, y: 7 },
+    bounds: { x: 3, y: 5, width: 6, height: 5 },
+    description: 'Ein bewachtes Lager der Echsenmenschen, in dem Kommandantin Souka die Stellung hält.',
+    identity: 'Story-Treffpunkt: Soukas Warnung und der Bündnis-Beat.'
+  },
+  {
+    id: 'lizard-marsh-heart',
+    name: 'Schilfkessel',
+    kind: 'dungeon',
+    mapId: 'lizardman-marsh',
+    position: { x: 13, y: 6 },
+    bounds: { x: 11, y: 4, width: 6, height: 5 },
+    description: 'Ein offener Wasserkessel, in dem Gabiru mit „Gabirus Hundert" prahlt — und auf die Probe gestellt wird.',
+    identity: 'Bossort: das Duell gegen den überheblichen Gabiru.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1097,6 +1165,22 @@ export const LORE_ENTRIES = [
     category: 'history',
     body: 'Hunger trieb die Orks zu einer einzigen, verzweifelten Schlacht. In ihrer Mitte erwachte „Geld" — der Orc-Disaster, der die Gefallenen verschlang und mit jeder Mahlzeit wuchs. Die geflüchteten Oger sahen ihr Dorf in diesem Heerzug untergehen.',
     unlockFlag: 'faction.kijin.sworn'
+  },
+  {
+    id: 'lizardfolk',
+    title: 'Die Echsenmenschen des Sumpfs',
+    lockedTitle: 'Stimmen aus dem Schilf',
+    category: 'people',
+    body: 'Ein stolzes Sumpfvolk: der besonnene Häuptling, seine loyale und fähige Kommandantin Souka — und sein ruhmsüchtiger Sohn Gabiru, der sich mit „Gabirus Hundert" gern selbst überschätzt. Gegen die Ork-Armee zählt nur, ob sie zusammenstehen.',
+    unlockFlag: 'story.lizard.met'
+  },
+  {
+    id: 'lizard-pact',
+    title: 'Das Sumpf-Bündnis',
+    lockedTitle: 'Ein unfertiges Bündnis',
+    category: 'places',
+    body: 'Erst Gabirus Niederlage öffnet den Echsenmenschen die Augen: Souka und der Häuptling schließen ein Bündnis mit Tempest gegen den Heerzug. Gabiru zieht sich beschämt zurück — seine Läuterung und sein späterer Beitritt als Tempest-Offizier zeichnen sich erst ab.',
+    unlockFlag: 'story.lizard.allied'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2272,6 +2356,59 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Das ist Tempests Aufgabe' }]
       }
     ]
+  },
+  {
+    id: 'souka-alliance',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Souka',
+        text: 'Die Kommandantin der Echsenmenschen misst Rimuru kühl. „Die Orks marschieren — und mein Häuptling sucht Verbündete. Doch sein Sohn Gabiru glaubt, sein Speer allein genüge. Beweist Tempest seine Stärke, ehe wir uns binden.“',
+        choices: [
+          {
+            id: 'parley',
+            label: 'Soukas Warnung annehmen',
+            nextNodeId: 'await-duel',
+            requirements: [{ notFlag: 'story.lizard.met' }],
+            effects: [
+              { type: 'start-quest', questId: 'lizard-alliance' },
+              { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'parley' },
+              { type: 'set-flag', flag: 'story.lizard.met', value: true }
+            ]
+          },
+          {
+            id: 'seal',
+            label: 'Das Bündnis besiegeln',
+            nextNodeId: 'allied',
+            requirements: [
+              { flag: 'story.gabiru.humbled' },
+              { notFlag: 'story.lizard.allied' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.lizard.allied', value: true },
+              { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
+              { type: 'complete-quest', questId: 'lizard-alliance' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          { id: 'leave', label: 'Später wiederkommen' }
+        ]
+      },
+      {
+        id: 'await-duel',
+        speaker: 'Souka',
+        text: 'Souka deutet zum Schilfkessel. „Gabiru wartet dort mit seiner Garde. Brich seinen Hochmut — danach hört auch er auf Vernunft.“',
+        choices: [{ id: 'end', label: 'Zum Schilfkessel' }]
+      },
+      {
+        id: 'allied',
+        speaker: 'Souka',
+        text: 'Souka verneigt sich knapp. „Gabiru kniet — sein Stolz ist gebrochen, nicht sein Mut. Die Echsenmenschen stehen nun an Tempests Seite. Den Rest seiner Läuterung trägt Gabiru selbst.“',
+        choices: [{ id: 'end', label: 'Für das Bündnis' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -2396,6 +2533,14 @@ export const NPCS = [
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'souka-marsh',
+    name: 'Souka',
+    mapId: 'lizardman-marsh',
+    position: { x: 4, y: 6 },
+    dialogId: 'souka-alliance',
+    color: 0x6fc7a8
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -2753,6 +2898,23 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.vigil.cleared', value: true },
       { type: 'complete-quest-step', questId: 'shrine-vigil', stepId: 'banish-echo' }
+    ]
+  },
+  {
+    id: 'gabiru-duel',
+    mapId: 'lizardman-marsh',
+    kind: 'trigger',
+    position: { x: 13, y: 6 },
+    enemyIds: ['gabiru', 'lizardman-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.lizard.met' },
+      { notFlag: 'story.gabiru.humbled' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.gabiru.humbled', value: true },
+      { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'humble' },
+      { type: 'add-item', itemId: 'wolf-fang-token', quantity: 1 }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
