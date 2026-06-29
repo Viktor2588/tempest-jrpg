@@ -136,5 +136,46 @@ export const HEROES = [
       armor: 'traveler-cloak',
       accessory: null
     }
+  },
+  // — Band 2: Kijin (Ex-Oger), über die Benennung rekrutierbar; startsInParty: false —
+  {
+    id: 'benimaru', name: 'Benimaru', species: 'Kijin', role: 'Samurai-General', startsInParty: false,
+    initialLevel: 1, initialExperience: 0,
+    baseStats: { maxHp: 88, maxMp: 30, attack: 18, defense: 13, magic: 18, spirit: 12, agility: 14 },
+    growthPerLevel: { maxHp: 10, maxMp: 4, attack: 4, defense: 2, magic: 4, spirit: 2, agility: 3 },
+    initialSkillIds: ['black-flame', 'slime-strike'],
+    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
+  },
+  {
+    id: 'shion', name: 'Shion', species: 'Kijin', role: 'Leibwache', startsInParty: false,
+    initialLevel: 1, initialExperience: 0,
+    baseStats: { maxHp: 120, maxMp: 14, attack: 20, defense: 16, magic: 6, spirit: 8, agility: 10 },
+    growthPerLevel: { maxHp: 14, maxMp: 2, attack: 5, defense: 4, magic: 1, spirit: 2, agility: 2 },
+    initialSkillIds: ['ogre-smash', 'battle-cry'],
+    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
+  },
+  {
+    id: 'hakurou', name: 'Hakurou', species: 'Kijin', role: 'Schwertmeister', startsInParty: false,
+    initialLevel: 1, initialExperience: 0,
+    baseStats: { maxHp: 84, maxMp: 18, attack: 19, defense: 12, magic: 8, spirit: 12, agility: 20 },
+    growthPerLevel: { maxHp: 9, maxMp: 2, attack: 4, defense: 2, magic: 2, spirit: 3, agility: 5 },
+    initialSkillIds: ['quick-step', 'goblin-feint'],
+    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
+  },
+  {
+    id: 'kurobe', name: 'Kurobe', species: 'Kijin', role: 'Meisterschmied', startsInParty: false,
+    initialLevel: 1, initialExperience: 0,
+    baseStats: { maxHp: 100, maxMp: 16, attack: 16, defense: 18, magic: 8, spirit: 10, agility: 9 },
+    growthPerLevel: { maxHp: 12, maxMp: 2, attack: 3, defense: 4, magic: 1, spirit: 2, agility: 2 },
+    initialSkillIds: ['iron-guard', 'slime-strike'],
+    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
+  },
+  {
+    id: 'souei', name: 'Souei', species: 'Kijin', role: 'Schattenklinge', startsInParty: false,
+    initialLevel: 1, initialExperience: 0,
+    baseStats: { maxHp: 80, maxMp: 22, attack: 17, defense: 11, magic: 12, spirit: 12, agility: 22 },
+    growthPerLevel: { maxHp: 9, maxMp: 3, attack: 4, defense: 2, magic: 3, spirit: 2, agility: 5 },
+    initialSkillIds: ['venom-spit', 'quick-step'],
+    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
   }
 ] as const satisfies readonly CharacterDefinition[];

@@ -580,7 +580,37 @@ export const SKILL_TREES = [
         statBonus: { magic: 2, spirit: 3 }
       }
     ]
-  }
+  },
+  { id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
+    { id: 'benimaru-flame-core', name: 'Flammenkern', description: 'Grundlage der Schwarzflamme.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { magic: 2, attack: 1 } },
+    { id: 'benimaru-black-flame', name: 'Schwarzflamme', description: 'Vertieft die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 4, requiredNodeIds: ['benimaru-flame-core'], skillId: 'black-flame' },
+    { id: 'benimaru-general-aura', name: 'Generals-Aura', description: 'Anführerpräsenz stärkt den Angriff.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-core'], skillId: 'war-cry' },
+    { id: 'benimaru-hellfire', name: 'Höllenbrand', description: 'Meisterschaft über die Flamme.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-black-flame'], statBonus: { magic: 4, attack: 3 } }
+  ] },
+  { id: 'shion-tree', characterId: 'shion', name: 'Stahlfaust-Leibwache', nodes: [
+    { id: 'shion-iron-body', name: 'Eisenkörper', description: 'Monströse Konstitution.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { maxHp: 18, defense: 2 } },
+    { id: 'shion-ogre-smash', name: 'Oger-Wucht', description: 'Vertieft den erderschütternden Hieb.', cost: 1, requiredLevel: 4, requiredNodeIds: ['shion-iron-body'], skillId: 'ogre-smash' },
+    { id: 'shion-bulwark', name: 'Bollwerk', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-iron-body'], skillId: 'iron-guard' },
+    { id: 'shion-titan-grip', name: 'Titanengriff', description: 'Rohe Kraft am Limit.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-ogre-smash'], statBonus: { attack: 5, maxHp: 20 } }
+  ] },
+  { id: 'hakurou-tree', characterId: 'hakurou', name: 'Schwertheiliger', nodes: [
+    { id: 'hakurou-stance', name: 'Stille Haltung', description: 'Grundlage der Schwertkunst.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 2, attack: 2 } },
+    { id: 'hakurou-flash-step', name: 'Blitzschritt', description: 'Vertieft das schnelle Vorstoßen.', cost: 1, requiredLevel: 4, requiredNodeIds: ['hakurou-stance'], skillId: 'quick-step' },
+    { id: 'hakurou-mentor', name: 'Lehrmeister', description: 'Anleitung stählt das Team.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-stance'], skillId: 'battle-cry' },
+    { id: 'hakurou-god-speed', name: 'Götterschnelle', description: 'Vollendung des Schwertwegs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-flash-step'], statBonus: { agility: 5, attack: 4 } }
+  ] },
+  { id: 'kurobe-tree', characterId: 'kurobe', name: 'Meisterschmied', nodes: [
+    { id: 'kurobe-forge-arm', name: 'Schmiedearm', description: 'Schmiedekraft und Härte.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { attack: 2, defense: 2 } },
+    { id: 'kurobe-tempered', name: 'Gehärtet', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 4, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'iron-guard' },
+    { id: 'kurobe-magisteel-edge', name: 'Magisteel-Schneide', description: 'Magisteel schärft den Hieb.', cost: 1, requiredLevel: 6, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'ogre-smash' },
+    { id: 'kurobe-masterwork', name: 'Meisterwerk', description: 'Vollendete Schmiedekunst.', cost: 2, requiredLevel: 9, requiredNodeIds: ['kurobe-tempered'], statBonus: { defense: 5, attack: 3 } }
+  ] },
+  { id: 'souei-tree', characterId: 'souei', name: 'Schattenklinge', nodes: [
+    { id: 'souei-silent-step', name: 'Lautloser Schritt', description: 'Verdeckte Beweglichkeit.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 3 } },
+    { id: 'souei-venom', name: 'Giftklinge', description: 'Vertieft den vergifteten Stoß.', cost: 1, requiredLevel: 4, requiredNodeIds: ['souei-silent-step'], skillId: 'venom-spit' },
+    { id: 'souei-shadow-strike', name: 'Schattenstoß', description: 'Schneller Vorstoß aus dem Schatten.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-silent-step'], skillId: 'quick-step' },
+    { id: 'souei-assassinate', name: 'Meucheln', description: 'Tödliche Präzision.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-venom'], statBonus: { agility: 4, attack: 4 } }
+  ] }
 ] as const satisfies readonly SkillTreeDefinition[];
 
 export const EQUIPMENT_SETS = [
