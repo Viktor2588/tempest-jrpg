@@ -82,7 +82,9 @@ export class MenuScene extends Phaser.Scene {
     this.state = {
       party: this.save.party.active,
       inventory: this.save.inventory.stacks,
-      gold: this.save.party.gold
+      gold: this.save.party.gold,
+      flags: this.save.flags,
+      quests: this.save.quests
     };
 
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.93);
@@ -139,7 +141,7 @@ export class MenuScene extends Phaser.Scene {
     else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
     else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
     else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else if (this.selectedTab === 'quests') this.drawQuestLog();
+    else if (this.selectedTab === 'quests') this.drawQuestLog(view);
     else if (this.selectedTab === 'codex') this.drawCodex();
     else this.drawRangaTravel();
   }
@@ -405,7 +407,7 @@ export class MenuScene extends Phaser.Scene {
     return node.requiredFlag ? 'Benötigt: Story-Fortschritt' : null;
   }
 
-  private drawQuestLog(): void {
+  private drawQuestLog(view: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const activeCount = allQuests.filter((q) => q.status === 'active').length;
     const doneCount = allQuests.filter((q) => q.status === 'completed').length;
@@ -413,24 +415,31 @@ export class MenuScene extends Phaser.Scene {
     // Unentdeckte/noch nicht angenommene Quests ausblenden: sie würden das Log fluten
     // und Inhalte spoilern. buildQuestLog liefert aktive zuerst, dann abgeschlossene.
     const quests = allQuests.filter((q) => q.status !== 'inactive');
-    if (quests.length === 0) {
-      this.layer.add(this.add.text(42, 180, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
-        fontFamily: 'sans-serif',
-        fontSize: '13px',
-        color: '#9fb2cc'
-      }));
-      return;
-    }
     // Detailansicht einer angetippten Quest (Übersicht bleibt Zusammenfassung).
     const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
     }
-    // Übersicht: aktive Quests als Zusammenfassung (Titel + aktueller Schritt + „Details").
-    const active = quests.filter((q) => q.status === 'active').slice(0, 3);
-    const completed = quests.filter((q) => q.status === 'completed');
+
     let cursorY = 192;
+    if (view.story) {
+      this.drawStorySummary(view.story, 180);
+      cursorY = 296;
+    }
+    if (quests.length === 0) {
+      this.layer.add(this.add.text(42, cursorY - 18, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#9fb2cc'
+      }));
+      return;
+    }
+    // Übersicht: aktive Quests als Zusammenfassung (Titel + aktueller Schritt + „Details").
+    const activeLimit = view.story ? 2 : 3;
+    const allActive = quests.filter((q) => q.status === 'active');
+    const active = allActive.slice(0, activeLimit);
+    const completed = quests.filter((q) => q.status === 'completed');
     active.forEach((quest) => {
       const y = cursorY;
       this.panel(24, y, 900, 92);
@@ -448,9 +457,18 @@ export class MenuScene extends Phaser.Scene {
       this.button(800, y + 16, 110, 'Details ›', () => { this.selectedQuestId = quest.id; this.refresh(); });
       cursorY += 106;
     });
+    const hiddenActive = allActive.length - active.length;
+    if (hiddenActive > 0) {
+      this.layer.add(this.add.text(42, cursorY - 30, `… +${hiddenActive} weitere aktive Quest im Log`, {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#6f83a5'
+      }));
+      cursorY += 24;
+    }
     // Abgeschlossene Quests kompakt einzeilig als Archiv, soweit Platz bleibt.
     if (completed.length > 0) {
-      if (active.length === 0) cursorY = 196;
+      if (active.length === 0) cursorY = view.story ? 300 : 196;
       this.layer.add(this.add.text(42, cursorY - 30, 'Abgeschlossen', {
         fontFamily: 'sans-serif',
         fontSize: '13px',
@@ -474,6 +492,40 @@ export class MenuScene extends Phaser.Scene {
           color: '#6f83a5'
         }));
       }
+    }
+  }
+
+  private drawStorySummary(summary: NonNullable<MenuView['story']>, y: number): void {
+    this.panel(24, y, 900, 92);
+    this.layer.add(this.add.text(42, y - 34, `${summary.banner.kicker} — ${summary.banner.line}`, {
+      fontFamily: 'sans-serif',
+      fontSize: '15px',
+      color: '#e9c56c'
+    }));
+    this.layer.add(this.add.text(42, y - 10, summary.recap, {
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+      color: '#cbd6e8',
+      wordWrap: { width: 520 }
+    }));
+    this.layer.add(this.add.text(600, y - 30, 'Nächstes Ziel', {
+      fontFamily: 'sans-serif',
+      fontSize: '12px',
+      color: '#cdeaff'
+    }));
+    this.layer.add(this.add.text(600, y - 10, summary.nextObjective, {
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+      color: '#e9eef7',
+      wordWrap: { width: 300 }
+    }));
+    if (summary.highlights.length > 0) {
+      this.layer.add(this.add.text(42, y + 28, `Highlights: ${summary.highlights.slice(0, 3).join(' · ')}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '10px',
+        color: '#8dffc2',
+        wordWrap: { width: 840 }
+      }));
     }
   }
 
