@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
+import { canPresentRangaJourney } from '../systems/rangaJourney';
 import {
   buildMenuView,
   EQUIPMENT_SLOTS,
@@ -716,17 +717,17 @@ export class MenuScene extends Phaser.Scene {
   private fastTravelWithRanga(destinationId: string): void {
     const result = resolveRangaTravel(createWorldState(this.save), this.save.location, destinationId);
     this.message = result.message;
-    if (!result.ok || !result.location) {
+    if (!canPresentRangaJourney(result)) {
       this.refresh();
       return;
     }
-    this.save = autoSave(window.localStorage, {
-      ...this.save,
-      location: result.location
-    });
     this.scene.stop('Overworld');
     this.scene.stop();
-    this.scene.start('Overworld');
+    this.scene.start('RangaJourney', {
+      destinationId: result.destinationId,
+      destinationName: result.destinationName,
+      location: result.location
+    });
   }
 
   private close(): void {

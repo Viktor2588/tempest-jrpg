@@ -10,6 +10,7 @@ import { ShopScene } from './scenes/ShopScene';
 import { OptionsScene } from './scenes/OptionsScene';
 import { EndingScene } from './scenes/EndingScene';
 import { MilestoneScene } from './scenes/MilestoneScene';
+import { RangaJourneyScene } from './scenes/RangaJourneyScene';
 
 // Referenzauflösung (16:9, Querformat). Skaliert per FIT auf Handy & Desktop.
 export const GAME_WIDTH = 960;
@@ -37,6 +38,7 @@ new Phaser.Game({
     ShopScene,
     OptionsScene,
     EndingScene,
-    MilestoneScene
+    MilestoneScene,
+    RangaJourneyScene
   ]
 });

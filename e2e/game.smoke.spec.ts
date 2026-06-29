@@ -331,6 +331,42 @@ test('Band-2-Abschluss zeigt ein einmaliges Kapitel-Meilenstein-Overlay', async 
   expect(browserErrors).toEqual([]);
 });
 
+test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: {
+      'travel.ranga.discovered.goblin-village': true,
+      'travel.ranga.discovered.tempest-hollow': true
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 840, 94); // Ranga-Tab
+  await clickGamePoint(page, 410, 322); // Goblindorf
+  await page.waitForTimeout(700);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 560, 360); // optionale Kräuterspur untersuchen
+  await page.waitForTimeout(500);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('goblin-village');
+  expect(save.flags['travel.ranga.discovery.herb-trail']).toBe(true);
+  expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'healing-herb')).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
