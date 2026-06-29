@@ -931,3 +931,62 @@ Quest-/Talent-Belohnung (Oger→Kijin) vergeben werden.
 (`ogre-warrior`/`orc-soldier`/`orc-general`/`masked-majin`/`lizardman-warrior` als `rivalEnemyIds`) ·
 Items mit `equipmentSetId` für die Set-Boni. Alles greift sauber ineinander, sobald der
 Oger→Kijin- und der Dwargon-/Orc-Arc umgesetzt sind.
+
+## Band 1 & 2: Bindungen (Relationships) + Dwargon-Shops (2026-06-29)
+
+### Das Bindungs-System (bereits vorhanden — Funktionsweise)
+> Es muss **nicht neu gebaut** werden; es existiert als datengetriebenes System:
+- **Daten:** `RELATIONSHIPS` (`src/data/progression.ts`) — pro Bindung `levels` (mit
+  `requiredPoints`, `title`, `passiveBonus`, `partnerPassiveBonus?`, `combatBonus?`) und `scenes`.
+- **Speicherung:** `progression.relationshipPoints[relationshipId]` im Save.
+- **Logik:** `getProgressionRelationships(characterId)`, `getRelationshipLevelNumber(...)` →
+  Stufe aus Punkten; `passiveBonus` fließt in die Figurwerte, `combatBonus.startingTeamMeter`/
+  `teamAttack` in den Kampf (Team-Meter/-Angriff).
+- **UI:** Menü-Tab **Status** zeigt „Bindungen" (Partner · Stufe · Bindungspunkte).
+- **Erweitern = nur Daten:** neue `RELATIONSHIPS`-Einträge hinzufügen. Balance-Gate verlangt
+  **nicht-fallende** `passiveBonus`/`partnerPassiveBonus`/`startingTeamMeter` über die Stufen.
+
+### Neue Bindungen (`RELATIONSHIPS`)
+```ts
+{ id: 'rimuru-veldora', characterId: 'rimuru', partnerId: 'sealed-storm-dragon', partnerName: 'Veldora', partnerKind: 'monster', levels: [
+  { level: 1, requiredPoints: 20, title: 'Namensbund', passiveBonus: { magic: 2 }, combatBonus: { startingTeamMeter: 20 } },
+  { level: 2, requiredPoints: 60, title: 'Sturmfreund', passiveBonus: { magic: 3, maxMp: 6 }, combatBonus: { startingTeamMeter: 35 } },
+  { level: 3, requiredPoints: 120, title: 'Geteilte Seele', passiveBonus: { magic: 5, maxMp: 12, spirit: 3 }, combatBonus: { startingTeamMeter: 50, teamAttack: true } }
+], scenes: [
+  { id: 'veldora-manga', requiredLevel: 1, title: 'Veldoras Manga', summary: 'Veldora schwärmt von menschlichen Geschichten — die Freundschaft vertieft sich.' },
+  { id: 'veldora-vow', requiredLevel: 3, title: 'Das Versprechen der Befreiung', summary: 'Rimuru gelobt, das Siegel eines Tages zu lösen.', flagId: 'bond.veldora.deep' }
+] },
+{ id: 'rimuru-benimaru', characterId: 'rimuru', partnerId: 'benimaru', partnerName: 'Benimaru', partnerKind: 'party', levels: [
+  { level: 1, requiredPoints: 25, title: 'Treueschwur', passiveBonus: { attack: 1 }, partnerPassiveBonus: { magic: 1 }, combatBonus: { startingTeamMeter: 20 } },
+  { level: 2, requiredPoints: 70, title: 'General und Herr', passiveBonus: { attack: 2, magic: 2 }, partnerPassiveBonus: { attack: 2, magic: 2 }, combatBonus: { startingTeamMeter: 35, teamAttack: true } },
+  { level: 3, requiredPoints: 130, title: 'Schwarzflammen-Bund', passiveBonus: { attack: 3, magic: 3 }, partnerPassiveBonus: { attack: 3, magic: 4 }, combatBonus: { startingTeamMeter: 50, teamAttack: true } }
+], scenes: [
+  { id: 'benimaru-oath', requiredLevel: 1, title: 'Der Schwur des Generals', summary: 'Benimaru stellt sein Schwert in Rimurus Dienst.' }
+] },
+{ id: 'rimuru-shion', characterId: 'rimuru', partnerId: 'shion', partnerName: 'Shion', partnerKind: 'party', levels: [
+  { level: 1, requiredPoints: 25, title: 'Leibwache', passiveBonus: { defense: 1 }, partnerPassiveBonus: { maxHp: 8 }, combatBonus: { startingTeamMeter: 20 } },
+  { level: 2, requiredPoints: 70, title: 'Unerschütterlich', passiveBonus: { defense: 2, maxHp: 8 }, partnerPassiveBonus: { attack: 3, maxHp: 12 }, combatBonus: { startingTeamMeter: 35 } },
+  { level: 3, requiredPoints: 130, title: 'Stahlfaust-Treue', passiveBonus: { defense: 3, maxHp: 14 }, partnerPassiveBonus: { attack: 5, maxHp: 18 }, combatBonus: { startingTeamMeter: 50, teamAttack: true } }
+], scenes: [
+  { id: 'shion-cooking', requiredLevel: 2, title: 'Shions Kochkünste', summary: 'Ein gut gemeintes (gefährliches) Festmahl — die Bindung hält trotzdem.' }
+] },
+{ id: 'rimuru-milim', characterId: 'rimuru', partnerId: 'milim', partnerName: 'Milim Nava', partnerKind: 'npc', levels: [
+  { level: 1, requiredPoints: 30, title: 'Honig-Freundschaft', passiveBonus: { attack: 2 }, combatBonus: { startingTeamMeter: 25 } },
+  { level: 2, requiredPoints: 80, title: 'Spielgefährtin', passiveBonus: { attack: 3, magic: 3 }, combatBonus: { startingTeamMeter: 40 } },
+  { level: 3, requiredPoints: 150, title: 'Dämonenlord-Bund', passiveBonus: { attack: 4, magic: 4, agility: 3 }, combatBonus: { startingTeamMeter: 60, teamAttack: true } }
+], scenes: [
+  { id: 'milim-honey', requiredLevel: 1, title: 'Der Honig-Pakt', summary: 'Milim wird mit Honig besänftigt — aus dem Test wird Freundschaft.' }
+] }
+```
+Weitere mögliche Bindungen (analog): `rimuru-kaijin`, `rimuru-treyni`, `benimaru-souei`,
+`gobta-ranga` (existiert bereits), `souka-gabiru`.
+
+### Dwargon-Shops (`SHOPS` in `src/data/world.ts`, mapId `dwargon`)
+```ts
+{ id: 'dwargon-smithy', name: 'Dwargon-Schmiede', mapId: 'dwargon', position: { x: 6, y: 4 }, itemIds: ['magisteel-blade', 'dwarf-plate', 'forge-band', 'magisteel'], buyMultiplier: 1.1, sellMultiplier: 0.5 },
+{ id: 'dwargon-apothecary', name: 'Dwargon-Apotheke', mapId: 'dwargon', position: { x: 11, y: 4 }, itemIds: ['healing-herb', 'mana-drop', 'hipokte-herb', 'full-potion'], buyMultiplier: 1, sellMultiplier: 0.5 },
+{ id: 'dwargon-trader', name: 'Dwargon-Handelskontor', mapId: 'dwargon', position: { x: 8, y: 9 }, itemIds: ['magic-ore', 'magisteel', 'tempest-charm'], buyMultiplier: 1, sellMultiplier: 0.55 }
+```
+**Abhängigkeiten:** Map `dwargon` (Dwargon-Arc) · die Items aus den Item-Datenblättern müssen
+existieren · Shops liegen auf begehbaren Kacheln (Reachability-Test). Die Schmiede kauft etwas
+teurer (`buyMultiplier: 1.1`) → Premium-Handwerk; Hipokte/Vollheiltrank als Heil-Versorgung.
