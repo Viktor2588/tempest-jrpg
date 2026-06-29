@@ -21,6 +21,7 @@ import {
   getTravelAtTile,
   getMapLocations,
   getMapNpcs,
+  getTrackedQuestObjective,
   resolveEncounter,
   sellItem,
   startDialogForNpc,
@@ -404,6 +405,50 @@ describe('world/dialog/shop/encounter system', () => {
     };
 
     expect(buildQuestLog(state)[0]!.id).toBe('binding-of-ancestors');
+  });
+
+  it('liefert ein getracktes Hauptziel aus dem aktuellen Quest-Schritt', () => {
+    const state: WorldState = {
+      flags: { 'story.slime-prologue.completed': true },
+      quests: {
+        'first-patrol': { status: 'active', completedStepIds: ['accepted'] },
+        'binding-of-ancestors': { status: 'active', completedStepIds: ['awakening', 'gather-council'] }
+      },
+      inventory: [],
+      gold: 0
+    };
+
+    const objective = getTrackedQuestObjective(state);
+    expect(objective).toMatchObject({
+      questId: 'binding-of-ancestors',
+      stepId: 'clear-grove',
+      locationId: 'whispering-grove',
+      locationName: 'Flüsterhain',
+      mapId: 'tempest-start',
+      status: 'locked'
+    });
+    expect(objective?.hint).toContain('noch nicht markiert');
+  });
+
+  it('markiert das getrackte Ziel als sichtbar, sobald der Ort freigeschaltet oder gescoutet ist', () => {
+    const base: WorldState = {
+      flags: { 'story.slime-prologue.completed': true },
+      quests: {
+        'binding-of-ancestors': { status: 'active', completedStepIds: ['awakening', 'gather-council'] }
+      },
+      inventory: [],
+      gold: 0
+    };
+
+    expect(getTrackedQuestObjective(base)?.status).toBe('locked');
+    expect(getTrackedQuestObjective({ ...base, flags: { ...base.flags, 'scout.whispering-grove': true } }))
+      .toMatchObject({
+        locationId: 'whispering-grove',
+        status: 'visible',
+        position: { x: 14, y: 8 }
+      });
+    expect(getTrackedQuestObjective({ ...base, flags: { ...base.flags, 'story.council.ready': true } })?.status)
+      .toBe('visible');
   });
 
   it('verdeckt ungesehene Enden in der Galerie und enthüllt erreichte', () => {
