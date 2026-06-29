@@ -598,5 +598,23 @@ export const EQUIPMENT_SETS = [
         statBonus: { maxHp: 8, attack: 2, spirit: 2 }
       }
     ]
+  },
+  {
+    id: 'kijin-regalia',
+    name: 'Kijin-Kriegsornat',
+    itemIds: ['kurobe-katana', 'kijin-haori', 'oni-mask'],
+    tiers: [
+      { pieces: 2, statBonus: { attack: 3, defense: 2 } },
+      { pieces: 3, statBonus: { maxHp: 12, magic: 3, spirit: 3 } }
+    ]
+  },
+  {
+    id: 'dwargon-forged',
+    name: 'Dwargon-Schmiedewerk',
+    itemIds: ['magisteel-blade', 'dwarf-plate', 'forge-band'],
+    tiers: [
+      { pieces: 2, statBonus: { defense: 3, maxHp: 8 } },
+      { pieces: 3, statBonus: { attack: 4, defense: 4, maxMp: 4 } }
+    ]
   }
 ] as const satisfies readonly EquipmentSetDefinition[];
