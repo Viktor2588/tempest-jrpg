@@ -258,7 +258,8 @@ describe('world/dialog/shop/encounter system', () => {
       'ranga-scout-travel',
       'gobta-rider-path',
       'first-tempest-naming',
-      'storm-dragon-future-ally'
+      'storm-dragon-future-ally',
+      'veldora-bond'
     ]);
   });
 

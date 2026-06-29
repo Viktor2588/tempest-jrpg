@@ -1023,6 +1023,30 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Kael hält allein Wache auf den Schreinterrassen und liest in den Echos die nächste Grenze. Wer ihm hilft, ein Sturmecho zu bannen, erhält von Tempests fernstem Außenposten ein offenes Ohr — und eine Warnung vor dem, was jenseits des Hochlands lauert.',
     unlockFlag: 'sidequest.vigil.cleared'
+  },
+  {
+    id: 'kijin-ascension',
+    title: 'Die Namensgebung der Oger',
+    lockedTitle: 'Geflüchtete Krieger',
+    category: 'history',
+    body: 'Sechs Oger überlebten den Untergang ihres Dorfes. Als Rimuru ihnen Namen gab, loderte die Magie auf und hob sie zu Kijin empor — Benimaru, Shion, Hakurou, Kurobe und Souei. Ein Name ist kein Wort, sondern ein Anteil an Macht; wer ihn schenkt, bindet Schicksale aneinander.',
+    unlockFlag: 'story.kijin.named'
+  },
+  {
+    id: 'veldora-bond',
+    title: 'Freund im Sturm',
+    lockedTitle: 'Der versiegelte Drache',
+    category: 'people',
+    body: 'Veldora, der Sturmdrache, lag Jahrhunderte in einem Siegel — bis ein Slime in seinem Inneren Geschichten mit ihm teilte. Aus Langeweile wurde Freundschaft, aus Freundschaft ein Bund: Ihre geteilte Magie lässt Rimurus Sturm noch heftiger toben.',
+    unlockFlag: 'story.storm-dragon.oath'
+  },
+  {
+    id: 'orc-disaster',
+    title: 'Der hungernde Heerzug',
+    lockedTitle: 'Gerüchte aus dem Süden',
+    category: 'history',
+    body: 'Hunger trieb die Orks zu einer einzigen, verzweifelten Schlacht. In ihrer Mitte erwachte „Geld" — der Orc-Disaster, der die Gefallenen verschlang und mit jeder Mahlzeit wuchs. Die geflüchteten Oger sahen ihr Dorf in diesem Heerzug untergehen.',
+    unlockFlag: 'faction.kijin.sworn'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -2158,7 +2182,7 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm'],
+    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
     buyMultiplier: 1,
     sellMultiplier: 0.5
   },
@@ -2176,7 +2200,7 @@ export const SHOPS = [
     name: 'Moorhändlerin',
     mapId: 'spirit-marsh',
     position: { x: 3, y: 5 },
-    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm'],
+    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm', 'hipokte-herb', 'full-potion'],
     buyMultiplier: 1.15,
     sellMultiplier: 0.5
   },
@@ -2185,7 +2209,7 @@ export const SHOPS = [
     name: 'Schreinrast',
     mapId: 'spirit-highlands',
     position: { x: 4, y: 4 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm'],
+    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
     buyMultiplier: 1.2,
     sellMultiplier: 0.5
   }
