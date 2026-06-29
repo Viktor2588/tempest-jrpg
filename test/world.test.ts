@@ -132,6 +132,70 @@ describe('world/dialog/shop/encounter system', () => {
     }
   });
 
+  it('schaltet das Tempest-Lager nach dem Prolog als sicheren Ruhepunkt frei', () => {
+    const beforeLocations = getMapLocations('tempest-start', emptyWorld()).map((location) => location.id);
+    const beforeNpcs = getMapNpcs('tempest-start', emptyWorld()).map((npc) => npc.id);
+    const afterLocations = getMapLocations('tempest-start', postPrologueWorld()).map((location) => location.id);
+    const afterNpcs = getMapNpcs('tempest-start', postPrologueWorld()).map((npc) => npc.id);
+
+    expect(beforeLocations).not.toContain('tempest-rest-camp');
+    expect(beforeNpcs).not.toContain('tempest-camp');
+    expect(afterLocations).toContain('tempest-rest-camp');
+    expect(afterNpcs).toContain('tempest-camp');
+  });
+
+  it('heilt am Tempest-Lager die aktive Party und persistiert die Ressourcen in den Save', () => {
+    const fresh = createNewSave();
+    const damaged = {
+      ...fresh,
+      flags: { 'story.slime-prologue.completed': true },
+      party: {
+        ...fresh.party,
+        active: fresh.party.active.map((member) => ({ ...member, currentHp: 1, currentMp: 0 }))
+      }
+    };
+
+    const rested = chooseDialogOption(createWorldState(damaged), 'tempest-rest', 'start', 'rest');
+    const saved = applyWorldState(damaged, rested.state.world);
+
+    expect(rested.ok).toBe(true);
+    expect(saved.flags['rest.tempest.used']).toBe(true);
+    expect(saved.party.active[0]!.currentHp).toBe(fresh.party.active[0]!.currentHp);
+    expect(saved.party.active[0]!.currentMp).toBe(fresh.party.active[0]!.currentMp);
+  });
+
+  it('gated optionale Lagergespräche nach Story-Flags und blendet einmalige Gespräche aus', () => {
+    const state: WorldState = {
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.direwolf.pact': true,
+        'story.council.ready': true,
+        'story.grove.cleared': true,
+        'story.boss.echo-defeated': true
+      },
+      quests: {},
+      inventory: [],
+      gold: 0
+    };
+
+    const choices = startDialogForNpc(state, 'tempest-camp').choices.map((choice) => choice.id);
+    expect(choices).toEqual([
+      'rest',
+      'talk-ranga-pact',
+      'talk-council',
+      'talk-grove',
+      'talk-echo',
+      'end'
+    ]);
+
+    const talked = chooseDialogOption(state, 'tempest-rest', 'start', 'talk-echo');
+    expect(talked.ok).toBe(true);
+    expect(talked.state.world.flags['partytalk.after-echo']).toBe(true);
+    expect(talked.state.world.flags['bond.rigurd.echo-camp']).toBe(true);
+    expect(startDialogForNpc(talked.state.world, 'tempest-camp').choices.map((choice) => choice.id))
+      .not.toContain('talk-echo');
+  });
+
   it('reagiert im Band-2-Hub-Dialog auf die sichtbare Siedlungsstruktur', () => {
     const state: WorldState = {
       flags: { 'story.slime-prologue.completed': true },
