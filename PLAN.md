@@ -521,6 +521,16 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Phase 26 – Regionale Imagegen-Overworld-Tiles** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-26-region-tiles`)*
 > **✅ Status (2026-06-29):** Der Backlog-Punkt „Pro-Karte-Tile-Theming" ist für Geistmoor und Geisterschrein-Hochland geschlossen: beide Regionen nutzen eigene, auf 128×128-WebP optimierte Imagegen-Boden-/Wandtiles statt Jura-Gras/Jura-Wand. Die Auswahl läuft über ein reines Mapping mit Fallbacks auf Legacy-Kenney-Tiles und prozedurale Platzhalter. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (216/216), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil).
 
+> **Parallele Canon-Content-Branches (Band 1/2, je eigener Worktree, Daten/Welt-only — warten auf Merge):** **Phase 27** `phase-27-dwargon` (Arc A2: Region `dwargon`, Kaijin), **Phase 28** `phase-28-orc-disaster` (Arc A3-Kern: `jura-battlefield`, Geld, Föderation, Milim), **Phase 29** `phase-29-lizard-alliance` (Arc A3 `lizard-alliance`: `lizardman-marsh`, Gabiru).
+
+[x] **Phase 30 – Shizu & Ifrit (Canon Band 1)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-30-shizu-ifrit`, Branch `phase-30-shizu-ifrit`)*
+> **✅ Status (2026-06-29):** Reine Daten-/Welt-Phase (kollisionsfrei zu den parallelen Render-/Asset-Branches). Bringt die letzten verwaisten Gegner `ifrit` + `masked-majin` ins Spiel.
+> - **Neue Story-Region `ember-hollow`** (Glutgrotte, `maps.ts`): enge Lavakammer, nur Trigger-/Story-Begegnungen (keine Zufallskämpfe → Balance-Gate überspringt sie), über Gateway erreichbar.
+> - **Gateway** vom Jura-Wald (gated über `story.kijin.named`, eigene Reisekachel) + Rücktor.
+> - **Questline `shizu-vow`**: Shizu treffen → maskierten **Majin** vertreiben (foreshadow Gelmud) → **Ifrit** bezwingen → Shizus Schwur tragen (Rimuru gewinnt menschliche Gestalt + Ifrit-Flamme, symbolisiert durch die **Geistglut** `spirit-ember`). Belohnung 260 Gold + Geistglut.
+> - **NPC** Shizu mit zweistufigem Dialog; Codex „Shizu"/„Ifrit"/„Andersweltler & menschliche Gestalt".
+> - **Abnahme:** `bun run typecheck`, `bun run test` (**221/221**, inkl. 5 neue Checks), `bun run build`.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -596,7 +606,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
    schaltet **Schmieden/Bau/Ausrüstungstier** frei. Spielhook: neue Map `dwargon`, Gateway vom
    Jura-Wald, recruit-character `kaijin`, Shop/Crafting-Erweiterung, Codex „Dwargon", Vesta als
    späterer optionaler Forscher.
-2. **Shizu (Shizue Izawa) & Ifrit** *(emotionaler Hauptbeat + Mechanik)* — Begegnung mit der
+2. **Shizu (Shizue Izawa) & Ifrit** *(emotionaler Hauptbeat + Mechanik)* — ✅ **umgesetzt in Phase 30** (Region `ember-hollow`, Quest `shizu-vow`: Majin → Ifrit → Schwur, Geistglut-Belohnung; 5 Schüler-Kinder als späterer Arc offen). Begegnung mit der
    Andersweltlerin Shizu (A-Rang, Wirtin des Flammengeists **Ifrit**, Maske zur Kontrolle).
    Beat: Ifrit-Konflikt, Shizus Ende, Rimuru nimmt sie auf ihren Wunsch auf → erhält die
    **menschliche Form** (Rimurus Menschengestalt nach Shizu) und Ifrits Flamme; **Schwur**,
