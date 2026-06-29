@@ -367,6 +367,45 @@ test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) 
   expect(browserErrors).toEqual([]);
 });
 
+test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    party: {
+      active: [
+        { characterId: 'rimuru' },
+        { characterId: 'gobta' },
+        { characterId: 'ranga' }
+      ],
+      reserve: [{ characterId: 'shuna' }],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 120, 240); // Gobta als Tauschplatz auswählen
+  await clickGamePoint(page, 780, 182); // Shuna aus der Reserve aktivieren
+  await page.waitForTimeout(250);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.party.active.map((member: { characterId: string }) => member.characterId))
+    .toEqual(['rimuru', 'shuna', 'ranga']);
+  expect(save.party.reserve.map((member: { characterId: string }) => member.characterId))
+    .toEqual(['gobta']);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
@@ -389,6 +428,7 @@ function bandTwoBrowserSave(overrides: {
   readonly flags?: Record<string, boolean>;
   readonly quests?: Record<string, unknown>;
   readonly inventory?: Record<string, unknown>;
+  readonly party?: Record<string, unknown>;
 } = {}): Record<string, unknown> {
   const baseFlags = {
     'story.slime.awakened': true,
@@ -415,7 +455,7 @@ function bandTwoBrowserSave(overrides: {
     seed: 22,
     playtimeSeconds: 0,
     location: overrides.location ?? { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
-    party: {
+    party: overrides.party ?? {
       active: [
         { characterId: 'rimuru' },
         { characterId: 'gobta' },

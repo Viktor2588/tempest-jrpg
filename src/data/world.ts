@@ -2106,6 +2106,15 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'save',
+            label: 'Spielstand am Lager sichern',
+            nextNodeId: 'saved',
+            requirements: [{ flag: 'story.slime-prologue.completed' }],
+            effects: [
+              { type: 'set-flag', flag: 'rest.tempest.saved', value: true }
+            ]
+          },
+          {
             id: 'talk-ranga-pact',
             label: 'Gespräch: Gobta und Ranga',
             nextNodeId: 'talk-ranga-pact',
@@ -2165,6 +2174,12 @@ export const DIALOGS = [
         speaker: 'Tempest-Lager',
         text: 'Kräuterduft, warmes Wasser und ein paar ruhige Atemzüge reichen. Die aktive Gruppe ist wieder einsatzbereit.',
         choices: [{ id: 'end', label: 'Zurück nach Tempest' }]
+      },
+      {
+        id: 'saved',
+        speaker: 'Tempest-Lager',
+        text: 'Der aktuelle Stand ist gesichert. Party, Inventar, Quests und Position bleiben erhalten.',
+        choices: [{ id: 'end', label: 'Weiter' }]
       },
       {
         id: 'talk-ranga-pact',

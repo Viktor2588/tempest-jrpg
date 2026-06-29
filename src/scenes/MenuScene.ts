@@ -10,9 +10,11 @@ import {
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
+  applyPartyFormationToMenuState,
   unequipItem,
   useItem
 } from '../systems/menu';
+import { activateReserveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
   enchantEquipment,
@@ -82,6 +84,7 @@ export class MenuScene extends Phaser.Scene {
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.state = {
       party: this.save.party.active,
+      reserve: this.save.party.reserve,
       inventory: this.save.inventory.stacks,
       gold: this.save.party.gold,
       flags: this.save.flags,
@@ -176,8 +179,13 @@ export class MenuScene extends Phaser.Scene {
 
   private drawParty(_selectedName: string, view: MenuView): void {
     this.sectionTitle('Party-Übersicht');
+    this.layer.add(this.add.text(300, 136, 'Aktive Gruppe · maximal 3', {
+      fontFamily: 'sans-serif',
+      fontSize: '13px',
+      color: '#cdeaff'
+    }));
     view.members.forEach((summary, index) => {
-      const y = 154 + index * 78;
+      const y = 176 + index * 96;
       const stats = calculateProgressionStats(
         summary.member,
         this.save.progression
@@ -186,28 +194,47 @@ export class MenuScene extends Phaser.Scene {
         this.save.progression,
         summary.member.characterId
       )?.formName ?? summary.character.species;
-      this.panel(300, y, 600, 66);
+      this.panel(300, y, 370, 82);
       this.drawPortrait(summary.member.characterId, 336, y, 46);
-      this.layer.add(this.add.text(372, y - 24, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+      this.layer.add(this.add.text(372, y - 31, `${summary.member.name} · ${formName}`, {
         fontFamily: 'sans-serif',
-        fontSize: '15px',
-        color: '#e9eef7'
+        fontSize: '15px', color: index === this.selectedMemberIndex ? '#e9c56c' : '#e9eef7'
       }));
-      this.layer.add(this.add.text(372, y, `LP ${summary.member.currentHp}/${stats.maxHp}  MP ${summary.member.currentMp}/${stats.maxMp}  ATK ${stats.attack}  DEF ${stats.defense}  MAG ${stats.magic}  SPI ${stats.spirit}  AGI ${stats.agility}`, {
-        fontFamily: 'sans-serif',
-        fontSize: '13px',
-        color: '#9fb2cc'
+      this.layer.add(this.add.text(372, y - 8, summary.character.role, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
-      const skills = getProgressionSkills(
-        summary.member,
-        this.save.progression
-      );
-      this.layer.add(this.add.text(372, y + 20, `Skills: ${skills.map((skill) => skill.name).join(', ') || '—'}`, {
+      this.layer.add(this.add.text(372, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
-        color: '#6f83a5'
+        color: '#9fb2cc'
       }));
     });
+
+    this.layer.add(this.add.text(690, 136, 'Reserve', {
+      fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff'
+    }));
+    if (view.reserveMembers.length === 0) {
+      this.layer.add(this.add.text(690, 166, 'Noch keine Reserve.', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
+      }));
+    }
+    view.reserveMembers.slice(0, 6).forEach((summary, index) => {
+      const y = 182 + index * 54;
+      this.button(690, y, 190, `${summary.member.name} · Lv.${summary.member.level}`, () => {
+        const selectedActive = view.members[this.selectedMemberIndex]?.member.characterId;
+        const formation = activateReserveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          selectedActive
+        );
+        this.applyResult(applyPartyFormationToMenuState(this.state, formation));
+      }, 0x243447);
+    });
+    if (view.reserveMembers.length > 0) {
+      this.layer.add(this.add.text(690, 500, 'Bei voller Gruppe ersetzt der Klick\ndas links ausgewählte Mitglied.', {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
+      }));
+    }
   }
 
   private drawInventory(view: MenuView, characterId: string): void {
@@ -664,6 +691,7 @@ export class MenuScene extends Phaser.Scene {
         party: {
           ...this.save.party,
           active: this.state.party,
+          reserve: this.state.reserve ?? [],
           gold: this.state.gold
         },
         inventory: {
@@ -695,7 +723,8 @@ export class MenuScene extends Phaser.Scene {
       ...this.save,
       party: {
         ...this.save.party,
-        active: this.state.party
+        active: this.state.party,
+        reserve: this.state.reserve ?? []
       }
     };
   }
@@ -706,6 +735,7 @@ export class MenuScene extends Phaser.Scene {
       party: {
         ...this.save.party,
         active: this.state.party,
+        reserve: this.state.reserve ?? [],
         gold: this.state.gold
       },
       inventory: {

@@ -16,6 +16,7 @@ import {
   type InventoryStack
 } from './inventory';
 import type { PartyMemberState } from './party';
+import type { PartyFormationResult } from './partyFormation';
 import { getChapterSummary, type ChapterSummary } from './chapterBanner';
 import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
@@ -25,6 +26,7 @@ export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'ac
 
 export interface MenuGameState {
   readonly party: readonly PartyMemberState[];
+  readonly reserve?: readonly PartyMemberState[];
   readonly inventory: readonly InventoryStack[];
   readonly gold: number;
   readonly flags?: Readonly<Record<string, boolean>>;
@@ -54,6 +56,7 @@ export interface InventoryItemView {
 
 export interface MenuView {
   readonly members: readonly MemberSummary[];
+  readonly reserveMembers: readonly MemberSummary[];
   readonly inventory: readonly InventoryItemView[];
   readonly gold: number;
   readonly story: ChapterSummary | null;
@@ -66,10 +69,12 @@ const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.
 export function createMenuState(
   party: readonly PartyMemberState[],
   inventory: readonly InventoryStack[],
-  gold: number
+  gold: number,
+  reserve: readonly PartyMemberState[] = []
 ): MenuGameState {
   return {
     party,
+    reserve,
     inventory: normalizeInventoryStacks(inventory),
     gold: Math.max(0, Math.trunc(gold))
   };
@@ -78,6 +83,10 @@ export function createMenuState(
 export function buildMenuView(state: MenuGameState): MenuView {
   return {
     members: state.party.flatMap((member) => {
+      const summary = getMemberSummary(member);
+      return summary ? [summary] : [];
+    }),
+    reserveMembers: (state.reserve ?? []).flatMap((member) => {
       const summary = getMemberSummary(member);
       return summary ? [summary] : [];
     }),
@@ -94,13 +103,29 @@ function buildMenuStorySummary(state: MenuGameState): ChapterSummary | null {
     quests: state.quests,
     party: {
       active: state.party,
-      reserve: [],
+      reserve: state.reserve ?? [],
       gold: state.gold
     },
     inventory: {
       stacks: state.inventory
     }
   });
+}
+
+export function applyPartyFormationToMenuState(
+  state: MenuGameState,
+  result: PartyFormationResult
+): MenuResult {
+  if (!result.ok) return { ok: false, state, message: result.message };
+  return {
+    ok: true,
+    state: {
+      ...state,
+      party: result.state.active,
+      reserve: result.state.reserve
+    },
+    message: result.message
+  };
 }
 
 export function getMemberSummary(member: PartyMemberState): MemberSummary | null {
