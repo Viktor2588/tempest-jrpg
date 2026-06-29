@@ -52,6 +52,20 @@ export interface QuestLogEntryView {
   readonly rewardItemIds: readonly string[];
 }
 
+export interface TrackedQuestObjectiveView {
+  readonly questId: string;
+  readonly questTitle: string;
+  readonly stepId: string;
+  readonly stepTitle: string;
+  readonly stepDescription: string;
+  readonly locationId: string | null;
+  readonly locationName: string | null;
+  readonly mapId: string | null;
+  readonly position: Vec2 | null;
+  readonly status: 'visible' | 'locked' | 'missing-location';
+  readonly hint: string;
+}
+
 export interface LoreEntryView {
   readonly id: string;
   readonly title: string;
@@ -285,6 +299,62 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
       return a.index - b.index;
     })
     .map(({ entry }) => entry);
+}
+
+export function getTrackedQuestObjective(state: WorldState): TrackedQuestObjectiveView | null {
+  const quest = buildQuestLog(state).find((entry) => entry.status === 'active');
+  const step = quest?.steps.find((entry) => entry.current);
+  if (!quest || !step) return null;
+
+  if (!step.locationId) {
+    return {
+      questId: quest.id,
+      questTitle: quest.title,
+      stepId: step.id,
+      stepTitle: step.title,
+      stepDescription: step.description,
+      locationId: null,
+      locationName: null,
+      mapId: null,
+      position: null,
+      status: 'missing-location',
+      hint: 'Aktuelles Ziel hat noch keinen Kartenanker.'
+    };
+  }
+
+  const location = allLocations.find((entry) => entry.id === step.locationId);
+  if (!location) {
+    return {
+      questId: quest.id,
+      questTitle: quest.title,
+      stepId: step.id,
+      stepTitle: step.title,
+      stepDescription: step.description,
+      locationId: step.locationId,
+      locationName: null,
+      mapId: null,
+      position: null,
+      status: 'missing-location',
+      hint: `Zielort '${step.locationId}' ist nicht in den Weltdaten definiert.`
+    };
+  }
+
+  const visible = getMapLocations(location.mapId, state).some((entry) => entry.id === location.id);
+  return {
+    questId: quest.id,
+    questTitle: quest.title,
+    stepId: step.id,
+    stepTitle: step.title,
+    stepDescription: step.description,
+    locationId: location.id,
+    locationName: location.name,
+    mapId: location.mapId,
+    position: location.position,
+    status: visible ? 'visible' : 'locked',
+    hint: visible
+      ? `Zielmarker: ${location.name}`
+      : `Zielort bekannt, aber noch nicht markiert: ${location.name}`
+  };
 }
 
 export function buildCodexView(state: WorldState): LoreEntryView[] {

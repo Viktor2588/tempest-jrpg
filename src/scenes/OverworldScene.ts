@@ -17,6 +17,7 @@ import {
   getMapLocations,
   getMapNpcs,
   getTravelAtTile,
+  getTrackedQuestObjective,
   getVisibleMapEncounters,
   npcHasQuestMarker,
   resolveEncounter
@@ -265,6 +266,10 @@ export class OverworldScene extends Phaser.Scene {
     for (const npc of getMapNpcs(this.mapId, world)) {
       markers.push({ x: npc.position.x, y: npc.position.y, kind: 'npc' });
     }
+    const objective = getTrackedQuestObjective(world);
+    if (objective?.status === 'visible' && objective.mapId === this.mapId && objective.position) {
+      markers.push({ x: objective.position.x, y: objective.position.y, kind: 'objective' });
+    }
 
     const model = buildMinimap(this.map.width, this.map.height, markers, 132);
     const pad = 8;
@@ -278,13 +283,13 @@ export class OverworldScene extends Phaser.Scene {
     ).setOrigin(0, 0).setStrokeStyle(2, 0x3a4a66, 0.9));
 
     const dotColor: Record<MinimapMarkerKind, number> = {
-      player: 0x9ff0ff, gateway: 0x68d7ff, npc: 0xffe08a, landmark: 0xd2b35f
+      player: 0x9ff0ff, gateway: 0x68d7ff, npc: 0xffe08a, landmark: 0xd2b35f, objective: 0xff4fd8
     };
     for (const dot of model.dots) {
-      const size = dot.kind === 'gateway' ? model.cell + 1 : model.cell;
+      const size = dot.kind === 'gateway' || dot.kind === 'objective' ? model.cell + 1 : model.cell;
       layer.add(this.add.rectangle(
         this.minimapOriginX + dot.px, this.minimapOriginY + dot.py, size, size, dotColor[dot.kind], 0.95
-      ).setOrigin(0.5));
+      ).setOrigin(0.5).setAngle(dot.kind === 'objective' ? 45 : 0));
     }
 
     this.minimapPlayerDot = this.add.circle(0, 0, Math.max(2, model.cell * 0.7), 0x9ff0ff).setStrokeStyle(1, 0xffffff, 0.9);
@@ -298,6 +303,19 @@ export class OverworldScene extends Phaser.Scene {
       getMapName(this.mapId),
       { fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff' }
     ).setOrigin(0.5, 0));
+    if (objective) {
+      const objectiveMap = objective.mapId ? getMapName(objective.mapId) : 'unbekannt';
+      const location = objective.locationName ?? objective.stepTitle;
+      const suffix = objective.status === 'visible'
+        ? objective.mapId === this.mapId ? '◆' : objectiveMap
+        : 'noch gesperrt';
+      layer.add(this.add.text(
+        this.minimapOriginX + model.width / 2,
+        this.minimapOriginY + model.height + 27,
+        `Ziel: ${location} · ${suffix}`,
+        { fontFamily: 'sans-serif', fontSize: '11px', color: objective.status === 'visible' ? '#ffd6ff' : '#9fb2cc' }
+      ).setOrigin(0.5, 0));
+    }
   }
 
   private updateMinimapPlayer(): void {
@@ -324,6 +342,7 @@ export class OverworldScene extends Phaser.Scene {
     else this.worldLayer = this.add.container(0, 0);
     const layer = this.worldLayer;
     const world = createWorldState(this.save);
+    const objective = getTrackedQuestObjective(world);
     for (const location of getMapLocations(this.mapId, world)) {
       const color = location.kind === 'city'
         ? 0x476bff
@@ -356,6 +375,13 @@ export class OverworldScene extends Phaser.Scene {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y), '⇄', {
           fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeeff'
         }).setOrigin(0.5));
+      }
+      if (objective?.status === 'visible' && objective.locationId === location.id) {
+        layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) - 25, '◆ Ziel', {
+          fontFamily: 'sans-serif',
+          fontSize: '13px',
+          color: '#ffd6ff'
+        }).setOrigin(0.5).setStroke('#3a1234', 3));
       }
     }
 

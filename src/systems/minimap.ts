@@ -2,7 +2,7 @@
 // kleines Panel und projiziert Marker (Spieler/Gateway/NPC/Landmark) auf
 // Pixelkoordinaten. Die Szene rendert daraus nur noch Rechtecke/Punkte.
 
-export type MinimapMarkerKind = 'player' | 'gateway' | 'npc' | 'landmark';
+export type MinimapMarkerKind = 'player' | 'gateway' | 'npc' | 'landmark' | 'objective';
 
 export interface MinimapMarker {
   readonly x: number;

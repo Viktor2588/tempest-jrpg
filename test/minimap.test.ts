@@ -5,7 +5,8 @@ describe('minimap-modell', () => {
   it('skaliert die Karte ins Panel und projiziert Marker geclamped', () => {
     const model = buildMinimap(24, 16, [
       { x: 0, y: 0, kind: 'player' },
-      { x: 23, y: 15, kind: 'gateway' }
+      { x: 23, y: 15, kind: 'gateway' },
+      { x: 14, y: 8, kind: 'objective' }
     ], 120);
 
     expect(model.cell).toBe(5); // floor(120 / 24)
@@ -17,6 +18,7 @@ describe('minimap-modell', () => {
     expect(last.px).toBeLessThanOrEqual(model.width);
     expect(last.py).toBeLessThanOrEqual(model.height);
     expect(last.px).toBeGreaterThan(model.width - model.cell);
+    expect(model.dots[2]).toEqual({ px: 72.5, py: 42.5, kind: 'objective' });
   });
 
   it('hält eine Mindestzellgröße auch bei sehr großen Karten', () => {
