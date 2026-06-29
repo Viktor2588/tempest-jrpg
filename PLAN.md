@@ -878,3 +878,56 @@ Neue Items dazu (Vorschlag): `magic-ore`, `magisteel`, `full-potion`*, `geld-cor
 Balance-Gate verlangt `requiredLevel(Vorgänger) ≤ requiredLevel(Knoten)` — beides hier eingehalten,
 sobald die fünf Kijin als HEROES existieren. Items wie `kurobe-katana` können als
 Quest-/Talent-Belohnung (Oger→Kijin) vergeben werden.
+
+## Band 1 & 2: Equipment-Sets, Oger→Kijin-Evolutionen, Dwargon-/Ork-Items (2026-06-29)
+
+### Equipment-Sets (`src/data/progression.ts` → `EQUIPMENT_SETS`)
+> Die referenzierten Items brauchen das passende `equipmentSetId`.
+```ts
+{ id: 'kijin-regalia', name: 'Kijin-Kriegsornat', itemIds: ['kurobe-katana', 'kijin-haori', 'oni-mask'], tiers: [
+  { pieces: 2, statBonus: { attack: 3, defense: 2 } },
+  { pieces: 3, statBonus: { maxHp: 12, magic: 3, spirit: 3 } }
+] },
+{ id: 'dwargon-forged', name: 'Dwargon-Schmiedewerk', itemIds: ['magisteel-blade', 'dwarf-plate', 'forge-band'], tiers: [
+  { pieces: 2, statBonus: { defense: 3, maxHp: 8 } },
+  { pieces: 3, statBonus: { attack: 4, defense: 4, maxMp: 4 } }
+] }
+```
+
+### Progression-Lines (`PROGRESSION_LINES`) — Voraussetzung für die Evolutionen
+```ts
+{ id: 'benimaru-ogre-line', characterId: 'benimaru', name: 'Kijin-General', speciesLine: 'Oger → Kijin-General', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior','orc-soldier'], description: 'Benimarus Linie verbindet Ogerkraft mit der Schwarzflamme zum Generalsrang.' },
+{ id: 'shion-ogre-line', characterId: 'shion', name: 'Kijin-Leibwache', speciesLine: 'Oger → Kijin-Leibwache', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior','orc-general'], description: 'Shions Linie maximiert Konstitution und rohe Kraft.' },
+{ id: 'hakurou-ogre-line', characterId: 'hakurou', name: 'Kijin-Schwertheiliger', speciesLine: 'Oger → Kijin-Schwertheiliger', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior','lizardman-warrior'], description: 'Hakurous Linie verfeinert Geschwindigkeit und Schwertkunst.' },
+{ id: 'kurobe-ogre-line', characterId: 'kurobe', name: 'Kijin-Schmied', speciesLine: 'Oger → Kijin-Schmied', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior','orc-general'], description: 'Kurobes Linie stählt Verteidigung und Schmiedekraft.' },
+{ id: 'souei-ogre-line', characterId: 'souei', name: 'Kijin-Schatten', speciesLine: 'Oger → Kijin-Schatten', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior','masked-majin'], description: 'Soueis Linie schärft Tempo, Verdeckung und Präzision.' }
+```
+
+### Evolutionen Oger → Kijin (`EVOLUTIONS`)
+> `requiresCustomName: true` = die **Benennung durch Rimuru** ist der Evolutions-Trigger (Canon-Beat);
+> `requiredLevel: 1` → die Verwandlung passiert beim Beitritt. Shuna nutzt ihre bestehende Linie.
+```ts
+{ id: 'benimaru-kijin', lineId: 'benimaru-ogre-line', characterId: 'benimaru', formName: 'Kijin-General', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 18, attack: 4, magic: 5 }, skillIds: ['black-flame'], skillPointReward: 2, description: 'Rimurus Benennung verwandelt den Oger in einen Kijin-General mit Schwarzflamme.' },
+{ id: 'shion-kijin', lineId: 'shion-ogre-line', characterId: 'shion', formName: 'Kijin-Leibwache', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 26, attack: 5, defense: 3 }, skillIds: ['ogre-smash'], skillPointReward: 2, description: 'Die Benennung formt die monströse Kraft der Oger-Leibwache.' },
+{ id: 'hakurou-kijin', lineId: 'hakurou-ogre-line', characterId: 'hakurou', formName: 'Kijin-Schwertheiliger', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, attack: 4, agility: 5 }, skillIds: ['quick-step'], skillPointReward: 2, description: 'Der alte Schwertmeister steigt durch die Benennung zum Kijin auf.' },
+{ id: 'kurobe-kijin', lineId: 'kurobe-ogre-line', characterId: 'kurobe', formName: 'Kijin-Schmied', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 20, attack: 3, defense: 5 }, skillIds: ['iron-guard'], skillPointReward: 2, description: 'Die Benennung verleiht dem Schmied Kijin-Härte.' },
+{ id: 'souei-kijin', lineId: 'souei-ogre-line', characterId: 'souei', formName: 'Kijin-Schatten', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, agility: 6, attack: 3 }, skillIds: ['venom-spit'], skillPointReward: 2, description: 'Der stille Oger wird durch die Benennung zum Kijin-Schatten.' }
+```
+
+### Dwargon-Items + Ork-Items (`src/data/items.ts`)
+```ts
+// Dwargon — „Dwargon-Schmiedewerk"-Set
+{ id: 'magisteel-blade', name: 'Magisteel-Klinge', description: 'Eine in Dwargon aus Magisteel geschmiedete Klinge.', category: 'weapon', price: 360, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'dwargon-forged', enchantment: { maxLevel: 5, goldCostPerLevel: 100, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 12 } },
+{ id: 'dwarf-plate', name: 'Zwergenplatte', description: 'Schwere, perfekt gefügte Magisteel-Rüstung.', category: 'armor', price: 320, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'dwargon-forged', statBonus: { defense: 12, maxHp: 10 } },
+{ id: 'forge-band', name: 'Schmiedereif', description: 'Ein zwergischer Ring, der Hieb und Deckung schärft.', category: 'accessory', price: 280, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'dwargon-forged', statBonus: { attack: 3, defense: 3 } },
+// Ork — Beute & Material
+{ id: 'orc-tusk', name: 'Ork-Hauer', description: 'Trophäe der Ork-Horde; bei Händlern begehrt.', category: 'key', price: 25, stackable: true },
+{ id: 'orc-cleaver', name: 'Ork-Schlachtbeil', description: 'Grobes, schweres Beil — viel Wucht, wenig Finesse.', category: 'weapon', price: 150, stackable: false, equipmentSlot: 'weapon', enchantment: { maxLevel: 3, goldCostPerLevel: 70, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 11 } },
+{ id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxHp: 16, attack: 2 } }
+```
+
+**Abhängigkeiten (für gültige Daten):** Kijin als HEROES (Oger→Kijin-Arc) · neue Skills
+(`black-flame`/`ogre-smash`/`iron-guard`/… aus dem Skill-Datenblatt) · neue Gegner
+(`ogre-warrior`/`orc-soldier`/`orc-general`/`masked-majin`/`lizardman-warrior` als `rivalEnemyIds`) ·
+Items mit `equipmentSetId` für die Set-Boni. Alles greift sauber ineinander, sobald der
+Oger→Kijin- und der Dwargon-/Orc-Arc umgesetzt sind.
