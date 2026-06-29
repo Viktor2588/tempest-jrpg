@@ -12,6 +12,7 @@ import {
 } from '../render/enemyArt';
 import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
+import { REGION_BANNER_TEXTURES } from '../render/regionBannerArt';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -55,6 +56,12 @@ import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
 import spiritHighlandsBattleUrl from '../assets/backgrounds/battle-spirit-highlands.webp';
+import regionSealedCaveUrl from '../assets/ui/region-sealed-cave.webp';
+import regionGoblinVillageUrl from '../assets/ui/region-goblin-village.webp';
+import regionDirewolfDenUrl from '../assets/ui/region-direwolf-den.webp';
+import regionJuraForestUrl from '../assets/ui/region-jura-forest.webp';
+import regionSpiritMarshUrl from '../assets/ui/region-spirit-marsh.webp';
+import regionSpiritHighlandsUrl from '../assets/ui/region-spirit-highlands.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -110,6 +117,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-highlands'], spiritHighlandsBattleUrl);
+    this.load.image(REGION_BANNER_TEXTURES['sealed-cave'], regionSealedCaveUrl);
+    this.load.image(REGION_BANNER_TEXTURES['goblin-village'], regionGoblinVillageUrl);
+    this.load.image(REGION_BANNER_TEXTURES['direwolf-den'], regionDirewolfDenUrl);
+    this.load.image(REGION_BANNER_TEXTURES['tempest-start'], regionJuraForestUrl);
+    this.load.image(REGION_BANNER_TEXTURES['spirit-marsh'], regionSpiritMarshUrl);
+    this.load.image(REGION_BANNER_TEXTURES['spirit-highlands'], regionSpiritHighlandsUrl);
   }
 
   create(): void {
@@ -163,7 +176,8 @@ export class PreloadScene extends Phaser.Scene {
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',
       ...Object.values(PARTY_BATTLE_ART),
-      ...Object.values(BATTLE_ARENA_TEXTURES)
+      ...Object.values(BATTLE_ARENA_TEXTURES),
+      ...Object.values(REGION_BANNER_TEXTURES)
     ].forEach((key) => {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     });

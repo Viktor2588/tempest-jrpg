@@ -8,6 +8,7 @@ import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldT
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
+import { regionBannerTextureForMap } from '../render/regionBannerArt';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { makeRng } from '../systems/rng';
@@ -317,12 +318,29 @@ export class OverworldScene extends Phaser.Scene {
     this.updateMinimapPlayer();
 
     // Gebietsindikator direkt unter der Minimap.
+    const areaName = getMapName(this.mapId);
+    const bannerW = Math.max(118, model.width + 8);
+    const bannerH = Math.round(bannerW / 4);
+    const bannerX = this.minimapOriginX + model.width / 2;
+    const bannerY = this.minimapOriginY + model.height + 8;
+    const bannerKey = regionBannerTextureForMap(this.mapId, (textureKey) => this.textures.exists(textureKey));
+    if (bannerKey) {
+      layer.add(this.add.image(bannerX, bannerY, bannerKey).setOrigin(0.5, 0).setDisplaySize(bannerW, bannerH));
+      layer.add(this.add.rectangle(bannerX, bannerY, bannerW, bannerH, 0x030812, 0.28).setOrigin(0.5, 0));
+    } else {
+      layer.add(this.add.rectangle(bannerX, bannerY, bannerW, bannerH, 0x101827, 0.86)
+        .setOrigin(0.5, 0).setStrokeStyle(1, 0x3a4a66, 0.9));
+    }
     layer.add(this.add.text(
-      this.minimapOriginX + model.width / 2,
-      this.minimapOriginY + model.height + 9,
-      getMapName(this.mapId),
-      { fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff' }
-    ).setOrigin(0.5, 0));
+      bannerX,
+      bannerY + bannerH / 2,
+      areaName,
+      {
+        fontFamily: 'sans-serif',
+        fontSize: areaName.length > 16 ? '10px' : '12px',
+        color: '#f5fbff'
+      }
+    ).setOrigin(0.5).setStroke('#04111d', 3));
     if (objective) {
       const objectiveMap = objective.mapId ? getMapName(objective.mapId) : 'unbekannt';
       const location = objective.locationName ?? objective.stepTitle;
@@ -331,9 +349,14 @@ export class OverworldScene extends Phaser.Scene {
         : 'noch gesperrt';
       layer.add(this.add.text(
         this.minimapOriginX + model.width / 2,
-        this.minimapOriginY + model.height + 27,
+        bannerY + bannerH + 5,
         `Ziel: ${location} · ${suffix}`,
-        { fontFamily: 'sans-serif', fontSize: '11px', color: objective.status === 'visible' ? '#ffd6ff' : '#9fb2cc' }
+        {
+          fontFamily: 'sans-serif',
+          fontSize: '10px',
+          color: objective.status === 'visible' ? '#ffd6ff' : '#9fb2cc',
+          wordWrap: { width: Math.max(144, model.width + 28) }
+        }
       ).setOrigin(0.5, 0));
     }
   }
