@@ -166,7 +166,12 @@ export const PROGRESSION_LINES = [
     regionId: 'spirit-shrine',
     rivalEnemyIds: ['lizardman-acolyte', 'spore-moth'],
     description: 'Shunas Entwicklung stärkt Heilung, Geist und Teamstabilität.'
-  }
+  },
+  { id: 'benimaru-ogre-line', characterId: 'benimaru', name: 'Kijin-General', speciesLine: 'Oger → Kijin-General', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-soldier'], description: 'Benimarus Linie verbindet Ogerkraft mit der Schwarzflamme zum Generalsrang.' },
+  { id: 'shion-ogre-line', characterId: 'shion', name: 'Kijin-Leibwache', speciesLine: 'Oger → Kijin-Leibwache', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-general'], description: 'Shions Linie maximiert Konstitution und rohe Kraft.' },
+  { id: 'hakurou-ogre-line', characterId: 'hakurou', name: 'Kijin-Schwertheiliger', speciesLine: 'Oger → Kijin-Schwertheiliger', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'lizardman-warrior'], description: 'Hakurous Linie verfeinert Geschwindigkeit und Schwertkunst.' },
+  { id: 'kurobe-ogre-line', characterId: 'kurobe', name: 'Kijin-Schmied', speciesLine: 'Oger → Kijin-Schmied', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-general'], description: 'Kurobes Linie stählt Verteidigung und Schmiedekraft.' },
+  { id: 'souei-ogre-line', characterId: 'souei', name: 'Kijin-Schatten', speciesLine: 'Oger → Kijin-Schatten', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'masked-majin'], description: 'Soueis Linie schärft Tempo, Verdeckung und Präzision.' }
 ] as const satisfies readonly ProgressionLineDefinition[];
 
 export const EVOLUTIONS = [
@@ -223,7 +228,12 @@ export const EVOLUTIONS = [
     skillIds: ['sacred-weave'],
     skillPointReward: 2,
     description: 'Shunas Namensentwicklung verschiebt sie klar in Richtung Heilung und Barrieren.'
-  }
+  },
+  { id: 'benimaru-kijin', lineId: 'benimaru-ogre-line', characterId: 'benimaru', formName: 'Kijin-General', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 18, attack: 4, magic: 5 }, skillIds: ['black-flame'], skillPointReward: 2, description: 'Rimurus Benennung verwandelt den Oger in einen Kijin-General mit Schwarzflamme.' },
+  { id: 'shion-kijin', lineId: 'shion-ogre-line', characterId: 'shion', formName: 'Kijin-Leibwache', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 26, attack: 5, defense: 3 }, skillIds: ['ogre-smash'], skillPointReward: 2, description: 'Die Benennung formt die monströse Kraft der Oger-Leibwache.' },
+  { id: 'hakurou-kijin', lineId: 'hakurou-ogre-line', characterId: 'hakurou', formName: 'Kijin-Schwertheiliger', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, attack: 4, agility: 5 }, skillIds: ['quick-step'], skillPointReward: 2, description: 'Der alte Schwertmeister steigt durch die Benennung zum Kijin auf.' },
+  { id: 'kurobe-kijin', lineId: 'kurobe-ogre-line', characterId: 'kurobe', formName: 'Kijin-Schmied', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 20, attack: 3, defense: 5 }, skillIds: ['iron-guard'], skillPointReward: 2, description: 'Die Benennung verleiht dem Schmied Kijin-Härte.' },
+  { id: 'souei-kijin', lineId: 'souei-ogre-line', characterId: 'souei', formName: 'Kijin-Schatten', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, agility: 6, attack: 3 }, skillIds: ['venom-spit'], skillPointReward: 2, description: 'Der stille Oger wird durch die Benennung zum Kijin-Schatten.' }
 ] as const satisfies readonly EvolutionDefinition[];
 
 export const RELATIONSHIPS = [
@@ -391,6 +401,70 @@ export const RELATIONSHIPS = [
         title: 'Abend am Webkreis',
         summary: 'Shuna nutzt ruhige Stadtmomente, um Barrierefäden für das Team vorzubereiten.'
       }
+    ]
+  },
+  {
+    id: 'rimuru-veldora',
+    characterId: 'rimuru',
+    partnerId: 'sealed-storm-dragon',
+    partnerName: 'Veldora',
+    partnerKind: 'monster',
+    levels: [
+      { level: 1, requiredPoints: 30, title: 'Mangafreund', passiveBonus: { maxMp: 6, magic: 2 }, combatBonus: { startingTeamMeter: 25 } },
+      { level: 2, requiredPoints: 80, title: 'Sturm-Resonanz', passiveBonus: { maxMp: 12, magic: 4 }, combatBonus: { startingTeamMeter: 40 } },
+      { level: 3, requiredPoints: 150, title: 'Verda-Bund', passiveBonus: { maxMp: 18, magic: 6, spirit: 3 }, combatBonus: { startingTeamMeter: 55, openingStatusId: 'magic-up' } }
+    ],
+    scenes: [
+      { id: 'veldora-manga-night', requiredLevel: 1, title: 'Manga im Magenraum', summary: 'Rimuru teilt Geschichten mit dem versiegelten Sturmdrachen und festigt ihre Freundschaft.', flagId: 'bond-veldora-1' },
+      { id: 'veldora-name-bond', requiredLevel: 3, title: 'Bund der Namensgebung', summary: 'Die geteilte Magie zwischen Rimuru und Veldora verstärkt beider Sturmkraft.' }
+    ]
+  },
+  {
+    id: 'rimuru-benimaru',
+    characterId: 'rimuru',
+    partnerId: 'benimaru',
+    partnerName: 'Benimaru',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Treueschwur', passiveBonus: { attack: 1, defense: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 20 } },
+      { level: 2, requiredPoints: 70, title: 'Generalsband', passiveBonus: { attack: 2, magic: 2 }, partnerPassiveBonus: { attack: 2, magic: 2 }, combatBonus: { startingTeamMeter: 35, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Schwarzflammen-Pakt', passiveBonus: { attack: 3, magic: 3, maxHp: 8 }, partnerPassiveBonus: { attack: 4, magic: 3 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'attack-up' } }
+    ],
+    scenes: [
+      { id: 'benimaru-oath', requiredLevel: 1, title: 'Schwur des Generals', summary: 'Benimaru gelobt Rimuru als erster der Oger ewige Gefolgschaft.', flagId: 'bond-benimaru-1' },
+      { id: 'benimaru-blackflame', requiredLevel: 3, title: 'Vereinte Schwarzflamme', summary: 'Rimurus Vertrauen entfacht Benimarus Schwarzflamme zu voller Stärke.' }
+    ]
+  },
+  {
+    id: 'rimuru-shion',
+    characterId: 'rimuru',
+    partnerId: 'shion',
+    partnerName: 'Shion',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Leibwächterin', passiveBonus: { maxHp: 8, defense: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 20 } },
+      { level: 2, requiredPoints: 70, title: 'Unerschütterlich', passiveBonus: { maxHp: 14, defense: 2 }, partnerPassiveBonus: { attack: 3, maxHp: 10 }, combatBonus: { startingTeamMeter: 35, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Sturmwächterin', passiveBonus: { maxHp: 22, defense: 3, attack: 2 }, partnerPassiveBonus: { attack: 5, maxHp: 16 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'defense-up' } }
+    ],
+    scenes: [
+      { id: 'shion-devotion', requiredLevel: 1, title: 'Grenzenlose Hingabe', summary: 'Shion stellt sich kompromisslos vor Rimuru und stählt ihren Körper.', flagId: 'bond-shion-1' },
+      { id: 'shion-guardian', requiredLevel: 3, title: 'Wächterin des Sturms', summary: 'Shions Wille macht sie zur unzerstörbaren Mauer an Rimurus Seite.' }
+    ]
+  },
+  {
+    id: 'rimuru-milim',
+    characterId: 'rimuru',
+    partnerId: 'milim',
+    partnerName: 'Milim Nava',
+    partnerKind: 'monster',
+    levels: [
+      { level: 1, requiredPoints: 40, title: 'Neugieriger Demonlord', passiveBonus: { attack: 2 }, combatBonus: { startingTeamMeter: 20 } },
+      { level: 2, requiredPoints: 100, title: 'Honigfreundschaft', passiveBonus: { attack: 4, agility: 2 }, combatBonus: { startingTeamMeter: 40 } },
+      { level: 3, requiredPoints: 180, title: 'Drachenfaust-Bund', passiveBonus: { attack: 6, agility: 3, maxHp: 10 }, combatBonus: { startingTeamMeter: 60, openingStatusId: 'attack-up' } }
+    ],
+    scenes: [
+      { id: 'milim-honey', requiredLevel: 1, title: 'Honig besiegt den Demonlord', summary: 'Rimuru gewinnt Milims Freundschaft mit einem Glas Honig statt einer Schlacht.', flagId: 'bond-milim-1' },
+      { id: 'milim-dragon-fist', requiredLevel: 3, title: 'Bund der Drachenfaust', summary: 'Milims Vertrauen verleiht Rimurus Sturm einen Hauch von Drachenzerstörung.' }
     ]
   }
 ] as const satisfies readonly RelationshipDefinition[];

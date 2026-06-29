@@ -272,7 +272,7 @@ describe('progression system', () => {
   });
 
   it('liefert mehrere Linien, Regionen und monotone Balance-Bänder', () => {
-    expect(PROGRESSION_LINES).toHaveLength(3);
+    expect(PROGRESSION_LINES.length).toBeGreaterThanOrEqual(3);
     expect(PROGRESSION_REGIONS).toHaveLength(3);
     expect(PROGRESSION_REGIONS.every((region) => region.enemyIds.length > 0)).toBe(true);
     expect(analyzeProgressionBalance()).toEqual([]);
