@@ -748,3 +748,73 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 - **Föderations-Mitglieder:** Hobgoblins, Kijin, Tempest-Wölfe, Echsenmenschen, Dryaden, Orks.
 - **Außenbeziehungen (Diplomatie-Stufen im Hub):** Dwargon (Handel), Blumund (kleiner Verbündeter,
   Free Guild/Fuze), Englesia (Akademie + Shizus Kinder) → schrittweise freischaltbar.
+
+## Band 1 & 2: konkrete Datenblätter (Gegner + Skills) + mehr Figuren/Systeme (2026-06-29)
+
+> Schema-valide (Elemente: neutral/water/wind/fire/earth/shadow/holy; Status: poison/attack-up/
+> defense-up/magic-up/spirit-down/haste/guard-break; Target: single-enemy/all-enemies/single-ally/
+> self; Tags: physical/magical/heal/buff/debuff). Level über das bisherige 1–12-Band hinaus =
+> neuer **Band-2-Tier** (~13–20). Mit `*` markierte Items sind neue Vorschläge.
+
+### Neue Skills (`src/data/skills.ts`)
+```ts
+{ id: 'black-flame', name: 'Schwarzflamme', description: 'Benimarus konzentrierte Schwarzflamme verbrennt ein Ziel.', element: 'fire', target: 'single-enemy', costMp: 9, power: 38, tags: ['magical'] },
+{ id: 'ifrit-inferno', name: 'Ifrits Inferno', description: 'Eine Feuerwand erfasst alle Gegner.', element: 'fire', target: 'all-enemies', costMp: 14, power: 30, tags: ['magical'] },
+{ id: 'orc-cleave', name: 'Ork-Spalter', description: 'Brutaler Hieb mit grobem Schlachtbeil.', element: 'neutral', target: 'single-enemy', costMp: 5, power: 26, tags: ['physical'] },
+{ id: 'war-cry', name: 'Kriegsschrei', description: 'Anstachelnder Ruf — eigener Angriff steigt.', element: 'neutral', target: 'self', costMp: 6, power: 0, tags: ['buff'], statusEffect: { id: 'attack-up', chance: 1, turns: 3 } },
+{ id: 'iron-guard', name: 'Eisenwall', description: 'Verschanzt sich — eigene Verteidigung steigt.', element: 'neutral', target: 'self', costMp: 5, power: 0, tags: ['buff'], statusEffect: { id: 'defense-up', chance: 1, turns: 3 } },
+{ id: 'famished-bite', name: 'Hungerbiss', description: 'Der Hunger der „Ausgehungerten" reißt Fleisch und Kraft heraus.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 34, tags: ['physical'] },
+{ id: 'calamity-roar', name: 'Katastrophenbrüllen', description: 'Ein Brüllen bricht die Deckung aller Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 0, tags: ['debuff'], statusEffect: { id: 'guard-break', chance: 0.9, turns: 3 } },
+{ id: 'ogre-smash', name: 'Oger-Wucht', description: 'Erderschütternder Hieb roher Ogerkraft.', element: 'earth', target: 'single-enemy', costMp: 7, power: 32, tags: ['physical'] },
+{ id: 'spear-charge', name: 'Speersturm', description: 'Schneller Vorstoß mit der Wasserklinge.', element: 'wind', target: 'single-enemy', costMp: 5, power: 24, tags: ['physical'] },
+{ id: 'tide-lance', name: 'Flutlanze', description: 'Ein Wasserdruckstoß durchbohrt das Ziel.', element: 'water', target: 'single-enemy', costMp: 7, power: 26, tags: ['magical'] },
+{ id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'] }
+```
+
+### Neue Gegner (`src/data/enemies.ts`)
+```ts
+{ id: 'orc-grunt', name: 'Ork-Plänkler', level: 5, element: 'earth', stats: { maxHp: 70, maxMp: 6, attack: 14, defense: 11, magic: 4, spirit: 6, agility: 8 }, skillIds: ['orc-cleave'], weaknesses: ['fire','holy'], resistances: [], experienceReward: 28, goldReward: 12, drops: [{ itemId: 'healing-herb', chance: 0.2 }] },
+{ id: 'orc-soldier', name: 'Ork-Soldat', level: 7, element: 'earth', stats: { maxHp: 104, maxMp: 10, attack: 19, defense: 15, magic: 5, spirit: 8, agility: 9 }, skillIds: ['orc-cleave','war-cry'], weaknesses: ['fire','holy'], resistances: [], experienceReward: 48, goldReward: 20, drops: [{ itemId: 'magic-ore', chance: 0.25 }] },
+{ id: 'orc-general', name: 'Ork-General', level: 10, element: 'earth', stats: { maxHp: 170, maxMp: 16, attack: 25, defense: 20, magic: 8, spirit: 12, agility: 11 }, skillIds: ['orc-cleave','iron-guard','war-cry'], weaknesses: ['holy'], resistances: ['earth'], experienceReward: 110, goldReward: 60, drops: [{ itemId: 'magisteel', chance: 0.3 }] },
+{ id: 'orc-lord', name: 'Ork-Lord', level: 13, element: 'shadow', stats: { maxHp: 240, maxMp: 30, attack: 30, defense: 22, magic: 16, spirit: 16, agility: 14 }, skillIds: ['famished-bite','orc-cleave','iron-guard'], weaknesses: ['holy'], resistances: ['earth','shadow'], experienceReward: 260, goldReward: 140, drops: [{ itemId: 'full-potion', chance: 0.4 }] },
+{ id: 'orc-disaster', name: 'Orc-Disaster „Geld"', level: 16, element: 'shadow', stats: { maxHp: 520, maxMp: 60, attack: 38, defense: 30, magic: 26, spirit: 24, agility: 16 }, skillIds: ['famished-bite','calamity-roar','ogre-smash'], weaknesses: ['holy'], resistances: ['earth','shadow','neutral'], experienceReward: 600, goldReward: 320, drops: [{ itemId: 'geld-core', chance: 1 }] },
+{ id: 'ifrit', name: 'Ifrit, Flammengeist', level: 14, element: 'fire', stats: { maxHp: 300, maxMp: 80, attack: 22, defense: 18, magic: 40, spirit: 26, agility: 22 }, skillIds: ['ifrit-inferno','black-flame'], weaknesses: ['water'], resistances: ['fire'], experienceReward: 340, goldReward: 160, drops: [{ itemId: 'spirit-ember', chance: 1 }] },
+{ id: 'ogre-warrior', name: 'Oger-Krieger', level: 9, element: 'fire', stats: { maxHp: 150, maxMp: 18, attack: 24, defense: 18, magic: 14, spirit: 12, agility: 14 }, skillIds: ['ogre-smash','black-flame'], weaknesses: ['water'], resistances: [], experienceReward: 95, goldReward: 40, drops: [{ itemId: 'magic-ore', chance: 0.3 }] },
+{ id: 'masked-majin', name: 'Maskierter Majin', level: 12, element: 'shadow', stats: { maxHp: 210, maxMp: 48, attack: 24, defense: 18, magic: 30, spirit: 22, agility: 20 }, skillIds: ['black-flame','spirit-bind'], weaknesses: ['holy'], resistances: ['shadow'], experienceReward: 220, goldReward: 120, drops: [] },
+{ id: 'lizardman-warrior', name: 'Echsenkrieger', level: 6, element: 'water', stats: { maxHp: 92, maxMp: 14, attack: 16, defense: 13, magic: 9, spirit: 10, agility: 12 }, skillIds: ['spear-charge','tide-lance'], weaknesses: ['wind'], resistances: ['water'], experienceReward: 38, goldReward: 16, drops: [] },
+{ id: 'gabiru', name: 'Gabiru', level: 11, element: 'wind', stats: { maxHp: 180, maxMp: 28, attack: 26, defense: 18, magic: 14, spirit: 14, agility: 22 }, skillIds: ['spear-charge','war-cry','tide-lance'], weaknesses: ['shadow'], resistances: ['wind','water'], experienceReward: 140, goldReward: 70, drops: [{ itemId: 'wolf-fang-token', chance: 0.5 }] },
+{ id: 'milim', name: 'Milim Nava', level: 20, element: 'fire', stats: { maxHp: 999, maxMp: 200, attack: 60, defense: 50, magic: 70, spirit: 50, agility: 60 }, skillIds: ['drago-nova','ogre-smash','black-flame'], weaknesses: [], resistances: ['fire','earth','shadow','neutral'], experienceReward: 0, goldReward: 0, drops: [] }
+```
+Neue Items dazu (Vorschlag): `magic-ore`, `magisteel`, `full-potion`*, `geld-core`* (Quest/Evolution), `spirit-ember`* (Ifrit-Flamme/Form), `hipokte-herb`*, `kurobe-katana`* (Waffe).
+
+### Mehr Nebenfiguren & Welt
+- **Tempest-Ämterstruktur (Hub-NPCs):** Rigurd (Ältester/Verwaltung) · Rigur (Wachhauptmann) ·
+  Benimaru (Samurai-General) · Souei (Geheimdienst) · Shion (Sekretärin/Leibwache) · Shuna
+  (Priesterin/Diplomatie) · Hakurou (Ausbilder) · Kurobe (Schmied) · Kaijin (Chefingenieur/Bau) ·
+  Geld (Hoch-Ork, Bautrupp) · Vesta (später Forscher).
+- **Goblin-Riege:** Gobta (Hakurous chaotischster Schüler, Wolfsreiter), Gobichi/Gobtsu/Gobzo
+  (Wachen) — komödiantischer Alltag.
+- **Echsenmenschen:** Häuptling, Souka (loyal), Gabiru + „Gabirus Hundert".
+- **Dwargon:** König Gazel Dwargo + seine Leibgarde (Heldenkönig-Entourage), Vesta-Faktion.
+- **Blumund/Englesia:** Gildenmeister Fuze; die drei Abenteurer Kaval/Eren(Elen, verdeckt adlig)/Gido;
+  Shizus Schüler Kenya/Ryota/Gale/Alice/Chloe (je ein Elementargeist).
+- **Wald/Geister:** Treyni + Schwestern Trya/Triah; Greater Spirit **Ifrit**; kleine Elementargeister.
+- **Orte (Detail):** Versiegelte Höhle (Veldoras Gefängnis, Untersee, Hipokte-Kraut) · Jura-Großwald
+  (Zentrum, Echsen-Sumpf, Oger-Dorf-Ruine, Ork-Marschroute) · Dwargon (Tor, Werkstattviertel,
+  Thron-/Gerichtssaal) · Blumund (Gildenfiliale) · Geisterhöhle (Spirit-Cave).
+
+### Mehr Systeme & Lore (Codex + optionale Mechanik)
+- **Rang-System (Monster):** D–C–B–A–Spezial-A–Katastrophe–**Desaster** (Geld = Desaster, Veldora =
+  Katastrophe/„Sturmdrache") — als Gefahren-/Codex-Stufe nutzbar.
+- **Abenteurer-Ränge:** F→E→D→C→B→A→S (Shizu = A-Rang) — für Free-Guild-Quests/Belohnungsstufen.
+- **Skill-Ränge:** Allgemeine Skills → Extra-Skills → **Unique Skills** (Predator, Großer Weiser) →
+  Ultimative Skills (Fernziel) — als Talent-/Evolutionsstufen denkbar.
+- **Veldoras Siegel:** „Unendlicher Kerker" (vom Helden gewirkt); Rimuru analysiert/„liest" es über
+  viele Schritte frei → langfristiger Story-Anker (Veldora-Rückkehr).
+- **Dämonenlord-Erwachen:** „Saat" durch genug Macht/Predation (Geld); volle Erweckung über das
+  **Erntefest**-Ritual (Opfer/Festmahl) — Band-3-Aufhänger, hier vorbereitet.
+- **Wahre Drachen & Ursprung:** Veldora (Sturm), Velzard (Eis), Velgrynd (Glut), **Veldanava**
+  (Sternkönig, Schöpfer, Milims Vater) — kosmische Codex-Tiefe.
+- **Andersweltler & Beschwörung:** Magie ruft Menschen aus „unserer" Welt; sie tragen Skills/Hunger
+  nach Magie; **Leon Cromwell** (beschwor Shizu als Kind) als fernes Rimuru-Ziel; die Westliche
+  Heilige Kirche/Hinata als Foreshadow für spätere Bänder.
