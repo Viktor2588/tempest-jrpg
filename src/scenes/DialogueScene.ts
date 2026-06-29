@@ -10,6 +10,7 @@ import {
 } from '../systems/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { loadSettings, textCharDelayMs } from '../systems/settings';
+import { buildStoryMoment, type StoryMomentView } from '../systems/storyMoment';
 import { playSfx, type SfxName } from '../audio/sfx';
 import { portraitKeyForSpeaker } from '../render/portraitAtlas';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
@@ -113,16 +114,28 @@ export class DialogueScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
     playSfx(this.sfxForChoice(choice));
 
-    if (!result.ok || !result.state.next) {
-      this.close();
+    const continueAfterMoment = (): void => {
+      if (!result.ok || !result.state.next) {
+        this.close();
+        return;
+      }
+
+      this.view = result.state.next;
+      this.refresh();
+    };
+    const moment = buildStoryMoment(choice?.effects);
+    if (moment) {
+      this.showStoryMoment(moment, continueAfterMoment);
       return;
     }
-
-    this.view = result.state.next;
-    this.refresh();
+    continueAfterMoment();
   }
 
   private sfxForChoice(choice: DialogView['choices'][number] | undefined): SfxName {
+    const moment = buildStoryMoment(choice?.effects);
+    if (moment?.tone === 'quest' || moment?.tone === 'recruit') return 'victory';
+    if (moment?.tone === 'rest') return 'heal';
+    if (moment?.tone === 'bond') return 'magic';
     const effects = choice?.effects ?? [];
     if (effects.some((effect) => effect.type === 'complete-quest')) return 'victory';
     if (effects.some((effect) =>
@@ -131,6 +144,50 @@ export class DialogueScene extends Phaser.Scene {
       && effect.value
     )) return 'magic';
     return 'confirm';
+  }
+
+  private showStoryMoment(moment: StoryMomentView, onContinue: () => void): void {
+    this.completeReveal();
+    const colors: Record<StoryMomentView['tone'], number> = {
+      bond: 0x2f385f,
+      recruit: 0x1f4a38,
+      quest: 0x4d3a1b,
+      rest: 0x1f4550
+    };
+    const overlay = this.add.container(0, 0).setDepth(30);
+    const backdrop = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.44)
+      .setInteractive();
+    overlay.add(backdrop);
+    overlay.add(addUiPanel(this, 180, 124, GAME_WIDTH - 360, 226, { originY: 0, alpha: 0.98 }));
+    overlay.add(this.add.rectangle(194, 138, GAME_WIDTH - 388, 4, colors[moment.tone], 0.95).setOrigin(0, 0));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 158, moment.title, {
+      fontFamily: 'serif',
+      fontSize: '28px',
+      color: '#e9c56c'
+    }).setOrigin(0.5, 0));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 212, moment.body, {
+      fontFamily: 'sans-serif',
+      fontSize: '16px',
+      color: '#e9eef7',
+      align: 'center',
+      wordWrap: { width: GAME_WIDTH - 430 }
+    }).setOrigin(0.5, 0));
+
+    let dismissed = false;
+    const dismiss = (): void => {
+      if (dismissed) return;
+      dismissed = true;
+      overlay.destroy();
+      onContinue();
+    };
+    overlay.add(addUiTextButton(this, GAME_WIDTH / 2 - 90, 304, 180, 'Weiter', dismiss, {
+      idleAlpha: 0.98,
+      fill: colors[moment.tone],
+      textOffsetX: 54
+    }));
+    backdrop.on('pointerdown', dismiss);
+    this.input.keyboard?.once('keydown-ENTER', dismiss);
+    this.input.keyboard?.once('keydown-SPACE', dismiss);
   }
 
   private close(): void {
