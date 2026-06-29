@@ -521,6 +521,15 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Phase 26 – Regionale Imagegen-Overworld-Tiles** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-26-region-tiles`)*
 > **✅ Status (2026-06-29):** Der Backlog-Punkt „Pro-Karte-Tile-Theming" ist für Geistmoor und Geisterschrein-Hochland geschlossen: beide Regionen nutzen eigene, auf 128×128-WebP optimierte Imagegen-Boden-/Wandtiles statt Jura-Gras/Jura-Wand. Die Auswahl läuft über ein reines Mapping mit Fallbacks auf Legacy-Kenney-Tiles und prozedurale Platzhalter. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (216/216), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil).
 
+[x] **Phase 27 – Dwargon-Arc (Canon Band 1/2, Arc A2)** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-27-dwargon`)*
+> **✅ Status (2026-06-29):** Der bislang nur als Datenblatt vorhandene Dwargon-Inhalt ist jetzt spielbar — reine Daten-/Welt-Phase ohne Szenen-/Render-Änderungen (kollisionsfrei zu den parallelen Asset-Worktrees 24–26).
+> - **Neue Region `dwargon`** (`maps.ts`): sichere Schmiedestadt (24×14, Werkstattviertel + Thronterrasse), in `MAPS`/`MAP_NAMES` registriert. Keine Zufallskämpfe → der Encounter-Balance-Gate überspringt die Region; Erreichbarkeit über Gateways ist gewährleistet.
+> - **Gateways** (`world.ts`): `gate-to-dwargon` vom Jura-Wald (gated über `story.kijin.named` — Kurobes Schmiedekunst weckt das Interesse) + Rücktor `dwargon-gate-tempest`.
+> - **Questline `dwargon-craft`**: Gazels Urteil schaltet `craft.smithing.unlocked` frei → Kaijin und seine Brüder treten Tempest bei (`recruit-character kaijin`), Belohnung 120 Gold + Magisteel.
+> - **Kaijin** als rekrutierbare Heldenfigur (`characters.ts`, Zwerg-Meisteringenieur, defensiv); NPCs Gazel Dwargo + Kaijin mit eigenen Dialogen; Codex „Dwargon"/„Gazel Dwargo".
+> - **Drei Dwargon-Shops** (`dwargon-smithy`/`-apothecary`/`-trader`) auf begehbaren Kacheln; Premium-Magisteel-Ausrüstung erst nach `craft.smithing.unlocked`.
+> - **Abnahme:** `bun run typecheck`, `bun run test` (**222/222**, inkl. 6 neue Dwargon-Checks), `bun run build` (nur bekannter Phaser-Vendor-Chunk). Branch auf aktuellen `main` (Phase 26) rebased.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -724,7 +733,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
   4. `kurobe-katana` — Kurobe schmiedet eine Katana → `add-item kurobe-katana`.
   - Belohnung: 6 Kijin, Codex „Kijin", Katana. Folge-Hook: Hakurou-Training (Talentknoten).
 
-**A2 — Zwergenkönigreich Dwargon** *(neue Region `dwargon` + Handwerk)*
+**A2 — Zwergenkönigreich Dwargon** *(neue Region `dwargon` + Handwerk)* — ✅ **umgesetzt in Phase 27** (vereinfachte, kollisionsarme Variante: Gazels Urteil schaltet die Schmiede frei und Kaijin tritt bei; Garm/Dord/Myrd als Flavor, Vesta später).
 - Quest `dwargon-craft` „Handwerk aus Dwargon":
   1. `enter-dwargon` — Gateway vom Jura-Wald, Markt/Schmiede, Codex „Dwargon".
   2. `tavern-incident` — Vesta-Faktion provoziert Kaijin → `set-flag story.kaijin.trouble`.
