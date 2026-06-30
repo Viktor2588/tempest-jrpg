@@ -90,6 +90,13 @@ describe('artSpec', () => {
       'kurobe',
       'souei',
       'kaijin',
+      'eir',
+      'kael',
+      'gazel',
+      'blumund-adventurers',
+      'treyni',
+      'milim',
+      'souka',
       'mordrahn'
     ]);
     for (const kind of PORTRAIT_KINDS) {

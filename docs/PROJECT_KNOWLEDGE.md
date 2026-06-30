@@ -453,8 +453,8 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` at the base commit contains Phase 40 plus the earlier merged
-implementation. The separately numbered asset phases 33-38 are also integrated.
+`main` at the base commit contains Phase 47 plus the earlier merged
+implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
 - Core overworld, save, battle, menu, world, progression, settings, and release
@@ -464,17 +464,21 @@ Current `main` includes:
 - Ranga scouting/fast travel and optional legacy-arc isolation.
 - Art/audio integration, regional assets, mobile/accessibility work, and E2E.
 - Dedicated Shizu/Fuze portraits, Canon-region banners, Kijin/Kaijin party
-  cutouts and portraits, Canon-region tiles, and Canon-trigger enemy cutouts.
+  cutouts and portraits, Canon-region tiles, Canon-trigger enemy cutouts, and
+  Canon/region NPC story portraits for Eir, Kael, Gazel, Kaval/Eren/Gido,
+  Treyni, Milim, and Souka.
+- Phase 47 main-path asset-gap closure: Whispering Grove arena,
+  Direwolf-alpha cutout, and Nameless Echo cutout.
 - Analysis, telegraph, CT control, and control-status battle substrate.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-38 | merged into `main`; worktrees removed | none |
-| 39 | active with uncommitted NPC portrait work | `/worktree/tempest-phase-39-canon-npc-portraits` |
+| 33-39 | merged into `main`; worktrees removable after clean-status check | `/worktree/tempest-phase-39-canon-npc-portraits` |
 | 40 | merged into `main`; worktree removed | none |
 | 41 | active with uncommitted Predator work | `/worktree/tempest-phase-41-predator` |
+| 47 | merged into `main`; worktree removable after clean-status check | `/worktree/tempest-phase-47-asset-audit` |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.

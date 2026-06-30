@@ -47,6 +47,28 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'souei';
     case 'kaijin':
       return 'kaijin';
+    case 'moorhüterin eir':
+    case 'eir':
+      return 'eir';
+    case 'schreinwächter kael':
+    case 'kael':
+      return 'kael';
+    case 'könig gazel dwargo':
+    case 'gazel dwargo':
+    case 'gazel':
+      return 'gazel';
+    case 'kaval, eren & gido':
+    case 'kaval':
+    case 'eren':
+    case 'gido':
+      return 'blumund-adventurers';
+    case 'treyni':
+      return 'treyni';
+    case 'milim nava':
+    case 'milim':
+      return 'milim';
+    case 'souka':
+      return 'souka';
     case 'mordrahn':
     case 'mordrahns echo':
       return 'mordrahn';
