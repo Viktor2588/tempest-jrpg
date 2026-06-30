@@ -1,3 +1,4 @@
-## Lower Complexity at all cost
+# Claude Project Instructions
 
-## always work in git worktrees for every phase u work on in PLAN.md.
+Follow [`../AGENTS.md`](../AGENTS.md). Keep implementation complexity low and
+use the required phase worktree workflow.

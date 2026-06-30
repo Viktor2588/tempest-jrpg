@@ -33,6 +33,10 @@ Pflichtablauf fuer jede Phase:
    - Aenderungen committen und den Phase-Branch pushen
 
 5. Worktree-Aufraeumen:
+   - beim Merge nach `main` den Abschluss in
+     `docs/PROJECT_KNOWLEDGE.md`/Git-Historie archivieren und die erledigte
+     Phase aus `PLAN.md` entfernen; `PLAN.md` enthaelt auf `main` nur offene
+     oder laufende Arbeit
    - Worktrees erst entfernen, nachdem die jeweilige Phase in `main` gemerged
      wurde
    - vor dem Entfernen pruefen, dass der Worktree keine uncommitted

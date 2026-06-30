@@ -1,7 +1,7 @@
 // Art-Spezifikation (Phaser-/DOM-frei → headless testbar). Definiert die
 // kohärente Palette, Kachel-/Sprite-Größe und deterministische Platzhalter-Specs
-// gemäß ART_BIBLE.md. Die eigentliche Textur-Erzeugung (Phaser) liegt in
-// placeholderArt.ts und liest nur diese Specs.
+// gemaess docs/PROJECT_KNOWLEDGE.md. Die eigentliche Textur-Erzeugung (Phaser)
+// liegt in placeholderArt.ts und liest nur diese Specs.
 
 export const ART = {
   tile: 32,          // px — Top-down-Kachelgröße (CC0-Zielstil)

@@ -1,3 +1,14 @@
+---
+schema: tempest-asset-manifest/v1
+document_role: asset-provenance-ledger
+authority:
+  visual_spec: src/render/artSpec.ts
+  project_context: docs/PROJECT_KNOWLEDGE.md
+policy:
+  external_assets: CC0-only
+  generated_assets: provenance-required
+---
+
 # Assets & Lizenzen
 
 **Regel: externe Assets ausschließlich CC0; projektgenerierte Originale separat dokumentieren.**

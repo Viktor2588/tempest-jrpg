@@ -1,0 +1,44 @@
+# Tempest - Chronik
+
+> German-language, mobile-first browser JRPG built with Phaser 4.2,
+> TypeScript, Bun, Vite, Vitest, and Playwright. Pure deterministic systems
+> drive thin Phaser scenes; content is typed and data-driven.
+
+Use current source and tests as implementation authority. Preserve stable IDs
+and save compatibility. `PLAN.md` contains unresolved work only.
+
+## Primary Context
+
+- [Project knowledge](docs/PROJECT_KNOWLEDGE.md): canonical structured context,
+  architecture, systems, content, invariants, story direction, visual rules,
+  current branch boundaries, and task-oriented file routing.
+- [Open plan](PLAN.md): active worktrees and unresolved implementation tasks.
+- [Asset manifest](ASSETS.md): source, license, and generation provenance.
+- [Agent workflow](AGENTS.md): mandatory worktree, phase, verification, commit,
+  push, and cleanup rules.
+- [Human README](README.md): setup and verification commands.
+
+## Core Implementation
+
+- [Data registry](src/data/index.ts): typed game data and `GAME_DATA`.
+- [World content](src/data/world.ts): quests, locations, lore, dialogs, NPCs,
+  shops, encounters, requirements, and effects.
+- [Battle engine](src/systems/battle.ts): deterministic CT combat, statuses,
+  break, analysis, reactions, AI hooks, rewards, and termination.
+- [Progression](src/systems/progression.ts): naming, evolution, talent trees,
+  relationships, equipment sets, enchantment, and catch-up rules.
+- [Save system](src/systems/save.ts): versioned saves, migration,
+  normalization, import/export, autosave, and New Game Plus.
+- [Overworld scene](src/scenes/OverworldScene.ts): movement, interaction,
+  minimap, travel, encounters, and menu launch.
+- [Battle scene](src/scenes/BattleScene.ts): presentation adapter for battle.
+- [Menu scene](src/scenes/MenuScene.ts): party, inventory, equipment, status,
+  talents, quests, codex, and Ranga travel.
+
+## Verification
+
+- [Vitest suites](test/): pure systems, data integrity, saves, playthroughs,
+  balance, assets, and release rules.
+- [Browser smoke](e2e/game.smoke.spec.ts): desktop and mobile Chromium flows.
+- [CI](.github/workflows/ci.yml): typecheck, tests, build, and browser checks.
+- [Deployment](.github/workflows/deploy.yml): verified GitHub Pages release.

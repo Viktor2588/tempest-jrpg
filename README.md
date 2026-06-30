@@ -1,15 +1,10 @@
-# Tempest – Chronik
+# Tempest - Chronik
 
-Ein mobile-first JRPG-Prototyp mit Phaser 3, TypeScript, Bun und Vite. Der Fokus liegt auf taktischem Kampf, datengetriebenem Content, Party-Progression, Beziehungen, Jobs und dünnen Szenen über headless testbarer Spiellogik.
+Ein deutsches, mobile-first Browser-JRPG mit Phaser 4.2, TypeScript, Bun und
+Vite. Der spielbare Build verbindet deterministische, headless testbare
+Spiellogik mit datengetriebenem Content und duennen Phaser-Szenen.
 
-## Aktueller Release-Scope
-
-- Statische Web-App für GitHub Pages unter `/tempest-jrpg/`
-- Kein Offline-Betrieb, kein Service Worker, keine PWA-Installation
-- CI/Deploy mit Bun: Typecheck, Tests, Build, danach Upload von `dist/`
-- Deutschsprachige UI/Story und mobile-first Skalierung
-
-## Entwicklung
+## Start
 
 ```bash
 bun install --frozen-lockfile
@@ -22,19 +17,17 @@ bun run dev
 bun run typecheck
 bun run test
 bun run build
+bun run test:e2e
 ```
 
-Der Build erzeugt `dist/`. Phaser bleibt bewusst im Hauptbundle; die Vite-Chunk-Warnschwelle ist entsprechend dokumentiert und angehoben.
+Der Build erzeugt `dist/`. Die statische Web-App wird ohne Backend, PWA oder
+Service Worker unter `/tempest-jrpg/` fuer GitHub Pages gebaut.
 
-## Struktur
+## Dokumentation
 
-- `src/data`: Charaktere, Gegner, Skills, Items, Jobs, Welt- und Progressionsdaten
-- `src/systems`: reine Spiellogik für Kampf, Save, Menü, Welt, Progression und Settings
-- `src/scenes`: Phaser-Szenen für Darstellung und Eingabe
-- `src/audio`: prozedurale WebAudio-SFX
-- `test`: Vitest-Suiten gegen Systeme, Datenintegrität und Release-Konfiguration
-- `.github/workflows`: CI und GitHub-Pages-Deploy
-
-## Deployment
-
-Pushes auf `main` starten `.github/workflows/deploy.yml`. Der Workflow installiert mit Bun, führt Typecheck und Tests aus, baut mit Vite und deployed `dist/` über GitHub Pages.
+- [`PLAN.md`](PLAN.md): ausschliesslich offene und laufende Aufgaben
+- [`docs/PROJECT_KNOWLEDGE.md`](docs/PROJECT_KNOWLEDGE.md): kanonischer,
+  LLM-freundlicher Projektkontext
+- [`ASSETS.md`](ASSETS.md): Asset-, Lizenz- und Generierungsprovenienz
+- [`AGENTS.md`](AGENTS.md): verbindlicher Phasen-/Worktree-Ablauf
+- [`llms.txt`](llms.txt): kompakter Einstieg fuer LLMs und Agenten
