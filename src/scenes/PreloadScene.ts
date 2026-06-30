@@ -81,6 +81,11 @@ import regionDirewolfDenUrl from '../assets/ui/region-direwolf-den.webp';
 import regionJuraForestUrl from '../assets/ui/region-jura-forest.webp';
 import regionSpiritMarshUrl from '../assets/ui/region-spirit-marsh.webp';
 import regionSpiritHighlandsUrl from '../assets/ui/region-spirit-highlands.webp';
+import regionDwargonUrl from '../assets/ui/region-dwargon.webp';
+import regionJuraBattlefieldUrl from '../assets/ui/region-jura-battlefield.webp';
+import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
+import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
+import regionBlumundUrl from '../assets/ui/region-blumund.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -155,6 +160,11 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(REGION_BANNER_TEXTURES['tempest-start'], regionJuraForestUrl);
     this.load.image(REGION_BANNER_TEXTURES['spirit-marsh'], regionSpiritMarshUrl);
     this.load.image(REGION_BANNER_TEXTURES['spirit-highlands'], regionSpiritHighlandsUrl);
+    this.load.image(REGION_BANNER_TEXTURES['dwargon'], regionDwargonUrl);
+    this.load.image(REGION_BANNER_TEXTURES['jura-battlefield'], regionJuraBattlefieldUrl);
+    this.load.image(REGION_BANNER_TEXTURES['lizardman-marsh'], regionLizardmanMarshUrl);
+    this.load.image(REGION_BANNER_TEXTURES['ember-hollow'], regionEmberHollowUrl);
+    this.load.image(REGION_BANNER_TEXTURES['blumund'], regionBlumundUrl);
   }
 
   create(): void {
