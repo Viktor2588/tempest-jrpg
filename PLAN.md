@@ -31,8 +31,6 @@ Status:
 
 - [ ] Phase 39 nach Abschluss und Push integrieren.
 - [ ] Phase 41 nach Abschluss und Push integrieren.
-- [ ] Nur sauber gemergte Worktrees entfernen; ungemergte oder geaenderte
-  Worktrees und Branches erhalten.
 
 ## Kampf-Roadmap
 

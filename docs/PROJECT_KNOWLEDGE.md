@@ -471,9 +471,9 @@ Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-38 | merged into `main`; clean worktrees pending removal | separate asset branch chain |
+| 33-38 | merged into `main`; worktrees removed | none |
 | 39 | active with uncommitted NPC portrait work | `/worktree/tempest-phase-39-canon-npc-portraits` |
-| 40 | merged into `main` | `/worktree/tempest-phase-40-zeitleiste` |
+| 40 | merged into `main`; worktree removed | none |
 | 41 | active with uncommitted Predator work | `/worktree/tempest-phase-41-predator` |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
