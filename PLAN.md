@@ -9,19 +9,11 @@ Status:
 
 ## Laufende Arbeit
 
-- [~] **Phase 41 - Kampf-Rewrite II: Verschlinger und Momentum**
-  - Worktree: `/worktree/tempest-phase-41-predator`
-  - Branch: `phase-41-predator`
-  - `{type: "devour"}` ueber Bruch, niedrige LP und Debuffs gaten.
-  - Deterministischen gewichteten Skill-Qualitaetswurf implementieren.
-  - Momentum als begrenzten CT-Schub bei Schwachstellentreffern und Devour
-    implementieren; Terminierung erhalten.
-  - Rimuru die Unique-Skills `predator` und `great-sage` geben.
-  - Gating, Qualitaetswurf und Momentum-Grenzen testen.
+- Keine laufende Phase.
 
 ## Integrationswarteschlange
 
-- [ ] Phase 41 nach Abschluss und Push integrieren.
+- Keine offenen Integrationen.
 
 ## Kampf-Roadmap
 

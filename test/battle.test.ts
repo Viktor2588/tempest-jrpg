@@ -589,7 +589,11 @@ describe('battle engine', () => {
 // Phase 40 — Zeitleiste-Rewrite: Analyse (Großer Weiser), Zeitkontrolle (delay/hasten) und Aussetz-Status.
 describe('battle: Zeitleiste (Phase 40)', () => {
   it('Analyse deckt Schwächen auf und liest den nächsten Zug (Telegraph)', () => {
-    const state = startBattle({ party: [depthHero('rimuru', 'Rimuru')], enemies: [phaseEnemy()], seed: 7 });
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', { skillIds: ['great-sage', 'water-blade'] })],
+      enemies: [phaseEnemy()],
+      seed: 7
+    });
     const hero = state.combatants.find((c) => c.side === 'party')!;
     const foe = state.combatants.find((c) => c.side === 'enemy')!;
 
@@ -717,5 +721,105 @@ describe('battle: Zeitleiste (Phase 40)', () => {
 
     const attacked = act(state, { type: 'attack', targetId: foe.id });
     expect(attacked.ok).toBe(true);
+  });
+});
+
+// Phase 41 — Verschlinger und Momentum.
+describe('battle: Verschlinger und Momentum (Phase 41)', () => {
+  function predatorHero(skillIds: readonly string[] = ['predator', 'great-sage', 'water-blade']): BattleUnitInput {
+    return depthHero('rimuru', 'Rimuru', { skillIds });
+  }
+
+  function devourSetup(seed: number): {
+    state: BattleState;
+    hero: NonNullable<BattleState['combatants'][number]>;
+    foe: NonNullable<BattleState['combatants'][number]>;
+  } {
+    const state = startBattle({
+      party: [predatorHero()],
+      enemies: [phaseEnemy({ stats: { ...phaseEnemy().stats, maxHp: 500 } })],
+      seed
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    state.activeId = hero.id;
+    return { state, hero, foe };
+  }
+
+  it('Rimuru startet mit Predator und Großem Weisen als Unique-Verben, nicht als direkt wirkbare Skills', () => {
+    const rimuru = HEROES.find((hero) => hero.id === 'rimuru')!;
+    expect(rimuru.initialSkillIds).toEqual(expect.arrayContaining(['predator', 'great-sage']));
+
+    const { state, hero, foe } = devourSetup(10);
+    state.activeId = hero.id;
+
+    expect(act(state, { type: 'skill', skillId: 'predator', targetId: hero.id }).ok).toBe(false);
+    expect(act(state, { type: 'skill', skillId: 'great-sage', targetId: hero.id }).ok).toBe(false);
+    expect(act(state, { type: 'analyze', targetId: foe.id }).ok).toBe(true);
+  });
+
+  it('gated Analyse und Verschlingen über die passenden Unique-Skills', () => {
+    const state = startBattle({
+      party: [predatorHero(['water-blade'])],
+      enemies: [phaseEnemy()],
+      seed: 11
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    state.activeId = hero.id;
+
+    expect(act(state, { type: 'analyze', targetId: foe.id }).ok).toBe(false);
+    foe.statuses.push({ id: 'guard-break', turns: 2 });
+    expect(act(state, { type: 'devour', targetId: foe.id }).ok).toBe(false);
+  });
+
+  it('lehnt Verschlingen ab, solange Bruch, niedrige LP und Debuffs fehlen', () => {
+    const { state, foe } = devourSetup(12);
+
+    const result = act(state, { type: 'devour', targetId: foe.id });
+
+    expect(result.ok).toBe(false);
+    expect(foe.dead).toBe(false);
+  });
+
+  it('verschlingt verwundbare Gegner deterministisch und imitiert einen gewichteten Skill', () => {
+    const run = (seed: number): readonly string[] => {
+      const { state, hero, foe } = devourSetup(seed);
+      foe.hp = Math.floor(foe.maxHp * 0.25);
+      foe.analysisLevel = 1;
+      foe.statuses.push({ id: 'guard-break', turns: 2 }, { id: 'poison', turns: 3 });
+      hero.ct = 100;
+
+      const result = act(state, { type: 'devour', targetId: foe.id });
+
+      expect(result.ok).toBe(true);
+      expect(foe.dead).toBe(true);
+      expect(state.status).toBe('won');
+      expect(hero.ct).toBe(35);
+      expect(hero.mimicSkillIds.length).toBe(1);
+      expect(hero.skillIds).toContain(hero.mimicSkillIds[0]);
+      return hero.mimicSkillIds;
+    };
+
+    expect(run(2)).toEqual(run(2));
+  });
+
+  it('gewährt begrenztes Momentum bei Schwächentreffern', () => {
+    const state = startBattle({
+      party: [predatorHero(['water-blade']), depthHero('gobta', 'Gobta')],
+      enemies: [phaseEnemy()],
+      seed: 13
+    });
+    const [hero, anchor] = state.combatants.filter((c) => c.side === 'party');
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    hero!.ct = 100;
+    anchor!.ct = 150;
+    state.activeId = hero!.id;
+
+    const result = act(state, { type: 'skill', skillId: 'water-blade', targetId: foe.id });
+
+    expect(result.ok).toBe(true);
+    expect(hero!.ct).toBe(35);
+    expect(state.activeId).toBe(anchor!.id);
   });
 });

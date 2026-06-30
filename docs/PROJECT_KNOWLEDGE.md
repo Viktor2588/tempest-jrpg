@@ -453,7 +453,7 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` at the base commit contains Phase 47 plus the earlier merged
+`main` at the base commit contains Phase 41, Phase 47, and the earlier merged
 implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
@@ -469,16 +469,15 @@ Current `main` includes:
   Treyni, Milim, and Souka.
 - Phase 47 main-path asset-gap closure: Whispering Grove arena,
   Direwolf-alpha cutout, and Nameless Echo cutout.
-- Analysis, telegraph, CT control, and control-status battle substrate.
+- Analysis, telegraph, CT control, control-status battle substrate, Predator
+  devour gating, deterministic weighted skill mimicry, and bounded CT momentum
+  from weakness hits/devour.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-39 | merged into `main`; worktrees removable after clean-status check | `/worktree/tempest-phase-39-canon-npc-portraits` |
-| 40 | merged into `main`; worktree removed | none |
-| 41 | active with uncommitted Predator work | `/worktree/tempest-phase-41-predator` |
-| 47 | merged into `main`; worktree removable after clean-status check | `/worktree/tempest-phase-47-asset-audit` |
+| 33-41, 47 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.

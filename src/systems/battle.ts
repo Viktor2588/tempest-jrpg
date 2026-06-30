@@ -78,6 +78,8 @@ export interface Combatant {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   skillIds: string[];
+  // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
+  mimicSkillIds: string[];
   readonly synergyPartnerIds: readonly string[];
   readonly statuses: StatusInstance[];
   reaction: QueuedReaction | null;
@@ -125,6 +127,7 @@ export type BattleAction =
   | { type: 'item'; itemId: string; targetId?: string }
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
+  | { type: 'devour'; targetId: string }
   | { type: 'guard' }
   | { type: 'flee' };
 
@@ -157,6 +160,17 @@ const CT_MAX = CT_THRESHOLD * 3;
 // Aussetz-Status, die einen Zug hart überspringen (Schlaf/Eis enden zusätzlich bei Schaden).
 const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satisfies readonly StatusEffectId[];
 const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
+// Phase 41 — Verschlinger + Momentum
+const MOMENTUM_CT_SURGE = 35;
+const DEVOUR_HP_THRESHOLD = 0.35;
+const DEVOUR_WHIFF_CHANCE = 0.05;
+const DEVOUR_STRONG_BASE_CHANCE = 0.10;
+// Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
+const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
+const DEBUFF_STATUSES: readonly StatusEffectId[] = [
+  'poison', 'spirit-down', 'guard-break', 'stun', 'sleep', 'freeze',
+  'paralyze', 'petrify', 'blind', 'silence', 'confuse', 'charm', 'weaken'
+];
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
@@ -393,6 +407,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
     skillIds: uniqueStrings([...baseSkillIds]),
+    mimicSkillIds: [],
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
       id: statusId,
@@ -443,6 +458,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'analyze':
       return resolveAnalyze(state, actor, action.targetId);
+
+    case 'devour':
+      return resolveDevour(state, actor, action.targetId);
   }
 }
 
@@ -490,6 +508,9 @@ function resolveSkill(
   if (!skill || !actor.skillIds.includes(skill.id)) {
     return { ok: false, reason: 'Fähigkeit nicht verfügbar.' };
   }
+  if (UNIQUE_VERB_SKILL_IDS.has(skill.id)) {
+    return { ok: false, reason: 'Unique-Skill über eigenes Kampfverb nutzen.' };
+  }
   if (isSilenced(actor)) {
     return { ok: false, reason: 'Verstummt — keine Fähigkeiten möglich.' };
   }
@@ -526,6 +547,7 @@ function resolveSkill(
     return { ok: true };
   }
 
+  let momentumGranted = false;
   for (const target of targets) {
     const usesPhysicalScaling = skill.tags.includes('physical') && !skill.tags.includes('magical');
     const offense = usesPhysicalScaling ? effectiveStat(actor, 'attack') : effectiveStat(actor, 'magic');
@@ -537,6 +559,10 @@ function resolveSkill(
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
     applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
+    if (!momentumGranted && damage > 0 && target.weaknesses.includes(skill.element)) {
+      grantMomentum(state, actor, 'Schwächentreffer');
+      momentumGranted = true;
+    }
     applySkillStatus(state, target, skill);
     applyCtDelta(target, skill.ctDelta);
     checkDeath(state, target);
@@ -641,6 +667,10 @@ function resolveTeamAttack(
 // Phase 40 — Großer Weiser: deckt Schwächen auf, erhöht die Analysestufe und liest den
 // nächsten Zug des Gegners (Telegraph). Höhere Stufen verstärken später den Break-Druck.
 function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  if (!actor.skillIds.includes('great-sage')) {
+    return { ok: false, reason: 'Großer Weiser nicht verfügbar.' };
+  }
+
   const target = getCombatant(state, targetId);
   if (!target || target.dead || target.side === actor.side) {
     return { ok: false, reason: 'Ungültiges Ziel.' };
@@ -652,6 +682,89 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
   endTurn(state, actor);
   return { ok: true };
+}
+
+function resolveDevour(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  if (!actor.skillIds.includes('predator')) {
+    return { ok: false, reason: 'Verschlinger nicht verfügbar.' };
+  }
+
+  const target = getCombatant(state, targetId);
+  if (!target || target.dead || target.side === actor.side) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+
+  const broken = hasStatus(target, 'guard-break');
+  const lowHp = target.hp / target.maxHp <= DEVOUR_HP_THRESHOLD;
+  const debuffed = hasDebuff(target, 'guard-break');
+  if (!broken && !lowHp && !debuffed) {
+    return { ok: false, reason: 'Ziel ist noch nicht verwundbar genug.' };
+  }
+
+  const chance = clamp(
+    DEVOUR_STRONG_BASE_CHANCE
+    + (broken ? 0.45 : 0)
+    + (lowHp ? 0.3 : 0)
+    + (debuffed ? 0.2 : 0)
+    + (target.analysisLevel > 0 ? 0.1 : 0),
+    DEVOUR_STRONG_BASE_CHANCE,
+    0.95
+  );
+  const roll = state.rng();
+  if (roll < DEVOUR_WHIFF_CHANCE || roll > chance) {
+    pushLog(state, `${actor.name} setzt Verschlinger an, aber ${target.name} widersteht.`);
+    endTurn(state, actor);
+    return { ok: true };
+  }
+
+  const learnedSkill = chooseDevourSkill(state, actor, target);
+  target.hp = 0;
+  checkDeath(state, target);
+  if (learnedSkill) {
+    actor.mimicSkillIds = uniqueStrings([...actor.mimicSkillIds, learnedSkill.id]);
+    actor.skillIds = uniqueStrings([...actor.skillIds, learnedSkill.id]);
+    pushLog(state, `${actor.name} verschlingt ${target.name} und imitiert ${learnedSkill.name}.`);
+  } else {
+    pushLog(state, `${actor.name} verschlingt ${target.name}.`);
+  }
+  grantMomentum(state, actor, 'Verschlingen');
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+function chooseDevourSkill(
+  state: BattleState,
+  actor: Combatant,
+  target: Combatant
+): SkillDefinition | null {
+  const candidates = uniqueStrings(target.skillIds)
+    .map(getSkill)
+    .filter((skill): skill is SkillDefinition => !!skill)
+    .filter((skill) => !UNIQUE_VERB_SKILL_IDS.has(skill.id))
+    .filter((skill) => !actor.skillIds.includes(skill.id));
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const weighted = candidates.map((skill) => ({ skill, weight: skillQualityWeight(skill) }));
+  const total = weighted.reduce((sum, entry) => sum + entry.weight, 0);
+  let ticket = state.rng() * total;
+  for (const entry of weighted) {
+    ticket -= entry.weight;
+    if (ticket <= 0) {
+      return entry.skill;
+    }
+  }
+  return weighted[weighted.length - 1]!.skill;
+}
+
+function skillQualityWeight(skill: SkillDefinition): number {
+  let weight = 1 + skill.power / 10 + skill.costMp / 3;
+  if (skill.target === 'all-enemies') weight += 3;
+  if (skill.statusEffect) weight += 2;
+  if (skill.tags.includes('debuff')) weight += 2;
+  if (skill.tags.includes('heal')) weight += 1;
+  return Math.max(1, weight);
 }
 
 // Telegraph: die wahrscheinlich nächste Gegneraktion (stärkste nutzbare Nicht-Heil-Fähigkeit),
@@ -937,6 +1050,18 @@ function applyBreakPressure(
   pushLog(state, `${target.name} ist gebrochen! Team-Leiste ${state.teamMeter}/${TEAM_METER_MAX}.`);
 }
 
+function grantMomentum(state: BattleState, actor: Combatant, reason: string): void {
+  if (actor.dead) {
+    return;
+  }
+  const before = actor.ct;
+  actor.ct = clamp(actor.ct + MOMENTUM_CT_SURGE, 0, CT_MAX);
+  const gained = actor.ct - before;
+  if (gained > 0) {
+    pushLog(state, `${actor.name} gewinnt Momentum durch ${reason} (+${gained} CT).`);
+  }
+}
+
 function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
   if (combatant.side !== 'enemy' || combatant.dead || combatant.phaseIndex >= 1) {
     return;
@@ -976,6 +1101,16 @@ function damageTakenMultiplier(target: Combatant): number {
 
 function isSilenced(actor: Combatant): boolean {
   return actor.statuses.some((status) => status.id === 'silence');
+}
+
+function hasStatus(combatant: Combatant, statusId: StatusEffectId): boolean {
+  return combatant.statuses.some((status) => status.id === statusId);
+}
+
+function hasDebuff(combatant: Combatant, ...excluded: readonly StatusEffectId[]): boolean {
+  return combatant.statuses.some((status) =>
+    !excluded.includes(status.id) && DEBUFF_STATUSES.includes(status.id)
+  );
 }
 
 // Phase 40 — Aussetz-Status: liefert den aktiven Behinderungs-Status dieses Zugs (oder null).
