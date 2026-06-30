@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { HEROES } from '../src/data/characters';
+import { PORTRAIT_KINDS } from '../src/render/artSpec';
 import portraitSource from '../src/render/portraitAtlas.ts?raw';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
+import menuSource from '../src/scenes/MenuScene.ts?raw';
 
 describe('Portrait-Atlas-Zuordnung', () => {
   it('ordnet den versiegelten Sturmdrachen einem eigenen Portrait zu', () => {
@@ -36,5 +39,17 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(portraitSource).toContain("return 'fuze';");
     expect(preloadSource).toContain('../assets/sprites/portrait-shizu.webp');
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
+  });
+
+  it('deckt das komplette spielbare Roster in Dialogen und im Party-Menü ab', () => {
+    expect(HEROES.every((hero) => PORTRAIT_KINDS.includes(hero.id))).toBe(true);
+    expect(menuSource).toContain('PORTRAIT_KINDS.includes');
+    for (const hero of HEROES) {
+      expect(preloadSource).toContain(`../assets/sprites/portrait-${hero.id}.webp`);
+    }
+    for (const speaker of ['benimaru', 'shion', 'hakurou', 'kurobe', 'souei', 'kaijin']) {
+      expect(portraitSource).toContain(`case '${speaker}':`);
+      expect(portraitSource).toContain(`return '${speaker}';`);
+    }
   });
 });

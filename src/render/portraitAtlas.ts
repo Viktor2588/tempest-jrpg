@@ -35,6 +35,18 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'gildenmeister fuze':
     case 'fuze':
       return 'fuze';
+    case 'benimaru':
+      return 'benimaru';
+    case 'shion':
+      return 'shion';
+    case 'hakurou':
+      return 'hakurou';
+    case 'kurobe':
+      return 'kurobe';
+    case 'souei':
+      return 'souei';
+    case 'kaijin':
+      return 'kaijin';
     case 'mordrahn':
     case 'mordrahns echo':
       return 'mordrahn';
