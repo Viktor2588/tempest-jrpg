@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/data';
 import {
+  BOG_TERROR_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
+  LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+  ORC_SCOUT_TEXTURE_KEY,
+  SPORE_MOTH_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
 
@@ -23,14 +27,29 @@ describe('Gegner-Art-Mapping', () => {
     expect(enemyArtFor('forest-slime', 'Waldschleim').frame).toBeUndefined();
   });
 
-  it('nutzt den Kingdom-Atlas für die wiederkehrenden Kreaturenlinien', () => {
-    expect(enemyArtFor('spore-moth', 'Sporenmotte')).toMatchObject({
+  it('nutzt den Kingdom-Atlas für noch generische Kreaturenlinien', () => {
+    expect(enemyArtFor('direwolf-pup', 'Direwolf-Welpe')).toMatchObject({
       textureKey: KINGDOM_UNIT_TEXTURE_KEY,
-      frame: 'insect'
+      frame: 'wolf'
+    });
+  });
+
+  it('verdrahtet die regionalen Gegner-Cutouts separat', () => {
+    expect(enemyArtFor('spore-moth', 'Sporenmotte')).toMatchObject({
+      textureKey: SPORE_MOTH_TEXTURE_KEY,
+      fallbackKind: 'enemy-moth'
+    });
+    expect(enemyArtFor('orc-scout', 'Orkspäher')).toMatchObject({
+      textureKey: ORC_SCOUT_TEXTURE_KEY,
+      fallbackKind: 'enemy-orc'
+    });
+    expect(enemyArtFor('lizardman-acolyte', 'Echsenakolyth')).toMatchObject({
+      textureKey: LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+      fallbackKind: 'enemy-lizard'
     });
     expect(enemyArtFor('bog-terror', 'Sumpfschrecken')).toMatchObject({
-      textureKey: KINGDOM_UNIT_TEXTURE_KEY,
-      frame: 'treant'
+      textureKey: BOG_TERROR_TEXTURE_KEY,
+      fallbackKind: 'enemy-ogre'
     });
   });
 

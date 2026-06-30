@@ -5,10 +5,14 @@ import { generatePortraitTextures, portraitKey } from '../render/portraitAtlas';
 import { generateVfxTextures } from '../render/vfxAtlas';
 import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtlas';
 import {
+  BOG_TERROR_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
-  KINGDOM_UNIT_TEXTURE_KEY
+  KINGDOM_UNIT_TEXTURE_KEY,
+  LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+  ORC_SCOUT_TEXTURE_KEY,
+  SPORE_MOTH_TEXTURE_KEY
 } from '../render/enemyArt';
 import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
@@ -36,6 +40,10 @@ import heroUrl from '../assets/sprites/hero.png';
 import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
 import enemySlimeUrl from '../assets/sprites/enemy-slime.png';
 import enemyForestSlimeUrl from '../assets/sprites/enemy-forest-slime.webp';
+import enemySporeMothUrl from '../assets/sprites/enemy-spore-moth.webp';
+import enemyOrcScoutUrl from '../assets/sprites/enemy-orc-scout.webp';
+import enemyLizardmanAcolyteUrl from '../assets/sprites/enemy-lizardman-acolyte.webp';
+import enemyBogTerrorUrl from '../assets/sprites/enemy-bog-terror.webp';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
@@ -98,6 +106,10 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
     this.load.image('sprite-enemy-slime', enemySlimeUrl);
     this.load.image(FOREST_SLIME_TEXTURE_KEY, enemyForestSlimeUrl);
+    this.load.image(SPORE_MOTH_TEXTURE_KEY, enemySporeMothUrl);
+    this.load.image(ORC_SCOUT_TEXTURE_KEY, enemyOrcScoutUrl);
+    this.load.image(LIZARDMAN_ACOLYTE_TEXTURE_KEY, enemyLizardmanAcolyteUrl);
+    this.load.image(BOG_TERROR_TEXTURE_KEY, enemyBogTerrorUrl);
     this.load.image('sprite-enemy-wolf', enemyWolfUrl);
     this.load.image('sprite-enemy-imp', enemyImpUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreUrl);
@@ -171,6 +183,10 @@ export class PreloadScene extends Phaser.Scene {
       BLUMUND_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
+      SPORE_MOTH_TEXTURE_KEY,
+      ORC_SCOUT_TEXTURE_KEY,
+      LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+      BOG_TERROR_TEXTURE_KEY,
       portraitKey('rimuru'),
       portraitKey('gobta'),
       portraitKey('shuna'),

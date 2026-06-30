@@ -2,6 +2,10 @@ import type { PlaceholderKind } from './artSpec';
 
 export const KINGDOM_UNIT_TEXTURE_KEY = 'sprite-kingdom-units';
 export const FOREST_SLIME_TEXTURE_KEY = 'sprite-enemy-forest-slime';
+export const SPORE_MOTH_TEXTURE_KEY = 'sprite-enemy-spore-moth';
+export const ORC_SCOUT_TEXTURE_KEY = 'sprite-enemy-orc-scout';
+export const LIZARDMAN_ACOLYTE_TEXTURE_KEY = 'sprite-enemy-lizardman-acolyte';
+export const BOG_TERROR_TEXTURE_KEY = 'sprite-enemy-bog-terror';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -42,14 +46,14 @@ export interface EnemyArtSpec {
 const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'forest-slime': generatedTexture(FOREST_SLIME_TEXTURE_KEY, 'enemy-slime'),
   'direwolf-pup': kingdomFrame('wolf', 'enemy-wolf'),
-  'spore-moth': kingdomFrame('insect', 'enemy-moth'),
-  'orc-scout': kingdomFrame('orc', 'enemy-orc'),
-  'lizardman-acolyte': kingdomFrame('lizard', 'enemy-lizard'),
+  'spore-moth': generatedTexture(SPORE_MOTH_TEXTURE_KEY, 'enemy-moth'),
+  'orc-scout': generatedTexture(ORC_SCOUT_TEXTURE_KEY, 'enemy-orc'),
+  'lizardman-acolyte': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
   'mordrahn-echo': kingdomFrame('spirit', 'enemy-boss'),
   'human-lancer': generatedTexture('sprite-enemy-human-lancer', 'enemy-ogre'),
   'mordrahn-vanguard': kingdomFrame('demon', 'enemy-boss'),
   mordrahn: generatedTexture('sprite-enemy-mordrahn', 'enemy-boss'),
-  'bog-terror': kingdomFrame('treant', 'enemy-ogre'),
+  'bog-terror': generatedTexture(BOG_TERROR_TEXTURE_KEY, 'enemy-ogre'),
   'stray-echo': kingdomFrame('spirit', 'enemy-boss'),
   'human-deserter': generatedTexture('sprite-enemy-human-deserter', 'enemy-ogre'),
   'elder-direwolf': kingdomFrame('wolf', 'enemy-wolf')
