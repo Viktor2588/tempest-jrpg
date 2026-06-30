@@ -14,7 +14,18 @@ export type StatusEffectId =
   | 'magic-up'
   | 'spirit-down'
   | 'haste'
-  | 'guard-break';
+  | 'guard-break'
+  // Phase 40 — Aussetz-/Behinderungs-Status (Zeitleiste-Rewrite)
+  | 'stun' // setzt einen Zug komplett aus
+  | 'sleep' // setzt aus, bis Schaden weckt
+  | 'freeze' // setzt aus; Schaden bricht das Eis
+  | 'paralyze' // Chance, den Zug zu verlieren
+  | 'petrify' // versteinert: setzt aus
+  | 'blind' // physische Treffsicherheit/Schaden sinkt
+  | 'silence' // keine Fähigkeiten nutzbar
+  | 'confuse' // Chance, den Zug zu verschwenden
+  | 'charm' // Chance, gebannt auszusetzen
+  | 'weaken'; // Angriff und Magie gesenkt
 
 export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
 
@@ -47,6 +58,9 @@ export interface SkillDefinition {
   readonly power: number;
   readonly tags: readonly SkillTag[];
   readonly statusEffect?: SkillStatusEffect;
+  // Phase 40 — Zeitkontrolle: positiver Wert zieht ein Ziel auf der CT-Leiste vor (hasten),
+  // negativer wirft es zurück (delay). Wird nach Schaden/Effekt angewandt.
+  readonly ctDelta?: number;
 }
 
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';

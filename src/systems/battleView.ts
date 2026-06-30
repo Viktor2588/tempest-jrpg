@@ -28,6 +28,10 @@ export interface CombatantView {
   readonly breakGauge: number;
   readonly breakGaugeMax: number;
   readonly phaseIndex: number;
+  // Phase 40 — Großer Weiser: Analysestufe deckt Schwächen + Telegraph für die Anzeige auf.
+  readonly analysisLevel: number;
+  readonly revealedWeaknesses: readonly ElementType[];
+  readonly telegraphSkillId: string | null;
   readonly dead: boolean;
   readonly guarding: boolean;
   readonly active: boolean;
@@ -89,6 +93,9 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     breakGauge: combatant.breakGauge,
     breakGaugeMax: combatant.breakGaugeMax,
     phaseIndex: combatant.phaseIndex,
+    analysisLevel: combatant.analysisLevel,
+    revealedWeaknesses: combatant.analysisLevel >= 1 ? [...combatant.weaknesses] : [],
+    telegraphSkillId: combatant.telegraphSkillId,
     dead: combatant.dead,
     guarding: combatant.guarding,
     active: combatant.id === activeId
