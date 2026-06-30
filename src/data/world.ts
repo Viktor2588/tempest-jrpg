@@ -507,6 +507,32 @@ export const QUESTS = [
     reward: { gold: 120, itemIds: ['magisteel'] }
   },
   {
+    id: 'blumund-guild',
+    title: 'Tempest tritt vor die Welt',
+    description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
+    steps: [
+      {
+        id: 'register',
+        title: 'Bei Fuze vorsprechen',
+        description: 'Melde Tempests Gesandtschaft im Gildenhaus von Blumund an.',
+        locationId: 'blumund-guildhall'
+      },
+      {
+        id: 'route-report',
+        title: 'Den Jura-Bericht abgleichen',
+        description: 'Sprich mit Kaval, Eren und Gido über die sicheren Routen durch den Jura-Wald.',
+        locationId: 'blumund-market'
+      },
+      {
+        id: 'trade-seal',
+        title: 'Das Handelsabkommen besiegeln',
+        description: 'Kehr zu Fuze zurück und öffne Blumunds Markt für Tempests Waren.',
+        locationId: 'blumund-guildhall'
+      }
+    ],
+    reward: { gold: 180, itemIds: ['full-potion'] }
+  },
+  {
     id: 'geld-disaster',
     title: 'Der hungernde Heerzug',
     description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
@@ -977,6 +1003,47 @@ export const LOCATIONS = [
     identity: 'Gerichts-/Story-Ort: Gazels Urteil im Zwischenfall um Kaijin.'
   },
   {
+    id: 'gate-to-blumund',
+    name: 'Handelsstraße nach Blumund',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 1, y: 2 },
+    description: 'Eine bewachte Straße führt aus dem Jura-Wald in das kleine Menschenkönigreich Blumund.',
+    identity: 'Reisepunkt: erster geordneter Menschenkontakt über die Freie Gilde.',
+    // Erst eine gegründete Föderation kann als politischer Handelspartner auftreten.
+    unlockFlag: 'faction.orcs.joined',
+    travelTo: { mapId: 'blumund', x: 2, y: 7 }
+  },
+  {
+    id: 'blumund-gate-tempest',
+    name: 'Straße zurück zum Jura-Wald',
+    kind: 'gateway',
+    mapId: 'blumund',
+    position: { x: 1, y: 7 },
+    description: 'Die westliche Handelsstraße führt zurück zur Jura-Tempest-Föderation.',
+    identity: 'Reisepunkt: zurück in den Jura-Wald.',
+    travelTo: { mapId: 'tempest-start', x: 1, y: 2 }
+  },
+  {
+    id: 'blumund-guildhall',
+    name: 'Freie Gilde von Blumund',
+    kind: 'city',
+    mapId: 'blumund',
+    position: { x: 9, y: 3 },
+    description: 'Im nüchternen Gildenhaus laufen Aufträge, Routenberichte und Nachrichten der Menschenreiche zusammen.',
+    identity: 'Diplomatie-Ort: Fuzes Prüfung und das erste offizielle Abkommen mit Tempest.'
+  },
+  {
+    id: 'blumund-market',
+    name: 'Blumunder Markt',
+    kind: 'city',
+    mapId: 'blumund',
+    position: { x: 10, y: 7 },
+    bounds: { x: 7, y: 5, width: 8, height: 4 },
+    description: 'Händler, Reisende und Abenteurer tauschen Heilmittel, Reisebedarf und Nachrichten aus.',
+    identity: 'Sicherer Handels-Hub und Treffpunkt der drei Jura-Abenteurer.'
+  },
+  {
     id: 'gate-to-battlefield',
     name: 'Marschpfad zum Heerfeld',
     kind: 'gateway',
@@ -1394,6 +1461,22 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Der Schwertheld auf Dwargons Thron. Hart, aber gerecht: Sein Urteil im Zwischenfall um Kaijin öffnet Tempest den Weg zur Schmiedekunst der Zwerge — und legt den Grundstein einer späteren Freundschaft.',
     unlockFlag: 'craft.smithing.unlocked'
+  },
+  {
+    id: 'blumund-free-guild',
+    title: 'Blumund und die Freie Gilde',
+    lockedTitle: 'Ein Menschenreich im Westen',
+    category: 'places',
+    body: 'Das kleine Königreich Blumund behauptet sich durch Handel, Informationen und die Freie Gilde. Gildenmeister Fuze erkennt in Tempest keinen namenlosen Monsterhort, sondern einen möglichen Nachbarn — sofern beide Seiten verlässliche Wege schaffen.',
+    unlockFlag: 'story.blumund.entered'
+  },
+  {
+    id: 'fuze-adventurers',
+    title: 'Fuze und die Jura-Abenteurer',
+    lockedTitle: 'Stimmen aus der Freien Gilde',
+    category: 'people',
+    body: 'Fuze führt Blumunds Gilde mit nüchterner Vorsicht. Kaval, Eren und Gido kennen den Jura-Wald aus eigener Erfahrung; ihr Routenbericht macht aus Gerüchten erstmals überprüfbare Nachrichten über Tempest.',
+    unlockFlag: 'story.blumund.guild-tested'
   },
   {
     id: 'treyni',
@@ -2702,6 +2785,93 @@ export const DIALOGS = [
     ]
   },
   {
+    id: 'fuze-blumund',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Gildenmeister Fuze',
+        text: 'Fuze legt die Feder beiseite. „Eine Föderation von Monstern, die Handel statt Beute sucht? Blumund lebt von verlässlichen Berichten. Meldet euch offiziell an und gleicht eure Jura-Route mit meinen Abenteurern ab.“',
+        choices: [
+          {
+            id: 'register',
+            label: 'Tempest offiziell anmelden',
+            nextNodeId: 'registered',
+            requirements: [{ notFlag: 'story.blumund.entered' }],
+            effects: [
+              { type: 'start-quest', questId: 'blumund-guild' },
+              { type: 'complete-quest-step', questId: 'blumund-guild', stepId: 'register' },
+              { type: 'set-flag', flag: 'story.blumund.entered', value: true }
+            ]
+          },
+          {
+            id: 'seal-trade',
+            label: 'Den geprüften Bericht vorlegen',
+            nextNodeId: 'allied',
+            requirements: [
+              { flag: 'story.blumund.guild-tested' },
+              { notFlag: 'faction.blumund.allied' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'blumund-guild', stepId: 'trade-seal' },
+              { type: 'complete-quest', questId: 'blumund-guild' },
+              { type: 'set-flag', flag: 'faction.blumund.allied', value: true },
+              { type: 'set-flag', flag: 'trade.blumund.unlocked', value: true },
+              { type: 'add-gold', amount: 180 },
+              { type: 'add-item', itemId: 'full-potion', quantity: 1 }
+            ]
+          },
+          { id: 'leave', label: 'Die Gilde später aufsuchen' }
+        ]
+      },
+      {
+        id: 'registered',
+        speaker: 'Gildenmeister Fuze',
+        text: '„Kaval, Eren und Gido warten am Markt. Wenn ihre Karte und euer Bericht übereinstimmen, haben wir eine Grundlage — keine bloße Hoffnung.“',
+        choices: [{ id: 'end', label: 'Wir sprechen mit ihnen' }]
+      },
+      {
+        id: 'allied',
+        speaker: 'Gildenmeister Fuze',
+        text: 'Fuze setzt sein Siegel unter den Bericht. „Dann gilt Tempest in Blumund als verlässlicher Handelspartner. Eure Tränke, unser Markt und offene Augen auf beiden Seiten.“',
+        choices: [{ id: 'end', label: 'Auf gute Nachbarschaft' }]
+      }
+    ]
+  },
+  {
+    id: 'blumund-adventurers',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Kaval, Eren & Gido',
+        text: 'Eren breitet eine Karte aus, während Kaval die Waldpfade und Gido die gefährlichen Furten markiert. Tempests sichere Route deckt sich mit ihren Aufzeichnungen — einschließlich der Stellen, an denen Reisende besser umkehren.',
+        choices: [
+          {
+            id: 'compare',
+            label: 'Den Jura-Bericht abgleichen',
+            nextNodeId: 'verified',
+            requirements: [
+              { questStatus: { questId: 'blumund-guild', status: 'active' } },
+              { missingQuestStep: { questId: 'blumund-guild', stepId: 'route-report' } }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'blumund-guild', stepId: 'route-report' },
+              { type: 'set-flag', flag: 'story.blumund.guild-tested', value: true }
+            ]
+          },
+          { id: 'end', label: 'Später weiterreden' }
+        ]
+      },
+      {
+        id: 'verified',
+        speaker: 'Eren',
+        text: '„Das genügt Fuze. Und ehrlich? Ein sicherer Rastplatz im Jura-Wald wäre uns lieber als noch ein Heldengrab. Bringt ihm den Bericht.“',
+        choices: [{ id: 'end', label: 'Zurück ins Gildenhaus' }]
+      }
+    ]
+  },
+  {
     id: 'treyni-plea',
     startNodeId: 'start',
     nodes: [
@@ -3043,6 +3213,22 @@ export const NPCS = [
     requirements: [{ flag: 'craft.smithing.unlocked' }]
   },
   {
+    id: 'fuze-blumund',
+    name: 'Gildenmeister Fuze',
+    mapId: 'blumund',
+    position: { x: 9, y: 4 },
+    dialogId: 'fuze-blumund',
+    color: 0xc6b58a
+  },
+  {
+    id: 'blumund-adventurers',
+    name: 'Kaval, Eren & Gido',
+    mapId: 'blumund',
+    position: { x: 14, y: 7 },
+    dialogId: 'blumund-adventurers',
+    color: 0x7ba9c4
+  },
+  {
     id: 'treyni-battlefield',
     name: 'Treyni',
     mapId: 'jura-battlefield',
@@ -3188,6 +3374,19 @@ export const SHOPS = [
     position: { x: 8, y: 9 },
     itemIds: ['magic-ore', 'magisteel', 'tempest-charm'],
     buyMultiplier: 1,
+    sellMultiplier: 0.55
+  },
+  {
+    id: 'blumund-guild-supply',
+    name: 'Blumunder Gildenbedarf',
+    mapId: 'blumund',
+    position: { x: 8, y: 9 },
+    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'hipokte-herb', 'full-potion', 'tempest-charm'],
+    itemRequirements: [
+      { itemId: 'full-potion', requirements: [{ flag: 'trade.blumund.unlocked' }] },
+      { itemId: 'tempest-charm', requirements: [{ flag: 'trade.blumund.unlocked' }] }
+    ],
+    buyMultiplier: 1.05,
     sellMultiplier: 0.55
   }
 ] as const satisfies readonly ShopDefinition[];

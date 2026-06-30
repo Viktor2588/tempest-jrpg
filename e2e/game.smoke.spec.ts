@@ -406,6 +406,44 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Föderations-Save reist nach Blumund und rendert die Stadt-Tiles', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 2, y: 2, facing: 'left' },
+    flags: {
+      'faction.orcs.joined': true
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+
+  await tapMovementKey(page, 'ArrowLeft');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(700);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('blumund');
+  expect(save.location.x).toBe(2);
+  expect(save.location.y).toBe(7);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-blumund-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-blumund-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({

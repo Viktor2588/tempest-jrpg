@@ -80,6 +80,13 @@ export const EMBER_HOLLOW: TileMap = buildMap(20, 12, [
   [4, 2, 2, 2], [10, 2, 3, 2], [14, 3, 2, 2], [5, 7, 3, 2], [12, 7, 3, 2]
 ], { x: 2, y: 6 });
 
+// Band-1-Diplomatieregion: Blumund (20×14, Menschenstadt mit Gildenhaus und Markt).
+// Sichere Stadt ohne Zufallskämpfe — erster geordneter Menschen-/Handelskontakt
+// über die Freie Gilde und Gildenmeister Fuze.
+export const BLUMUND: TileMap = buildMap(20, 14, [
+  [4, 2, 3, 2], [11, 2, 3, 2], [15, 3, 2, 2], [4, 9, 3, 2], [11, 9, 3, 2], [16, 8, 2, 3]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -92,7 +99,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'dwargon': DWARGON,
   'jura-battlefield': JURA_BATTLEFIELD,
   'lizardman-marsh': LIZARDMAN_MARSH,
-  'ember-hollow': EMBER_HOLLOW
+  'ember-hollow': EMBER_HOLLOW,
+  'blumund': BLUMUND
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -112,7 +120,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'dwargon': 'Dwargon',
   'jura-battlefield': 'Jura-Schlachtfeld',
   'lizardman-marsh': 'Echsen-Sumpf',
-  'ember-hollow': 'Glutgrotte'
+  'ember-hollow': 'Glutgrotte',
+  'blumund': 'Blumund'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

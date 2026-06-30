@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BLUMUND_FLOOR_TILE_TEXTURE_KEY,
+  BLUMUND_WALL_TILE_TEXTURE_KEY,
   DEFAULT_FLOOR_TILE_TEXTURE_KEY,
   DEFAULT_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
@@ -25,6 +27,8 @@ describe('Overworld-Regionstiles', () => {
     ]);
     expect(overworldTileTextureCandidates('spirit-highlands', false)[0]).toBe(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('spirit-highlands', true)[0]).toBe(HIGHLANDS_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('blumund', false)[0]).toBe(BLUMUND_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('blumund', true)[0]).toBe(BLUMUND_WALL_TILE_TEXTURE_KEY);
   });
 
   it('lässt Start-/Prologkarten auf Default-Tiles fallen', () => {
@@ -51,7 +55,9 @@ describe('Overworld-Regionstiles', () => {
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',
-      'tile-highlands-wall.webp'
+      'tile-highlands-wall.webp',
+      'tile-blumund-floor.webp',
+      'tile-blumund-wall.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/tiles/${file}`);
     }

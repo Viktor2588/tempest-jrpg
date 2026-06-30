@@ -541,6 +541,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 > **Integration (2026-06-29):** Phasen 27–30 in `main` gemergt. Konflikte (additive Array-Enden in `world.ts`/`maps.ts`) sauber aufgelöst; Gesamtsuite **237/237** grün, `build` ok. Der Jura-Wald-Hub verzweigt nun zu vier Band-1/2-Regionen → `analyzeOverworldBudget`-Markercap von 80 auf 96 rekalibriert (gated, gegenseitig exklusive Marker).
 
+[x] **Phase 32 – Blumund & Free-Guild-Assets** *(abgeschlossen 2026-06-30, Worktree `worktree/tempest-phase-32-blumund`)*
+> **✅ Status (2026-06-30):** Der erste geordnete Menschenkontakt ist als sicherer Content-Slice spielbar: Region `blumund`, nach der Föderationsgründung freigeschaltete Handelsstraße, dreistufige Free-Guild-Quest mit Fuze sowie Kaval/Eren/Gido, Gildenbedarf, zwei Codexeinträge und ein idempotentes Handelsabkommen. Blumund nutzt eigene projektgenerierte 128×128-WebP-Tiles für warmes Stadtpflaster und klar blockierende rotbraune Dächer/Gebäude; Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (**243/243**), `bun run build` und `bun run test:e2e` (**18/18**, einschließlich Blumund-Gate/Assets auf Desktop und 390×844) grün.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0

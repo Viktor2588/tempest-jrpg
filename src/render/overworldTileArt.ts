@@ -7,6 +7,8 @@ export const MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-marsh-floor';
 export const MARSH_WALL_TILE_TEXTURE_KEY = 'tile-marsh-wall';
 export const HIGHLANDS_FLOOR_TILE_TEXTURE_KEY = 'tile-highlands-floor';
 export const HIGHLANDS_WALL_TILE_TEXTURE_KEY = 'tile-highlands-wall';
+export const BLUMUND_FLOOR_TILE_TEXTURE_KEY = 'tile-blumund-floor';
+export const BLUMUND_WALL_TILE_TEXTURE_KEY = 'tile-blumund-wall';
 
 export interface OverworldTileTheme {
   readonly floorKey: string;
@@ -26,6 +28,10 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
   'spirit-highlands': {
     floorKey: HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
     wallKey: HIGHLANDS_WALL_TILE_TEXTURE_KEY
+  },
+  'blumund': {
+    floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
   }
 };
 
