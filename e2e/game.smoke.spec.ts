@@ -453,7 +453,7 @@ test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', a
   expect(browserErrors).toEqual([]);
 });
 
-test('Canon-Triggergegner laden dedizierte Kampf-Cutouts', async ({ page }) => {
+test('Canon-Hauptpfad lädt dedizierte Boss-Cutouts und Arenen', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -470,6 +470,9 @@ test('Canon-Triggergegner laden dedizierte Kampf-Cutouts', async ({ page }) => {
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   for (const file of [
+    'enemy-direwolf-alpha',
+    'enemy-nameless-echo',
+    'battle-whispering-grove',
     'enemy-orc-soldier',
     'enemy-orc-general',
     'enemy-orc-disaster',

@@ -3,6 +3,7 @@ import { ENEMIES } from '../src/data';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
+  DIREWOLF_ALPHA_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
@@ -12,6 +13,7 @@ import {
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
+  NAMELESS_ECHO_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
   ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
@@ -75,6 +77,8 @@ describe('Gegner-Art-Mapping', () => {
 
   it('verdrahtet Canon-Triggergegner mit dedizierten Cutouts statt Atlas-Frames', () => {
     for (const [id, expectedTexture] of [
+      ['direwolf-alpha', DIREWOLF_ALPHA_TEXTURE_KEY],
+      ['mordrahn-echo', NAMELESS_ECHO_TEXTURE_KEY],
       ['orc-grunt', ORC_SOLDIER_TEXTURE_KEY],
       ['orc-soldier', ORC_SOLDIER_TEXTURE_KEY],
       ['orc-general', ORC_GENERAL_TEXTURE_KEY],
@@ -99,7 +103,9 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-lizardman-warrior.webp',
       'enemy-gabiru.webp',
       'enemy-masked-majin.webp',
-      'enemy-ifrit.webp'
+      'enemy-ifrit.webp',
+      'enemy-direwolf-alpha.webp',
+      'enemy-nameless-echo.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }
