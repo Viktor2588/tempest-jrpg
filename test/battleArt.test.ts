@@ -57,6 +57,7 @@ describe('Battle-Art-Zuordnung', () => {
 
   it('lädt die kommenden Canon-Arenen in der Preload-Szene', () => {
     for (const file of [
+      'battle-whispering-grove.webp',
       'battle-ogre-ruins.webp',
       'battle-orc-battlefield.webp',
       'battle-lizardman-marsh.webp',

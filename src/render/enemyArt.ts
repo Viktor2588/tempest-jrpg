@@ -13,6 +13,8 @@ export const LIZARDMAN_WARRIOR_TEXTURE_KEY = 'sprite-enemy-lizardman-warrior';
 export const GABIRU_TEXTURE_KEY = 'sprite-enemy-gabiru';
 export const MASKED_MAJIN_TEXTURE_KEY = 'sprite-enemy-masked-majin';
 export const IFRIT_TEXTURE_KEY = 'sprite-enemy-ifrit';
+export const DIREWOLF_ALPHA_TEXTURE_KEY = 'sprite-enemy-direwolf-alpha';
+export const NAMELESS_ECHO_TEXTURE_KEY = 'sprite-enemy-nameless-echo';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -53,10 +55,11 @@ export interface EnemyArtSpec {
 const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'forest-slime': generatedTexture(FOREST_SLIME_TEXTURE_KEY, 'enemy-slime'),
   'direwolf-pup': kingdomFrame('wolf', 'enemy-wolf'),
+  'direwolf-alpha': generatedTexture(DIREWOLF_ALPHA_TEXTURE_KEY, 'enemy-wolf'),
   'spore-moth': generatedTexture(SPORE_MOTH_TEXTURE_KEY, 'enemy-moth'),
   'orc-scout': generatedTexture(ORC_SCOUT_TEXTURE_KEY, 'enemy-orc'),
   'lizardman-acolyte': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
-  'mordrahn-echo': kingdomFrame('spirit', 'enemy-boss'),
+  'mordrahn-echo': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
   'human-lancer': generatedTexture('sprite-enemy-human-lancer', 'enemy-ogre'),
   'mordrahn-vanguard': kingdomFrame('demon', 'enemy-boss'),
   mordrahn: generatedTexture('sprite-enemy-mordrahn', 'enemy-boss'),

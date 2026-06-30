@@ -6,6 +6,7 @@ import { generateVfxTextures } from '../render/vfxAtlas';
 import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtlas';
 import {
   BOG_TERROR_TEXTURE_KEY,
+  DIREWOLF_ALPHA_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
@@ -15,6 +16,7 @@ import {
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
+  NAMELESS_ECHO_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
   ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
@@ -75,6 +77,8 @@ import enemyLizardmanWarriorUrl from '../assets/sprites/enemy-lizardman-warrior.
 import enemyGabiruUrl from '../assets/sprites/enemy-gabiru.webp';
 import enemyMaskedMajinUrl from '../assets/sprites/enemy-masked-majin.webp';
 import enemyIfritUrl from '../assets/sprites/enemy-ifrit.webp';
+import enemyDirewolfAlphaUrl from '../assets/sprites/enemy-direwolf-alpha.webp';
+import enemyNamelessEchoUrl from '../assets/sprites/enemy-nameless-echo.webp';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
@@ -107,6 +111,7 @@ import kurobePortraitUrl from '../assets/sprites/portrait-kurobe.webp';
 import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
 import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
+import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
@@ -181,6 +186,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(GABIRU_TEXTURE_KEY, enemyGabiruUrl);
     this.load.image(MASKED_MAJIN_TEXTURE_KEY, enemyMaskedMajinUrl);
     this.load.image(IFRIT_TEXTURE_KEY, enemyIfritUrl);
+    this.load.image(DIREWOLF_ALPHA_TEXTURE_KEY, enemyDirewolfAlphaUrl);
+    this.load.image(NAMELESS_ECHO_TEXTURE_KEY, enemyNamelessEchoUrl);
     this.load.image('sprite-enemy-wolf', enemyWolfUrl);
     this.load.image('sprite-enemy-imp', enemyImpUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreUrl);
@@ -213,6 +220,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('souei'), soueiPortraitUrl);
     this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);

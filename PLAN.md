@@ -9,6 +9,20 @@ Status:
 
 ## Laufende Arbeit
 
+- [x] **Phase 47 - Asset-Luecken-Audit und Imagegen-Ergaenzungen** *(abgeschlossen 2026-06-30, Worktree `/worktree/tempest-phase-47-asset-audit`)*
+  - Worktree: `/worktree/tempest-phase-47-asset-audit`
+  - Branch: `phase-47-asset-audit`
+  - Audit: Party-Cutouts, Heldenportraits, Regionsbanner, regionale Tiles und
+    spaetere Canon-Triggerbosse besitzen dedizierte Assets; generische
+    Wiederholungsgegner bleiben bewusst auf dem gemeinsamen Atlas.
+  - Geschlossene Hauptpfad-Luecken: eigene Fluesterhain-Arena, eigener
+    Direwolf-Anfuehrer-Cutout und eigenes Namenloses-Echo-Cutout.
+  - Phase-39-NPC-Portraits wurden nicht dupliziert.
+  - Abnahme: `bun run typecheck`, `bun run test` (260/260) und
+    `bun run build` gruen; der neue Playwright-Asset-Smoke ist auf Desktop und
+    Mobil 2/2 gruen. Der zusaetzliche volle E2E-Lauf wurde nach vier gruenen
+    Desktop-Szenarien extern per `SIGTERM` beendet.
+
 - [~] **Phase 39 - Imagegen-Storyportraits III: Canon- und Regions-NPCs**
   - Worktree: `/worktree/tempest-phase-39-canon-npc-portraits`
   - Branch: `phase-39-canon-npc-portraits`
@@ -106,6 +120,3 @@ Status:
 - [ ] NPC-Kollisionen und Gateway-Ausloesung erst auf dem Zielfeld umsetzen.
 - [ ] Siegesergebnis und Rueckkehr zur Welt klarer praesentieren.
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
-- [ ] Alle implementierten Phasen auf fehlende dedizierte Bildassets pruefen;
-  sinnvolle Luecken per Imagegen als WebP schliessen und in `ASSETS.md`
-  dokumentieren.
