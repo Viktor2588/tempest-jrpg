@@ -70,6 +70,12 @@ import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
 import fuzePortraitUrl from '../assets/sprites/portrait-fuze.webp';
+import benimaruPortraitUrl from '../assets/sprites/portrait-benimaru.webp';
+import shionPortraitUrl from '../assets/sprites/portrait-shion.webp';
+import hakurouPortraitUrl from '../assets/sprites/portrait-hakurou.webp';
+import kurobePortraitUrl from '../assets/sprites/portrait-kurobe.webp';
+import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
+import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
@@ -155,6 +161,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(portraitKey('shizu'), shizuPortraitUrl);
     this.load.image(portraitKey('fuze'), fuzePortraitUrl);
+    this.load.image(portraitKey('benimaru'), benimaruPortraitUrl);
+    this.load.image(portraitKey('shion'), shionPortraitUrl);
+    this.load.image(portraitKey('hakurou'), hakurouPortraitUrl);
+    this.load.image(portraitKey('kurobe'), kurobePortraitUrl);
+    this.load.image(portraitKey('souei'), soueiPortraitUrl);
+    this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
@@ -234,6 +246,12 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('storm-dragon'),
       portraitKey('shizu'),
       portraitKey('fuze'),
+      portraitKey('benimaru'),
+      portraitKey('shion'),
+      portraitKey('hakurou'),
+      portraitKey('kurobe'),
+      portraitKey('souei'),
+      portraitKey('kaijin'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',

@@ -66,6 +66,12 @@ export type PortraitKind =
   | 'ranga'
   | 'shizu'
   | 'fuze'
+  | 'benimaru'
+  | 'shion'
+  | 'hakurou'
+  | 'kurobe'
+  | 'souei'
+  | 'kaijin'
   | 'mordrahn';
 
 export type PortraitMotif =
@@ -153,6 +159,12 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'ranga',
   'shizu',
   'fuze',
+  'benimaru',
+  'shion',
+  'hakurou',
+  'kurobe',
+  'souei',
+  'kaijin',
   'mordrahn'
 ] as const;
 
@@ -219,6 +231,18 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.ember, accent: PALETTE.bone, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
     case 'fuze':
       return { size: 64, base: PALETTE.steel, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
+    case 'benimaru':
+      return { size: 64, base: PALETTE.ember, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'shion':
+      return { size: 64, base: PALETTE.arcane, accent: PALETTE.mist, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'hakurou':
+      return { size: 64, base: PALETTE.mist, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.steel, motif: 'elder' };
+    case 'kurobe':
+      return { size: 64, base: PALETTE.steel, accent: PALETTE.ember, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'souei':
+      return { size: 64, base: PALETTE.water, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+    case 'kaijin':
+      return { size: 64, base: PALETTE.stone, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
     case 'mordrahn':
       return { size: 64, base: PALETTE.enemy, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'shadow' };
     default:

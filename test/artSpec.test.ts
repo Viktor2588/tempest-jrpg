@@ -84,6 +84,12 @@ describe('artSpec', () => {
       'ranga',
       'shizu',
       'fuze',
+      'benimaru',
+      'shion',
+      'hakurou',
+      'kurobe',
+      'souei',
+      'kaijin',
       'mordrahn'
     ]);
     for (const kind of PORTRAIT_KINDS) {

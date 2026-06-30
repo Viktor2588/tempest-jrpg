@@ -406,7 +406,7 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
-test('Kijin- und Kaijin-Party rendert dedizierte Kampf-Cutouts', async ({ page }) => {
+test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -434,6 +434,11 @@ test('Kijin- und Kaijin-Party rendert dedizierte Kampf-Cutouts', async ({ page }
   await clickGamePoint(page, 480, 280);
   await page.waitForTimeout(700);
   await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(300);
+  await expectCanvasContent(page);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
   await page.keyboard.press('Enter');
   await page.waitForTimeout(900);
 
@@ -442,6 +447,7 @@ test('Kijin- und Kaijin-Party rendert dedizierte Kampf-Cutouts', async ({ page }
   ));
   for (const hero of ['benimaru', 'shion', 'hakurou', 'kurobe', 'souei', 'kaijin']) {
     expect(loadedAssets.some((name) => name.includes(`party-${hero}`))).toBe(true);
+    expect(loadedAssets.some((name) => name.includes(`portrait-${hero}`))).toBe(true);
   }
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);

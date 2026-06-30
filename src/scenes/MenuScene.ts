@@ -35,7 +35,7 @@ import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/s
 import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { portraitKey } from '../render/portraitAtlas';
-import type { PortraitKind } from '../render/artSpec';
+import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 
@@ -827,5 +827,5 @@ function portraitKeyForCharacter(characterId: string): string | null {
 }
 
 function isPortraitKind(value: string): value is PortraitKind {
-  return ['rimuru', 'gobta', 'shuna', 'sora', 'vael', 'lyrre', 'rigurd', 'ranga', 'mordrahn'].includes(value);
+  return PORTRAIT_KINDS.includes(value as PortraitKind);
 }
