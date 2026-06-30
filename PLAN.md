@@ -550,6 +550,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 [x] **Asset-Slice 27B – Regionale Imagegen-Gegner-Cutouts** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-27-enemy-cutouts`)*
 > **✅ Status (2026-06-29):** Vier vormals generische Gegnerlinien nutzen jetzt eigene, auf 512×512-WebP optimierte Imagegen-Cutouts mit Alpha: Sporenmotte, Orkspäher, Echsenakolyth und Sumpfschrecken. Die Auswahl läuft über exportierte Texture-Keys in `enemyArt.ts`, wird in `PreloadScene` geladen und behält pro Gegner einen prozeduralen Fallback. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (217/217), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil).
 
+[x] **Asset-Slice 28B – Imagegen-Gebietsindikator** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-28-region-banners`)*
+> **✅ Status (2026-06-29):** Der offene Wunsch nach einem sichtbaren Gebietsindikator ist als Asset-Slice umgesetzt: jede Hauptkarte bekommt ein kompaktes, regionales 512×128-Imagegen-Banner unter der Minimap plus klare Text-/Fallback-Zuordnung. Die Banner werden ueber `regionBannerArt.ts` gemappt, in `PreloadScene` geladen und im Overworld-HUD mit lesbarer Textauflage gerendert. Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (219/219), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil), gezielter Visual-Smoke Desktop+Mobil.
+
 Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie man läuft, interagiert & das menu aufruft. Die schaltflächen oben rechts sollten nur noch menu enthalten & unter der minimap sein. Ausserdem sollte rangas schnellreisen gegated werden & erst verfügbar sein, wenns soweit ist. Auch die pfeiltasten machen nur im tutorial Sinn. später stören diese nur.
 - Menu: Die menu pages sollten scrollcontainer haben für ihren body und overflowing content wie quests & codex einträge scrollbar anzeigen. Am besten abgeschlossenen Quets & codex einträge hinter einem Filter verstecken. 
 - Menu: Status headline,Sowie Questeintrag 1, codex eintrag 1, Ranga noch nicht im pakt, ausrüstung, inventar & party  overlapped "Quests & Story Aktiv 1 * Abgeschlossen 0
@@ -561,7 +564,7 @@ Tutorial: Die steuerung sollte anfangs mit einem tutorial erklärt werden wie ma
 - Avatar: Es fehlt ein rimuru assets (blauer schleim als hauptfigur zum steuern) ausserdem sollten waldschleime auch grün sein. & andere schleime entsprechene Farben haben (imagegen)
 - Tutorial: Veldora braucht auch noch assets damit alles nicht so generisch aussieht (imagegen)
 - Rigurd sollte nach dem tutorial nicht sagen willkommen am Rand von tempest sondern willkommen am rand vom jurawald (so heißt das gebit, tempest gibt es ja am anfang noch garnicht, muss erst später gegründet werden). 
-- es fehlt mir ein Gebiets indikator der den namen des gebiets aufzeigt z.b. Goblin-dorf etc. vielleicht direkt under der Karte.
+- Gebietsindikator: ✅ *(2026-06-29, Phase 28)* Imagegen-Banner plus Gebietsname werden direkt unter der Minimap angezeigt (z. B. Goblin-Dorf, Jura-Wald, Geistmoor).
 - Nach einem Sieg: Zurück zur welt & das ergebniss sind noch verbesserungwürdig es fehtl eine sichtbare dialogbox oder alles gleich richtig umsetzten.
 - Kommt shuna erst ab Band 2 vor? mir kommt es vor das es zu schnell geht???
 - die npcs brauchen kollisionen. & grenzübergänge in andere gebiete dürfen nur wenn man auf denen steht in die nächste ebene übergehen nicht ein feld vorher schon.
@@ -583,7 +586,7 @@ Reflexion über den aktuellen Stand (3-Akt-Story + Enden, 4 Nebenquests + Postga
 **Priorität MITTEL — Welt lebendiger machen (die neuen Regionen sind aktuell reine Kampfzonen)**
 3. **Pro-Karte-Tile-Theming:** ✅ *(2026-06-29, Phase 26)* Geistmoor und Geisterschrein-Hochland nutzen eigene Imagegen-Boden-/Wandtiles (Moor = dunkel/wasserig, Hochland = Stein/Wind) mit Legacy-/Platzhalter-Fallbacks.
 4. **Regionale NPCs + kleine Quests** in Geistmoor/Geisterschrein → Orte mit Eigenleben statt nur Encounter-Feldern. ✅ *(2026-06-28, Geistmoor)*: Moorhüterin Eir + Quest „Fäulnis im Moor" (Fäulnis-Encounter reinigen → Gold + Tempest-Charm + Codex `marsh-keeper`); map-aware Playthrough-Test. ✅ *(2026-06-28, Geisterschrein)*: Schreinwächter Kael + Quest „Wache am Schrein" (Sturmecho `shrine-windecho` bannen → Gold + Tempest-Charm + Codex `shrine-watcher`). Alle 3 Regionen haben jetzt eine eigene Quest/NPC.
-5. **Minimap/Regions-Anzeige:** bei jetzt 3 Karten fehlt eine „Wo bin ich / wohin"-Orientierung.
+5. **Minimap/Regions-Anzeige:** ✅ *(2026-06-29, Phase 28)* Der Gebietsname steht als Imagegen-Region-Banner direkt unter der Minimap; jede Hauptkarte besitzt ein eigenes kompaktes Banner mit Fallback auf das Startgebiet.
 
 **Priorität MITTEL — Spielgefühl & Onboarding**
 6. **Kampftiefe sichtbar machen:** Break-Leiste, Team-Meter und Reaktionsfenster existieren mechanisch, werden aber kaum erklärt/hervorgehoben → optionales Kampf-Tutorial + klarere HUD-Hinweise. ✅ *(2026-06-28, Band-2-Flüsterhain-Slice teilweise umgesetzt)*: Rat vor dem Flüsterhain schaltet einen Codex-Tutorialeintrag zu Status, Schwächen und Teamleiste frei; offen bleiben HUD-Hervorhebung/Break-Reaktionsfenster direkt im Kampf.
