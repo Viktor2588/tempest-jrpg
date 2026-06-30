@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest';
+import {
+  act,
+  createBattlePartyFromMembers,
+  renderView,
+  startBattle
+} from '../src/systems/battle';
+import { applyBattleResultToSave } from '../src/systems/battleResult';
+import { createNewSave } from '../src/systems/save';
+
+describe('battle result: dauerhafte Skill-Aneignung', () => {
+  it('persistiert einen verschlungenen Skill einmalig und schaltet den Codex frei', () => {
+    const save = createNewSave({ seed: 2, now: '2026-06-30T10:00:00.000Z' });
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(save.party.active),
+      enemyIds: ['spore-moth'],
+      inventory: save.inventory.stacks,
+      seed: 2
+    });
+    const rimuru = battle.combatants.find((combatant) => combatant.side === 'party')!;
+    const foe = battle.combatants.find((combatant) => combatant.side === 'enemy')!;
+    battle.activeId = rimuru.id;
+    rimuru.ct = 100;
+    foe.hp = Math.floor(foe.maxHp * 0.25);
+    foe.analysisLevel = 1;
+    foe.statuses.push(
+      { id: 'guard-break', turns: 2 },
+      { id: 'poison', turns: 3 }
+    );
+
+    expect(act(battle, { type: 'devour', targetId: foe.id }).ok).toBe(true);
+    expect(battle.status).toBe('won');
+
+    const view = renderView(battle);
+    const result = applyBattleResultToSave(save, view);
+    const repeated = applyBattleResultToSave(result, view);
+    const learned = repeated.party.active[0]!.learnedSkillIds;
+
+    expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
+    expect(repeated.flags['codex.predator-devour']).toBe(true);
+  });
+});

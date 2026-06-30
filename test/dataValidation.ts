@@ -123,6 +123,18 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     validateNonNegativeInteger(`enemies.${enemy.id}.experienceReward`, enemy.experienceReward, issues);
     validateNonNegativeInteger(`enemies.${enemy.id}.goldReward`, enemy.goldReward, issues);
     validateSkillReferences(`enemies.${enemy.id}.skillIds`, enemy.skillIds, skillIds, issues);
+    if (enemy.devourable && !enemy.devourSkillId) {
+      issues.push({
+        path: `enemies.${enemy.id}.devourSkillId`,
+        message: 'Verschlingbare Gegner brauchen einen devourSkillId.'
+      });
+    }
+    if (enemy.devourSkillId && !skillIds.has(enemy.devourSkillId)) {
+      issues.push({
+        path: `enemies.${enemy.id}.devourSkillId`,
+        message: `Devour verweist auf unbekannten Skill '${enemy.devourSkillId}'.`
+      });
+    }
 
     for (const drop of enemy.drops) {
       if (!itemIds.has(drop.itemId)) {

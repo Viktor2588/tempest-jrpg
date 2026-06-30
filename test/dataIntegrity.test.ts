@@ -24,6 +24,27 @@ describe('Game-Datenintegrität', () => {
     });
   });
 
+  it('meldet verschlingbare Gegner ohne gültigen Aneignungs-Skill', () => {
+    const enemy = GAME_DATA.enemies[0]!;
+    const missing = validateGameData({
+      ...GAME_DATA,
+      enemies: [{ ...enemy, devourable: true, devourSkillId: undefined }, ...GAME_DATA.enemies.slice(1)]
+    });
+    const unknown = validateGameData({
+      ...GAME_DATA,
+      enemies: [{ ...enemy, devourable: true, devourSkillId: 'missing-skill' }, ...GAME_DATA.enemies.slice(1)]
+    });
+
+    expect(missing).toContainEqual({
+      path: `enemies.${enemy.id}.devourSkillId`,
+      message: 'Verschlingbare Gegner brauchen einen devourSkillId.'
+    });
+    expect(unknown).toContainEqual({
+      path: `enemies.${enemy.id}.devourSkillId`,
+      message: "Devour verweist auf unbekannten Skill 'missing-skill'."
+    });
+  });
+
   it('meldet Quest-Schritte ohne abschließende Dialog- oder Encounter-Quelle', () => {
     const quest = GAME_DATA.world.quests[0]!;
     const issues = validateGameData({

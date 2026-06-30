@@ -1,4 +1,4 @@
-import { HEROES } from '../data';
+import { HEROES, SKILLS } from '../data';
 import type { CharacterDefinition, EquipmentSlot } from '../data';
 import { clampLevel, clampNonNegativeInteger, experienceForLevel, scaleStats } from './stats';
 
@@ -19,6 +19,8 @@ export interface CreatePartyMemberOptions {
   readonly learnedSkillIds?: readonly string[];
 }
 
+const skillIds = new Set<string>(SKILLS.map((skill) => skill.id));
+
 export function createInitialParty(): PartyMemberState[] {
   return HEROES.filter((hero) => hero.startsInParty).map((hero) => createPartyMember(hero));
 }
@@ -33,7 +35,7 @@ export function createPartyMember(
   const learnedSkillIds = uniqueStrings([
     ...definition.initialSkillIds,
     ...(options.learnedSkillIds ?? [])
-  ]);
+  ]).filter((skillId) => skillIds.has(skillId));
 
   return {
     characterId: definition.id,

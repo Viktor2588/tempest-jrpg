@@ -1503,6 +1503,14 @@ export const LORE_ENTRIES = [
     unlockFlag: 'story.milim.met'
   },
   {
+    id: 'predator-devour',
+    title: 'Verschlinger: Skill-Aneignung',
+    lockedTitle: 'Rimurus Hunger',
+    category: 'systems',
+    body: 'Rimurus Verschlinger ist kein bloßer Finisher: erst gebrochene, geschwächte oder fast besiegte Gegner lassen eine Essenz zurück, die als dauerhafte Fähigkeit in Rimurus Repertoire übergeht. Jede Essenz ist an einen konkreten Gegnerkern gebunden und wird im Kampf durch ein begrenztes Loadout gebändigt.',
+    unlockFlag: 'codex.predator-devour'
+  },
+  {
     id: 'lizardfolk',
     title: 'Die Echsenmenschen des Sumpfs',
     lockedTitle: 'Stimmen aus dem Schilf',

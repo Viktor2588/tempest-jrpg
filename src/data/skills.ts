@@ -22,6 +22,16 @@ export const SKILLS = [
     tags: ['magical']
   },
   {
+    id: 'water-jet',
+    name: 'Wasserstrahl',
+    description: 'Verdichtet Wasser zu einem präzisen Hochdruckstoß mit moderatem Magicule-Verbrauch.',
+    element: 'water',
+    target: 'single-enemy',
+    costMp: 6,
+    power: 28,
+    tags: ['magical']
+  },
+  {
     id: 'storm-gust',
     name: 'Sturmböe',
     description: 'Trifft alle Gegner mit einer schnellen Windwelle.',

@@ -149,20 +149,29 @@ describe('progression system', () => {
     const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
     const renamed = renameMember(rimuru, 'Ciel');
     const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
-    let state = grantSkillPoints(evolved.state, 'rimuru', 2).state;
+    let state = grantSkillPoints(evolved.state, 'rimuru', 3).state;
 
-    for (const nodeId of [
-      'rimuru-fluid-core',
-      'rimuru-predator-instinct',
-      'rimuru-shadow-domain'
-    ]) {
-      const unlocked = unlockSkillNode(evolved.member, state, nodeId);
-      expect(unlocked.ok).toBe(true);
-      state = unlocked.state;
-    }
+    let unlocked = unlockSkillNode(evolved.member, state, 'rimuru-fluid-core');
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-instinct');
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    expect(unlockSkillNode(evolved.member, state, 'rimuru-predator-devour').ok).toBe(false);
+    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-devour', {
+      flags: { 'codex.predator-devour': true }
+    });
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-shadow-domain');
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+
     const unit = createProgressionBattleParty([evolved.member], state)[0]!;
     expect(unit.formName).toBe('Raubtier-Schleim');
     expect(unit.skillIds).toEqual(expect.arrayContaining(['predator-aura', 'venom-spit', 'spirit-bind']));
+    expect(unit.skillIds).toHaveLength(8);
+    expect(unit.skillIds).not.toContain('storm-gust');
     expect(unit.skillIds).not.toContain('soothing-prayer');
     expect(calculateProgressionStats(evolved.member, state).magic)
       .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).magic);

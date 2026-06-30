@@ -505,6 +505,16 @@ export const SKILL_TREES = [
         skillId: 'venom-spit'
       },
       {
+        id: 'rimuru-predator-devour',
+        name: 'Verschlinger-Archiv',
+        description: 'Stabilisiert verschlungene Essenzen, damit Rimuru absorbierte Skills kontrolliert ins Kampf-Loadout nimmt.',
+        cost: 1,
+        requiredLevel: 5,
+        requiredNodeIds: ['rimuru-predator-instinct'],
+        requiredFlag: 'codex.predator-devour',
+        statBonus: { maxMp: 4, spirit: 1 }
+      },
+      {
         id: 'rimuru-ancestor-binding',
         name: 'Ahnenbindung',
         description: 'Verarbeitet den Abschluss der Bindung der Ahnen zu stabilerer Namensmagie.',
@@ -530,7 +540,7 @@ export const SKILL_TREES = [
         description: 'Verstärkt Schattenmagie und lehrt Geistfessel.',
         cost: 2,
         requiredLevel: 6,
-        requiredNodeIds: ['rimuru-predator-instinct'],
+        requiredNodeIds: ['rimuru-predator-devour'],
         skillId: 'spirit-bind',
         statBonus: { magic: 3, spirit: 2 }
       },

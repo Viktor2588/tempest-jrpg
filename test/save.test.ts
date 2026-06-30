@@ -228,6 +228,25 @@ describe('save.ts', () => {
     expect(all.filter((id) => id === 'gobta')).toHaveLength(1);
   });
 
+  it('normalisiert dauerhaft angeeignete Skills ohne Dubletten oder unbekannte IDs', () => {
+    const base = createNewSave();
+    const rimuru = base.party.active[0]!;
+    const migrated = normalize({
+      ...base,
+      party: {
+        ...base.party,
+        active: [{
+          ...rimuru,
+          learnedSkillIds: [...rimuru.learnedSkillIds, 'venom-spit', 'venom-spit', 'unknown-skill']
+        }]
+      }
+    });
+    const learned = migrated.party.active[0]!.learnedSkillIds;
+
+    expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
+    expect(learned).not.toContain('unknown-skill');
+  });
+
   it('markiert alte Originalbogen-Saves für Legacy-Kompatibilität', () => {
     const base = createNewSave();
     const migrated = normalize({
