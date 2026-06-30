@@ -7,11 +7,18 @@ import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtl
 import {
   BOG_TERROR_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
+  GABIRU_TEXTURE_KEY,
+  IFRIT_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+  LIZARDMAN_WARRIOR_TEXTURE_KEY,
+  MASKED_MAJIN_TEXTURE_KEY,
+  ORC_DISASTER_TEXTURE_KEY,
+  ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
+  ORC_SOLDIER_TEXTURE_KEY,
   SPORE_MOTH_TEXTURE_KEY
 } from '../render/enemyArt';
 import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
@@ -61,6 +68,13 @@ import enemySporeMothUrl from '../assets/sprites/enemy-spore-moth.webp';
 import enemyOrcScoutUrl from '../assets/sprites/enemy-orc-scout.webp';
 import enemyLizardmanAcolyteUrl from '../assets/sprites/enemy-lizardman-acolyte.webp';
 import enemyBogTerrorUrl from '../assets/sprites/enemy-bog-terror.webp';
+import enemyOrcSoldierUrl from '../assets/sprites/enemy-orc-soldier.webp';
+import enemyOrcGeneralUrl from '../assets/sprites/enemy-orc-general.webp';
+import enemyOrcDisasterUrl from '../assets/sprites/enemy-orc-disaster.webp';
+import enemyLizardmanWarriorUrl from '../assets/sprites/enemy-lizardman-warrior.webp';
+import enemyGabiruUrl from '../assets/sprites/enemy-gabiru.webp';
+import enemyMaskedMajinUrl from '../assets/sprites/enemy-masked-majin.webp';
+import enemyIfritUrl from '../assets/sprites/enemy-ifrit.webp';
 import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
 import enemyImpUrl from '../assets/sprites/enemy-imp.png';
 import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
@@ -160,6 +174,13 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(ORC_SCOUT_TEXTURE_KEY, enemyOrcScoutUrl);
     this.load.image(LIZARDMAN_ACOLYTE_TEXTURE_KEY, enemyLizardmanAcolyteUrl);
     this.load.image(BOG_TERROR_TEXTURE_KEY, enemyBogTerrorUrl);
+    this.load.image(ORC_SOLDIER_TEXTURE_KEY, enemyOrcSoldierUrl);
+    this.load.image(ORC_GENERAL_TEXTURE_KEY, enemyOrcGeneralUrl);
+    this.load.image(ORC_DISASTER_TEXTURE_KEY, enemyOrcDisasterUrl);
+    this.load.image(LIZARDMAN_WARRIOR_TEXTURE_KEY, enemyLizardmanWarriorUrl);
+    this.load.image(GABIRU_TEXTURE_KEY, enemyGabiruUrl);
+    this.load.image(MASKED_MAJIN_TEXTURE_KEY, enemyMaskedMajinUrl);
+    this.load.image(IFRIT_TEXTURE_KEY, enemyIfritUrl);
     this.load.image('sprite-enemy-wolf', enemyWolfUrl);
     this.load.image('sprite-enemy-imp', enemyImpUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreUrl);
@@ -270,6 +291,13 @@ export class PreloadScene extends Phaser.Scene {
       ORC_SCOUT_TEXTURE_KEY,
       LIZARDMAN_ACOLYTE_TEXTURE_KEY,
       BOG_TERROR_TEXTURE_KEY,
+      ORC_SOLDIER_TEXTURE_KEY,
+      ORC_GENERAL_TEXTURE_KEY,
+      ORC_DISASTER_TEXTURE_KEY,
+      LIZARDMAN_WARRIOR_TEXTURE_KEY,
+      GABIRU_TEXTURE_KEY,
+      MASKED_MAJIN_TEXTURE_KEY,
+      IFRIT_TEXTURE_KEY,
       portraitKey('rimuru'),
       portraitKey('gobta'),
       portraitKey('shuna'),
