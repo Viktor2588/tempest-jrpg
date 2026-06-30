@@ -6,7 +6,7 @@ title: Tempest - Chronik
 snapshot:
   date: 2026-06-30
   branch: main
-  base_commit: 0fc0826a3c4e34e253dec0d15a9dedc84b48721b
+  base_commit: 227a0f4a05c38442648520e7204fb5a35db3a121
   includes_uncommitted_documentation: true
 scope:
   implementation: tracked files on main
@@ -454,8 +454,8 @@ Engineering conventions:
 ## 10. Current Repository Boundary
 
 `main` at the base commit contains Phase 40 plus the earlier merged
-implementation. The separately numbered asset phases 33-38 are excluded until
-their branch chain is merged. Current `main` includes:
+implementation. The separately numbered asset phases 33-38 are also integrated.
+Current `main` includes:
 
 - Core overworld, save, battle, menu, world, progression, settings, and release
   pipeline.
@@ -463,13 +463,15 @@ their branch chain is merged. Current `main` includes:
 - Dwargon, Orc Disaster, Lizard alliance, Shizu/Ifrit, and Blumund slices.
 - Ranga scouting/fast travel and optional legacy-arc isolation.
 - Art/audio integration, regional assets, mobile/accessibility work, and E2E.
+- Dedicated Shizu/Fuze portraits, Canon-region banners, Kijin/Kaijin party
+  cutouts and portraits, Canon-region tiles, and Canon-trigger enemy cutouts.
 - Analysis, telegraph, CT control, and control-status battle substrate.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-38 | completed and pushed, not merged into `main` | separate asset branch chain |
+| 33-38 | merged into `main`; clean worktrees pending removal | separate asset branch chain |
 | 39 | active with uncommitted NPC portrait work | `/worktree/tempest-phase-39-canon-npc-portraits` |
 | 40 | merged into `main` | `/worktree/tempest-phase-40-zeitleiste` |
 | 41 | active with uncommitted Predator work | `/worktree/tempest-phase-41-predator` |
@@ -502,6 +504,12 @@ completed_milestones:
   phases_24_32:
     - generated hero, enemy, portrait, tile, banner, and arena assets
     - Dwargon, Orc Disaster, Lizard, Shizu/Ifrit, and Blumund content
+  phases_33_38:
+    - Shizu and Fuze story portraits
+    - Canon-region banners
+    - Kijin and Kaijin party battle cutouts and roster portraits
+    - Canon-region overworld tiles
+    - Canon boss and trigger-enemy cutouts
   phase_40:
     - analysis and weakness reveal
     - enemy telegraph

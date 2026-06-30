@@ -29,8 +29,6 @@ Status:
 
 ## Integrationswarteschlange
 
-- [~] Die gepushte Asset-Branchkette Phase 33 bis 38 in Reihenfolge in `main`
-  integrieren und nach jedem Merge die relevanten Checks ausfuehren.
 - [ ] Phase 39 nach Abschluss und Push integrieren.
 - [ ] Phase 41 nach Abschluss und Push integrieren.
 - [ ] Nur sauber gemergte Worktrees entfernen; ungemergte oder geaenderte
