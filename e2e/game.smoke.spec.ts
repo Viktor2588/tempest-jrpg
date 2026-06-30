@@ -440,6 +440,8 @@ test('Föderations-Save reist nach Blumund und rendert die Stadt-Tiles', async (
   ));
   expect(loadedAssets.some((name) => name.includes('tile-blumund-floor'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-blumund-wall'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('portrait-shizu'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('portrait-fuze'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
