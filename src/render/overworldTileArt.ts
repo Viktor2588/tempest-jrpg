@@ -9,6 +9,14 @@ export const HIGHLANDS_FLOOR_TILE_TEXTURE_KEY = 'tile-highlands-floor';
 export const HIGHLANDS_WALL_TILE_TEXTURE_KEY = 'tile-highlands-wall';
 export const BLUMUND_FLOOR_TILE_TEXTURE_KEY = 'tile-blumund-floor';
 export const BLUMUND_WALL_TILE_TEXTURE_KEY = 'tile-blumund-wall';
+export const DWARGON_FLOOR_TILE_TEXTURE_KEY = 'tile-dwargon-floor';
+export const DWARGON_WALL_TILE_TEXTURE_KEY = 'tile-dwargon-wall';
+export const JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY = 'tile-jura-battlefield-floor';
+export const JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY = 'tile-jura-battlefield-wall';
+export const LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-floor';
+export const LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-wall';
+export const EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY = 'tile-ember-hollow-floor';
+export const EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY = 'tile-ember-hollow-wall';
 
 export interface OverworldTileTheme {
   readonly floorKey: string;
@@ -32,6 +40,22 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
   'blumund': {
     floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
     wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
+  },
+  'dwargon': {
+    floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: DWARGON_WALL_TILE_TEXTURE_KEY
+  },
+  'jura-battlefield': {
+    floorKey: JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY
+  },
+  'lizardman-marsh': {
+    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+  },
+  'ember-hollow': {
+    floorKey: EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY
   }
 };
 
