@@ -453,6 +453,37 @@ test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', a
   expect(browserErrors).toEqual([]);
 });
 
+test('Canon-Triggergegner laden dedizierte Kampf-Cutouts', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  for (const file of [
+    'enemy-orc-soldier',
+    'enemy-orc-general',
+    'enemy-orc-disaster',
+    'enemy-lizardman-warrior',
+    'enemy-gabiru',
+    'enemy-masked-majin',
+    'enemy-ifrit'
+  ]) {
+    expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
+  }
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

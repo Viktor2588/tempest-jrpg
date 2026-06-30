@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/data';
+import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
+  GABIRU_TEXTURE_KEY,
+  IFRIT_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
+  LIZARDMAN_WARRIOR_TEXTURE_KEY,
+  MASKED_MAJIN_TEXTURE_KEY,
+  ORC_DISASTER_TEXTURE_KEY,
+  ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
+  ORC_SOLDIER_TEXTURE_KEY,
   SPORE_MOTH_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
@@ -63,6 +71,38 @@ describe('Gegner-Art-Mapping', () => {
     expect(enemyArtFor('mordrahn', '')).toMatchObject({
       textureKey: 'sprite-enemy-mordrahn'
     });
+  });
+
+  it('verdrahtet Canon-Triggergegner mit dedizierten Cutouts statt Atlas-Frames', () => {
+    for (const [id, expectedTexture] of [
+      ['orc-grunt', ORC_SOLDIER_TEXTURE_KEY],
+      ['orc-soldier', ORC_SOLDIER_TEXTURE_KEY],
+      ['orc-general', ORC_GENERAL_TEXTURE_KEY],
+      ['orc-lord', ORC_DISASTER_TEXTURE_KEY],
+      ['orc-disaster', ORC_DISASTER_TEXTURE_KEY],
+      ['lizardman-warrior', LIZARDMAN_WARRIOR_TEXTURE_KEY],
+      ['gabiru', GABIRU_TEXTURE_KEY],
+      ['masked-majin', MASKED_MAJIN_TEXTURE_KEY],
+      ['ifrit', IFRIT_TEXTURE_KEY]
+    ] as const) {
+      const art = enemyArtFor(id, '');
+      expect(art.textureKey).toBe(expectedTexture);
+      expect(art.frame).toBeUndefined();
+    }
+  });
+
+  it('lädt die Canon-Triggergegner-Cutouts in der Preload-Szene', () => {
+    for (const file of [
+      'enemy-orc-soldier.webp',
+      'enemy-orc-general.webp',
+      'enemy-orc-disaster.webp',
+      'enemy-lizardman-warrior.webp',
+      'enemy-gabiru.webp',
+      'enemy-masked-majin.webp',
+      'enemy-ifrit.webp'
+    ]) {
+      expect(preloadSource).toContain(`../assets/sprites/${file}`);
+    }
   });
 
   it('hält alle Atlas-Frames innerhalb des 5×4-Rasters', () => {
