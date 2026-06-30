@@ -314,12 +314,18 @@ more stable than display names and should be used in tests and save logic.
 - Buffs, debuffs, damage-over-time, guard, and control statuses.
 - Analysis levels, revealed weaknesses, and enemy-action telegraphs.
 - CT delay/haste and skip-turn control effects.
+- Data-driven Devour eligibility and one defined acquisition skill per
+  devourable enemy.
+- Permanent Devour skill acquisition with save normalization and duplicate
+  protection.
+- Rimuru battle loadouts capped at eight slots: fixed water/Predator core plus
+  the newest optional or absorbed skills.
 - Enemy AI, victory/defeat/flee termination, EXP, gold, and item drops.
 - Team meter, relationship bonuses, and presentation hooks.
 - Hard termination guards for simulations and tests.
 
-Phase 40 is on `main`. Devour/Predator and momentum belong to active Phase 41
-and must not be assumed present until merged.
+Phases 40-42 are on `main`: analysis, Predator momentum, and permanent
+data-driven skill acquisition form the current battle substrate.
 
 ### 6.3 Party and progression
 
@@ -328,6 +334,8 @@ and must not be assumed present until merged.
 - Equipment, consumables, key items, shops, and enchantment.
 - Character-specific talent trees instead of selectable jobs.
 - Naming, progression lines, evolution, and unlock requirements.
+- The `rimuru-predator-devour` node is gated by the first successful permanent
+  acquisition and leads into `rimuru-shadow-domain`.
 - Relationships, passive combat bonuses, and team-attack data.
 - Equipment-set bonuses.
 
@@ -453,8 +461,8 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` at the base commit contains Phase 41, Phase 47, and the earlier merged
-implementation. The separately numbered asset phases 33-39 are also integrated.
+`main` contains Phase 42, Phase 47, and the earlier merged implementation. The
+separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
 - Core overworld, save, battle, menu, world, progression, settings, and release
@@ -470,14 +478,14 @@ Current `main` includes:
 - Phase 47 main-path asset-gap closure: Whispering Grove arena,
   Direwolf-alpha cutout, and Nameless Echo cutout.
 - Analysis, telegraph, CT control, control-status battle substrate, Predator
-  devour gating, deterministic weighted skill mimicry, and bounded CT momentum
-  from weakness hits/devour.
+  devour gating, data-driven permanent skill acquisition, duplicate-safe save
+  persistence, an eight-slot Rimuru loadout, and bounded CT momentum.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-41, 47 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-42, 47 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -518,6 +526,12 @@ completed_milestones:
     - enemy telegraph
     - CT delay and haste
     - control and impairment statuses
+  phases_41_42:
+    - Predator devour gating and bounded CT momentum
+    - data-driven enemy acquisition skills
+    - permanent duplicate-safe learned skills and save normalization
+    - Rimuru water and Predator core with an eight-slot battle loadout
+    - Codex unlock and rimuru-predator-devour talent gate
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
@@ -532,10 +546,12 @@ src/data/characters.ts
 src/data/skills.ts
 src/data/enemies.ts
 src/systems/battle.ts
+src/systems/battleResult.ts
 src/systems/battleView.ts
 src/systems/autoBattle.ts
 src/scenes/BattleScene.ts
 test/battle.test.ts
+test/battleResult.test.ts
 test/autoBattle.test.ts
 ```
 
