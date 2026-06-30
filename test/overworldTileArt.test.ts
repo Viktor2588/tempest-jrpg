@@ -4,8 +4,16 @@ import {
   BLUMUND_WALL_TILE_TEXTURE_KEY,
   DEFAULT_FLOOR_TILE_TEXTURE_KEY,
   DEFAULT_WALL_TILE_TEXTURE_KEY,
+  DWARGON_FLOOR_TILE_TEXTURE_KEY,
+  DWARGON_WALL_TILE_TEXTURE_KEY,
+  EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
+  EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
   HIGHLANDS_WALL_TILE_TEXTURE_KEY,
+  JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY,
+  JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY,
+  LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+  LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
   firstAvailableOverworldTileTexture,
@@ -14,7 +22,7 @@ import {
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 
 describe('Overworld-Regionstiles', () => {
-  it('priorisiert Geistmoor- und Hochland-Tiles vor den Default-Tiles', () => {
+  it('priorisiert regionale Imagegen-Tiles vor den Default-Tiles', () => {
     expect(overworldTileTextureCandidates('spirit-marsh', false)).toEqual([
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -29,6 +37,14 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('spirit-highlands', true)[0]).toBe(HIGHLANDS_WALL_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('blumund', false)[0]).toBe(BLUMUND_FLOOR_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('blumund', true)[0]).toBe(BLUMUND_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('dwargon', false)[0]).toBe(DWARGON_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('dwargon', true)[0]).toBe(DWARGON_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('jura-battlefield', false)[0]).toBe(JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('jura-battlefield', true)[0]).toBe(JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('lizardman-marsh', false)[0]).toBe(LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('lizardman-marsh', true)[0]).toBe(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('ember-hollow', false)[0]).toBe(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
   it('lässt Start-/Prologkarten auf Default-Tiles fallen', () => {
@@ -57,7 +73,15 @@ describe('Overworld-Regionstiles', () => {
       'tile-highlands-floor.webp',
       'tile-highlands-wall.webp',
       'tile-blumund-floor.webp',
-      'tile-blumund-wall.webp'
+      'tile-blumund-wall.webp',
+      'tile-dwargon-floor.webp',
+      'tile-dwargon-wall.webp',
+      'tile-jura-battlefield-floor.webp',
+      'tile-jura-battlefield-wall.webp',
+      'tile-lizardman-marsh-floor.webp',
+      'tile-lizardman-marsh-wall.webp',
+      'tile-ember-hollow-floor.webp',
+      'tile-ember-hollow-wall.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/tiles/${file}`);
     }

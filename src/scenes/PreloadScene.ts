@@ -28,11 +28,27 @@ import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
 import highlandsWallTileUrl from '../assets/tiles/tile-highlands-wall.webp';
 import blumundFloorTileUrl from '../assets/tiles/tile-blumund-floor.webp';
 import blumundWallTileUrl from '../assets/tiles/tile-blumund-wall.webp';
+import dwargonFloorTileUrl from '../assets/tiles/tile-dwargon-floor.webp';
+import dwargonWallTileUrl from '../assets/tiles/tile-dwargon-wall.webp';
+import juraBattlefieldFloorTileUrl from '../assets/tiles/tile-jura-battlefield-floor.webp';
+import juraBattlefieldWallTileUrl from '../assets/tiles/tile-jura-battlefield-wall.webp';
+import lizardmanMarshFloorTileUrl from '../assets/tiles/tile-lizardman-marsh-floor.webp';
+import lizardmanMarshWallTileUrl from '../assets/tiles/tile-lizardman-marsh-wall.webp';
+import emberHollowFloorTileUrl from '../assets/tiles/tile-ember-hollow-floor.webp';
+import emberHollowWallTileUrl from '../assets/tiles/tile-ember-hollow-wall.webp';
 import {
+  DWARGON_FLOOR_TILE_TEXTURE_KEY,
+  DWARGON_WALL_TILE_TEXTURE_KEY,
+  EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
+  EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
   HIGHLANDS_WALL_TILE_TEXTURE_KEY,
   BLUMUND_FLOOR_TILE_TEXTURE_KEY,
   BLUMUND_WALL_TILE_TEXTURE_KEY,
+  JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY,
+  JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY,
+  LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+  LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
@@ -127,6 +143,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(HIGHLANDS_WALL_TILE_TEXTURE_KEY, highlandsWallTileUrl);
     this.load.image(BLUMUND_FLOOR_TILE_TEXTURE_KEY, blumundFloorTileUrl);
     this.load.image(BLUMUND_WALL_TILE_TEXTURE_KEY, blumundWallTileUrl);
+    this.load.image(DWARGON_FLOOR_TILE_TEXTURE_KEY, dwargonFloorTileUrl);
+    this.load.image(DWARGON_WALL_TILE_TEXTURE_KEY, dwargonWallTileUrl);
+    this.load.image(JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY, juraBattlefieldFloorTileUrl);
+    this.load.image(JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY, juraBattlefieldWallTileUrl);
+    this.load.image(LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY, lizardmanMarshFloorTileUrl);
+    this.load.image(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY, lizardmanMarshWallTileUrl);
+    this.load.image(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY, emberHollowFloorTileUrl);
+    this.load.image(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY, emberHollowWallTileUrl);
     // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
     this.load.image('sprite-hero', heroUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -232,6 +256,14 @@ export class PreloadScene extends Phaser.Scene {
       HIGHLANDS_WALL_TILE_TEXTURE_KEY,
       BLUMUND_FLOOR_TILE_TEXTURE_KEY,
       BLUMUND_WALL_TILE_TEXTURE_KEY,
+      DWARGON_FLOOR_TILE_TEXTURE_KEY,
+      DWARGON_WALL_TILE_TEXTURE_KEY,
+      JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY,
+      JURA_BATTLEFIELD_WALL_TILE_TEXTURE_KEY,
+      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+      LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
+      EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
+      EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       SPORE_MOTH_TEXTURE_KEY,
