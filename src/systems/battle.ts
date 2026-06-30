@@ -49,6 +49,8 @@ export interface BattleUnitInput {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   readonly skillIds: readonly string[];
+  readonly devourable?: boolean;
+  readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
   readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
@@ -80,6 +82,8 @@ export interface Combatant {
   skillIds: string[];
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
+  readonly devourable: boolean;
+  readonly devourSkillId: string | null;
   readonly synergyPartnerIds: readonly string[];
   readonly statuses: StatusInstance[];
   reaction: QueuedReaction | null;
@@ -167,6 +171,15 @@ const DEVOUR_WHIFF_CHANCE = 0.05;
 const DEVOUR_STRONG_BASE_CHANCE = 0.10;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
+const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
+const RIMURU_CORE_LOADOUT_SKILLS = [
+  'predator',
+  'great-sage',
+  'slime-strike',
+  'water-blade',
+  'water-jet',
+  'predator-aura'
+] as const;
 const DEBUFF_STATUSES: readonly StatusEffectId[] = [
   'poison', 'spirit-down', 'guard-break', 'stun', 'sleep', 'freeze',
   'paralyze', 'petrify', 'blind', 'silence', 'confuse', 'charm', 'weaken'
@@ -194,10 +207,23 @@ export function createBattlePartyFromMembers(members: readonly PartyMemberState[
         level: member.level,
         currentHp: member.currentHp,
         currentMp: member.currentMp,
-        skillIds: member.learnedSkillIds
+        skillIds: battleLoadoutSkillIds(member)
       })
     ];
   });
+}
+
+export function battleLoadoutSkillIds(member: PartyMemberState): string[] {
+  const known = uniqueStrings(member.learnedSkillIds);
+  if (member.characterId !== 'rimuru' || known.length <= RIMURU_BATTLE_LOADOUT_LIMIT) {
+    return known;
+  }
+
+  const core = RIMURU_CORE_LOADOUT_SKILLS.filter((skillId) => known.includes(skillId));
+  const coreSet = new Set<string>(core);
+  const optional = known.filter((skillId) => !coreSet.has(skillId));
+  const optionalSlots = Math.max(0, RIMURU_BATTLE_LOADOUT_LIMIT - core.length);
+  return [...core, ...(optionalSlots > 0 ? optional.slice(-optionalSlots) : [])];
 }
 
 export function createHeroBattleUnit(
@@ -253,6 +279,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     weaknesses: enemy.weaknesses,
     resistances: enemy.resistances,
     skillIds: enemy.skillIds,
+    devourable: enemy.devourable,
+    devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
     goldReward: enemy.goldReward,
     drops: enemy.drops
@@ -408,6 +436,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     resistances: unit.resistances,
     skillIds: uniqueStrings([...baseSkillIds]),
     mimicSkillIds: [],
+    devourable: unit.devourable ?? false,
+    devourSkillId: unit.devourSkillId ?? null,
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
       id: statusId,
@@ -694,6 +724,10 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
 
+  if (!target.devourable || !target.devourSkillId) {
+    return { ok: false, reason: 'Ziel kann nicht verschlungen werden.' };
+  }
+
   const broken = hasStatus(target, 'guard-break');
   const lowHp = target.hp / target.maxHp <= DEVOUR_HP_THRESHOLD;
   const debuffed = hasDebuff(target, 'guard-break');
@@ -717,7 +751,7 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: true };
   }
 
-  const learnedSkill = chooseDevourSkill(state, actor, target);
+  const learnedSkill = chooseDevourSkill(actor, target);
   target.hp = 0;
   checkDeath(state, target);
   if (learnedSkill) {
@@ -732,39 +766,12 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   return { ok: true };
 }
 
-function chooseDevourSkill(
-  state: BattleState,
-  actor: Combatant,
-  target: Combatant
-): SkillDefinition | null {
-  const candidates = uniqueStrings(target.skillIds)
-    .map(getSkill)
-    .filter((skill): skill is SkillDefinition => !!skill)
-    .filter((skill) => !UNIQUE_VERB_SKILL_IDS.has(skill.id))
-    .filter((skill) => !actor.skillIds.includes(skill.id));
-  if (candidates.length === 0) {
-    return null;
+function chooseDevourSkill(actor: Combatant, target: Combatant): SkillDefinition | null {
+  const definedSkill = target.devourSkillId ? getSkill(target.devourSkillId) : null;
+  if (definedSkill && !UNIQUE_VERB_SKILL_IDS.has(definedSkill.id) && !actor.skillIds.includes(definedSkill.id)) {
+    return definedSkill;
   }
-
-  const weighted = candidates.map((skill) => ({ skill, weight: skillQualityWeight(skill) }));
-  const total = weighted.reduce((sum, entry) => sum + entry.weight, 0);
-  let ticket = state.rng() * total;
-  for (const entry of weighted) {
-    ticket -= entry.weight;
-    if (ticket <= 0) {
-      return entry.skill;
-    }
-  }
-  return weighted[weighted.length - 1]!.skill;
-}
-
-function skillQualityWeight(skill: SkillDefinition): number {
-  let weight = 1 + skill.power / 10 + skill.costMp / 3;
-  if (skill.target === 'all-enemies') weight += 3;
-  if (skill.statusEffect) weight += 2;
-  if (skill.tags.includes('debuff')) weight += 2;
-  if (skill.tags.includes('heal')) weight += 1;
-  return Math.max(1, weight);
+  return null;
 }
 
 // Telegraph: die wahrscheinlich nächste Gegneraktion (stärkste nutzbare Nicht-Heil-Fähigkeit),

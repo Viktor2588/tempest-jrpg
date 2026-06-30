@@ -15,6 +15,7 @@ export function applyBattleResultToSave(
   options: ApplyBattleResultOptions = {}
 ): SaveGameV2 {
   const won = battle.status === 'won';
+  const learnedDevourSkill = won && battle.party.some((combatant) => combatant.mimicSkillIds.length > 0);
   const progressionResult = won
     ? applyBattleProgressionRewards(
         save.party.active,
@@ -46,6 +47,7 @@ export function applyBattleResultToSave(
     const stats = calculateProgressionStats(member, progression);
     return {
       ...member,
+      learnedSkillIds: uniqueStrings([...member.learnedSkillIds, ...combatant.mimicSkillIds]),
       currentHp: Math.min(stats.maxHp, Math.max(1, combatant.hp + hpGrowth)),
       currentMp: Math.min(stats.maxMp, Math.max(0, combatant.mp + mpGrowth))
     };
@@ -63,6 +65,9 @@ export function applyBattleResultToSave(
       gold: save.party.gold + (won ? battle.rewards.gold : 0)
     },
     inventory: { stacks: inventory },
+    flags: learnedDevourSkill
+      ? { ...save.flags, 'codex.predator-devour': true }
+      : save.flags,
     progression
   };
 
@@ -72,4 +77,8 @@ export function applyBattleResultToSave(
   }
 
   return nextSave;
+}
+
+function uniqueStrings(values: readonly string[]): string[] {
+  return [...new Set(values)];
 }

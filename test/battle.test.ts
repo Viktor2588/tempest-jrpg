@@ -3,6 +3,7 @@ import { HEROES } from '../src/data';
 import { createInitialInventory, getItemCount } from '../src/systems/inventory';
 import {
   act,
+  battleLoadoutSkillIds,
   createDefaultBattleParty,
   createHeroBattleUnit,
   currentActor,
@@ -14,6 +15,7 @@ import {
   type BattleState,
   type BattleUnitInput
 } from '../src/systems/battle';
+import { createPartyMember } from '../src/systems/party';
 
 // Seit dem story-gesteuerten Party-Aufbau startet ein Spiel nur mit Rimuru. Für Tests, die
 // eine Mehr-Personen-Party brauchen, Gobta explizit ergänzen.
@@ -158,6 +160,8 @@ function phaseEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
     weaknesses: ['water', 'shadow'],
     resistances: ['fire'],
     skillIds: ['slime-strike', 'venom-spit', 'spirit-bind'],
+    devourable: true,
+    devourSkillId: 'venom-spit',
     experienceReward: 80,
     goldReward: 50,
     drops: [],
@@ -782,7 +786,7 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
     expect(foe.dead).toBe(false);
   });
 
-  it('verschlingt verwundbare Gegner deterministisch und imitiert einen gewichteten Skill', () => {
+  it('verschlingt verwundbare Gegner und eignet sich exakt deren definierten Skill an', () => {
     const run = (seed: number): readonly string[] => {
       const { state, hero, foe } = devourSetup(seed);
       foe.hp = Math.floor(foe.maxHp * 0.25);
@@ -801,7 +805,43 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
       return hero.mimicSkillIds;
     };
 
-    expect(run(2)).toEqual(run(2));
+    expect(run(2)).toEqual(['venom-spit']);
+  });
+
+  it('lehnt Gegner ohne Devour-Freigabe trotz vollständiger Verwundbarkeit ab', () => {
+    const { state, foe } = devourSetup(2);
+    Object.assign(foe, { devourable: false });
+    foe.hp = Math.floor(foe.maxHp * 0.25);
+    foe.analysisLevel = 1;
+    foe.statuses.push({ id: 'guard-break', turns: 2 }, { id: 'poison', turns: 3 });
+
+    const result = act(state, { type: 'devour', targetId: foe.id });
+
+    expect(result).toEqual({ ok: false, reason: 'Ziel kann nicht verschlungen werden.' });
+    expect(foe.dead).toBe(false);
+  });
+
+  it('begrenzt Rimurus Kampf-Loadout auf Kernskills und die neuesten optionalen Skills', () => {
+    const rimuru = createPartyMember(HEROES.find((hero) => hero.id === 'rimuru')!, {
+      learnedSkillIds: [
+        'predator-aura',
+        'venom-spit',
+        'spirit-bind',
+        'quick-step',
+        'direwolf-rush'
+      ]
+    });
+
+    expect(battleLoadoutSkillIds(rimuru)).toEqual([
+      'predator',
+      'great-sage',
+      'slime-strike',
+      'water-blade',
+      'water-jet',
+      'predator-aura',
+      'quick-step',
+      'direwolf-rush'
+    ]);
   });
 
   it('gewährt begrenztes Momentum bei Schwächentreffern', () => {

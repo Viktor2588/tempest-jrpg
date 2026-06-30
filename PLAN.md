@@ -17,13 +17,17 @@ Status:
 
 ## Kampf-Roadmap
 
-- [ ] **Phase 42 - Permanente Skill-Aneignung und Rimurus Skill-Mix**
+- [x] **Phase 42 - Permanente Skill-Aneignung und Rimurus Skill-Mix** *(abgeschlossen 2026-06-30, Worktree `/worktree/tempest-phase-42-skill-aneignung`)*
+  - Branch: `phase-42-skill-aneignung`
   - Devour dauerhaft in `learnedSkillIds` persistieren.
   - `devourable` und `devourSkillId` fuer Gegner datengetrieben definieren.
   - Dubletten verhindern und Save-Migration/Normalisierung absichern.
   - Rimurus Wasser-, Predator- und absorbierte Skills ueber Kosten und ein
     Loadout-Limit balancieren.
   - Codex und `rimuru-predator-*`-Talentknoten anbinden.
+  - Abnahme: `bun run typecheck`, `bun run test` (271/271) und
+    `bun run build` gruen; kein Browser-Smoke erforderlich, da weder Rendering
+    noch Assets geaendert wurden.
 
 - [ ] **Phase 43 - Einzigartige Kampfkonzepte je Kaempfer**
   - Ein generisches Signaturleisten-/Signaturaktions-Framework definieren.

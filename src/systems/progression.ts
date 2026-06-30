@@ -26,7 +26,7 @@ import {
   type StatusEffectId,
   type StatBlock
 } from '../data';
-import { createHeroBattleUnit, type BattleUnitInput } from './battle';
+import { battleLoadoutSkillIds, createHeroBattleUnit, type BattleUnitInput } from './battle';
 import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
@@ -693,7 +693,7 @@ export function createProgressionBattleParty(
       level: member.level,
       currentHp: member.currentHp,
       currentMp: member.currentMp,
-      skillIds: getProgressionCoreSkillIds(member, state),
+      skillIds: battleLoadoutSkillIds({ ...member, learnedSkillIds: getProgressionCoreSkillIds(member, state) }),
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
       formName: getActiveEvolution(state, member.characterId)?.formName,
       openingStatusIds: getOpeningStatusIds(member.characterId, state)
