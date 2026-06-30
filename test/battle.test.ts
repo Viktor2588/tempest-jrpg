@@ -585,3 +585,137 @@ describe('battle engine', () => {
     }
   });
 });
+
+// Phase 40 — Zeitleiste-Rewrite: Analyse (Großer Weiser), Zeitkontrolle (delay/hasten) und Aussetz-Status.
+describe('battle: Zeitleiste (Phase 40)', () => {
+  it('Analyse deckt Schwächen auf und liest den nächsten Zug (Telegraph)', () => {
+    const state = startBattle({ party: [depthHero('rimuru', 'Rimuru')], enemies: [phaseEnemy()], seed: 7 });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+
+    // Vor der Analyse sind Schwächen für die Anzeige verborgen.
+    expect(renderView(state).enemies[0]!.revealedWeaknesses).toHaveLength(0);
+
+    state.activeId = hero.id;
+    const result = act(state, { type: 'analyze', targetId: foe.id });
+
+    expect(result.ok).toBe(true);
+    expect(foe.analysisLevel).toBe(1);
+    expect(foe.telegraphSkillId).not.toBeNull();
+    expect(renderView(state).enemies[0]!.revealedWeaknesses).toContain('water');
+  });
+
+  it('analysierte Schwächen erhöhen den Break-Druck', () => {
+    const breakAfterWaterBlade = (analysisLevel: number): number => {
+      const state = startBattle({
+        party: [depthHero('rimuru', 'Rimuru')],
+        enemies: [phaseEnemy({ stats: { ...phaseEnemy().stats, maxHp: 500 } })],
+        seed: 21
+      });
+      const hero = state.combatants.find((c) => c.side === 'party')!;
+      const foe = state.combatants.find((c) => c.side === 'enemy')!;
+      foe.analysisLevel = analysisLevel;
+      state.activeId = hero.id;
+      act(state, { type: 'skill', skillId: 'water-blade', targetId: foe.id });
+      return foe.breakGauge;
+    };
+
+    expect(breakAfterWaterBlade(1)).toBeLessThan(breakAfterWaterBlade(0));
+  });
+
+  it('Zeitkontrolle: Zeitfalle wirft einen Gegner auf der CT-Leiste zurück', () => {
+    // Anker-Verbündeter mit hoher CT wird nach dem Zug sofort aktiv → keine CT-Akkumulation,
+    // die Gegner-CT bleibt exakt am Wert nach dem Skill ablesbar.
+    const enemyCtAfter = (skillId: string): number => {
+      const state = startBattle({
+        party: [
+          depthHero('rimuru', 'Rimuru', { skillIds: ['temporal-snare', 'water-blade'] }),
+          depthHero('gobta', 'Gobta')
+        ],
+        enemies: [phaseEnemy()],
+        seed: 4
+      });
+      const heroes = state.combatants.filter((c) => c.side === 'party');
+      const foe = state.combatants.find((c) => c.side === 'enemy')!;
+      heroes[1]!.ct = 150;
+      foe.ct = 90;
+      state.activeId = heroes[0]!.id;
+      act(state, { type: 'skill', skillId, targetId: foe.id });
+      return foe.ct;
+    };
+
+    expect(enemyCtAfter('temporal-snare')).toBeLessThan(enemyCtAfter('water-blade'));
+  });
+
+  it('Zeitkontrolle: Beschleunigung zieht einen Verbündeten auf der CT-Leiste vor', () => {
+    const state = startBattle({
+      party: [
+        depthHero('rimuru', 'Rimuru', { skillIds: ['quicken', 'water-blade'] }),
+        depthHero('gobta', 'Gobta'),
+        depthHero('ranga', 'Ranga')
+      ],
+      enemies: [phaseEnemy()],
+      seed: 6
+    });
+    const [caster, target, anchor] = state.combatants.filter((c) => c.side === 'party');
+    anchor!.ct = 150;
+    target!.ct = 20;
+    caster!.ct = 50;
+    state.activeId = caster!.id;
+
+    act(state, { type: 'skill', skillId: 'quicken', targetId: target!.id });
+
+    expect(target!.ct).toBe(80);
+  });
+
+  it('Betäubung lässt den Zug eines Gegners aus (Gegner greift nie an)', () => {
+    const state = startBattle({ party: [fastTank()[0]!], enemies: [phaseEnemy()], seed: 8 });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    foe.statuses.length = 0;
+    foe.statuses.push({ id: 'stun', turns: 999 });
+    const hpBefore = hero.hp;
+
+    let guard = 0;
+    while (state.status === 'active' && guard++ < 40) {
+      if (isPlayerTurn(state)) {
+        act(state, { type: 'attack', targetId: foe.id });
+      } else {
+        enemyTurn(state);
+      }
+    }
+
+    expect(hero.hp).toBe(hpBefore);
+  });
+
+  it('Schlaf wird durch Schaden gebrochen', () => {
+    const state = startBattle({ party: [fastTank()[0]!], enemies: [phaseEnemy()], seed: 2 });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    foe.statuses.push({ id: 'sleep', turns: 5 });
+    state.activeId = hero.id;
+
+    expect(foe.statuses.some((s) => s.id === 'sleep')).toBe(true);
+    act(state, { type: 'attack', targetId: foe.id });
+
+    expect(foe.statuses.some((s) => s.id === 'sleep')).toBe(false);
+  });
+
+  it('Verstummen verhindert Fähigkeiten, der Angriff bleibt möglich', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', { skillIds: ['water-blade'] })],
+      enemies: [phaseEnemy()],
+      seed: 3
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    hero.statuses.push({ id: 'silence', turns: 3 });
+    state.activeId = hero.id;
+
+    const blocked = act(state, { type: 'skill', skillId: 'water-blade', targetId: foe.id });
+    expect(blocked.ok).toBe(false);
+
+    const attacked = act(state, { type: 'attack', targetId: foe.id });
+    expect(attacked.ok).toBe(true);
+  });
+});

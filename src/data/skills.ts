@@ -146,5 +146,8 @@ export const SKILLS = [
   { id: 'ogre-smash', name: 'Oger-Wucht', description: 'Erderschütternder Hieb roher Ogerkraft.', element: 'earth', target: 'single-enemy', costMp: 7, power: 32, tags: ['physical'] },
   { id: 'spear-charge', name: 'Speersturm', description: 'Schneller Vorstoß mit der Wasserklinge.', element: 'wind', target: 'single-enemy', costMp: 5, power: 24, tags: ['physical'] },
   { id: 'tide-lance', name: 'Flutlanze', description: 'Ein Wasserdruckstoß durchbohrt das Ziel.', element: 'water', target: 'single-enemy', costMp: 7, power: 26, tags: ['magical'] },
-  { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'] }
+  { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'] },
+  // Phase 40 — Zeitkontrolle (Zeitleiste-Rewrite)
+  { id: 'temporal-snare', name: 'Zeitfalle', description: 'Verzerrt den Zeitfluss und wirft das Ziel auf der Zeitleiste zurück.', element: 'shadow', target: 'single-enemy', costMp: 6, power: 8, tags: ['magical', 'debuff'], ctDelta: -55 },
+  { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], ctDelta: 60 }
 ] as const satisfies readonly SkillDefinition[];

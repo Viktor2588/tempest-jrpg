@@ -85,6 +85,9 @@ export interface Combatant {
   readonly breakGaugeMax: number;
   phaseIndex: number;
   readonly phaseThreshold: number;
+  // Phase 40 — Großer Weiser: Analysestufe (0 = unbekannt) deckt Schwächen + Telegraph auf.
+  analysisLevel: number;
+  telegraphSkillId: string | null;
   ct: number;
   guarding: boolean;
   dead: boolean;
@@ -121,6 +124,7 @@ export type BattleAction =
   | { type: 'skill'; skillId: string; targetId?: string }
   | { type: 'item'; itemId: string; targetId?: string }
   | { type: 'team-attack'; partnerId: string; targetId: string }
+  | { type: 'analyze'; targetId: string }
   | { type: 'guard' }
   | { type: 'flee' };
 
@@ -148,6 +152,11 @@ const BREAK_GAUGE_MAX = 4;
 const TEAM_METER_MAX = 100;
 const TEAM_METER_BREAK_GAIN = 35;
 const TEAM_ATTACK_COST = 100;
+const ANALYSIS_MAX = 2;
+const CT_MAX = CT_THRESHOLD * 3;
+// Aussetz-Status, die einen Zug hart überspringen (Schlaf/Eis enden zusätzlich bei Schaden).
+const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satisfies readonly StatusEffectId[];
+const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
@@ -314,10 +323,12 @@ export function enemyTurn(state: BattleState): ActionResult {
     return { ok: true };
   }
 
-  const usableSkills = actor.skillIds
-    .map(getSkill)
-    .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(actor, skill))
-    .filter((skill) => !isHealingSkill(skill));
+  const usableSkills = isSilenced(actor)
+    ? []
+    : actor.skillIds
+      .map(getSkill)
+      .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(actor, skill))
+      .filter((skill) => !isHealingSkill(skill));
 
   const skillChance = actor.phaseIndex >= 1 ? 0.9 : 0.65;
   if (usableSkills.length > 0 && state.rng() < skillChance) {
@@ -392,6 +403,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     breakGaugeMax,
     phaseIndex: 0,
     phaseThreshold: 0.5,
+    analysisLevel: 0,
+    telegraphSkillId: null,
     ct: 0,
     guarding: false,
     dead: false,
@@ -427,6 +440,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'team-attack':
       return resolveTeamAttack(state, actor, action.partnerId, action.targetId);
+
+    case 'analyze':
+      return resolveAnalyze(state, actor, action.targetId);
   }
 }
 
@@ -474,6 +490,9 @@ function resolveSkill(
   if (!skill || !actor.skillIds.includes(skill.id)) {
     return { ok: false, reason: 'Fähigkeit nicht verfügbar.' };
   }
+  if (isSilenced(actor)) {
+    return { ok: false, reason: 'Verstummt — keine Fähigkeiten möglich.' };
+  }
   if (!canUseSkill(actor, skill)) {
     return { ok: false, reason: 'Nicht genug MP.' };
   }
@@ -485,20 +504,23 @@ function resolveSkill(
 
   actor.mp -= skill.costMp;
 
-  if (isStatusOnlySkill(skill)) {
-    for (const target of targets) {
-      applySkillStatus(state, target, skill);
-    }
-    endTurn(state, actor);
-    return { ok: true };
-  }
-
   if (isHealingSkill(skill)) {
     for (const target of targets) {
       const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 1.1));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
       applySkillStatus(state, target, skill);
+      applyCtDelta(target, skill.ctDelta);
+    }
+    endTurn(state, actor);
+    return { ok: true };
+  }
+
+  // Unterstützungs-/Status-/Zeitkontroll-Fähigkeiten ohne Schaden: Buffs, reine Debuffs, delay/hasten.
+  if (skill.power <= 0) {
+    for (const target of targets) {
+      applySkillStatus(state, target, skill);
+      applyCtDelta(target, skill.ctDelta);
     }
     endTurn(state, actor);
     return { ok: true };
@@ -516,6 +538,7 @@ function resolveSkill(
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
     applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
     applySkillStatus(state, target, skill);
+    applyCtDelta(target, skill.ctDelta);
     checkDeath(state, target);
   }
 
@@ -615,16 +638,38 @@ function resolveTeamAttack(
   return { ok: true };
 }
 
+// Phase 40 — Großer Weiser: deckt Schwächen auf, erhöht die Analysestufe und liest den
+// nächsten Zug des Gegners (Telegraph). Höhere Stufen verstärken später den Break-Druck.
+function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  const target = getCombatant(state, targetId);
+  if (!target || target.dead || target.side === actor.side) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+
+  target.analysisLevel = Math.min(ANALYSIS_MAX, target.analysisLevel + 1);
+  target.telegraphSkillId = predictTelegraph(target);
+  const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
+  pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+// Telegraph: die wahrscheinlich nächste Gegneraktion (stärkste nutzbare Nicht-Heil-Fähigkeit),
+// sonst der Standardangriff (null). Rein informativ — verändert die Auflösung nicht.
+function predictTelegraph(enemy: Combatant): string | null {
+  const skills = enemy.skillIds
+    .map(getSkill)
+    .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(enemy, skill) && !isHealingSkill(skill))
+    .sort((a, b) => b.power - a.power);
+  return skills[0]?.id ?? null;
+}
+
 function canUseSkill(actor: Combatant, skill: SkillDefinition): boolean {
   return actor.mp >= skill.costMp;
 }
 
 function isHealingSkill(skill: SkillDefinition): boolean {
   return skill.tags.includes('heal');
-}
-
-function isStatusOnlySkill(skill: SkillDefinition): boolean {
-  return skill.power <= 0 && !!skill.statusEffect && (skill.tags.includes('buff') || skill.tags.includes('debuff'));
 }
 
 function targetsForSkill(
@@ -679,11 +724,21 @@ function advanceToNextActor(state: BattleState): void {
 
     if (ready.length > 0) {
       const actor = ready[0]!;
-      startTurn(state, actor);
+      const disabled = startTurn(state, actor);
       if (checkEnd(state)) {
         return;
       }
       if (actor.dead) {
+        continue;
+      }
+      if (disabled) {
+        // Aussetzen verbraucht den Zug, ohne dass der Kämpfer handelt.
+        actor.ct = Math.max(0, actor.ct - CT_THRESHOLD);
+        state.turns += 1;
+        if (state.turns >= MAX_TURNS) {
+          resolveByTurnCap(state);
+          return;
+        }
         continue;
       }
       updateEnemyPhase(state, actor);
@@ -700,9 +755,13 @@ function advanceToNextActor(state: BattleState): void {
   resolveByTurnCap(state);
 }
 
-function startTurn(state: BattleState, actor: Combatant): void {
+// Liefert true, wenn der Kämpfer diesen Zug wegen eines Aussetz-Status verliert.
+function startTurn(state: BattleState, actor: Combatant): boolean {
   actor.guarding = false;
   updateEnemyPhase(state, actor);
+
+  // Aussetz-Status VOR dem Abklingen prüfen, damit z. B. eine 1-Zug-Betäubung genau einmal greift.
+  const disabledBy = computeDisabled(state, actor);
 
   const poison = actor.statuses.find((status) => status.id === 'poison');
   if (poison) {
@@ -716,6 +775,12 @@ function startTurn(state: BattleState, actor: Combatant): void {
     status.turns -= 1;
   }
   removeExpiredStatuses(actor);
+
+  if (disabledBy && !actor.dead) {
+    pushLog(state, `${actor.name} ist ${statusLabel(disabledBy)} und setzt aus.`);
+    return true;
+  }
+  return false;
 }
 
 function endTurn(state: BattleState, actor: Combatant): void {
@@ -820,6 +885,10 @@ function applyDamage(
   const guardedDamage = target.guarding ? adjustedDamage * 0.5 : adjustedDamage;
   const damage = Math.max(1, Math.round(guardedDamage));
   target.hp = Math.max(0, target.hp - damage);
+  // Schaden weckt aus Schlaf/Eis und bricht Bezauberung.
+  if (damage > 0) {
+    wakeOnDamage(target);
+  }
 
   if (reaction?.kind === 'counter' && reaction.timing !== 'miss' && !attacker.dead) {
     const counterDamage = Math.max(
@@ -846,8 +915,11 @@ function applyBreakPressure(
   if (target.dead || target.side !== 'enemy') {
     return;
   }
-  const weaknessPressure = target.weaknesses.includes(element) ? 2 : 0;
-  const pressure = weaknessPressure + bonusPressure;
+  const weaknessHit = target.weaknesses.includes(element);
+  const weaknessPressure = weaknessHit ? 2 : 0;
+  // Großer Weiser: analysierte Schwächen reißen die Deckung schneller auf (+1 Druck ab Stufe 1).
+  const analysisPressure = weaknessHit && target.analysisLevel >= 1 ? 1 : 0;
+  const pressure = weaknessPressure + analysisPressure + bonusPressure;
   if (pressure <= 0) {
     return;
   }
@@ -892,12 +964,55 @@ function effectiveStat(combatant: Combatant, stat: keyof StatBlock): number {
     else if (status.id === 'spirit-down' && stat === 'spirit') value *= 0.75;
     else if (status.id === 'haste' && stat === 'agility') value *= 1.3;
     else if (status.id === 'guard-break' && (stat === 'defense' || stat === 'spirit')) value *= 0.65;
+    else if (status.id === 'weaken' && (stat === 'attack' || stat === 'magic')) value *= 0.7;
+    else if (status.id === 'blind' && stat === 'attack') value *= 0.6;
   }
   return Math.max(1, Math.round(value));
 }
 
 function damageTakenMultiplier(target: Combatant): number {
   return target.statuses.some((status) => status.id === 'guard-break') ? 1.25 : 1;
+}
+
+function isSilenced(actor: Combatant): boolean {
+  return actor.statuses.some((status) => status.id === 'silence');
+}
+
+// Phase 40 — Aussetz-Status: liefert den aktiven Behinderungs-Status dieses Zugs (oder null).
+// Chance-basierte Status (Lähmung/Verwirrung/Bezauberung) ziehen NUR dann RNG, wenn sie anliegen,
+// damit bestehende deterministische Abläufe ohne diese Status unverändert bleiben.
+function computeDisabled(state: BattleState, actor: Combatant): StatusEffectId | null {
+  for (const id of HARD_SKIP_STATUSES) {
+    if (actor.statuses.some((status) => status.id === id)) {
+      return id;
+    }
+  }
+  if (actor.statuses.some((status) => status.id === 'paralyze') && state.rng() < 0.5) {
+    return 'paralyze';
+  }
+  if (actor.statuses.some((status) => status.id === 'confuse') && state.rng() < 0.4) {
+    return 'confuse';
+  }
+  if (actor.statuses.some((status) => status.id === 'charm') && state.rng() < 0.5) {
+    return 'charm';
+  }
+  return null;
+}
+
+function wakeOnDamage(target: Combatant): void {
+  for (let index = target.statuses.length - 1; index >= 0; index -= 1) {
+    if (WAKE_ON_DAMAGE_STATUSES.includes(target.statuses[index]!.id)) {
+      target.statuses.splice(index, 1);
+    }
+  }
+}
+
+// Zeitkontrolle: verschiebt ein Ziel auf der CT-Leiste (positiv = vorziehen, negativ = zurückwerfen).
+function applyCtDelta(target: Combatant, delta: number | undefined): void {
+  if (!delta || target.dead) {
+    return;
+  }
+  target.ct = clamp(target.ct + delta, 0, CT_MAX);
 }
 
 function applyStatus(target: Combatant, statusId: StatusEffectId, turns: number): void {
@@ -925,6 +1040,26 @@ function statusLabel(statusId: StatusEffectId): string {
       return 'Tempo erhöht';
     case 'guard-break':
       return 'gebrochen';
+    case 'stun':
+      return 'betäubt';
+    case 'sleep':
+      return 'eingeschläfert';
+    case 'freeze':
+      return 'eingefroren';
+    case 'paralyze':
+      return 'gelähmt';
+    case 'petrify':
+      return 'versteinert';
+    case 'blind':
+      return 'geblendet';
+    case 'silence':
+      return 'verstummt';
+    case 'confuse':
+      return 'verwirrt';
+    case 'charm':
+      return 'bezaubert';
+    case 'weaken':
+      return 'geschwächt';
   }
 }
 
