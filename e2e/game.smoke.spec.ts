@@ -406,7 +406,7 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
-test('Föderations-Save reist nach Blumund und rendert die Stadt-Tiles', async ({ page }) => {
+test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -442,6 +442,15 @@ test('Föderations-Save reist nach Blumund und rendert die Stadt-Tiles', async (
   expect(loadedAssets.some((name) => name.includes('tile-blumund-wall'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-fuze'))).toBe(true);
+  for (const file of [
+    'region-dwargon',
+    'region-jura-battlefield',
+    'region-lizardman-marsh',
+    'region-ember-hollow',
+    'region-blumund'
+  ]) {
+    expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
+  }
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

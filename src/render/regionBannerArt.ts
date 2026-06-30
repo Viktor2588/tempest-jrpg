@@ -5,13 +5,11 @@ export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
   'tempest-start': 'ui-region-jura-forest',
   'spirit-marsh': 'ui-region-spirit-marsh',
   'spirit-highlands': 'ui-region-spirit-highlands',
-  // Später ergänzte Regionen verwenden bis zu einem eigenen Banner den
-  // nächstliegenden vorhandenen Bildraum statt des generischen Jura-Fallbacks.
-  'dwargon': 'ui-region-jura-forest',
-  'jura-battlefield': 'ui-region-jura-forest',
-  'lizardman-marsh': 'ui-region-spirit-marsh',
-  'ember-hollow': 'ui-region-sealed-cave',
-  'blumund': 'ui-region-jura-forest'
+  'dwargon': 'ui-region-dwargon',
+  'jura-battlefield': 'ui-region-jura-battlefield',
+  'lizardman-marsh': 'ui-region-lizardman-marsh',
+  'ember-hollow': 'ui-region-ember-hollow',
+  'blumund': 'ui-region-blumund'
 };
 
 export const DEFAULT_REGION_BANNER_TEXTURE_KEY = REGION_BANNER_TEXTURES['tempest-start'];
