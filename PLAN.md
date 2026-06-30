@@ -541,6 +541,9 @@ test/                  Vitest-Suiten gegen src/systems & src/data
 
 > **Integration (2026-06-29):** Phasen 27–30 in `main` gemergt. Konflikte (additive Array-Enden in `world.ts`/`maps.ts`) sauber aufgelöst; Gesamtsuite **237/237** grün, `build` ok. Der Jura-Wald-Hub verzweigt nun zu vier Band-1/2-Regionen → `analyzeOverworldBudget`-Markercap von 80 auf 96 rekalibriert (gated, gegenseitig exklusive Marker).
 
+[x] **Phase 31 – Imagegen-Battle-Arenen für kommende Canon-Arcs** *(abgeschlossen 2026-06-29, Worktree `worktree/tempest-phase-31-canon-arenas`)*
+> **✅ Status (2026-06-29):** Die nächsten Story-Arcs aus dem Plan haben jetzt wiederverwendbare Battle-Arena-Assets: Oger/Kijin-Ruine, Ork-Schlachtfeld, Echsen-Sumpf, Geisterhöhle und Milim-Ankunft. Die fünf 1280×720-WebPs sind über `battleArt.ts` per geplanter Map-/Encounter-IDs verdrahtet, in `PreloadScene` geladen und in `ASSETS.md` dokumentiert. Abnahme: `bun run typecheck`, `bun run test` (217/217), `bun run build`, `bun run test:e2e` (16/16 Desktop+Mobil), Contact-Sheet-Review der Arenen.
+
 [x] **Phase 32 – Blumund & Free-Guild-Assets** *(abgeschlossen 2026-06-30, Worktree `worktree/tempest-phase-32-blumund`)*
 > **✅ Status (2026-06-30):** Der erste geordnete Menschenkontakt ist als sicherer Content-Slice spielbar: Region `blumund`, nach der Föderationsgründung freigeschaltete Handelsstraße, dreistufige Free-Guild-Quest mit Fuze sowie Kaval/Eren/Gido, Gildenbedarf, zwei Codexeinträge und ein idempotentes Handelsabkommen. Blumund nutzt eigene projektgenerierte 128×128-WebP-Tiles für warmes Stadtpflaster und klar blockierende rotbraune Dächer/Gebäude; Provenienz steht in `ASSETS.md`. Abnahme: `bun run typecheck`, `bun run test` (**243/243**), `bun run build` und `bun run test:e2e` (**18/18**, einschließlich Blumund-Gate/Assets auf Desktop und 390×844) grün.
 
