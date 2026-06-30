@@ -72,6 +72,13 @@ export type PortraitKind =
   | 'kurobe'
   | 'souei'
   | 'kaijin'
+  | 'eir'
+  | 'kael'
+  | 'gazel'
+  | 'blumund-adventurers'
+  | 'treyni'
+  | 'milim'
+  | 'souka'
   | 'mordrahn';
 
 export type PortraitMotif =
@@ -165,6 +172,13 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'kurobe',
   'souei',
   'kaijin',
+  'eir',
+  'kael',
+  'gazel',
+  'blumund-adventurers',
+  'treyni',
+  'milim',
+  'souka',
   'mordrahn'
 ] as const;
 
@@ -243,6 +257,20 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.water, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'kaijin':
       return { size: 64, base: PALETTE.stone, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
+    case 'eir':
+      return { size: 64, base: PALETTE.grassDark, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
+    case 'kael':
+      return { size: 64, base: PALETTE.mist, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.steel, motif: 'elder' };
+    case 'gazel':
+      return { size: 64, base: PALETTE.stone, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'blumund-adventurers':
+      return { size: 64, base: PALETTE.ember, accent: PALETTE.mist, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+    case 'treyni':
+      return { size: 64, base: PALETTE.grass, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'mage' };
+    case 'milim':
+      return { size: 64, base: PALETTE.hp, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'souka':
+      return { size: 64, base: PALETTE.grassDark, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'mordrahn':
       return { size: 64, base: PALETTE.enemy, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'shadow' };
     default:

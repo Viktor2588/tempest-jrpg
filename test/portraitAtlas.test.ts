@@ -41,6 +41,22 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 
+  it('ordnet Canon- und Regions-NPCs aus Phase 39 dedizierte Storyportraits zu', () => {
+    for (const [speakerCase, portraitKind] of [
+      ["case 'moorhüterin eir':", 'eir'],
+      ["case 'schreinwächter kael':", 'kael'],
+      ["case 'könig gazel dwargo':", 'gazel'],
+      ["case 'kaval, eren & gido':", 'blumund-adventurers'],
+      ["case 'treyni':", 'treyni'],
+      ["case 'milim nava':", 'milim'],
+      ["case 'souka':", 'souka']
+    ] as const) {
+      expect(portraitSource).toContain(speakerCase);
+      expect(portraitSource).toContain(`return '${portraitKind}';`);
+      expect(preloadSource).toContain(`../assets/sprites/portrait-${portraitKind}.webp`);
+    }
+  });
+
   it('deckt das komplette spielbare Roster in Dialogen und im Party-Menü ab', () => {
     expect(HEROES.every((hero) => PORTRAIT_KINDS.includes(hero.id))).toBe(true);
     expect(menuSource).toContain('PORTRAIT_KINDS.includes');

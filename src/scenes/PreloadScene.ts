@@ -106,6 +106,13 @@ import hakurouPortraitUrl from '../assets/sprites/portrait-hakurou.webp';
 import kurobePortraitUrl from '../assets/sprites/portrait-kurobe.webp';
 import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
 import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
+import eirPortraitUrl from '../assets/sprites/portrait-eir.webp';
+import kaelPortraitUrl from '../assets/sprites/portrait-kael.webp';
+import gazelPortraitUrl from '../assets/sprites/portrait-gazel.webp';
+import blumundAdventurersPortraitUrl from '../assets/sprites/portrait-blumund-adventurers.webp';
+import treyniPortraitUrl from '../assets/sprites/portrait-treyni.webp';
+import milimPortraitUrl from '../assets/sprites/portrait-milim.webp';
+import soukaPortraitUrl from '../assets/sprites/portrait-souka.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
@@ -212,6 +219,13 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('kurobe'), kurobePortraitUrl);
     this.load.image(portraitKey('souei'), soueiPortraitUrl);
     this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
+    this.load.image(portraitKey('eir'), eirPortraitUrl);
+    this.load.image(portraitKey('kael'), kaelPortraitUrl);
+    this.load.image(portraitKey('gazel'), gazelPortraitUrl);
+    this.load.image(portraitKey('blumund-adventurers'), blumundAdventurersPortraitUrl);
+    this.load.image(portraitKey('treyni'), treyniPortraitUrl);
+    this.load.image(portraitKey('milim'), milimPortraitUrl);
+    this.load.image(portraitKey('souka'), soukaPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
@@ -312,6 +326,13 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('kurobe'),
       portraitKey('souei'),
       portraitKey('kaijin'),
+      portraitKey('eir'),
+      portraitKey('kael'),
+      portraitKey('gazel'),
+      portraitKey('blumund-adventurers'),
+      portraitKey('treyni'),
+      portraitKey('milim'),
+      portraitKey('souka'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',
