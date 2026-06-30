@@ -21,9 +21,13 @@ import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
 import highlandsWallTileUrl from '../assets/tiles/tile-highlands-wall.webp';
+import blumundFloorTileUrl from '../assets/tiles/tile-blumund-floor.webp';
+import blumundWallTileUrl from '../assets/tiles/tile-blumund-wall.webp';
 import {
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
   HIGHLANDS_WALL_TILE_TEXTURE_KEY,
+  BLUMUND_FLOOR_TILE_TEXTURE_KEY,
+  BLUMUND_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
@@ -82,6 +86,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
     this.load.image(HIGHLANDS_WALL_TILE_TEXTURE_KEY, highlandsWallTileUrl);
+    this.load.image(BLUMUND_FLOOR_TILE_TEXTURE_KEY, blumundFloorTileUrl);
+    this.load.image(BLUMUND_WALL_TILE_TEXTURE_KEY, blumundWallTileUrl);
     // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
     this.load.image('sprite-hero', heroUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -151,6 +157,8 @@ export class PreloadScene extends Phaser.Scene {
       MARSH_WALL_TILE_TEXTURE_KEY,
       HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
       HIGHLANDS_WALL_TILE_TEXTURE_KEY,
+      BLUMUND_FLOOR_TILE_TEXTURE_KEY,
+      BLUMUND_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       portraitKey('rimuru'),
