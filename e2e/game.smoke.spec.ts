@@ -406,6 +406,47 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Kijin- und Kaijin-Party rendert dedizierte Kampf-Cutouts', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    party: {
+      active: [
+        { characterId: 'benimaru' },
+        { characterId: 'shion' },
+        { characterId: 'kaijin' }
+      ],
+      reserve: [
+        { characterId: 'hakurou' },
+        { characterId: 'kurobe' },
+        { characterId: 'souei' }
+      ],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(900);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  for (const hero of ['benimaru', 'shion', 'hakurou', 'kurobe', 'souei', 'kaijin']) {
+    expect(loadedAssets.some((name) => name.includes(`party-${hero}`))).toBe(true);
+  }
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
