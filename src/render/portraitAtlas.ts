@@ -30,6 +30,11 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'storm-dragon';
     case 'ranga':
       return 'ranga';
+    case 'shizu':
+      return 'shizu';
+    case 'gildenmeister fuze':
+    case 'fuze':
+      return 'fuze';
     case 'mordrahn':
     case 'mordrahns echo':
       return 'mordrahn';

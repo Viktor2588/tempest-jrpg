@@ -64,6 +64,8 @@ export type PortraitKind =
   | 'rigurd'
   | 'storm-dragon'
   | 'ranga'
+  | 'shizu'
+  | 'fuze'
   | 'mordrahn';
 
 export type PortraitMotif =
@@ -149,6 +151,8 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'rigurd',
   'storm-dragon',
   'ranga',
+  'shizu',
+  'fuze',
   'mordrahn'
 ] as const;
 
@@ -211,6 +215,10 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.water, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'dragon' };
     case 'ranga':
       return { size: 64, base: PALETTE.steel, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+    case 'shizu':
+      return { size: 64, base: PALETTE.ember, accent: PALETTE.bone, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'fuze':
+      return { size: 64, base: PALETTE.steel, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
     case 'mordrahn':
       return { size: 64, base: PALETTE.enemy, accent: PALETTE.arcane, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'shadow' };
     default:

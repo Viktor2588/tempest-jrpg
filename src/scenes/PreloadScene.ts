@@ -62,6 +62,8 @@ import shunaPortraitUrl from '../assets/sprites/portrait-shuna.webp';
 import rigurdPortraitUrl from '../assets/sprites/portrait-rigurd.webp';
 import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
+import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
+import fuzePortraitUrl from '../assets/sprites/portrait-fuze.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
@@ -134,6 +136,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('rigurd'), rigurdPortraitUrl);
     this.load.image(portraitKey('ranga'), rangaPortraitUrl);
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
+    this.load.image(portraitKey('shizu'), shizuPortraitUrl);
+    this.load.image(portraitKey('fuze'), fuzePortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
@@ -206,6 +210,8 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('rigurd'),
       portraitKey('ranga'),
       portraitKey('storm-dragon'),
+      portraitKey('shizu'),
+      portraitKey('fuze'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',

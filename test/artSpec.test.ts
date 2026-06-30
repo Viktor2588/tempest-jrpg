@@ -82,6 +82,8 @@ describe('artSpec', () => {
       'rigurd',
       'storm-dragon',
       'ranga',
+      'shizu',
+      'fuze',
       'mordrahn'
     ]);
     for (const kind of PORTRAIT_KINDS) {
