@@ -5,14 +5,16 @@ import {
   battleArenaForMap,
   partyBattleTextureFor
 } from '../src/render/battleArt';
+import { HEROES } from '../src/data/characters';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 
 describe('Battle-Art-Zuordnung', () => {
   it('liefert für alle spielbaren Figuren eigene Kampfillustrationen', () => {
-    expect(partyBattleTextureFor('rimuru')).toBe(PARTY_BATTLE_ART.rimuru);
-    expect(partyBattleTextureFor('gobta')).toBe(PARTY_BATTLE_ART.gobta);
-    expect(partyBattleTextureFor('ranga')).toBe(PARTY_BATTLE_ART.ranga);
-    expect(partyBattleTextureFor('shuna')).toBe(PARTY_BATTLE_ART.shuna);
+    expect(Object.keys(PARTY_BATTLE_ART).sort()).toEqual(HEROES.map((hero) => hero.id).sort());
+    for (const hero of HEROES) {
+      expect(partyBattleTextureFor(hero.id)).toBe(PARTY_BATTLE_ART[hero.id]);
+      expect(preloadSource).toContain(`../assets/sprites/party-${hero.id}.webp`);
+    }
     expect(partyBattleTextureFor('unknown')).toBeNull();
   });
 
