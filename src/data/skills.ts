@@ -149,5 +149,8 @@ export const SKILLS = [
   { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'] },
   // Phase 40 — Zeitkontrolle (Zeitleiste-Rewrite)
   { id: 'temporal-snare', name: 'Zeitfalle', description: 'Verzerrt den Zeitfluss und wirft das Ziel auf der Zeitleiste zurück.', element: 'shadow', target: 'single-enemy', costMp: 6, power: 8, tags: ['magical', 'debuff'], ctDelta: -55 },
-  { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], ctDelta: 60 }
+  { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], ctDelta: 60 },
+  // Phase 41 — Rimurus Unique-Skills: aktivieren die Verben Analysieren/Verschlingen (nicht direkt wirkbar).
+  { id: 'great-sage', name: 'Großer Weiser', description: 'Rimurus einzigartige Fähigkeit: analysiert Gegner, deckt Schwächen auf und liest ihre nächsten Züge.', element: 'neutral', target: 'self', costMp: 0, power: 0, tags: ['buff'] },
+  { id: 'predator', name: 'Verschlinger', description: 'Rimurus einzigartige Fähigkeit: verschlingt gebrochene, geschwächte Gegner und eignet sich ihre Kraft an.', element: 'shadow', target: 'self', costMp: 0, power: 0, tags: ['buff'] }
 ] as const satisfies readonly SkillDefinition[];

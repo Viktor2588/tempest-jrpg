@@ -30,7 +30,7 @@ export const HEROES = [
       spirit: 3,
       agility: 3
     },
-    initialSkillIds: ['slime-strike', 'water-blade', 'storm-gust'],
+    initialSkillIds: ['predator', 'great-sage', 'slime-strike', 'water-blade', 'storm-gust'],
     startingEquipment: {
       weapon: null,
       armor: 'traveler-cloak',
