@@ -112,17 +112,18 @@ export function rangaTravelFlag(pointId: string): string {
 }
 
 export function hasRangaTravelAccess(state: WorldState): boolean {
-  return state.flags['story.direwolf.pact'] === true || (state.roster ?? []).includes('ranga');
+  return state.flags['story.direwolf.pact'] === true;
 }
 
 export function discoverRangaTravelFlags(
   state: WorldState,
   current: Pick<SaveLocation, 'mapId'>
 ): Readonly<Record<string, boolean>> {
+  if (!hasRangaTravelAccess(state)) return state.flags;
+
   let nextFlags: Record<string, boolean> | null = null;
   for (const point of RANGA_TRAVEL_POINTS) {
     if (point.arrival.mapId !== current.mapId) continue;
-    if (!requirementsMet(state, point.unlockRequirements ?? [])) continue;
     const flag = rangaTravelFlag(point.id);
     if ((nextFlags ?? state.flags)[flag]) continue;
     nextFlags = nextFlags ?? { ...state.flags };
@@ -267,6 +268,54 @@ function buildRangaScoutReport(state: WorldState): RangaScoutReportView {
     return {
       title: 'Freiwilliger Hook: Grenzfeuer',
       body: 'Gobta kann die Grenzlage öffnen, wenn du den optionalen Folgearc starten willst.',
+      targetLocationId: 'border-camp',
+      warning: null
+    };
+  }
+  if ((state.quests['border-escalation']?.status ?? 'inactive') === 'active') {
+    if (!state.flags['story.border.cleared']) {
+      return {
+        title: 'Grenzfeuer: Westpfad ins Geistmoor',
+        body: 'Rangas Kerben beginnen am westlichen Hainrand. Der Hinweg ist markiert; Schnellreise ersetzt die erste Erkundung nicht.',
+        targetLocationId: 'marsh-frontier',
+        warning: 'Menschenpatrouille an der Sumpfgrenze.'
+      };
+    }
+    if (!state.flags['story.border.deescalated']) {
+      return {
+        title: 'Grenzfeuer: Waffen senken',
+        body: 'Die Patrouille ist besiegt. Ranga wartet, bis Tempest die Verwundeten versorgt und den Konflikt deeskaliert.',
+        targetLocationId: 'marsh-frontier',
+        warning: 'Die Nachkampfszene an der Sumpfgrenze ist noch offen.'
+      };
+    }
+    if (!state.flags['story.fracture.read']) {
+      return {
+        title: 'Grenzfeuer: Rückweg zu Shuna',
+        body: 'Ranga markiert den jederzeit offenen Westpfad zurück nach Tempest. Shuna muss den kalten Siegelspan lesen.',
+        targetLocationId: 'tempest-hollow',
+        warning: null
+      };
+    }
+    if (!state.flags['story.vanguard.broken']) {
+      return {
+        title: 'Grenzfeuer: Vorhut am Grenzriss',
+        body: 'Die fremde Spur führt zurück ins Geistmoor. Ranga hält den Weg zum Grenzriss offen.',
+        targetLocationId: 'border-rift',
+        warning: 'Siegelvorhut am Riss.'
+      };
+    }
+    if (!state.flags['story.vanguard.trace-read']) {
+      return {
+        title: 'Grenzfeuer: Rückzugsspur sichern',
+        body: 'Der Kampf ist vorbei, aber Rangas Spurensuche am gebrochenen Siegelanker steht noch aus.',
+        targetLocationId: 'border-rift',
+        warning: 'Kein Name und kein Lager bestätigt.'
+      };
+    }
+    return {
+      title: 'Grenzfeuer: Abschlussbericht',
+      body: 'Ranga hat den Rückweg markiert. Gobta wartet in Tempest auf Bericht und Siegelspur.',
       targetLocationId: 'border-camp',
       warning: null
     };

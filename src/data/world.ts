@@ -255,37 +255,37 @@ export const QUESTS = [
   {
     id: 'border-escalation',
     title: 'Grenzfeuer',
-    description: 'Halte die Sumpfgrenze, während Misstrauen und eine feindliche Vorhut die zerfallende Bindung ausnutzen.',
+    description: 'Folge Rangas sicherer Spur ins Geistmoor, entschärfe den Grenzkonflikt und stoppe eine anonyme Siegelvorhut.',
     actId: 'act-2',
     steps: [
       {
         id: 'muster',
-        title: 'Zum Grenzlager',
-        description: 'Gobta meldet, dass Menschenpatrouillen an der Sumpfgrenze auflaufen.',
+        title: 'Freiwillig ins Geistmoor',
+        description: 'Nimm Gobtas freiwilligen Grenzauftrag an und nutze den Westpfad ins Geistmoor.',
         locationId: 'border-camp'
       },
       {
         id: 'border-clash',
-        title: 'Sumpfgrenze halten',
-        description: 'Wirf die erste Patrouille an der Sumpfgrenze zurück.',
+        title: 'Sumpfgrenze deeskalieren',
+        description: 'Stoppe die Patrouille und versorge danach ihre Verwundeten, statt den Konflikt eskalieren zu lassen.',
         locationId: 'marsh-frontier'
       },
       {
         id: 'read-fracture',
         title: 'Den zweiten Riss lesen',
-        description: 'Bring Shuna die Grenzfunde — die Bindung zerfällt schneller, und jemand aus Tempest hat geredet.',
+        description: 'Kehre über den Westpfad zu Shuna zurück und lass die fremden Siegelspuren auswerten.',
         locationId: 'tempest-hollow'
       },
       {
         id: 'break-vanguard',
-        title: 'Mordrahns Vorhut brechen',
-        description: 'Stell dich der Vorhut am Grenzriss, bevor sie ihn weiter aufreißt.',
+        title: 'Vorhut der alten Ordnung brechen',
+        description: 'Kehre ins Geistmoor zurück, stoppe die Vorhut und lass Ranga ihre anonyme Rückzugsspur sichern.',
         locationId: 'border-rift'
       },
       {
         id: 'report-act2',
         title: 'Bericht: Die Bindung bröckelt',
-        description: 'Kehr zu Gobta zurück und sichere die Grenze für den nächsten Schlag.',
+        description: 'Nutze den Rückweg nach Tempest und berichte Gobta von Deeskalation und Siegelspur.',
         locationId: 'border-camp'
       }
     ],
@@ -822,10 +822,10 @@ export const LOCATIONS = [
     id: 'marsh-frontier',
     name: 'Sumpfgrenze',
     kind: 'dungeon',
-    mapId: 'tempest-start',
-    position: { x: 5, y: 13 },
-    description: 'Ein schlammiger Streifen zwischen Tempest und den Menschenwegen, wo Patrouillen aufeinandertreffen.',
-    identity: 'Act-2-Schlachtfeld: enge Sichtlinien, Menschen-Monster-Spannung, erste echte Grenzgefechte.',
+    mapId: 'spirit-marsh',
+    position: { x: 5, y: 11 },
+    description: 'Rangas markierter Grenzpfad im Geistmoor, an dem Tempest eine Menschenpatrouille ohne weitere Opfer stoppt.',
+    identity: 'Band-3-Deeskalation: Kampf beenden, Waffen senken und Verwundete versorgen.',
     unlockFlag: 'story.act2.started',
     revealFlag: 'scout.border-route'
   },
@@ -833,10 +833,10 @@ export const LOCATIONS = [
     id: 'border-rift',
     name: 'Grenzriss',
     kind: 'shrine',
-    mapId: 'tempest-start',
-    position: { x: 22, y: 7 },
-    description: 'Ein neuer Spalt in der Bindung, an dem Mordrahns Vorhut die Versiegelung weiter aufbricht.',
-    identity: 'Act-2-Bosskampf: Mordrahns Vorhut und der sichtbare Beweis, dass die Bindung schneller zerfällt.',
+    mapId: 'spirit-marsh',
+    position: { x: 18, y: 4 },
+    description: 'Ein neuer Spalt im Geistmoor, an dem eine namenlose Siegelvorhut die Bindung weiter aufbricht.',
+    identity: 'Band-3-Bosskampf: anonyme Vorhut, indirekte Gegenspielerspur und Rangas Auswertung.',
     unlockFlag: 'story.fracture.read'
   },
   {
@@ -905,11 +905,9 @@ export const LOCATIONS = [
     kind: 'gateway',
     mapId: 'tempest-start',
     position: { x: 1, y: 7 },
-    description: 'Ein vernebelter Trampelpfad, der westlich aus dem Hain ins Geistmoor führt.',
-    identity: 'Reisepunkt: Übergang in die zweite Region (Geistmoor).',
-    // Öffnet erst nach „Grenzfeuer" (border-escalation): der Pfad nach Westen wird
-    // frei, sobald die Vorhut am Grenzriss gebrochen ist.
-    unlockFlag: 'story.act2.completed',
+    description: 'Rangas Geruchsmarken führen vom westlichen Hainrand sicher ins Geistmoor.',
+    identity: 'Band-3-Hinweg: öffnet erst nach freiwilliger Annahme von Grenzfeuer.',
+    unlockFlag: 'story.act2.started',
     travelTo: { mapId: 'spirit-marsh', x: 2, y: 2 }
   },
   {
@@ -918,8 +916,8 @@ export const LOCATIONS = [
     kind: 'gateway',
     mapId: 'spirit-marsh',
     position: { x: 1, y: 2 },
-    description: 'Der Rückweg aus dem Moor zurück in den Tempest-Hain.',
-    identity: 'Reisepunkt: zurück in die erste Region.',
+    description: 'Rangas doppelte Kerben markieren den jederzeit offenen Rückweg nach Tempest.',
+    identity: 'Band-3-Rückweg: für Shunas Analyse und Gobtas Abschlussbericht.',
     travelTo: { mapId: 'tempest-start', x: 2, y: 7 }
   },
   {
@@ -1324,17 +1322,24 @@ export const LORE_ENTRIES = [
     unlockFlag: 'story.act2.started'
   },
   {
+    id: 'border-deescalation',
+    title: 'Deeskalation an der Sumpfgrenze',
+    category: 'history',
+    body: 'Tempest gewann den Grenzkampf, ließ die Waffen aber sinken und versorgte die verletzte Menschenpatrouille. Deren Bericht trennt Monsterangriff von fremder Siegelmagie und hält einen Gesprächskanal offen.',
+    unlockFlag: 'story.border.deescalated'
+  },
+  {
     id: 'second-fracture',
     title: 'Der zweite Riss',
     category: 'history',
-    body: 'Shunas Deutung ist eindeutig: die Bindung zerfällt schneller, als sie sollte — entlang der Grenze, als zöge jemand gezielt an den Fäden. Und jemand aus Tempest hat den Weg verraten.',
+    body: 'Shunas Deutung ist eindeutig: Die Bindung zerfällt schneller, als sie sollte. Fremde Siegelspuren lenken Patrouillen und Vorhut an dieselbe Bruchkante, doch der Auftraggeber hinterlässt weder Namen noch Lager.',
     unlockFlag: 'story.fracture.read'
   },
   {
     id: 'mordrahn-vanguard',
     title: 'Feindliche Vorhut',
     category: 'people',
-    body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner, die den Riss weiter aufreißen, damit die alte Ordnung „die Welt retten" kann.',
+    body: 'Keine Projektion mehr, sondern eine reale Vorhut: gefesselte Geister und gebrochene Söldner reißen den Riss für eine unbekannte Stimme weiter auf. Rangas Spur endet an kaltem Siegelstaub — der Auftraggeber bleibt indirekt.',
     unlockFlag: 'story.vanguard.broken'
   },
   {
@@ -2157,7 +2162,7 @@ export const DIALOGS = [
             nextNodeId: 'fracture',
             requirements: [
               { questStatus: { questId: 'border-escalation', status: 'active' } },
-              { flag: 'story.border.cleared' },
+              { flag: 'story.border.deescalated' },
               { notFlag: 'story.fracture.read' }
             ],
             effects: [
@@ -2215,8 +2220,8 @@ export const DIALOGS = [
       {
         id: 'fracture',
         speaker: 'Shuna',
-        text: 'Die Grenzfunde bestätigen es: die Bindung zerfällt schneller als natürlich — entlang genau der Route, die ihr genommen habt. Jemand aus Tempest hat geredet. Brich die Vorhut am Grenzriss, bevor sie ihn ganz aufreißt.',
-        choices: [{ id: 'end', label: 'Zum Grenzriss' }]
+        text: 'Die Fäden an den Waffen der Patrouille stammen nicht aus Tempest. Eine fremde Hand lenkt Angst und Siegelmagie gegeneinander, ohne sich zu zeigen. Kehre ins Geistmoor zurück und stoppe die Vorhut am Grenzriss.',
+        choices: [{ id: 'end', label: 'Über den Westpfad zurück' }]
       },
       {
         id: 'echo-accepted',
@@ -2266,6 +2271,7 @@ export const DIALOGS = [
             nextNodeId: 'muster',
             requirements: [
               { flag: 'story.act1.completed' },
+              { flag: 'story.direwolf.pact' },
               { questStatus: { questId: 'border-escalation', status: 'inactive' } }
             ],
             effects: [
@@ -2280,7 +2286,7 @@ export const DIALOGS = [
             nextNodeId: 'act2-done',
             requirements: [
               { questStatus: { questId: 'border-escalation', status: 'active' } },
-              { flag: 'story.vanguard.broken' }
+              { flag: 'story.vanguard.trace-read' }
             ],
             effects: [
               { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'report-act2' },
@@ -2355,14 +2361,14 @@ export const DIALOGS = [
       {
         id: 'muster',
         speaker: 'Gobta',
-        text: 'Es ist soweit: Patrouillen sammeln sich an der Sumpfgrenze. Halt sie zurück, ohne ein Massaker zu provozieren — wir wollen eine Grenze, kein Feuer.',
-        choices: [{ id: 'end', label: 'Zur Sumpfgrenze' }]
+        text: 'Menschenpatrouillen zählen unsere Feuer. Noch ist es Misstrauen, kein Krieg. Wenn du freiwillig gehst, führt Rangas Markierung am westlichen Hainrand ins Geistmoor. Stoppe den Kampf — und bring alle lebend zurück.',
+        choices: [{ id: 'end', label: 'Westpfad ins Geistmoor' }]
       },
       {
         id: 'act2-done',
         speaker: 'Gobta',
-        text: 'Die Vorhut ist gebrochen, die Grenze hält — fürs Erste. Aber wir wissen jetzt: jemand zieht an der Bindung, und jemand aus Tempest hat ihm den Weg gezeigt.',
-        choices: [{ id: 'end', label: 'Tempest hält' }]
+        text: 'Die Grenze hält, und die gerettete Patrouille erzählt jetzt eine andere Geschichte über Tempest. Rangas kalte Siegelspur beweist nur: Hinter der Vorhut steht jemand, der Misstrauen als Waffe benutzt. Noch kennen wir keinen Namen.',
+        choices: [{ id: 'end', label: 'Wir bereiten uns vor' }]
       }
     ]
   },
@@ -2564,6 +2570,73 @@ export const DIALOGS = [
         speaker: 'Ranga',
         text: 'Der sichere Pfad bleibt markiert. Ranga trägt euch nur zu Orten, die Tempest wirklich kennt und die gerade nicht unter Feinddruck stehen.',
         choices: [{ id: 'end', label: 'Guter Junge' }]
+      }
+    ]
+  },
+  {
+    id: 'border-survivor',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Grenzspäherin',
+        text: 'Die Patrouillenführerin hält ihre verletzte Seite und erwartet den letzten Schlag. Hinter ihr flackern silberne Fäden an weggeworfenen Waffen — fremde Siegelmagie, nicht Tempests Spur.',
+        choices: [
+          {
+            id: 'aid-survivors',
+            label: 'Waffen senken und Verwundete versorgen',
+            nextNodeId: 'deescalated',
+            requirements: [
+              { questStatus: { questId: 'border-escalation', status: 'active' } },
+              { flag: 'story.border.cleared' },
+              { notFlag: 'story.border.deescalated' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.border.deescalated', value: true },
+              { type: 'set-flag', flag: 'codex.border-deescalation', value: true },
+              { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'border-clash' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'deescalated',
+        speaker: 'Grenzspäherin',
+        text: '„Wir melden, dass Tempest uns besiegt und gerettet hat.“ Sie übergibt Shuna einen kalten Siegelspan. „Die Stimme, die uns hierhertrieb, nannte keinen Namen.“',
+        choices: [{ id: 'end', label: 'Mit dem Siegelspan zurück nach Tempest' }]
+      }
+    ]
+  },
+  {
+    id: 'ranga-vanguard-trace',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Ranga',
+        text: 'Ranga kreist um den gebrochenen Siegelanker. Die Spur riecht nach kaltem Metall und geliehener Magie; sie führt aus dem Moor, verliert sich aber absichtlich vor jedem Lager.',
+        choices: [
+          {
+            id: 'secure-trace',
+            label: 'Rückzugsspur sichern',
+            nextNodeId: 'secured',
+            requirements: [
+              { questStatus: { questId: 'border-escalation', status: 'active' } },
+              { flag: 'story.vanguard.broken' },
+              { notFlag: 'story.vanguard.trace-read' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.vanguard.trace-read', value: true },
+              { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'break-vanguard' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'secured',
+        speaker: 'Ranga',
+        text: '„Kein Name. Kein Lager. Nur ein Befehl, der andere vorschickt.“ Ranga markiert den Rückweg. Gobta wartet in Tempest auf den Bericht.',
+        choices: [{ id: 'end', label: 'Über den Westpfad nach Tempest' }]
       }
     ]
   },
@@ -3169,6 +3242,31 @@ export const NPCS = [
     requirements: [{ flag: 'story.direwolf.pact' }]
   },
   {
+    id: 'border-survivor',
+    name: 'Verwundete Grenzspäherin',
+    mapId: 'spirit-marsh',
+    position: { x: 6, y: 11 },
+    dialogId: 'border-survivor',
+    color: 0xd7c3a5,
+    requirements: [
+      { flag: 'story.border.cleared' },
+      { notFlag: 'story.border.deescalated' }
+    ]
+  },
+  {
+    id: 'ranga-vanguard-trace',
+    name: 'Ranga',
+    mapId: 'spirit-marsh',
+    position: { x: 18, y: 5 },
+    dialogId: 'ranga-vanguard-trace',
+    color: 0x9fb6d6,
+    requirements: [
+      { flag: 'story.direwolf.pact' },
+      { flag: 'story.vanguard.broken' },
+      { notFlag: 'story.vanguard.trace-read' }
+    ]
+  },
+  {
     id: 'eir',
     name: 'Moorhüterin Eir',
     mapId: 'spirit-marsh',
@@ -3486,9 +3584,9 @@ export const ENCOUNTERS = [
   },
   {
     id: 'marsh-frontier-clash',
-    mapId: 'tempest-start',
+    mapId: 'spirit-marsh',
     kind: 'trigger',
-    position: { x: 5, y: 13 },
+    position: { x: 5, y: 11 },
     enemyIds: ['human-lancer', 'spore-moth'],
     chance: 1,
     requirements: [
@@ -3497,15 +3595,14 @@ export const ENCOUNTERS = [
     ],
     victoryEffects: [
       { type: 'set-flag', flag: 'story.border.cleared', value: true },
-      { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'border-clash' },
       { type: 'add-item', itemId: 'healing-herb', quantity: 2 }
     ]
   },
   {
     id: 'border-rift-vanguard',
-    mapId: 'tempest-start',
+    mapId: 'spirit-marsh',
     kind: 'trigger',
-    position: { x: 22, y: 7 },
+    position: { x: 18, y: 4 },
     enemyIds: ['mordrahn-vanguard', 'human-lancer'],
     chance: 1,
     requirements: [
@@ -3513,8 +3610,7 @@ export const ENCOUNTERS = [
       { notFlag: 'story.vanguard.broken' }
     ],
     victoryEffects: [
-      { type: 'set-flag', flag: 'story.vanguard.broken', value: true },
-      { type: 'complete-quest-step', questId: 'border-escalation', stepId: 'break-vanguard' }
+      { type: 'set-flag', flag: 'story.vanguard.broken', value: true }
     ]
   },
   {

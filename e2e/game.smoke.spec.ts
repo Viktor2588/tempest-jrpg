@@ -581,6 +581,57 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(browserErrors).toEqual([]);
 });
 
+test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'spirit-marsh', x: 5, y: 11, facing: 'right' },
+    flags: {
+      'story.act1.completed': true,
+      'story.act2.started': true,
+      'story.border.cleared': true,
+      'milestone.band-two-complete.shown': true,
+      'travel.ranga.discovered.spirit-marsh': true
+    },
+    quests: {
+      'slime-awakening': {
+        status: 'completed',
+        completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+      },
+      'binding-of-ancestors': {
+        status: 'completed',
+        completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+      },
+      'border-escalation': {
+        status: 'active',
+        completedStepIds: ['muster']
+      }
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+
+  await clickGamePoint(page, 874, 510);
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 180, 398);
+  await page.waitForTimeout(300);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('spirit-marsh');
+  expect(save.flags['story.border.deescalated']).toBe(true);
+  expect(save.quests['border-escalation'].completedStepIds).toContain('border-clash');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({

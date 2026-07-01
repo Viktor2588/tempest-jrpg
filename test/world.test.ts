@@ -538,20 +538,20 @@ describe('world/dialog/shop/encounter system', () => {
     expect(resolveEncounter({ ...base, partyLevel: 1 }, 'tempest-start', pos, always).state.encounter?.id).toBe('east-grass');
   });
 
-  it('öffnet den Pfad ins Geistmoor erst nach Abschluss von „Grenzfeuer"', () => {
+  it('öffnet den Pfad ins Geistmoor erst nach freiwilligem Start von „Grenzfeuer"', () => {
     const pos = { x: 1, y: 7 }; // direkt am gate-to-marsh
     const locked: WorldState = { flags: {}, quests: {}, inventory: [], gold: 0 };
     expect(getAdjacentTravel('tempest-start', pos, locked)).toBeUndefined();
     expect(getMapLocations('tempest-start', locked).some((l) => l.id === 'gate-to-marsh')).toBe(false);
 
-    const open: WorldState = { ...locked, flags: { 'story.act2.completed': true } };
+    const open: WorldState = { ...locked, flags: { 'story.act2.started': true } };
     expect(getAdjacentTravel('tempest-start', pos, open)?.id).toBe('gate-to-marsh');
     // Ohne State (Reachability-Sicht) bleibt das Gateway sichtbar.
     expect(getAdjacentTravel('tempest-start', pos)?.id).toBe('gate-to-marsh');
   });
 
   it('reist nur, wenn man genau auf der Gateway-Kachel steht (nicht ein Feld davor)', () => {
-    const open: WorldState = { flags: { 'story.act2.completed': true }, quests: {}, inventory: [], gold: 0 };
+    const open: WorldState = { flags: { 'story.act2.started': true }, quests: {}, inventory: [], gold: 0 };
     // gate-to-marsh liegt auf (1,7): exakt darauf → Übergang.
     expect(getTravelAtTile('tempest-start', { x: 1, y: 7 }, open)?.id).toBe('gate-to-marsh');
     // Direkt daneben (2,7): kein Übergang mehr — vorher hätte getAdjacentTravel ausgelöst.
