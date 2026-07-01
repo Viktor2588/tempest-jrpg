@@ -4,31 +4,16 @@ Diese Datei enthaelt ausschliesslich noch nicht abgeschlossene Arbeit.
 
 Status:
 
-- `[x]` ist im Phase-Branch abgeschlossen und wartet auf Integration.
 - `[~]` wird bereits in dem genannten Worktree bearbeitet.
 - `[ ]` ist offen und darf gemaess `AGENTS.md` uebernommen werden.
 
 ## Laufende Arbeit
 
-- [x] **Phase 46 - Inhalt, Balance und Kampfpraesentation** *(abgeschlossen
-  2026-07-01, Worktree `/worktree/tempest-phase-46-balance-presentation`)*
-  - Branch: `phase-46-balance-presentation`
-  - Schwachstellen-, Devour-, Telegraph-, Signatur- und Kombodaten fuer alle
-    Gegner und Canon-Bosse vervollstaendigen.
-  - Schwellen und Erfolgsraten balancieren.
-  - Battle-HUD um unbekannte/erkannte Schwachstellen, Telegraph, Devour,
-    Signaturleisten, Kombos und Statussymbole erweitern.
-  - Deutsche Tutorial-/Codextexte und QA-Gates ergaenzen.
-  - Volle Suite sowie Desktop- und `390x844`-Smoke abnehmen.
-  - Abnahme: `bun run typecheck`, `bun run test` (308/308),
-    `bun run build` sowie Playwright-Smoke Desktop und `390x844` (24/24)
-    gruen.
+- Keine laufende Phase.
 
 ## Integrationswarteschlange
 
 - Keine offenen Integrationen.
-
-## Kampf-Roadmap
 
 ## Story-Roadmap
 

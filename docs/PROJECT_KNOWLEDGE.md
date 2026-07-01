@@ -461,7 +461,7 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` contains Phase 43, Phase 44, Phase 45, Phase 47, and the earlier merged
+`main` contains Phase 43, Phase 44, Phase 45, Phase 46, Phase 47, and the earlier merged
 implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
@@ -481,7 +481,7 @@ Current `main` includes:
   devour gating, data-driven permanent skill acquisition, duplicate-safe save
   persistence, an eight-slot Rimuru loadout, and bounded CT momentum.
 - Data-driven signature meters and actions for Rimuru, Ranga, Shuna, Benimaru,
-  Shion, Hakurou, Souei, Gobta, Rigurd, and Kurobe, including HUD support,
+  Shion, Hakurou, Souei, Gobta, Rigurd, Kurobe, and Kaijin, including HUD support,
   auto-battle selection, Rigurd save backfill, and his dedicated battle cutout.
 - Team-Mix fusion attacks built from character resonance elements,
   relationship-gated synergy partners, deterministic fusion resolution,
@@ -491,12 +491,17 @@ Current `main` includes:
   enemy scoring accounts for guard-break focus, CT control, buffs/debuffs, and
   control statuses, while auto-battle can analyze, devour, use CT verbs, and
   prepare reactions against telegraphed enemy turns.
+- Phase 46 battle presentation and content closure: every enemy has explicit
+  weakness, Devour, and telegraphable data; all 21 non-neutral element pairs
+  resolve to a fusion; the HUD surfaces Break, analysis, telegraph, Devour
+  chance, signatures, and statuses; German tutorials and QA gates cover the
+  completed system.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-45, 47 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-47 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -560,6 +565,12 @@ completed_milestones:
     - enemy skill scoring for CT control, guard-break focus, buffs, debuffs, and control statuses
     - auto-battle use of analyze, devour, support tempo, CT-delay, and telegraph reactions
     - deterministic battle and auto-battle coverage plus full browser smoke
+  phase_46:
+    - explicit enemy weakness, Devour, and telegraphable-action coverage
+    - corrected decimal Devour success-rate calculation and visible chance
+    - Kaijin signature and complete 21-pair non-neutral fusion matrix
+    - Break, weakness, telegraph, Devour, signature, and status HUD presentation
+    - German boss tutorials, Codex guidance, data validation, and full browser smoke
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
