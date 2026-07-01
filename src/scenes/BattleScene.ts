@@ -31,8 +31,9 @@ import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
 import { fadeIn } from './transition';
 import { chooseAutoAction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
+import { resolveElementFusion } from '../systems/fusion';
 
-type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'target-enemy' | 'target-ally';
+type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'target-enemy' | 'target-ally';
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
@@ -397,6 +398,7 @@ export class BattleScene extends Phaser.Scene {
     if (this.mode === 'menu') this.drawMenu();
     else if (this.mode === 'skills') this.drawSkillList();
     else if (this.mode === 'items') this.drawItemList();
+    else if (this.mode === 'team-partners') this.drawTeamPartnerList();
     else if (this.mode === 'target-enemy') this.drawHint('Ziel-Gegner wählen');
     else if (this.mode === 'target-ally') this.drawHint('Verbündeten wählen');
   }
@@ -567,7 +569,7 @@ export class BattleScene extends Phaser.Scene {
       ['🛡 Verteidigen', () => this.doAct({ type: 'guard' })],
       ['🏃 Fliehen', () => this.doAct({ type: 'flee' })]
     ];
-    const partner = renderView(this.state).party.find((candidate) =>
+    const partners = renderView(this.state).party.filter((candidate) =>
       !candidate.dead
       && candidate.id !== actor.id
       && (
@@ -575,13 +577,13 @@ export class BattleScene extends Phaser.Scene {
         || candidate.synergyPartnerIds.includes(actor.sourceId)
       )
     );
-    if (renderView(this.state).teamMeter >= 100 && partner) {
-      items.splice(3, 0, ['◆ Team-Angriff', () => {
+    if (renderView(this.state).teamMeter >= 100 && partners.length > 0) {
+      items.splice(3, 0, ['◆ Team-Mix', () => {
         this.pendingSkillId = null;
         this.pendingItemId = null;
-        this.pendingTeamPartnerId = partner.id;
+        this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.mode = 'target-enemy';
+        this.mode = 'team-partners';
         this.refresh();
       }]);
     }
@@ -663,6 +665,38 @@ export class BattleScene extends Phaser.Scene {
       }]];
     });
     choices.push(['↩ Zurück', () => {
+      this.mode = 'menu';
+      this.refresh();
+    }]);
+    this.drawChoiceGrid(choices);
+  }
+
+  private drawTeamPartnerList(): void {
+    const actor = currentActor(this.state)!;
+    const partners = renderView(this.state).party.filter((candidate) =>
+      !candidate.dead
+      && candidate.id !== actor.id
+      && (
+        actor.synergyPartnerIds.includes(candidate.sourceId)
+        || candidate.synergyPartnerIds.includes(actor.sourceId)
+      )
+    );
+    const choices: Array<[string, () => void]> = partners.map((partner) => {
+      const fusion = resolveElementFusion(actor.resonanceElement, partner.resonanceElement);
+      return [
+        fusion ? `${partner.name}: ${fusion.name}` : `${partner.name}: Teamdruck`,
+        () => {
+          this.pendingSkillId = null;
+          this.pendingItemId = null;
+          this.pendingSignature = false;
+          this.pendingTeamPartnerId = partner.id;
+          this.mode = 'target-enemy';
+          this.refresh();
+        }
+      ];
+    });
+    choices.push(['↩ Zurück', () => {
+      this.pendingTeamPartnerId = null;
       this.mode = 'menu';
       this.refresh();
     }]);

@@ -149,6 +149,31 @@ describe('autoBattle', () => {
     expect(chooseAutoAction(state)).toEqual({ type: 'signature' });
   });
 
+  it('bevorzugt beim Team-Mix einen Partner mit gültiger Elementfusion', () => {
+    const state = startBattle({
+      party: [
+        autoHero('rimuru', 'Rimuru', { synergyPartnerIds: ['gobta', 'benimaru'] }),
+        autoHero('gobta', 'Gobta', { synergyPartnerIds: ['rimuru'] }),
+        autoHero('benimaru', 'Benimaru', { synergyPartnerIds: ['rimuru'] })
+      ],
+      enemies: [autoEnemy()],
+      teamMeter: 100,
+      seed: 44
+    });
+    const actor = state.combatants.find((combatant) => combatant.sourceId === 'rimuru')!;
+    const benimaru = state.combatants.find((combatant) => combatant.sourceId === 'benimaru')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    actor.resonanceElement = 'water';
+    benimaru.resonanceElement = 'fire';
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'team-attack',
+      partnerId: benimaru.id,
+      targetId: enemy.id
+    });
+  });
+
   it('bevorzugt Schwächen-Skills gegenüber billigeren neutralen Skills', () => {
     const state = startBattle({
       party: [autoHero('rimuru', 'Rimuru', { skillIds: ['slime-strike', 'water-blade'] })],

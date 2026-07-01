@@ -299,19 +299,22 @@ export const RELATIONSHIPS = [
         level: 1,
         requiredPoints: 20,
         title: 'Verlässlicher Gründer',
-        passiveBonus: { spirit: 1 }
+        passiveBonus: { spirit: 1 },
+        combatBonus: { startingTeamMeter: 15 }
       },
       {
         level: 2,
         requiredPoints: 60,
         title: 'Dorfvertrauen',
-        passiveBonus: { maxHp: 6, defense: 2 }
+        passiveBonus: { maxHp: 6, defense: 2 },
+        combatBonus: { startingTeamMeter: 30, teamAttack: true }
       },
       {
         level: 3,
         requiredPoints: 120,
         title: 'Tempest-Stimme',
-        passiveBonus: { maxHp: 10, maxMp: 6, spirit: 3 }
+        passiveBonus: { maxHp: 10, maxMp: 6, spirit: 3 },
+        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'defense-up' }
       }
     ],
     scenes: [
@@ -335,20 +338,23 @@ export const RELATIONSHIPS = [
         level: 1,
         requiredPoints: 25,
         title: 'Witterung',
-        passiveBonus: { agility: 2 }
+        passiveBonus: { agility: 2 },
+        combatBonus: { startingTeamMeter: 15 }
       },
       {
         level: 2,
         requiredPoints: 75,
         title: 'Rudel-Timing',
-        passiveBonus: { attack: 2, agility: 3 }
+        passiveBonus: { attack: 2, agility: 3 },
+        combatBonus: { startingTeamMeter: 30, teamAttack: true }
       },
       {
         level: 3,
         requiredPoints: 140,
         title: 'Direwolf-Sprint',
         passiveBonus: { attack: 4, agility: 5 },
-        skillIds: ['direwolf-rush']
+        skillIds: ['direwolf-rush'],
+        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }
       }
     ],
     scenes: [

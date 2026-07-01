@@ -20,6 +20,7 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   await clickGamePoint(page, 480, 370);
   await clickGamePoint(page, 480, 280);
   await page.waitForTimeout(700);
+  await dismissOverworldTutorial(page);
   await expectCanvasContent(page);
 
   // Menü-Overlay samt Resume-Pfad prüfen.
@@ -64,6 +65,7 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
   await page.waitForTimeout(700);
+  await dismissOverworldTutorial(page);
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowUp');
@@ -675,6 +677,11 @@ async function focusGame(page: Page): Promise<void> {
   await page.waitForTimeout(100);
 }
 
+async function dismissOverworldTutorial(page: Page): Promise<void> {
+  await clickGamePoint(page, 480, 372);
+  await page.waitForTimeout(250);
+}
+
 async function tapMovementKey(page: Page, key: string): Promise<void> {
   await page.keyboard.down(key);
   await page.waitForTimeout(90);
@@ -688,7 +695,17 @@ async function expectCanvasContent(page: Page): Promise<void> {
     const canvasNode = node as HTMLCanvasElement;
     return { width: canvasNode.width, height: canvasNode.height };
   });
-  const screenshot = await canvas.screenshot();
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Game canvas not found');
+  const screenshot = await page.screenshot({
+    animations: 'disabled',
+    clip: {
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      height: box.height
+    }
+  });
   const visibleRatio = getVisiblePixelRatio(screenshot);
 
   expect(content.width).toBe(GAME_WIDTH);

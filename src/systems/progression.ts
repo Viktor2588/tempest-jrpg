@@ -637,7 +637,9 @@ export function getCombatSynergyPartnerIds(
 ): readonly string[] {
   return uniqueStrings(RELATIONSHIPS.flatMap((relationship) => {
     const level = getRelationshipLevel(state, relationship.id);
-    if (relationship.partnerKind !== 'party' || !level?.combatBonus?.teamAttack) {
+    if (!heroById.has(relationship.characterId)
+      || !heroById.has(relationship.partnerId)
+      || !level?.combatBonus?.teamAttack) {
       return [];
     }
     if (relationship.characterId === characterId) {
@@ -669,8 +671,7 @@ export function calculateStartingTeamMeter(
 ): number {
   const activeCharacterIds = new Set(members.map((member) => member.characterId));
   const meter = RELATIONSHIPS.reduce((total, relationship) => {
-    if (relationship.partnerKind !== 'party'
-      || !activeCharacterIds.has(relationship.characterId)
+    if (!activeCharacterIds.has(relationship.characterId)
       || !activeCharacterIds.has(relationship.partnerId)) {
       return total;
     }

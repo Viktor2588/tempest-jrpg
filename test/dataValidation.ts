@@ -6,6 +6,7 @@ import {
   type DialogDefinition,
   type EncounterDefinition,
   type EnemyDefinition,
+  type ElementFusionDefinition,
   type EquipmentSetDefinition,
   type EvolutionDefinition,
   type EquipmentSlot,
@@ -34,6 +35,7 @@ export interface DataValidationIssue {
 interface DataSet {
   readonly heroes: readonly CharacterDefinition[];
   readonly enemies: readonly EnemyDefinition[];
+  readonly elementFusions: readonly ElementFusionDefinition[];
   readonly items: readonly ItemDefinition[];
   readonly skills: readonly SkillDefinition[];
   readonly signatures: readonly SignatureDefinition[];
@@ -81,6 +83,7 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   );
 
   validateUniqueIds('skills', data.skills, issues);
+  validateUniqueIds('elementFusions', data.elementFusions, issues);
   validateUniqueIds('signatures', data.signatures, issues);
   validateUniqueIds('items', data.items, issues);
   validateUniqueIds('progression.regions', data.progression.regions, issues);
@@ -135,6 +138,35 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
         message: 'Eine Signatur braucht mindestens einen Effekt.'
       });
     }
+  }
+
+  const fusionPairs = new Set<string>();
+  for (const fusion of data.elementFusions) {
+    const pair = [...fusion.elements].sort().join('+');
+    if (fusion.elements.includes('neutral')) {
+      issues.push({
+        path: `elementFusions.${fusion.id}.elements`,
+        message: 'Neutrale Resonanz kann keine Elementfusion bilden.'
+      });
+    }
+    if (fusionPairs.has(pair)) {
+      issues.push({
+        path: `elementFusions.${fusion.id}.elements`,
+        message: `Elementpaar '${pair}' ist mehrfach definiert.`
+      });
+    }
+    fusionPairs.add(pair);
+    if (!Number.isFinite(fusion.powerMultiplier) || fusion.powerMultiplier <= 1) {
+      issues.push({
+        path: `elementFusions.${fusion.id}.powerMultiplier`,
+        message: 'Fusionsmultiplikator muss größer als 1 sein.'
+      });
+    }
+    validatePositiveInteger(
+      `elementFusions.${fusion.id}.breakPressure`,
+      fusion.breakPressure,
+      issues
+    );
   }
 
   for (const hero of data.heroes) {
@@ -321,6 +353,13 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       issues.push({
         path: `progression.relationships.${relationship.id}.partnerId`,
         message: `Party-Beziehung verweist auf unbekannten Charakter '${relationship.partnerId}'.`
+      });
+    }
+    if (relationship.levels.some((level) => level.combatBonus?.teamAttack)
+      && !heroIds.has(relationship.partnerId)) {
+      issues.push({
+        path: `progression.relationships.${relationship.id}.partnerId`,
+        message: `Team-Angriff braucht einen spielbaren Partner '${relationship.partnerId}'.`
       });
     }
     let previousLevel = 0;

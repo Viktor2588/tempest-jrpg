@@ -6,6 +6,7 @@ import { act, currentActor, renderView, type BattleState } from './battle';
 import { ITEMS, SIGNATURES, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { getItemCount } from './inventory';
+import { resolveElementFusion } from './fusion';
 
 export type BattleAction = Parameters<typeof act>[1];
 
@@ -59,13 +60,16 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
     return { type: 'signature' };
   }
 
-  const synergyPartner = allies.find((candidate) =>
+  const synergyPartners = allies.filter((candidate) =>
     candidate.id !== actor.id
     && (
       actor.synergyPartnerIds.includes(candidate.sourceId)
       || candidate.synergyPartnerIds.includes(actor.sourceId)
     )
   );
+  const synergyPartner = synergyPartners.find((candidate) =>
+    resolveElementFusion(actor.resonanceElement, candidate.resonanceElement)
+  ) ?? synergyPartners[0];
   if (view.teamMeter >= TEAM_ATTACK_THRESHOLD && synergyPartner) {
     return { type: 'team-attack', partnerId: synergyPartner.id, targetId: target.id };
   }
