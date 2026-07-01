@@ -60,6 +60,7 @@ export interface SignatureDefinition {
   readonly characterId: string;
   readonly name: string;
   readonly description: string;
+  readonly element: ElementType;
   readonly target: SignatureTarget;
   readonly chargePerAction: number;
   readonly effects: readonly SignatureEffect[];
@@ -71,6 +72,7 @@ export const SIGNATURES = [
     characterId: 'rimuru',
     name: 'Weiser Horizont',
     description: 'Analysiert alle Gegner vollständig und setzt ihre Deckung unter Druck.',
+    element: 'water',
     target: 'all-enemies',
     chargePerAction: 25,
     effects: [
@@ -83,6 +85,7 @@ export const SIGNATURES = [
     characterId: 'ranga',
     name: 'Sturmjagd',
     description: 'Ranga überrennt ein Ziel, wirft es auf der Zeitleiste zurück und beschleunigt sich.',
+    element: 'wind',
     target: 'single-enemy',
     chargePerAction: 30,
     effects: [
@@ -96,6 +99,7 @@ export const SIGNATURES = [
     characterId: 'shuna',
     name: 'Heilige Barriere',
     description: 'Heilt die Gruppe und webt schützende, magieverstärkende Fäden.',
+    element: 'holy',
     target: 'all-allies',
     chargePerAction: 25,
     effects: [
@@ -109,6 +113,7 @@ export const SIGNATURES = [
     characterId: 'benimaru',
     name: 'Schwarzflammen-Befehl',
     description: 'Ein Flammenfeld trifft alle Gegner und bricht ihre Formation.',
+    element: 'fire',
     target: 'all-enemies',
     chargePerAction: 25,
     effects: [
@@ -121,6 +126,7 @@ export const SIGNATURES = [
     characterId: 'shion',
     name: 'Sicheres Ergebnis',
     description: 'Shions entschlossener Hieb verursacht massiven Schaden und erzwingt einen Break.',
+    element: 'earth',
     target: 'single-enemy',
     chargePerAction: 25,
     effects: [
@@ -133,6 +139,7 @@ export const SIGNATURES = [
     characterId: 'hakurou',
     name: 'Fließender Konter',
     description: 'Hakurou liest den nächsten Angriff und nimmt die perfekte Konterhaltung ein.',
+    element: 'wind',
     target: 'self',
     chargePerAction: 35,
     effects: [
@@ -145,6 +152,7 @@ export const SIGNATURES = [
     characterId: 'souei',
     name: 'Schattenfessel',
     description: 'Giftfäden verstummen das Ziel und ziehen es auf der Zeitleiste zurück.',
+    element: 'shadow',
     target: 'single-enemy',
     chargePerAction: 30,
     effects: [
@@ -158,6 +166,7 @@ export const SIGNATURES = [
     characterId: 'gobta',
     name: 'Genialer Zufall',
     description: 'Gobtas unmögliche Finte blendet das Ziel und katapultiert ihn nach vorn.',
+    element: 'wind',
     target: 'single-enemy',
     chargePerAction: 35,
     effects: [
@@ -171,6 +180,7 @@ export const SIGNATURES = [
     characterId: 'rigurd',
     name: 'Tempest steht zusammen',
     description: 'Rigurd festigt die Gruppe und füllt die Team-Leiste.',
+    element: 'earth',
     target: 'all-allies',
     chargePerAction: 25,
     effects: [
@@ -183,6 +193,7 @@ export const SIGNATURES = [
     characterId: 'kurobe',
     name: 'Meisterwerk',
     description: 'Kurobe härtet Waffen und Rüstung eines Verbündeten für den laufenden Kampf.',
+    element: 'earth',
     target: 'single-ally',
     chargePerAction: 30,
     effects: [

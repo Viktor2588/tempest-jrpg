@@ -11,6 +11,7 @@ import {
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
+  type ElementFusionDefinition,
   type ItemDefinition,
   type SignatureDefinition,
   type SignatureEffectScope,
@@ -22,6 +23,7 @@ import { getItemCount, normalizeInventoryStacks, type InventoryStack } from './i
 import type { PartyMemberState } from './party';
 import { makeRng, type Rng } from './rng';
 import { scaleStats } from './stats';
+import { resolveElementFusion } from './fusion';
 
 export type Side = 'party' | 'enemy';
 export type BattleStatus = 'active' | 'won' | 'lost' | 'fled';
@@ -91,6 +93,7 @@ export interface Combatant {
   readonly signatureId: string | null;
   signatureCharge: number;
   readonly signatureChargeMax: number;
+  resonanceElement: ElementType | null;
   readonly statuses: StatusInstance[];
   reaction: QueuedReaction | null;
   breakGauge: number;
@@ -454,6 +457,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     signatureId: signature?.id ?? null,
     signatureCharge: 0,
     signatureChargeMax: SIGNATURE_CHARGE_MAX,
+    resonanceElement: null,
     statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
       id: statusId,
       turns: 3
@@ -572,6 +576,9 @@ function resolveSkill(
   }
 
   actor.mp -= skill.costMp;
+  if (skill.element !== 'neutral') {
+    actor.resonanceElement = skill.element;
+  }
 
   if (isHealingSkill(skill)) {
     for (const target of targets) {
@@ -696,6 +703,7 @@ function resolveTeamAttack(
     return { ok: false, reason: 'Keine aktive Beziehung für einen Team-Angriff.' };
   }
 
+  const fusion = resolveElementFusion(actor.resonanceElement, partner.resonanceElement);
   state.teamMeter = Math.max(0, state.teamMeter - TEAM_ATTACK_COST);
   const rawDamage = (
     effectiveStat(actor, 'attack')
@@ -703,10 +711,31 @@ function resolveTeamAttack(
     + effectiveStat(partner, 'attack')
     + effectiveStat(partner, 'magic')
     - effectiveStat(target, 'defense') * 0.65
-  ) * 1.35 * variance(state.rng);
+  )
+    * (fusion?.powerMultiplier ?? 1.35)
+    * (fusion ? elementMultiplier(fusion.damageElement, target) : 1)
+    * variance(state.rng);
   const damage = applyDamage(state, actor, target, rawDamage, false);
-  applyBreakPressure(state, target, 'neutral', 2);
-  pushLog(state, `${actor.name} und ${partner.name} entfesseln Teamdruck: ${damage} Schaden.`);
+  applyBreakPressure(
+    state,
+    target,
+    fusion?.damageElement ?? 'neutral',
+    fusion?.breakPressure ?? 2
+  );
+  if (fusion?.statusEffect && target.hp > 0) {
+    applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
+    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)}.`);
+  }
+  pushLog(
+    state,
+    fusion
+      ? `${actor.name} und ${partner.name} fusionieren ${fusion.name}: ${damage} Schaden.`
+      : `${actor.name} und ${partner.name} entfesseln Teamdruck: ${damage} Schaden.`
+  );
+  if (fusion) {
+    actor.resonanceElement = null;
+    partner.resonanceElement = null;
+  }
   checkDeath(state, target);
   endTurn(state, actor);
   return { ok: true };
@@ -803,6 +832,9 @@ function resolveSignature(
   }
 
   actor.signatureCharge = 0;
+  if (signature.element !== 'neutral') {
+    actor.resonanceElement = signature.element;
+  }
   pushLog(state, `${actor.name} entfesselt ${signature.name}!`);
   for (const effect of signature.effects) {
     const effectTargets = signatureEffectTargets(state, actor, targets, effect.scope);
@@ -924,6 +956,13 @@ function signatureEffectTargets(
     case 'enemies':
       return livingCombatants(state, actor.side === 'party' ? 'enemy' : 'party');
   }
+}
+
+export function getTeamFusion(
+  actor: Pick<Combatant, 'resonanceElement'>,
+  partner: Pick<Combatant, 'resonanceElement'>
+): ElementFusionDefinition | null {
+  return resolveElementFusion(actor.resonanceElement, partner.resonanceElement);
 }
 
 function chooseDevourSkill(actor: Combatant, target: Combatant): SkillDefinition | null {

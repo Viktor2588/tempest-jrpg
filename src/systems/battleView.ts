@@ -31,6 +31,7 @@ export interface CombatantView {
   readonly signatureTarget: SignatureTarget | null;
   readonly signatureCharge: number;
   readonly signatureChargeMax: number;
+  readonly resonanceElement: ElementType | null;
   readonly statuses: readonly StatusEffectId[];
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
@@ -104,6 +105,7 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     signatureTarget: signature?.target ?? null,
     signatureCharge: combatant.signatureCharge,
     signatureChargeMax: combatant.signatureChargeMax,
+    resonanceElement: combatant.resonanceElement,
     statuses: combatant.statuses.map((status) => status.id),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,

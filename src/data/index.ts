@@ -1,5 +1,6 @@
 import { HEROES } from './characters';
 import { ENEMIES } from './enemies';
+import { ELEMENT_FUSIONS } from './fusions';
 import { ITEMS } from './items';
 import {
   CATCH_UP_CONFIG,
@@ -16,6 +17,7 @@ import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } fro
 
 export { HEROES } from './characters';
 export { ENEMIES } from './enemies';
+export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
 export {
   CATCH_UP_CONFIG,
@@ -29,6 +31,10 @@ export {
 export { SKILLS } from './skills';
 export { SIGNATURES } from './signatures';
 export { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
+export type {
+  ElementFusionDefinition,
+  FusionElementId
+} from './fusions';
 export type {
   SignatureDefinition,
   SignatureEffect,
@@ -84,6 +90,7 @@ export type {
 export const GAME_DATA = {
   heroes: HEROES,
   enemies: ENEMIES,
+  elementFusions: ELEMENT_FUSIONS,
   items: ITEMS,
   skills: SKILLS,
   signatures: SIGNATURES,
