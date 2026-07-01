@@ -4,9 +4,9 @@ format: okf-inspired-structured-markdown
 document_role: canonical-project-context
 title: Tempest - Chronik
 snapshot:
-  date: 2026-07-01
+  date: 2026-07-02
   branch: main
-  base_commit: d13c682e870c90876fc14dcfa7c996fb21111968
+  base_commit: cde6ba42e5fc5fa0a874a06ffebd1d0084d56fc8
   includes_uncommitted_documentation: true
 scope:
   implementation: tracked files on main
@@ -461,7 +461,7 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` contains Phase 43, Phase 44, Phase 45, Phase 46, Phase 47, and the earlier merged
+`main` contains Phase 43, Phase 44, Phase 45, Phase 46, Phase 47, Phase 48, and the earlier merged
 implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
@@ -496,12 +496,17 @@ Current `main` includes:
   resolve to a fusion; the HUD surfaces Break, analysis, telegraph, Devour
   chance, signatures, and statuses; German tutorials and QA gates cover the
   completed system.
+- Phase 48 Band-3 story flow: `border-escalation` starts voluntarily only
+  after Band 2 and Ranga's pact, moves the border route into `spirit-marsh`,
+  requires non-lethal post-fight de-escalation before Shuna's analysis, and
+  resolves the vanguard through Ranga's anonymous trace instead of a visible
+  legacy antagonist claim.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-47 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-48 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -571,6 +576,13 @@ completed_milestones:
     - Kaijin signature and complete 21-pair non-neutral fusion matrix
     - Break, weakness, telegraph, Devour, signature, and status HUD presentation
     - German boss tutorials, Codex guidance, data validation, and full browser smoke
+  phase_48:
+    - voluntary Band-3 border-escalation start after Band 2 and Ranga's pact
+    - `spirit-marsh` route, border clash, return gate, and rift coordinates
+    - non-lethal Sumpfgrenze de-escalation with survivor aid and Codex lore
+    - Shuna analysis based on indirect foreign seal traces, not a Tempest traitor claim
+    - anonymous vanguard aftermath resolved through Ranga's trace before Gobta's report
+    - headless save roundtrip, unit, build, and desktop/mobile browser smoke coverage
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.

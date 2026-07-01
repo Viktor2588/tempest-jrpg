@@ -9,20 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Band 3 - Grenzeskalation** *(abgeschlossen, technische Phase 48,
-  Worktree `/worktree/tempest-phase-48-band-3`)*
-  - Branch: `phase-48-band-3`
-  - `border-escalation` nur freiwillig nach Band 2 starten.
-  - Sichtbare Legacy-Namen durch Canon-Figuren oder neutrale Systemrollen
-    ersetzen; stabile interne IDs beibehalten.
-  - `spirit-marsh`, `marsh-frontier` und Rueckweg klar fuehren.
-  - Ranga-Scout/Schnellreise nur nach Pakt und Entdeckung erlauben.
-  - Grenzkampf, Rissanalyse und Vorhut als zusammenhaengenden Flow umsetzen.
-  - Nicht-toedliche Deeskalation und indirekte Gegenspieler-Spuren erzaehlen.
-  - Headless-, Save- und Browser-Smoke fuer den Gesamtflow ergaenzen.
-  - Abnahme: `git diff --check`; `bun run typecheck`; `bun run test`
-    (44 Dateien, 311 Tests); `bun run build`; `bunx playwright test -g
-    "Band 3 → Nachkampf"` (desktop/mobile, 2 Tests).
+- Keine laufende Phase.
 
 ## Integrationswarteschlange
 
