@@ -4,9 +4,9 @@ format: okf-inspired-structured-markdown
 document_role: canonical-project-context
 title: Tempest - Chronik
 snapshot:
-  date: 2026-06-30
+  date: 2026-07-01
   branch: main
-  base_commit: 227a0f4a05c38442648520e7204fb5a35db3a121
+  base_commit: 0d4f0817470ed54a809cbc54dbf354ae49868748
   includes_uncommitted_documentation: true
 scope:
   implementation: tracked files on main
@@ -461,7 +461,7 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` contains Phase 42, Phase 47, and the earlier merged implementation. The
+`main` contains Phase 43, Phase 47, and the earlier merged implementation. The
 separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
@@ -480,12 +480,15 @@ Current `main` includes:
 - Analysis, telegraph, CT control, control-status battle substrate, Predator
   devour gating, data-driven permanent skill acquisition, duplicate-safe save
   persistence, an eight-slot Rimuru loadout, and bounded CT momentum.
+- Data-driven signature meters and actions for Rimuru, Ranga, Shuna, Benimaru,
+  Shion, Hakurou, Souei, Gobta, Rigurd, and Kurobe, including HUD support,
+  auto-battle selection, Rigurd save backfill, and his dedicated battle cutout.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-42, 47 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-43, 47 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -532,6 +535,12 @@ completed_milestones:
     - permanent duplicate-safe learned skills and save normalization
     - Rimuru water and Predator core with an eight-slot battle loadout
     - Codex unlock and rimuru-predator-devour talent gate
+  phase_43:
+    - generic signature meter and effect framework
+    - ten distinct data-driven character signature actions
+    - analysis, CT, status, reaction, team-meter, and break primitive reuse
+    - battle HUD and auto-battle integration
+    - Rigurd recruitment, save backfill, and generated battle cutout
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
