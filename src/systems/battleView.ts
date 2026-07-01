@@ -1,5 +1,5 @@
 import type { ElementType, StatusEffectId } from '../data';
-import { SIGNATURES, type SignatureTarget } from '../data';
+import { SIGNATURES, SKILLS, type SignatureTarget } from '../data';
 import type {
   BattleRewards,
   BattleState,
@@ -8,6 +8,7 @@ import type {
   QueuedReaction,
   Side
 } from './battle';
+import { calculateDevourSuccessChance } from './battle';
 import type { InventoryStack } from './inventory';
 
 export interface CombatantView {
@@ -40,7 +41,11 @@ export interface CombatantView {
   // Phase 40 — Großer Weiser: Analysestufe deckt Schwächen + Telegraph für die Anzeige auf.
   readonly analysisLevel: number;
   readonly revealedWeaknesses: readonly ElementType[];
+  readonly revealedResistances: readonly ElementType[];
   readonly telegraphSkillId: string | null;
+  readonly telegraphSkillName: string | null;
+  readonly devourable: boolean;
+  readonly devourSuccessChance: number | null;
   readonly dead: boolean;
   readonly guarding: boolean;
   readonly active: boolean;
@@ -113,7 +118,11 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     phaseIndex: combatant.phaseIndex,
     analysisLevel: combatant.analysisLevel,
     revealedWeaknesses: combatant.analysisLevel >= 1 ? [...combatant.weaknesses] : [],
+    revealedResistances: combatant.analysisLevel >= 2 ? [...combatant.resistances] : [],
     telegraphSkillId: combatant.telegraphSkillId,
+    telegraphSkillName: SKILLS.find((skill) => skill.id === combatant.telegraphSkillId)?.name ?? null,
+    devourable: combatant.devourable,
+    devourSuccessChance: calculateDevourSuccessChance(combatant),
     dead: combatant.dead,
     guarding: combatant.guarding,
     active: combatant.id === activeId

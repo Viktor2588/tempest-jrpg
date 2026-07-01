@@ -1,0 +1,62 @@
+import { describe, expect, it } from 'vitest';
+import { ENEMIES } from '../src/data';
+import {
+  BATTLE_BALANCE,
+  calculateDevourSuccessChance,
+  renderView,
+  startBattle
+} from '../src/systems/battle';
+import { buildEnemyIntel, formatStatusSummary } from '../src/systems/battlePresentation';
+
+describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
+  it('hält die abgestimmten Schwellen und Erfolgsraten explizit prüfbar', () => {
+    expect(BATTLE_BALANCE).toMatchObject({
+      analysisMax: 2,
+      breakGaugeMax: 4,
+      devourHpThreshold: 0.35,
+      teamMeterBreakGain: 35,
+      teamMeterMax: 100
+    });
+  });
+
+  it('steigert Devour nachvollziehbar von Debuff über Break bis zum vorbereiteten Fenster', () => {
+    const state = startBattle({ enemyIds: ['forest-slime'], seed: 46 });
+    const enemy = state.combatants.find((unit) => unit.side === 'enemy')!;
+
+    expect(calculateDevourSuccessChance(enemy)).toBe(0);
+    enemy.statuses.push({ id: 'poison', turns: 3 });
+    expect(calculateDevourSuccessChance(enemy)).toBeCloseTo(0.25);
+    enemy.statuses.push({ id: 'guard-break', turns: 2 });
+    expect(calculateDevourSuccessChance(enemy)).toBeCloseTo(0.7);
+    enemy.hp = Math.floor(enemy.maxHp * 0.35);
+    enemy.analysisLevel = 1;
+    expect(calculateDevourSuccessChance(enemy)).toBeCloseTo(0.9);
+  });
+
+  it('liefert unbekannte und analysierte Gegnerinformationen ohne Spoiler', () => {
+    const state = startBattle({ enemyIds: ['ifrit'], seed: 46 });
+    const enemy = state.combatants.find((unit) => unit.side === 'enemy')!;
+    const hidden = buildEnemyIntel(renderView(state).enemies[0]!);
+
+    expect(hidden.weaknessText).toBe('SCHW ? (Analyse)');
+    expect(hidden.telegraphText).toBeNull();
+
+    enemy.analysisLevel = 1;
+    enemy.telegraphSkillId = 'ifrit-inferno';
+    const revealed = buildEnemyIntel(renderView(state).enemies[0]!);
+    expect(revealed.weaknessText).toContain('Wasser');
+    expect(revealed.telegraphText).toBe('NÄCHSTES: Ifrits Inferno');
+  });
+
+  it('hat für alle Gegner Schwächen, Telegraph-Aktionen und explizite Devour-Daten', () => {
+    expect(ENEMIES.every((enemy) => enemy.weaknesses.length > 0)).toBe(true);
+    expect(ENEMIES.every((enemy) => enemy.skillIds.length > 0)).toBe(true);
+    expect(ENEMIES.every((enemy) => typeof enemy.devourable === 'boolean')).toBe(true);
+  });
+
+  it('fasst alle relevanten Statussymbole kompakt für das HUD zusammen', () => {
+    expect(formatStatusSummary(['poison', 'guard-break', 'silence', 'blind']))
+      .toBe('Gift · Break · Stumm');
+    expect(formatStatusSummary([])).toBeNull();
+  });
+});

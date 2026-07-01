@@ -73,7 +73,7 @@ function signatureBattle(
 }
 
 describe('Phase 43 – Signaturaktionen', () => {
-  it('bindet genau die zehn geplanten Kämpfer datengetrieben an', () => {
+  it('bindet alle elf spielbaren Kämpfer datengetrieben an', () => {
     expect(SIGNATURES.map((signature) => signature.characterId)).toEqual([
       'rimuru',
       'ranga',
@@ -84,11 +84,26 @@ describe('Phase 43 – Signaturaktionen', () => {
       'souei',
       'gobta',
       'rigurd',
-      'kurobe'
+      'kurobe',
+      'kaijin'
     ]);
     expect(SIGNATURES.every((signature) =>
       HEROES.some((hero) => hero.id === signature.characterId)
     )).toBe(true);
+  });
+
+  it('Kaijin stärkt die Gruppe und setzt alle Gegner unter Break-Druck', () => {
+    const { state, actor, allies, enemies } = signatureBattle('kaijin', ['rimuru'], 2);
+
+    expect(act(state, { type: 'signature' }).ok).toBe(true);
+
+    expect(actor.statuses.map((status) => status.id)).toEqual(
+      expect.arrayContaining(['attack-up', 'defense-up'])
+    );
+    expect(allies[0]!.statuses.map((status) => status.id)).toEqual(
+      expect.arrayContaining(['attack-up', 'defense-up'])
+    );
+    expect(enemies.every((enemy) => enemy.breakGauge === enemy.breakGaugeMax - 1)).toBe(true);
   });
 
   it('lädt die Signaturleiste über reguläre Aktionen und zeigt sie im View-Modell', () => {

@@ -32,6 +32,7 @@ import { fadeIn } from './transition';
 import { chooseAutoAction, prepareAutoReaction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
+import { buildEnemyIntel, formatStatusSummary } from '../systems/battlePresentation';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'target-enemy' | 'target-ally';
 
@@ -435,10 +436,10 @@ export class BattleScene extends Phaser.Scene {
 
   private drawUnit(unit: CombatantView, x: number, y: number, side: 'party' | 'enemy'): void {
     const width = 136;
-    const height = 140;
+    const height = 156;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
-    const box = this.add.rectangle(x, y, width, height, side === 'enemy' ? 0x281520 : 0x122338, 0.58 * alpha)
+    const box = this.add.rectangle(x, y + 8, width, height, side === 'enemy' ? 0x281520 : 0x122338, 0.58 * alpha)
       .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffdc78 : 0x6a7891, unit.active ? 1 : 0.72);
     this.layer.add(box);
     // Proportional skalierte Illustration → Legacy-Sprite → Platzhalter.
@@ -495,6 +496,36 @@ export class BattleScene extends Phaser.Scene {
       fontSize: '10px',
       color: '#d1deef'
     }).setOrigin(0.5).setAlpha(alpha));
+
+    const statusSummary = formatStatusSummary(unit.statuses);
+    if (statusSummary) {
+      this.layer.add(this.add.text(x, y + 23, statusSummary, {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: '#ffcf70'
+      }).setOrigin(0.5).setAlpha(alpha));
+    }
+
+    if (side === 'enemy') {
+      const intel = buildEnemyIntel(unit);
+      this.layer.add(this.add.text(x, y + 63, `${intel.breakText} · ${intel.weaknessText}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: unit.analysisLevel >= 1 ? '#8fe7ff' : '#91a1b8'
+      }).setOrigin(0.5).setAlpha(alpha));
+      const actionText = [intel.telegraphText, intel.devourText].filter(Boolean).join(' · ');
+      if (actionText) {
+        this.layer.add(this.add.text(x, y + 74, actionText, {
+          fontFamily: 'sans-serif',
+          fontSize: '7px',
+          color: intel.telegraphText ? '#ffd27a' : '#b8c8dc',
+          align: 'center',
+          wordWrap: { width: width - 10, useAdvancedWrap: true }
+        }).setOrigin(0.5).setAlpha(alpha));
+      }
+    }
 
     if (side === 'party' && unit.signatureId) {
       const barWidth = width - 22;
