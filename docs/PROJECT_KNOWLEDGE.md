@@ -6,7 +6,7 @@ title: Tempest - Chronik
 snapshot:
   date: 2026-07-01
   branch: main
-  base_commit: 147a30d47572cd6abc253516bad5846c1423cff3
+  base_commit: d13c682e870c90876fc14dcfa7c996fb21111968
   includes_uncommitted_documentation: true
 scope:
   implementation: tracked files on main
@@ -461,7 +461,7 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` contains Phase 43, Phase 44, Phase 47, and the earlier merged
+`main` contains Phase 43, Phase 44, Phase 45, Phase 47, and the earlier merged
 implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
@@ -487,12 +487,16 @@ Current `main` includes:
   relationship-gated synergy partners, deterministic fusion resolution,
   auto-battle partner preference, and robust E2E canvas/onboarding smoke
   coverage.
+- Phase 45 battle-AI polish: analyzed enemies honor telegraphed skills,
+  enemy scoring accounts for guard-break focus, CT control, buffs/debuffs, and
+  control statuses, while auto-battle can analyze, devour, use CT verbs, and
+  prepare reactions against telegraphed enemy turns.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-44, 47 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-45, 47 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -551,6 +555,11 @@ completed_milestones:
     - relationship-gated Team-Mix partner selection in battle UI and auto-battle
     - fusion damage, break pressure, status effects, and deterministic tests
     - Playwright canvas screenshot and first-run onboarding smoke hardening
+  phase_45:
+    - analyzed enemies refresh and honor telegraphed skills
+    - enemy skill scoring for CT control, guard-break focus, buffs, debuffs, and control statuses
+    - auto-battle use of analyze, devour, support tempo, CT-delay, and telegraph reactions
+    - deterministic battle and auto-battle coverage plus full browser smoke
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
