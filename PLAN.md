@@ -4,25 +4,29 @@ Diese Datei enthaelt ausschliesslich noch nicht abgeschlossene Arbeit.
 
 Status:
 
+- `[x]` ist im Phase-Branch abgeschlossen und wartet auf Integration.
 - `[~]` wird bereits in dem genannten Worktree bearbeitet.
 - `[ ]` ist offen und darf gemaess `AGENTS.md` uebernommen werden.
 
 ## Laufende Arbeit
 
-- Keine laufende Phase.
+- [x] **Phase 43 - Einzigartige Kampfkonzepte je Kaempfer** *(abgeschlossen
+  2026-07-01, Worktree `/worktree/tempest-phase-43-signatures`)*
+  - Branch: `phase-43-signatures`
+  - Ein generisches Signaturleisten-/Signaturaktions-Framework definieren.
+  - Rimuru, Ranga, Shuna, Benimaru, Shion, Hakurou, Souei, Gobta, Rigurd und
+    Kurobe datengetrieben anbinden.
+  - Bestehende Analyse-, Zeit-, Status- und Break-Primitive wiederverwenden.
+  - HUD und mindestens einen Test pro Signatur ergaenzen.
+  - Rigurd als Reservekaempfer samt eigenem Imagegen-Kampf-Cutout anbinden.
+  - Abnahme: `bun run typecheck`, `bun run test` (284/284), `bun run build`
+    sowie Playwright-Smoke Desktop und `390x844` (24/24) gruen.
 
 ## Integrationswarteschlange
 
 - Keine offenen Integrationen.
 
 ## Kampf-Roadmap
-
-- [ ] **Phase 43 - Einzigartige Kampfkonzepte je Kaempfer**
-  - Ein generisches Signaturleisten-/Signaturaktions-Framework definieren.
-  - Rimuru, Ranga, Shuna, Benimaru, Shion, Hakurou, Souei, Gobta, Rigurd und
-    Kurobe datengetrieben anbinden.
-  - Bestehende Analyse-, Zeit-, Status- und Break-Primitive wiederverwenden.
-  - HUD und mindestens einen Test pro Signatur ergaenzen.
 
 - [ ] **Phase 44 - Team-Mix und Fusionsangriffe**
   - Verbundene Gruppenmitglieder aus `RELATIONSHIPS` gemeinsam Momentum

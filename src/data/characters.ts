@@ -72,6 +72,39 @@ export const HEROES = [
     }
   },
   {
+    id: 'rigurd',
+    name: 'Rigurd',
+    species: 'Hobgoblin',
+    role: 'Verteidiger und Feldkommandant',
+    startsInParty: false,
+    initialLevel: 1,
+    initialExperience: 0,
+    baseStats: {
+      maxHp: 108,
+      maxMp: 18,
+      attack: 14,
+      defense: 18,
+      magic: 7,
+      spirit: 14,
+      agility: 9
+    },
+    growthPerLevel: {
+      maxHp: 13,
+      maxMp: 2,
+      attack: 3,
+      defense: 5,
+      magic: 1,
+      spirit: 3,
+      agility: 2
+    },
+    initialSkillIds: ['iron-guard', 'battle-cry'],
+    startingEquipment: {
+      weapon: 'tempest-training-sword',
+      armor: 'traveler-cloak',
+      accessory: null
+    }
+  },
+  {
     id: 'shuna',
     name: 'Shuna',
     species: 'Ogerin',

@@ -3,7 +3,7 @@
 // dann volle Team-Leisten, danach wirkungsvolle Schadensfähigkeiten und zuletzt
 // normaler Angriff.
 import { act, currentActor, renderView, type BattleState } from './battle';
-import { ITEMS, SKILLS } from '../data';
+import { ITEMS, SIGNATURES, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { getItemCount } from './inventory';
 
@@ -47,6 +47,17 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
   }
 
   const target = chooseTarget(enemyStates) ?? enemies.slice().sort((a, b) => a.hp - b.hp)[0]!;
+
+  const signature = SIGNATURES.find((candidate) => candidate.id === actor.signatureId);
+  if (signature && actor.signatureCharge >= actor.signatureChargeMax) {
+    if (signature.target === 'single-enemy') {
+      return { type: 'signature', targetId: target.id };
+    }
+    if (signature.target === 'single-ally') {
+      return { type: 'signature', targetId: lowAlly?.id ?? actor.id };
+    }
+    return { type: 'signature' };
+  }
 
   const synergyPartner = allies.find((candidate) =>
     candidate.id !== actor.id

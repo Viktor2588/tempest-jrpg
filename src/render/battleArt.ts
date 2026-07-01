@@ -1,6 +1,7 @@
 export const PARTY_BATTLE_ART = {
   rimuru: 'sprite-party-rimuru',
   gobta: 'sprite-party-gobta',
+  rigurd: 'sprite-party-rigurd',
   ranga: 'sprite-party-ranga',
   shuna: 'sprite-party-shuna',
   benimaru: 'sprite-party-benimaru',

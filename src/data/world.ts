@@ -1925,7 +1925,8 @@ export const DIALOGS = [
             effects: [
               { type: 'set-flag', flag: 'story.council.ready', value: true },
               { type: 'set-flag', flag: 'codex.tutorial-grove-combat', value: true },
-              { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'gather-council' }
+              { type: 'complete-quest-step', questId: 'binding-of-ancestors', stepId: 'gather-council' },
+              { type: 'recruit-character', characterId: 'rigurd' }
             ]
           },
           {

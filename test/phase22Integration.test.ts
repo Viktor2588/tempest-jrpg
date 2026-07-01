@@ -84,6 +84,7 @@ function completeCanonBandOneAndTwo(seed = 22): SaveGameV2 {
   save = checkpoint(save, 'before-council');
   save = talk(save, 'rigurd-tempest', 'council');
   save = checkpoint(save, 'after-council');
+  expect(save.party.reserve.map((member) => member.characterId)).toContain('rigurd');
 
   save = checkpoint(save, 'before-grove');
   save = clearTrigger(save, 'tempest-start', { x: 14, y: 8 });
