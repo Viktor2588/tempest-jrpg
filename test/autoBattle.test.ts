@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { chooseAutoAction } from '../src/systems/autoBattle';
+import { chooseAutoAction, prepareAutoReaction } from '../src/systems/autoBattle';
 import {
   act,
   createDefaultBattleParty,
@@ -23,6 +23,7 @@ function autoRun(seed: number, enemyIds: string[]) {
       if (!action) break;
       act(state, action);
     } else {
+      prepareAutoReaction(state);
       enemyTurn(state);
     }
   }
@@ -189,6 +190,93 @@ describe('autoBattle', () => {
       skillId: 'water-blade',
       targetId: enemy.id
     });
+  });
+
+  it('analysiert robuste unbekannte Gegner automatisch', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', { skillIds: ['great-sage', 'water-blade'] })],
+      enemies: [autoEnemy({ skillIds: ['venom-spit'], stats: { ...autoEnemy().stats, maxHp: 240 } })],
+      seed: 45
+    });
+    const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({ type: 'analyze', targetId: enemy.id });
+  });
+
+  it('verschlingt automatisch verwundbare freigegebene Gegner', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', { skillIds: ['predator', 'great-sage', 'water-blade'] })],
+      enemies: [autoEnemy({ devourable: true, devourSkillId: 'venom-spit' })],
+      seed: 46
+    });
+    const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    enemy.hp = Math.floor(enemy.maxHp * 0.3);
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({ type: 'devour', targetId: enemy.id });
+  });
+
+  it('nutzt CT-Kontrolle gegen fast zugbereite Gegner', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', { skillIds: ['water-blade', 'temporal-snare'] })],
+      enemies: [autoEnemy({ weaknesses: ['shadow'], resistances: ['water'] })],
+      seed: 47
+    });
+    const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    enemy.ct = 180;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'skill',
+      skillId: 'temporal-snare',
+      targetId: enemy.id
+    });
+  });
+
+  it('zieht wartende Verbündete per Beschleunigung vor', () => {
+    const state = startBattle({
+      party: [
+        autoHero('shuna', 'Shuna', { skillIds: ['quicken', 'water-blade'] }),
+        autoHero('gobta', 'Gobta')
+      ],
+      enemies: [autoEnemy()],
+      seed: 471
+    });
+    const actor = state.combatants.find((combatant) => combatant.sourceId === 'shuna')!;
+    const gobta = state.combatants.find((combatant) => combatant.sourceId === 'gobta')!;
+    actor.ct = 100;
+    gobta.ct = 10;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({
+      type: 'skill',
+      skillId: 'quicken',
+      targetId: gobta.id
+    });
+  });
+
+  it('bereitet bei analysiertem Telegraphen eine Auto-Reaktion vor', () => {
+    const state = startBattle({
+      party: [
+        autoHero('rimuru', 'Rimuru'),
+        autoHero('gobta', 'Gobta')
+      ],
+      enemies: [autoEnemy({ skillIds: ['black-flame'] })],
+      seed: 48
+    });
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    const gobta = state.combatants.find((combatant) => combatant.sourceId === 'gobta')!;
+    enemy.analysisLevel = 1;
+    enemy.telegraphSkillId = 'black-flame';
+    gobta.hp = Math.floor(gobta.maxHp * 0.45);
+    state.activeId = enemy.id;
+
+    expect(prepareAutoReaction(state)).toBe(true);
+    expect(gobta.reaction).toEqual({ kind: 'timing-block', timing: 'success' });
   });
 
   it('beendet Kämpfe deterministisch und gewinnt gegen schwache Gegner', () => {
