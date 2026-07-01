@@ -728,6 +728,66 @@ describe('battle: Zeitleiste (Phase 40)', () => {
   });
 });
 
+// Phase 45 — Gegner-KI, Telegraph-Nutzung und Tempo-Politur.
+describe('battle: KI und Telegraph (Phase 45)', () => {
+  it('analysierte Gegner halten ihren telegraphierten CT-Kontrollskill ein', () => {
+    const state = startBattle({
+      party: [
+        depthHero('rimuru', 'Rimuru', { skillIds: ['great-sage', 'water-blade'] }),
+        depthHero('gobta', 'Gobta')
+      ],
+      enemies: [phaseEnemy({ skillIds: ['temporal-snare', 'slime-strike'] })],
+      seed: 45
+    });
+    const [rimuru, gobta] = state.combatants.filter((c) => c.side === 'party');
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    gobta!.ct = 180;
+    rimuru!.ct = 10;
+
+    state.activeId = rimuru!.id;
+    const analyzed = act(state, { type: 'analyze', targetId: foe.id });
+
+    expect(analyzed.ok).toBe(true);
+    expect(foe.telegraphSkillId).toBe('temporal-snare');
+
+    state.activeId = foe.id;
+    const beforeCt = gobta!.ct;
+    const result = enemyTurn(state);
+
+    expect(result.ok).toBe(true);
+    expect(gobta!.ct).toBe(beforeCt - 55);
+    expect(state.log.some((line) => line.includes('Zeitfalle'))).toBe(true);
+  });
+
+  it('telegraphiert Statusdruck und fokussiert danach gebrochene Ziele', () => {
+    const state = startBattle({
+      party: [
+        depthHero('rimuru', 'Rimuru', { skillIds: ['great-sage'] }),
+        depthHero('gobta', 'Gobta')
+      ],
+      enemies: [phaseEnemy({ skillIds: ['calamity-roar', 'orc-cleave'] })],
+      seed: 46
+    });
+    const [rimuru, gobta] = state.combatants.filter((c) => c.side === 'party');
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+
+    state.activeId = rimuru!.id;
+    act(state, { type: 'analyze', targetId: foe.id });
+
+    expect(foe.telegraphSkillId).toBe('calamity-roar');
+
+    gobta!.statuses.push({ id: 'guard-break', turns: 2 });
+    state.activeId = foe.id;
+    foe.skillIds = [];
+    const brokenBefore = gobta!.hp;
+    const rimuruBefore = rimuru!.hp;
+    enemyTurn(state);
+
+    expect(gobta!.hp).toBeLessThan(brokenBefore);
+    expect(rimuru!.hp).toBe(rimuruBefore);
+  });
+});
+
 // Phase 41 — Verschlinger und Momentum.
 describe('battle: Verschlinger und Momentum (Phase 41)', () => {
   function predatorHero(skillIds: readonly string[] = ['predator', 'great-sage', 'water-blade']): BattleUnitInput {

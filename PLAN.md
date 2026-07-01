@@ -4,23 +4,27 @@ Diese Datei enthaelt ausschliesslich noch nicht abgeschlossene Arbeit.
 
 Status:
 
+- `[x]` ist im Phase-Branch abgeschlossen und wartet auf Integration.
 - `[~]` wird bereits in dem genannten Worktree bearbeitet.
 - `[ ]` ist offen und darf gemaess `AGENTS.md` uebernommen werden.
 
 ## Laufende Arbeit
 
-- Keine laufende Phase.
+- [x] **Phase 45 - KI, Telegraph und Tempo-Politur** *(abgeschlossen
+  2026-07-01, Worktree `/worktree/tempest-phase-45-ai-telegraph`)*
+  - Branch: `phase-45-ai-telegraph`
+  - Gegner-KI auf Analyse, Bruch, CT-Kontrolle und Aussetzstatus erweitern.
+  - Telegraphen fuer informierte Block-/Konterentscheidungen nutzbar machen.
+  - Neue Verben in Auto-Battle und Terminierungstests abdecken.
+  - Abnahme: `bun run typecheck`, `bun run test` (300/300),
+    `bun run build` sowie Playwright-Smoke Desktop und `390x844` (24/24)
+    gruen.
 
 ## Integrationswarteschlange
 
 - Keine offenen Integrationen.
 
 ## Kampf-Roadmap
-
-- [ ] **Phase 45 - KI, Telegraph und Tempo-Politur**
-  - Gegner-KI auf Analyse, Bruch, CT-Kontrolle und Aussetzstatus erweitern.
-  - Telegraphen fuer informierte Block-/Konterentscheidungen nutzbar machen.
-  - Neue Verben in Auto-Battle und Terminierungstests abdecken.
 
 - [ ] **Phase 46 - Inhalt, Balance und Kampfpraesentation**
   - Schwachstellen-, Devour-, Telegraph-, Signatur- und Kombodaten fuer alle

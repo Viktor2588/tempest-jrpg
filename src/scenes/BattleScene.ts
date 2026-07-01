@@ -29,7 +29,7 @@ import { addUiPanel } from '../render/uiSkin';
 import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
 import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
 import { fadeIn } from './transition';
-import { chooseAutoAction } from '../systems/autoBattle';
+import { chooseAutoAction, prepareAutoReaction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
 
@@ -276,6 +276,7 @@ export class BattleScene extends Phaser.Scene {
     this.mode = 'busy';
     this.refresh();
     this.time.delayedCall(320, () => {
+      if (this.auto) prepareAutoReaction(this.state);
       const before = snapshot(this.allViews());
       enemyTurn(this.state);
       this.playFeedback(diffFeedback(before, snapshot(this.allViews())));

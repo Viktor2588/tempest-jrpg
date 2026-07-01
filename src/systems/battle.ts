@@ -386,19 +386,28 @@ export function enemyTurn(state: BattleState): ActionResult {
       .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(actor, skill))
       .filter((skill) => !isHealingSkill(skill));
 
+  if (actor.analysisLevel > 0) {
+    actor.telegraphSkillId = predictTelegraph(state, actor);
+  }
+  const telegraphedSkill = actor.telegraphSkillId
+    ? usableSkills.find((skill) => skill.id === actor.telegraphSkillId)
+    : undefined;
+  if (telegraphedSkill) {
+    const plan = chooseEnemySkillPlan(state, actor, [telegraphedSkill]);
+    if (plan) {
+      return resolveEnemyAction(state, actor, {
+        type: 'skill',
+        skillId: plan.skill.id,
+        targetId: plan.target.id
+      });
+    }
+  }
+
   const skillChance = actor.phaseIndex >= 1 ? 0.9 : 0.65;
   if (usableSkills.length > 0 && state.rng() < skillChance) {
-    const scored = usableSkills
-      .flatMap((skill) => aiTargetsForSkill(state, actor, skill).map((target) => ({
-        skill,
-        target,
-        score: scoreEnemySkillTarget(actor, skill, target)
-      })))
-      .sort((a, b) => b.score - a.score);
-
-    const choice = scored[0];
+    const choice = chooseEnemySkillPlan(state, actor, usableSkills);
     if (choice) {
-      return resolveAction(state, actor, {
+      return resolveEnemyAction(state, actor, {
         type: 'skill',
         skillId: choice.skill.id,
         targetId: choice.target.id
@@ -406,10 +415,8 @@ export function enemyTurn(state: BattleState): ActionResult {
     }
   }
 
-  const target = actor.phaseIndex >= 1
-    ? foes.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]!
-    : foes[Math.floor(state.rng() * foes.length)]!;
-  return resolveAction(state, actor, { type: 'attack', targetId: target.id });
+  const target = chooseEnemyAttackTarget(state, actor, foes);
+  return resolveEnemyAction(state, actor, { type: 'attack', targetId: target.id });
 }
 
 function aiTargetsForSkill(state: BattleState, actor: Combatant, skill: SkillDefinition): Combatant[] {
@@ -420,6 +427,73 @@ function aiTargetsForSkill(state: BattleState, actor: Combatant, skill: SkillDef
     return livingCombatants(state, actor.side);
   }
   return [actor];
+}
+
+interface EnemySkillPlan {
+  readonly skill: SkillDefinition;
+  readonly target: Combatant;
+  readonly score: number;
+}
+
+function chooseEnemySkillPlan(
+  state: BattleState,
+  actor: Combatant,
+  skills: readonly SkillDefinition[]
+): EnemySkillPlan | null {
+  let best: EnemySkillPlan | null = null;
+
+  for (const skill of skills) {
+    const targets = aiTargetsForSkill(state, actor, skill);
+    if (targets.length === 0) {
+      continue;
+    }
+
+    if (skill.target === 'all-enemies') {
+      const score = targets.reduce((sum, target) => sum + scoreEnemySkillTarget(state, actor, skill, target), 0);
+      best = keepBestEnemyPlan(best, { skill, target: targets[0]!, score });
+      continue;
+    }
+
+    for (const target of targets) {
+      best = keepBestEnemyPlan(best, {
+        skill,
+        target,
+        score: scoreEnemySkillTarget(state, actor, skill, target)
+      });
+    }
+  }
+
+  return best;
+}
+
+function keepBestEnemyPlan(current: EnemySkillPlan | null, candidate: EnemySkillPlan): EnemySkillPlan {
+  if (!current || candidate.score > current.score) {
+    return candidate;
+  }
+  return current;
+}
+
+function chooseEnemyAttackTarget(
+  state: BattleState,
+  actor: Combatant,
+  foes: readonly Combatant[]
+): Combatant {
+  const vulnerable = foes
+    .filter((foe) => hasStatus(foe, 'guard-break') || foe.statuses.some((status) => status.id === 'spirit-down' || status.id === 'weaken'))
+    .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+  if (vulnerable) {
+    return vulnerable;
+  }
+  if (actor.phaseIndex >= 1) {
+    return foes.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]!;
+  }
+  return foes[Math.floor(state.rng() * foes.length)]!;
+}
+
+function resolveEnemyAction(state: BattleState, actor: Combatant, action: BattleAction): ActionResult {
+  const result = resolveAction(state, actor, action);
+  refreshEnemyTelegraph(state, actor);
+  return result;
 }
 
 function createCombatant(unit: BattleUnitInput, id: string): Combatant {
@@ -754,7 +828,7 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   }
 
   target.analysisLevel = Math.min(ANALYSIS_MAX, target.analysisLevel + 1);
-  target.telegraphSkillId = predictTelegraph(target);
+  target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
   endTurn(state, actor);
@@ -894,7 +968,7 @@ function resolveSignature(
         for (const target of effectTargets) {
           if (target.dead || target.side === actor.side) continue;
           target.analysisLevel = Math.min(ANALYSIS_MAX, target.analysisLevel + effect.levels);
-          target.telegraphSkillId = predictTelegraph(target);
+          target.telegraphSkillId = predictTelegraph(state, target);
           pushLog(state, `${target.name} ist vollständig analysiert.`);
         }
         break;
@@ -973,14 +1047,27 @@ function chooseDevourSkill(actor: Combatant, target: Combatant): SkillDefinition
   return null;
 }
 
-// Telegraph: die wahrscheinlich nächste Gegneraktion (stärkste nutzbare Nicht-Heil-Fähigkeit),
-// sonst der Standardangriff (null). Rein informativ — verändert die Auflösung nicht.
-function predictTelegraph(enemy: Combatant): string | null {
+// Telegraph: die wahrscheinlich nächste Gegneraktion nach derselben deterministischen
+// Skillwertung wie die Gegner-KI. Analysierte Gegner halten diesen Skill im nächsten
+// Zug ein, solange Status/MP ihn nicht verhindern.
+function predictTelegraph(state: BattleState, enemy: Combatant): string | null {
+  if (enemy.side !== 'enemy' || enemy.dead || isSilenced(enemy)) {
+    return null;
+  }
+
   const skills = enemy.skillIds
     .map(getSkill)
     .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(enemy, skill) && !isHealingSkill(skill))
-    .sort((a, b) => b.power - a.power);
-  return skills[0]?.id ?? null;
+    .filter((skill) => aiTargetsForSkill(state, enemy, skill).length > 0);
+  return chooseEnemySkillPlan(state, enemy, skills)?.skill.id ?? null;
+}
+
+function refreshEnemyTelegraph(state: BattleState, enemy: Combatant): void {
+  if (enemy.analysisLevel > 0 && !enemy.dead && state.status === 'active') {
+    enemy.telegraphSkillId = predictTelegraph(state, enemy);
+    return;
+  }
+  enemy.telegraphSkillId = null;
 }
 
 function canUseSkill(actor: Combatant, skill: SkillDefinition): boolean {
@@ -1289,11 +1376,111 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
   }
 }
 
-function scoreEnemySkillTarget(actor: Combatant, skill: SkillDefinition, target: Combatant): number {
-  const vulnerability = elementMultiplier(skill.element, target);
-  const woundedPriority = actor.phaseIndex >= 1 ? 1 - (target.hp / target.maxHp) : target.hp / target.maxHp;
-  const breakPriority = target.breakGauge <= 1 ? 0.4 : 0;
-  return vulnerability + woundedPriority + breakPriority;
+function scoreEnemySkillTarget(
+  _state: BattleState,
+  actor: Combatant,
+  skill: SkillDefinition,
+  target: Combatant
+): number {
+  const targetIsOpponent = target.side !== actor.side;
+  let score = 0;
+
+  if (skill.power > 0 && targetIsOpponent) {
+    const vulnerability = elementMultiplier(skill.element, target);
+    const woundedPriority = actor.phaseIndex >= 1
+      ? 1 - (target.hp / target.maxHp)
+      : target.hp / target.maxHp;
+    const breakPriority = hasStatus(target, 'guard-break') ? 2.2 : 0;
+    const disabledPenalty = hasAnyControlStatus(target) && target.hp / target.maxHp > 0.35 ? -1.2 : 0;
+    score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty;
+  }
+
+  if (skill.tags.includes('buff') && !targetIsOpponent) {
+    score += 1.1 + (target === actor && actor.phaseIndex >= 1 ? 0.7 : 0);
+  }
+
+  if (skill.statusEffect) {
+    score += scoreEnemyStatusIntent(skill.statusEffect.id, target, targetIsOpponent);
+  }
+
+  if (skill.ctDelta) {
+    score += scoreEnemyCtIntent(skill.ctDelta, target, targetIsOpponent);
+  }
+
+  if (skill.tags.includes('debuff') && targetIsOpponent && !skill.statusEffect) {
+    score += 1.1;
+  }
+
+  return score - skill.costMp * 0.03;
+}
+
+function scoreEnemyStatusIntent(
+  statusId: StatusEffectId,
+  target: Combatant,
+  targetIsOpponent: boolean
+): number {
+  if (hasStatus(target, statusId)) {
+    return -1.2;
+  }
+
+  if (!targetIsOpponent) {
+    return statusId === 'attack-up' || statusId === 'defense-up' || statusId === 'magic-up' || statusId === 'haste'
+      ? 2.4
+      : 0.2;
+  }
+
+  switch (statusId) {
+    case 'stun':
+    case 'sleep':
+    case 'freeze':
+    case 'petrify':
+      return 5.5 + clamp(target.ct, 0, CT_MAX) / CT_THRESHOLD;
+    case 'paralyze':
+    case 'confuse':
+    case 'charm':
+      return 4.2 + clamp(target.ct, 0, CT_MAX) / (CT_THRESHOLD * 2);
+    case 'guard-break':
+      return 3.7;
+    case 'silence':
+      return target.magic >= target.attack ? 3.2 : 1.4;
+    case 'blind':
+      return target.attack >= target.magic ? 3.0 : 1.2;
+    case 'weaken':
+      return 2.8;
+    case 'spirit-down':
+      return 2.5;
+    case 'poison':
+      return target.hp / target.maxHp > 0.35 ? 2.2 : 0.6;
+    case 'attack-up':
+    case 'defense-up':
+    case 'magic-up':
+    case 'haste':
+      return -0.8;
+  }
+}
+
+function scoreEnemyCtIntent(delta: number, target: Combatant, targetIsOpponent: boolean): number {
+  if (delta < 0 && targetIsOpponent) {
+    const readiness = clamp(target.ct, 0, CT_MAX) / CT_THRESHOLD;
+    return Math.abs(delta) / 18 * (0.45 + readiness);
+  }
+  if (delta > 0 && !targetIsOpponent) {
+    const missing = Math.max(0, CT_THRESHOLD - target.ct) / CT_THRESHOLD;
+    return delta / 28 * (0.65 + missing);
+  }
+  return -1;
+}
+
+function hasAnyControlStatus(target: Combatant): boolean {
+  return target.statuses.some((status) =>
+    status.id === 'stun'
+    || status.id === 'sleep'
+    || status.id === 'freeze'
+    || status.id === 'petrify'
+    || status.id === 'paralyze'
+    || status.id === 'confuse'
+    || status.id === 'charm'
+  );
 }
 
 function effectiveStat(combatant: Combatant, stat: keyof StatBlock): number {
