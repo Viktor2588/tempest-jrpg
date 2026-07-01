@@ -9,15 +9,9 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Phase.
-
-## Integrationswarteschlange
-
-- Keine offenen Integrationen.
-
-## Story-Roadmap
-
-- [ ] **Band 4 - Ahnenbindung und Entscheidung**
+- [x] **Band 4 - Ahnenbindung und Entscheidung** *(abgeschlossen,
+  technische Phase 49, Worktree `/worktree/tempest-phase-49-band-4`)*
+  - Branch: `phase-49-band-4`
   - `ancestors-choice` nur freiwillig nach Band 3 starten.
   - Buendnisrat, Buendnismarsch, Breach-Kampf und Finale ausarbeiten.
   - Finale sichtbare Legacy-Namen canonisieren, ohne Saves zu brechen.
@@ -26,6 +20,17 @@ Status:
   - Den dritten Weg an belegbare Bindungsbedingungen koppeln.
   - Ranga im Finale als vollwertiges Kampfmitglied einsetzen.
   - Ending-, Save-, Codex- und Browser-Tests fuer alle Wege ergaenzen.
+  - Abnahme: `git diff --check`; `bun run typecheck`; `bun run test`
+    (44 Dateien, 316 Tests); `bun run build`; `bunx playwright test -g
+    "Band 4"` (desktop/mobile, 6 Tests).
+
+## Integrationswarteschlange
+
+- Keine offenen Integrationen.
+
+## Story-Roadmap
+
+- Keine offene Story-Roadmap-Phase.
 
 ## UX- und Welt-Backlog
 

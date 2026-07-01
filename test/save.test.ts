@@ -265,4 +265,23 @@ describe('save.ts', () => {
     expect(migrated.flags['compat.legacyArc.visible']).toBe(true);
     expect(migrated.flags['story.original-arc.optional']).toBe(true);
   });
+
+  it('markiert neue Band-4-Saves nach Grenzeskalation nicht als Legacy-Bogen', () => {
+    const base = createNewSave();
+    const migrated = normalize({
+      ...base,
+      flags: {
+        'story.act2.completed': true,
+        'story.border.deescalated': true,
+        'story.vanguard.trace-read': true,
+        'story.act3.started': true
+      },
+      quests: {
+        'ancestors-choice': { status: 'active', completedStepIds: ['rally'] }
+      }
+    });
+
+    expect(migrated.flags['compat.legacyArc.visible']).toBeUndefined();
+    expect(migrated.flags['story.original-arc.optional']).toBeUndefined();
+  });
 });

@@ -160,6 +160,55 @@ describe('Ranga-Scout und Schnellreise', () => {
     expect(entry.body).toBeNull();
   });
 
+  it('führt Band 4 vom freiwilligen Hook über Bündnisrat bis zur Entscheidung', () => {
+    const base: WorldState = {
+      flags: {
+        'story.direwolf.pact': true,
+        'story.act2.completed': true,
+        'story.border.deescalated': true,
+        'story.vanguard.trace-read': true
+      },
+      quests: { 'border-escalation': { status: 'completed', completedStepIds: [] } },
+      inventory: [],
+      gold: 0,
+      roster: ['rimuru', 'gobta', 'ranga']
+    };
+
+    expect(buildRangaTravelView(base, { mapId: 'tempest-start', x: 4, y: 7, facing: 'down' }).scout)
+      .toMatchObject({ title: 'Freiwilliger Hook: Wahl der Ahnen', targetLocationId: 'tempest-hollow' });
+
+    const council = {
+      ...base,
+      quests: {
+        ...base.quests,
+        'ancestors-choice': { status: 'active' as const, completedStepIds: [] }
+      }
+    };
+    expect(buildRangaTravelView(council, { mapId: 'tempest-start', x: 4, y: 7, facing: 'down' }).scout)
+      .toMatchObject({ title: 'Wahl der Ahnen: Bündnisrat', targetLocationId: 'tempest-hollow' });
+
+    const march = {
+      ...council,
+      flags: { ...council.flags, 'story.alliance.council-ready': true }
+    };
+    expect(buildRangaTravelView(march, { mapId: 'tempest-start', x: 4, y: 7, facing: 'down' }).scout)
+      .toMatchObject({ title: 'Wahl der Ahnen: Bündnismarsch', targetLocationId: 'alliance-march' });
+
+    const finale = {
+      ...march,
+      flags: { ...march.flags, 'story.breach.cleared': true }
+    };
+    expect(buildRangaTravelView(finale, { mapId: 'tempest-start', x: 12, y: 7, facing: 'down' }).scout)
+      .toMatchObject({ title: 'Wahl der Ahnen: Bindungsherz', targetLocationId: 'ancestor-heart' });
+
+    const decision = {
+      ...finale,
+      flags: { ...finale.flags, 'story.mordrahn.defeated': true }
+    };
+    expect(buildRangaTravelView(decision, { mapId: 'tempest-start', x: 15, y: 2, facing: 'down' }).scout)
+      .toMatchObject({ title: 'Wahl der Ahnen: Entscheidung', targetLocationId: 'tempest-hollow' });
+  });
+
   it('erklärt Ranga-Schnellreise erst nach real entdecktem sicherem Reisepunkt', () => {
     const before = buildCodexView({
       flags: { 'story.direwolf.pact': true },

@@ -520,7 +520,11 @@ function normalizeLegacyArcFlags(
     || flags['ending.freedom'] === true
     || flags['ending.order'] === true
     || flags['ending.true'] === true;
-  return hasOriginalArcProgress
+  const isCanonBandFourProgress = flags['story.act2.completed'] === true
+    || flags['story.border.deescalated'] === true
+    || flags['story.vanguard.trace-read'] === true
+    || flags['story.alliance.council-ready'] === true;
+  return hasOriginalArcProgress && !isCanonBandFourProgress
     ? { ...flags, 'compat.legacyArc.visible': true, 'story.original-arc.optional': true }
     : flags;
 }

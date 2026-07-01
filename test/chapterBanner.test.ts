@@ -81,7 +81,7 @@ describe('chapter banner', () => {
     ]);
   });
 
-  it('fasst den Band-2-Abschluss mit Boss-Nachspiel und Belohnung zusammen', () => {
+  it('fasst den Band-2-Abschluss als Band-3-Hook mit Boss-Nachspiel und Belohnung zusammen', () => {
     const base = createNewSave();
     const save = {
       ...base,
@@ -106,13 +106,76 @@ describe('chapter banner', () => {
 
     const summary = getChapterSummary(save);
     expect(summary.banner).toEqual({
-      kicker: 'Band 2',
+      kicker: 'Band 3',
       line: 'Tempest steht — die Grenze ruft.'
     });
-    expect(summary.recap).toContain('Band 1 und Band 2 sind abgeschlossen');
+    expect(summary.recap).toContain('Tempest hat den Rat');
     expect(summary.nextObjective).toContain('Optional');
-    expect(summary.highlights).toContain('Namenloses Echo am Ahnensiegel gebrochen');
+    expect(summary.highlights).toContain('Tempest als junge Stadt gegründet');
     expect(summary.highlights).toContain('Belohnung: Tempest-Talisman erhalten');
+  });
+
+  it('fasst den Band-3-Abschluss als Band-4-Hook zusammen', () => {
+    const base = createNewSave();
+    const save = {
+      ...base,
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.act1.completed': true,
+        'story.act2.completed': true,
+        'story.border.deescalated': true,
+        'story.vanguard.trace-read': true
+      },
+      quests: {
+        'binding-of-ancestors': {
+          status: 'completed' as const,
+          completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+        },
+        'border-escalation': {
+          status: 'completed' as const,
+          completedStepIds: ['muster', 'border-clash', 'read-fracture', 'break-vanguard', 'report-act2']
+        }
+      },
+      party: {
+        ...base.party,
+        active: [...base.party.active, partyMember('gobta'), partyMember('ranga')]
+      }
+    };
+
+    const summary = getChapterSummary(save);
+    expect(summary.banner).toEqual({
+      kicker: 'Band 4',
+      line: 'Die Bindung verlangt eine letzte Entscheidung.'
+    });
+    expect(summary.nextObjective).toBe('Optional: Sprich mit Rigurd über den letzten Bündnisrat.');
+    expect(summary.highlights).toContain('Grenzbericht ohne Massaker gesichert');
+  });
+
+  it('fasst den Abschluss mit erreichtem Ende zusammen', () => {
+    const base = createNewSave();
+    const save = {
+      ...base,
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.act1.completed': true,
+        'story.act2.completed': true,
+        'story.act3.completed': true,
+        'ending.true': true
+      },
+      quests: {
+        'binding-of-ancestors': { status: 'completed' as const, completedStepIds: [] },
+        'border-escalation': { status: 'completed' as const, completedStepIds: [] },
+        'ancestors-choice': { status: 'completed' as const, completedStepIds: ['rally', 'breach', 'confront', 'choose'] }
+      },
+      party: {
+        ...base.party,
+        active: [...base.party.active, partyMember('gobta'), partyMember('ranga')]
+      }
+    };
+
+    const summary = getChapterSummary(save);
+    expect(summary.banner.kicker).toBe('Epilog');
+    expect(summary.highlights).toContain('Ende erreicht: Geteilte Last');
   });
 });
 

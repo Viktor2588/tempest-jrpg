@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { createNewSave, migrate, type SaveGameV2 } from '../src/systems/save';
+import { createNewSave, exportSave, importSave, migrate, type SaveGameV2 } from '../src/systems/save';
 import {
+  applyEffects,
   applyWorldState,
   buildCodexView,
   buildQuestLog,
@@ -17,6 +18,7 @@ import {
   resolveEncounter,
   startDialogForNpc
 } from '../src/systems/world';
+import type { WorldEffect } from '../src/data/world';
 import { MAPS, getMap } from '../src/data/maps';
 import { isWalkable, type TileMap, type Vec2 } from '../src/systems/overworld';
 import { makeRng } from '../src/systems/rng';
@@ -176,42 +178,108 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(unlocked('mordrahn-vanguard')).toBe(true);
   });
 
-  // Act 3 bis zum Wahl-Dialog spielen (Bündnis → Durchbruch → Mordrahn).
-  function act3UpToChoice(withBonds: boolean): SaveGameV2 {
-    let save: SaveGameV2 = {
+  function recruit(save: SaveGameV2, ...characterIds: readonly string[]): SaveGameV2 {
+    const effects: WorldEffect[] = characterIds.map((characterId) => ({ type: 'recruit-character', characterId }));
+    return applyWorldState(save, applyEffects(createWorldState(save), effects));
+  }
+
+  function bandFourReadySave(sharedLoadEligible: boolean): SaveGameV2 {
+    const save: SaveGameV2 = {
       ...createNewSave(),
       flags: {
+        'story.slime-prologue.completed': true,
+        'story.act1.completed': true,
+        'story.direwolf.pact': true,
         'story.act2.completed': true,
-        ...(withBonds ? { 'bond.sora.trust-1': true, 'bond.lyrre.trust-1': true } : {})
+        ...(sharedLoadEligible
+          ? { 'story.border.deescalated': true, 'story.vanguard.trace-read': true }
+          : {})
+      },
+      quests: {
+        'slime-awakening': {
+          status: 'completed',
+          completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+        },
+        'binding-of-ancestors': {
+          status: 'completed',
+          completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+        },
+        'border-escalation': {
+          status: 'completed',
+          completedStepIds: ['muster', 'border-clash', 'read-fracture', 'break-vanguard', 'report-act2']
+        }
       }
     };
-    save = talk(save, 'rigurd-tempest', 'rally'); // story.act3.started
+    return recruit(save, 'gobta', 'ranga');
+  }
+
+  // Band 4 bis zum Wahl-Dialog spielen (Bündnisrat → Durchbruch → Hüter).
+  function act3UpToChoice(sharedLoadEligible: boolean): SaveGameV2 {
+    let save = bandFourReadySave(sharedLoadEligible);
+    save = talk(save, 'rigurd-established', 'rally'); // story.act3.started, aber noch kein Marsch
+    expect(visibleTriggerIds(save)).not.toContain('alliance-breach');
+    expect(getTrackedObjectiveStep(save)).toBe('rally');
+
+    save = talk(save, 'shuna', 'alliance-shuna');
+    save = talk(save, 'gobta', 'alliance-gobta');
+    save = talk(save, 'ranga-tempest', 'alliance-ranga');
+    save = talk(save, 'rigurd-established', 'complete-rally');
+    expect(save.flags['story.alliance.council-ready']).toBe(true);
+    expect(save.party.active.map((member) => member.characterId)).toContain('ranga');
+    expect(visibleTriggerIds(save)).toContain('alliance-breach');
+
     save = clearTriggerAt(save, { x: 12, y: 7 }); // Bündnismarsch → breach
-    save = clearTriggerAt(save, { x: 15, y: 2 }); // Herz der Bindung → Mordrahn
+    save = clearTriggerAt(save, { x: 15, y: 2 }); // Bindungsherz → Hüter
     return save;
   }
+  const getTrackedObjectiveStep = (save: SaveGameV2) =>
+    buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')
+      ?.steps.find((step) => !step.completed)?.id ?? null;
   const codexUnlocked = (save: SaveGameV2, id: string) =>
     buildCodexView(createWorldState(save)).find((entry) => entry.id === id)?.unlocked === true;
+  const expectEndingRoundtrip = (save: SaveGameV2, flag: 'ending.freedom' | 'ending.order' | 'ending.true') => {
+    const roundtrip = importSave(exportSave(save), '2026-07-02T01:00:00.000Z');
+    expect(roundtrip.flags[flag]).toBe(true);
+    expect(roundtrip.quests['ancestors-choice']?.status).toBe('completed');
+    expect(roundtrip.quests['ancestors-choice']?.completedStepIds).toEqual(['rally', 'breach', 'confront', 'choose']);
+  };
+
+  it('Band 4: startet erst freiwillig nach abgeschlossenem Band 3', () => {
+    const afterBandTwo = bandFourReadySave(true);
+    const beforeBandThree = {
+      ...afterBandTwo,
+      flags: { ...afterBandTwo.flags, 'story.act2.completed': false }
+    };
+    expect(startDialogForNpc(createWorldState(beforeBandThree), 'rigurd-established').choices.map((c) => c.id))
+      .not.toContain('rally');
+
+    const afterBandThree = bandFourReadySave(true);
+    expect(startDialogForNpc(createWorldState(afterBandThree), 'rigurd-established').choices.map((c) => c.id))
+      .toContain('rally');
+    expect(afterBandThree.quests['ancestors-choice']).toBeUndefined();
+  });
 
   it('Act 3: schließt mit Ende „Freiheit" ab (Bindung zerstören)', () => {
     let save = act3UpToChoice(false);
     expect(codexUnlocked(save, 'mordrahn-keeper')).toBe(true);
-    expect(npcHasQuestMarker(createWorldState(save), 'rigurd-tempest')).toBe(true); // die Wahl steht an
+    expect(npcHasQuestMarker(createWorldState(save), 'rigurd-established')).toBe(true); // die Wahl steht an
 
-    save = talk(save, 'rigurd-tempest', 'choose-destroy');
+    save = talk(save, 'rigurd-established', 'choose-destroy');
     const quest = buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!;
     expect(quest.status).toBe('completed');
     expect(quest.steps.every((step) => step.completed)).toBe(true);
     expect(createWorldState(save).flags['ending.freedom']).toBe(true);
     expect(codexUnlocked(save, 'ending-freedom')).toBe(true);
+    expectEndingRoundtrip(save, 'ending.freedom');
   });
 
   it('Act 3: schließt mit Ende „Ordnung" ab (Bindung neu schmieden)', () => {
     let save = act3UpToChoice(false);
-    save = talk(save, 'rigurd-tempest', 'choose-reforge');
+    save = talk(save, 'rigurd-established', 'choose-reforge');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'ancestors-choice')!.status).toBe('completed');
     expect(createWorldState(save).flags['ending.order']).toBe(true);
     expect(codexUnlocked(save, 'ending-order')).toBe(true);
+    expectEndingRoundtrip(save, 'ending.order');
   });
 
   it('leitet das aktive Ende für den Ende-Bildschirm korrekt ab', () => {
@@ -227,17 +295,18 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(ending({ 'ending.freedom': true })?.title).toBe('Ende: Freiheit');
   });
 
-  it('Act 3: True-Ending nur mit erfüllten Bindungen', () => {
-    // Ohne Bindungen ist die Option nicht sichtbar.
+  it('Act 3: True-Ending nur mit belegten Band-3- und Bündnis-Bindungen', () => {
+    // Ohne die belegten Grenz-/Spurbedingungen ist die Option nicht sichtbar.
     const noBonds = act3UpToChoice(false);
-    expect(startDialogForNpc(createWorldState(noBonds), 'rigurd-tempest').choices.map((c) => c.id)).not.toContain('choose-true');
+    expect(startDialogForNpc(createWorldState(noBonds), 'rigurd-established').choices.map((c) => c.id)).not.toContain('choose-true');
 
-    // Mit erfüllten Legacy-Bindungsflags aus Act 1/2 erscheint der dritte Weg.
+    // Mit Band-3-Deeskalation, Rangas Spur und geschlossenem Bündnisrat erscheint der dritte Weg.
     let save = act3UpToChoice(true);
-    expect(startDialogForNpc(createWorldState(save), 'rigurd-tempest').choices.map((c) => c.id)).toContain('choose-true');
-    save = talk(save, 'rigurd-tempest', 'choose-true');
+    expect(startDialogForNpc(createWorldState(save), 'rigurd-established').choices.map((c) => c.id)).toContain('choose-true');
+    save = talk(save, 'rigurd-established', 'choose-true');
     expect(createWorldState(save).flags['ending.true']).toBe(true);
     expect(codexUnlocked(save, 'ending-true')).toBe(true);
+    expectEndingRoundtrip(save, 'ending.true');
   });
 
   it('Nebenquest: Rigurds Kopfgeld „Sumpfschrecken" ist annehm- und abschließbar', () => {

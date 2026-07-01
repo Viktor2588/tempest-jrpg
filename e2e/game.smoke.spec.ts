@@ -632,6 +632,41 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   expect(browserErrors).toEqual([]);
 });
 
+for (const ending of [
+  { label: 'Freiheit', flag: 'ending.freedom', choiceX: 180, choiceY: 398 },
+  { label: 'Ordnung', flag: 'ending.order', choiceX: 800, choiceY: 398 },
+  { label: 'Geteilte Last', flag: 'ending.true', choiceX: 180, choiceY: 462 }
+] as const) {
+  test(`Band 4 → Endwahl ${ending.label} persistiert im Browser`, async ({ page }) => {
+    const browserErrors: string[] = [];
+    page.on('pageerror', (error) => browserErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') browserErrors.push(message.text());
+    });
+
+    await installBrowserSave(page, bandFourDecisionBrowserSave());
+
+    await page.goto('./');
+    await expect(page.locator('canvas')).toBeVisible();
+    await clickGamePoint(page, 480, 280);
+    await page.waitForTimeout(700);
+    await focusGame(page);
+
+    await clickGamePoint(page, 874, 510);
+    await page.waitForTimeout(250);
+    await clickGamePoint(page, ending.choiceX, ending.choiceY);
+    await page.waitForTimeout(300);
+
+    const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+    expect(save.flags[ending.flag]).toBe(true);
+    expect(save.flags['story.act3.completed']).toBe(true);
+    expect(save.quests['ancestors-choice'].status).toBe('completed');
+    expect(save.quests['ancestors-choice'].completedStepIds).toContain('choose');
+    await expectCanvasContent(page);
+    expect(browserErrors).toEqual([]);
+  });
+}
+
 async function installBrowserSave(page: Page, save: Record<string, unknown>): Promise<void> {
   await page.addInitScript((initialSave) => {
     window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
@@ -711,6 +746,50 @@ function bandTwoBrowserSave(overrides: {
       enchantmentLevelsByEquipmentKey: {}
     }
   };
+}
+
+function bandFourDecisionBrowserSave(): Record<string, unknown> {
+  return bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 4, y: 8, facing: 'up' },
+    flags: {
+      'story.act1.completed': true,
+      'story.act2.completed': true,
+      'story.act3.started': true,
+      'bond.rigurd.founder-supplies': true,
+      'story.border.deescalated': true,
+      'story.vanguard.trace-read': true,
+      'story.alliance.shuna-ready': true,
+      'story.alliance.gobta-ready': true,
+      'story.alliance.ranga-ready': true,
+      'story.alliance.council-ready': true,
+      'story.breach.cleared': true,
+      'story.mordrahn.defeated': true,
+      'codex.mordrahn-keeper': true,
+      'milestone.first-council.shown': true,
+      'milestone.nameless-echo-defeated.shown': true,
+      'milestone.band-two-complete.shown': true,
+      'travel.ranga.discovered.tempest-hollow': true,
+      'travel.ranga.discovered.spirit-marsh': true
+    },
+    quests: {
+      'slime-awakening': {
+        status: 'completed',
+        completedStepIds: ['cave-awakening', 'storm-dragon-oath', 'goblin-plea', 'direwolf-pack', 'name-the-village']
+      },
+      'binding-of-ancestors': {
+        status: 'completed',
+        completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora']
+      },
+      'border-escalation': {
+        status: 'completed',
+        completedStepIds: ['muster', 'border-clash', 'read-fracture', 'break-vanguard', 'report-act2']
+      },
+      'ancestors-choice': {
+        status: 'active',
+        completedStepIds: ['rally', 'breach', 'confront']
+      }
+    }
+  });
 }
 
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {

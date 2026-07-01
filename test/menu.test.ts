@@ -99,8 +99,8 @@ describe('menu system', () => {
       }
     });
 
-    expect(view.story?.banner.kicker).toBe('Band 2');
-    expect(view.story?.recap).toContain('Band 1 und Band 2 sind abgeschlossen');
+    expect(view.story?.banner.kicker).toBe('Band 3');
+    expect(view.story?.recap).toContain('Tempest hat den Rat');
     expect(view.story?.nextObjective).toContain('Optional');
     expect(view.story?.highlights).toContain('Gobta ist beigetreten');
     expect(view.story?.highlights).toContain('Belohnung: Tempest-Talisman erhalten');
