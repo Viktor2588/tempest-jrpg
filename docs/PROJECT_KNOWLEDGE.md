@@ -6,7 +6,7 @@ title: Tempest - Chronik
 snapshot:
   date: 2026-07-02
   branch: main
-  base_commit: cde6ba42e5fc5fa0a874a06ffebd1d0084d56fc8
+  base_commit: 49e4300f66e003a9d0c5356def5493a3b5294394
   includes_uncommitted_documentation: true
 scope:
   implementation: tracked files on main
@@ -461,15 +461,15 @@ Engineering conventions:
 
 ## 10. Current Repository Boundary
 
-`main` contains Phase 43, Phase 44, Phase 45, Phase 46, Phase 47, Phase 48, and the earlier merged
+`main` contains Phase 43, Phase 44, Phase 45, Phase 46, Phase 47, Phase 48, Phase 49, and the earlier merged
 implementation. The separately numbered asset phases 33-39 are also integrated.
 Current `main` includes:
 
 - Core overworld, save, battle, menu, world, progression, settings, and release
   pipeline.
-- Canon-first Band 1/2 route and integrated story/save compatibility tests.
+- Canon-first Band 1-4 route and integrated story/save compatibility tests.
 - Dwargon, Orc Disaster, Lizard alliance, Shizu/Ifrit, and Blumund slices.
-- Ranga scouting/fast travel and optional legacy-arc isolation.
+- Ranga scouting/fast travel and legacy save compatibility for old original-arc saves.
 - Art/audio integration, regional assets, mobile/accessibility work, and E2E.
 - Dedicated Shizu/Fuze portraits, Canon-region banners, Kijin/Kaijin party
   cutouts and portraits, Canon-region tiles, Canon-trigger enemy cutouts, and
@@ -501,12 +501,17 @@ Current `main` includes:
   requires non-lethal post-fight de-escalation before Shuna's analysis, and
   resolves the vanguard through Ranga's anonymous trace instead of a visible
   legacy antagonist claim.
+- Phase 49 Band-4 finale: `ancestors-choice` is the canon finale after Band 3,
+  starts voluntarily through Rigurd, requires Shuna, Gobta, and Ranga to close
+  the alliance council before the march, keeps Ranga in the final party, uses
+  canon-visible "old order/keeper" naming, and persists Freedom, Order, and
+  Shared Burden endings with save, Codex, and browser coverage.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-48 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-49 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -583,6 +588,13 @@ completed_milestones:
     - Shuna analysis based on indirect foreign seal traces, not a Tempest traitor claim
     - anonymous vanguard aftermath resolved through Ranga's trace before Gobta's report
     - headless save roundtrip, unit, build, and desktop/mobile browser smoke coverage
+  phase_49:
+    - voluntary Band-4 `ancestors-choice` start after completed Band 3
+    - alliance council contributions from Shuna, Gobta, and Ranga before the march unlocks
+    - breach and Bindungsherz finale with canon-visible old-order keeper naming
+    - Freedom, Order, and Shared Burden endings persisted through stable flags and saves
+    - Shared Burden gated by Band-3 de-escalation, Ranga's trace, and the closed alliance council
+    - chapter summary, Ranga scout guidance, Codex, save roundtrip, and desktop/mobile browser coverage
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
