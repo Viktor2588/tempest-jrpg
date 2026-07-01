@@ -210,7 +210,7 @@ export const ENEMIES = [
   },
   {
     id: 'mordrahn',
-    name: 'Mordrahn, Hüter der Bindung',
+    name: 'Hüter der alten Ordnung',
     level: 10,
     element: 'shadow',
     stats: {

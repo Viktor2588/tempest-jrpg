@@ -294,25 +294,25 @@ export const QUESTS = [
   {
     id: 'ancestors-choice',
     title: 'Die Wahl der Ahnen',
-    description: 'Schmiede ein Bündnis, stelle dich Mordrahn an der Bindung und entscheide über das Schicksal des Siegels.',
+    description: 'Schmiede Tempests Bündnis, brich die Linie der alten Ordnung und entscheide über das Schicksal des Siegels.',
     actId: 'act-3',
     steps: [
       {
         id: 'rally',
-        title: 'Das Bündnis schmieden',
-        description: 'Vereine Tempests Monster und gemäßigte Menschen unter Rimurus Banner.',
+        title: 'Den Bündnisrat versammeln',
+        description: 'Starte den freiwilligen Schlusszug nach Band 3 und hole Shunas Ritualplan, Gobtas Grenzroute und Rangas Spur ein.',
         locationId: 'tempest-hollow'
       },
       {
         id: 'breach',
-        title: 'Mordrahns Linie durchbrechen',
-        description: 'Schlag dich zur tiefen Bindung durch, bevor Mordrahn das Siegel neu schmiedet.',
+        title: 'Die Linie der alten Ordnung brechen',
+        description: 'Führe das Bündnis aus Monstern und gemäßigten Menschen gemeinsam zum Bindungsherz.',
         locationId: 'alliance-march'
       },
       {
         id: 'confront',
-        title: 'Mordrahn stellen',
-        description: 'Stell dich dem Hüter der Bindung — kein Echo, kein Stellvertreter mehr.',
+        title: 'Den Hüter stellen',
+        description: 'Stell dich dem Hüter der alten Ordnung — kein Echo, kein Stellvertreter mehr.',
         locationId: 'ancestor-heart'
       },
       {
@@ -845,18 +845,18 @@ export const LOCATIONS = [
     kind: 'dungeon',
     mapId: 'tempest-start',
     position: { x: 12, y: 7 },
-    description: 'Der Vormarsch des Bündnisses aus Monstern und gemäßigten Menschen gegen Mordrahns Linie.',
-    identity: 'Act-3-Durchbruch: gemeinsame Front, in der Tempests Bündnis zum ersten Mal Seite an Seite kämpft.',
-    unlockFlag: 'story.act3.started'
+    description: 'Der Vormarsch des Bündnisses aus Monstern und gemäßigten Menschen gegen die Linie der alten Ordnung.',
+    identity: 'Band-4-Durchbruch: gemeinsame Front, in der Tempests Bündnis zum ersten Mal Seite an Seite kämpft.',
+    unlockFlag: 'story.alliance.council-ready'
   },
   {
     id: 'ancestor-heart',
-    name: 'Herz der Bindung',
+    name: 'Bindungsherz',
     kind: 'shrine',
     mapId: 'tempest-start',
     position: { x: 15, y: 2 },
-    description: 'Die tiefe Kammer, in der die Bindung der Ahnen pulst — und an der Mordrahn seine letzte Entscheidung erzwingen will.',
-    identity: 'Act-3-Finale: Mordrahn selbst und die Wahl, die Bindung zu zerstören oder neu zu schmieden.',
+    description: 'Die tiefe Kammer, in der die Bindung der Ahnen pulst — und an der der Hüter der alten Ordnung die letzte Entscheidung erzwingen will.',
+    identity: 'Band-4-Finale: der Hüter selbst und die Wahl, die Bindung zu zerstören, neu zu schmieden oder die Last zu teilen.',
     unlockFlag: 'story.breach.cleared'
   },
   {
@@ -1344,10 +1344,10 @@ export const LORE_ENTRIES = [
   },
   {
     id: 'mordrahn-keeper',
-    title: 'Der Hüter und sein Opfer',
+    title: 'Der Hüter der alten Ordnung',
     lockedTitle: 'Unbekannter Hüter',
     category: 'people',
-    body: 'Mordrahn war der letzte Wächter der Bindung. Um den ewigen Zerfall aufzuhalten, wollte er sie mit einem Massenopfer neu schmieden — keine Bosheit, sondern eine Verzweiflung, die jeden Preis zahlt. Besiegt, aber nicht widerlegt: die Frage, was mit der Bindung geschehen soll, bleibt.',
+    body: 'Der Hüter war der letzte Wächter der Bindung. Um den ewigen Zerfall aufzuhalten, wollte er sie mit einem Massenopfer neu schmieden — keine Bosheit, sondern eine Verzweiflung, die jeden Preis zahlt. Besiegt, aber nicht widerlegt: die Frage, was mit der Bindung geschehen soll, bleibt.',
     unlockFlag: 'story.mordrahn.defeated'
   },
   {
@@ -1823,7 +1823,7 @@ export const DIALOGS = [
       {
         id: 'apex-accepted',
         speaker: 'Rigurd',
-        text: 'Du willst den Urdirewolf? Mutig. Er hält die Südsenke seit Generationen. Nur wer Mordrahn bezwungen hat, sollte das überhaupt erwägen. Viel Glück — du wirst es brauchen.',
+        text: 'Du willst den Urdirewolf? Mutig. Er hält die Südsenke seit Generationen. Nur wer den Hüter der alten Ordnung bezwungen hat, sollte das überhaupt erwägen. Viel Glück — du wirst es brauchen.',
         choices: [{ id: 'end', label: 'Zur Südsenke' }]
       },
       {
@@ -1968,7 +1968,7 @@ export const DIALOGS = [
           },
           {
             id: 'rally',
-            label: 'Das Bündnis schmieden',
+            label: 'Band 4: Bündnisrat einberufen',
             nextNodeId: 'rally-node',
             requirements: [
               { flag: 'story.act2.completed' },
@@ -1976,8 +1976,24 @@ export const DIALOGS = [
             ],
             effects: [
               { type: 'start-quest', questId: 'ancestors-choice' },
-              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'rally' },
               { type: 'set-flag', flag: 'story.act3.started', value: true }
+            ]
+          },
+          {
+            id: 'complete-rally',
+            label: 'Bündnisrat schließen',
+            nextNodeId: 'alliance-council',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { missingQuestStep: { questId: 'ancestors-choice', stepId: 'rally' } },
+              { flag: 'story.alliance.shuna-ready' },
+              { flag: 'story.alliance.gobta-ready' },
+              { flag: 'story.alliance.ranga-ready' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'rally' },
+              { type: 'set-flag', flag: 'story.alliance.council-ready', value: true },
+              { type: 'recruit-character', characterId: 'ranga' }
             ]
           },
           {
@@ -2018,14 +2034,19 @@ export const DIALOGS = [
           },
           {
             id: 'choose-true',
-            label: 'Die Last teilen (nur mit starken Bindungen)',
+            label: 'Die Last teilen (nur mit belegten Bindungen)',
             nextNodeId: 'end-true',
             requirements: [
               { questStatus: { questId: 'ancestors-choice', status: 'active' } },
               { flag: 'story.mordrahn.defeated' },
               { notFlag: 'story.act3.completed' },
-              { flag: 'bond.sora.trust-1' },
-              { flag: 'bond.lyrre.trust-1' }
+              { flag: 'story.direwolf.pact' },
+              { flag: 'story.border.deescalated' },
+              { flag: 'story.vanguard.trace-read' },
+              { flag: 'story.alliance.council-ready' },
+              { flag: 'story.alliance.shuna-ready' },
+              { flag: 'story.alliance.gobta-ready' },
+              { flag: 'story.alliance.ranga-ready' }
             ],
             effects: [
               { type: 'complete-quest-step', questId: 'ancestors-choice', stepId: 'choose' },
@@ -2104,7 +2125,13 @@ export const DIALOGS = [
       {
         id: 'rally-node',
         speaker: 'Rigurd',
-        text: 'Dann ist es Zeit. Monster und gemäßigte Menschen unter einem Banner — die alte Ordnung rechnet nicht damit. Brich ihre Linie und stell dich dem Herz der Bindung.',
+        text: 'Dann ist es Zeit — aber wir gehen nicht als Horde. Hole Shunas Ritualplan, Gobtas Grenzroute und Rangas Spur ein. Erst wenn der Bündnisrat steht, marschieren Monster und gemäßigte Menschen unter einem Banner.',
+        choices: [{ id: 'end', label: 'Den Bündnisrat sammeln' }]
+      },
+      {
+        id: 'alliance-council',
+        speaker: 'Rigurd',
+        text: 'Shuna hält das Ritual, Gobta die Menschenroute und Ranga die Rückzugsspur. Das Bündnis steht. Brich die Linie der alten Ordnung und führe alle zum Bindungsherz.',
         choices: [{ id: 'end', label: 'Zum Bündnismarsch' }]
       },
       {
@@ -2171,6 +2198,20 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'alliance-shuna',
+            label: 'Ritualplan für den Bündnisrat',
+            nextNodeId: 'alliance-shuna',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { missingQuestStep: { questId: 'ancestors-choice', stepId: 'rally' } },
+              { notFlag: 'story.alliance.shuna-ready' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.alliance.shuna-ready', value: true },
+              { type: 'set-flag', flag: 'bond.shuna.trust-act3', value: true }
+            ]
+          },
+          {
             id: 'accept-echo',
             label: 'Streunende Echos bannen',
             nextNodeId: 'echo-accepted',
@@ -2222,6 +2263,12 @@ export const DIALOGS = [
         speaker: 'Shuna',
         text: 'Die Fäden an den Waffen der Patrouille stammen nicht aus Tempest. Eine fremde Hand lenkt Angst und Siegelmagie gegeneinander, ohne sich zu zeigen. Kehre ins Geistmoor zurück und stoppe die Vorhut am Grenzriss.',
         choices: [{ id: 'end', label: 'Über den Westpfad zurück' }]
+      },
+      {
+        id: 'alliance-shuna',
+        speaker: 'Shuna',
+        text: 'Ich binde den Siegelspan der Grenzspäherin in das Ritual. Wenn der Hüter die Bindung als Kette benutzt, machen wir daraus ein Netz — aber nur, wenn alle freiwillig tragen.',
+        choices: [{ id: 'end', label: 'Shunas Ritual steht' }]
       },
       {
         id: 'echo-accepted',
@@ -2299,6 +2346,20 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'alliance-gobta',
+            label: 'Menschenroute für den Bündnisrat',
+            nextNodeId: 'alliance-gobta',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { missingQuestStep: { questId: 'ancestors-choice', stepId: 'rally' } },
+              { notFlag: 'story.alliance.gobta-ready' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.alliance.gobta-ready', value: true },
+              { type: 'set-flag', flag: 'bond.gobta.trust-act3', value: true }
+            ]
+          },
+          {
             id: 'accept-deserter',
             label: 'Grenzgänger abfangen',
             nextNodeId: 'deserter-accepted',
@@ -2369,6 +2430,12 @@ export const DIALOGS = [
         speaker: 'Gobta',
         text: 'Die Grenze hält, und die gerettete Patrouille erzählt jetzt eine andere Geschichte über Tempest. Rangas kalte Siegelspur beweist nur: Hinter der Vorhut steht jemand, der Misstrauen als Waffe benutzt. Noch kennen wir keinen Namen.',
         choices: [{ id: 'end', label: 'Wir bereiten uns vor' }]
+      },
+      {
+        id: 'alliance-gobta',
+        speaker: 'Gobta',
+        text: 'Die Patrouille, die wir gerettet haben, schickt zwei Fackelzeichen. Keine Armee — nur ein sicherer Korridor. Wenn wir dort marschieren, sieht die Grenze ein Bündnis und keinen Überfall.',
+        choices: [{ id: 'end', label: 'Gobtas Route steht' }]
       }
     ]
   },
@@ -2556,6 +2623,22 @@ export const DIALOGS = [
             nextNodeId: 'after',
             requirements: [{ flag: 'story.ranga.ready' }]
           },
+          {
+            id: 'alliance-ranga',
+            label: 'Rückzugsspur für den Bündnisrat',
+            nextNodeId: 'alliance-ranga',
+            requirements: [
+              { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+              { missingQuestStep: { questId: 'ancestors-choice', stepId: 'rally' } },
+              { flag: 'story.direwolf.pact' },
+              { notFlag: 'story.alliance.ranga-ready' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.alliance.ranga-ready', value: true },
+              { type: 'set-flag', flag: 'bond.ranga.trust-act3', value: true },
+              { type: 'recruit-character', characterId: 'ranga' }
+            ]
+          },
           { id: 'end', label: 'Später' }
         ]
       },
@@ -2570,6 +2653,12 @@ export const DIALOGS = [
         speaker: 'Ranga',
         text: 'Der sichere Pfad bleibt markiert. Ranga trägt euch nur zu Orten, die Tempest wirklich kennt und die gerade nicht unter Feinddruck stehen.',
         choices: [{ id: 'end', label: 'Guter Junge' }]
+      },
+      {
+        id: 'alliance-ranga',
+        speaker: 'Ranga',
+        text: 'Ranga legt die Ohren an den kalten Siegelstaub. „Der Hüter hetzt andere vor. Ich halte die Rückzugsspur offen und beiße zu, wenn er wieder jemanden als Schild benutzt.“',
+        choices: [{ id: 'end', label: 'Rangas Spur steht' }]
       }
     ]
   },
@@ -3621,7 +3710,8 @@ export const ENCOUNTERS = [
     enemyIds: ['mordrahn-vanguard', 'human-lancer'],
     chance: 1,
     requirements: [
-      { flag: 'story.act3.started' },
+      { questStatus: { questId: 'ancestors-choice', status: 'active' } },
+      { flag: 'story.alliance.council-ready' },
       { notFlag: 'story.breach.cleared' }
     ],
     victoryEffects: [
@@ -3637,6 +3727,7 @@ export const ENCOUNTERS = [
     enemyIds: ['mordrahn'],
     chance: 1,
     requirements: [
+      { questStatus: { questId: 'ancestors-choice', status: 'active' } },
       { flag: 'story.breach.cleared' },
       { notFlag: 'story.mordrahn.defeated' }
     ],

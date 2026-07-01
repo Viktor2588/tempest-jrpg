@@ -22,8 +22,14 @@ export function getChapterBanner(save: Pick<SaveGameV2, 'flags' | 'quests'> | nu
   ) {
     return { kicker: 'Band 2', line: 'Eine Stadt braucht mehr als einen Namen.' };
   }
+  if (save.flags['story.act2.completed'] && save.quests['ancestors-choice']?.status !== 'completed') {
+    return { kicker: 'Band 4', line: 'Die Bindung verlangt eine letzte Entscheidung.' };
+  }
+  if (save.flags['story.act3.completed'] || save.quests['ancestors-choice']?.status === 'completed') {
+    return { kicker: 'Epilog', line: 'Tempests Entscheidung trägt die Zukunft.' };
+  }
   if (save.flags['story.act1.completed'] && save.quests['border-escalation']?.status !== 'completed') {
-    return { kicker: 'Band 2', line: 'Tempest steht — die Grenze ruft.' };
+    return { kicker: 'Band 3', line: 'Tempest steht — die Grenze ruft.' };
   }
   return { kicker: 'Prolog', line: 'Erwachen in der versiegelten Höhle' };
 }
@@ -61,18 +67,44 @@ export function getChapterSummary(save: Pick<SaveGameV2, 'flags' | 'quests' | 'p
     };
   }
 
+  if (!save.flags['story.act2.completed'] && save.quests['border-escalation']?.status !== 'completed') {
+    return {
+      banner,
+      recap: 'Tempest hat den Rat, den Flüsterhain und das namenlose Echo überstanden. Jetzt entscheidet die Grenze, ob Menschen und Monster einander nur fürchten oder zuhören.',
+      nextObjective: bandThreeObjective(save),
+      highlights: [
+        ...partyHighlights(save),
+        'Tempest als junge Stadt gegründet',
+        ...(save.flags['story.border.deescalated'] ? ['Sumpfgrenze nicht-tödlich deeskaliert'] : []),
+        ...(save.flags['story.vanguard.trace-read'] ? ['Ranga hat die anonyme Siegelspur gesichert'] : []),
+        ...(hasItem(save, 'tempest-charm') ? ['Belohnung: Tempest-Talisman erhalten'] : [])
+      ]
+    };
+  }
+
+  if (save.flags['story.act2.completed'] && save.quests['ancestors-choice']?.status !== 'completed') {
+    return {
+      banner,
+      recap: 'Die Sumpfgrenze wurde deeskaliert und die fremde Siegelspur bleibt namenlos. Tempest kann freiwillig den letzten Bündnisrat einberufen.',
+      nextObjective: bandFourObjective(save),
+      highlights: [
+        ...partyHighlights(save),
+        'Grenzbericht ohne Massaker gesichert',
+        ...(save.flags['story.alliance.council-ready'] ? ['Bündnisrat geschlossen'] : []),
+        ...(save.flags['story.breach.cleared'] ? ['Linie der alten Ordnung gebrochen'] : [])
+      ]
+    };
+  }
+
   return {
     banner,
-    recap: 'Band 1 und Band 2 sind abgeschlossen: Veldoras Schwur, Gobtas Beitritt, Rangas Pakt, Tempests Rat, Flüsterhain und das namenlose Echo liegen hinter dir.',
-    nextObjective: save.quests['border-escalation']?.status === 'active'
-      ? 'Halte die Sumpfgrenze und bring Shuna die Grenzfunde.'
-      : 'Optional: Sprich mit Gobta über die Grenzlage oder raste im Tempest-Lager.',
+    recap: 'Tempest hat über die Ahnenbindung entschieden. Die Zukunft hängt nun an der gewählten Verantwortung.',
+    nextObjective: 'Speichere den Abschluss oder starte New Game+, um andere Enden zu sehen.',
     highlights: [
       ...partyHighlights(save),
-      'Tempest als junge Stadt gegründet',
-      'Namenloses Echo am Ahnensiegel gebrochen',
+      getEndingHighlight(save),
       ...(hasItem(save, 'tempest-charm') ? ['Belohnung: Tempest-Talisman erhalten'] : [])
-    ]
+    ].filter((entry): entry is string => entry !== null)
   };
 }
 
@@ -97,6 +129,29 @@ function bandTwoObjective(save: Pick<SaveGameV2, 'flags' | 'quests'>): string {
   return 'Berichte Rigurd vom Siegelbruch und schließe Band 2 ab.';
 }
 
+function bandThreeObjective(save: Pick<SaveGameV2, 'flags' | 'quests'>): string {
+  if ((save.quests['border-escalation']?.status ?? 'inactive') === 'inactive') {
+    return 'Optional: Sprich mit Gobta über die Grenzlage oder raste im Tempest-Lager.';
+  }
+  if (!save.flags['story.border.cleared']) return 'Folge Rangas Westpfad ins Geistmoor und stoppe die Patrouille.';
+  if (!save.flags['story.border.deescalated']) return 'Senke die Waffen und versorge die Verwundeten an der Sumpfgrenze.';
+  if (!save.flags['story.fracture.read']) return 'Bring Shuna den kalten Siegelspan aus dem Geistmoor.';
+  if (!save.flags['story.vanguard.trace-read']) return 'Brich die Vorhut am Grenzriss und sichere Rangas Spur.';
+  return 'Berichte Gobta von Deeskalation und Siegelspur.';
+}
+
+function bandFourObjective(save: Pick<SaveGameV2, 'flags' | 'quests'>): string {
+  if ((save.quests['ancestors-choice']?.status ?? 'inactive') === 'inactive') {
+    return 'Optional: Sprich mit Rigurd über den letzten Bündnisrat.';
+  }
+  if (!save.flags['story.alliance.council-ready']) {
+    return 'Hole Shunas Ritualplan, Gobtas Menschenroute und Rangas Rückzugsspur ein.';
+  }
+  if (!save.flags['story.breach.cleared']) return 'Führe den Bündnismarsch gegen die Linie der alten Ordnung.';
+  if (!save.flags['story.mordrahn.defeated']) return 'Stell den Hüter am Bindungsherz.';
+  return 'Triff bei Rigurd die Entscheidung über Freiheit, Ordnung oder Geteilte Last.';
+}
+
 function partyHighlights(save: Pick<SaveGameV2, 'party'>): string[] {
   const ids = new Set(save.party.active.map((member) => member.characterId));
   return [
@@ -108,4 +163,11 @@ function partyHighlights(save: Pick<SaveGameV2, 'party'>): string[] {
 
 function hasItem(save: Pick<SaveGameV2, 'inventory'>, itemId: string): boolean {
   return save.inventory.stacks.some((stack) => stack.itemId === itemId && stack.quantity > 0);
+}
+
+function getEndingHighlight(save: Pick<SaveGameV2, 'flags'>): string | null {
+  if (save.flags['ending.true']) return 'Ende erreicht: Geteilte Last';
+  if (save.flags['ending.order']) return 'Ende erreicht: Ordnung';
+  if (save.flags['ending.freedom']) return 'Ende erreicht: Freiheit';
+  return null;
 }

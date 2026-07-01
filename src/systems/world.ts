@@ -262,9 +262,9 @@ const QUEST_STATUS_ORDER: Record<QuestLogEntryView['status'], number> = {
   completed: 1,
   inactive: 2
 };
-// `ancestors-choice` bleibt technisch erhalten, wird aber nicht mehr als Canon-
-// Hauptquest priorisiert; sie ist der optionale Original-/Legacy-Arc.
-const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation']);
+// Canon-Hauptquests stehen vor aktiven Nebenquests, damit der aktuelle Bandanker
+// nicht unter optionalen Aufträgen verschwindet.
+const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation', 'ancestors-choice']);
 
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
   const entries = QUESTS.map((quest) => {

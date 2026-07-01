@@ -320,6 +320,47 @@ function buildRangaScoutReport(state: WorldState): RangaScoutReportView {
       warning: null
     };
   }
+  const ancestorsStatus = state.quests['ancestors-choice']?.status ?? 'inactive';
+  if (state.flags['story.act2.completed'] && ancestorsStatus === 'inactive') {
+    return {
+      title: 'Freiwilliger Hook: Wahl der Ahnen',
+      body: 'Rigurd kann den letzten Bündnisrat einberufen, wenn Tempest nach der Grenzdeeskalation bereit ist.',
+      targetLocationId: 'tempest-hollow',
+      warning: null
+    };
+  }
+  if (ancestorsStatus === 'active') {
+    if (!state.flags['story.alliance.council-ready']) {
+      return {
+        title: 'Wahl der Ahnen: Bündnisrat',
+        body: 'Shuna, Gobta und Ranga müssen ihre freiwilligen Beiträge bestätigen, bevor Tempest als Bündnis marschiert.',
+        targetLocationId: 'tempest-hollow',
+        warning: 'Der Bündnismarsch ist noch nicht freigegeben.'
+      };
+    }
+    if (!state.flags['story.breach.cleared']) {
+      return {
+        title: 'Wahl der Ahnen: Bündnismarsch',
+        body: 'Ranga hält die Rückzugsspur offen, während das Bündnis die Linie der alten Ordnung bricht.',
+        targetLocationId: 'alliance-march',
+        warning: 'Breach-Kampf auf dem Marsch.'
+      };
+    }
+    if (!state.flags['story.mordrahn.defeated']) {
+      return {
+        title: 'Wahl der Ahnen: Bindungsherz',
+        body: 'Der Hüter wartet am Bindungsherz. Ranga ist Teil der Front und sichert die Flanke.',
+        targetLocationId: 'ancestor-heart',
+        warning: 'Finalkampf am Bindungsherz.'
+      };
+    }
+    return {
+      title: 'Wahl der Ahnen: Entscheidung',
+      body: 'Die Bindung ist offen. Rigurd wartet in Tempest auf die Entscheidung: Freiheit, Ordnung oder Geteilte Last.',
+      targetLocationId: 'tempest-hollow',
+      warning: null
+    };
+  }
   return {
     title: 'Keine akute Spur',
     body: 'Ranga hält die sicheren Wege offen und wartet auf den nächsten Scoutauftrag.',
