@@ -166,20 +166,30 @@ export const SIGNATURE_CHARGE_MAX = 100;
 
 const POISON_DAMAGE_FRACTION = 0.06;
 const MAX_ADVANCE_STEPS = 100_000;
-const BREAK_GAUGE_MAX = 4;
-const TEAM_METER_MAX = 100;
-const TEAM_METER_BREAK_GAIN = 35;
+export const BATTLE_BALANCE = {
+  analysisMax: 2,
+  breakGaugeMax: 4,
+  devourBaseChance: 0.1,
+  devourBrokenBonus: 0.45,
+  devourDebuffBonus: 0.2,
+  devourHpThreshold: 0.35,
+  devourLowHpBonus: 0.3,
+  devourMaxRoll: 0.95,
+  devourWhiffFloor: 0.05,
+  teamMeterBreakGain: 35,
+  teamMeterMax: 100
+} as const;
+const BREAK_GAUGE_MAX = BATTLE_BALANCE.breakGaugeMax;
+const TEAM_METER_MAX = BATTLE_BALANCE.teamMeterMax;
+const TEAM_METER_BREAK_GAIN = BATTLE_BALANCE.teamMeterBreakGain;
 const TEAM_ATTACK_COST = 100;
-const ANALYSIS_MAX = 2;
+const ANALYSIS_MAX = BATTLE_BALANCE.analysisMax;
 const CT_MAX = CT_THRESHOLD * 3;
 // Aussetz-Status, die einen Zug hart überspringen (Schlaf/Eis enden zusätzlich bei Schaden).
 const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satisfies readonly StatusEffectId[];
 const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
 // Phase 41 — Verschlinger + Momentum
 const MOMENTUM_CT_SURGE = 35;
-const DEVOUR_HP_THRESHOLD = 0.35;
-const DEVOUR_WHIFF_CHANCE = 0.05;
-const DEVOUR_STRONG_BASE_CHANCE = 0.10;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -849,24 +859,14 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ziel kann nicht verschlungen werden.' };
   }
 
-  const broken = hasStatus(target, 'guard-break');
-  const lowHp = target.hp / target.maxHp <= DEVOUR_HP_THRESHOLD;
-  const debuffed = hasDebuff(target, 'guard-break');
-  if (!broken && !lowHp && !debuffed) {
+  const successChance = calculateDevourSuccessChance(target);
+  if (successChance === 0) {
     return { ok: false, reason: 'Ziel ist noch nicht verwundbar genug.' };
   }
 
-  const chance = clamp(
-    DEVOUR_STRONG_BASE_CHANCE
-    + (broken ? 0.45 : 0)
-    + (lowHp ? 0.3 : 0)
-    + (debuffed ? 0.2 : 0)
-    + (target.analysisLevel > 0 ? 0.1 : 0),
-    DEVOUR_STRONG_BASE_CHANCE,
-    0.95
-  );
+  const chanceCeiling = BATTLE_BALANCE.devourWhiffFloor + (successChance ?? 0);
   const roll = state.rng();
-  if (roll < DEVOUR_WHIFF_CHANCE || roll > chance) {
+  if (roll < BATTLE_BALANCE.devourWhiffFloor || roll > chanceCeiling) {
     pushLog(state, `${actor.name} setzt Verschlinger an, aber ${target.name} widersteht.`);
     endTurn(state, actor);
     return { ok: true };
@@ -885,6 +885,39 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   grantMomentum(state, actor, 'Verschlingen');
   endTurn(state, actor);
   return { ok: true };
+}
+
+export function calculateDevourSuccessChance(
+  target: Pick<
+    Combatant,
+    'analysisLevel' | 'devourable' | 'devourSkillId' | 'hp' | 'maxHp' | 'statuses'
+  >
+): number | null {
+  if (!target.devourable || !target.devourSkillId) {
+    return null;
+  }
+
+  const broken = target.statuses.some((status) => status.id === 'guard-break');
+  const lowHp = target.hp / target.maxHp <= BATTLE_BALANCE.devourHpThreshold;
+  const debuffed = target.statuses.some((status) =>
+    status.id !== 'guard-break' && DEBUFF_STATUSES.includes(status.id)
+  );
+  if (!broken && !lowHp && !debuffed) {
+    return 0;
+  }
+
+  const chanceCeiling = Math.min(
+    BATTLE_BALANCE.devourMaxRoll,
+    Math.max(
+      BATTLE_BALANCE.devourBaseChance,
+      BATTLE_BALANCE.devourBaseChance
+      + (broken ? BATTLE_BALANCE.devourBrokenBonus : 0)
+      + (lowHp ? BATTLE_BALANCE.devourLowHpBonus : 0)
+      + (debuffed ? BATTLE_BALANCE.devourDebuffBonus : 0)
+      + (target.analysisLevel > 0 ? 0.1 : 0)
+    )
+  );
+  return chanceCeiling - BATTLE_BALANCE.devourWhiffFloor;
 }
 
 function resolveSignature(
@@ -1508,12 +1541,6 @@ function isSilenced(actor: Combatant): boolean {
 
 function hasStatus(combatant: Combatant, statusId: StatusEffectId): boolean {
   return combatant.statuses.some((status) => status.id === statusId);
-}
-
-function hasDebuff(combatant: Combatant, ...excluded: readonly StatusEffectId[]): boolean {
-  return combatant.statuses.some((status) =>
-    !excluded.includes(status.id) && DEBUFF_STATUSES.includes(status.id)
-  );
 }
 
 // Phase 40 — Aussetz-Status: liefert den aktiven Behinderungs-Status dieses Zugs (oder null).

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HEROES } from '../src/data';
+import { ELEMENT_FUSIONS, HEROES } from '../src/data';
 import {
   act,
   renderView,
@@ -93,6 +93,17 @@ describe('Phase 44 – Team-Mix und Fusionsangriffe', () => {
     expect(resolveElementFusion('wind', 'wind')?.resultElement).toBe('cyclone');
     expect(resolveElementFusion('neutral', 'fire')).toBeNull();
     expect(resolveElementFusion(null, 'fire')).toBeNull();
+  });
+
+  it('deckt alle 21 nicht-neutralen Elementpaare genau einmal ab', () => {
+    const elements = ['water', 'wind', 'fire', 'earth', 'shadow', 'holy'] as const;
+    const expectedPairs = elements.flatMap((first, index) =>
+      elements.slice(index).map((second) => [first, second].sort().join('+'))
+    );
+    const actualPairs = ELEMENT_FUSIONS.map((fusion) => [...fusion.elements].sort().join('+'));
+
+    expect(new Set(actualPairs).size).toBe(21);
+    expect(actualPairs.sort()).toEqual(expectedPairs.sort());
   });
 
   it('lädt Resonanzen über Skills und zeigt sie im View-Modell', () => {

@@ -200,5 +200,19 @@ export const SIGNATURES = [
       { kind: 'status', statusId: 'attack-up', turns: 3 },
       { kind: 'status', statusId: 'defense-up', turns: 3 }
     ]
+  },
+  {
+    id: 'kaijin-field-forge',
+    characterId: 'kaijin',
+    name: 'Feldschmiede',
+    description: 'Kaijin verstärkt die Ausrüstung der Gruppe und setzt die gegnerische Deckung unter Druck.',
+    element: 'earth',
+    target: 'all-allies',
+    chargePerAction: 25,
+    effects: [
+      { kind: 'status', statusId: 'attack-up', turns: 3 },
+      { kind: 'status', statusId: 'defense-up', turns: 3 },
+      { kind: 'break', pressure: 1, scope: 'enemies' }
+    ]
   }
 ] as const satisfies readonly SignatureDefinition[];

@@ -139,6 +139,14 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       });
     }
   }
+  for (const heroId of heroIds) {
+    if (!signatureCharacterIds.has(heroId)) {
+      issues.push({
+        path: `heroes.${heroId}.signature`,
+        message: `Spielbarer Charakter '${heroId}' hat keine Signaturaktion.`
+      });
+    }
+  }
 
   const fusionPairs = new Set<string>();
   for (const fusion of data.elementFusions) {
@@ -168,6 +176,18 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       issues
     );
   }
+  const fusionElements = ['water', 'wind', 'fire', 'earth', 'shadow', 'holy'] as const;
+  for (let first = 0; first < fusionElements.length; first += 1) {
+    for (let second = first; second < fusionElements.length; second += 1) {
+      const pair = [fusionElements[first], fusionElements[second]].sort().join('+');
+      if (!fusionPairs.has(pair)) {
+        issues.push({
+          path: `elementFusions.${pair}`,
+          message: `Elementpaar '${pair}' hat keine Fusionsaktion.`
+        });
+      }
+    }
+  }
 
   for (const hero of data.heroes) {
     validatePositiveInteger(`heroes.${hero.id}.initialLevel`, hero.initialLevel, issues);
@@ -186,6 +206,22 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     validateNonNegativeInteger(`enemies.${enemy.id}.experienceReward`, enemy.experienceReward, issues);
     validateNonNegativeInteger(`enemies.${enemy.id}.goldReward`, enemy.goldReward, issues);
     validateSkillReferences(`enemies.${enemy.id}.skillIds`, enemy.skillIds, skillIds, issues);
+    if (enemy.weaknesses.length === 0) {
+      issues.push({
+        path: `enemies.${enemy.id}.weaknesses`,
+        message: 'Jeder Gegner braucht mindestens eine analysierbare Schwäche.'
+      });
+    }
+    const hasTelegraphableSkill = enemy.skillIds.some((skillId) => {
+      const skill = data.skills.find((candidate) => candidate.id === skillId);
+      return skill?.target === 'single-enemy' || skill?.target === 'all-enemies';
+    });
+    if (!hasTelegraphableSkill) {
+      issues.push({
+        path: `enemies.${enemy.id}.skillIds`,
+        message: 'Jeder Gegner braucht mindestens eine telegraphierbare Aktion.'
+      });
+    }
     if (enemy.devourable && !enemy.devourSkillId) {
       issues.push({
         path: `enemies.${enemy.id}.devourSkillId`,
@@ -196,6 +232,12 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
       issues.push({
         path: `enemies.${enemy.id}.devourSkillId`,
         message: `Devour verweist auf unbekannten Skill '${enemy.devourSkillId}'.`
+      });
+    }
+    if (!enemy.devourable && enemy.devourSkillId) {
+      issues.push({
+        path: `enemies.${enemy.id}.devourSkillId`,
+        message: 'Nicht verschlingbare Gegner dürfen keinen Aneignungs-Skill vergeben.'
       });
     }
 

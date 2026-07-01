@@ -39,6 +39,39 @@ const TUTORIALS: Readonly<Record<string, BattleTutorialView>> = {
       'Break unterbricht Druck und macht das Echo verwundbar.',
       'Heile vor dem Phasenwechsel statt erst danach.'
     ]
+  },
+  'geld-disaster-boss': {
+    id: 'orc-disaster',
+    flag: 'tutorial.battle.orc-disaster.seen',
+    title: 'Boss-Tipp: Orc Disaster',
+    body: 'Gelds Hunger eskaliert in Phase 2. Analyse und Telegraph machen den Druck planbar.',
+    tips: [
+      'Heilige Treffer bauen den Break am schnellsten auf.',
+      'Reagiere auf Katastrophenbrüllen mit Schutz oder Kontrolle.',
+      'Nutze Signatur und Fusionskombo im Break-Fenster.'
+    ]
+  },
+  'gabiru-duel': {
+    id: 'gabiru',
+    flag: 'tutorial.battle.gabiru.seen',
+    title: 'Duell-Tipp: Gabiru',
+    body: 'Gabirus Tempo wechselt zwischen Speersturm, Flutlanze und Kriegsschrei.',
+    tips: [
+      'Schatten ist seine analysierbare Schwäche.',
+      'Der Telegraph unterscheidet Angriff und Verstärkung.',
+      'Break verhindert, dass sein Tempo den Kampf diktiert.'
+    ]
+  },
+  'ifrit-boss': {
+    id: 'ifrit',
+    flag: 'tutorial.battle.ifrit.seen',
+    title: 'Boss-Tipp: Ifrit',
+    body: 'Ifrit widersteht Feuer und setzt die gesamte Gruppe unter magischen Flächendruck.',
+    tips: [
+      'Wasser öffnet Break-Fenster.',
+      'Der Inferno-Telegraph ist das Signal für Schutz und Heilung.',
+      'Halte Signaturen und Teamfusion für die gebrochene Phase bereit.'
+    ]
   }
 };
 

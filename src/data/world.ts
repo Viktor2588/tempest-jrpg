@@ -1199,16 +1199,16 @@ export const LORE_ENTRIES = [
   },
   {
     id: 'tutorial-grove-combat',
-    title: 'Tutorial: Status, Schwächen und Teamleiste',
+    title: 'Tutorial: Analyse, Status und Teamleiste',
     category: 'systems',
-    body: 'Der Flüsterhain ist der erste Kampf, der mehr verlangt als Angriff und Verteidigung: Status-Effekte kontrollieren Tempo, elementare Schwächen öffnen sichere Schadensfenster, und die Teamleiste belohnt Rimuru, Gobta und Ranga für abgestimmte Züge.',
+    body: 'Analysiere Gegner mit dem Großen Weisen: Das HUD deckt Schwächen und den nächsten telegraphierten Zug auf. Status-Effekte und Schwächentreffer senken die Break-Leiste. Ein gebrochenes oder geschwächtes Ziel öffnet ein berechenbares Devour-Fenster. Signaturen laden sich durch Aktionen; zwei verbundene Elementresonanzen verwandeln eine volle Teamleiste in eine Fusionskombo.',
     unlockFlag: 'codex.tutorial-grove-combat'
   },
   {
     id: 'tutorial-echo-boss',
-    title: 'Tutorial: Echo-Boss und Magieeffekte',
+    title: 'Tutorial: Boss-Telegraph und Antwortfenster',
     category: 'systems',
-    body: 'Nach dem Flüsterhain zeigt das Ahnensiegel eine Boss-Signatur. Prüfe Magieeffekte, halte MP für Heilung/Antwortfenster zurück und nutze Teamzüge erst, wenn das Echo seine alte Ordnung offenlegt.',
+    body: 'Analysierte Bosse kündigen ihre nächste Fähigkeit im HUD an. Nutze Verteidigung, Reaktionen oder Statuskontrolle gegen den Telegraphen, prüfe Magieeffekte und erzeuge Break mit aufgedeckten Schwächen. Spare Signaturen und fusionierte Teamzüge für das anschließende Schadensfenster.',
     unlockFlag: 'codex.tutorial-echo-boss'
   },
   {

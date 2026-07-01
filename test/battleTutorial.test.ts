@@ -13,4 +13,10 @@ describe('adaptive Kampftutorials', () => {
     const tutorial = getBattleTutorial('shrine-approach', {})!;
     expect(getBattleTutorial('shrine-approach', { [tutorial.flag]: true })).toBeNull();
   });
+
+  it('führt die Canon-Bosse mit deutschen Telegraph- und Antworttipps ein', () => {
+    expect(getBattleTutorial('geld-disaster-boss', {})?.tips.join(' ')).toContain('Fusionskombo');
+    expect(getBattleTutorial('gabiru-duel', {})?.body).toContain('Kriegsschrei');
+    expect(getBattleTutorial('ifrit-boss', {})?.tips.join(' ')).toContain('Inferno-Telegraph');
+  });
 });
