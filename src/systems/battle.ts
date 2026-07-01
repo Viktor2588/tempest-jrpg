@@ -5,12 +5,15 @@ import {
   ENEMIES,
   HEROES,
   ITEMS,
+  SIGNATURES,
   SKILLS,
   type CharacterDefinition,
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
   type ItemDefinition,
+  type SignatureDefinition,
+  type SignatureEffectScope,
   type SkillDefinition,
   type StatBlock,
   type StatusEffectId
@@ -85,6 +88,9 @@ export interface Combatant {
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
   readonly synergyPartnerIds: readonly string[];
+  readonly signatureId: string | null;
+  signatureCharge: number;
+  readonly signatureChargeMax: number;
   readonly statuses: StatusInstance[];
   reaction: QueuedReaction | null;
   breakGauge: number;
@@ -132,6 +138,7 @@ export type BattleAction =
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
   | { type: 'devour'; targetId: string }
+  | { type: 'signature'; targetId?: string }
   | { type: 'guard' }
   | { type: 'flee' };
 
@@ -152,6 +159,7 @@ export interface ActionResult {
 
 export const CT_THRESHOLD = 100;
 export const MAX_TURNS = 300;
+export const SIGNATURE_CHARGE_MAX = 100;
 
 const POISON_DAMAGE_FRACTION = 0.06;
 const MAX_ADVANCE_STEPS = 100_000;
@@ -189,6 +197,9 @@ const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const enemyById = new Map<string, EnemyDefinition>(ENEMIES.map((enemy) => [enemy.id, enemy]));
+const signatureByCharacterId = new Map<string, SignatureDefinition>(
+  SIGNATURES.map((signature) => [signature.characterId, signature])
+);
 
 export function createDefaultBattleParty(): BattleUnitInput[] {
   return HEROES.filter((hero) => hero.startsInParty).map((hero) => createHeroBattleUnit(hero));
@@ -412,6 +423,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
   const stats = unit.stats;
   const baseSkillIds = [...unit.skillIds];
   const breakGaugeMax = unit.side === 'enemy' ? BREAK_GAUGE_MAX : Math.max(3, BREAK_GAUGE_MAX - 1);
+  const signature = unit.side === 'party' ? signatureByCharacterId.get(unit.sourceId) : undefined;
 
   return {
     id,
@@ -439,6 +451,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
+    signatureId: signature?.id ?? null,
+    signatureCharge: 0,
+    signatureChargeMax: SIGNATURE_CHARGE_MAX,
     statuses: uniqueStrings(unit.openingStatusIds ?? []).map((statusId) => ({
       id: statusId,
       turns: 3
@@ -491,6 +506,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'devour':
       return resolveDevour(state, actor, action.targetId);
+
+    case 'signature':
+      return resolveSignature(state, actor, action.targetId);
   }
 }
 
@@ -766,6 +784,148 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   return { ok: true };
 }
 
+function resolveSignature(
+  state: BattleState,
+  actor: Combatant,
+  targetId: string | undefined
+): ActionResult {
+  const signature = signatureByCharacterId.get(actor.sourceId);
+  if (!signature || actor.signatureId !== signature.id) {
+    return { ok: false, reason: 'Keine Signaturaktion verfügbar.' };
+  }
+  if (actor.signatureCharge < actor.signatureChargeMax) {
+    return { ok: false, reason: 'Signaturleiste ist noch nicht voll.' };
+  }
+
+  const targets = signatureTargets(state, actor, signature, targetId);
+  if (targets.length === 0) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+
+  actor.signatureCharge = 0;
+  pushLog(state, `${actor.name} entfesselt ${signature.name}!`);
+  for (const effect of signature.effects) {
+    const effectTargets = signatureEffectTargets(state, actor, targets, effect.scope);
+    switch (effect.kind) {
+      case 'damage':
+        for (const target of effectTargets) {
+          if (target.dead || target.side === actor.side) continue;
+          const offense = effect.scaling === 'attack'
+            ? effectiveStat(actor, 'attack')
+            : effect.scaling === 'magic'
+              ? effectiveStat(actor, 'magic')
+              : (effectiveStat(actor, 'attack') + effectiveStat(actor, 'magic')) / 2;
+          const mitigation = effect.scaling === 'attack'
+            ? effectiveStat(target, 'defense')
+            : effect.scaling === 'magic'
+              ? effectiveStat(target, 'spirit')
+              : (effectiveStat(target, 'defense') + effectiveStat(target, 'spirit')) / 2;
+          const rawDamage = (effect.power + offense * 1.45 - mitigation * 0.55)
+            * elementMultiplier(effect.element, target)
+            * variance(state.rng);
+          const damage = applyDamage(state, actor, target, rawDamage);
+          pushLog(state, `${signature.name} trifft ${target.name}: ${damage} Schaden.`);
+          checkDeath(state, target);
+        }
+        break;
+
+      case 'heal':
+        for (const target of effectTargets) {
+          if (target.dead || target.side !== actor.side) continue;
+          const amount = Math.max(1, Math.round(target.maxHp * effect.maxHpFraction));
+          target.hp = Math.min(target.maxHp, target.hp + amount);
+          pushLog(state, `${signature.name} heilt ${target.name} um ${amount} LP.`);
+        }
+        break;
+
+      case 'status':
+        for (const target of effectTargets) {
+          if (target.dead) continue;
+          applyStatus(target, effect.statusId, effect.turns);
+          pushLog(state, `${target.name}: ${statusLabel(effect.statusId)}.`);
+        }
+        break;
+
+      case 'ct':
+        for (const target of effectTargets) {
+          applyCtDelta(target, effect.delta);
+        }
+        break;
+
+      case 'break':
+        for (const target of effectTargets) {
+          applyBreakPressure(state, target, 'neutral', effect.pressure);
+        }
+        break;
+
+      case 'analyze':
+        for (const target of effectTargets) {
+          if (target.dead || target.side === actor.side) continue;
+          target.analysisLevel = Math.min(ANALYSIS_MAX, target.analysisLevel + effect.levels);
+          target.telegraphSkillId = predictTelegraph(target);
+          pushLog(state, `${target.name} ist vollständig analysiert.`);
+        }
+        break;
+
+      case 'reaction':
+        for (const target of effectTargets) {
+          if (target.dead || target.side !== actor.side) continue;
+          target.reaction = { kind: effect.reaction, timing: effect.timing };
+        }
+        break;
+
+      case 'team-meter':
+        state.teamMeter = clamp(state.teamMeter + effect.amount, 0, TEAM_METER_MAX);
+        break;
+    }
+  }
+
+  endTurn(state, actor, false);
+  return { ok: true };
+}
+
+function signatureTargets(
+  state: BattleState,
+  actor: Combatant,
+  signature: SignatureDefinition,
+  targetId: string | undefined
+): Combatant[] {
+  switch (signature.target) {
+    case 'self':
+      return [actor];
+    case 'all-allies':
+      return livingCombatants(state, actor.side);
+    case 'all-enemies':
+      return livingCombatants(state, actor.side === 'party' ? 'enemy' : 'party');
+    case 'single-ally': {
+      const target = getCombatant(state, targetId);
+      return target && !target.dead && target.side === actor.side ? [target] : [];
+    }
+    case 'single-enemy': {
+      const target = getCombatant(state, targetId);
+      return target && !target.dead && target.side !== actor.side ? [target] : [];
+    }
+  }
+}
+
+function signatureEffectTargets(
+  state: BattleState,
+  actor: Combatant,
+  actionTargets: Combatant[],
+  scope: SignatureEffectScope | undefined
+): Combatant[] {
+  switch (scope ?? 'targets') {
+    case 'targets':
+      return actionTargets;
+    case 'self':
+      return [actor];
+    case 'allies':
+      return livingCombatants(state, actor.side);
+    case 'enemies':
+      return livingCombatants(state, actor.side === 'party' ? 'enemy' : 'party');
+  }
+}
+
 function chooseDevourSkill(actor: Combatant, target: Combatant): SkillDefinition | null {
   const definedSkill = target.devourSkillId ? getSkill(target.devourSkillId) : null;
   if (definedSkill && !UNIQUE_VERB_SKILL_IDS.has(definedSkill.id) && !actor.skillIds.includes(definedSkill.id)) {
@@ -903,7 +1063,17 @@ function startTurn(state: BattleState, actor: Combatant): boolean {
   return false;
 }
 
-function endTurn(state: BattleState, actor: Combatant): void {
+function endTurn(state: BattleState, actor: Combatant, gainSignatureCharge = true): void {
+  if (gainSignatureCharge && actor.side === 'party' && !actor.dead) {
+    const signature = signatureByCharacterId.get(actor.sourceId);
+    if (signature) {
+      actor.signatureCharge = clamp(
+        actor.signatureCharge + signature.chargePerAction,
+        0,
+        actor.signatureChargeMax
+      );
+    }
+  }
   actor.ct = Math.max(0, actor.ct - CT_THRESHOLD);
   state.turns += 1;
 

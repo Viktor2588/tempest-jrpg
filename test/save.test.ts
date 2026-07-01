@@ -206,13 +206,18 @@ describe('save.ts', () => {
     const base = createNewSave();
     const migrated = normalize({
       ...base,
-      flags: { 'story.goblin.plea': true, 'story.direwolf.pact': true }
+      flags: {
+        'story.goblin.plea': true,
+        'story.direwolf.pact': true,
+        'story.council.ready': true
+      }
     });
 
     const ids = migrated.party.active.map((member) => member.characterId);
     expect(ids).toContain('rimuru');
     expect(ids).toContain('gobta');
     expect(ids).toContain('ranga');
+    expect(migrated.party.reserve.map((member) => member.characterId)).toContain('rigurd');
   });
 
   it('dupliziert einen bereits vorhandenen Rekruten nicht (z. B. Gobta in der Reserve)', () => {

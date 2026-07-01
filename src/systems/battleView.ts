@@ -1,4 +1,5 @@
 import type { ElementType, StatusEffectId } from '../data';
+import { SIGNATURES, type SignatureTarget } from '../data';
 import type {
   BattleRewards,
   BattleState,
@@ -24,6 +25,12 @@ export interface CombatantView {
   readonly skillIds: readonly string[];
   readonly mimicSkillIds: readonly string[];
   readonly synergyPartnerIds: readonly string[];
+  readonly signatureId: string | null;
+  readonly signatureName: string | null;
+  readonly signatureDescription: string | null;
+  readonly signatureTarget: SignatureTarget | null;
+  readonly signatureCharge: number;
+  readonly signatureChargeMax: number;
   readonly statuses: readonly StatusEffectId[];
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
@@ -75,6 +82,7 @@ export function renderView(state: BattleState): BattleView {
 }
 
 function renderCombatant(combatant: Combatant, activeId: string | null): CombatantView {
+  const signature = SIGNATURES.find((candidate) => candidate.id === combatant.signatureId);
   return {
     id: combatant.id,
     sourceId: combatant.sourceId,
@@ -90,6 +98,12 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     skillIds: [...combatant.skillIds],
     mimicSkillIds: [...combatant.mimicSkillIds],
     synergyPartnerIds: [...combatant.synergyPartnerIds],
+    signatureId: combatant.signatureId,
+    signatureName: signature?.name ?? null,
+    signatureDescription: signature?.description ?? null,
+    signatureTarget: signature?.target ?? null,
+    signatureCharge: combatant.signatureCharge,
+    signatureChargeMax: combatant.signatureChargeMax,
     statuses: combatant.statuses.map((status) => status.id),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,

@@ -3,6 +3,7 @@ import { createInitialInventory, normalizeInventoryStacks } from './inventory';
 import type { InventoryStack } from './inventory';
 import { createInitialParty, createPartyMember } from './party';
 import type { PartyMemberState } from './party';
+import { MAX_ACTIVE_PARTY_SIZE } from './partyFormation';
 import {
   createProgressionState,
   normalizeProgressionState,
@@ -136,8 +137,8 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
     playtimeSeconds: clampNonNegativeInteger(save.playtimeSeconds),
     location: normalizeLocation(save.location),
     party: {
-      active: fallbackParty,
-      reserve,
+      active: fallbackParty.active,
+      reserve: fallbackParty.reserve,
       gold: clampNonNegativeInteger(save.party.gold)
     },
     inventory: {
@@ -152,25 +153,33 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
 // Rückwärtskompatibilität für den story-gesteuerten Party-Aufbau: Trägt Story-Rekruten
 // anhand gesetzter Flags nach, falls ein älterer Stand sie noch nicht als Mitglieder führt
 // (z. B. vor Einführung des Rekrutierungssystems). Vorhandene Mitglieder (aktiv ODER
-// Reserve) bleiben unangetastet — es wird ausschließlich an die aktive Party ergänzt.
+// Reserve) bleiben unangetastet. Freie aktive Plätze werden zuerst belegt, weitere
+// nachgetragene Figuren landen in der Reserve.
 function backfillStoryRecruits(
   active: PartyMemberState[],
   reserve: PartyMemberState[],
   flags: Readonly<Record<string, boolean>>
-): PartyMemberState[] {
+): { active: PartyMemberState[]; reserve: PartyMemberState[] } {
   const present = new Set([...active, ...reserve].map((member) => member.characterId));
-  const result = [...active];
+  const resultActive = [...active];
+  const resultReserve = [...reserve];
   const ensure = (flag: string, characterId: string): void => {
     if (!flags[flag] || present.has(characterId)) return;
     const definition = HEROES.find((hero) => hero.id === characterId);
     if (definition) {
-      result.push(createPartyMember(definition));
+      const member = createPartyMember(definition);
+      if (resultActive.length < MAX_ACTIVE_PARTY_SIZE) {
+        resultActive.push(member);
+      } else {
+        resultReserve.push(member);
+      }
       present.add(characterId);
     }
   };
   ensure('story.goblin.plea', 'gobta');
   ensure('story.direwolf.pact', 'ranga');
-  return result;
+  ensure('story.council.ready', 'rigurd');
+  return { active: resultActive, reserve: resultReserve };
 }
 
 export function migrate(raw: unknown, now = new Date().toISOString()): SaveGameV3 {

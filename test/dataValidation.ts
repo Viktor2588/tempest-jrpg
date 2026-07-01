@@ -17,6 +17,7 @@ import {
   type RegionProgressionDefinition,
   type RelationshipDefinition,
   type ShopDefinition,
+  type SignatureDefinition,
   type SkillDefinition,
   type SkillTreeDefinition,
   type StatBlock,
@@ -35,6 +36,7 @@ interface DataSet {
   readonly enemies: readonly EnemyDefinition[];
   readonly items: readonly ItemDefinition[];
   readonly skills: readonly SkillDefinition[];
+  readonly signatures: readonly SignatureDefinition[];
   readonly progression: {
     readonly regions: readonly RegionProgressionDefinition[];
     readonly lines: readonly ProgressionLineDefinition[];
@@ -79,6 +81,7 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   );
 
   validateUniqueIds('skills', data.skills, issues);
+  validateUniqueIds('signatures', data.signatures, issues);
   validateUniqueIds('items', data.items, issues);
   validateUniqueIds('progression.regions', data.progression.regions, issues);
   validateUniqueIds('progression.lines', data.progression.lines, issues);
@@ -105,6 +108,34 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
   validateUniqueIds('world.shops', data.world.shops, issues);
   validateUniqueIds('heroes', data.heroes, issues);
   validateUniqueIds('enemies', data.enemies, issues);
+
+  const signatureCharacterIds = new Set<string>();
+  for (const signature of data.signatures) {
+    if (!heroIds.has(signature.characterId)) {
+      issues.push({
+        path: `signatures.${signature.id}.characterId`,
+        message: `Unbekannter Charakter '${signature.characterId}'.`
+      });
+    }
+    if (signatureCharacterIds.has(signature.characterId)) {
+      issues.push({
+        path: `signatures.${signature.id}.characterId`,
+        message: `Charakter '${signature.characterId}' hat mehrere Signaturen.`
+      });
+    }
+    signatureCharacterIds.add(signature.characterId);
+    validatePositiveInteger(
+      `signatures.${signature.id}.chargePerAction`,
+      signature.chargePerAction,
+      issues
+    );
+    if (signature.effects.length === 0) {
+      issues.push({
+        path: `signatures.${signature.id}.effects`,
+        message: 'Eine Signatur braucht mindestens einen Effekt.'
+      });
+    }
+  }
 
   for (const hero of data.heroes) {
     validatePositiveInteger(`heroes.${hero.id}.initialLevel`, hero.initialLevel, issues);

@@ -132,6 +132,23 @@ describe('autoBattle', () => {
     });
   });
 
+  it('setzt eine volle Signaturleiste vor dem Team-Angriff ein', () => {
+    const state = startBattle({
+      party: [
+        autoHero('rimuru', 'Rimuru', { synergyPartnerIds: ['gobta'] }),
+        autoHero('gobta', 'Gobta', { synergyPartnerIds: ['rimuru'] })
+      ],
+      enemies: [autoEnemy()],
+      teamMeter: 100,
+      seed: 43
+    });
+    const actor = state.combatants.find((combatant) => combatant.sourceId === 'rimuru')!;
+    actor.signatureCharge = actor.signatureChargeMax;
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)).toEqual({ type: 'signature' });
+  });
+
   it('bevorzugt Schwächen-Skills gegenüber billigeren neutralen Skills', () => {
     const state = startBattle({
       party: [autoHero('rimuru', 'Rimuru', { skillIds: ['slime-strike', 'water-blade'] })],

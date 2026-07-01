@@ -45,6 +45,7 @@ export class BattleScene extends Phaser.Scene {
   private pendingSkillId: string | null = null;
   private pendingItemId: string | null = null;
   private pendingTeamPartnerId: string | null = null;
+  private pendingSignature = false;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
   private idleTweens: Phaser.Tweens.Tween[] = [];
@@ -80,6 +81,7 @@ export class BattleScene extends Phaser.Scene {
     this.resultAnnounced = false;
     this.rewardsApplied = false;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
+    this.pendingSignature = false;
     this.unitPos.clear();
     this.drawArena();
     this.layer = this.add.container(0, 0);
@@ -291,6 +293,7 @@ export class BattleScene extends Phaser.Scene {
 
     this.pendingSkillId = null;
     this.pendingItemId = null;
+    this.pendingSignature = false;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
@@ -429,7 +432,7 @@ export class BattleScene extends Phaser.Scene {
 
   private drawUnit(unit: CombatantView, x: number, y: number, side: 'party' | 'enemy'): void {
     const width = 136;
-    const height = 126;
+    const height = 140;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
     const box = this.add.rectangle(x, y, width, height, side === 'enemy' ? 0x281520 : 0x122338, 0.58 * alpha)
@@ -490,6 +493,25 @@ export class BattleScene extends Phaser.Scene {
       color: '#d1deef'
     }).setOrigin(0.5).setAlpha(alpha));
 
+    if (side === 'party' && unit.signatureId) {
+      const barWidth = width - 22;
+      const ready = unit.signatureCharge >= unit.signatureChargeMax;
+      this.layer.add(this.add.rectangle(x, y + 60, barWidth, 5, 0x0a0f18, 0.96).setOrigin(0.5));
+      this.layer.add(this.add.rectangle(
+        x - barWidth / 2,
+        y + 60,
+        barWidth * (unit.signatureCharge / unit.signatureChargeMax),
+        5,
+        ready ? 0xffda68 : 0x9f6bff
+      ).setOrigin(0, 0.5));
+      this.layer.add(this.add.text(x, y + 63, ready ? 'SIGNATUR BEREIT' : `${unit.signatureCharge}%`, {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: ready ? '#ffe9a8' : '#cbb9ff'
+      }).setOrigin(0.5, 0));
+    }
+
     if (unit.statuses.includes('poison')) {
       this.layer.add(this.add.text(x + width / 2 - 8, y - height / 2 + 10, '☠', {
         fontSize: '12px',
@@ -508,6 +530,8 @@ export class BattleScene extends Phaser.Scene {
             partnerId: this.pendingTeamPartnerId,
             targetId: unit.id
           });
+        } else if (this.pendingSignature) {
+          this.doAct({ type: 'signature', targetId: unit.id });
         } else if (this.pendingSkillId) {
           this.doAct({ type: 'skill', skillId: this.pendingSkillId, targetId: unit.id });
         } else if (this.pendingItemId) {
@@ -527,13 +551,16 @@ export class BattleScene extends Phaser.Scene {
         this.pendingSkillId = null;
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
         this.refresh();
       }],
       ['✨ Skills', () => {
+        this.pendingSignature = false;
         this.mode = 'skills';
         this.refresh();
       }],
       ['🎒 Items', () => {
+        this.pendingSignature = false;
         this.mode = 'items';
         this.refresh();
       }],
@@ -553,7 +580,27 @@ export class BattleScene extends Phaser.Scene {
         this.pendingSkillId = null;
         this.pendingItemId = null;
         this.pendingTeamPartnerId = partner.id;
+        this.pendingSignature = false;
         this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
+    const actorView = renderView(this.state).party.find((candidate) => candidate.id === actor.id);
+    if (actorView?.signatureName
+      && actorView.signatureTarget
+      && actorView.signatureCharge >= actorView.signatureChargeMax) {
+      items.splice(3, 0, ['★ Signatur', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = true;
+        if (actorView.signatureTarget === 'self'
+          || actorView.signatureTarget === 'all-allies'
+          || actorView.signatureTarget === 'all-enemies') {
+          this.doAct({ type: 'signature' });
+          return;
+        }
+        this.mode = actorView.signatureTarget === 'single-ally' ? 'target-ally' : 'target-enemy';
         this.refresh();
       }]);
     }
@@ -586,6 +633,7 @@ export class BattleScene extends Phaser.Scene {
         }
         this.pendingSkillId = skill.id;
         this.pendingItemId = null;
+        this.pendingSignature = false;
         if (skill.target === 'all-enemies' || skill.target === 'self') {
           this.doAct({ type: 'skill', skillId: skill.id });
           return;
@@ -609,6 +657,7 @@ export class BattleScene extends Phaser.Scene {
       return [[`${item.name} ×${stack.quantity}`, () => {
         this.pendingItemId = item.id;
         this.pendingSkillId = null;
+        this.pendingSignature = false;
         this.mode = 'target-ally';
         this.refresh();
       }]];
@@ -712,6 +761,7 @@ export class BattleScene extends Phaser.Scene {
       this.pendingSkillId = null;
       this.pendingItemId = null;
       this.pendingTeamPartnerId = null;
+      this.pendingSignature = false;
       this.refresh();
     }, 180, '13px');
   }

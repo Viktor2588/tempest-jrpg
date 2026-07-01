@@ -11,6 +11,7 @@ import {
   SKILL_TREES
 } from './progression';
 import { SKILLS } from './skills';
+import { SIGNATURES } from './signatures';
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 
 export { HEROES } from './characters';
@@ -26,7 +27,14 @@ export {
   SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
+export { SIGNATURES } from './signatures';
 export { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
+export type {
+  SignatureDefinition,
+  SignatureEffect,
+  SignatureEffectScope,
+  SignatureTarget
+} from './signatures';
 export type {
   CatchUpConfig,
   EquipmentSetDefinition,
@@ -78,6 +86,7 @@ export const GAME_DATA = {
   enemies: ENEMIES,
   items: ITEMS,
   skills: SKILLS,
+  signatures: SIGNATURES,
   progression: {
     regions: PROGRESSION_REGIONS,
     lines: PROGRESSION_LINES,

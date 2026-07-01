@@ -88,6 +88,7 @@ import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
 import rimuruBattleUrl from '../assets/sprites/party-rimuru.webp';
 import gobtaBattleUrl from '../assets/sprites/party-gobta.webp';
+import rigurdBattleUrl from '../assets/sprites/party-rigurd.webp';
 import rangaBattleUrl from '../assets/sprites/party-ranga.webp';
 import shunaBattleUrl from '../assets/sprites/party-shuna.webp';
 import benimaruBattleUrl from '../assets/sprites/party-benimaru.webp';
@@ -204,6 +205,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
     this.load.image(PARTY_BATTLE_ART.rimuru, rimuruBattleUrl);
     this.load.image(PARTY_BATTLE_ART.gobta, gobtaBattleUrl);
+    this.load.image(PARTY_BATTLE_ART.rigurd, rigurdBattleUrl);
     this.load.image(PARTY_BATTLE_ART.ranga, rangaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.shuna, shunaBattleUrl);
     this.load.image(PARTY_BATTLE_ART.benimaru, benimaruBattleUrl);
