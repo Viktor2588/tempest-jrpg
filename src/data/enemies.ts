@@ -187,7 +187,7 @@ export const ENEMIES = [
   },
   {
     id: 'mordrahn-vanguard',
-    name: 'Mordrahns Vorhut',
+    name: 'Vorhut der alten Ordnung',
     level: 8,
     element: 'shadow',
     stats: {

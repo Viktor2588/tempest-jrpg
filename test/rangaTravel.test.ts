@@ -36,17 +36,33 @@ describe('Ranga-Scout und Schnellreise', () => {
 
   it('persistiert nur real besuchte Reisepunkte als entdeckt', () => {
     const cave = saveWith({}, { mapId: 'sealed-cave', x: 7, y: 6, facing: 'up' });
-    const caveFlags = discoverRangaTravelFlags(createWorldState(cave), cave.location);
+    expect(discoverRangaTravelFlags(createWorldState(cave), cave.location))
+      .not.toHaveProperty(rangaTravelFlag('sealed-cave'));
+
+    const pact = { ...cave, flags: { 'story.direwolf.pact': true } };
+    const caveFlags = discoverRangaTravelFlags(createWorldState(pact), pact.location);
     expect(caveFlags[rangaTravelFlag('sealed-cave')]).toBe(true);
     expect(caveFlags[rangaTravelFlag('goblin-village')]).toBeUndefined();
 
     const village = saveWith(
-      { ...caveFlags, 'story.storm-dragon.oath': true },
+      { ...caveFlags, 'story.direwolf.pact': true, 'story.storm-dragon.oath': true },
       { mapId: 'goblin-village', x: 8, y: 6, facing: 'down' }
     );
     const villageFlags = discoverRangaTravelFlags(createWorldState(village), village.location);
     expect(villageFlags[rangaTravelFlag('goblin-village')]).toBe(true);
     expect(villageFlags[rangaTravelFlag('tempest-hollow')]).toBeUndefined();
+  });
+
+  it('schaltet Reise nicht allein durch einen inkonsistenten Roster ohne Pakt frei', () => {
+    const state: WorldState = {
+      flags: {},
+      quests: {},
+      inventory: [],
+      gold: 0,
+      roster: ['rimuru', 'ranga']
+    };
+
+    expect(buildRangaTravelView(state, createNewSave().location).enabled).toBe(false);
   });
 
   it('reist nur zu entdeckten, freigeschalteten und sicheren Zielen', () => {
