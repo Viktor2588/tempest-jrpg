@@ -4,23 +4,12 @@ Diese Datei enthaelt ausschliesslich noch nicht abgeschlossene Arbeit.
 
 Status:
 
-- `[x]` ist im Phase-Branch abgeschlossen und wartet auf Integration.
 - `[~]` wird bereits in dem genannten Worktree bearbeitet.
 - `[ ]` ist offen und darf gemaess `AGENTS.md` uebernommen werden.
 
 ## Laufende Arbeit
 
-- [x] **Phase 44 - Team-Mix und Fusionsangriffe** *(abgeschlossen
-  2026-07-01, Worktree `/worktree/tempest-phase-44-fusions`)*
-  - Branch: `phase-44-fusions`
-  - Verbundene Gruppenmitglieder aus `RELATIONSHIPS` gemeinsam Momentum
-    ausgeben lassen.
-  - Element-Fusionstabelle und Kombo-Resolver implementieren.
-  - Bestehende `combatBonus`-/`teamAttack`-Daten kompatibel abbilden.
-  - Gating, Fusionselemente und Determinismus testen.
-  - Abnahme: `bun run typecheck`, `bun run test` (293/293),
-    `bun run build` sowie Playwright-Smoke Desktop und `390x844` (24/24)
-    gruen.
+- Keine laufende Phase.
 
 ## Integrationswarteschlange
 
