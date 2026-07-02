@@ -682,6 +682,11 @@ completed_milestones:
     - shadow bosses (geld, masked-majin, orc-general) rebalanced off guard-break stacking onto reliable AoE via new umbral-burst skill; a few boss stat/skill knobs retuned
     - balance harness now buys healing-herb/mana-drop along the story route so the tighter band reflects played resource management, not attrition
     - typecheck, 343 unit tests across 48 files verified
+  phase_73:
+    - the four enemies with no encounter (orc-grunt, ogre-warrior, orc-lord, milim) are now reachable via optional flag-gated trigger encounters, reusing the existing ENCOUNTERS data pattern (no new systems)
+    - orc-scout-patrol/grieving-ogres/orc-lord-remnant sit on jura-battlefield gated by story.treyni.met / story.orc.engaged / story.geld.devoured; milim-duel sits on tempest-start gated by story.ifrit.subdued
+    - milim is an optional L20 duel wall far above target level, so it is deliberately NOT wired into the balance corridors and cannot soft-lock (losing just withholds story.milim.duel)
+    - phase73Enemies.test asserts each is reachable on a walkable tile with its gate flag set and blocked without it; typecheck, 344 unit tests across 49 files, production build verified
 
 Git history is the source for exact acceptance notes and historical test counts.
 
