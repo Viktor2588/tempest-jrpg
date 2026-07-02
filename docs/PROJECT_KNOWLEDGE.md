@@ -638,6 +638,12 @@ completed_milestones:
     - smith signatures, Kurobe evolution line, and Kurobe talent tree removed; party battle cutouts no longer loaded
     - old saves shed smith party members automatically on load, covered by a migration regression test
     - typecheck, 325 unit tests across 46 files, and production build verified
+  phase_54:
+    - boss: true flag on the seven story bosses (mordrahn, orc-disaster, ifrit, elder-direwolf, gabiru, masked-majin, milim)
+    - devour against bosses capped at 5% max-hp and non-lethal outside the phase-2 guard-break window
+    - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
+    - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
+    - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.

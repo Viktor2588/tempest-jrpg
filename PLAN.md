@@ -68,20 +68,6 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [x] Phase 54 — Boss-Integritaet: `boss: true`-Flag in `EnemyDefinition`
-  (mordrahn, orc-disaster, ifrit, elder-direwolf, gabiru, masked-majin, milim);
-  Verschlingen gegen Bosse nur bei aktivem `guard-break` UND Phase 2, sonst
-  %-Schaden statt Instant-Kill; Bosse nutzen in Phase 2 ein erweitertes
-  Skill-Set (AoE/Debuff) statt nur hoeherer Skill-Chance.
-  - Abnahme: Die sieben Bossdefinitionen tragen eigene Phase-2-Skillsets;
-    Verschlingen ist ausserhalb des Phase-2-Break-Fensters auf 5 % Max-HP
-    begrenzt und nicht toedlich. Die Fuenf-Seed-Hauptpfad-Simulation bleibt
-    fuer alle 13 Pflichtkaempfe innerhalb der aktiven Korridore; die
-    Unterlevel-Bossbenchmarks bleiben bis zur Progressionsabstimmung in
-    Phase 55 berichtend.
-  - Checks: `git diff --check`, `bun run typecheck`, `bun run test`
-    (46 Dateien, 332 Tests), `bun run build`, `bun run test:e2e`
-    (34 Desktop-/Mobile-Smokes).
 - [ ] Phase 55 — Kurve & Anti-Grind: XP-Belohnungen so setzen, dass der
   Hauptpfad ohne Grind die Ziellevel erreicht (≈L9–10 vor Mordrahn, ≈L13 vor
   Geld/Ifrit); Zufalls-Encounter aufwerten (2–3er-Gruppen, mehr XP, seltene
