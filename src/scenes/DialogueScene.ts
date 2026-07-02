@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import {
   applyWorldState,
   chooseDialogOption,
@@ -28,6 +29,7 @@ export class DialogueScene extends Phaser.Scene {
   }
 
   create(data: { npcId?: string; dialogId?: string; nodeId?: string }): void {
+    configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const world = createWorldState(this.save);
     this.view = data.npcId

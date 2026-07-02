@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { playSfx } from '../audio/sfx';
 import { GAME_HEIGHT, GAME_WIDTH } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { getMilestoneById, type MilestoneTone } from '../systems/milestones';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { fadeIn } from './transition';
@@ -17,6 +18,7 @@ export class MilestoneScene extends Phaser.Scene {
   }
 
   create(data: { milestoneId?: string }): void {
+    configureHiDpiScene(this);
     const milestone = getMilestoneById(data?.milestoneId ?? '');
     if (!milestone) {
       this.close();

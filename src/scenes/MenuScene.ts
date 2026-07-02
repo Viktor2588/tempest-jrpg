@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
 import { canPresentRangaJourney } from '../systems/rangaJourney';
 import {
@@ -81,6 +82,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.state = {
       party: this.save.party.active,
