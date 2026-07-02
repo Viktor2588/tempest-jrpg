@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [x] Phase 74 — Menue-Layout-Wurzel stabilisieren (Worktree
+  `/worktree/tempest-phase-74-menu-layout-root`): zentrale, testbare Geometrie
+  fuer MenuScene statt per Tab verschobener Pixelwerte; Party-Ansicht und
+  Tab-Leiste sind um die Canvas-Mitte verankert.
+  Abnahme/Checks: `git diff --check`; `bun run typecheck`; `bun run test --
+  test/menuLayout.test.ts` (6 Tests); `bun run test` (352 Tests); `bun run
+  build`; `bun run test:e2e -- --grep "Party-Menü" --project=desktop-chromium
+  --project=mobile-chromium --workers=1 --timeout=60000` (2 Tests);
+  visuelle Desktop-Kontrolle per Playwright-Screenshot.
 
 ## Integrationswarteschlange
 

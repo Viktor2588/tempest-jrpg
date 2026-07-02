@@ -15,6 +15,60 @@ export const MENU_VIEWPORT = { width: 960, height: 540 } as const;
 export const MENU_LIST_BOTTOM = MENU_VIEWPORT.height - HUD_SAFE_MARGIN_PX;
 export const MENU_PAGER_HEIGHT = 44;
 
+export const MENU_TAB_ROW = {
+  y: 94,
+  buttonWidth: 104,
+  buttonGap: 8
+} as const;
+
+export const MENU_PARTY_LAYOUT = (() => {
+  const activeWidth = 370;
+  const reserveWidth = 190;
+  const gap = 40;
+  const left = (MENU_VIEWPORT.width - activeWidth - gap - reserveWidth) / 2;
+  return {
+    titleX: MENU_VIEWPORT.width / 2,
+    titleY: 124,
+    headingY: 150,
+    active: {
+      left,
+      width: activeWidth,
+      firstY: 208,
+      rowHeight: 96,
+      cardHeight: 82
+    },
+    reserve: {
+      left: left + activeWidth + gap,
+      width: reserveWidth,
+      firstY: 208,
+      rowHeight: 54,
+      emptyY: 196,
+      footnoteY: 512
+    }
+  };
+})();
+
+function centeredRowLeft(count: number, width: number, gap: number): number {
+  return (MENU_VIEWPORT.width - (count * width + Math.max(0, count - 1) * gap)) / 2;
+}
+
+export function menuTabButtonX(index: number, count: number): number {
+  return centeredRowLeft(count, MENU_TAB_ROW.buttonWidth, MENU_TAB_ROW.buttonGap)
+    + index * (MENU_TAB_ROW.buttonWidth + MENU_TAB_ROW.buttonGap);
+}
+
+export function menuTabRowBounds(count: number): { left: number; right: number; centerX: number } {
+  const left = centeredRowLeft(count, MENU_TAB_ROW.buttonWidth, MENU_TAB_ROW.buttonGap);
+  const width = count * MENU_TAB_ROW.buttonWidth + Math.max(0, count - 1) * MENU_TAB_ROW.buttonGap;
+  return { left, right: left + width, centerX: left + width / 2 };
+}
+
+export function menuPartyBounds(): { left: number; right: number; centerX: number } {
+  const left = MENU_PARTY_LAYOUT.active.left;
+  const right = MENU_PARTY_LAYOUT.reserve.left + MENU_PARTY_LAYOUT.reserve.width;
+  return { left, right, centerX: (left + right) / 2 };
+}
+
 export interface MenuListColumn {
   readonly id: string;
   readonly left: number; // linke Kante (Buttons/Text sind links verankert)
