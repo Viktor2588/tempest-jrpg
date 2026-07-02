@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # Reine Doku-Commits (PLAN/PROJECT_KNOWLEDGE-Archivierung etc.) aendern das
+    # gebaute dist nicht — nicht deployen, damit sich keine Pages-Deploys stauen.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
 
 # Berechtigungen für das GITHUB_TOKEN, damit nach Pages deployt werden darf
@@ -11,10 +16,13 @@ permissions:
   pages: write
   id-token: write
 
-# Parallele Deployments verhindern; laufendes Deployment nicht abbrechen
+# Nur ein Pages-Deploy zugleich. Ueberholte Runs abbrechen statt stauen: bei
+# schnell aufeinanderfolgenden Pushes blockierten sonst wartende Deploys das
+# github-pages-Environment, bis actions/deploy-pages nach ~10 min timeoutete
+# („Timeout reached, aborting!"). Es zaehlt ohnehin nur der neueste Stand.
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   # Tests + Typecheck müssen grün sein, bevor gebaut und deployt wird.
