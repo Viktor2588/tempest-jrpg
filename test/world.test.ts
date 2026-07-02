@@ -159,6 +159,33 @@ describe('world/dialog/shop/encounter system', () => {
       .toEqual({ x: 4, y: 7 });
   });
 
+  it('macht Kijin- und Dwargon-Werkviertel samt Schmieden erst in der Jungstadt sichtbar', () => {
+    const village = {
+      ...postPrologueWorld(),
+      flags: {
+        ...postPrologueWorld().flags,
+        'story.council.ready': true
+      }
+    };
+    const city: WorldState = {
+      ...village,
+      flags: {
+        ...village.flags,
+        'story.kijin.named': true,
+        'faction.dwargon.allied': true
+      }
+    };
+
+    expect(getMapLocations('tempest-start', village).map((location) => location.id))
+      .not.toContain('tempest-dwargon-quarter');
+    expect(getMapLocations('tempest-start', city).map((location) => location.id))
+      .toEqual(expect.arrayContaining(['tempest-kijin-quarter', 'tempest-dwargon-quarter']));
+    expect(getMapNpcs('tempest-start', village).map((npc) => npc.id))
+      .not.toContain('kaijin-tempest');
+    expect(getMapNpcs('tempest-start', city).map((npc) => npc.id))
+      .toEqual(expect.arrayContaining(['kurobe-tempest', 'kaijin-tempest']));
+  });
+
   it('erweitert Tempests Händlerangebot nach Rat und Kijin-Benennung', () => {
     const baseItems = buildShopView(postPrologueWorld(), 'tempest-supply').items.map((item) => item.itemId);
     const councilItems = buildShopView({

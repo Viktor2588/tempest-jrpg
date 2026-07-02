@@ -1,3 +1,5 @@
+import { resolveTempestGrowthStage, type StoryFlags } from '../systems/tempestGrowth';
+
 export const DEFAULT_FLOOR_TILE_TEXTURE_KEY = 'tile-grass';
 export const DEFAULT_WALL_TILE_TEXTURE_KEY = 'tile-wall';
 export const PLACEHOLDER_FLOOR_TILE_TEXTURE_KEY = 'ph-tile-grass';
@@ -17,6 +19,9 @@ export const LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-floo
 export const LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-wall';
 export const EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY = 'tile-ember-hollow-floor';
 export const EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY = 'tile-ember-hollow-wall';
+export const TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-camp-floor';
+export const TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-village-floor';
+export const TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-city-floor';
 
 export interface OverworldTileTheme {
   readonly floorKey: string;
@@ -59,9 +64,21 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
   }
 };
 
-export function overworldTileTextureCandidates(mapId: string, wall: boolean): readonly string[] {
+export function overworldTileTextureCandidates(
+  mapId: string,
+  wall: boolean,
+  flags: StoryFlags = {}
+): readonly string[] {
   const theme = OVERWORLD_TILE_THEMES[mapId] ?? DEFAULT_OVERWORLD_TILE_THEME;
-  const themedKey = wall ? theme.wallKey : theme.floorKey;
+  const tempestStage = mapId === 'tempest-start' ? resolveTempestGrowthStage(flags) : 'wilderness';
+  const tempestFloorKey = tempestStage === 'camp'
+    ? TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY
+    : tempestStage === 'village'
+      ? TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
+      : tempestStage === 'city'
+        ? TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY
+        : null;
+  const themedKey = wall ? theme.wallKey : tempestFloorKey ?? theme.floorKey;
   const defaultKey = wall ? DEFAULT_WALL_TILE_TEXTURE_KEY : DEFAULT_FLOOR_TILE_TEXTURE_KEY;
   const placeholderKey = wall ? PLACEHOLDER_WALL_TILE_TEXTURE_KEY : PLACEHOLDER_FLOOR_TILE_TEXTURE_KEY;
 
@@ -73,7 +90,8 @@ export function overworldTileTextureCandidates(mapId: string, wall: boolean): re
 export function firstAvailableOverworldTileTexture(
   mapId: string,
   wall: boolean,
-  exists: (textureKey: string) => boolean
+  exists: (textureKey: string) => boolean,
+  flags: StoryFlags = {}
 ): string | null {
-  return overworldTileTextureCandidates(mapId, wall).find((textureKey) => exists(textureKey)) ?? null;
+  return overworldTileTextureCandidates(mapId, wall, flags).find((textureKey) => exists(textureKey)) ?? null;
 }

@@ -1,3 +1,5 @@
+import { resolveTempestGrowthStage, type StoryFlags } from '../systems/tempestGrowth';
+
 export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
   'sealed-cave': 'ui-region-sealed-cave',
   'goblin-village': 'ui-region-goblin-village',
@@ -13,11 +15,20 @@ export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
 };
 
 export const DEFAULT_REGION_BANNER_TEXTURE_KEY = REGION_BANNER_TEXTURES['tempest-start'];
+export const TEMPEST_GROWTH_BANNER_TEXTURES = {
+  camp: 'ui-region-tempest-camp',
+  village: 'ui-region-tempest-village',
+  city: 'ui-region-tempest-city'
+} as const;
 
 export function regionBannerTextureForMap(
   mapId: string,
-  exists: (textureKey: string) => boolean = () => true
+  exists: (textureKey: string) => boolean = () => true,
+  flags: StoryFlags = {}
 ): string | null {
-  const key = REGION_BANNER_TEXTURES[mapId] ?? DEFAULT_REGION_BANNER_TEXTURE_KEY;
+  const stage = mapId === 'tempest-start' ? resolveTempestGrowthStage(flags) : 'wilderness';
+  const key = stage === 'camp' || stage === 'village' || stage === 'city'
+    ? TEMPEST_GROWTH_BANNER_TEXTURES[stage]
+    : REGION_BANNER_TEXTURES[mapId] ?? DEFAULT_REGION_BANNER_TEXTURE_KEY;
   return exists(key) ? key : null;
 }

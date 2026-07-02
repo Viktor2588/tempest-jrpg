@@ -3,6 +3,7 @@ import { MAPS } from '../src/data/maps';
 import {
   DEFAULT_REGION_BANNER_TEXTURE_KEY,
   REGION_BANNER_TEXTURES,
+  TEMPEST_GROWTH_BANNER_TEXTURES,
   regionBannerTextureForMap
 } from '../src/render/regionBannerArt';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
@@ -10,6 +11,19 @@ import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 describe('Gebietsindikator-Banner', () => {
   it('deckt jede vorhandene Overworld-Karte ab', () => {
     expect(Object.keys(REGION_BANNER_TEXTURES).sort()).toEqual(Object.keys(MAPS).sort());
+  });
+
+  it('zeigt für Tempest die zur Story passende Ausbauvariante', () => {
+    expect(regionBannerTextureForMap('tempest-start', () => true, {
+      'story.tempest.named': true
+    })).toBe(TEMPEST_GROWTH_BANNER_TEXTURES.camp);
+    expect(regionBannerTextureForMap('tempest-start', () => true, {
+      'story.council.ready': true
+    })).toBe(TEMPEST_GROWTH_BANNER_TEXTURES.village);
+    expect(regionBannerTextureForMap('tempest-start', () => true, {
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })).toBe(TEMPEST_GROWTH_BANNER_TEXTURES.city);
   });
 
   it('liefert deterministische Texture-Keys mit Startgebiet-Fallback', () => {
@@ -40,7 +54,10 @@ describe('Gebietsindikator-Banner', () => {
       'region-jura-battlefield.webp',
       'region-lizardman-marsh.webp',
       'region-ember-hollow.webp',
-      'region-blumund.webp'
+      'region-blumund.webp',
+      'region-tempest-camp.webp',
+      'region-tempest-village.webp',
+      'region-tempest-city.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/ui/${file}`);
     }

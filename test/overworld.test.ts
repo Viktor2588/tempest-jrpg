@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { parseMap, isWalkable, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
-import { JURA_FIELD, getMapName } from '../src/data/maps';
+import {
+  JURA_FIELD,
+  TEMPEST_CAMP,
+  TEMPEST_CITY,
+  TEMPEST_VILLAGE,
+  getMap,
+  getMapName
+} from '../src/data/maps';
 
 const MAP = parseMap([
   '#####',
@@ -52,7 +59,24 @@ describe('overworld grid', () => {
 
   it('getMapName liefert sichtbare Gebietsnamen (Start = Jura-Wald, nicht Tempest)', () => {
     expect(getMapName('tempest-start')).toBe('Jura-Wald');
+    expect(getMapName('tempest-start', { 'story.tempest.named': true })).toBe('Tempest-Lager');
+    expect(getMapName('tempest-start', { 'story.council.ready': true })).toBe('Tempest-Dorf');
+    expect(getMapName('tempest-start', {
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })).toBe('Jura-Tempest');
     expect(getMapName('goblin-village')).toBe('Goblin-Dorf');
     expect(getMapName('spirit-marsh')).toBe('Geistmoor');
+  });
+
+  it('liefert für Tempest drei eigene, flag-gesteuerte Kartenvarianten', () => {
+    expect(getMap('tempest-start', { 'story.tempest.named': true })).toBe(TEMPEST_CAMP);
+    expect(getMap('tempest-start', { 'story.council.ready': true })).toBe(TEMPEST_VILLAGE);
+    expect(getMap('tempest-start', {
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })).toBe(TEMPEST_CITY);
+    expect(new Set([TEMPEST_CAMP, TEMPEST_VILLAGE, TEMPEST_CITY].map((map) => JSON.stringify(map.tiles))).size)
+      .toBe(3);
   });
 });

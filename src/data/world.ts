@@ -632,7 +632,8 @@ export const LOCATIONS = [
     mapId: 'tempest-start',
     position: { x: 3, y: 5 },
     description: 'Eine junge Monsterstadt aus Palisaden, Werkbänken und improvisierten Versammlungsplätzen.',
-    identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.'
+    identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.',
+    unlockFlag: 'story.tempest.named'
   },
   {
     id: 'tempest-council-plaza',
@@ -693,6 +694,26 @@ export const LOCATIONS = [
     description: 'Ein kleiner Schutzstein erinnert an das gebrochene Echo und markiert Tempests erste gemeinsam bestandene Krise.',
     identity: 'Band-2-Abschlussmarker: Das Ahnensiegel wird Teil von Tempests sichtbarer Geschichte.',
     unlockFlag: 'story.act1.completed'
+  },
+  {
+    id: 'tempest-kijin-quarter',
+    name: 'Kijin-Viertel',
+    kind: 'city',
+    mapId: 'tempest-start',
+    position: { x: 12, y: 5 },
+    description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
+    identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
+    unlockFlag: 'story.kijin.named'
+  },
+  {
+    id: 'tempest-dwargon-quarter',
+    name: 'Dwargon-Werkviertel',
+    kind: 'city',
+    mapId: 'tempest-start',
+    position: { x: 15, y: 5 },
+    description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
+    identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
+    unlockFlag: 'faction.dwargon.allied'
   },
   {
     id: 'sealed-cave',
@@ -3240,6 +3261,18 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Ich schwöre es' }]
       }
     ]
+  },
+  {
+    id: 'tempest-builders',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Kurobe & Kaijin',
+        text: 'Zwischen Kurobes feinen Klingen und Kaijins schweren Magisteel-Essen wächst ein Werkviertel, das weder Ogerdorf noch Zwergenfeste kopiert. „Tempest braucht seinen eigenen Baustil“, sagt Kurobe. Kaijin nickt: „Und genug Platz für die nächste Esse.“',
+        choices: [{ id: 'end', label: 'Tempest wächst zusammen' }]
+      }
+    ]
   }
 ] as const satisfies readonly DialogDefinition[];
 
@@ -3389,6 +3422,24 @@ export const NPCS = [
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
+  },
+  {
+    id: 'kurobe-tempest',
+    name: 'Kurobe',
+    mapId: 'tempest-start',
+    position: { x: 12, y: 6 },
+    dialogId: 'tempest-builders',
+    color: 0x9d6c4a,
+    requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
+  },
+  {
+    id: 'kaijin-tempest',
+    name: 'Kaijin',
+    mapId: 'tempest-start',
+    position: { x: 15, y: 6 },
+    dialogId: 'tempest-builders',
+    color: 0xd2a679,
+    requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
   },
   {
     id: 'gazel-dwargo',
