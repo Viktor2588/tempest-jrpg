@@ -676,7 +676,12 @@ completed_milestones:
     - NEAREST is retained only for 16x16 Kenney pixel sources and procedural pixel placeholders
     - placeholderArt, portraitAtlas, vfxAtlas, and battleBackgroundAtlas generate DPR-sized runtime textures while scenes keep logical display sizes
     - typecheck, 343 unit tests across 48 files, production build, HiDPI desktop/mobile smokes, and 36 existing desktop/mobile smokes verified
-```
+  phase_56:
+    - post-Phase-55 corridors retightened into the "knapp" band: normal rest-HP 0.65-0.99 -> 0.3-0.9, story-boss 0.2-0.95 -> 0.15-0.85, turn floor 4 -> 2
+    - trash enemies given low HP but high attack/magic so weaknesses must be broken fast or the party takes real damage (filler 100%-HP wins removed)
+    - shadow bosses (geld, masked-majin, orc-general) rebalanced off guard-break stacking onto reliable AoE via new umbral-burst skill; a few boss stat/skill knobs retuned
+    - balance harness now buys healing-herb/mana-drop along the story route so the tighter band reflects played resource management, not attrition
+    - typecheck, 343 unit tests across 48 files verified
 
 Git history is the source for exact acceptance notes and historical test counts.
 

@@ -62,14 +62,6 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [x] Phase 56 — Schwung im Kampf: Break/Team/Devour in Normalkaempfen relevant
-  machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
-  Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
-  praesentieren; Sim-Metrik: mittlere Zuganzahl sinkt, Rest-HP-Streuung steigt.
-  Akzeptanz: Balance-Korridore wieder ins knappe Band gezogen (Normal-Rest-HP
-  0.65–0.99 → 0.3–0.9, Boss 0.2–0.95 → 0.15–0.85, Zug-Untergrenze 4 → 2);
-  Trash mit hohem Schaden bei niedriger HP, Schatten-Bosse mit verlaesslichem
-  Flaechendruck (`umbral-burst`) statt Guard-Break-Stapeln; 343 Tests gruen.
 - [ ] Phase 73 — Fehlende Gegner einbauen (Nutzerwunsch): Gegner aus
   `enemies.ts`, die noch in keinem Encounter vorkommen, ins Spiel bringen —
   v. a. Milim (L20, bisher ohne Encounter; als Story-Wand/Duell inszenieren)
