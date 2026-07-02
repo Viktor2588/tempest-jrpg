@@ -17,11 +17,31 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop-chromium',
+      testIgnore: /hidpi\.smoke\.spec\.ts/,
       use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } }
     },
     {
       name: 'mobile-chromium',
+      testIgnore: /hidpi\.smoke\.spec\.ts/,
       use: { browserName: 'chromium', viewport: { width: 390, height: 844 } }
+    },
+    {
+      name: 'hidpi-desktop-chromium',
+      testMatch: /hidpi\.smoke\.spec\.ts/,
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+        deviceScaleFactor: 2
+      }
+    },
+    {
+      name: 'hidpi-mobile-chromium',
+      testMatch: /hidpi\.smoke\.spec\.ts/,
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 3
+      }
     }
   ],
   webServer: {

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { createNewSave, loadSave, startNewGamePlus, writeSave } from '../systems/save';
 import { incrementNewGamePlus, loadProfile, recordEndingSeen, saveProfile } from '../systems/profile';
 import { buildEndingGallery, createWorldState, getActiveEnding } from '../systems/world';
@@ -15,6 +16,7 @@ export class EndingScene extends Phaser.Scene {
   }
 
   create(): void {
+    configureHiDpiScene(this);
     const cx = GAME_WIDTH / 2;
     const storage = window.localStorage;
     const save = loadSave(storage) ?? createNewSave();

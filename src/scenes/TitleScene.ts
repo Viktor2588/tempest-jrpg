@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { loadSettings, saveSettings } from '../systems/settings';
 import { loadSave } from '../systems/save';
 import { getChapterBanner } from '../systems/chapterBanner';
@@ -14,6 +15,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    configureHiDpiScene(this);
     const cx = GAME_WIDTH / 2;
     fadeIn(this);
     playMusic('title');

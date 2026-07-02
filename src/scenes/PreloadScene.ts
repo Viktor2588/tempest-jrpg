@@ -26,6 +26,7 @@ import {
 import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
 import { REGION_BANNER_TEXTURES, TEMPEST_GROWTH_BANNER_TEXTURES } from '../render/regionBannerArt';
+import { configureHiDpiScene } from '../render/hiDpi';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -156,6 +157,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload(): void {
+    configureHiDpiScene(this);
     const barW = 280;
     const x = (GAME_WIDTH - barW) / 2;
     const y = GAME_HEIGHT / 2;

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import {
   applyWorldState,
@@ -25,6 +26,7 @@ export class ShopScene extends Phaser.Scene {
   }
 
   create(data: { shopId?: string }): void {
+    configureHiDpiScene(this);
     this.shopId = data.shopId ?? this.shopId;
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.world = createWorldState(this.save);

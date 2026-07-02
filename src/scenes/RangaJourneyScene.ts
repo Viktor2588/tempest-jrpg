@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { playSfx } from '../audio/sfx';
 import { GAME_HEIGHT, GAME_WIDTH } from '../main';
 import { PARTY_BATTLE_ART } from '../render/battleArt';
+import { configureHiDpiScene } from '../render/hiDpi';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { addInventoryItem } from '../systems/inventory';
 import { getRangaJourneyDiscovery } from '../systems/rangaJourney';
@@ -25,6 +26,7 @@ export class RangaJourneyScene extends Phaser.Scene {
   }
 
   create(data: RangaJourneyData): void {
+    configureHiDpiScene(this);
     this.destinationId = data.destinationId ?? '';
     this.destinationName = data.destinationName ?? '';
     this.destination = data.location ?? null;

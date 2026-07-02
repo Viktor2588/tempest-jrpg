@@ -11,21 +11,29 @@ import { OptionsScene } from './scenes/OptionsScene';
 import { EndingScene } from './scenes/EndingScene';
 import { MilestoneScene } from './scenes/MilestoneScene';
 import { RangaJourneyScene } from './scenes/RangaJourneyScene';
+import {
+  GAME_BACKING_SIZE,
+  GAME_RENDER_SCALE,
+  LOGICAL_GAME_HEIGHT,
+  LOGICAL_GAME_WIDTH
+} from './render/hiDpi';
 
 // Referenzauflösung (16:9, Querformat). Skaliert per FIT auf Handy & Desktop.
-export const GAME_WIDTH = 960;
-export const GAME_HEIGHT = 540;
+export const GAME_WIDTH = LOGICAL_GAME_WIDTH;
+export const GAME_HEIGHT = LOGICAL_GAME_HEIGHT;
+export { GAME_RENDER_SCALE };
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   backgroundColor: '#0b0f16',
-  width: GAME_WIDTH,
-  height: GAME_HEIGHT,
+  width: GAME_BACKING_SIZE.width,
+  height: GAME_BACKING_SIZE.height,
   pixelArt: true,
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true
   },
   scene: [
     BootScene,
@@ -42,3 +50,7 @@ new Phaser.Game({
     RangaJourneyScene
   ]
 });
+
+game.canvas.dataset.logicalWidth = String(GAME_WIDTH);
+game.canvas.dataset.logicalHeight = String(GAME_HEIGHT);
+game.canvas.dataset.renderScale = String(GAME_RENDER_SCALE);

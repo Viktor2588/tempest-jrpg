@@ -14,6 +14,11 @@ import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 }
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import {
+  configureHiDpiScene,
+  LOGICAL_GAME_HEIGHT as GAME_HEIGHT,
+  LOGICAL_GAME_WIDTH as GAME_WIDTH
+} from '../render/hiDpi';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { makeRng } from '../systems/rng';
@@ -65,6 +70,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   create(): void {
+    configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.mapId = this.save.location.mapId;
@@ -150,7 +156,7 @@ export class OverworldScene extends Phaser.Scene {
     const interact = () => this.interact();
     this.input.keyboard?.on('keydown-E', interact);
     this.input.keyboard?.on('keydown-SPACE', interact);
-    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
+    const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const interactRect = touchControls.interact;
     const interactBtn = this.add.rectangle(interactRect.x, interactRect.y, interactRect.width, interactRect.height, 0x1f3a2f, 0.68)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x75ffab, 0.7).setInteractive();
@@ -170,7 +176,7 @@ export class OverworldScene extends Phaser.Scene {
       this.scene.pause();
     };
     this.input.keyboard?.on('keydown-M', openMenu);
-    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    const hud = layoutOverworldHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const menuRect = hud.menu;
     const menuBtn = this.add.rectangle(menuRect.x, menuRect.y, menuRect.width, menuRect.height, 0x223049, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.7).setInteractive();
@@ -195,12 +201,12 @@ export class OverworldScene extends Phaser.Scene {
     }
     layer.setVisible(true);
 
-    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
-    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
+    const hud = layoutOverworldHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
+    const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const panelX = 16;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
-    const panelY = Math.max(112, this.scale.height - panelH - 16);
+    const panelY = Math.max(112, GAME_HEIGHT - panelH - 16);
     layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
       .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
     layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
@@ -248,7 +254,7 @@ export class OverworldScene extends Phaser.Scene {
     if (hints.some((hint) => hint.step === 'move')) {
       const first = touchControls.dpad[0];
       const centerX = first ? first.x + 44 : 92;
-      const centerY = first ? first.y - 58 : this.scale.height - 118;
+      const centerY = first ? first.y - 58 : GAME_HEIGHT - 118;
       layer.add(this.add.text(centerX, centerY, '↙ Bewegen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
@@ -358,7 +364,7 @@ export class OverworldScene extends Phaser.Scene {
 
     const model = buildMinimap(this.map.width, this.map.height, markers, 132);
     const pad = 8;
-    this.minimapOriginX = this.scale.width - model.width - 14;
+    this.minimapOriginX = GAME_WIDTH - model.width - 14;
     this.minimapOriginY = 14;
     this.minimapCell = model.cell;
 
@@ -609,7 +615,7 @@ export class OverworldScene extends Phaser.Scene {
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
 
   private buildDpad(): void {
-    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
+    const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     for (const b of touchControls.dpad) {
       const btn = this.add.rectangle(b.x, b.y, b.width, b.height, 0x223049, 0.55)
         .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.6).setInteractive();

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { ITEMS, SKILLS } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import {
   act,
   currentActor,
@@ -68,6 +69,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(data: { enemyIds?: string[]; encounterId?: string }): void {
+    configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;

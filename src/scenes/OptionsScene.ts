@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
+import { configureHiDpiScene } from '../render/hiDpi';
 import {
   loadSettings, saveSettings, type GameSettings,
   DIFFICULTIES, TEXT_SPEEDS, COLORBLIND_MODES,
@@ -26,6 +27,7 @@ export class OptionsScene extends Phaser.Scene {
   }
 
   create(data: { from?: string }): void {
+    configureHiDpiScene(this);
     this.from = data?.from ?? 'Title';
     this.settings = loadSettings(window.localStorage);
     fadeIn(this);
