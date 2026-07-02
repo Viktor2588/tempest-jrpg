@@ -506,12 +506,16 @@ Current `main` includes:
   the alliance council before the march, keeps Ranga in the final party, uses
   canon-visible "old order/keeper" naming, and persists Freedom, Order, and
   Shared Burden endings with save, Codex, and browser coverage.
+- Phase 50 overworld onboarding: replaces the blocking first-run control modal
+  with persistent, non-blocking movement, interaction, and menu hints; each hint
+  disappears after successful use, the save records per-step flags plus the
+  legacy completion flag, and desktop/mobile browser smoke covers the flow.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-49 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-50 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -595,6 +599,10 @@ completed_milestones:
     - Freedom, Order, and Shared Burden endings persisted through stable flags and saves
     - Shared Burden gated by Band-3 de-escalation, Ranga's trace, and the closed alliance council
     - chapter summary, Ranga scout guidance, Codex, save roundtrip, and desktop/mobile browser coverage
+  phase_50:
+    - non-blocking overworld onboarding hints for movement, interaction, and menu use
+    - per-step save flags that hide completed hints and set the legacy tutorial flag at completion
+    - desktop and mobile Playwright smoke coverage for the onboarding flow
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
