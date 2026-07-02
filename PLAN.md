@@ -62,12 +62,18 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [ ] Phase 73 — Fehlende Gegner einbauen (Nutzerwunsch): Gegner aus
+- [x] Phase 73 — Fehlende Gegner einbauen (Nutzerwunsch): Gegner aus
   `enemies.ts`, die noch in keinem Encounter vorkommen, ins Spiel bringen —
   v. a. Milim (L20, bisher ohne Encounter; als Story-Wand/Duell inszenieren)
   und weitere ungenutzte Definitionen pruefen (orc-lord, ogre-warrior,
   elder-direwolf-Nutzung ausserhalb Sidequest); Encounter/Story-Anker und
   Balance-Korridore ergaenzen.
+  Akzeptanz: die vier encounter-losen Gegner (orc-grunt, ogre-warrior, orc-lord,
+  milim) als optionale Trigger auf bestehenden Karten (jura-battlefield,
+  tempest-start) hinter vorhandene Story-Flags gegated; Milim als optionaler
+  Duell-Wall (L20, weit über Ziellevel → nicht in Balance-Korridoren, kein
+  Softlock). `phase73Enemies.test` sichert Erreichbarkeit, Begehbarkeit und
+  Flag-Gate; 344 Tests grün, Build sauber.
 
 ## UI- & Grafik-Roadmap (TODO: UI-Bugs, unscharfe Grafik auf 4K)
 
