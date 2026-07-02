@@ -15,9 +15,49 @@ Status:
 
 - Keine offenen Integrationen.
 
-## Story-Roadmap
+## Story-Roadmap (TODO: Story & Events fesselnder machen)
 
-- Keine offene Story-Roadmap-Phase.
+Befund (Code-Analyse): Die gesamte Story laeuft ueber statische, flag-gegatete
+NPC-Dialogmenues; grosse Beats (Tempest-Benennung, Direwolf-Pakt, Schwuere)
+erscheinen nur als Toast/Milestone-Banner NACH dem Moment (telling statt
+showing). Die Welt reagiert nicht sichtbar: tempest-hollow sieht vor und nach
+der Staatsgruendung identisch aus. Dialog-Choices sind Fortschritts-Gates,
+keine Entscheidungen — bis zum Finale (3 Enden) hat keine Wahl sichtbare
+Konsequenz. Karten-„Events" sind ausschliesslich Kampf-Trigger ('!'-Kacheln);
+das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
+Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
+deutsches Originalwording, canon-first, keine kopierten Dialoge.
+
+- [ ] Phase 62 — Szenen-Skripte (Cutscene-light): kleines datengetriebenes
+  Skriptsystem fuer inszenierte Momente in der Oberwelt (Schrittliste: Akteur
+  bewegen/drehen, Emote, Kamera-Schwenk, Textbeat, Item-Uebergabe, Pause);
+  Interpreter Phaser-frei testbar, Darstellung in OverworldScene. Die 4
+  groessten Beats umstellen: Hoehlen-Erwachen, Direwolf-Pakt mit Rangas
+  Benennung, Tempest-Benennungszeremonie, Sieg ueber Geld. Toast nur noch als
+  Zusammenfassung danach.
+- [ ] Phase 63 — Sichtbares Tempest-Wachstum (Imagegen bevorzugt): Ausbaustufen
+  fuer tempest-hollow an Story-Flags koppeln (Lager → benanntes Dorf →
+  junge Stadt mit Kijin-/Dwargon-Vierteln): Kartenvarianten/Tiles, neue und
+  umpositionierte NPCs je Stufe, Regionsbanner-Variante; Provenienz in
+  `ASSETS.md`. Der Kern der Vorlage — Nation aufbauen — wird sichtbar statt
+  erzaehlt.
+- [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
+  ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
+  neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;
+  Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
+  und Bündnis-Bonus). Konsequenzen muessen in Welt, Shop oder Kampf sichtbar
+  sein, nicht nur im Text; Verzahnung mit den Ende-Bedingungen aus Band 4.
+- [ ] Phase 65 — Weltereignisse & Entdeckungen: Karten-Events jenseits von
+  Kaempfen als datengetriebene Definitionen — Fundstellen/Glitzerpunkte mit
+  Lore + Item (RangaJourney-Entdeckungsmuster auf begehbare Karten
+  verallgemeinern), einmalige Ambient-Events (fahrender Haendler nach
+  Handelsquest, Fluesterhain sichtbar geheilt nach Siegelbruch), Post-Boss-
+  Weltveraenderungen. Ziel: Erkundung wird belohnt, die Welt wirkt lebendig.
+- [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
+  Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
+  Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge
+  bleibt; Milestone-Banner im Moment statt danach ausloesen;
+  `playthrough.test` um Beat-Reihenfolge/-Dichte-Checks ergaenzen.
 
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
@@ -47,6 +87,23 @@ Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
   praesentieren; Sim-Metrik: mittlere Zuganzahl sinkt, Rest-HP-Streuung steigt.
+- [ ] Phase 67 — Mitwachsende Gegner (Anti-Overgrind, Nutzerfeedback
+  2026-07-02: „je staerker ich werde, desto staerker sollten die Gegner sein,
+  sonst overgrinde ich und das Game wird ein Witz"): Gegner skalieren nur NACH
+  OBEN, nie unter ihr Basislevel (kein Voll-Level-Sync, sonst wird Leveln
+  bedeutungslos). Pure Funktion `scaleEnemyToLevel(enemy, level)` mit
+  prozentualem Wachstum pro Level ueber Basis (~+7 % HP, +5 % ATK/MAG,
+  +4 % DEF/SPI, +2 % AGI; keine Wachstumstabellen je Gegner noetig).
+  Effektivlevel: Zufalls-/Trash-Encounter = clamp(Partylevel-1, Basis,
+  Basis+8); Story-/Boss-Trigger = clamp(Partylevel+1, Basis, Basis+6).
+  XP/Gold skalieren NICHT mit (sonst Feedback-Schleife); zusaetzlich
+  XP-Abschwaechung gegen deutlich schwaechere Basislevel (Gap ≥5: x0.5,
+  ≥8: x0.25), damit Grinden von Low-Content nichts einbringt.
+  Overlevel-Ausweichen (`partyOutlevels`, Gap 5) neu bewerten — mit Scaling
+  bleiben Zufallskaempfe relevant. Harness um Overgrind-Szenarien erweitern:
+  Party 4 und 8 Level ueber Ziel → Bosse weiterhin ≥8 Zuege, Rest-HP <85 %,
+  Normalkaempfe kosten weiterhin Ressourcen. Schwierigkeitsgrad-Multiplikatoren
+  wirken unveraendert obendrauf.
 
 ## UI- & Grafik-Roadmap (TODO: UI-Bugs, unscharfe Grafik auf 4K)
 
@@ -88,6 +145,64 @@ in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
   Sprites durch hoeher aufgeloeste, artSpec-konforme generierte Sprites
   ersetzen (Overworld-Figuren, Gegner-Cutouts zuerst), Provenienz in
   `ASSETS.md`; Ziel: kein sichtbarer 12x-Upscale mehr auf 4K.
+
+## Talent-Roadmap (Nutzerfeedback 2026-07-02: echte Spec-Baeume, Schmiede raus)
+
+Befund (Code-Analyse + Nutzer-Designvorgabe): Die heutigen „Talente" sind nur
+Punkte fuer Skill-Freischaltungen und flache Statboni, gerendert als Liste mit
+unsichtbaren Voraussetzungen; kaijin/rigurd/ranga fehlen ganz in `SKILL_TREES`.
+Designvorgabe des Nutzers: Echte Talentbaeume bestehen aus passiven Effekten
+und Procs (Konterchance bei gegnerischem Physisch-Angriff, Ausweichchance,
++25 % physischer/magischer/Element-Schaden, mehr HP, Skill X loest
+Kettenskill Y aus) in DREI exklusiven Spezialisierungsrichtungen pro
+Kaempfer — wenige, maechtige Punkte, die spuerbar formen, wie ein Begleiter
+kaempft. Wer Strang 1 waehlt, kann 2 und 3 nicht mitnehmen (Qual der Wahl).
+Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
+Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
+verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
+
+- [ ] Phase 68 — Schmiede raus aus dem Kampfroster: Kaijin und Kurobe aus
+  `HEROES`/Party entfernen; `recruit-character`-Effekte in `world.ts`
+  (Dwargon-Arc, Benennung) durch Flags + NPC-Praesenz ersetzen — ihre
+  Schmiede-/Ingenieursfunktion bleibt erzaehlt und ggf. als Shop/Service;
+  Signaturen, Kurobe-Baum, Evolutions-/Bindungsreferenzen entfernen;
+  Save-Migration: vorhandene Kaijin/Kurobe-Mitglieder sauber aus
+  active/reserve loesen (stabile IDs/Save-Invarianten beachten);
+  playthrough-/dataIntegrity-Tests anpassen.
+- [ ] Phase 69 — Talent-Perk-Engine: datengetriebene passive Effekte als
+  `TalentPerk`-Union, im Kampf ausgewertet: on-attacked (Konterchance,
+  Ausweichchance), Schadensmodifikatoren (+X % physisch/magisch/je Element,
+  erlitten/ausgeteilt), Stat-Prozente (+HP %), on-skill-cast-Ketten (Skill X
+  → Chance auf Folgeaktion Y ohne Zugkosten), Buff-Wirkung verstaerkt.
+  Hooks an bestehenden Stellen in `battle.ts` (applyDamage, resolveSkill,
+  Reaktions-/Konter-Mechanik wiederverwenden); Perks fliessen ueber
+  `createBattlePartyFromMembers` aus freigeschalteten Knoten ein; komplett
+  headless testbar (jeder Perk-Typ mit deterministischem Seed-Test).
+- [ ] Phase 70 — 3-Wege-Spezialisierungen: jeder Kaempfer (rimuru, gobta,
+  rigurd, ranga, shuna, benimaru, shion, hakurou, souei) erhaelt 3 exklusive
+  Straenge à 4–5 Knoten aus Perks der Phase 69; erster Knoten eines Strangs
+  sperrt die anderen Straenge (Branch-Lock; Respec spaeter als teures Item
+  moeglich). Vorlage Benimaru: „Klingensturm" (physisch) / „Schwarzflamme"
+  (Feuermagie) / „Flammenkommandant" (Team-Buffs). Rigurd und Ranga erhalten
+  damit erstmals Baeume. Rimurus Straenge verzahnen sich mit Verschlingen
+  (`requiredLearnedSkillId`: verschlungene Skills werden im Baum „entfaltet").
+  Balance-Harness: jede Spec muss die Korridore je Story-Beat schaffen und
+  sich im Sim messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
+- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern: Startskills auf
+  `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
+  Schleimform-Faehigkeit) reduzieren; `water-blade`/`storm-gust` u. a. werden
+  ueber Verschlingen erbeutet — Devour-Map-Pass ueber `enemies.ts`, damit
+  jeder fruehe Gegner Rimuru etwas Neues beibringt (forest-slime lehrt aktuell
+  `slime-strike`, das er schon kann → totes Verschlingen).
+  `RIMURU_CORE_LOADOUT_SKILLS` (battle.ts) und Onboarding-Texte anpassen;
+  Balance-Harness neu einpendeln, da Rimurus Fruehspiel schwaecher wird
+  (Abstimmung mit Phasen 53–56/67).
+- [ ] Phase 72 — Spec-Baum-UI: Talent-Tab als 3-Spalten-Spec-Layout (eine
+  Spalte je Strang, Linien Eltern→Kind, Zustaende: aktiv / freischaltbar /
+  gesperrt mit sichtbarem Grund inkl. Branch-Lock); Knoten-Vorschau zeigt
+  Perk-Wirkung VOR dem Kauf; Strangwahl mit Bestaetigungsdialog („sperrt die
+  anderen Richtungen"). Layout als pure Funktion (headless testbar nach dem
+  `HudLayoutIssue`-Muster), mobile scroll-/pannbar; Abstimmung mit Phase 59.
 
 ## UX- und Welt-Backlog
 
