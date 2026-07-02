@@ -201,14 +201,26 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawParty(_selectedName: string, view: MenuView): void {
-    this.sectionTitle('Party-Übersicht');
-    this.layer.add(this.add.text(300, 136, 'Aktive Gruppe · maximal 3', {
+    // Der Party-Tab hat keine linke Auswahlliste (anders als die Figur-Tabs), also
+    // die Inhaltsgruppe (Aktiv-Karten + Reserve) mittig ausrichten statt am
+    // Listen-Spaltenrand kleben zu lassen.
+    const ACTIVE_X = 180;
+    const ACTIVE_W = 370;
+    const RESERVE_X = 590;
+    const RESERVE_W = 190;
+
+    this.layer.add(this.add.text(GAME_WIDTH / 2, 124, 'Party-Übersicht', {
+      fontFamily: 'sans-serif',
+      fontSize: '19px',
+      color: '#e9c56c'
+    }).setOrigin(0.5, 0));
+    this.layer.add(this.add.text(ACTIVE_X, 150, 'Aktive Gruppe · maximal 3', {
       fontFamily: 'sans-serif',
       fontSize: '13px',
       color: '#cdeaff'
     }));
     view.members.forEach((summary, index) => {
-      const y = 176 + index * 96;
+      const y = 208 + index * 96;
       const stats = calculateProgressionStats(
         summary.member,
         this.save.progression
@@ -217,37 +229,37 @@ export class MenuScene extends Phaser.Scene {
         this.save.progression,
         summary.member.characterId
       )?.formName ?? summary.character.species;
-      this.panel(300, y, 370, 82);
+      this.panel(ACTIVE_X, y, ACTIVE_W, 82);
       // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
-      const hit = this.add.rectangle(300 + 185, y, 370, 82, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      const hit = this.add.rectangle(ACTIVE_X + ACTIVE_W / 2, y, ACTIVE_W, 82, 0x000000, 0.001).setInteractive({ useHandCursor: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
       this.layer.add(hit);
-      this.drawPortrait(summary.member.characterId, 336, y, 46);
-      this.layer.add(this.add.text(372, y - 31, `${summary.member.name} · ${formName}`, {
+      this.drawPortrait(summary.member.characterId, ACTIVE_X + 36, y, 46);
+      this.layer.add(this.add.text(ACTIVE_X + 72, y - 31, `${summary.member.name} · ${formName}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px', color: index === this.selectedMemberIndex ? '#e9c56c' : '#e9eef7'
       }));
-      this.layer.add(this.add.text(372, y - 8, summary.character.role, {
+      this.layer.add(this.add.text(ACTIVE_X + 72, y - 8, summary.character.role, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
-      this.layer.add(this.add.text(372, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
+      this.layer.add(this.add.text(ACTIVE_X + 72, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#9fb2cc'
       }));
     });
 
-    this.layer.add(this.add.text(690, 136, 'Reserve', {
+    this.layer.add(this.add.text(RESERVE_X, 150, 'Reserve', {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff'
     }));
     if (view.reserveMembers.length === 0) {
-      this.layer.add(this.add.text(690, 166, 'Noch keine Reserve.', {
+      this.layer.add(this.add.text(RESERVE_X, 196, 'Noch keine Reserve.', {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
       }));
     }
     view.reserveMembers.slice(0, 6).forEach((summary, index) => {
-      const y = 182 + index * 54;
-      this.button(690, y, 190, `${summary.member.name} · Lv.${summary.member.level}`, () => {
+      const y = 208 + index * 54;
+      this.button(RESERVE_X, y, RESERVE_W, `${summary.member.name} · Lv.${summary.member.level}`, () => {
         const selectedActive = view.members[this.selectedMemberIndex]?.member.characterId;
         const formation = activateReserveMember(
           { active: this.state.party, reserve: this.state.reserve ?? [] },
@@ -258,7 +270,7 @@ export class MenuScene extends Phaser.Scene {
       }, 0x243447);
     });
     if (view.reserveMembers.length > 0) {
-      this.layer.add(this.add.text(690, 500, 'Bei voller Gruppe ersetzt der Klick\ndie oben gewählte Aktiv-Karte.', {
+      this.layer.add(this.add.text(RESERVE_X, 512, 'Bei voller Gruppe ersetzt der Klick\ndie oben gewählte Aktiv-Karte.', {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
     }
