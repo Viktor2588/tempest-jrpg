@@ -694,6 +694,12 @@ completed_milestones:
     - party tab no longer double-lists the group: the left member selector is dropped there and the active-group cards are themselves clickable selectors (game.smoke party-swap updated to click the card)
     - fixed a tsc-only regression from phase 73 (phase73Enemies.test read position on the encounter union before narrowing to trigger); vitest/vite skip typecheck so it slipped through
     - typecheck, 349 unit tests across 50 files, production build, and the desktop menu smoke verified (two full-suite battle-transition smokes are timing-flaky in parallel but pass in isolation)
+  phase_60:
+    - target-tile world interaction was already in place from earlier work (getTravelAtTile matches the exact gateway tile, NPCs block their own tile so you stop in front and interact when adjacent); getAdjacentTravel now only survives in tests documenting that shift
+    - victory presentation gained a level-up line: new pure summarizeBattleLevelUps(before, after) diffs active-party levels and BattleScene captures the pre-apply save to render "Stufenaufstieg: Name Lv.N"
+    - the result dialog box and its button now grow with the number of reward/level-up/pact lines (cursor-based layout) instead of fixed coordinates
+    - return to the overworld uses fadeToScene instead of scene.start; OverworldScene already fades in on create, so the transition is smooth both ways
+    - typecheck, 351 unit tests across 50 files, production build verified (no existing e2e drives a full battle to the victory screen, so drawResult was validated by unit-tested logic + typecheck rather than in-browser)
 
 Git history is the source for exact acceptance notes and historical test counts.
 
