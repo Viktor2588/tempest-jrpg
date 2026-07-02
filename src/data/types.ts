@@ -113,9 +113,11 @@ export interface EnemyDefinition {
   readonly id: string;
   readonly name: string;
   readonly level: number;
+  readonly boss?: boolean;
   readonly element: ElementType;
   readonly stats: StatBlock;
   readonly skillIds: readonly string[];
+  readonly phase2SkillIds?: readonly string[];
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];

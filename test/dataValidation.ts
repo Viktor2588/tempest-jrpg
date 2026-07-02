@@ -206,6 +206,33 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
     validateNonNegativeInteger(`enemies.${enemy.id}.experienceReward`, enemy.experienceReward, issues);
     validateNonNegativeInteger(`enemies.${enemy.id}.goldReward`, enemy.goldReward, issues);
     validateSkillReferences(`enemies.${enemy.id}.skillIds`, enemy.skillIds, skillIds, issues);
+    validateSkillReferences(
+      `enemies.${enemy.id}.phase2SkillIds`,
+      enemy.phase2SkillIds ?? [],
+      skillIds,
+      issues
+    );
+    if (enemy.boss) {
+      const addedPhaseSkills = (enemy.phase2SkillIds ?? [])
+        .filter((skillId) => !enemy.skillIds.includes(skillId))
+        .flatMap((skillId) => {
+          const skill = data.skills.find((candidate) => candidate.id === skillId);
+          return skill ? [skill] : [];
+        });
+      if (addedPhaseSkills.length === 0) {
+        issues.push({
+          path: `enemies.${enemy.id}.phase2SkillIds`,
+          message: 'Bosse brauchen mindestens eine neue Fähigkeit für Phase 2.'
+        });
+      } else if (!addedPhaseSkills.some((skill) => (
+        skill.target === 'all-enemies' || skill.tags.includes('debuff')
+      ))) {
+        issues.push({
+          path: `enemies.${enemy.id}.phase2SkillIds`,
+          message: 'Boss-Phase 2 braucht mindestens eine neue AoE- oder Debuff-Aktion.'
+        });
+      }
+    }
     if (enemy.weaknesses.length === 0) {
       issues.push({
         path: `enemies.${enemy.id}.weaknesses`,

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { inflateSync } from 'node:zlib';
+import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 
 const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
@@ -665,7 +666,7 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   await page.waitForTimeout(700);
   await focusGame(page);
 
-  await clickGamePoint(page, 874, 510);
+  await clickOverworldInteractButton(page);
   await page.waitForTimeout(250);
   await clickGamePoint(page, 180, 398);
   await page.waitForTimeout(300);
@@ -698,7 +699,7 @@ for (const ending of [
     await page.waitForTimeout(700);
     await focusGame(page);
 
-    await clickGamePoint(page, 874, 510);
+    await clickOverworldInteractButton(page);
     await page.waitForTimeout(250);
     await clickGamePoint(page, ending.choiceX, ending.choiceY);
     await page.waitForTimeout(300);
@@ -855,6 +856,11 @@ async function focusGame(page: Page): Promise<void> {
 
 async function clickOverworldMenuButton(page: Page): Promise<void> {
   await clickGamePoint(page, 880, 242);
+}
+
+async function clickOverworldInteractButton(page: Page): Promise<void> {
+  const { interact } = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
+  await clickGamePoint(page, interact.x, interact.y);
 }
 
 async function dismissOverworldTutorial(page: Page): Promise<void> {

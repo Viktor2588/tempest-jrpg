@@ -235,11 +235,13 @@ function chooseDevourTarget(
     .filter((enemy) =>
       enemy.devourable
       && !!enemy.devourSkillId
-      && (
-        enemy.hp / enemy.maxHp <= 0.35
-        || enemy.statuses.some((status) => status.id === 'guard-break')
-        || enemy.statuses.some((status) => CONTROL_OR_DEBUFF_STATUSES.includes(status.id) && status.id !== 'guard-break')
-      )
+      && (enemy.boss
+        ? enemy.phaseIndex >= 1 && enemy.statuses.some((status) => status.id === 'guard-break')
+        : (
+          enemy.hp / enemy.maxHp <= 0.35
+          || enemy.statuses.some((status) => status.id === 'guard-break')
+          || enemy.statuses.some((status) => CONTROL_OR_DEBUFF_STATUSES.includes(status.id) && status.id !== 'guard-break')
+        ))
     )
     .sort((a, b) =>
       (a.hp / a.maxHp) - (b.hp / b.maxHp)

@@ -24,6 +24,7 @@ export interface CombatantView {
   readonly maxMp: number;
   readonly element: ElementType;
   readonly skillIds: readonly string[];
+  readonly boss: boolean;
   readonly mimicSkillIds: readonly string[];
   readonly synergyPartnerIds: readonly string[];
   readonly signatureId: string | null;
@@ -102,6 +103,7 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     maxMp: combatant.maxMp,
     element: combatant.element,
     skillIds: [...combatant.skillIds],
+    boss: combatant.boss,
     mimicSkillIds: [...combatant.mimicSkillIds],
     synergyPartnerIds: [...combatant.synergyPartnerIds],
     signatureId: combatant.signatureId,

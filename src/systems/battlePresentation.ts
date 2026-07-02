@@ -58,7 +58,9 @@ export function buildEnemyIntel(unit: CombatantView): EnemyIntelPresentation {
   const devourText = unit.devourable && unit.devourSuccessChance !== null
     ? unit.devourSuccessChance > 0
       ? `DEVOUR ${Math.round(unit.devourSuccessChance * 100)}%`
-      : `DEVOUR ab ${Math.round(BATTLE_BALANCE.devourHpThreshold * 100)}% LP/Break`
+      : unit.boss
+        ? 'DEVOUR: Phase 2 + Break'
+        : `DEVOUR ab ${Math.round(BATTLE_BALANCE.devourHpThreshold * 100)}% LP/Break`
     : null;
 
   return {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { HEROES } from '../src/data';
 import { createInitialInventory, getItemCount } from '../src/systems/inventory';
 import {
+  BATTLE_BALANCE,
   act,
   battleLoadoutSkillIds,
   createDefaultBattleParty,
@@ -541,6 +542,27 @@ describe('battle engine', () => {
     expect(renderView(state).enemies[0]!.phaseIndex).toBe(1);
   });
 
+  it('erweitert das Skillset eines Bosses beim Wechsel in Phase 2', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru')],
+      enemies: [phaseEnemy({
+        boss: true,
+        phase2SkillIds: ['calamity-roar', 'temporal-snare']
+      })],
+      seed: 42
+    });
+    const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    enemy.hp = Math.ceil(enemy.maxHp * 0.51);
+    state.activeId = hero.id;
+
+    act(state, { type: 'skill', skillId: 'water-blade', targetId: enemy.id });
+
+    expect(enemy.phaseIndex).toBe(1);
+    expect(enemy.skillIds).toEqual(expect.arrayContaining(['calamity-roar', 'temporal-snare']));
+    expect(enemy.ct).toBeGreaterThanOrEqual(BATTLE_BALANCE.bossPhaseCtSurge);
+  });
+
   it('terminiert deterministisch über Talent-Loadouts × Gegnerphasen × Seeds', () => {
     const loadouts = [
       {
@@ -866,6 +888,49 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
     };
 
     expect(run(2)).toEqual(['venom-spit']);
+  });
+
+  it('setzt Bosse außerhalb des Phase-2-Break-Fensters nur mit Prozentdruck unter Druck', () => {
+    const { state, foe } = devourSetup(54);
+    Object.assign(foe, { boss: true, phase2SkillIds: ['temporal-snare'] });
+    foe.hp = Math.ceil(foe.maxHp * 0.52);
+    const beforeHp = foe.hp;
+
+    const result = act(state, { type: 'devour', targetId: foe.id });
+
+    expect(result.ok).toBe(true);
+    expect(foe.hp).toBe(beforeHp - Math.round(foe.maxHp * BATTLE_BALANCE.bossDevourDamageFraction));
+    expect(foe.dead).toBe(false);
+    expect(foe.phaseIndex).toBe(1);
+    expect(foe.skillIds).toContain('temporal-snare');
+    expect(state.log[0]).toContain('kein Finisher');
+  });
+
+  it('kann einen Boss mit Prozentdruck nicht besiegen', () => {
+    const { state, foe } = devourSetup(55);
+    Object.assign(foe, { boss: true });
+    foe.hp = 10;
+
+    const result = act(state, { type: 'devour', targetId: foe.id });
+
+    expect(result.ok).toBe(true);
+    expect(foe.hp).toBe(1);
+    expect(foe.dead).toBe(false);
+    expect(state.status).toBe('active');
+  });
+
+  it('kann einen Boss erst in Phase 2 bei aktivem Break vollständig verschlingen', () => {
+    const { state, foe } = devourSetup(2);
+    Object.assign(foe, { boss: true, phaseIndex: 1 });
+    foe.hp = Math.floor(foe.maxHp * 0.25);
+    foe.analysisLevel = 1;
+    foe.statuses.push({ id: 'guard-break', turns: 2 }, { id: 'poison', turns: 3 });
+
+    const result = act(state, { type: 'devour', targetId: foe.id });
+
+    expect(result.ok).toBe(true);
+    expect(foe.dead).toBe(true);
+    expect(state.status).toBe('won');
   });
 
   it('lehnt Gegner ohne Devour-Freigabe trotz vollständiger Verwundbarkeit ab', () => {

@@ -54,6 +54,8 @@ export interface BattleUnitInput {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   readonly skillIds: readonly string[];
+  readonly boss?: boolean;
+  readonly phase2SkillIds?: readonly string[];
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -85,6 +87,8 @@ export interface Combatant {
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   skillIds: string[];
+  readonly boss: boolean;
+  readonly phase2SkillIds: readonly string[];
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -176,6 +180,8 @@ export const BATTLE_BALANCE = {
   devourLowHpBonus: 0.3,
   devourMaxRoll: 0.95,
   devourWhiffFloor: 0.05,
+  bossDevourDamageFraction: 0.05,
+  bossPhaseCtSurge: 110,
   teamMeterBreakGain: 35,
   teamMeterMax: 100
 } as const;
@@ -303,6 +309,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     weaknesses: enemy.weaknesses,
     resistances: enemy.resistances,
     skillIds: enemy.skillIds,
+    boss: enemy.boss,
+    phase2SkillIds: enemy.phase2SkillIds,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -534,6 +542,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
     skillIds: uniqueStrings([...baseSkillIds]),
+    boss: unit.boss ?? false,
+    phase2SkillIds: uniqueStrings(unit.phase2SkillIds ?? []),
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -859,6 +869,10 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ziel kann nicht verschlungen werden.' };
   }
 
+  if (target.boss && !isBossDevourFinisherWindow(target)) {
+    return resolveBossDevourPressure(state, actor, target);
+  }
+
   const successChance = calculateDevourSuccessChance(target);
   if (successChance === 0) {
     return { ok: false, reason: 'Ziel ist noch nicht verwundbar genug.' };
@@ -867,6 +881,9 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   const chanceCeiling = BATTLE_BALANCE.devourWhiffFloor + (successChance ?? 0);
   const roll = state.rng();
   if (roll < BATTLE_BALANCE.devourWhiffFloor || roll > chanceCeiling) {
+    if (target.boss) {
+      return resolveBossDevourPressure(state, actor, target);
+    }
     pushLog(state, `${actor.name} setzt Verschlinger an, aber ${target.name} widersteht.`);
     endTurn(state, actor);
     return { ok: true };
@@ -890,7 +907,8 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
 export function calculateDevourSuccessChance(
   target: Pick<
     Combatant,
-    'analysisLevel' | 'devourable' | 'devourSkillId' | 'hp' | 'maxHp' | 'statuses'
+    'analysisLevel' | 'boss' | 'devourable' | 'devourSkillId' | 'hp' | 'maxHp'
+    | 'phaseIndex' | 'statuses'
   >
 ): number | null {
   if (!target.devourable || !target.devourSkillId) {
@@ -898,6 +916,9 @@ export function calculateDevourSuccessChance(
   }
 
   const broken = target.statuses.some((status) => status.id === 'guard-break');
+  if (target.boss && !isBossDevourFinisherWindow(target)) {
+    return 0;
+  }
   const lowHp = target.hp / target.maxHp <= BATTLE_BALANCE.devourHpThreshold;
   const debuffed = target.statuses.some((status) =>
     status.id !== 'guard-break' && DEBUFF_STATUSES.includes(status.id)
@@ -918,6 +939,35 @@ export function calculateDevourSuccessChance(
     )
   );
   return chanceCeiling - BATTLE_BALANCE.devourWhiffFloor;
+}
+
+function isBossDevourFinisherWindow(
+  target: Pick<Combatant, 'boss' | 'phaseIndex' | 'statuses'>
+): boolean {
+  return !target.boss || (
+    target.phaseIndex >= 1
+    && target.statuses.some((status) => status.id === 'guard-break')
+  );
+}
+
+function resolveBossDevourPressure(
+  state: BattleState,
+  actor: Combatant,
+  target: Combatant
+): ActionResult {
+  const pressure = Math.max(1, Math.round(target.maxHp * BATTLE_BALANCE.bossDevourDamageFraction));
+  const damage = Math.min(pressure, Math.max(0, target.hp - 1));
+  target.hp -= damage;
+  if (damage > 0) {
+    wakeOnDamage(target);
+    updateEnemyPhase(state, target);
+  }
+  pushLog(
+    state,
+    `${actor.name}s Verschlinger setzt ${target.name} unter Druck: ${damage} Schaden, aber kein Finisher.`
+  );
+  endTurn(state, actor);
+  return { ok: true };
 }
 
 function resolveSignature(
@@ -1334,6 +1384,9 @@ function applyDamage(
   const guardedDamage = target.guarding ? adjustedDamage * 0.5 : adjustedDamage;
   const damage = Math.max(1, Math.round(guardedDamage));
   target.hp = Math.max(0, target.hp - damage);
+  if (target.hp > 0 && target.boss) {
+    updateEnemyPhase(state, target);
+  }
   // Schaden weckt aus Schlaf/Eis und bricht Bezauberung.
   if (damage > 0) {
     wakeOnDamage(target);
@@ -1404,7 +1457,11 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
   }
   if (combatant.hp / combatant.maxHp <= combatant.phaseThreshold) {
     combatant.phaseIndex = 1;
-    combatant.ct = Math.max(combatant.ct, CT_THRESHOLD);
+    combatant.skillIds = uniqueStrings([...combatant.skillIds, ...combatant.phase2SkillIds]);
+    combatant.ct = Math.max(
+      combatant.ct,
+      combatant.boss ? BATTLE_BALANCE.bossPhaseCtSurge : CT_THRESHOLD
+    );
     pushLog(state, `${combatant.name} wechselt in Phase 2.`);
   }
 }
