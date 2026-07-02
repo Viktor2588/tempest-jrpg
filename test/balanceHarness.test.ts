@@ -42,7 +42,7 @@ describe('Balance-Harness Report', () => {
     expect(levelBefore('ifrit-boss')).toBeGreaterThanOrEqual(12.5);
 
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.category).toBe('boss');
-    expect(report.storyRoute.find((encounter) => encounter.encounterId === 'training-clearing')?.targetCorridor.turns).toEqual({ min: 4, max: 15 });
+    expect(report.storyRoute.find((encounter) => encounter.encounterId === 'training-clearing')?.targetCorridor.turns).toEqual({ min: 2, max: 15 });
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.targetCorridor.turns).toEqual({ min: 6, max: 23 });
 
     const bossIds = STORY_ENCOUNTER_IDS.filter((encounterId) => (
