@@ -9,6 +9,8 @@ Status:
 
 ## Laufende Arbeit
 
+- Phase 56 — Schwung im Kampf
+  (`/worktree/tempest-phase-56-schwung`)
 - Phase 57 — HiDPI-Rendering
   (`/home/viktor/worktree/tempest-phase-57-hidpi`)
 
@@ -63,10 +65,11 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [ ] Phase 56 — Schwung im Kampf: Break/Team/Devour in Normalkaempfen relevant
+- [~] Phase 56 — Schwung im Kampf: Break/Team/Devour in Normalkaempfen relevant
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
   praesentieren; Sim-Metrik: mittlere Zuganzahl sinkt, Rest-HP-Streuung steigt.
+  (in Bearbeitung im Worktree `/worktree/tempest-phase-56-schwung`)
 - [ ] Phase 73 — Fehlende Gegner einbauen (Nutzerwunsch): Gegner aus
   `enemies.ts`, die noch in keinem Encounter vorkommen, ins Spiel bringen —
   v. a. Milim (L20, bisher ohne Encounter; als Story-Wand/Duell inszenieren)
