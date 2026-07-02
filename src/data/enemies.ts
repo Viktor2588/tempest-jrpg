@@ -91,7 +91,7 @@ export const ENEMIES = [
     resistances: ['shadow'],
     experienceReward: 110,
     goldReward: 16,
-    drops: [{ itemId: 'healing-herb', chance: 0.25 }]
+    drops: [{ itemId: 'healing-herb', chance: 0.25 }, { itemId: 'magic-ore', chance: 0.05 }]
   },
   {
     id: 'orc-scout',
@@ -114,7 +114,7 @@ export const ENEMIES = [
     resistances: ['earth'],
     experienceReward: 200,
     goldReward: 30,
-    drops: [{ itemId: 'tempest-training-sword', chance: 0.08 }]
+    drops: [{ itemId: 'tempest-training-sword', chance: 0.08 }, { itemId: 'full-potion', chance: 0.05 }]
   },
   {
     id: 'lizardman-acolyte',

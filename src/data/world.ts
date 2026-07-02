@@ -3656,7 +3656,7 @@ export const ENCOUNTERS = [
     mapId: 'tempest-start',
     kind: 'random',
     bounds: { x: 14, y: 6, width: 8, height: 8 },
-    enemyIds: ['forest-slime'],
+    enemyIds: ['forest-slime', 'forest-slime'],
     chance: 0.12
   },
   {
@@ -3682,7 +3682,7 @@ export const ENCOUNTERS = [
     mapId: 'tempest-start',
     kind: 'random',
     bounds: { x: 2, y: 11, width: 6, height: 3 },
-    enemyIds: ['spore-moth', 'orc-scout'],
+    enemyIds: ['spore-moth', 'orc-scout', 'spore-moth'],
     chance: 0.08
   },
   {
@@ -3857,7 +3857,7 @@ export const ENCOUNTERS = [
     mapId: 'spirit-marsh',
     kind: 'random',
     bounds: { x: 4, y: 3, width: 14, height: 9 },
-    enemyIds: ['spore-moth', 'lizardman-acolyte'],
+    enemyIds: ['spore-moth', 'lizardman-acolyte', 'spore-moth'],
     chance: 0.14
   },
   {
@@ -3877,7 +3877,7 @@ export const ENCOUNTERS = [
     mapId: 'spirit-highlands',
     kind: 'random',
     bounds: { x: 3, y: 2, width: 18, height: 10 },
-    enemyIds: ['lizardman-acolyte', 'mordrahn-vanguard'],
+    enemyIds: ['lizardman-acolyte', 'mordrahn-vanguard', 'lizardman-acolyte'],
     chance: 0.13
   },
   {
