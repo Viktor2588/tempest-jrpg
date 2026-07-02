@@ -11,6 +11,8 @@ Status:
 
 - Phase 55 — Kurve & Anti-Grind
   (`/worktree/tempest-phase-55-anti-grind`)
+- Phase 57 — HiDPI-Rendering
+  (`/home/viktor/worktree/tempest-phase-57-hidpi`)
 
 ## Integrationswarteschlange
 
@@ -91,7 +93,7 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [ ] Phase 57 — HiDPI-Rendering: kurzer Spike, ob Phaser 4.2 native
+- [~] Phase 57 — HiDPI-Rendering: kurzer Spike, ob Phaser 4.2 native
   DPR-/Resolution-Unterstuetzung im ScaleManager hat; sonst Canvas-Backing
   DPR-bewusst dimensionieren (Spielgroesse = 960x540 * min(devicePixelRatio, 2–3),
   FIT beibehalten) und die logischen Koordinaten ueber einen zentralen
@@ -99,6 +101,8 @@ in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
   Text-Factory-Helper mit `resolution: dpr` als Default; E2E-Screenshot-Smoke
   mit deviceScaleFactor 2 als Schaerfe-Regression (Canvas-Backing-Groesse
   asserten); Performance auf Mobile pruefen (DPR-Kappung).
+  (in Bearbeitung im Worktree
+  `/home/viktor/worktree/tempest-phase-57-hidpi`)
 - [ ] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
   NEAREST nur gezielt fuer die 16x16-Pixel-Sprites setzen, LINEAR fuer
   malerische Tiles/Banner/Portraits (bestehende Einzelfaelle konsolidieren);
