@@ -14,9 +14,7 @@ Status:
 
 ## Integrationswarteschlange
 
-- Phase 57 — HiDPI-Rendering ist im Branch `phase-57-hidpi` fertig
-  umgesetzt und bereit zur Integration
-  (`/home/viktor/worktree/tempest-phase-57-hidpi`).
+- Keine offenen Integrationen.
 
 ## Story-Roadmap (TODO: Story & Events fesselnder machen)
 
@@ -88,25 +86,6 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [x] Phase 57 — HiDPI-Rendering: kurzer Spike, ob Phaser 4.2 native
-  DPR-/Resolution-Unterstuetzung im ScaleManager hat; sonst Canvas-Backing
-  DPR-bewusst dimensionieren (Spielgroesse = 960x540 * min(devicePixelRatio, 2–3),
-  FIT beibehalten) und die logischen Koordinaten ueber einen zentralen
-  Kamera-Zoom-Helper je Szene erhalten (Szenen bleiben auf 960x540-Layout);
-  Text-Factory-Helper mit `resolution: dpr` als Default; E2E-Screenshot-Smoke
-  mit deviceScaleFactor 2 als Schaerfe-Regression (Canvas-Backing-Groesse
-  asserten); Performance auf Mobile pruefen (DPR-Kappung).
-  Umsetzung: lokale Phaser-4.2-Quellen haben keinen nativen Renderer-/Canvas-
-  DPR-Schalter gezeigt; `src/render/hiDpi.ts` setzt deshalb ein physisches
-  Backing von 960x540 * min(devicePixelRatio, 2), bewahrt logische Koordinaten
-  via zentralem Kamera-Zoom-Helper je Szene und versieht Texte ueber eine
-  zentrale Factory mit passender `resolution`. `main.ts` exportiert weiter das
-  960x540-Layout, speichert Diagnose-Daten am Canvas und nutzt die begrenzte
-  Backing-Groesse; Overworld-HUD/Touch-Layout nutzt explizit die logischen
-  Masse. Checks: `git diff --check`; `bun run typecheck`; `bun run test`
-  (47 Dateien, 340 Tests); `bun run build`; Playwright HiDPI-Smoke Desktop
-  DPR 2 + Mobile DPR 3 (2/2); bestehende Desktop/Mobile-Smokes
-  `game.smoke.spec.ts` + `tempest-growth.smoke.spec.ts` mit 1 Worker (36/36).
 - [ ] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
   NEAREST nur gezielt fuer die 16x16-Pixel-Sprites setzen, LINEAR fuer
   malerische Tiles/Banner/Portraits (bestehende Einzelfaelle konsolidieren);

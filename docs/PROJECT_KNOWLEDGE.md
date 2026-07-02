@@ -70,6 +70,8 @@ product:
   viewport:
     reference_canvas: 960x540
     scaling: Phaser FIT and centered
+    backing_store: 960x540 * min(devicePixelRatio, 2) via src/render/hiDpi.ts
+    logical_coordinates: preserved through scene camera zoom helpers
   stack:
     engine: Phaser 4.2
     language: TypeScript
@@ -656,6 +658,12 @@ completed_milestones:
     - the four random encounters widened to 2-3 enemy groups with rare drops (magic-ore, full-potion) so optional fights pay off
     - balance harness rebaselined to the leveled reality (story-boss rest-HP ceiling 0.8->0.95, normal 0.96->0.99) and now asserts the grind-free level targets via averagePartyLevelBefore; the tight "knapp" band and normal-fight relevance are deferred to Phase 56 (systemic healing/action-economy overhang)
     - typecheck, 336 unit tests across 46 files, production build, and 36 desktop/mobile e2e smokes verified
+  phase_57:
+    - Phaser 4.2 local source spike found no native renderer/canvas DPR switch for the required layout-preserving mode
+    - game canvas backing store now uses 960x540 * min(devicePixelRatio, 2) while Phaser FIT keeps the CSS-scaled viewport centered
+    - every scene installs a shared HiDPI helper that applies camera zoom for logical 960x540 coordinates and defaults text objects to DPR-aware resolution
+    - canvas diagnostic data attributes and a dedicated Playwright HiDPI smoke assert logical size, capped backing size, and desktop/mobile DPR behavior
+    - typecheck, 340 unit tests across 47 files, production build, HiDPI desktop/mobile smokes, and 36 existing desktop/mobile smokes verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
@@ -720,6 +728,7 @@ test/phase22Integration.test.ts
 ```text
 ASSETS.md
 src/render/artSpec.ts
+src/render/hiDpi.ts
 src/render/*Art.ts
 src/scenes/PreloadScene.ts
 src/assets/
