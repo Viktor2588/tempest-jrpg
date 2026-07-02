@@ -16,6 +16,9 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   firstAvailableOverworldTileTexture,
   overworldTileTextureCandidates
 } from '../src/render/overworldTileArt';
@@ -58,6 +61,22 @@ describe('Overworld-Regionstiles', () => {
     ]);
   });
 
+  it('wechselt Tempests Bodenart mit dem sichtbaren Siedlungswachstum', () => {
+    expect(overworldTileTextureCandidates('tempest-start', false, {
+      'story.tempest.named': true
+    })[0]).toBe(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', false, {
+      'story.tempest.named': true,
+      'story.council.ready': true
+    })[0]).toBe(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', false, {
+      'story.tempest.named': true,
+      'story.council.ready': true,
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })[0]).toBe(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY);
+  });
+
   it('wählt den ersten geladenen Kandidaten deterministisch', () => {
     expect(firstAvailableOverworldTileTexture('spirit-marsh', false, (key) => key === MARSH_FLOOR_TILE_TEXTURE_KEY))
       .toBe(MARSH_FLOOR_TILE_TEXTURE_KEY);
@@ -81,7 +100,10 @@ describe('Overworld-Regionstiles', () => {
       'tile-lizardman-marsh-floor.webp',
       'tile-lizardman-marsh-wall.webp',
       'tile-ember-hollow-floor.webp',
-      'tile-ember-hollow-wall.webp'
+      'tile-ember-hollow-wall.webp',
+      'tile-tempest-camp-floor.webp',
+      'tile-tempest-village-floor.webp',
+      'tile-tempest-city-floor.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/tiles/${file}`);
     }

@@ -1,4 +1,5 @@
 import { WALL, FLOOR, type TileMap, type Vec2 } from '../systems/overworld';
+import { resolveTempestGrowthStage, tempestGrowthLabel, type StoryFlags } from '../systems/tempestGrowth';
 
 // Programmatisch erzeugte Karten: voller Wandrand + Innenhindernis-Blöcke,
 // garantiert geschlossener Rand und einheitliche Breite. Block = [x, y, w, h].
@@ -25,6 +26,19 @@ function buildMap(width: number, height: number, blocks: readonly Block[], spawn
 // Region 1: Tempest-Hain (Startgebiet, 24×16).
 export const JURA_FIELD: TileMap = buildMap(24, 16, [
   [4, 2, 2, 3], [11, 3, 2, 3], [6, 9, 4, 2], [16, 8, 2, 4], [10, 11, 3, 2], [18, 3, 2, 2]
+], { x: 2, y: 2 });
+
+export const TEMPEST_CAMP: TileMap = buildMap(24, 16, [
+  [4, 2, 2, 2], [11, 3, 2, 3], [6, 9, 3, 2], [16, 8, 2, 4], [11, 11, 2, 2], [18, 3, 2, 2]
+], { x: 2, y: 2 });
+
+export const TEMPEST_VILLAGE: TileMap = buildMap(24, 16, [
+  [4, 2, 2, 3], [11, 2, 3, 3], [6, 9, 4, 2], [16, 8, 2, 4], [10, 11, 3, 2], [18, 3, 3, 2]
+], { x: 2, y: 2 });
+
+export const TEMPEST_CITY: TileMap = buildMap(24, 16, [
+  [4, 2, 2, 3], [11, 2, 3, 3], [6, 9, 4, 2], [16, 8, 3, 4], [10, 11, 3, 2], [18, 3, 3, 3],
+  [14, 4, 2, 2]
 ], { x: 2, y: 2 });
 
 // Prolog 1: Versiegelte Höhle (16×10, enger Kristallpfad mit zentraler Kammer).
@@ -104,7 +118,13 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
-export function getMap(mapId: string): TileMap {
+export function getMap(mapId: string, flags: StoryFlags = {}): TileMap {
+  if (mapId === 'tempest-start') {
+    const stage = resolveTempestGrowthStage(flags);
+    if (stage === 'camp') return TEMPEST_CAMP;
+    if (stage === 'village') return TEMPEST_VILLAGE;
+    if (stage === 'city') return TEMPEST_CITY;
+  }
   return MAPS[mapId] ?? JURA_FIELD;
 }
 
@@ -125,6 +145,7 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */
-export function getMapName(mapId: string): string {
+export function getMapName(mapId: string, flags: StoryFlags = {}): string {
+  if (mapId === 'tempest-start') return tempestGrowthLabel(resolveTempestGrowthStage(flags));
   return MAP_NAMES[mapId] ?? 'Unbekanntes Gebiet';
 }

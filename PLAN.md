@@ -35,12 +35,20 @@ deutsches Originalwording, canon-first, keine kopierten Dialoge.
   groessten Beats umstellen: Hoehlen-Erwachen, Direwolf-Pakt mit Rangas
   Benennung, Tempest-Benennungszeremonie, Sieg ueber Geld. Toast nur noch als
   Zusammenfassung danach.
-- [ ] Phase 63 — Sichtbares Tempest-Wachstum (Imagegen bevorzugt): Ausbaustufen
+- [x] Phase 63 — Sichtbares Tempest-Wachstum (Imagegen bevorzugt): Ausbaustufen
   fuer tempest-hollow an Story-Flags koppeln (Lager → benanntes Dorf →
   junge Stadt mit Kijin-/Dwargon-Vierteln): Kartenvarianten/Tiles, neue und
   umpositionierte NPCs je Stufe, Regionsbanner-Variante; Provenienz in
   `ASSETS.md`. Der Kern der Vorlage — Nation aufbauen — wird sichtbar statt
   erzaehlt.
+  - Abnahme: `tempest-start` wechselt flag-gesteuert zwischen Wildnis,
+    Tempest-Lager, benanntem Dorf und Jura-Tempest. Drei generierte
+    Boden-Texturen und drei passende Regionbanner zeigen die Stufen; eigene
+    Kartenlayouts, Rigurds Umzug sowie Kijin-/Dwargon-Werkviertel mit Kurobe
+    und Kaijin machen das Wachstum auch spielmechanisch sichtbar.
+  - Checks: `git diff --check`, `bun run typecheck`, `bun run test`
+    (46 Dateien, 336 Tests), `bun run build`; Phase-63-E2E-Smoke separat auf
+    Desktop- und Mobile-Chromium (je 1/1 bestanden).
 - [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
   ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
   neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;

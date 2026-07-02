@@ -68,7 +68,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.mapId = this.save.location.mapId;
-    const map = this.map = getMap(this.mapId);
+    const map = this.map = getMap(this.mapId, this.save.flags);
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
     playMusic('overworld');
     // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
@@ -84,7 +84,12 @@ export class OverworldScene extends Phaser.Scene {
 
     // Kacheln: regionale Imagegen-Tiles → echte CC0-Kenney-Kacheln → Platzhalter → Rechteck-Fallback.
     const tileKey = (wall: boolean): string | null => {
-      return firstAvailableOverworldTileTexture(this.mapId, wall, (textureKey) => this.textures.exists(textureKey));
+      return firstAvailableOverworldTileTexture(
+        this.mapId,
+        wall,
+        (textureKey) => this.textures.exists(textureKey),
+        this.save.flags
+      );
     };
     const g = this.add.graphics();
     for (let y = 0; y < map.height; y++) {
@@ -377,12 +382,16 @@ export class OverworldScene extends Phaser.Scene {
     this.updateMinimapPlayer();
 
     // Gebietsindikator direkt unter der Minimap.
-    const areaName = getMapName(this.mapId);
+    const areaName = getMapName(this.mapId, this.save.flags);
     const bannerW = Math.max(118, model.width + 8);
     const bannerH = Math.round(bannerW / 4);
     const bannerX = this.minimapOriginX + model.width / 2;
     const bannerY = this.minimapOriginY + model.height + 8;
-    const bannerKey = regionBannerTextureForMap(this.mapId, (textureKey) => this.textures.exists(textureKey));
+    const bannerKey = regionBannerTextureForMap(
+      this.mapId,
+      (textureKey) => this.textures.exists(textureKey),
+      this.save.flags
+    );
     if (bannerKey) {
       layer.add(this.add.image(bannerX, bannerY, bannerKey).setOrigin(0.5, 0).setDisplaySize(bannerW, bannerH));
       layer.add(this.add.rectangle(bannerX, bannerY, bannerW, bannerH, 0x030812, 0.28).setOrigin(0.5, 0));
@@ -401,7 +410,7 @@ export class OverworldScene extends Phaser.Scene {
       }
     ).setOrigin(0.5).setStroke('#04111d', 3));
     if (objective) {
-      const objectiveMap = objective.mapId ? getMapName(objective.mapId) : 'unbekannt';
+      const objectiveMap = objective.mapId ? getMapName(objective.mapId, this.save.flags) : 'unbekannt';
       const location = objective.locationName ?? objective.stepTitle;
       const suffix = objective.status === 'visible'
         ? objective.mapId === this.mapId ? '◆' : objectiveMap

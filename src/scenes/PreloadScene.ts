@@ -25,7 +25,7 @@ import {
 } from '../render/enemyArt';
 import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
-import { REGION_BANNER_TEXTURES } from '../render/regionBannerArt';
+import { REGION_BANNER_TEXTURES, TEMPEST_GROWTH_BANNER_TEXTURES } from '../render/regionBannerArt';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -45,6 +45,9 @@ import lizardmanMarshFloorTileUrl from '../assets/tiles/tile-lizardman-marsh-flo
 import lizardmanMarshWallTileUrl from '../assets/tiles/tile-lizardman-marsh-wall.webp';
 import emberHollowFloorTileUrl from '../assets/tiles/tile-ember-hollow-floor.webp';
 import emberHollowWallTileUrl from '../assets/tiles/tile-ember-hollow-wall.webp';
+import tempestCampFloorTileUrl from '../assets/tiles/tile-tempest-camp-floor.webp';
+import tempestVillageFloorTileUrl from '../assets/tiles/tile-tempest-village-floor.webp';
+import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.webp';
 import {
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
@@ -59,7 +62,10 @@ import {
   LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
-  MARSH_WALL_TILE_TEXTURE_KEY
+  MARSH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
 // Echte CC0-Charakter-/Gegner-Sprites (Kenney „Tiny Dungeon", CC0 — siehe ASSETS.md).
 import heroUrl from '../assets/sprites/hero.png';
@@ -139,6 +145,9 @@ import regionJuraBattlefieldUrl from '../assets/ui/region-jura-battlefield.webp'
 import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
 import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
 import regionBlumundUrl from '../assets/ui/region-blumund.webp';
+import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
+import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
+import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -176,6 +185,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY, lizardmanMarshWallTileUrl);
     this.load.image(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY, emberHollowFloorTileUrl);
     this.load.image(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY, emberHollowWallTileUrl);
+    this.load.image(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY, tempestCampFloorTileUrl);
+    this.load.image(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY, tempestVillageFloorTileUrl);
+    this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
     // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
     this.load.image('sprite-hero', heroUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -254,6 +266,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(REGION_BANNER_TEXTURES['lizardman-marsh'], regionLizardmanMarshUrl);
     this.load.image(REGION_BANNER_TEXTURES['ember-hollow'], regionEmberHollowUrl);
     this.load.image(REGION_BANNER_TEXTURES['blumund'], regionBlumundUrl);
+    this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.camp, regionTempestCampUrl);
+    this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
+    this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
   }
 
   create(): void {
@@ -344,7 +359,8 @@ export class PreloadScene extends Phaser.Scene {
       'sprite-enemy-mordrahn',
       ...Object.values(PARTY_BATTLE_ART),
       ...Object.values(BATTLE_ARENA_TEXTURES),
-      ...Object.values(REGION_BANNER_TEXTURES)
+      ...Object.values(REGION_BANNER_TEXTURES),
+      ...Object.values(TEMPEST_GROWTH_BANNER_TEXTURES)
     ].forEach((key) => {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     });
