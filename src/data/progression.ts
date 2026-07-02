@@ -170,7 +170,6 @@ export const PROGRESSION_LINES = [
   { id: 'benimaru-ogre-line', characterId: 'benimaru', name: 'Kijin-General', speciesLine: 'Oger → Kijin-General', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-soldier'], description: 'Benimarus Linie verbindet Ogerkraft mit der Schwarzflamme zum Generalsrang.' },
   { id: 'shion-ogre-line', characterId: 'shion', name: 'Kijin-Leibwache', speciesLine: 'Oger → Kijin-Leibwache', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-general'], description: 'Shions Linie maximiert Konstitution und rohe Kraft.' },
   { id: 'hakurou-ogre-line', characterId: 'hakurou', name: 'Kijin-Schwertheiliger', speciesLine: 'Oger → Kijin-Schwertheiliger', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'lizardman-warrior'], description: 'Hakurous Linie verfeinert Geschwindigkeit und Schwertkunst.' },
-  { id: 'kurobe-ogre-line', characterId: 'kurobe', name: 'Kijin-Schmied', speciesLine: 'Oger → Kijin-Schmied', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'orc-general'], description: 'Kurobes Linie stählt Verteidigung und Schmiedekraft.' },
   { id: 'souei-ogre-line', characterId: 'souei', name: 'Kijin-Schatten', speciesLine: 'Oger → Kijin-Schatten', regionId: 'tempest-grove', rivalEnemyIds: ['ogre-warrior', 'masked-majin'], description: 'Soueis Linie schärft Tempo, Verdeckung und Präzision.' }
 ] as const satisfies readonly ProgressionLineDefinition[];
 
@@ -232,7 +231,6 @@ export const EVOLUTIONS = [
   { id: 'benimaru-kijin', lineId: 'benimaru-ogre-line', characterId: 'benimaru', formName: 'Kijin-General', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 18, attack: 4, magic: 5 }, skillIds: ['black-flame'], skillPointReward: 2, description: 'Rimurus Benennung verwandelt den Oger in einen Kijin-General mit Schwarzflamme.' },
   { id: 'shion-kijin', lineId: 'shion-ogre-line', characterId: 'shion', formName: 'Kijin-Leibwache', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 26, attack: 5, defense: 3 }, skillIds: ['ogre-smash'], skillPointReward: 2, description: 'Die Benennung formt die monströse Kraft der Oger-Leibwache.' },
   { id: 'hakurou-kijin', lineId: 'hakurou-ogre-line', characterId: 'hakurou', formName: 'Kijin-Schwertheiliger', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, attack: 4, agility: 5 }, skillIds: ['quick-step'], skillPointReward: 2, description: 'Der alte Schwertmeister steigt durch die Benennung zum Kijin auf.' },
-  { id: 'kurobe-kijin', lineId: 'kurobe-ogre-line', characterId: 'kurobe', formName: 'Kijin-Schmied', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 20, attack: 3, defense: 5 }, skillIds: ['iron-guard'], skillPointReward: 2, description: 'Die Benennung verleiht dem Schmied Kijin-Härte.' },
   { id: 'souei-kijin', lineId: 'souei-ogre-line', characterId: 'souei', formName: 'Kijin-Schatten', rank: 2, requiredLevel: 1, requiresCustomName: true, statBonus: { maxHp: 14, agility: 6, attack: 3 }, skillIds: ['venom-spit'], skillPointReward: 2, description: 'Der stille Oger wird durch die Benennung zum Kijin-Schatten.' }
 ] as const satisfies readonly EvolutionDefinition[];
 
@@ -688,12 +686,6 @@ export const SKILL_TREES = [
     { id: 'hakurou-flash-step', name: 'Blitzschritt', description: 'Vertieft das schnelle Vorstoßen.', cost: 1, requiredLevel: 4, requiredNodeIds: ['hakurou-stance'], skillId: 'quick-step' },
     { id: 'hakurou-mentor', name: 'Lehrmeister', description: 'Anleitung stählt das Team.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-stance'], skillId: 'battle-cry' },
     { id: 'hakurou-god-speed', name: 'Götterschnelle', description: 'Vollendung des Schwertwegs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-flash-step'], statBonus: { agility: 5, attack: 4 } }
-  ] },
-  { id: 'kurobe-tree', characterId: 'kurobe', name: 'Meisterschmied', nodes: [
-    { id: 'kurobe-forge-arm', name: 'Schmiedearm', description: 'Schmiedekraft und Härte.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { attack: 2, defense: 2 } },
-    { id: 'kurobe-tempered', name: 'Gehärtet', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 4, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'iron-guard' },
-    { id: 'kurobe-magisteel-edge', name: 'Magisteel-Schneide', description: 'Magisteel schärft den Hieb.', cost: 1, requiredLevel: 6, requiredNodeIds: ['kurobe-forge-arm'], skillId: 'ogre-smash' },
-    { id: 'kurobe-masterwork', name: 'Meisterwerk', description: 'Vollendete Schmiedekunst.', cost: 2, requiredLevel: 9, requiredNodeIds: ['kurobe-tempered'], statBonus: { defense: 5, attack: 3 } }
   ] },
   { id: 'souei-tree', characterId: 'souei', name: 'Schattenklinge', nodes: [
     { id: 'souei-silent-step', name: 'Lautloser Schritt', description: 'Verdeckte Beweglichkeit.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 3 } },

@@ -58,7 +58,7 @@ describe('Dwargon-Arc (Phase 27)', () => {
     expect(back?.travelTo?.mapId).toBe('tempest-start');
   });
 
-  it('führt Gazel-Urteil → Kaijin-Beitritt durch und gewährt die Belohnung', () => {
+  it('führt Gazel-Urteil → Schmiede-Allianz durch, ohne Kaijin ins Kampfroster zu holen', () => {
     let state = freshWorld();
     const startGold = state.gold;
     expect(state.roster?.includes('kaijin') ?? false).toBe(false);
@@ -70,18 +70,18 @@ describe('Dwargon-Arc (Phase 27)', () => {
     expect(state.flags['craft.smithing.unlocked']).toBe(true);
     expect(state.flags['story.dwargon.entered']).toBe(true);
 
-    // Kaijin tritt bei → Roster, Gold-Belohnung, Quest abgeschlossen.
+    // Phase 68: Kaijin zieht als Schmiede-NPC nach Tempest — kein Partybeitritt.
     const recruit = chooseDialogOption(state, 'kaijin-forge', 'start', 'recruit');
     expect(recruit.ok).toBe(true);
     state = recruit.state.world;
-    expect(state.roster?.includes('kaijin')).toBe(true);
+    expect(state.roster?.includes('kaijin') ?? false).toBe(false);
     expect(state.flags['faction.dwargon.allied']).toBe(true);
     expect(state.gold).toBe(startGold + 120);
 
     const quest = buildQuestLog(state).find((entry) => entry.id === 'dwargon-craft');
     expect(quest?.status).toBe('completed');
 
-    // Wiederholung bleibt idempotent (kein zweiter Beitritt / keine zweite Belohnung).
+    // Wiederholung bleibt idempotent (keine zweite Belohnung).
     const goldAfter = state.gold;
     const repeat = chooseDialogOption(state, 'kaijin-forge', 'start', 'recruit');
     expect(repeat.ok).toBe(false);
@@ -98,10 +98,9 @@ describe('Dwargon-Arc (Phase 27)', () => {
     expect(gazel?.unlocked).toBe(true);
   });
 
-  it('macht Kaijin zu einer rekrutierbaren Heldenfigur', () => {
-    const kaijin = HEROES.find((hero) => hero.id === 'kaijin');
-    expect(kaijin).toBeDefined();
-    expect(kaijin?.startsInParty).toBe(false);
-    expect(kaijin?.initialSkillIds.length).toBeGreaterThan(0);
+  it('führt die Schmiede nicht mehr als spielbare Kämpfer (Phase 68)', () => {
+    const heroIds: readonly string[] = HEROES.map((hero) => hero.id);
+    expect(heroIds).not.toContain('kaijin');
+    expect(heroIds).not.toContain('kurobe');
   });
 });

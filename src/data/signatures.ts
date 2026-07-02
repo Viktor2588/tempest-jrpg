@@ -187,32 +187,5 @@ export const SIGNATURES = [
       { kind: 'status', statusId: 'defense-up', turns: 3 },
       { kind: 'team-meter', amount: 50 }
     ]
-  },
-  {
-    id: 'kurobe-masterwork',
-    characterId: 'kurobe',
-    name: 'Meisterwerk',
-    description: 'Kurobe härtet Waffen und Rüstung eines Verbündeten für den laufenden Kampf.',
-    element: 'earth',
-    target: 'single-ally',
-    chargePerAction: 30,
-    effects: [
-      { kind: 'status', statusId: 'attack-up', turns: 3 },
-      { kind: 'status', statusId: 'defense-up', turns: 3 }
-    ]
-  },
-  {
-    id: 'kaijin-field-forge',
-    characterId: 'kaijin',
-    name: 'Feldschmiede',
-    description: 'Kaijin verstärkt die Ausrüstung der Gruppe und setzt die gegnerische Deckung unter Druck.',
-    element: 'earth',
-    target: 'all-allies',
-    chargePerAction: 25,
-    effects: [
-      { kind: 'status', statusId: 'attack-up', turns: 3 },
-      { kind: 'status', statusId: 'defense-up', turns: 3 },
-      { kind: 'break', pressure: 1, scope: 'enemies' }
-    ]
   }
 ] as const satisfies readonly SignatureDefinition[];

@@ -7,9 +7,7 @@ export const PARTY_BATTLE_ART = {
   benimaru: 'sprite-party-benimaru',
   shion: 'sprite-party-shion',
   hakurou: 'sprite-party-hakurou',
-  kurobe: 'sprite-party-kurobe',
-  souei: 'sprite-party-souei',
-  kaijin: 'sprite-party-kaijin'
+  souei: 'sprite-party-souei'
 } as const;
 
 export type BattleArenaKind =

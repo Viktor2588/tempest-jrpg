@@ -4,7 +4,7 @@
 // normaler Angriff.
 import { act, currentActor, queueReaction, renderView, type BattleState } from './battle';
 import { ITEMS, SIGNATURES, SKILLS } from '../data';
-import type { ItemDefinition, SkillDefinition, StatusEffectId } from '../data';
+import type { ItemDefinition, SignatureDefinition, SkillDefinition, StatusEffectId } from '../data';
 import { getItemCount } from './inventory';
 import { resolveElementFusion } from './fusion';
 
@@ -67,7 +67,10 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
 
   const target = chooseTarget(enemyStates) ?? enemies.slice().sort((a, b) => a.hp - b.hp)[0]!;
 
-  const signature = SIGNATURES.find((candidate) => candidate.id === actor.signatureId);
+  // Bewusst auf das breite Interface geweitet: die konkrete Datenunion enthaelt nicht
+  // zwingend jedes Target-Literal (z. B. nach Roster-Aenderungen).
+  const signature: SignatureDefinition | undefined =
+    SIGNATURES.find((candidate) => candidate.id === actor.signatureId);
   if (signature && actor.signatureCharge >= actor.signatureChargeMax) {
     if (signature.target === 'single-enemy') {
       return { type: 'signature', targetId: target.id };
