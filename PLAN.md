@@ -82,7 +82,8 @@ Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
   praesentieren; Sim-Metrik: mittlere Zuganzahl sinkt, Rest-HP-Streuung steigt.
-- [ ] Phase 67 — Mitwachsende Gegner (Anti-Overgrind, Nutzerfeedback
+- [~] Phase 67 — Mitwachsende Gegner (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-67-gegner-scaling`) (Anti-Overgrind, Nutzerfeedback
   2026-07-02: „je staerker ich werde, desto staerker sollten die Gegner sein,
   sonst overgrinde ich und das Game wird ein Witz"): Gegner skalieren nur NACH
   OBEN, nie unter ihr Basislevel (kein Voll-Level-Sync, sonst wird Leveln
