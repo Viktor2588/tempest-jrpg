@@ -4,7 +4,12 @@ import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
-import { OVERWORLD_TUTORIAL_FLAG, OVERWORLD_TUTORIAL_HINTS, shouldShowOverworldTutorial } from '../systems/tutorial';
+import {
+  completeOverworldOnboardingStep,
+  getPendingOverworldTutorialHints,
+  shouldShowOverworldTutorial,
+  type OverworldOnboardingStep
+} from '../systems/tutorial';
 import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
@@ -53,6 +58,7 @@ export class OverworldScene extends Phaser.Scene {
   private minimapOriginX = 0;
   private minimapOriginY = 0;
   private minimapCell = 4;
+  private onboardingLayer?: Phaser.GameObjects.Container;
 
   constructor() {
     super('Overworld');
@@ -154,6 +160,7 @@ export class OverworldScene extends Phaser.Scene {
     // Menü-Overlay (Phase 4): pausiert die Oberwelt, Szene rendert über ihr.
     const openMenu = () => {
       if (this.scene.isActive('Menu')) return;
+      this.completeOnboardingStep('menu');
       this.scene.launch('Menu');
       this.scene.pause();
     };
@@ -165,43 +172,91 @@ export class OverworldScene extends Phaser.Scene {
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
 
-    // Einmaliges Steuerungs-Tutorial beim allerersten Spielstart (Save-Flag-gegated).
-    if (shouldShowOverworldTutorial(this.save.flags)) {
-      this.showControlTutorial();
-    } else {
-      this.time.delayedCall(180, () => this.maybeShowMilestone());
-    }
+    this.drawOnboardingHints();
+    this.time.delayedCall(180, () => this.maybeShowMilestone());
   }
 
-  // Erklärt Laufen/Interagieren/Menü direkt im Spiel und merkt sich den Abschluss.
-  private showControlTutorial(): void {
-    const cx = this.scale.width / 2;
-    const overlay = this.add.container(0, 0).setScrollFactor(0).setDepth(40);
-    overlay.add(this.add.rectangle(cx, this.scale.height / 2, this.scale.width, this.scale.height, 0x05070c, 0.82));
-    overlay.add(this.add.rectangle(cx, 250, 520, 320, 0x0a0f18, 0.96).setStrokeStyle(2, 0x68d7ff, 0.7));
-    overlay.add(this.add.text(cx, 130, 'Steuerung', { fontFamily: 'serif', fontSize: '28px', color: '#e9c56c' }).setOrigin(0.5));
+  // Nicht blockierendes Onboarding: offene Schritte bleiben sichtbar, erledigte
+  // Schritte verschwinden nach erfolgreicher Nutzung (Bewegung/Interaktion/Menü).
+  private drawOnboardingHints(): void {
+    if (this.onboardingLayer) this.onboardingLayer.removeAll(true);
+    else this.onboardingLayer = this.add.container(0, 0).setScrollFactor(0).setDepth(35);
+    const layer = this.onboardingLayer;
+    const hints = getPendingOverworldTutorialHints(this.save.flags);
+    if (hints.length === 0) {
+      layer.setVisible(false);
+      return;
+    }
+    layer.setVisible(true);
 
-    OVERWORLD_TUTORIAL_HINTS.forEach((hint, index) => {
-      const y = 172 + index * 80;
-      overlay.add(this.add.text(cx - 232, y, hint.icon, { fontFamily: 'sans-serif', fontSize: '26px', color: '#cdeaff' }).setOrigin(0, 0.5));
-      overlay.add(this.add.text(cx - 188, y - 16, hint.title, { fontFamily: 'sans-serif', fontSize: '16px', color: '#e9c56c' }));
-      overlay.add(this.add.text(cx - 188, y + 4, hint.body, {
-        fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', wordWrap: { width: 400 }
+    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    const panelX = 16;
+    const panelW = 330;
+    const panelH = 44 + hints.length * 44;
+    const panelY = Math.max(112, this.scale.height - panelH - 16);
+    layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
+      .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
+    layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
+      fontFamily: 'serif',
+      fontSize: '18px',
+      color: '#e9c56c'
+    }));
+
+    hints.forEach((hint, index) => {
+      const y = panelY + 42 + index * 44;
+      layer.add(this.add.text(panelX + 16, y, `${hint.arrow} ${hint.icon}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '16px',
+        color: '#cdeaff'
+      }));
+      layer.add(this.add.text(panelX + 72, y - 2, hint.title, {
+        fontFamily: 'sans-serif',
+        fontSize: '13px',
+        color: '#f4e4a8'
+      }));
+      layer.add(this.add.text(panelX + 150, y - 2, hint.body, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#cbd6e8',
+        wordWrap: { width: 160 }
       }));
     });
 
-    const btn = this.add.rectangle(cx, 372, 220, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
-    overlay.add(btn);
-    overlay.add(this.add.text(cx, 372, 'Verstanden', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5));
+    if (hints.some((hint) => hint.step === 'interact')) {
+      const rect = hud.buttons.interact;
+      layer.add(this.add.text(rect.x, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#d9ffe7'
+      }).setOrigin(0.5).setStroke('#082012', 3));
+    }
+    if (hints.some((hint) => hint.step === 'menu')) {
+      const rect = hud.buttons.menu;
+      layer.add(this.add.text(rect.x, rect.y + rect.height / 2 + 18, '↗ Menü öffnen', {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#d8ecff'
+      }).setOrigin(0.5).setStroke('#06111f', 3));
+    }
+    if (hints.some((hint) => hint.step === 'move')) {
+      const first = hud.dpad[0];
+      const centerX = first ? first.x + 44 : 92;
+      const centerY = first ? first.y - 58 : this.scale.height - 118;
+      layer.add(this.add.text(centerX, centerY, '↙ Bewegen', {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#cdeaff'
+      }).setOrigin(0.5).setStroke('#06111f', 3));
+    }
+  }
 
-    const dismiss = (): void => {
-      this.save = { ...this.save, flags: { ...this.save.flags, [OVERWORLD_TUTORIAL_FLAG]: true } };
-      autoSave(window.localStorage, this.save);
-      overlay.destroy();
-      this.time.delayedCall(180, () => this.maybeShowMilestone());
-    };
-    btn.on('pointerdown', dismiss);
-    this.input.keyboard?.once('keydown-ESC', dismiss); // ESC ist sonst nicht belegt
+  private completeOnboardingStep(step: OverworldOnboardingStep): void {
+    if (!shouldShowOverworldTutorial(this.save.flags)) return;
+    const flags = completeOverworldOnboardingStep(this.save.flags, step);
+    if (flags === this.save.flags) return;
+    this.save = { ...this.save, flags };
+    autoSave(window.localStorage, this.save);
+    this.drawOnboardingHints();
   }
 
   override update(): void {
@@ -232,6 +287,7 @@ export class OverworldScene extends Phaser.Scene {
     this.moving = true;
     this.updateMinimapPlayer();
     this.persistPosition(dir);
+    this.completeOnboardingStep('move');
     this.tweens.add({
       targets: this.player,
       x: this.cx(next.x),
@@ -249,6 +305,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
+    this.drawOnboardingHints();
     if (this.maybeShowMilestone()) return;
     this.maybeShowEnding();
   }
@@ -474,18 +531,21 @@ export class OverworldScene extends Phaser.Scene {
     if (this.moving) return;
     const npc = getAdjacentNpc(this.mapId, this.pos, createWorldState(this.save));
     if (npc) {
+      this.completeOnboardingStep('interact');
       this.scene.launch('Dialogue', { npcId: npc.id });
       this.scene.pause();
       return;
     }
     const shop = getAdjacentShop(this.mapId, this.pos);
     if (shop) {
+      this.completeOnboardingStep('interact');
       this.scene.launch('Shop', { shopId: shop.id });
       this.scene.pause();
       return;
     }
     const gate = getTravelAtTile(this.mapId, this.pos, createWorldState(this.save));
     if (gate?.travelTo) {
+      this.completeOnboardingStep('interact');
       // Region wechseln: Standort im Save setzen und die Szene mit der Zielkarte neu starten.
       this.save = this.withCurrentRangaTravelDiscovery({
         ...this.save,

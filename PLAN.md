@@ -9,7 +9,18 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Phase.
+- [x] **Onboarding fuer Bewegung, Interaktion und Menueaufruf** *(abgeschlossen,
+  technische Phase 50, Worktree
+  `/worktree/tempest-phase-50-onboarding`)*
+  - Branch: `phase-50-onboarding`
+  - Tutorial-Pfeile und Hilfen nach erfolgreicher Nutzung ausblenden.
+  - Bewegung, Interaktion und Menueaufruf als klare, speicherbare
+    Onboarding-Schritte abbilden.
+  - Desktop- und Mobile-Smoke fuer die Onboarding-Hinweise ergaenzen.
+  - Abnahme: `git diff --check`; `bun run typecheck`; `bun run test`
+    (44 Dateien, 317 Tests); `bun run build`; `bunx playwright test -g
+    "Title → Overworld|Prologstart|Oberwelt-Onboarding"` (desktop/mobile,
+    6 Tests).
 
 ## Integrationswarteschlange
 
@@ -21,8 +32,6 @@ Status:
 
 ## UX- und Welt-Backlog
 
-- [ ] Onboarding fuer Bewegung, Interaktion und Menueaufruf fertigstellen;
-  Tutorial-Pfeile und Hilfen danach ausblenden.
 - [ ] Oberwelt-HUD auf einen Menuebutton unter der Minimap reduzieren.
 - [ ] Menue-Bodies scrollbar machen; Quest- und Codexlisten filtern und
   Detailansichten statt ueberlanger Uebersichtskarten anbieten.
