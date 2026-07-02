@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   allHudRects,
+  allTouchControlRects,
   analyzeHudLayout,
+  analyzeTouchControlLayout,
   layoutOverworldHud,
+  layoutOverworldTouchControls,
   MIN_TOUCH_TARGET_PX
 } from '../src/systems/mobileLayout';
 import {
@@ -20,9 +23,23 @@ describe('phase 15 QA gates', () => {
       { width: 390, height: 844 }
     ]) {
       const layout = layoutOverworldHud(viewport);
+      const touchControls = layoutOverworldTouchControls(viewport);
 
       expect(analyzeHudLayout(layout, viewport)).toEqual([]);
+      expect(analyzeTouchControlLayout(touchControls, viewport)).toEqual([]);
+      expect(allHudRects(layout).map((rect) => rect.id)).toEqual(['menu']);
+      expect(allTouchControlRects(touchControls).map((rect) => rect.id)).toEqual([
+        'interact',
+        'dpad-up',
+        'dpad-down',
+        'dpad-left',
+        'dpad-right'
+      ]);
+      expect(layout.menu.y).toBeGreaterThan(180);
       expect(allHudRects(layout).every((rect) =>
+        rect.width >= MIN_TOUCH_TARGET_PX && rect.height >= MIN_TOUCH_TARGET_PX
+      )).toBe(true);
+      expect(allTouchControlRects(touchControls).every((rect) =>
         rect.width >= MIN_TOUCH_TARGET_PX && rect.height >= MIN_TOUCH_TARGET_PX
       )).toBe(true);
     }
@@ -33,7 +50,8 @@ describe('phase 15 QA gates', () => {
 
     expect(analyzeOverworldBudget(budget)).toEqual([]);
     expect(budget.estimatedDisplayObjects).toBeLessThanOrEqual(700);
-    expect(budget.hudInteractiveTargets).toBe(6);
+    expect(budget.hudInteractiveTargets).toBe(1);
+    expect(budget.touchControlTargets).toBe(5);
   });
 
   it('meldet keine erweiterten Balance-Probleme', () => {
