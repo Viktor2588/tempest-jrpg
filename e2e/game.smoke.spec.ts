@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { inflateSync } from 'node:zlib';
+import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 
 const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
@@ -454,7 +455,7 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
-test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', async ({ page }) => {
+test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -466,12 +467,10 @@ test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', a
       active: [
         { characterId: 'benimaru' },
         { characterId: 'shion' },
-        { characterId: 'kaijin' }
+        { characterId: 'souei' }
       ],
       reserve: [
-        { characterId: 'hakurou' },
-        { characterId: 'kurobe' },
-        { characterId: 'souei' }
+        { characterId: 'hakurou' }
       ],
       gold: 220
     }
@@ -493,9 +492,13 @@ test('Kijin- und Kaijin-Party rendert dedizierte Portraits und Kampf-Cutouts', a
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
-  for (const hero of ['benimaru', 'shion', 'hakurou', 'kurobe', 'souei', 'kaijin']) {
+  for (const hero of ['benimaru', 'shion', 'hakurou', 'souei']) {
     expect(loadedAssets.some((name) => name.includes(`party-${hero}`))).toBe(true);
     expect(loadedAssets.some((name) => name.includes(`portrait-${hero}`))).toBe(true);
+  }
+  for (const smith of ['kurobe', 'kaijin']) {
+    expect(loadedAssets.some((name) => name.includes(`party-${smith}`))).toBe(false);
+    expect(loadedAssets.some((name) => name.includes(`portrait-${smith}`))).toBe(true);
   }
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
@@ -665,7 +668,7 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   await page.waitForTimeout(700);
   await focusGame(page);
 
-  await clickGamePoint(page, 874, 510);
+  await clickOverworldInteractButton(page);
   await page.waitForTimeout(250);
   await clickGamePoint(page, 180, 398);
   await page.waitForTimeout(300);
@@ -698,7 +701,7 @@ for (const ending of [
     await page.waitForTimeout(700);
     await focusGame(page);
 
-    await clickGamePoint(page, 874, 510);
+    await clickOverworldInteractButton(page);
     await page.waitForTimeout(250);
     await clickGamePoint(page, ending.choiceX, ending.choiceY);
     await page.waitForTimeout(300);
@@ -855,6 +858,11 @@ async function focusGame(page: Page): Promise<void> {
 
 async function clickOverworldMenuButton(page: Page): Promise<void> {
   await clickGamePoint(page, 880, 242);
+}
+
+async function clickOverworldInteractButton(page: Page): Promise<void> {
+  const { interact } = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
+  await clickGamePoint(page, interact.x, interact.y);
 }
 
 async function dismissOverworldTutorial(page: Page): Promise<void> {

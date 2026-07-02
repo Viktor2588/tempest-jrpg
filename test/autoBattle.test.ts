@@ -219,6 +219,24 @@ describe('autoBattle', () => {
     expect(chooseAutoAction(state)).toEqual({ type: 'devour', targetId: enemy.id });
   });
 
+  it('wartet bei Bossen bis Phase 2 und Break mit dem automatischen Verschlingen', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', { skillIds: ['predator', 'water-blade'] })],
+      enemies: [autoEnemy({ boss: true, devourable: true, devourSkillId: 'venom-spit' })],
+      seed: 54
+    });
+    const actor = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    enemy.hp = Math.floor(enemy.maxHp * 0.3);
+    state.activeId = actor.id;
+
+    expect(chooseAutoAction(state)?.type).not.toBe('devour');
+
+    enemy.phaseIndex = 1;
+    enemy.statuses.push({ id: 'guard-break', turns: 2 });
+    expect(chooseAutoAction(state)).toEqual({ type: 'devour', targetId: enemy.id });
+  });
+
   it('nutzt CT-Kontrolle gegen fast zugbereite Gegner', () => {
     const state = startBattle({
       party: [autoHero('rimuru', 'Rimuru', { skillIds: ['water-blade', 'temporal-snare'] })],

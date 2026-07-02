@@ -14,6 +14,8 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
       analysisMax: 2,
       breakGaugeMax: 4,
       devourHpThreshold: 0.35,
+      bossDevourDamageFraction: 0.05,
+      bossPhaseCtSurge: 110,
       teamMeterBreakGain: 35,
       teamMeterMax: 100
     });
@@ -31,6 +33,21 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
     enemy.hp = Math.floor(enemy.maxHp * 0.35);
     enemy.analysisLevel = 1;
     expect(calculateDevourSuccessChance(enemy)).toBeCloseTo(0.9);
+  });
+
+  it('öffnet Boss-Devour erst in Phase 2 bei aktivem Break', () => {
+    const state = startBattle({ enemyIds: ['mordrahn'], seed: 54 });
+    const enemy = state.combatants.find((unit) => unit.side === 'enemy')!;
+    enemy.hp = Math.floor(enemy.maxHp * 0.3);
+    enemy.statuses.push({ id: 'guard-break', turns: 2 });
+
+    expect(enemy.boss).toBe(true);
+    expect(calculateDevourSuccessChance(enemy)).toBe(0);
+    expect(buildEnemyIntel(renderView(state).enemies[0]!).devourText)
+      .toBe('DEVOUR: Phase 2 + Break');
+
+    enemy.phaseIndex = 1;
+    expect(calculateDevourSuccessChance(enemy)).toBeGreaterThan(0);
   });
 
   it('liefert unbekannte und analysierte Gegnerinformationen ohne Spoiler', () => {
@@ -52,6 +69,23 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
     expect(ENEMIES.every((enemy) => enemy.weaknesses.length > 0)).toBe(true);
     expect(ENEMIES.every((enemy) => enemy.skillIds.length > 0)).toBe(true);
     expect(ENEMIES.every((enemy) => typeof enemy.devourable === 'boolean')).toBe(true);
+  });
+
+  it('kennzeichnet die geplanten Hauptbosse mit erweiterten Phase-2-Skillsets', () => {
+    const bosses = ENEMIES.filter((enemy) => 'boss' in enemy && enemy.boss);
+
+    expect(bosses.map((enemy) => enemy.id).sort()).toEqual([
+      'elder-direwolf',
+      'gabiru',
+      'ifrit',
+      'masked-majin',
+      'milim',
+      'mordrahn',
+      'orc-disaster'
+    ]);
+    expect(bosses.every((enemy) => (
+      'phase2SkillIds' in enemy && enemy.phase2SkillIds.length > 0
+    ))).toBe(true);
   });
 
   it('fasst alle relevanten Statussymbole kompakt für das HUD zusammen', () => {

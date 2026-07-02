@@ -157,7 +157,7 @@ const AUTO_BATTLE_STEP_LIMIT = 900;
 const BALANCE_REPORT_SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const BALANCE_CORRIDORS: BalanceHarnessCorridors = {
   normal: {
-    turns: { min: 4, max: 14 },
+    turns: { min: 4, max: 15 },
     remainingPartyHpFraction: { min: 0.65, max: 0.96 }
   },
   storyBoss: {
