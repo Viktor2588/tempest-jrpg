@@ -11,6 +11,8 @@ Status:
 
 - Phase 56 — Schwung im Kampf
   (`/worktree/tempest-phase-56-schwung`)
+- Phase 58 — Texturfilter & Asset-Schaerfe
+  (`/home/viktor/worktree/tempest-phase-58-texturfilter`)
 
 ## Integrationswarteschlange
 
@@ -86,12 +88,14 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [ ] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
+- [~] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
   NEAREST nur gezielt fuer die 16x16-Pixel-Sprites setzen, LINEAR fuer
   malerische Tiles/Banner/Portraits (bestehende Einzelfaelle konsolidieren);
   generierte Texturen (placeholderArt, portraitAtlas, vfxAtlas,
   battleBackgroundAtlas) in DPR-facher Groesse erzeugen; `roundPixels`/
   `autoRound` gegen Subpixel-Schmieren pruefen.
+  (in Bearbeitung im Worktree
+  `/home/viktor/worktree/tempest-phase-58-texturfilter`)
 - [ ] Phase 59 — Menue-/HUD-Bugs: Menue-Bodies scrollbar; Quest-/Codexlisten
   filtern und Detailansichten statt ueberlanger Uebersichtskarten; Party nicht
   redundant auf jeder Menue-Seite; Ueberlappungen in Status, Ausruestung,
