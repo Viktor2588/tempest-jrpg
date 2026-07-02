@@ -510,12 +510,16 @@ Current `main` includes:
   with persistent, non-blocking movement, interaction, and menu hints; each hint
   disappears after successful use, the save records per-step flags plus the
   legacy completion flag, and desktop/mobile browser smoke covers the flow.
+- Phase 51 overworld HUD simplification: limits the persistent overworld HUD to
+  one menu button under the minimap, separates mobile movement and interaction
+  into touch-control surfaces, and updates layout budget plus desktop/mobile
+  browser smoke coverage for the menu-button path.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-50 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-51 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -603,6 +607,10 @@ completed_milestones:
     - non-blocking overworld onboarding hints for movement, interaction, and menu use
     - per-step save flags that hide completed hints and set the legacy tutorial flag at completion
     - desktop and mobile Playwright smoke coverage for the onboarding flow
+  phase_51:
+    - overworld HUD reduced to a single menu button under the minimap
+    - mobile D-pad and interaction preserved as separate touch-control surfaces
+    - layout budget tests and desktop/mobile browser smoke updated for the menu-button path
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
