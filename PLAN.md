@@ -82,24 +82,12 @@ Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
   praesentieren; Sim-Metrik: mittlere Zuganzahl sinkt, Rest-HP-Streuung steigt.
-- [~] Phase 67 — Mitwachsende Gegner (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-67-gegner-scaling`) (Anti-Overgrind, Nutzerfeedback
-  2026-07-02: „je staerker ich werde, desto staerker sollten die Gegner sein,
-  sonst overgrinde ich und das Game wird ein Witz"): Gegner skalieren nur NACH
-  OBEN, nie unter ihr Basislevel (kein Voll-Level-Sync, sonst wird Leveln
-  bedeutungslos). Pure Funktion `scaleEnemyToLevel(enemy, level)` mit
-  prozentualem Wachstum pro Level ueber Basis (~+7 % HP, +5 % ATK/MAG,
-  +4 % DEF/SPI, +2 % AGI; keine Wachstumstabellen je Gegner noetig).
-  Effektivlevel: Zufalls-/Trash-Encounter = clamp(Partylevel-1, Basis,
-  Basis+8); Story-/Boss-Trigger = clamp(Partylevel+1, Basis, Basis+6).
-  XP/Gold skalieren NICHT mit (sonst Feedback-Schleife); zusaetzlich
-  XP-Abschwaechung gegen deutlich schwaechere Basislevel (Gap ≥5: x0.5,
-  ≥8: x0.25), damit Grinden von Low-Content nichts einbringt.
-  Overlevel-Ausweichen (`partyOutlevels`, Gap 5) neu bewerten — mit Scaling
-  bleiben Zufallskaempfe relevant. Harness um Overgrind-Szenarien erweitern:
-  Party 4 und 8 Level ueber Ziel → Bosse weiterhin ≥8 Zuege, Rest-HP <85 %,
-  Normalkaempfe kosten weiterhin Ressourcen. Schwierigkeitsgrad-Multiplikatoren
-  wirken unveraendert obendrauf.
+- [ ] Phase 73 — Fehlende Gegner einbauen (Nutzerwunsch): Gegner aus
+  `enemies.ts`, die noch in keinem Encounter vorkommen, ins Spiel bringen —
+  v. a. Milim (L20, bisher ohne Encounter; als Story-Wand/Duell inszenieren)
+  und weitere ungenutzte Definitionen pruefen (orc-lord, ogre-warrior,
+  elder-direwolf-Nutzung ausserhalb Sidequest); Encounter/Story-Anker und
+  Balance-Korridore ergaenzen.
 
 ## UI- & Grafik-Roadmap (TODO: UI-Bugs, unscharfe Grafik auf 4K)
 

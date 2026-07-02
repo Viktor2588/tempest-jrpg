@@ -626,6 +626,12 @@ completed_milestones:
     - active five-seed story-route corridors for normal encounters and story bosses
     - target-level and underleveled boss benchmarks retained as report-only inputs for Phase 54
     - typecheck, 318 unit tests across 45 files, and production build verified
+  phase_67:
+    - upward-only enemy scaling with party level (triggers to party+1 capped at base+6, random to party-1 capped at base+8)
+    - percentage stat growth per level above base without per-enemy growth tables
+    - experience falloff against much lower base levels (gap 5 halves, gap 8 quarters) with unscaled gold
+    - BattleScene and balance harness fight scaled units; boss benchmarks gained report-only overleveled +4/+8 modes
+    - typecheck, 326 unit tests across 46 files, and production build verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
