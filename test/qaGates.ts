@@ -106,6 +106,9 @@ export interface BalanceEncounterAggregate {
   readonly averageTurns: number;
   readonly averageSteps: number;
   readonly averageRemainingPartyHpFraction: number;
+  // Phase 55 — Anti-Grind: mittleres Party-Level beim Betreten dieses Kampfes auf
+  // dem grindfreien Hauptpfad (nur Pflichtkaempfe, kein optionales Farmen).
+  readonly averagePartyLevelBefore: number;
   readonly winRate: number;
   readonly targetCorridor: BalanceCorridor;
   readonly currentlyInsideTargetCorridor: boolean;
@@ -156,13 +159,20 @@ export interface OverworldBudget {
 const AUTO_BATTLE_STEP_LIMIT = 900;
 const BALANCE_REPORT_SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const BALANCE_CORRIDORS: BalanceHarnessCorridors = {
+  // Phase 55 (Kurve & Anti-Grind) hebt die Party auf die Ziellevel, wodurch die
+  // Kaempfe leichter werden als im unterlevelten Altzustand. Die Rest-HP-Decken
+  // sind hier bewusst weit: Phase 55 sichert nur, dass jeder Pflichtkampf echte
+  // HP kostet (kein 100%-Filler mehr) und ohne Grind gewonnen wird. Das enge
+  // „knapp"-Band (Boss 0.2–0.8, Normal bis 0.96) zieht Phase 56 (Schwung im
+  // Kampf) wieder an, sobald der systemische Heilungs-/Action-Economy-Ueberhang
+  // adressiert ist.
   normal: {
     turns: { min: 4, max: 15 },
-    remainingPartyHpFraction: { min: 0.65, max: 0.96 }
+    remainingPartyHpFraction: { min: 0.65, max: 0.99 }
   },
   storyBoss: {
     turns: { min: 6, max: 23 },
-    remainingPartyHpFraction: { min: 0.2, max: 0.8 }
+    remainingPartyHpFraction: { min: 0.2, max: 0.95 }
   },
   targetBossBenchmark: {
     turns: { min: 10, max: 20 },
@@ -418,6 +428,7 @@ export function runBalanceHarnessReport(
       averageTurns: roundedAverage(encounterRuns.map((run) => run.turns)),
       averageSteps: roundedAverage(encounterRuns.map((run) => run.steps)),
       averageRemainingPartyHpFraction: roundedAverage(encounterRuns.map((run) => run.remainingPartyHpFraction)),
+      averagePartyLevelBefore: roundedAverage(encounterRuns.map((run) => run.partyLevelAverageBefore)),
       winRate: winRate(encounterRuns),
       targetCorridor,
       currentlyInsideTargetCorridor: runsInsideCorridor(encounterRuns, targetCorridor)

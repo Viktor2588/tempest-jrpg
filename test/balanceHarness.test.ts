@@ -31,6 +31,16 @@ describe('Balance-Harness Report', () => {
     expect(report.storyRoute.every((encounter) => encounter.runs.length === SEEDS.length)).toBe(true);
     expect(report.storyRoute.every((encounter) => encounter.runs.every((run) => run.status === 'won'))).toBe(true);
     expect(report.storyRoute.every((encounter) => encounter.currentlyInsideTargetCorridor)).toBe(true);
+
+    // Phase 55 — Anti-Grind: der grindfreie Hauptpfad (nur Pflichtkaempfe, kein
+    // optionales Farmen) erreicht die Ziellevel — ≈L9–10 vor Mordrahn, ≈L13 vor
+    // Geld/Ifrit. Damit ist Leveln spuerbar und Grind nicht mehr noetig.
+    const levelBefore = (encounterId: string): number =>
+      report.storyRoute.find((encounter) => encounter.encounterId === encounterId)?.averagePartyLevelBefore ?? 0;
+    expect(levelBefore('mordrahn-confrontation')).toBeGreaterThanOrEqual(8.5);
+    expect(levelBefore('geld-disaster-boss')).toBeGreaterThanOrEqual(11);
+    expect(levelBefore('ifrit-boss')).toBeGreaterThanOrEqual(12.5);
+
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.category).toBe('boss');
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'training-clearing')?.targetCorridor.turns).toEqual({ min: 4, max: 15 });
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.targetCorridor.turns).toEqual({ min: 6, max: 23 });

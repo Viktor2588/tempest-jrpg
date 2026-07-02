@@ -169,7 +169,7 @@ export const ENEMIES = [
     level: 6,
     element: 'neutral',
     stats: {
-      maxHp: 100,
+      maxHp: 82,
       maxMp: 8,
       attack: 38,
       defense: 17,
