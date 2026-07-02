@@ -1,0 +1,1 @@
+- mein JRPG ist langweilig. Die Kaempfe sind zu leicht / haben mehr Grind-Charakter, das Gameplay kommt nicht so richtig in Schwung.
