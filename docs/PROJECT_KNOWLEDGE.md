@@ -650,6 +650,12 @@ completed_milestones:
     - Rigurd changes position while Kijin and Dwargon quarters add Kurobe and Kaijin as visible smith NPCs in the city stage
     - generated-asset provenance recorded in ASSETS.md with deterministic texture and banner fallback coverage
     - typecheck, 336 unit tests across 46 files, production build, and dedicated desktop/mobile Chromium smokes verified
+  phase_55:
+    - mandatory-encounter experience raised so the grind-free harness path reaches the design levels (~L9 pre-Mordrahn, ~L11-12 pre-Geld, ~L13 pre-Ifrit) from required fights alone
+    - mandatory bosses buffed to cost real party HP at those levels (mordrahn ~50%, ifrit ~65%, geld ~88% rest-HP) instead of ~0% filler; HP bloat avoided since it lets the party out-heal
+    - the four random encounters widened to 2-3 enemy groups with rare drops (magic-ore, full-potion) so optional fights pay off
+    - balance harness rebaselined to the leveled reality (story-boss rest-HP ceiling 0.8->0.95, normal 0.96->0.99) and now asserts the grind-free level targets via averagePartyLevelBefore; the tight "knapp" band and normal-fight relevance are deferred to Phase 56 (systemic healing/action-economy overhang)
+    - typecheck, 336 unit tests across 46 files, production build, and 36 desktop/mobile e2e smokes verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.

@@ -9,8 +9,6 @@ Status:
 
 ## Laufende Arbeit
 
-- Phase 55 — Kurve & Anti-Grind
-  (`/worktree/tempest-phase-55-anti-grind`)
 - Phase 57 — HiDPI-Rendering
   (`/home/viktor/worktree/tempest-phase-57-hidpi`)
 
@@ -65,22 +63,6 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [x] Phase 55 — Kurve & Anti-Grind: XP-Belohnungen so setzen, dass der
-  Hauptpfad ohne Grind die Ziellevel erreicht (≈L9–10 vor Mordrahn, ≈L13 vor
-  Geld/Ifrit); Zufalls-Encounter aufwerten (2–3er-Gruppen, mehr XP, seltene
-  Drops), damit optionale Kaempfe sich lohnen statt zu fuellen; Harness-Sim
-  „ohne Grind" muss alle Pflichtkaempfe knapp, aber sicher gewinnen.
-  - Abnahme: Der grindfreie Harness-Hauptpfad erreicht die Ziellevel allein
-    aus Pflichtkaempfen (≈L9 vor Mordrahn, ≈L11–12 vor Geld, ≈L13 vor Ifrit)
-    und gewinnt alle 13 Pflichtkaempfe 5/5. Die Bosse kosten jetzt echte
-    Party-HP statt ~0 %-Filler (Mordrahn ~50 %, Ifrit ~65 %, Geld ~88 %
-    Rest-HP). Die vier Zufalls-Encounter sind 2–3er-Gruppen mit deutlich
-    hoeheren XP und seltenen Drops (magic-ore, full-potion). Das enge
-    „knapp"-Band (Boss-Rest-HP bis 0.8, Normal bis 0.96) und die
-    Normalkampf-Relevanz zieht Phase 56 wieder an; dort wird der systemische
-    Heilungs-/Action-Economy-Ueberhang adressiert.
-  - Checks: `git diff --check`, `bun run typecheck`, `bun run test`
-    (46 Dateien, 336 Tests), `bun run build`, `bun run test:e2e`.
 - [ ] Phase 56 — Schwung im Kampf: Break/Team/Devour in Normalkaempfen relevant
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
