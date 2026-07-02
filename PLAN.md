@@ -145,15 +145,6 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [~] Phase 68 — Schmiede raus aus dem Kampfroster: Kaijin und Kurobe aus
-  `HEROES`/Party entfernen; `recruit-character`-Effekte in `world.ts`
-  (Dwargon-Arc, Benennung) durch Flags + NPC-Praesenz ersetzen (in
-  Bearbeitung im Worktree `/worktree/tempest-phase-68-schmiede-roster`) — ihre
-  Schmiede-/Ingenieursfunktion bleibt erzaehlt und ggf. als Shop/Service;
-  Signaturen, Kurobe-Baum, Evolutions-/Bindungsreferenzen entfernen;
-  Save-Migration: vorhandene Kaijin/Kurobe-Mitglieder sauber aus
-  active/reserve loesen (stabile IDs/Save-Invarianten beachten);
-  playthrough-/dataIntegrity-Tests anpassen.
 - [ ] Phase 69 — Talent-Perk-Engine: datengetriebene passive Effekte als
   `TalentPerk`-Union, im Kampf ausgewertet: on-attacked (Konterchance,
   Ausweichchance), Schadensmodifikatoren (+X % physisch/magisch/je Element,
