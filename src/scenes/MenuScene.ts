@@ -254,7 +254,7 @@ export class MenuScene extends Phaser.Scene {
       }, 0x243447);
     });
     if (view.reserveMembers.length > 0) {
-      this.layer.add(this.add.text(690, 500, 'Bei voller Gruppe ersetzt der Klick\ndas links ausgewählte Mitglied.', {
+      this.layer.add(this.add.text(690, 500, 'Bei voller Gruppe ersetzt der Klick\ndie oben gewählte Aktiv-Karte.', {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
     }
