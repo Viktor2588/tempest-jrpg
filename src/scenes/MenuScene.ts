@@ -35,10 +35,19 @@ import {
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
+import {
+  MENU_LIST_BOTTOM,
+  MENU_LIST_COLUMNS,
+  MENU_PAGER_HEIGHT,
+  paginateMenuList,
+  type MenuListColumn,
+  type MenuListPage
+} from '../systems/menuLayout';
 import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
+type QuestStatusFilter = 'active' | 'completed';
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
@@ -52,8 +61,10 @@ const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
 ];
 
 // Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
-// als Auswahl-Seitenleiste gebraucht. Quests/Codex/Reise nutzen die volle Breite.
-const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['party', 'inventory', 'equipment', 'status', 'growth']);
+// als Auswahl-Seitenleiste gebraucht. Der Party-Tab hat seine eigene (klickbare)
+// Aktiv-Gruppen-Übersicht, sonst stünde die Liste doppelt; Quests/Codex/Reise
+// nutzen die volle Breite.
+const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['inventory', 'equipment', 'status', 'growth']);
 
 // Kurzbeschreibung pro Tab — erklärt, was der Menüpunkt macht.
 const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
@@ -73,6 +84,9 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
+  private listPages: Record<string, number> = {};
+  private questPage = 0;
+  private questStatus: QuestStatusFilter = 'active';
   private selectedQuestId: string | null = null;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
@@ -124,6 +138,9 @@ export class MenuScene extends Phaser.Scene {
         // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
+        this.listPages = {};
+        this.questPage = 0;
+        this.questStatus = 'active';
         this.selectedQuestId = null;
         this.refresh();
       }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
@@ -197,6 +214,10 @@ export class MenuScene extends Phaser.Scene {
         summary.member.characterId
       )?.formName ?? summary.character.species;
       this.panel(300, y, 370, 82);
+      // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
+      const hit = this.add.rectangle(300 + 185, y, 370, 82, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
+      this.layer.add(hit);
       this.drawPortrait(summary.member.characterId, 336, y, 46);
       this.layer.add(this.add.text(372, y - 31, `${summary.member.name} · ${formName}`, {
         fontFamily: 'sans-serif',
@@ -246,8 +267,10 @@ export class MenuScene extends Phaser.Scene {
       this.refresh();
     });
 
-    view.inventory.forEach((entry, index) => {
-      const y = 160 + index * 48;
+    const invCol = MENU_LIST_COLUMNS.inventoryItems;
+    const inv = this.menuListPage(view.inventory.length, invCol);
+    view.inventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
+      const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
       this.button(300, y, 260, label, () => {
         if (!entry.usable) {
@@ -265,6 +288,7 @@ export class MenuScene extends Phaser.Scene {
         wordWrap: { width: 310 }
       }));
     });
+    this.drawListPager(invCol, inv);
   }
 
   private drawEquipment(view: MenuView, characterId: string): void {
@@ -323,13 +347,15 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '15px',
       color: '#cdeaff'
     }));
-    view.inventory
-      .filter((entry) => entry.equipSlot)
-      .forEach((entry, index) => {
-        this.button(620, 160 + index * 48, 260, `${entry.item.name} ×${entry.quantity}`, () => {
-          this.applyResult(equipItem(this.state, characterId, entry.item.id));
-        });
+    const usableCol = MENU_LIST_COLUMNS.equipUsable;
+    const equippable = view.inventory.filter((entry) => entry.equipSlot);
+    const usable = this.menuListPage(equippable.length, usableCol);
+    equippable.slice(usable.start, usable.start + usable.visible).forEach((entry, index) => {
+      this.button(usableCol.left, usableCol.top + index * usableCol.rowHeight, 260, `${entry.item.name} ×${entry.quantity}`, () => {
+        this.applyResult(equipItem(this.state, characterId, entry.item.id));
       });
+    });
+    this.drawListPager(usableCol, usable);
   }
 
   private drawStatus(view: MenuView, characterId: string): void {
@@ -379,21 +405,29 @@ export class MenuScene extends Phaser.Scene {
 
     // Skills (linke Spalte).
     this.layer.add(this.add.text(300, 280, 'Skills', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
-    getProgressionSkills(summary.member, this.save.progression).forEach((skill, index) => {
-      this.layer.add(this.add.text(300, 306 + index * 32, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
+    const skillCol = MENU_LIST_COLUMNS.statusSkills;
+    const skills = getProgressionSkills(summary.member, this.save.progression);
+    const skillPage = this.menuListPage(skills.length, skillCol);
+    skills.slice(skillPage.start, skillPage.start + skillPage.visible).forEach((skill, index) => {
+      this.layer.add(this.add.text(skillCol.left, skillCol.top + index * skillCol.rowHeight, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 380 }
       }));
     });
+    this.drawListPager(skillCol, skillPage);
 
     // Bindungen (rechte Spalte).
     this.layer.add(this.add.text(710, 280, 'Bindungen', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
-    getProgressionRelationships(characterId).forEach((relationship, index) => {
+    const bindCol = MENU_LIST_COLUMNS.statusBindings;
+    const relationships = getProgressionRelationships(characterId);
+    const bindPage = this.menuListPage(relationships.length, bindCol);
+    relationships.slice(bindPage.start, bindPage.start + bindPage.visible).forEach((relationship, index) => {
       const level = getRelationshipLevelNumber(this.save.progression, relationship.id);
       const pointsValue = this.save.progression.relationshipPoints[relationship.id] ?? 0;
-      this.layer.add(this.add.text(710, 306 + index * 50, `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`, {
+      this.layer.add(this.add.text(bindCol.left, bindCol.top + index * bindCol.rowHeight, `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', lineSpacing: 3
       }));
     });
+    this.drawListPager(bindCol, bindPage);
   }
 
   private drawGrowth(view: MenuView, characterId: string): void {
@@ -406,11 +440,14 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(300, 158, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte verfügbar`, {
       fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
     }));
-    tree?.nodes.forEach((node, index) => {
+    const nodeCol = MENU_LIST_COLUMNS.growthNodes;
+    const nodes = tree?.nodes ?? [];
+    const nodePage = this.menuListPage(nodes.length, nodeCol);
+    nodes.slice(nodePage.start, nodePage.start + nodePage.visible).forEach((node, index) => {
       const unlocked = (
         this.save.progression.unlockedSkillNodeIdsByCharacterId[characterId] ?? []
       ).includes(node.id);
-      const y = 198 + index * 62;
+      const y = nodeCol.top + index * nodeCol.rowHeight;
       this.button(300, y, 230, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
         const result = unlockSkillNode(summary.member, this.save.progression, node.id, {
           flags: this.save.flags
@@ -418,10 +455,11 @@ export class MenuScene extends Phaser.Scene {
         this.applyProgressionResult(result);
       }, unlocked ? 0x1f3a2f : 0x1b2940);
       const requirementHint = this.describeSkillRequirement(node);
-      this.layer.add(this.add.text(548, y - 14, requirementHint ? `${node.description}\n${requirementHint}` : node.description, {
+      this.layer.add(this.add.text(548, y - 12, requirementHint ? `${node.description}\n${requirementHint}` : node.description, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 360 }
       }));
     });
+    this.drawListPager(nodeCol, nodePage);
   }
 
   private describeSkillRequirement(node: SkillTreeNodeDefinition): string | null {
@@ -442,39 +480,54 @@ export class MenuScene extends Phaser.Scene {
     const activeCount = allQuests.filter((q) => q.status === 'active').length;
     const doneCount = allQuests.filter((q) => q.status === 'completed').length;
     this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
-    // Unentdeckte/noch nicht angenommene Quests ausblenden: sie würden das Log fluten
-    // und Inhalte spoilern. buildQuestLog liefert aktive zuerst, dann abgeschlossene.
     const quests = allQuests.filter((q) => q.status !== 'inactive');
-    // Detailansicht einer angetippten Quest (Übersicht bleibt Zusammenfassung).
+    this.button(24, 126, 120, `Aktiv (${activeCount})`, () => {
+      this.questStatus = 'active';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
+    this.button(152, 126, 140, `Erledigt (${doneCount})`, () => {
+      this.questStatus = 'completed';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
+
     const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
     }
 
+    const filtered = quests.filter((quest) => quest.status === this.questStatus);
     let cursorY = 192;
-    if (view.story) {
+    if (view.story && this.questStatus === 'active') {
       this.drawStorySummary(view.story, 180);
       cursorY = 296;
     }
-    if (quests.length === 0) {
-      this.layer.add(this.add.text(42, cursorY - 18, 'Noch keine Quests angenommen. Sprich mit den Bewohnern der Welt.', {
+    if (filtered.length === 0) {
+      const message = this.questStatus === 'active'
+        ? 'Keine aktiven Quests. Sprich mit den Bewohnern der Welt.'
+        : 'Noch keine Quests abgeschlossen.';
+      this.layer.add(this.add.text(42, cursorY - 18, message, {
         fontFamily: 'sans-serif',
         fontSize: '13px',
         color: '#9fb2cc'
       }));
       return;
     }
-    // Übersicht: aktive Quests als Zusammenfassung (Titel + aktueller Schritt + „Details").
-    const activeLimit = view.story ? 2 : 3;
-    const allActive = quests.filter((q) => q.status === 'active');
-    const active = allActive.slice(0, activeLimit);
-    const completed = quests.filter((q) => q.status === 'completed');
-    active.forEach((quest) => {
+
+    const pageSize = view.story && this.questStatus === 'active' ? 2 : 3;
+    const pageCount = Math.ceil(filtered.length / pageSize);
+    this.questPage = Math.min(this.questPage, pageCount - 1);
+    const page = filtered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
+    page.forEach((quest) => {
       const y = cursorY;
       this.panel(24, y, 900, 92);
-      this.layer.add(this.add.text(42, y - 30, `${quest.title} · Aktiv`, {
-        fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
+      const completed = quest.status === 'completed';
+      this.layer.add(this.add.text(42, y - 30, `${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: completed ? '#8dffc2' : '#e9c56c'
       }));
       this.layer.add(this.add.text(906, y - 29, `Belohnung: ${quest.rewardGold} Gold`, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'
@@ -487,41 +540,16 @@ export class MenuScene extends Phaser.Scene {
       this.button(800, y + 16, 110, 'Details ›', () => { this.selectedQuestId = quest.id; this.refresh(); });
       cursorY += 106;
     });
-    const hiddenActive = allActive.length - active.length;
-    if (hiddenActive > 0) {
-      this.layer.add(this.add.text(42, cursorY - 30, `… +${hiddenActive} weitere aktive Quest im Log`, {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        color: '#6f83a5'
-      }));
-      cursorY += 24;
-    }
-    // Abgeschlossene Quests kompakt einzeilig als Archiv, soweit Platz bleibt.
-    if (completed.length > 0) {
-      if (active.length === 0) cursorY = view.story ? 300 : 196;
-      this.layer.add(this.add.text(42, cursorY - 30, 'Abgeschlossen', {
-        fontFamily: 'sans-serif',
-        fontSize: '13px',
-        color: '#8dffc2'
-      }));
-      let lineY = cursorY - 6;
-      const maxLines = Math.max(0, Math.floor((524 - lineY) / 22));
-      completed.slice(0, maxLines).forEach((quest) => {
-        this.layer.add(this.add.text(42, lineY, `✓ ${quest.title}`, {
-          fontFamily: 'sans-serif',
-          fontSize: '13px',
-          color: '#6f9a86'
-        }));
-        lineY += 22;
-      });
-      const hidden = completed.length - Math.min(maxLines, completed.length);
-      if (hidden > 0) {
-        this.layer.add(this.add.text(42, lineY, `… +${hidden} weitere abgeschlossen`, {
-          fontFamily: 'sans-serif',
-          fontSize: '12px',
-          color: '#6f83a5'
-        }));
+    if (pageCount > 1) {
+      if (this.questPage > 0) {
+        this.button(24, 510, 44, '‹', () => { this.questPage -= 1; this.refresh(); });
       }
+      if (this.questPage < pageCount - 1) {
+        this.button(76, 510, 44, '›', () => { this.questPage += 1; this.refresh(); });
+      }
+      this.layer.add(this.add.text(132, 503, `${this.questPage + 1}/${pageCount}`, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
+      }));
     }
   }
 
@@ -663,8 +691,10 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '14px',
       color: '#cdeaff'
     }));
-    view.destinations.forEach((destination, index) => {
-      const y = 278 + index * 44;
+    const destCol = MENU_LIST_COLUMNS.travelPoints;
+    const destPage = this.menuListPage(view.destinations.length, destCol);
+    view.destinations.slice(destPage.start, destPage.start + destPage.visible).forEach((destination, index) => {
+      const y = destCol.top + index * destCol.rowHeight;
       const label = `${destination.name} · ${destination.dangerLabel}`;
       const clickable = destination.status === 'available';
       this.button(300, y, 238, label, () => {
@@ -682,6 +712,7 @@ export class MenuScene extends Phaser.Scene {
         wordWrap: { width: 330 }
       }));
     });
+    this.drawListPager(destCol, destPage);
   }
 
   private applyResult(result: { ok: boolean; state: MenuGameState; message: string }): void {
@@ -773,6 +804,34 @@ export class MenuScene extends Phaser.Scene {
       fontFamily: 'sans-serif',
       fontSize: '19px',
       color: '#e9c56c'
+    }));
+  }
+
+  private menuListPage(total: number, column: MenuListColumn): MenuListPage {
+    const page = paginateMenuList(total, column, this.listPages[column.id] ?? 0);
+    this.listPages[column.id] = page.page;
+    return page;
+  }
+
+  private drawListPager(column: MenuListColumn, page: MenuListPage): void {
+    if (page.pageCount <= 1) return;
+    const y = MENU_LIST_BOTTOM - MENU_PAGER_HEIGHT / 2;
+    if (page.page > 0) {
+      this.button(column.left, y, 44, '‹', () => {
+        this.listPages[column.id] = page.page - 1;
+        this.refresh();
+      });
+    }
+    if (page.page < page.pageCount - 1) {
+      this.button(column.left + 52, y, 44, '›', () => {
+        this.listPages[column.id] = page.page + 1;
+        this.refresh();
+      });
+    }
+    this.layer.add(this.add.text(column.left + 108, y - 7, `${page.page + 1}/${page.pageCount}`, {
+      fontFamily: 'sans-serif',
+      fontSize: '12px',
+      color: '#6f83a5'
     }));
   }
 

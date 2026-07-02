@@ -106,7 +106,7 @@ export function allTouchControlRects(layout: OverworldTouchControlsLayout): read
   return [layout.interact, ...layout.dpad];
 }
 
-function analyzeRects(
+export function analyzeRects(
   rects: readonly Rect[],
   viewport: ViewportSize,
   minTouchTarget: number
