@@ -687,6 +687,13 @@ completed_milestones:
     - orc-scout-patrol/grieving-ogres/orc-lord-remnant sit on jura-battlefield gated by story.treyni.met / story.orc.engaged / story.geld.devoured; milim-duel sits on tempest-start gated by story.ifrit.subdued
     - milim is an optional L20 duel wall far above target level, so it is deliberately NOT wired into the balance corridors and cannot soft-lock (losing just withholds story.milim.duel)
     - phase73Enemies.test asserts each is reachable on a walkable tile with its gate flag set and blocked without it; typecheck, 344 unit tests across 49 files, production build verified
+  phase_59:
+    - new Phaser-free menuLayout.ts generalizes the mobileLayout HudLayoutIssue pattern to the menu pages (shared analyzeRects, exported from mobileLayout); menuLayout.test asserts every dynamic list page stays inside 960x540 and every entry stays reachable across pages
+    - overflowing menu lists (inventory, equippable, status skills/bindings, growth nodes, travel points) are now touch-safe paginated via paginateMenuList + a shared pager, instead of running off the canvas; growth page tightened so Rimuru's 7 talent nodes fit one page
+    - quest log gained an active/completed status filter with its own paging and detail view; codex was already paged/filtered
+    - party tab no longer double-lists the group: the left member selector is dropped there and the active-group cards are themselves clickable selectors (game.smoke party-swap updated to click the card)
+    - fixed a tsc-only regression from phase 73 (phase73Enemies.test read position on the encounter union before narrowing to trigger); vitest/vite skip typecheck so it slipped through
+    - typecheck, 349 unit tests across 50 files, production build, and the desktop menu smoke verified (two full-suite battle-transition smokes are timing-flaky in parallel but pass in isolation)
 
 Git history is the source for exact acceptance notes and historical test counts.
 
