@@ -80,7 +80,7 @@ Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
     Unterlevel-Bossbenchmarks bleiben bis zur Progressionsabstimmung in
     Phase 55 berichtend.
   - Checks: `git diff --check`, `bun run typecheck`, `bun run test`
-    (45 Dateien, 325 Tests), `bun run build`, `bun run test:e2e`
+    (46 Dateien, 332 Tests), `bun run build`, `bun run test:e2e`
     (34 Desktop-/Mobile-Smokes).
 - [ ] Phase 55 — Kurve & Anti-Grind: XP-Belohnungen so setzen, dass der
   Hauptpfad ohne Grind die Ziellevel erreicht (≈L9–10 vor Mordrahn, ≈L13 vor
