@@ -514,12 +514,17 @@ Current `main` includes:
   one menu button under the minimap, separates mobile movement and interaction
   into touch-control surfaces, and updates layout budget plus desktop/mobile
   browser smoke coverage for the menu-button path.
+- Phase 52 balance harness: adds a report-only Vitest headless simulation over
+  13 story trigger encounters with HP/MP/item carryover across five seeds,
+  target corridors for normal/boss fights, and target/underleveled boss
+  benchmarks. The report intentionally exposes current over-easy outcomes
+  without enforcing hard balance assertions until the next balance pass.
 
 Open local worktree state at this snapshot:
 
 | Phase | State | Worktree |
 |---|---|---|
-| 33-51 | merged into `main`; worktrees removed after clean-status checks | none |
+| 33-52 | merged into `main`; worktrees removed after clean-status checks | none |
 
 Inspect `git status` and `git worktree list --porcelain` before relying on this
 table because worktree state changes faster than the knowledge document.
@@ -611,6 +616,10 @@ completed_milestones:
     - overworld HUD reduced to a single menu button under the minimap
     - mobile D-pad and interaction preserved as separate touch-control surfaces
     - layout budget tests and desktop/mobile browser smoke updated for the menu-button path
+  phase_52:
+    - report-only balance harness over 13 story trigger encounters and five seeds
+    - HP, MP, inventory, battle rewards, talent spending, and recovery carried through the route
+    - normal, target-boss, and underleveled-boss corridor data exposed for Phase 53 assertions
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.

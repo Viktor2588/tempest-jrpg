@@ -9,18 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Balance-Harness** *(abgeschlossen, technische Phase 52, Worktree
-  `/worktree/tempest-phase-52-balance-harness`)*
-  - Branch: `phase-52-balance-harness`
-  - Headless-Playthrough-Sim mit Auto-Battle ueber Story-Trigger-Encounter,
-    HP/MP/Item-Carryover und mehreren Seeds ergaenzen.
-  - Zielkorridore fuer Normalkaempfe, Ziellevel-Bosse und Unterlevel-Bosse als
-    Report erfassen, in dieser Phase noch nicht hart assertieren.
-  - Vitest-Abdeckung fuer Report-Struktur und stabile Sim-Ausgabe ergaenzen.
-  - Abnahme: `git diff --check`; `bun run typecheck`; `bun run test`
-    (45 Dateien, 318 Tests); `bun run build`. Report-Befund:
-    Story-Route und Unterlevel-Boss-Benchmarks gewinnen aktuell durchgehend,
-    liegen aber ausserhalb der Zielkorridore.
+- Keine laufende Phase.
 
 ## Integrationswarteschlange
 
@@ -39,12 +28,6 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [x] Phase 52 — Balance-Harness: Headless-Playthrough-Sim (Auto-Battle ueber
-  alle Story-Trigger-Encounter, HP/MP/Item-Carryover) als Vitest-Suite mit
-  Zielkorridoren: Normalkampf auf Gleichlevel 4–7 Zuege und 55–85 % Rest-HP;
-  Boss auf Ziellevel 10–20 Zuege, 25–60 % Rest-HP, Sieg 5/5 ausgeruht;
-  Boss 4 Level unter Ziel < 50 % Siegquote. Korridore zunaechst als Report
-  (nicht assertierend), ab Phase 53 als harte Assertions.
 - [ ] Phase 53 — Druck vor Sustain: Gegner-Stat-Pass in `enemies.ts`
   (Boss-Angriff/Magie +30–50 %, Trash etwas mehr Schaden, weniger HP),
   Heilskalierung senken (`soothing-prayer`/`sacred-weave`: power + magic*0.6
