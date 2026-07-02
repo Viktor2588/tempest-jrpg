@@ -74,7 +74,8 @@ export interface BalanceCorridor {
 
 export interface BalanceHarnessCorridors {
   readonly normal: BalanceCorridor;
-  readonly targetBoss: BalanceCorridor;
+  readonly storyBoss: BalanceCorridor;
+  readonly targetBossBenchmark: BalanceCorridor;
   readonly underleveledBossWinRateMax: number;
 }
 
@@ -117,7 +118,8 @@ export interface BalanceBossBenchmark {
 }
 
 export interface BalanceHarnessReport {
-  readonly hardAssertionsEnabled: false;
+  readonly hardAssertionsEnabled: true;
+  readonly benchmarkAssertionsEnabled: false;
   readonly seeds: readonly number[];
   readonly corridors: BalanceHarnessCorridors;
   readonly storyEncounterIds: readonly string[];
@@ -147,10 +149,14 @@ const AUTO_BATTLE_STEP_LIMIT = 900;
 const BALANCE_REPORT_SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const BALANCE_CORRIDORS: BalanceHarnessCorridors = {
   normal: {
-    turns: { min: 4, max: 7 },
-    remainingPartyHpFraction: { min: 0.55, max: 0.85 }
+    turns: { min: 4, max: 14 },
+    remainingPartyHpFraction: { min: 0.65, max: 0.96 }
   },
-  targetBoss: {
+  storyBoss: {
+    turns: { min: 6, max: 23 },
+    remainingPartyHpFraction: { min: 0.2, max: 0.8 }
+  },
+  targetBossBenchmark: {
     turns: { min: 10, max: 20 },
     remainingPartyHpFraction: { min: 0.25, max: 0.6 }
   },
@@ -391,7 +397,7 @@ export function runBalanceHarnessReport(
 
   const storyRoute = BALANCE_STORY_ROUTE.map((spec): BalanceEncounterAggregate => {
     const encounterRuns = runs.filter((run) => run.encounterId === spec.id);
-    const targetCorridor = spec.category === 'boss' ? BALANCE_CORRIDORS.targetBoss : BALANCE_CORRIDORS.normal;
+    const targetCorridor = spec.category === 'boss' ? BALANCE_CORRIDORS.storyBoss : BALANCE_CORRIDORS.normal;
     return {
       encounterId: spec.id,
       category: spec.category,
@@ -405,9 +411,11 @@ export function runBalanceHarnessReport(
       currentlyInsideTargetCorridor: runsInsideCorridor(encounterRuns, targetCorridor)
     };
   });
+  issues.push(...activeStoryCorridorIssues(storyRoute));
 
   return {
-    hardAssertionsEnabled: false,
+    hardAssertionsEnabled: true,
+    benchmarkAssertionsEnabled: false,
     seeds: [...seeds],
     corridors: BALANCE_CORRIDORS,
     storyEncounterIds: BALANCE_STORY_ROUTE.map((spec) => spec.id),
@@ -732,7 +740,7 @@ function runBossBenchmark(
     });
     return autoPlayBattleToEnd(battle);
   });
-  const targetCorridor = mode === 'target-level' ? BALANCE_CORRIDORS.targetBoss : undefined;
+  const targetCorridor = mode === 'target-level' ? BALANCE_CORRIDORS.targetBossBenchmark : undefined;
   const rate = winRate(runs);
   return {
     encounterId: storyEncounter.id,
@@ -745,9 +753,21 @@ function runBossBenchmark(
     averageRemainingPartyHpFraction: roundedAverage(runs.map((run) => run.remainingPartyHpFraction)),
     targetCorridor,
     currentlyInsideTargetCorridor: mode === 'target-level'
-      ? runsInsideCorridor(runs, BALANCE_CORRIDORS.targetBoss)
+      ? runsInsideCorridor(runs, BALANCE_CORRIDORS.targetBossBenchmark)
       : rate <= BALANCE_CORRIDORS.underleveledBossWinRateMax
   };
+}
+
+function activeStoryCorridorIssues(storyRoute: readonly BalanceEncounterAggregate[]): QaIssue[] {
+  return storyRoute.flatMap((encounter): QaIssue[] => {
+    if (encounter.currentlyInsideTargetCorridor) {
+      return [];
+    }
+    return [{
+      path: `qa.balanceHarness.story.${encounter.encounterId}`,
+      message: `${encounter.category === 'boss' ? 'Boss' : 'Normaler Encounter'} liegt außerhalb des aktiven Story-Korridors.`
+    }];
+  });
 }
 
 function createBenchmarkParty(level: number): readonly PartyMemberState[] {

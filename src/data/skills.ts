@@ -101,8 +101,8 @@ export const SKILLS = [
     description: 'Stellt Lebenspunkte eines Verbündeten wieder her.',
     element: 'holy',
     target: 'single-ally',
-    costMp: 5,
-    power: 24,
+    costMp: 8,
+    power: 20,
     tags: ['heal', 'magical']
   },
   {
@@ -142,8 +142,8 @@ export const SKILLS = [
     description: 'Stärkt die Heilkunst mit feinen Barrierefäden der Oger-Priesterinnen.',
     element: 'holy',
     target: 'single-ally',
-    costMp: 9,
-    power: 38,
+    costMp: 14,
+    power: 32,
     tags: ['heal', 'magical']
   },
   { id: 'black-flame', name: 'Schwarzflamme', description: 'Benimarus konzentrierte Schwarzflamme verbrennt ein Ziel.', element: 'fire', target: 'single-enemy', costMp: 9, power: 38, tags: ['magical'] },

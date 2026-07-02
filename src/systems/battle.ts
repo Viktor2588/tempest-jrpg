@@ -666,7 +666,7 @@ function resolveSkill(
 
   if (isHealingSkill(skill)) {
     for (const target of targets) {
-      const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 1.1));
+      const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 0.6));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
       applySkillStatus(state, target, skill);

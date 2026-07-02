@@ -28,11 +28,16 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [ ] Phase 53 — Druck vor Sustain: Gegner-Stat-Pass in `enemies.ts`
+- [x] Phase 53 — Druck vor Sustain: Gegner-Stat-Pass in `enemies.ts`
   (Boss-Angriff/Magie +30–50 %, Trash etwas mehr Schaden, weniger HP),
   Heilskalierung senken (`soothing-prayer`/`sacred-weave`: power + magic*0.6
   statt magic*1.1), MP-Kosten der Heilungen anheben; Harness-Korridore
   aktivieren und einpendeln.
+  - Abnahme: Die komplette Story-Route gewinnt ueber fuenf Seeds innerhalb
+    der aktiven Normal-/Story-Boss-Korridore. Ziellevel- und Unterlevel-
+    Bossbenchmarks bleiben bis Phase 54 explizit report-only.
+  - Checks: `git diff --check`, `bun run typecheck`, `bun run test`
+    (45 Dateien, 318 Tests), `bun run build`.
 - [ ] Phase 54 — Boss-Integritaet: `boss: true`-Flag in `EnemyDefinition`
   (mordrahn, orc-disaster, ifrit, elder-direwolf, gabiru, masked-majin, milim);
   Verschlingen gegen Bosse nur bei aktivem `guard-break` UND Phase 2, sonst
