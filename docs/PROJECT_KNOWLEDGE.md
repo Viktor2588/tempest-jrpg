@@ -700,6 +700,12 @@ completed_milestones:
     - the result dialog box and its button now grow with the number of reward/level-up/pact lines (cursor-based layout) instead of fixed coordinates
     - return to the overworld uses fadeToScene instead of scene.start; OverworldScene already fades in on create, so the transition is smooth both ways
     - typecheck, 351 unit tests across 50 files, production build verified (no existing e2e drives a full battle to the victory screen, so drawResult was validated by unit-tested logic + typecheck rather than in-browser)
+  phase_74:
+    - MenuScene tab and party geometry moved into the existing Phaser-free menuLayout.ts instead of local per-tab pixel shifts
+    - menuTabButtonX/menuTabRowBounds center the full tab row on the 960x540 canvas; MENU_PARTY_LAYOUT centers the active-card plus reserve group as one unit
+    - MenuScene now consumes the shared geometry for tab buttons, the party title, active cards, reserve buttons, hit areas, and labels
+    - menuLayout.test gained a regression that locks the tab row and party group to the canvas center and checks their visible rectangles stay in-bounds
+    - typecheck, 352 unit tests across 50 files, production build, desktop/mobile Party-Menue Playwright smoke, and visual desktop screenshot verified
 
 Git history is the source for exact acceptance notes and historical test counts.
 
