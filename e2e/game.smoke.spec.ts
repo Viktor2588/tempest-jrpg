@@ -442,7 +442,7 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   await focusGame(page);
   await page.keyboard.press('m');
   await page.waitForTimeout(250);
-  await clickGamePoint(page, 120, 240); // Gobta als Tauschplatz auswählen
+  await clickGamePoint(page, 485, 272); // Gobtas Aktiv-Karte als Tauschplatz auswählen
   await clickGamePoint(page, 780, 182); // Shuna aus der Reserve aktivieren
   await page.waitForTimeout(250);
 

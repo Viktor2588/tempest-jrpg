@@ -73,13 +73,17 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [ ] Phase 59 — Menue-/HUD-Bugs: Menue-Bodies scrollbar; Quest-/Codexlisten
+- [x] Phase 59 — Menue-/HUD-Bugs: Menue-Bodies scrollbar; Quest-/Codexlisten
   filtern und Detailansichten statt ueberlanger Uebersichtskarten; Party nicht
   redundant auf jeder Menue-Seite; Ueberlappungen in Status, Ausruestung,
   Verzauberung, Inventar und mobilen Textlayouts korrigieren; Namensgebung,
   Entwicklungen und Bindungen unter Status konsolidieren; Layout-Validierung
   nach dem `HudLayoutIssue`-Muster aus `mobileLayout.ts` auf Menue-Seiten
   ausweiten, damit Ueberlappungen testbar werden.
+  - Abnahme: Alle dynamischen Menue-Listen sind touch-sicher paginiert; Questlog
+    filtert aktiv/erledigt und oeffnet Details; Party-Auswahl ist nicht redundant.
+  - Checks: `bun run typecheck`; `bun run test` (349 Tests);
+    `bun run build`; Menue-Smoke Desktop + Mobil (2 Tests).
 - [ ] Phase 60 — Welt-Interaktion & Sieg-Praesentation: NPC-Kollisionen und
   Gateway-Ausloesung erst auf dem Zielfeld; Siegesergebnis und Rueckkehr zur
   Welt klarer praesentieren (klare Beute-/XP-Zusammenfassung, sauberer

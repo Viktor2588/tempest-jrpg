@@ -22,22 +22,24 @@ describe('Phase 73 — fehlende Gegner eingebaut', () => {
     for (const { enemyId, encounterId, flag } of CASES) {
       const enc = ENCOUNTERS.find((e) => e.id === encounterId);
       expect(enc, encounterId).toBeDefined();
-      expect(enc!.enemyIds).toContain(enemyId);
+      // Trigger-Encounter (mit fester Position) — grenzt gegen Random-Encounter ab.
+      if (!enc || enc.kind !== 'trigger') throw new Error(`${encounterId} ist kein Trigger-Encounter`);
+      expect(enc.enemyIds).toContain(enemyId);
       expect(ENEMIES.some((en) => en.id === enemyId), enemyId).toBe(true);
 
       const flags = { [flag]: true };
-      const map = getMap(enc!.mapId, flags);
-      expect(isWalkable(map, enc!.position!.x, enc!.position!.y), `${encounterId} walkable`).toBe(true);
+      const map = getMap(enc.mapId, flags);
+      expect(isWalkable(map, enc.position.x, enc.position.y), `${encounterId} walkable`).toBe(true);
 
       const state: WorldState = { flags, quests: {}, inventory: [], gold: 0 };
-      const hit = resolveEncounter(state, enc!.mapId, enc!.position!, makeRng(1));
+      const hit = resolveEncounter(state, enc.mapId, enc.position, makeRng(1));
       expect(hit.state.encounter?.id, encounterId).toBe(encounterId);
 
       // Ohne Gate-Flag darf der Trigger nicht auslösen.
       const locked = resolveEncounter(
         { flags: {}, quests: {}, inventory: [], gold: 0 },
-        enc!.mapId,
-        enc!.position!,
+        enc.mapId,
+        enc.position,
         makeRng(1)
       );
       expect(locked.state.encounter?.id, `${encounterId} gated`).not.toBe(encounterId);
