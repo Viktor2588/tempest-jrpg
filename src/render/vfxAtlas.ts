@@ -4,6 +4,7 @@
 import Phaser from 'phaser';
 import { VFX_KINDS, vfxSpec, type VfxKind } from './artSpec';
 import { hexColor } from './color';
+import { generatedTextureSize, generatedTextureStroke } from './textureSharpness';
 
 export function vfxKey(kind: VfxKind): string {
   return 'vfx-' + kind;
@@ -16,7 +17,7 @@ export function generateVfxTextures(scene: Phaser.Scene, kinds: readonly VfxKind
 
     const spec = vfxSpec(kind);
     const g = scene.make.graphics({ x: 0, y: 0 }, false);
-    const s = spec.size;
+    const s = generatedTextureSize(spec.size);
     const c = s / 2;
 
     if (spec.shape === 'burst') drawBurst(g, s, c, spec);
@@ -31,7 +32,7 @@ export function generateVfxTextures(scene: Phaser.Scene, kinds: readonly VfxKind
 }
 
 function drawBurst(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: ReturnType<typeof vfxSpec>): void {
-  g.lineStyle(1, hexColor(spec.outline), 1);
+  g.lineStyle(generatedTextureStroke(1), hexColor(spec.outline), 1);
   g.fillStyle(hexColor(spec.base), 1);
   g.fillCircle(c, c, s * 0.24);
   g.fillStyle(hexColor(spec.accent), 1);
@@ -49,7 +50,7 @@ function drawBurst(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: R
 }
 
 function drawSpark(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: ReturnType<typeof vfxSpec>): void {
-  g.lineStyle(2, hexColor(spec.outline), 0.9);
+  g.lineStyle(generatedTextureStroke(2), hexColor(spec.outline), 0.9);
   g.fillStyle(hexColor(spec.base), 1);
   g.fillCircle(c, c, s * 0.18);
   g.fillStyle(hexColor(spec.accent), 1);
@@ -65,7 +66,7 @@ function drawPuff(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: Re
   g.fillCircle(c + 5, c + 5, s * 0.16);
   g.fillStyle(hexColor(spec.accent), 0.75);
   g.fillCircle(c, c + 1, s * 0.13);
-  g.lineStyle(1, hexColor(spec.outline), 0.8);
+  g.lineStyle(generatedTextureStroke(1), hexColor(spec.outline), 0.8);
   g.strokeCircle(c - 5, c, s * 0.18);
   g.strokeCircle(c + 4, c - 4, s * 0.2);
   g.strokeCircle(c + 5, c + 5, s * 0.16);
@@ -73,7 +74,7 @@ function drawPuff(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: Re
 
 function drawBolt(g: Phaser.GameObjects.Graphics, s: number, spec: ReturnType<typeof vfxSpec>): void {
   const c = s / 2;
-  g.lineStyle(1, hexColor(spec.outline), 1);
+  g.lineStyle(generatedTextureStroke(1), hexColor(spec.outline), 1);
   g.fillStyle(hexColor(spec.base), 1);
   g.fillTriangle(2, c, s * 0.68, 3, s * 0.92, c);
   g.fillTriangle(2, c, s * 0.68, s - 3, s * 0.92, c);
@@ -84,10 +85,10 @@ function drawBolt(g: Phaser.GameObjects.Graphics, s: number, spec: ReturnType<ty
 }
 
 function drawRing(g: Phaser.GameObjects.Graphics, s: number, c: number, spec: ReturnType<typeof vfxSpec>): void {
-  g.lineStyle(2, hexColor(spec.base), 1);
+  g.lineStyle(generatedTextureStroke(2), hexColor(spec.base), 1);
   g.strokeCircle(c, c, s * 0.36);
-  g.lineStyle(1, hexColor(spec.accent), 0.8);
+  g.lineStyle(generatedTextureStroke(1), hexColor(spec.accent), 0.8);
   g.strokeCircle(c, c, s * 0.22);
-  g.lineStyle(1, hexColor(spec.outline), 0.75);
+  g.lineStyle(generatedTextureStroke(1), hexColor(spec.outline), 0.75);
   g.strokeCircle(c, c, s * 0.43);
 }

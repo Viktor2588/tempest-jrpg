@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
-import { generatePlaceholderTextures } from '../render/placeholderArt';
+import { PLACEHOLDER_KINDS, VFX_KINDS } from '../render/artSpec';
+import { generatePlaceholderTextures, placeholderKey } from '../render/placeholderArt';
 import { generatePortraitTextures, portraitKey } from '../render/portraitAtlas';
-import { generateVfxTextures } from '../render/vfxAtlas';
+import { generateVfxTextures, vfxKey } from '../render/vfxAtlas';
 import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtlas';
 import {
   BOG_TERROR_TEXTURE_KEY,
@@ -27,6 +28,7 @@ import { OVERWORLD_RIMURU_TEXTURE_KEY } from '../render/overworldArt';
 import { BATTLE_ARENA_TEXTURES, PARTY_BATTLE_ART } from '../render/battleArt';
 import { REGION_BANNER_TEXTURES, TEMPEST_GROWTH_BANNER_TEXTURES } from '../render/regionBannerArt';
 import { configureHiDpiScene } from '../render/hiDpi';
+import { KENNEY_PIXEL_TEXTURE_KEYS } from '../render/textureSharpness';
 // Echte CC0-Kacheln (Kenney „Tiny Town", CC0 — siehe ASSETS.md). Vite liefert die
 // korrekte (gehashte, base-bewusste) URL; Phaser lädt sie als Textur.
 import grassUrl from '../assets/tiles/grass.png';
@@ -284,6 +286,7 @@ export class PreloadScene extends Phaser.Scene {
     generateVfxTextures(this);
     // Prozedurale Fallbacks, falls die dedizierten Prolog-WebPs nicht geladen wurden.
     generatePrologueBattleBackgrounds(this);
+    this.applyConfiguredTextureFilters();
     this.scene.start('Title');
   }
 
@@ -305,8 +308,10 @@ export class PreloadScene extends Phaser.Scene {
         );
       }
     }
+  }
 
-    [
+  private applyConfiguredTextureFilters(): void {
+    const linearTextureKeys = [
       KINGDOM_UNIT_TEXTURE_KEY,
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       MARSH_WALL_TILE_TEXTURE_KEY,
@@ -322,6 +327,9 @@ export class PreloadScene extends Phaser.Scene {
       LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       SPORE_MOTH_TEXTURE_KEY,
@@ -335,6 +343,8 @@ export class PreloadScene extends Phaser.Scene {
       GABIRU_TEXTURE_KEY,
       MASKED_MAJIN_TEXTURE_KEY,
       IFRIT_TEXTURE_KEY,
+      DIREWOLF_ALPHA_TEXTURE_KEY,
+      NAMELESS_ECHO_TEXTURE_KEY,
       portraitKey('rimuru'),
       portraitKey('gobta'),
       portraitKey('shuna'),
@@ -362,9 +372,22 @@ export class PreloadScene extends Phaser.Scene {
       ...Object.values(PARTY_BATTLE_ART),
       ...Object.values(BATTLE_ARENA_TEXTURES),
       ...Object.values(REGION_BANNER_TEXTURES),
-      ...Object.values(TEMPEST_GROWTH_BANNER_TEXTURES)
-    ].forEach((key) => {
-      if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+      ...Object.values(TEMPEST_GROWTH_BANNER_TEXTURES),
+      ...VFX_KINDS.map(vfxKey)
+    ];
+
+    const pixelTextureKeys = [
+      ...KENNEY_PIXEL_TEXTURE_KEYS,
+      ...PLACEHOLDER_KINDS.map(placeholderKey)
+    ];
+
+    this.applyTextureFilter(linearTextureKeys, Phaser.Textures.FilterMode.LINEAR);
+    this.applyTextureFilter(pixelTextureKeys, Phaser.Textures.FilterMode.NEAREST);
+  }
+
+  private applyTextureFilter(keys: readonly string[], filter: Phaser.Textures.FilterMode): void {
+    keys.forEach((key) => {
+      if (this.textures.exists(key)) this.textures.get(key).setFilter(filter);
     });
   }
 }

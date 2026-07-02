@@ -17,6 +17,7 @@ import {
   LOGICAL_GAME_HEIGHT,
   LOGICAL_GAME_WIDTH
 } from './render/hiDpi';
+import { RENDER_PIXEL_ART, RENDER_ROUND_PIXELS } from './render/textureSharpness';
 
 // Referenzauflösung (16:9, Querformat). Skaliert per FIT auf Handy & Desktop.
 export const GAME_WIDTH = LOGICAL_GAME_WIDTH;
@@ -29,7 +30,10 @@ const game = new Phaser.Game({
   backgroundColor: '#0b0f16',
   width: GAME_BACKING_SIZE.width,
   height: GAME_BACKING_SIZE.height,
-  pixelArt: true,
+  pixelArt: RENDER_PIXEL_ART,
+  render: {
+    roundPixels: RENDER_ROUND_PIXELS
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

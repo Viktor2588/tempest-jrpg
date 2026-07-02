@@ -88,14 +88,24 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [~] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
+- [x] Phase 58 — Texturfilter & Asset-Schaerfe: global `pixelArt: false`;
   NEAREST nur gezielt fuer die 16x16-Pixel-Sprites setzen, LINEAR fuer
   malerische Tiles/Banner/Portraits (bestehende Einzelfaelle konsolidieren);
   generierte Texturen (placeholderArt, portraitAtlas, vfxAtlas,
   battleBackgroundAtlas) in DPR-facher Groesse erzeugen; `roundPixels`/
   `autoRound` gegen Subpixel-Schmieren pruefen.
-  (in Bearbeitung im Worktree
-  `/home/viktor/worktree/tempest-phase-58-texturfilter`)
+  Umsetzung: `pixelArt` und Renderer-`roundPixels` sind zentral deaktiviert,
+  waehrend der ScaleManager `autoRound` fuer stabile CSS-FIT-Masse behaelt.
+  `PreloadScene` setzt Filter nun explizit: LINEAR fuer malerische WebP-Tiles,
+  Banner, Portraits, Gegner-/Party-Cutouts, Battle-BGs und VFX; NEAREST bleibt
+  auf die 16x16-Kenney-Pixelquellen und prozedurale Pixel-Platzhalter begrenzt.
+  `placeholderArt`, `portraitAtlas`, `vfxAtlas` und `battleBackgroundAtlas`
+  erzeugen Runtime-Texturen in DPR-groesserer physischer Aufloesung, waehrend
+  die Szenen sie weiter in logischer Groesse rendern. Checks: `git diff
+  --check`; `bun run typecheck`; `bun run test` (48 Dateien, 343 Tests);
+  `bun run build`; Playwright HiDPI-Smoke Desktop/Mobile (2/2);
+  bestehende Desktop/Mobile-Smokes `game.smoke.spec.ts` +
+  `tempest-growth.smoke.spec.ts` mit 1 Worker (36/36).
 - [ ] Phase 59 — Menue-/HUD-Bugs: Menue-Bodies scrollbar; Quest-/Codexlisten
   filtern und Detailansichten statt ueberlanger Uebersichtskarten; Party nicht
   redundant auf jeder Menue-Seite; Ueberlappungen in Status, Ausruestung,
