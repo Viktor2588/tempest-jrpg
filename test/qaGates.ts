@@ -13,7 +13,13 @@ import {
   type BattleStatus
 } from '../src/systems/battle';
 import { applyBattleResultToSave } from '../src/systems/battleResult';
-import { layoutOverworldHud, allHudRects, type ViewportSize } from '../src/systems/mobileLayout';
+import {
+  allHudRects,
+  allTouchControlRects,
+  layoutOverworldHud,
+  layoutOverworldTouchControls,
+  type ViewportSize
+} from '../src/systems/mobileLayout';
 import { useItem, type MenuGameState } from '../src/systems/menu';
 import {
   analyzeProgressionBalance,
@@ -65,6 +71,7 @@ export interface OverworldBudget {
   readonly mapTiles: number;
   readonly staticWorldObjects: number;
   readonly hudInteractiveTargets: number;
+  readonly touchControlTargets: number;
   readonly estimatedDisplayObjects: number;
 }
 
@@ -321,14 +328,16 @@ export function estimateOverworldBudget(viewport: ViewportSize = { width: 960, h
     + SHOPS.filter((s) => s.mapId === mapId).length
   ) * 2));
   const hudTargets = allHudRects(layoutOverworldHud(viewport)).length;
-  const hudObjects = hudTargets * 2;
+  const touchTargets = allTouchControlRects(layoutOverworldTouchControls(viewport)).length;
+  const controlObjects = (hudTargets + touchTargets) * 2;
   const player = 1;
 
   return {
     mapTiles: JURA_FIELD.width * JURA_FIELD.height,
     staticWorldObjects: worldMarkerObjects,
     hudInteractiveTargets: hudTargets,
-    estimatedDisplayObjects: JURA_FIELD.width * JURA_FIELD.height + worldMarkerObjects + hudObjects + player
+    touchControlTargets: touchTargets,
+    estimatedDisplayObjects: JURA_FIELD.width * JURA_FIELD.height + worldMarkerObjects + controlObjects + player
   };
 }
 
@@ -344,6 +353,7 @@ export function analyzeOverworldBudget(
   // gleichzeitig sichtbare Markersatz bleibt deutlich darunter.
   const maxStaticWorldObjects = limits.staticWorldObjects ?? 96;
   const maxHudInteractiveTargets = limits.hudInteractiveTargets ?? 10;
+  const maxTouchControlTargets = limits.touchControlTargets ?? 6;
   const maxEstimatedDisplayObjects = limits.estimatedDisplayObjects ?? 700;
   const issues: QaIssue[] = [];
 
@@ -355,6 +365,9 @@ export function analyzeOverworldBudget(
   }
   if (budget.hudInteractiveTargets > maxHudInteractiveTargets) {
     issues.push({ path: 'qa.budget.hudInteractiveTargets', message: 'Zu viele persistente HUD-Touchziele.' });
+  }
+  if (budget.touchControlTargets > maxTouchControlTargets) {
+    issues.push({ path: 'qa.budget.touchControlTargets', message: 'Zu viele persistente Touch-Steuerflächen.' });
   }
   if (budget.estimatedDisplayObjects > maxEstimatedDisplayObjects) {
     issues.push({ path: 'qa.budget.estimatedDisplayObjects', message: 'Geschätzte DisplayObjects überschreiten das mobile Budget.' });

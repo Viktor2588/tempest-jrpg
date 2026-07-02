@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { getMap, getMapName } from '../data/maps';
 import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { layoutOverworldHud } from '../systems/mobileLayout';
+import { layoutOverworldHud, layoutOverworldTouchControls } from '../systems/mobileLayout';
 import { buildMinimap, type MinimapMarker, type MinimapMarkerKind } from '../systems/minimap';
 import {
   completeOverworldOnboardingStep,
@@ -145,11 +145,11 @@ export class OverworldScene extends Phaser.Scene {
     const interact = () => this.interact();
     this.input.keyboard?.on('keydown-E', interact);
     this.input.keyboard?.on('keydown-SPACE', interact);
-    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
-    const interactRect = hud.buttons.interact;
-    const interactBtn = this.add.rectangle(interactRect.x, interactRect.y, interactRect.width, interactRect.height, 0x1f3a2f, 0.9)
+    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
+    const interactRect = touchControls.interact;
+    const interactBtn = this.add.rectangle(interactRect.x, interactRect.y, interactRect.width, interactRect.height, 0x1f3a2f, 0.68)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x75ffab, 0.7).setInteractive();
-    this.add.text(interactRect.x, interactRect.y, '◆ Interaktion', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d9ffe7' })
+    this.add.text(interactRect.x, interactRect.y, '◆', { fontFamily: 'sans-serif', fontSize: '24px', color: '#d9ffe7' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     interactBtn.on('pointerdown', interact);
 
@@ -165,7 +165,8 @@ export class OverworldScene extends Phaser.Scene {
       this.scene.pause();
     };
     this.input.keyboard?.on('keydown-M', openMenu);
-    const menuRect = hud.buttons.menu;
+    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    const menuRect = hud.menu;
     const menuBtn = this.add.rectangle(menuRect.x, menuRect.y, menuRect.width, menuRect.height, 0x223049, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.7).setInteractive();
     this.add.text(menuRect.x, menuRect.y, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
@@ -190,6 +191,7 @@ export class OverworldScene extends Phaser.Scene {
     layer.setVisible(true);
 
     const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
+    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
     const panelX = 16;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
@@ -223,7 +225,7 @@ export class OverworldScene extends Phaser.Scene {
     });
 
     if (hints.some((hint) => hint.step === 'interact')) {
-      const rect = hud.buttons.interact;
+      const rect = touchControls.interact;
       layer.add(this.add.text(rect.x, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
@@ -231,7 +233,7 @@ export class OverworldScene extends Phaser.Scene {
       }).setOrigin(0.5).setStroke('#082012', 3));
     }
     if (hints.some((hint) => hint.step === 'menu')) {
-      const rect = hud.buttons.menu;
+      const rect = hud.menu;
       layer.add(this.add.text(rect.x, rect.y + rect.height / 2 + 18, '↗ Menü öffnen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
@@ -239,7 +241,7 @@ export class OverworldScene extends Phaser.Scene {
       }).setOrigin(0.5).setStroke('#06111f', 3));
     }
     if (hints.some((hint) => hint.step === 'move')) {
-      const first = hud.dpad[0];
+      const first = touchControls.dpad[0];
       const centerX = first ? first.x + 44 : 92;
       const centerY = first ? first.y - 58 : this.scale.height - 118;
       layer.add(this.add.text(centerX, centerY, '↙ Bewegen', {
@@ -598,8 +600,8 @@ export class OverworldScene extends Phaser.Scene {
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
 
   private buildDpad(): void {
-    const hud = layoutOverworldHud({ width: this.scale.width, height: this.scale.height });
-    for (const b of hud.dpad) {
+    const touchControls = layoutOverworldTouchControls({ width: this.scale.width, height: this.scale.height });
+    for (const b of touchControls.dpad) {
       const btn = this.add.rectangle(b.x, b.y, b.width, b.height, 0x223049, 0.55)
         .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.6).setInteractive();
       this.add.text(b.x, b.y, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })

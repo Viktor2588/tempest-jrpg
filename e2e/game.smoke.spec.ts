@@ -24,7 +24,7 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   await expectCanvasContent(page);
 
   // Menü-Overlay samt Resume-Pfad prüfen.
-  await page.keyboard.press('m');
+  await clickOverworldMenuButton(page);
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 636, 94); // Quest-/Story-Tab mit Kapitel-Summary
@@ -118,7 +118,7 @@ test('Oberwelt-Onboarding markiert Bewegung, Menü und Interaktion im Browser', 
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowUp');
-  await page.keyboard.press('m');
+  await clickOverworldMenuButton(page);
   await page.waitForTimeout(250);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(250);
@@ -851,6 +851,10 @@ async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
 async function focusGame(page: Page): Promise<void> {
   await page.locator('canvas').click();
   await page.waitForTimeout(100);
+}
+
+async function clickOverworldMenuButton(page: Page): Promise<void> {
+  await clickGamePoint(page, 880, 242);
 }
 
 async function dismissOverworldTutorial(page: Page): Promise<void> {

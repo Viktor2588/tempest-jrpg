@@ -14,10 +14,11 @@ export interface DpadButtonLayout extends Rect {
 }
 
 export interface OverworldHudLayout {
-  readonly buttons: {
-    readonly menu: Rect;
-    readonly interact: Rect;
-  };
+  readonly menu: Rect;
+}
+
+export interface OverworldTouchControlsLayout {
+  readonly interact: Rect;
   readonly dpad: readonly DpadButtonLayout[];
 }
 
@@ -34,36 +35,43 @@ export interface ViewportSize {
 export const MIN_TOUCH_TARGET_PX = 44;
 export const HUD_SAFE_MARGIN_PX = 8;
 
-const ACTION_BUTTON_WIDTH = 150;
-const ACTION_BUTTON_HEIGHT = 44;
-const ACTION_BUTTON_RIGHT_INSET = 86;
+const MENU_BUTTON_WIDTH = 132;
+const MENU_BUTTON_HEIGHT = 44;
+const MINIMAP_RIGHT_INSET = 14;
+const MINIMAP_TOP = 14;
+const MINIMAP_MAX_SIZE = 132;
+const REGION_BANNER_HEIGHT = 34;
+const MENU_GAP = 40;
 const DPAD_BUTTON_SIZE = 52;
 const DPAD_OFFSET = 56;
 
 export function layoutOverworldHud(viewport: ViewportSize): OverworldHudLayout {
-  const rightX = viewport.width - ACTION_BUTTON_RIGHT_INSET;
+  const minimapCenterX = viewport.width - MINIMAP_RIGHT_INSET - MINIMAP_MAX_SIZE / 2;
+  const menuY = MINIMAP_TOP + MINIMAP_MAX_SIZE + REGION_BANNER_HEIGHT + MENU_GAP + MENU_BUTTON_HEIGHT / 2;
+  return {
+    menu: {
+      id: 'menu',
+      x: minimapCenterX,
+      y: menuY,
+      width: MENU_BUTTON_WIDTH,
+      height: MENU_BUTTON_HEIGHT
+    }
+  };
+}
+
+export function layoutOverworldTouchControls(viewport: ViewportSize): OverworldTouchControlsLayout {
   const dpadGroupHalfSize = DPAD_OFFSET + DPAD_BUTTON_SIZE / 2;
   const dpadBaseX = HUD_SAFE_MARGIN_PX + dpadGroupHalfSize;
   const dpadBaseY = viewport.height - HUD_SAFE_MARGIN_PX - dpadGroupHalfSize;
+  const interactHalfSize = DPAD_BUTTON_SIZE / 2;
 
   return {
-    buttons: {
-      // Menü unter der Minimap (oben rechts); Interaktion unten rechts gegenüber dem
-      // Steuerkreuz (gut mit dem Daumen erreichbar). Kein Demo-„Kampf"-Knopf mehr.
-      menu: {
-        id: 'menu',
-        x: rightX,
-        y: 150,
-        width: ACTION_BUTTON_WIDTH,
-        height: ACTION_BUTTON_HEIGHT
-      },
-      interact: {
-        id: 'interact',
-        x: rightX,
-        y: viewport.height - HUD_SAFE_MARGIN_PX - ACTION_BUTTON_HEIGHT / 2,
-        width: ACTION_BUTTON_WIDTH,
-        height: ACTION_BUTTON_HEIGHT
-      }
+    interact: {
+      id: 'interact',
+      x: viewport.width - HUD_SAFE_MARGIN_PX - interactHalfSize,
+      y: viewport.height - HUD_SAFE_MARGIN_PX - interactHalfSize,
+      width: DPAD_BUTTON_SIZE,
+      height: DPAD_BUTTON_SIZE
     },
     dpad: [
       { id: 'dpad-up', dir: 'up', label: '▲', x: dpadBaseX, y: dpadBaseY - DPAD_OFFSET, width: DPAD_BUTTON_SIZE, height: DPAD_BUTTON_SIZE },
@@ -79,8 +87,31 @@ export function analyzeHudLayout(
   viewport: ViewportSize,
   minTouchTarget = MIN_TOUCH_TARGET_PX
 ): HudLayoutIssue[] {
+  return analyzeRects(allHudRects(layout), viewport, minTouchTarget);
+}
+
+export function analyzeTouchControlLayout(
+  layout: OverworldTouchControlsLayout,
+  viewport: ViewportSize,
+  minTouchTarget = MIN_TOUCH_TARGET_PX
+): HudLayoutIssue[] {
+  return analyzeRects(allTouchControlRects(layout), viewport, minTouchTarget);
+}
+
+export function allHudRects(layout: OverworldHudLayout): readonly Rect[] {
+  return [layout.menu];
+}
+
+export function allTouchControlRects(layout: OverworldTouchControlsLayout): readonly Rect[] {
+  return [layout.interact, ...layout.dpad];
+}
+
+function analyzeRects(
+  rects: readonly Rect[],
+  viewport: ViewportSize,
+  minTouchTarget: number
+): HudLayoutIssue[] {
   const issues: HudLayoutIssue[] = [];
-  const rects = allHudRects(layout);
 
   for (const rect of rects) {
     if (rect.width < minTouchTarget || rect.height < minTouchTarget) {
@@ -111,14 +142,6 @@ export function analyzeHudLayout(
   }
 
   return issues;
-}
-
-export function allHudRects(layout: OverworldHudLayout): readonly Rect[] {
-  return [
-    layout.buttons.menu,
-    layout.buttons.interact,
-    ...layout.dpad
-  ];
 }
 
 function rectInsideViewport(rect: Rect, viewport: ViewportSize, margin: number): boolean {
