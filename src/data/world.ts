@@ -4008,5 +4008,70 @@ export const ENCOUNTERS = [
       { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'ifrit' },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
+  },
+  // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale
+  // Set-Piece-Trigger auf bestehenden Karten, hinter vorhandene Story-Flags
+  // gegated; kein Pflichtpfad, daher nicht in den Balance-Korridoren.
+  {
+    // Ork-Späher als Vorbote der Horde, bevor der General auftaucht.
+    id: 'orc-scout-patrol',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 3, y: 7 },
+    enemyIds: ['orc-grunt', 'orc-grunt'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.treyni.met' }
+    ],
+    victoryEffects: [
+      { type: 'add-item', itemId: 'orc-tusk', quantity: 1 }
+    ]
+  },
+  {
+    // Trauernde Oger-Überlebende, deren Dorf die Ork-Horde verwüstet hat.
+    id: 'grieving-ogres',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 21, y: 5 },
+    enemyIds: ['ogre-warrior', 'ogre-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.orc.engaged' }
+    ],
+    victoryEffects: [
+      { type: 'add-item', itemId: 'magic-ore', quantity: 1 }
+    ]
+  },
+  {
+    // Ein Ork-Lord-Rest sammelt sich, nachdem „Geld" verschlungen ist.
+    id: 'orc-lord-remnant',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 12, y: 11 },
+    enemyIds: ['orc-lord'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.geld.devoured' }
+    ],
+    victoryEffects: [
+      { type: 'add-item', itemId: 'famine-charm', quantity: 1 }
+    ]
+  },
+  {
+    // Milim Nava sucht Tempest auf, um den neuen Dämonenlord zu prüfen — ein
+    // optionaler Duell-Wall weit über dem regulären Ziellevel.
+    id: 'milim-duel',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    position: { x: 8, y: 7 },
+    enemyIds: ['milim'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.ifrit.subdued' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.milim.duel', value: true },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+    ]
   }
 ] as const satisfies readonly EncounterDefinition[];
