@@ -3,9 +3,14 @@ import { analyzeRects } from '../src/systems/mobileLayout';
 import {
   analyzeMenuColumns,
   MENU_LIST_COLUMNS,
+  MENU_PARTY_LAYOUT,
+  MENU_TAB_ROW,
   MENU_VIEWPORT,
+  menuPartyBounds,
   menuListCapacity,
   menuListRects,
+  menuTabButtonX,
+  menuTabRowBounds,
   paginateMenuList
 } from '../src/systems/menuLayout';
 
@@ -54,4 +59,36 @@ describe('Phase 59 — Menü-Layout-Validierung (HudLayoutIssue-Muster auf Menü
       )
     ).toEqual([]);
   });
+
+  it('verankert Tab-Leiste und Party-Ansicht auf der Canvas-Mitte', () => {
+    const tabCount = 8;
+    const tabs = menuTabRowBounds(tabCount);
+    const party = menuPartyBounds();
+    const active = MENU_PARTY_LAYOUT.active;
+    const reserve = MENU_PARTY_LAYOUT.reserve;
+
+    expect(tabs.centerX).toBe(MENU_VIEWPORT.width / 2);
+    expect(menuTabButtonX(0, tabCount)).toBe(tabs.left);
+    expect(menuTabButtonX(tabCount - 1, tabCount) + MENU_TAB_ROW.buttonWidth).toBe(tabs.right);
+    expect(party.centerX).toBe(MENU_VIEWPORT.width / 2);
+    expect(active.left + active.width).toBeLessThanOrEqual(reserve.left);
+    expect(analyzeRects([
+      {
+        id: 'party.active',
+        x: active.left + active.width / 2,
+        y: active.firstY,
+        width: active.width,
+        height: active.cardHeight
+      },
+      {
+        id: 'party.reserve',
+        x: reserve.left + reserve.width / 2,
+        y: reserve.firstY,
+        width: reserve.width,
+        height: MENU_TOUCH_TARGET_HEIGHT
+      }
+    ], MENU_VIEWPORT, 0)).toEqual([]);
+  });
 });
+
+const MENU_TOUCH_TARGET_HEIGHT = 44;

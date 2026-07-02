@@ -39,6 +39,9 @@ import {
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
   MENU_PAGER_HEIGHT,
+  MENU_PARTY_LAYOUT,
+  MENU_TAB_ROW,
+  menuTabButtonX,
   paginateMenuList,
   type MenuListColumn,
   type MenuListPage
@@ -136,7 +139,7 @@ export class MenuScene extends Phaser.Scene {
     this.button(GAME_WIDTH - 126, 34, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     TABS.forEach((tab, index) => {
-      this.button(24 + index * 112, 94, 104, tab.label, () => {
+      this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
         this.selectedTab = tab.id;
         // Beim Tabwechsel die Kurzbeschreibung in die Meldungszeile setzen, damit klar
         // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
@@ -201,26 +204,21 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawParty(_selectedName: string, view: MenuView): void {
-    // Der Party-Tab hat keine linke Auswahlliste (anders als die Figur-Tabs), also
-    // die Inhaltsgruppe (Aktiv-Karten + Reserve) mittig ausrichten statt am
-    // Listen-Spaltenrand kleben zu lassen.
-    const ACTIVE_X = 180;
-    const ACTIVE_W = 370;
-    const RESERVE_X = 590;
-    const RESERVE_W = 190;
+    const active = MENU_PARTY_LAYOUT.active;
+    const reserve = MENU_PARTY_LAYOUT.reserve;
 
-    this.layer.add(this.add.text(GAME_WIDTH / 2, 124, 'Party-Übersicht', {
+    this.layer.add(this.add.text(MENU_PARTY_LAYOUT.titleX, MENU_PARTY_LAYOUT.titleY, 'Party-Übersicht', {
       fontFamily: 'sans-serif',
       fontSize: '19px',
       color: '#e9c56c'
     }).setOrigin(0.5, 0));
-    this.layer.add(this.add.text(ACTIVE_X, 150, 'Aktive Gruppe · maximal 3', {
+    this.layer.add(this.add.text(active.left, MENU_PARTY_LAYOUT.headingY, 'Aktive Gruppe · maximal 3', {
       fontFamily: 'sans-serif',
       fontSize: '13px',
       color: '#cdeaff'
     }));
     view.members.forEach((summary, index) => {
-      const y = 208 + index * 96;
+      const y = active.firstY + index * active.rowHeight;
       const stats = calculateProgressionStats(
         summary.member,
         this.save.progression
@@ -229,37 +227,37 @@ export class MenuScene extends Phaser.Scene {
         this.save.progression,
         summary.member.characterId
       )?.formName ?? summary.character.species;
-      this.panel(ACTIVE_X, y, ACTIVE_W, 82);
+      this.panel(active.left, y, active.width, active.cardHeight);
       // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
-      const hit = this.add.rectangle(ACTIVE_X + ACTIVE_W / 2, y, ACTIVE_W, 82, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
       this.layer.add(hit);
-      this.drawPortrait(summary.member.characterId, ACTIVE_X + 36, y, 46);
-      this.layer.add(this.add.text(ACTIVE_X + 72, y - 31, `${summary.member.name} · ${formName}`, {
+      this.drawPortrait(summary.member.characterId, active.left + 36, y, 46);
+      this.layer.add(this.add.text(active.left + 72, y - 31, `${summary.member.name} · ${formName}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px', color: index === this.selectedMemberIndex ? '#e9c56c' : '#e9eef7'
       }));
-      this.layer.add(this.add.text(ACTIVE_X + 72, y - 8, summary.character.role, {
+      this.layer.add(this.add.text(active.left + 72, y - 8, summary.character.role, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
-      this.layer.add(this.add.text(ACTIVE_X + 72, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
+      this.layer.add(this.add.text(active.left + 72, y + 12, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#9fb2cc'
       }));
     });
 
-    this.layer.add(this.add.text(RESERVE_X, 150, 'Reserve', {
+    this.layer.add(this.add.text(reserve.left, MENU_PARTY_LAYOUT.headingY, 'Reserve', {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#cdeaff'
     }));
     if (view.reserveMembers.length === 0) {
-      this.layer.add(this.add.text(RESERVE_X, 196, 'Noch keine Reserve.', {
+      this.layer.add(this.add.text(reserve.left, reserve.emptyY, 'Noch keine Reserve.', {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
       }));
     }
     view.reserveMembers.slice(0, 6).forEach((summary, index) => {
-      const y = 208 + index * 54;
-      this.button(RESERVE_X, y, RESERVE_W, `${summary.member.name} · Lv.${summary.member.level}`, () => {
+      const y = reserve.firstY + index * reserve.rowHeight;
+      this.button(reserve.left, y, reserve.width, `${summary.member.name} · Lv.${summary.member.level}`, () => {
         const selectedActive = view.members[this.selectedMemberIndex]?.member.characterId;
         const formation = activateReserveMember(
           { active: this.state.party, reserve: this.state.reserve ?? [] },
@@ -270,7 +268,7 @@ export class MenuScene extends Phaser.Scene {
       }, 0x243447);
     });
     if (view.reserveMembers.length > 0) {
-      this.layer.add(this.add.text(RESERVE_X, 512, 'Bei voller Gruppe ersetzt der Klick\ndie oben gewählte Aktiv-Karte.', {
+      this.layer.add(this.add.text(reserve.left, reserve.footnoteY, 'Bei voller Gruppe ersetzt der Klick\ndie oben gewählte Aktiv-Karte.', {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
       }));
     }
