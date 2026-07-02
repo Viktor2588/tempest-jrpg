@@ -72,6 +72,12 @@ product:
     scaling: Phaser FIT and centered
     backing_store: 960x540 * min(devicePixelRatio, 2) via src/render/hiDpi.ts
     logical_coordinates: preserved through scene camera zoom helpers
+  texture_filtering:
+    global_pixel_art: false
+    renderer_round_pixels: false
+    css_fit_auto_round: true
+    linear: painterly tiles, banners, portraits, cutouts, battle backgrounds, VFX
+    nearest: 16x16 Kenney pixel sources and procedural pixel placeholders
   stack:
     engine: Phaser 4.2
     language: TypeScript
@@ -664,6 +670,12 @@ completed_milestones:
     - every scene installs a shared HiDPI helper that applies camera zoom for logical 960x540 coordinates and defaults text objects to DPR-aware resolution
     - canvas diagnostic data attributes and a dedicated Playwright HiDPI smoke assert logical size, capped backing size, and desktop/mobile DPR behavior
     - typecheck, 340 unit tests across 47 files, production build, HiDPI desktop/mobile smokes, and 36 existing desktop/mobile smokes verified
+  phase_58:
+    - global Phaser pixelArt and renderer roundPixels disabled so painterly generated/WebP art is no longer forced through nearest-neighbor filtering
+    - PreloadScene applies explicit LINEAR filters to painterly tiles, region banners, portraits, enemy and party cutouts, battle backgrounds, and VFX
+    - NEAREST is retained only for 16x16 Kenney pixel sources and procedural pixel placeholders
+    - placeholderArt, portraitAtlas, vfxAtlas, and battleBackgroundAtlas generate DPR-sized runtime textures while scenes keep logical display sizes
+    - typecheck, 343 unit tests across 48 files, production build, HiDPI desktop/mobile smokes, and 36 existing desktop/mobile smokes verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
@@ -729,6 +741,7 @@ test/phase22Integration.test.ts
 ASSETS.md
 src/render/artSpec.ts
 src/render/hiDpi.ts
+src/render/textureSharpness.ts
 src/render/*Art.ts
 src/scenes/PreloadScene.ts
 src/assets/
