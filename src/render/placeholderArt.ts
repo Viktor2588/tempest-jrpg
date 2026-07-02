@@ -4,6 +4,7 @@
 import Phaser from 'phaser';
 import { PLACEHOLDER_KINDS, placeholderSpec, type PlaceholderKind } from './artSpec';
 import { hexColor } from './color';
+import { generatedTextureSize, generatedTextureStroke } from './textureSharpness';
 
 const ART_INSET = 1;
 
@@ -18,7 +19,8 @@ export function generatePlaceholderTextures(scene: Phaser.Scene, kinds: readonly
     if (scene.textures.exists(key)) continue;
     const spec = placeholderSpec(kind);
     const g = scene.make.graphics({ x: 0, y: 0 }, false);
-    const s = spec.size;
+    const s = generatedTextureSize(spec.size);
+    const line = generatedTextureStroke(1);
 
     g.fillStyle(hexColor(spec.base), 1);
     if (spec.shape === 'block') {
@@ -32,8 +34,8 @@ export function generatePlaceholderTextures(scene: Phaser.Scene, kinds: readonly
       g.fillCircle(s / 2 - s * 0.14, s / 2 - s * 0.14, Math.max(2, s * 0.12)); // „Glanzpunkt"
     }
     // 1px-Outline
-    g.lineStyle(1, hexColor(spec.outline), 1);
-    if (spec.shape === 'block') g.strokeRect(0.5, 0.5, s - 1, s - 1);
+    g.lineStyle(line, hexColor(spec.outline), 1);
+    if (spec.shape === 'block') g.strokeRect(line / 2, line / 2, s - line, s - line);
     else g.strokeCircle(s / 2, s / 2, s / 2 - ART_INSET);
 
     g.generateTexture(key, s, s);
