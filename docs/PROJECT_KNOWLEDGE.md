@@ -620,6 +620,12 @@ completed_milestones:
     - report-only balance harness over 13 story trigger encounters and five seeds
     - HP, MP, inventory, battle rewards, talent spending, and recovery carried through the route
     - normal, target-boss, and underleveled-boss corridor data exposed for Phase 53 assertions
+  phase_53:
+    - stronger boss attack and magic with shorter, more dangerous normal enemies
+    - reduced healing scaling and increased MP costs for core healing skills
+    - active five-seed story-route corridors for normal encounters and story bosses
+    - target-level and underleveled boss benchmarks retained as report-only inputs for Phase 54
+    - typecheck, 318 unit tests across 45 files, and production build verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
