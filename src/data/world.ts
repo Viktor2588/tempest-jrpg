@@ -2750,7 +2750,7 @@ export const DIALOGS = [
               { type: 'recruit-character', characterId: 'benimaru' },
               { type: 'recruit-character', characterId: 'shion' },
               { type: 'recruit-character', characterId: 'hakurou' },
-              { type: 'recruit-character', characterId: 'kurobe' },
+              // Kurobe wird benannt, bleibt aber Schmied — kein Kampfroster-Beitritt.
               { type: 'recruit-character', characterId: 'souei' },
               { type: 'set-flag', flag: 'story.kijin.named', value: true },
               { type: 'set-flag', flag: 'faction.kijin.sworn', value: true }
@@ -2936,7 +2936,7 @@ export const DIALOGS = [
             nextNodeId: 'joined',
             requirements: [{ flag: 'craft.smithing.unlocked' }, { notFlag: 'faction.dwargon.allied' }],
             effects: [
-              { type: 'recruit-character', characterId: 'kaijin' },
+              // Kaijin zieht als Schmiede-NPC nach Tempest, nicht als Kaempfer.
               { type: 'set-flag', flag: 'faction.dwargon.allied', value: true },
               { type: 'complete-quest-step', questId: 'dwargon-craft', stepId: 'smiths' },
               { type: 'complete-quest', questId: 'dwargon-craft' },

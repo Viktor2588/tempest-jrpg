@@ -284,4 +284,23 @@ describe('save.ts', () => {
     expect(migrated.flags['compat.legacyArc.visible']).toBeUndefined();
     expect(migrated.flags['story.original-arc.optional']).toBeUndefined();
   });
+
+  it('löst die Schmiede (Kaijin/Kurobe) aus Altständen sauber aus der Party (Phase 68)', () => {
+    const base = createNewSave();
+    const smithLike = (characterId: string) => ({
+      ...createPartyMember(HEROES[0]!),
+      characterId
+    });
+    const raw = JSON.parse(exportSave(base)) as Record<string, unknown>;
+    const party = raw.party as { active: unknown[]; reserve: unknown[] };
+    party.active = [...(party.active as unknown[]), smithLike('kurobe')];
+    party.reserve = [smithLike('kaijin')];
+
+    const migrated = importSave(JSON.stringify(raw), '2026-07-02T10:00:00.000Z');
+    const ids = [...migrated.party.active, ...migrated.party.reserve].map((member) => member.characterId);
+    expect(ids).not.toContain('kaijin');
+    expect(ids).not.toContain('kurobe');
+    // Die restliche Party bleibt spielbar.
+    expect(migrated.party.active.length).toBeGreaterThan(0);
+  });
 });
