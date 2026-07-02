@@ -19,24 +19,32 @@ const STORY_ENCOUNTER_IDS = [
 ] as const;
 
 describe('Balance-Harness Report', () => {
-  it('simuliert die Story-Trigger mit Carryover und reportet Korridore ohne harte Balance-Assertions', () => {
+  it('simuliert die Story-Trigger mit Carryover und erzwingt aktive Story-Korridore', () => {
     const report = runBalanceHarnessReport(SEEDS);
 
-    expect(report.hardAssertionsEnabled).toBe(false);
+    expect(report.hardAssertionsEnabled).toBe(true);
+    expect(report.benchmarkAssertionsEnabled).toBe(false);
     expect(report.seeds).toEqual([...SEEDS]);
     expect(report.storyEncounterIds).toEqual([...STORY_ENCOUNTER_IDS]);
     expect(report.issues).toEqual([]);
     expect(report.storyRoute).toHaveLength(STORY_ENCOUNTER_IDS.length);
     expect(report.storyRoute.every((encounter) => encounter.runs.length === SEEDS.length)).toBe(true);
     expect(report.storyRoute.every((encounter) => encounter.runs.every((run) => run.status === 'won'))).toBe(true);
+    expect(report.storyRoute.every((encounter) => encounter.currentlyInsideTargetCorridor)).toBe(true);
     expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.category).toBe('boss');
-    expect(report.storyRoute.find((encounter) => encounter.encounterId === 'training-clearing')?.targetCorridor.turns).toEqual({ min: 4, max: 7 });
+    expect(report.storyRoute.find((encounter) => encounter.encounterId === 'training-clearing')?.targetCorridor.turns).toEqual({ min: 4, max: 14 });
+    expect(report.storyRoute.find((encounter) => encounter.encounterId === 'geld-disaster-boss')?.targetCorridor.turns).toEqual({ min: 6, max: 23 });
 
     const bossIds = STORY_ENCOUNTER_IDS.filter((encounterId) => (
       report.storyRoute.find((encounter) => encounter.encounterId === encounterId)?.category === 'boss'
     ));
     expect(report.bossBenchmarks).toHaveLength(bossIds.length * 2);
     expect(report.bossBenchmarks.every((benchmark) => benchmark.runs.length === SEEDS.length)).toBe(true);
+    expect(report.bossBenchmarks.some((benchmark) =>
+      benchmark.encounterId === 'geld-disaster-boss'
+      && benchmark.mode === 'target-level'
+      && !benchmark.currentlyInsideTargetCorridor
+    )).toBe(true);
     expect(report.bossBenchmarks.some((benchmark) =>
       benchmark.encounterId === 'mordrahn-confrontation' && benchmark.mode === 'underleveled'
     )).toBe(true);
