@@ -644,6 +644,12 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_63:
+    - tempest-start grows by story flags from Jura wilderness to camp, named village, and young Jura-Tempest city
+    - three dedicated map layouts, generated ground textures, and generated region banners make each stage visually distinct
+    - Rigurd changes position while Kijin and Dwargon quarters add Kurobe and Kaijin as visible smith NPCs in the city stage
+    - generated-asset provenance recorded in ASSETS.md with deterministic texture and banner fallback coverage
+    - typecheck, 336 unit tests across 46 files, production build, and dedicated desktop/mobile Chromium smokes verified
 ```
 
 Git history is the source for exact acceptance notes and historical test counts.
