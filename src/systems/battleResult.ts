@@ -79,6 +79,27 @@ export function applyBattleResultToSave(
   return nextSave;
 }
 
+export interface LevelUpSummary {
+  readonly characterId: string;
+  readonly name: string;
+  readonly fromLevel: number;
+  readonly toLevel: number;
+}
+
+// Stufenaufstiege der aktiven Gruppe zwischen Vorher-/Nachher-Save — für die
+// Sieg-Präsentation. Rein/funktional, damit die Zusammenfassung ohne Szene testbar ist.
+export function summarizeBattleLevelUps(before: SaveGameV2, after: SaveGameV2): LevelUpSummary[] {
+  const previousLevels = new Map(before.party.active.map((member) => [member.characterId, member.level]));
+  const summaries: LevelUpSummary[] = [];
+  for (const member of after.party.active) {
+    const fromLevel = previousLevels.get(member.characterId);
+    if (fromLevel !== undefined && member.level > fromLevel) {
+      summaries.push({ characterId: member.characterId, name: member.name, fromLevel, toLevel: member.level });
+    }
+  }
+  return summaries;
+}
+
 function uniqueStrings(values: readonly string[]): string[] {
   return [...new Set(values)];
 }

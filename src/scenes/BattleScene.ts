@@ -22,7 +22,7 @@ import {
   createScaledEnemyBattleUnits,
   scalingKindForEncounter
 } from '../systems/enemyScaling';
-import { applyBattleResultToSave } from '../systems/battleResult';
+import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
@@ -34,7 +34,7 @@ import { addUiTextButton } from '../render/uiSkin';
 import { addUiPanel } from '../render/uiSkin';
 import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
 import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
-import { fadeIn } from './transition';
+import { fadeIn, fadeToScene } from './transition';
 import { chooseAutoAction, prepareAutoReaction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
@@ -60,6 +60,7 @@ export class BattleScene extends Phaser.Scene {
   private unitPos = new Map<string, { x: number; y: number }>();
   private resultAnnounced = false;
   private rewardsApplied = false;
+  private levelUps: LevelUpSummary[] = [];
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -779,52 +780,63 @@ export class BattleScene extends Phaser.Scene {
       ? 'Das Rudel senkt die Köpfe. Der Sieg endet als Pakt, nicht als Auslöschung.'
       : null;
 
-    // Sichtbare Ergebnis-Dialogbox hinter dem Resultat (statt frei schwebendem Text).
+    // Ergebniszeilen als Daten sammeln, damit Dialogbox und Button mit dem
+    // Inhalt mitwachsen (EP/Gold, Beute, Stufenaufstiege, optionaler Pakt).
+    const title = won ? '🏆 Sieg!' : status === 'fled' ? '🏃 Entkommen' : '💀 Niederlage';
+    const lines: { text: string; size: number; color: string }[] = [];
+    if (won) {
+      lines.push({ text: `+${rewards.experience} EP   +${rewards.gold} Gold`, size: 16, color: '#cbd6e8' });
+      const drops = rewards.items
+        .map((stack) => `${itemById.get(stack.itemId)?.name ?? stack.itemId} ×${stack.quantity}`)
+        .join(', ');
+      if (drops.length > 0) {
+        lines.push({ text: `Beute: ${drops}`, size: 13, color: '#9fb2cc' });
+      }
+      if (this.levelUps.length > 0) {
+        const ups = this.levelUps.map((up) => `${up.name} Lv.${up.toLevel}`).join(' · ');
+        lines.push({ text: `Stufenaufstieg: ${ups}`, size: 14, color: '#8dffc2' });
+      }
+    }
+    if (pactMessage) {
+      lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
+    }
+
+    const titleY = 250;
+    const firstLineY = 292;
+    const lineGap = 26;
+    const contentBottom = lines.length > 0 ? firstLineY + (lines.length - 1) * lineGap + 12 : titleY + 20;
+    const buttonY = contentBottom + 20;
     const boxTop = 224;
-    const boxBottom = pactMessage ? 432 : (won ? 408 : 372);
+    const boxBottom = buttonY + 42;
     this.layer.add(this.add.rectangle(
       GAME_WIDTH / 2, (boxTop + boxBottom) / 2, 480, boxBottom - boxTop, 0x0a0f18, 0.94
     ).setStrokeStyle(2, won ? 0xe9c56c : 0xff7b8a, 0.85));
 
-    const title = won ? '🏆 Sieg!' : status === 'fled' ? '🏃 Entkommen' : '💀 Niederlage';
-    this.layer.add(this.add.text(GAME_WIDTH / 2, 250, title, {
+    this.layer.add(this.add.text(GAME_WIDTH / 2, titleY, title, {
       fontFamily: 'serif',
       fontSize: '34px',
       color: won ? '#e9c56c' : '#ff7b8a'
     }).setOrigin(0.5));
-
-    if (won) {
-      const drops = rewards.items
-        .map((stack) => `${itemById.get(stack.itemId)?.name ?? stack.itemId} ×${stack.quantity}`)
-        .join(', ');
-      this.layer.add(this.add.text(GAME_WIDTH / 2, 290, `+${rewards.experience} EP   +${rewards.gold} Gold`, {
+    lines.forEach((line, index) => {
+      this.layer.add(this.add.text(GAME_WIDTH / 2, firstLineY + index * lineGap, line.text, {
         fontFamily: 'sans-serif',
-        fontSize: '16px',
-        color: '#cbd6e8'
+        fontSize: `${line.size}px`,
+        color: line.color,
+        align: 'center',
+        wordWrap: { width: 448 }
       }).setOrigin(0.5));
-      if (drops.length > 0) {
-        this.layer.add(this.add.text(GAME_WIDTH / 2, 314, `Beute: ${drops}`, {
-          fontFamily: 'sans-serif',
-          fontSize: '13px',
-          color: '#9fb2cc'
-        }).setOrigin(0.5));
-      }
-    }
-    if (pactMessage) {
-      this.layer.add(this.add.text(GAME_WIDTH / 2, 338, pactMessage, {
-        fontFamily: 'sans-serif',
-        fontSize: '14px',
-        color: '#ffd6de'
-      }).setOrigin(0.5));
-    }
-    this.button(GAME_WIDTH / 2 - 90, pactMessage ? 382 : 345, 'Zurück zur Welt', () => this.scene.start('Overworld'));
+    });
+    this.button(GAME_WIDTH / 2 - 90, buttonY, 'Zurück zur Welt', () => fadeToScene(this, 'Overworld'));
   }
 
   private applyBattleResult(status: string): void {
     const view = renderView(this.state);
-    this.save = autoSave(window.localStorage, applyBattleResultToSave(this.save, view, {
+    const before = this.save;
+    const after = applyBattleResultToSave(before, view, {
       encounterId: status === 'won' ? this.encounterId : null
-    }));
+    });
+    this.levelUps = summarizeBattleLevelUps(before, after);
+    this.save = autoSave(window.localStorage, after);
   }
 
   private drawHint(text: string): void {
