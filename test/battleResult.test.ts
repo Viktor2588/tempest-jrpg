@@ -5,7 +5,7 @@ import {
   renderView,
   startBattle
 } from '../src/systems/battle';
-import { applyBattleResultToSave } from '../src/systems/battleResult';
+import { applyBattleResultToSave, summarizeBattleLevelUps } from '../src/systems/battleResult';
 import { createNewSave } from '../src/systems/save';
 
 describe('battle result: dauerhafte Skill-Aneignung', () => {
@@ -38,5 +38,30 @@ describe('battle result: dauerhafte Skill-Aneignung', () => {
 
     expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
     expect(repeated.flags['codex.predator-devour']).toBe(true);
+  });
+});
+
+describe('battle result: Stufenaufstieg-Zusammenfassung', () => {
+  it('meldet aufgestiegene aktive Mitglieder mit Vorher-/Nachher-Level', () => {
+    const before = createNewSave({ seed: 3, now: '2026-06-30T10:00:00.000Z' });
+    const hero = before.party.active[0]!;
+    const after = {
+      ...before,
+      party: {
+        ...before.party,
+        active: before.party.active.map((member, index) =>
+          index === 0 ? { ...member, level: member.level + 2 } : member
+        )
+      }
+    };
+
+    expect(summarizeBattleLevelUps(before, after)).toEqual([
+      { characterId: hero.characterId, name: hero.name, fromLevel: hero.level, toLevel: hero.level + 2 }
+    ]);
+  });
+
+  it('meldet keinen Aufstieg ohne Levelwechsel', () => {
+    const save = createNewSave({ seed: 3, now: '2026-06-30T10:00:00.000Z' });
+    expect(summarizeBattleLevelUps(save, save)).toEqual([]);
   });
 });
