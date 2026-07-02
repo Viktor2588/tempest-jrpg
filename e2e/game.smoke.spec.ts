@@ -89,6 +89,52 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   expect(browserErrors).toEqual([]);
 });
 
+test('Oberwelt-Onboarding markiert Bewegung, Menü und Interaktion im Browser', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.addInitScript(() => {
+    window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
+      masterVolume: 0,
+      musicVolume: 0,
+      sfxVolume: 0,
+      reducedMotion: true,
+      seenTutorial: true,
+      difficulty: 'normal',
+      textSpeed: 'sofort',
+      highContrast: false,
+      colorblind: 'aus'
+    }));
+    window.localStorage.removeItem('tempest-chronik.save.v3');
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+
+  await tapMovementKey(page, 'ArrowUp');
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+  await tapMovementKey(page, 'ArrowUp');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(250);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['tutorial.overworld.move']).toBe(true);
+  expect(save.flags['tutorial.overworld.menu']).toBe(true);
+  expect(save.flags['tutorial.overworld.interact']).toBe(true);
+  expect(save.flags['tutorial.overworld.seen']).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
@@ -808,7 +854,6 @@ async function focusGame(page: Page): Promise<void> {
 }
 
 async function dismissOverworldTutorial(page: Page): Promise<void> {
-  await clickGamePoint(page, 480, 372);
   await page.waitForTimeout(250);
 }
 
