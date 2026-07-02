@@ -38,8 +38,22 @@ describe('Balance-Harness Report', () => {
     const bossIds = STORY_ENCOUNTER_IDS.filter((encounterId) => (
       report.storyRoute.find((encounter) => encounter.encounterId === encounterId)?.category === 'boss'
     ));
-    expect(report.bossBenchmarks).toHaveLength(bossIds.length * 2);
+    expect(report.bossBenchmarks).toHaveLength(bossIds.length * 4);
     expect(report.bossBenchmarks.every((benchmark) => benchmark.runs.length === SEEDS.length)).toBe(true);
+
+    // Phase 67 — Overgrind-Szenarien: Party 4/8 Level über Ziel, Gegner wachsen mit.
+    const overleveled = report.bossBenchmarks.filter((benchmark) =>
+      benchmark.mode === 'overleveled-4' || benchmark.mode === 'overleveled-8'
+    );
+    expect(overleveled).toHaveLength(bossIds.length * 2);
+    expect(overleveled.every((benchmark) => benchmark.partyLevel > benchmark.enemyTargetLevel)).toBe(true);
+    expect(overleveled.every((benchmark) => benchmark.enemyScaledLevel > benchmark.enemyTargetLevel)).toBe(true);
+    expect(overleveled.every((benchmark) => benchmark.targetCorridor !== undefined)).toBe(true);
+    // Ziellevel-/Unterlevel-Benchmarks bleiben auf Basiswerten (kein Downscaling).
+    expect(report.bossBenchmarks
+      .filter((benchmark) => benchmark.mode === 'target-level' || benchmark.mode === 'underleveled')
+      .every((benchmark) => benchmark.enemyScaledLevel >= benchmark.enemyTargetLevel)
+    ).toBe(true);
     expect(report.bossBenchmarks.some((benchmark) =>
       benchmark.encounterId === 'geld-disaster-boss'
       && benchmark.mode === 'target-level'

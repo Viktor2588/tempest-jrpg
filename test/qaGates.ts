@@ -14,6 +14,10 @@ import {
 } from '../src/systems/battle';
 import { applyBattleResultToSave } from '../src/systems/battleResult';
 import {
+  averagePartyLevel,
+  createScaledEnemyBattleUnits
+} from '../src/systems/enemyScaling';
+import {
   allHudRects,
   allTouchControlRects,
   layoutOverworldHud,
@@ -60,7 +64,7 @@ export interface EncounterPlaythroughSummary extends AutoBattleSummary {
 }
 
 export type BalanceEncounterCategory = 'normal' | 'boss';
-export type BalanceBossBenchmarkMode = 'target-level' | 'underleveled';
+export type BalanceBossBenchmarkMode = 'target-level' | 'underleveled' | 'overleveled-4' | 'overleveled-8';
 
 export interface BalanceRange {
   readonly min: number;
@@ -76,6 +80,9 @@ export interface BalanceHarnessCorridors {
   readonly normal: BalanceCorridor;
   readonly storyBoss: BalanceCorridor;
   readonly targetBossBenchmark: BalanceCorridor;
+  // Phase 67: Overgrind-Korridor — auch 4/8 Level ueber Ziel muss ein Boss
+  // dank Mitwachsen spuerbar bleiben (Mindestzuege, Party verliert echte HP).
+  readonly overleveledBossBenchmark: BalanceCorridor;
   readonly underleveledBossWinRateMax: number;
 }
 
@@ -109,6 +116,7 @@ export interface BalanceBossBenchmark {
   readonly mode: BalanceBossBenchmarkMode;
   readonly partyLevel: number;
   readonly enemyTargetLevel: number;
+  readonly enemyScaledLevel: number;
   readonly runs: readonly AutoBattleSummary[];
   readonly winRate: number;
   readonly averageTurns: number;
@@ -159,6 +167,10 @@ const BALANCE_CORRIDORS: BalanceHarnessCorridors = {
   targetBossBenchmark: {
     turns: { min: 10, max: 20 },
     remainingPartyHpFraction: { min: 0.25, max: 0.6 }
+  },
+  overleveledBossBenchmark: {
+    turns: { min: 8, max: 60 },
+    remainingPartyHpFraction: { min: 0, max: 0.85 }
   },
   underleveledBossWinRateMax: 0.49
 };
@@ -638,7 +650,12 @@ function playBalanceEncounter(
   save = applyWorldState(save, encounterResult.state.world);
   const battle = startBattle({
     party: createProgressionBattleParty(save.party.active, save.progression),
-    enemyIds: [...encounter.enemyIds],
+    // Phase 67: Spiegel des Spiels — Story-Trigger skalieren mit dem Partylevel.
+    enemies: createScaledEnemyBattleUnits(
+      encounter.enemyIds,
+      averagePartyLevel(save.party.active.map((member) => member.level)),
+      'trigger'
+    ),
     inventory: save.inventory.stacks,
     teamMeter: calculateStartingTeamMeter(save.party.active, save.progression),
     seed
@@ -692,7 +709,12 @@ function playStoryEncounter(
   save = applyWorldState(save, encounterResult.state.world);
   const battle = startBattle({
     party: createProgressionBattleParty(save.party.active, save.progression),
-    enemyIds: [...encounter.enemyIds],
+    // Phase 67: Spiegel des Spiels — Story-Trigger skalieren mit dem Partylevel.
+    enemies: createScaledEnemyBattleUnits(
+      encounter.enemyIds,
+      averagePartyLevel(save.party.active.map((member) => member.level)),
+      'trigger'
+    ),
     inventory: save.inventory.stacks,
     teamMeter: calculateStartingTeamMeter(save.party.active, save.progression),
     seed
@@ -719,7 +741,10 @@ function runBossBenchmarks(seeds: readonly number[]): readonly BalanceBossBenchm
       const target = runBossBenchmark(spec, seeds, enemyTargetLevel, 'target-level');
       const underleveledPartyLevel = Math.max(1, enemyTargetLevel - 4);
       const underleveled = runBossBenchmark(spec, seeds, underleveledPartyLevel, 'underleveled');
-      return [target, underleveled];
+      // Phase 67: Overgrind-Szenarien — der Boss waechst mit und bleibt ein Kampf.
+      const overleveled4 = runBossBenchmark(spec, seeds, enemyTargetLevel + 4, 'overleveled-4');
+      const overleveled8 = runBossBenchmark(spec, seeds, enemyTargetLevel + 8, 'overleveled-8');
+      return [target, underleveled, overleveled4, overleveled8];
     });
 }
 
@@ -730,23 +755,30 @@ function runBossBenchmark(
   mode: BalanceBossBenchmarkMode
 ): BalanceBossBenchmark {
   const enemyIds = encounterEnemyIds(storyEncounter.id);
+  const enemies = createScaledEnemyBattleUnits(enemyIds, partyLevel, 'trigger');
   const runs = seeds.map((seed) => {
     const battle = startBattle({
       party: createProgressionBattleParty(createBenchmarkParty(partyLevel), createNewSave().progression),
-      enemyIds: [...enemyIds],
+      enemies,
       inventory: [],
       teamMeter: 0,
       seed: seed + storyEncounter.id.length * 97 + partyLevel
     });
     return autoPlayBattleToEnd(battle);
   });
-  const targetCorridor = mode === 'target-level' ? BALANCE_CORRIDORS.targetBossBenchmark : undefined;
+  const overleveled = mode === 'overleveled-4' || mode === 'overleveled-8';
+  const targetCorridor = mode === 'target-level'
+    ? BALANCE_CORRIDORS.targetBossBenchmark
+    : overleveled
+      ? BALANCE_CORRIDORS.overleveledBossBenchmark
+      : undefined;
   const rate = winRate(runs);
   return {
     encounterId: storyEncounter.id,
     mode,
     partyLevel,
     enemyTargetLevel: encounterTargetLevel(storyEncounter.id),
+    enemyScaledLevel: Math.max(...enemies.map((enemy) => enemy.level)),
     runs,
     winRate: rate,
     averageTurns: roundedAverage(runs.map((run) => run.turns)),
@@ -754,7 +786,9 @@ function runBossBenchmark(
     targetCorridor,
     currentlyInsideTargetCorridor: mode === 'target-level'
       ? runsInsideCorridor(runs, BALANCE_CORRIDORS.targetBossBenchmark)
-      : rate <= BALANCE_CORRIDORS.underleveledBossWinRateMax
+      : overleveled
+        ? runsInsideCorridor(runs, BALANCE_CORRIDORS.overleveledBossBenchmark)
+        : rate <= BALANCE_CORRIDORS.underleveledBossWinRateMax
   };
 }
 

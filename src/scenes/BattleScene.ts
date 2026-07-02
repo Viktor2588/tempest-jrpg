@@ -16,6 +16,11 @@ import {
   calculateStartingTeamMeter,
   createProgressionBattleParty
 } from '../systems/progression';
+import {
+  averagePartyLevel,
+  createScaledEnemyBattleUnits,
+  scalingKindForEncounter
+} from '../systems/enemyScaling';
 import { applyBattleResultToSave } from '../systems/battleResult';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
@@ -71,7 +76,12 @@ export class BattleScene extends Phaser.Scene {
         this.save.party.active,
         this.save.progression
       ),
-      enemyIds: data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
+      // Phase 67: Gegner skalieren nach oben mit dem Partylevel (Anti-Overgrind).
+      enemies: createScaledEnemyBattleUnits(
+        data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
+        averagePartyLevel(this.save.party.active.map((member) => member.level)),
+        scalingKindForEncounter(this.encounterId)
+      ),
       inventory: this.save.inventory.stacks,
       teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
       damageMultipliers: {

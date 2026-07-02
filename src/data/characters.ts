@@ -196,28 +196,11 @@ export const HEROES = [
     startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
   },
   {
-    id: 'kurobe', name: 'Kurobe', species: 'Kijin', role: 'Meisterschmied', startsInParty: false,
-    initialLevel: 1, initialExperience: 0,
-    baseStats: { maxHp: 100, maxMp: 16, attack: 16, defense: 18, magic: 8, spirit: 10, agility: 9 },
-    growthPerLevel: { maxHp: 12, maxMp: 2, attack: 3, defense: 4, magic: 1, spirit: 2, agility: 2 },
-    initialSkillIds: ['iron-guard', 'slime-strike'],
-    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
-  },
-  {
     id: 'souei', name: 'Souei', species: 'Kijin', role: 'Schattenklinge', startsInParty: false,
     initialLevel: 1, initialExperience: 0,
     baseStats: { maxHp: 80, maxMp: 22, attack: 17, defense: 11, magic: 12, spirit: 12, agility: 22 },
     growthPerLevel: { maxHp: 9, maxMp: 3, attack: 4, defense: 2, magic: 3, spirit: 2, agility: 5 },
     initialSkillIds: ['venom-spit', 'quick-step'],
-    startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
-  },
-  // — Band 2: Kaijin (Dwargon-Meisteringenieur), über den Dwargon-Arc rekrutierbar —
-  {
-    id: 'kaijin', name: 'Kaijin', species: 'Zwerg', role: 'Meisteringenieur', startsInParty: false,
-    initialLevel: 1, initialExperience: 0,
-    baseStats: { maxHp: 112, maxMp: 14, attack: 18, defense: 19, magic: 7, spirit: 11, agility: 9 },
-    growthPerLevel: { maxHp: 13, maxMp: 2, attack: 4, defense: 4, magic: 1, spirit: 2, agility: 2 },
-    initialSkillIds: ['iron-guard', 'ogre-smash'],
     startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
   }
 ] as const satisfies readonly CharacterDefinition[];
