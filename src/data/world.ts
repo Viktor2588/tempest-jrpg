@@ -3644,7 +3644,7 @@ export const ENCOUNTERS = [
     mapId: 'tempest-start',
     kind: 'trigger',
     position: { x: 20, y: 12 },
-    enemyIds: ['forest-slime', 'direwolf-pup'],
+    enemyIds: ['forest-slime', 'direwolf-pup', 'forest-slime'],
     chance: 1,
     victoryEffects: [
       { type: 'set-flag', flag: 'encounter.training-cleared', value: true },

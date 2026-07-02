@@ -159,20 +159,18 @@ export interface OverworldBudget {
 const AUTO_BATTLE_STEP_LIMIT = 900;
 const BALANCE_REPORT_SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const BALANCE_CORRIDORS: BalanceHarnessCorridors = {
-  // Phase 55 (Kurve & Anti-Grind) hebt die Party auf die Ziellevel, wodurch die
-  // Kaempfe leichter werden als im unterlevelten Altzustand. Die Rest-HP-Decken
-  // sind hier bewusst weit: Phase 55 sichert nur, dass jeder Pflichtkampf echte
-  // HP kostet (kein 100%-Filler mehr) und ohne Grind gewonnen wird. Das enge
-  // „knapp"-Band (Boss 0.2–0.8, Normal bis 0.96) zieht Phase 56 (Schwung im
-  // Kampf) wieder an, sobald der systemische Heilungs-/Action-Economy-Ueberhang
-  // adressiert ist.
+  // Phase 56 (Schwung im Kampf) zieht das enge „knapp"-Band nach der
+  // Phase-55-Lockerung wieder an: Normalkaempfe kosten spuerbar HP (Trash mit
+  // wenig HP, aber hohem Schaden — Schwaeche schnell loesen oder echten Schaden
+  // nehmen) und Bosse liefern verlaesslichen Flaechendruck, damit die mittlere
+  // Party-HP ins knappe Band faellt.
   normal: {
-    turns: { min: 4, max: 15 },
-    remainingPartyHpFraction: { min: 0.65, max: 0.99 }
+    turns: { min: 2, max: 15 },
+    remainingPartyHpFraction: { min: 0.3, max: 0.9 }
   },
   storyBoss: {
     turns: { min: 6, max: 23 },
-    remainingPartyHpFraction: { min: 0.2, max: 0.95 }
+    remainingPartyHpFraction: { min: 0.15, max: 0.85 }
   },
   targetBossBenchmark: {
     turns: { min: 10, max: 20 },
@@ -494,6 +492,8 @@ function runBalanceStoryRoute(seed: number): BalanceEncounterRun[] {
   save = chooseNpcOption(save, 'rigurd-tempest', 'choose-true');
 
   save = chooseNpcOption(save, 'treyni-battlefield', 'accept');
+  save = recoverWithInventory(buyIfPossible(save, 'healing-herb', 6));
+  save = recoverWithInventory(buyIfPossible(save, 'mana-drop', 2));
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[8]!, seed + 59, runs);
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[9]!, seed + 61, runs);
   save = chooseNpcOption(save, 'geld-federation-herald', 'found');
@@ -502,6 +502,8 @@ function runBalanceStoryRoute(seed: number): BalanceEncounterRun[] {
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[10]!, seed + 67, runs);
   save = chooseNpcOption(save, 'souka-marsh', 'seal');
 
+  save = recoverWithInventory(buyIfPossible(save, 'healing-herb', 4));
+  save = recoverWithInventory(buyIfPossible(save, 'mana-drop', 2));
   save = chooseNpcOption(save, 'shizu-grotto', 'meet');
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[11]!, seed + 71, runs);
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[12]!, seed + 73, runs);

@@ -154,6 +154,8 @@ export const SKILLS = [
   { id: 'famished-bite', name: 'Hungerbiss', description: 'Der Hunger der „Ausgehungerten" reißt Fleisch und Kraft heraus.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 34, tags: ['physical'] },
   { id: 'calamity-roar', name: 'Katastrophenbrüllen', description: 'Ein Brüllen bricht die Deckung aller Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 0, tags: ['debuff'], statusEffect: { id: 'guard-break', chance: 0.9, turns: 3 } },
   { id: 'ogre-smash', name: 'Oger-Wucht', description: 'Erderschütternder Hieb roher Ogerkraft.', element: 'earth', target: 'single-enemy', costMp: 7, power: 32, tags: ['physical'] },
+  // Phase 56 — verlaesslicher Flaechendruck fuer Schatten-Bosse (kein Guard-Break-Stapeln).
+  { id: 'umbral-burst', name: 'Schattenwoge', description: 'Eine Woge aus Schattenmagie erfasst alle Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 18, tags: ['magical'] },
   { id: 'spear-charge', name: 'Speersturm', description: 'Schneller Vorstoß mit der Wasserklinge.', element: 'wind', target: 'single-enemy', costMp: 5, power: 24, tags: ['physical'] },
   { id: 'tide-lance', name: 'Flutlanze', description: 'Ein Wasserdruckstoß durchbohrt das Ziel.', element: 'water', target: 'single-enemy', costMp: 7, power: 26, tags: ['magical'] },
   { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'] },
