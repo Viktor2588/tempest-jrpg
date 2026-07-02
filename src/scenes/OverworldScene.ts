@@ -516,16 +516,21 @@ export class OverworldScene extends Phaser.Scene {
     for (const npc of getMapNpcs(this.mapId, world)) {
       layer.add(this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
         .setStrokeStyle(2, 0xfff1aa, 0.9));
-      layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 34, npc.name, {
+      // Name normalerweise über dem Marker; bei NPCs in den obersten Reihen nach
+      // unten kippen, sonst wird der Name (und der Quest-Marker darüber) am oberen
+      // Kartenrand abgeschnitten (z. B. „König Gazel Dwargo" im Dwargon-Thronsaal).
+      const flipDown = npc.position.y <= 1;
+      const nameY = this.cy(npc.position.y) + (flipDown ? 34 : -34);
+      layer.add(this.add.text(this.cx(npc.position.x), nameY, npc.name, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#e9eef7'
       }).setOrigin(0.5));
-      // Quest-Marker: goldenes „!" über NPCs, bei denen ein Gespräch JETZT die
+      // Quest-Marker: goldenes „!" bei NPCs, bei denen ein Gespräch JETZT die
       // Story voranbringt (unterscheidet sich vom pinken Encounter-„!" auf der Kachel).
       // Statisch gehalten, damit beim worldLayer-Neuzeichnen keine Tweens lecken.
       if (npcHasQuestMarker(world, npc.id)) {
-        layer.add(this.add.text(this.cx(npc.position.x), this.cy(npc.position.y) - 52, '❗', {
+        layer.add(this.add.text(this.cx(npc.position.x), nameY + (flipDown ? 18 : -18), '❗', {
           fontFamily: 'sans-serif',
           fontSize: '20px',
           color: '#ffd34d'

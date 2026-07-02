@@ -107,7 +107,11 @@ export class MenuScene extends Phaser.Scene {
       quests: this.save.quests
     };
 
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.93);
+    // Vollflaechiger, deckender Backdrop: das Menue ist eine Vollbild-Uebernahme,
+    // die pausierte Overworld darf nicht durchscheinen. Grosszuegig ueberdimensioniert
+    // und scroll-fixiert, damit die Deckung unabhaengig von Kamera/Skalierung haelt.
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH * 2, GAME_HEIGHT * 2, 0x05070d, 1)
+      .setScrollFactor(0);
     this.layer = this.add.container(0, 0);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
     this.input.keyboard?.on('keydown-M', () => this.close());
