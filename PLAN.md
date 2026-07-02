@@ -68,11 +68,12 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-- [ ] Phase 55 — Kurve & Anti-Grind: XP-Belohnungen so setzen, dass der
+- [~] Phase 55 — Kurve & Anti-Grind: XP-Belohnungen so setzen, dass der
   Hauptpfad ohne Grind die Ziellevel erreicht (≈L9–10 vor Mordrahn, ≈L13 vor
   Geld/Ifrit); Zufalls-Encounter aufwerten (2–3er-Gruppen, mehr XP, seltene
   Drops), damit optionale Kaempfe sich lohnen statt zu fuellen; Harness-Sim
   „ohne Grind" muss alle Pflichtkaempfe knapp, aber sicher gewinnen.
+  (in Bearbeitung im Worktree `/worktree/tempest-phase-55-anti-grind`)
 - [ ] Phase 56 — Schwung im Kampf: Break/Team/Devour in Normalkaempfen relevant
   machen (Trash-HP niedrig, Schaden hoch → Schwaeche schnell loesen oder echten
   Schaden nehmen); Telegraph-/Reaktionsfenster gegen haertere Gegnerzuege
