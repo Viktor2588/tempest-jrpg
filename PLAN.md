@@ -84,7 +84,8 @@ verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
   `RIMURU_CORE_LOADOUT_SKILLS` (battle.ts) und Onboarding-Texte anpassen;
   Balance-Harness neu einpendeln, da Rimurus Fruehspiel schwaecher wird
   (Abstimmung mit Phasen 53–56/67).
-- [ ] Phase 72 — Spec-Baum-UI: Talent-Tab als 3-Spalten-Spec-Layout (eine
+- [~] Phase 72 — Spec-Baum-UI (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-72-spec-ui`): Talent-Tab als 3-Spalten-Spec-Layout (eine
   Spalte je Strang, Linien Eltern→Kind, Zustaende: aktiv / freischaltbar /
   gesperrt mit sichtbarem Grund inkl. Branch-Lock); Knoten-Vorschau zeigt
   Perk-Wirkung VOR dem Kauf; Strangwahl mit Bestaetigungsdialog („sperrt die
