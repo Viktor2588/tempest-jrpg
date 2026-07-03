@@ -22,6 +22,17 @@ import {
 import { getItemCount, normalizeInventoryStacks, type InventoryStack } from './inventory';
 import type { PartyMemberState } from './party';
 import { makeRng, type Rng } from './rng';
+import {
+  buffBonusTurns,
+  counterProc,
+  damageDealtMultiplier,
+  damageTakenMultiplierFromPerks,
+  dodgeChance,
+  maxHpMultiplier,
+  skillChainFor,
+  type DamageCategory,
+  type TalentPerk
+} from './talentPerk';
 import { scaleStats } from './stats';
 import { resolveElementFusion } from './fusion';
 
@@ -63,6 +74,8 @@ export interface BattleUnitInput {
   readonly experienceReward?: number;
   readonly goldReward?: number;
   readonly drops?: readonly EnemyDrop[];
+  // Phase 69 — Talent-Perks aus freigeschalteten Spec-Knoten (Phase 70 speist sie ein).
+  readonly perks?: readonly TalentPerk[];
 }
 
 export interface Combatant {
@@ -110,6 +123,7 @@ export interface Combatant {
   ct: number;
   guarding: boolean;
   dead: boolean;
+  readonly perks: readonly TalentPerk[];
   readonly experienceReward: number;
   readonly goldReward: number;
   readonly drops: readonly EnemyDrop[];
@@ -224,7 +238,10 @@ export function createDefaultBattleParty(): BattleUnitInput[] {
   return HEROES.filter((hero) => hero.startsInParty).map((hero) => createHeroBattleUnit(hero));
 }
 
-export function createBattlePartyFromMembers(members: readonly PartyMemberState[]): BattleUnitInput[] {
+export function createBattlePartyFromMembers(
+  members: readonly PartyMemberState[],
+  perksByCharacterId: Readonly<Record<string, readonly TalentPerk[]>> = {}
+): BattleUnitInput[] {
   return members.flatMap((member): BattleUnitInput[] => {
     const hero = heroById.get(member.characterId);
     if (!hero) {
@@ -237,7 +254,8 @@ export function createBattlePartyFromMembers(members: readonly PartyMemberState[
         level: member.level,
         currentHp: member.currentHp,
         currentMp: member.currentMp,
-        skillIds: battleLoadoutSkillIds(member)
+        skillIds: battleLoadoutSkillIds(member),
+        perks: perksByCharacterId[member.characterId]
       })
     ];
   });
@@ -266,6 +284,7 @@ export function createHeroBattleUnit(
     | 'level'
     | 'name'
     | 'openingStatusIds'
+    | 'perks'
     | 'skillIds'
     | 'synergyPartnerIds'
   >> = {}
@@ -287,7 +306,8 @@ export function createHeroBattleUnit(
     resistances: [],
     skillIds: overrides.skillIds ?? hero.initialSkillIds,
     synergyPartnerIds: overrides.synergyPartnerIds,
-    openingStatusIds: overrides.openingStatusIds
+    openingStatusIds: overrides.openingStatusIds,
+    perks: overrides.perks
   };
 }
 
@@ -516,6 +536,9 @@ function resolveEnemyAction(state: BattleState, actor: Combatant, action: Battle
 
 function createCombatant(unit: BattleUnitInput, id: string): Combatant {
   const stats = unit.stats;
+  const perks = unit.perks ?? [];
+  // +HP%-Perks erhöhen die maximale LP zur Build-Zeit.
+  const maxHp = Math.max(1, Math.round(stats.maxHp * maxHpMultiplier(perks)));
   const baseSkillIds = [...unit.skillIds];
   const breakGaugeMax = unit.side === 'enemy' ? BREAK_GAUGE_MAX : Math.max(3, BREAK_GAUGE_MAX - 1);
   const signature = unit.side === 'party' ? signatureByCharacterId.get(unit.sourceId) : undefined;
@@ -529,8 +552,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     level: unit.level,
     baseStats: unit.stats,
     baseSkillIds,
-    hp: clamp(unit.currentHp ?? stats.maxHp, 0, stats.maxHp),
-    maxHp: stats.maxHp,
+    hp: clamp(unit.currentHp ?? maxHp, 0, maxHp),
+    maxHp,
     mp: clamp(unit.currentMp ?? stats.maxMp, 0, stats.maxMp),
     maxMp: stats.maxMp,
     attack: stats.attack,
@@ -566,6 +589,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     ct: 0,
     guarding: false,
     dead: false,
+    perks,
     experienceReward: unit.experienceReward ?? 0,
     goldReward: unit.goldReward ?? 0,
     drops: unit.drops ?? []
@@ -637,7 +661,7 @@ function resolveAttack(state: BattleState, actor: Combatant, targetId: string): 
   }
 
   const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8) * variance(state.rng);
-  const damage = applyDamage(state, actor, target, rawDamage);
+  const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: actor.element });
   pushLog(state, `${actor.name} greift ${target.name} an: ${damage} Schaden.`);
   checkDeath(state, target);
   endTurn(state, actor);
@@ -679,7 +703,7 @@ function resolveSkill(
       const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 0.6));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
-      applySkillStatus(state, target, skill);
+      applySkillStatus(state, actor, target, skill);
       applyCtDelta(target, skill.ctDelta);
     }
     endTurn(state, actor);
@@ -689,7 +713,7 @@ function resolveSkill(
   // Unterstützungs-/Status-/Zeitkontroll-Fähigkeiten ohne Schaden: Buffs, reine Debuffs, delay/hasten.
   if (skill.power <= 0) {
     for (const target of targets) {
-      applySkillStatus(state, target, skill);
+      applySkillStatus(state, actor, target, skill);
       applyCtDelta(target, skill.ctDelta);
     }
     endTurn(state, actor);
@@ -704,7 +728,10 @@ function resolveSkill(
     const rawDamage = (skill.power + offense * 1.35 - mitigation * 0.55)
       * elementMultiplier(skill.element, target)
       * variance(state.rng);
-    const damage = applyDamage(state, actor, target, rawDamage);
+    const damage = applyDamage(state, actor, target, rawDamage, true, {
+      category: usesPhysicalScaling ? 'physical' : 'magical',
+      element: skill.element
+    });
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
     applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
@@ -712,13 +739,56 @@ function resolveSkill(
       grantMomentum(state, actor, 'Schwächentreffer');
       momentumGranted = true;
     }
-    applySkillStatus(state, target, skill);
+    applySkillStatus(state, actor, target, skill);
     applyCtDelta(target, skill.ctDelta);
     checkDeath(state, target);
   }
 
+  // Perk skill-chain: nach diesem Skill mit Chance einen Folge-Skill ohne Zugkosten.
+  const chain = skillChainFor(actor.perks, skill.id);
+  if (chain && state.rng() < chain.chance) {
+    resolveChainSkill(state, actor, chain.followUpSkillId, targets);
+  }
+
   endTurn(state, actor);
   return { ok: true };
+}
+
+// Perk-Kettenskill: ein Folge-Skill wird ohne MP-/Zugkosten und ohne weitere
+// Ketten als reiner Zusatztreffer aufgelöst (verhindert Endlos-Rekursion).
+function resolveChainSkill(
+  state: BattleState,
+  actor: Combatant,
+  followUpSkillId: string,
+  triggerTargets: readonly Combatant[]
+): void {
+  const skill = getSkill(followUpSkillId);
+  if (!skill || skill.power <= 0) {
+    return;
+  }
+  const living = triggerTargets.filter((target) => !target.dead && target.side !== actor.side);
+  const targets = living.length > 0
+    ? living
+    : livingCombatants(state).filter((combatant) => combatant.side !== actor.side).slice(0, 1);
+  if (targets.length === 0) {
+    return;
+  }
+  pushLog(state, `${actor.name} löst Kettenskill ${skill.name} aus.`);
+  for (const target of targets) {
+    const usesPhysicalScaling = skill.tags.includes('physical') && !skill.tags.includes('magical');
+    const offense = usesPhysicalScaling ? effectiveStat(actor, 'attack') : effectiveStat(actor, 'magic');
+    const mitigation = usesPhysicalScaling ? effectiveStat(target, 'defense') : effectiveStat(target, 'spirit');
+    const rawDamage = (skill.power + offense * 1.35 - mitigation * 0.55)
+      * elementMultiplier(skill.element, target)
+      * variance(state.rng);
+    const damage = applyDamage(state, actor, target, rawDamage, true, {
+      category: usesPhysicalScaling ? 'physical' : 'magical',
+      element: skill.element
+    });
+    pushLog(state, `${skill.name} trifft ${target.name}: ${damage} Schaden.`);
+    applyBreakPressure(state, target, skill.element, 0);
+    checkDeath(state, target);
+  }
 }
 
 function resolveItem(
@@ -809,7 +879,7 @@ function resolveTeamAttack(
     * (fusion?.powerMultiplier ?? 1.35)
     * (fusion ? elementMultiplier(fusion.damageElement, target) : 1)
     * variance(state.rng);
-  const damage = applyDamage(state, actor, target, rawDamage, false);
+  const damage = applyDamage(state, actor, target, rawDamage, false, { element: fusion?.damageElement });
   applyBreakPressure(
     state,
     target,
@@ -1012,7 +1082,10 @@ function resolveSignature(
           const rawDamage = (effect.power + offense * 1.45 - mitigation * 0.55)
             * elementMultiplier(effect.element, target)
             * variance(state.rng);
-          const damage = applyDamage(state, actor, target, rawDamage);
+          const damage = applyDamage(state, actor, target, rawDamage, true, {
+            category: effect.scaling === 'attack' ? 'physical' : effect.scaling === 'magic' ? 'magical' : undefined,
+            element: effect.element
+          });
           pushLog(state, `${signature.name} trifft ${target.name}: ${damage} Schaden.`);
           checkDeath(state, target);
         }
@@ -1186,7 +1259,7 @@ function targetsForSkill(
   }
 }
 
-function applySkillStatus(state: BattleState, target: Combatant, skill: SkillDefinition): void {
+function applySkillStatus(state: BattleState, actor: Combatant, target: Combatant, skill: SkillDefinition): void {
   if (!skill.statusEffect || target.dead) {
     return;
   }
@@ -1194,7 +1267,9 @@ function applySkillStatus(state: BattleState, target: Combatant, skill: SkillDef
     return;
   }
 
-  applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns);
+  // Perk buff-power: von dieser Figur gewirkte Buffs auf Verbündete halten länger.
+  const bonusTurns = target.side === actor.side ? buffBonusTurns(actor.perks) : 0;
+  applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns + bonusTurns);
   pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)}.`);
 }
 
@@ -1360,9 +1435,22 @@ function applyDamage(
   attacker: Combatant,
   target: Combatant,
   rawDamage: number,
-  allowReaction = true
+  allowReaction = true,
+  context: { readonly category?: DamageCategory; readonly element?: ElementType } = {}
 ): number {
+  // Perk: Ausweichchance negiert den Treffer (vor allem anderen).
+  if (rawDamage > 0 && dodgeChance(target.perks) > 0 && state.rng() < dodgeChance(target.perks)) {
+    target.reaction = null;
+    pushLog(state, `${target.name} weicht ${attacker.name} aus.`);
+    return 0;
+  }
+
+  // Perk: ausgeteilter (+X %) und erlittener (-X %) Schaden nach Kategorie/Element.
+  const dealtMult = damageDealtMultiplier(attacker.perks, context.category, context.element);
+  const takenMult = damageTakenMultiplierFromPerks(target.perks, context.category, context.element);
   let adjustedDamage = rawDamage
+    * dealtMult
+    * takenMult
     * state.damageMultipliers[attacker.side]
     * damageTakenMultiplier(target);
   const reaction = allowReaction ? target.reaction : null;
@@ -1402,6 +1490,21 @@ function applyDamage(
     );
     attacker.hp = Math.max(0, attacker.hp - counterDamage);
     pushLog(state, `${target.name} kontert ${attacker.name}: ${counterDamage} Schaden.`);
+    checkDeath(state, attacker);
+  }
+
+  // Perk: Konterchance bei erlittenem Angriff (unabhängig vom Reaktions-Timing).
+  const perkCounter = counterProc(target.perks);
+  if (damage > 0 && target.hp > 0 && !attacker.dead && perkCounter.chance > 0 && state.rng() < perkCounter.chance) {
+    const counterDamage = Math.max(
+      1,
+      Math.round(
+        (effectiveStat(target, 'attack') * 1.15 * perkCounter.scale - effectiveStat(attacker, 'defense') * 0.45)
+        * state.damageMultipliers[target.side]
+      )
+    );
+    attacker.hp = Math.max(0, attacker.hp - counterDamage);
+    pushLog(state, `${target.name} kontert ${attacker.name} (Talent): ${counterDamage} Schaden.`);
     checkDeath(state, attacker);
   }
 
