@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HEROES, type CharacterDefinition } from '../src/data';
+import { HEROES, SKILL_TREES, SKILLS, type CharacterDefinition, type SkillTreeNodeDefinition } from '../src/data';
 import { createPartyMember } from '../src/systems/party';
 import {
   canUnlockSkillNode,
@@ -57,6 +57,48 @@ describe('Phase 70 — Spec-Bäume: Branch-Lock und Perk-Zufluss', () => {
       // Genau ein Einstiegsknoten je Strang ohne Vorgänger, aus dem Startzustand wählbar.
       const entry = `benimaru-${branch === 'blade' ? 'blade-focus' : branch === 'flame' ? 'flame-focus' : 'command-presence'}`;
       expect(canUnlockSkillNode(benimaru, fresh, entry).ok, entry).toBe(true);
+    }
+  });
+});
+
+describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
+  const skillIds = new Set<string>(SKILLS.map((skill) => skill.id));
+  const damagingSkillIds = new Set<string>(SKILLS.filter((skill) => skill.power > 0).map((skill) => skill.id));
+  const specTrees = SKILL_TREES.filter((tree) =>
+    (tree.nodes as readonly SkillTreeNodeDefinition[]).some((node) => node.branch !== undefined)
+  );
+  // Die bereits auf Spec-Stränge umgestellten Kämpfer (Rimuru → Phase 71; gobta/shuna folgen).
+  const converted = ['benimaru', 'shion', 'hakurou', 'souei', 'rigurd', 'ranga'];
+
+  it('deckt die umgestellten Kämpfer mit je genau 3 exklusiven Strängen ab', () => {
+    for (const characterId of converted) {
+      const tree = SKILL_TREES.find((candidate) => candidate.characterId === characterId);
+      expect(tree, characterId).toBeDefined();
+      const treeNodes = tree!.nodes as readonly SkillTreeNodeDefinition[];
+      const branches = new Set(treeNodes.map((node) => node.branch).filter((branch): branch is string => branch !== undefined));
+      expect(branches.size, characterId).toBe(3);
+      // Jeder Strang hat 4 Knoten und genau einen strangfreien Einstieg.
+      for (const branch of branches) {
+        const nodes = treeNodes.filter((node) => node.branch === branch);
+        expect(nodes.length, `${characterId}/${branch}`).toBeGreaterThanOrEqual(4);
+        expect(nodes.filter((node) => node.requiredNodeIds.length === 0).length, `${characterId}/${branch} entry`).toBe(1);
+      }
+    }
+  });
+
+  it('jeder Strang-Knoten trägt Perks, und Ketten-Skills verweisen auf echte (schädigende) Fähigkeiten', () => {
+    for (const tree of specTrees) {
+      for (const node of tree.nodes as readonly SkillTreeNodeDefinition[]) {
+        if (node.branch === undefined) continue;
+        expect(node.perks && node.perks.length > 0, node.id).toBe(true);
+        if (node.skillId) expect(skillIds.has(node.skillId), node.skillId).toBe(true);
+        for (const perk of node.perks ?? []) {
+          if (perk.kind === 'skill-chain') {
+            expect(skillIds.has(perk.triggerSkillId), `trigger ${perk.triggerSkillId}`).toBe(true);
+            expect(damagingSkillIds.has(perk.followUpSkillId), `followup ${perk.followUpSkillId}`).toBe(true);
+          }
+        }
+      }
     }
   });
 });
