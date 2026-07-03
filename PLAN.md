@@ -34,7 +34,8 @@ deutsches Originalwording, canon-first, keine kopierten Dialoge.
   Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
   und Bündnis-Bonus). Konsequenzen muessen in Welt, Shop oder Kampf sichtbar
   sein, nicht nur im Text; Verzahnung mit den Ende-Bedingungen aus Band 4.
-- [ ] Phase 65 — Weltereignisse & Entdeckungen: Karten-Events jenseits von
+- [~] Phase 65 — Weltereignisse & Entdeckungen (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-65-world-events`): Karten-Events jenseits von
   Kaempfen als datengetriebene Definitionen — Fundstellen/Glitzerpunkte mit
   Lore + Item (RangaJourney-Entdeckungsmuster auf begehbare Karten
   verallgemeinern), einmalige Ambient-Events (fahrender Haendler nach
