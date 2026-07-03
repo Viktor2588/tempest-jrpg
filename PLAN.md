@@ -64,7 +64,8 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [ ] Phase 70 — 3-Wege-Spezialisierungen: jeder Kaempfer (rimuru, gobta,
+- [~] Phase 70 — 3-Wege-Spezialisierungen (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-70-spec-trees`): jeder Kaempfer (rimuru, gobta,
   rigurd, ranga, shuna, benimaru, shion, hakurou, souei) erhaelt 3 exklusive
   Straenge à 4–5 Knoten aus Perks der Phase 69; erster Knoten eines Strangs
   sperrt die anderen Straenge (Branch-Lock; Respec spaeter als teures Item
