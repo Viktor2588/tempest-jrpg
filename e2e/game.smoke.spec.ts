@@ -187,6 +187,10 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
         'milestone.direwolf-victory.shown': true,
         'milestone.ranga-joins.shown': true,
         'milestone.band-one-complete.shown': true,
+        'scene.cave-awakening.played': true,
+        'scene.direwolf-pact.played': true,
+        'scene.tempest-naming.played': true,
+        'scene.geld-victory.played': true,
         'tutorial.overworld.seen': true
       },
       quests: {
@@ -758,6 +762,10 @@ function bandTwoBrowserSave(overrides: {
     'milestone.direwolf-victory.shown': true,
     'milestone.ranga-joins.shown': true,
     'milestone.band-one-complete.shown': true,
+    'scene.cave-awakening.played': true,
+    'scene.direwolf-pact.played': true,
+    'scene.tempest-naming.played': true,
+    'scene.geld-victory.played': true,
     'tutorial.overworld.seen': true
   };
   return {
