@@ -77,7 +77,7 @@ product:
     renderer_round_pixels: false
     css_fit_auto_round: true
     linear: painterly tiles, banners, portraits, cutouts, battle backgrounds, VFX
-    nearest: 16x16 Kenney pixel sources and procedural pixel placeholders
+    nearest: 16x16 Kenney tile sources and procedural pixel placeholders
   stack:
     engine: Phaser 4.2
     language: TypeScript
@@ -652,6 +652,10 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_61:
+    - last 16x16 Kenney placeholder sprites (hero, slime, wolf, imp, ogre) replaced by high-res generated WebP cutouts; new enemy-direwolf-pup and enemy-ogre-warrior assets with ASSETS.md provenance
+    - legacy sprite texture keys aliased to the generated art and dropped from the NEAREST pixel list so only Kenney tiles keep nearest-neighbor filtering
+    - typecheck, 352 unit tests across 50 files, production build, and desktop/mobile Chromium smokes (34/34 serial) verified
   phase_63:
     - tempest-start grows by story flags from Jura wilderness to camp, named village, and young Jura-Tempest city
     - three dedicated map layouts, generated ground textures, and generated region banners make each stage visually distinct

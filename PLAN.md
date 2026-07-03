@@ -62,23 +62,6 @@ Geld (L16) verliert 5/5 gegen eine ausgeruhte L8-Party bei ~100 % Rest-HP.
 Kernproblem: Heilung/Action-Economy >> Gegnerdruck; Devour entwertet Bosse;
 Leveln ist dadurch bedeutungslos, Kaempfe fuehlen sich nach Pflicht-Grind an.
 
-## UI- & Grafik-Roadmap (TODO: UI-Bugs, unscharfe Grafik auf 4K)
-
-Befund (Code-Analyse): `main.ts` fixiert den Canvas auf 960x540 mit
-`Scale.FIT` — auf 4K streckt der Browser das Backing ~4x per CSS, alles wird
-unscharf (auch Text; nirgends wird eine Text-`resolution` gesetzt). Global
-erzwingt `pixelArt: true` NEAREST-Filterung auch fuer die malerischen
-128x128-KI-Tiles, die auf TILE=48 dezimiert werden (Aliasing); einzelne
-Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
-LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
-in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
-
-- [~] Phase 61 — Asset-Aufloesungs-Pass (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-61-asset-resolution`, Imagegen bevorzugt): 16x16-Kenney-
-  Sprites durch hoeher aufgeloeste, artSpec-konforme generierte Sprites
-  ersetzen (Overworld-Figuren, Gegner-Cutouts zuerst), Provenienz in
-  `ASSETS.md`; Ziel: kein sichtbarer 12x-Upscale mehr auf 4K.
-
 ## Talent-Roadmap (Nutzerfeedback 2026-07-02: echte Spec-Baeume, Schmiede raus)
 
 Befund (Code-Analyse + Nutzer-Designvorgabe): Die heutigen „Talente" sind nur
