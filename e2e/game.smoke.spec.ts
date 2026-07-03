@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { inflateSync } from 'node:zlib';
+import { MENU_PARTY_LAYOUT } from '../src/systems/menuLayout';
 import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 
 const GAME_WIDTH = 960;
@@ -442,8 +443,9 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   await focusGame(page);
   await page.keyboard.press('m');
   await page.waitForTimeout(250);
-  await clickGamePoint(page, 365, 304); // Gobtas Aktiv-Karte als Tauschplatz auswählen (zentrierte Party-Ansicht)
-  await clickGamePoint(page, 685, 208); // Shuna aus der Reserve aktivieren
+  const { active, reserve } = MENU_PARTY_LAYOUT;
+  await clickGamePoint(page, active.left + active.width / 2, active.firstY + active.rowHeight);
+  await clickGamePoint(page, reserve.left + reserve.width / 2, reserve.firstY);
   await page.waitForTimeout(250);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
