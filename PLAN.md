@@ -64,7 +64,8 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [ ] Phase 69 — Talent-Perk-Engine: datengetriebene passive Effekte als
+- [~] Phase 69 — Talent-Perk-Engine (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-69-talent-perks`): datengetriebene passive Effekte als
   `TalentPerk`-Union, im Kampf ausgewertet: on-attacked (Konterchance,
   Ausweichchance), Schadensmodifikatoren (+X % physisch/magisch/je Element,
   erlitten/ausgeteilt), Stat-Prozente (+HP %), on-skill-cast-Ketten (Skill X
