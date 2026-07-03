@@ -706,6 +706,10 @@ completed_milestones:
     - MenuScene now consumes the shared geometry for tab buttons, the party title, active cards, reserve buttons, hit areas, and labels
     - menuLayout.test gained a regression that locks the tab row and party group to the canvas center and checks their visible rectangles stay in-bounds
     - typecheck, 352 unit tests across 50 files, production build, desktop/mobile Party-Menue Playwright smoke, and visual desktop screenshot verified
+  phase_75:
+    - the Party-Menue swap smoke now derives active-card and reserve-button clicks from MENU_PARTY_LAYOUT instead of duplicating coordinates
+    - PLAYWRIGHT_PORT lets parallel worktrees use separate Vite ports instead of silently reusing another phase's server
+    - typecheck, 352 unit tests across 50 files, production build, and an isolated desktop/mobile Party-Menue Playwright smoke verified
 
 Git history is the source for exact acceptance notes and historical test counts.
 
