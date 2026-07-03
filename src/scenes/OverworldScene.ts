@@ -21,6 +21,8 @@ import {
 } from '../render/hiDpi';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
+import { createSceneRunner, type SceneScript, type SceneStep } from '../systems/sceneScript';
+import { acknowledgeScene, getPendingScene } from '../data/scenes';
 import { makeRng } from '../systems/rng';
 import {
   applyWorldState,
@@ -64,6 +66,10 @@ export class OverworldScene extends Phaser.Scene {
   private minimapOriginY = 0;
   private minimapCell = 4;
   private onboardingLayer?: Phaser.GameObjects.Container;
+  // Cutscene-light: aktive Szene sperrt Bewegung/Interaktion; Akteur-Sprites
+  // werden pro Zeichnung registriert, damit Schritte sie ansprechen koennen.
+  private cutsceneActive = false;
+  private actorSprites = new Map<string, Phaser.GameObjects.GameObject & { x: number; y: number }>();
 
   constructor() {
     super('Overworld');
@@ -185,7 +191,9 @@ export class OverworldScene extends Phaser.Scene {
     menuBtn.on('pointerdown', openMenu);
 
     this.drawOnboardingHints();
-    this.time.delayedCall(180, () => this.maybeShowMilestone());
+    this.time.delayedCall(180, () => {
+      if (!this.maybePlayScene()) this.maybeShowMilestone();
+    });
   }
 
   // Nicht blockierendes Onboarding: offene Schritte bleiben sichtbar, erledigte
@@ -273,7 +281,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   override update(): void {
-    if (this.moving) return;
+    if (this.moving || this.cutsceneActive) return;
     const dir = this.readDir();
     if (dir) this.step(dir);
   }
@@ -319,6 +327,7 @@ export class OverworldScene extends Phaser.Scene {
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
     this.drawOnboardingHints();
+    if (this.maybePlayScene()) return;
     if (this.maybeShowMilestone()) return;
     this.maybeShowEnding();
   }
@@ -336,6 +345,152 @@ export class OverworldScene extends Phaser.Scene {
     this.scene.launch('Milestone', { milestoneId: milestone.id });
     this.scene.pause();
     return true;
+  }
+
+  // Cutscene-light: spielt den naechsten ausgeloesten Beat visuell in der
+  // Oberwelt ab (Text/Emote/Kamera/Face/Warten). Danach folgt die Zusammenfassung
+  // als Toast plus ggf. der bestehende Meilenstein — der Moment wird gezeigt,
+  // nicht mehr vorab erzaehlt.
+  private maybePlayScene(): boolean {
+    if (this.cutsceneActive) return false;
+    if (this.scene.isActive('Milestone') || this.scene.isActive('Ending')) return false;
+    const script = getPendingScene(this.save.flags);
+    if (!script) return false;
+    this.playScene(script);
+    return true;
+  }
+
+  private playScene(script: SceneScript): void {
+    this.cutsceneActive = true;
+    this.cameras.main.stopFollow(); // Kamera waehrend der Szene selbst fuehren.
+    const runner = createSceneRunner(script);
+
+    const layer = this.add.container(0, 0).setScrollFactor(0).setDepth(60);
+    layer.add(this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.34).setOrigin(0, 0));
+    const boxH = 116;
+    const box = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - boxH / 2 - 16, GAME_WIDTH - 40, boxH, 0x0b1220, 0.94)
+      .setStrokeStyle(2, 0x68d7ff, 0.8);
+    const speaker = this.add.text(box.x - box.width / 2 + 18, box.y - boxH / 2 + 12, '', {
+      fontFamily: 'serif', fontSize: '16px', color: '#e9c56c'
+    });
+    const line = this.add.text(box.x - box.width / 2 + 18, box.y - boxH / 2 + 40, '', {
+      fontFamily: 'sans-serif', fontSize: '15px', color: '#e9eef7', wordWrap: { width: box.width - 36 }
+    });
+    const hint = this.add.text(box.x + box.width / 2 - 16, box.y + boxH / 2 - 18, '▸ Weiter (Leertaste / Tippen)', {
+      fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc'
+    }).setOrigin(1, 0);
+    layer.add([box, speaker, line, hint]);
+    const textUi = { box, speaker, line, hint };
+
+    const finish = (): void => {
+      layer.destroy();
+      this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
+      this.save = { ...this.save, flags: acknowledgeScene(this.save.flags, script.id) };
+      autoSave(window.localStorage, this.save);
+      this.cutsceneActive = false;
+      if (script.summary) this.showSceneSummary(script.summary.title, script.summary.body);
+      // Zusammenfassung kurz stehen lassen, dann bestehende Meilenstein-/Ende-Kette.
+      this.time.delayedCall(script.summary ? 1500 : 0, () => {
+        if (!this.maybeShowMilestone()) this.maybeShowEnding();
+      });
+    };
+
+    const advance = (step: SceneStep | null): void => {
+      if (!step) { finish(); return; }
+      this.renderSceneStep(step, textUi, () => advance(runner.advance()));
+    };
+    advance(runner.current());
+  }
+
+  private renderSceneStep(
+    step: SceneStep,
+    ui: {
+      box: Phaser.GameObjects.Rectangle;
+      speaker: Phaser.GameObjects.Text;
+      line: Phaser.GameObjects.Text;
+      hint: Phaser.GameObjects.Text;
+    },
+    next: () => void
+  ): void {
+    const setTextVisible = (visible: boolean): void => {
+      ui.box.setVisible(visible);
+      ui.speaker.setVisible(visible);
+      ui.line.setVisible(visible);
+      ui.hint.setVisible(visible);
+    };
+    switch (step.kind) {
+      case 'text': {
+        setTextVisible(true);
+        ui.speaker.setText(step.speaker ?? '');
+        ui.line.setText(step.line);
+        // Auf die naechste Eingabe warten (Tastatur oder Tippen), dann weiter.
+        const onAdvance = (): void => {
+          this.input.keyboard?.off('keydown-SPACE', onAdvance);
+          this.input.keyboard?.off('keydown-ENTER', onAdvance);
+          this.input.off('pointerdown', onAdvance);
+          next();
+        };
+        this.input.keyboard?.once('keydown-SPACE', onAdvance);
+        this.input.keyboard?.once('keydown-ENTER', onAdvance);
+        this.input.once('pointerdown', onAdvance);
+        return;
+      }
+      case 'emote': {
+        setTextVisible(false);
+        const at = this.actorSprites.get(step.actor);
+        const bx = at?.x ?? this.player.x;
+        const by = (at?.y ?? this.player.y) - 34;
+        const bubble = this.add.text(bx, by, step.emote, {
+          fontFamily: 'sans-serif', fontSize: '26px', color: '#fff1aa'
+        }).setOrigin(0.5).setDepth(61).setStroke('#06111f', 4);
+        this.time.delayedCall(650, () => { bubble.destroy(); next(); });
+        return;
+      }
+      case 'camera': {
+        setTextVisible(false);
+        this.cameras.main.pan(this.cx(step.to.x), this.cy(step.to.y), 420, 'Sine.easeInOut', false,
+          (_cam, progress) => { if (progress >= 1) next(); });
+        return;
+      }
+      case 'move': {
+        setTextVisible(false);
+        const at = this.actorSprites.get(step.actor);
+        if (!at) { next(); return; }
+        this.tweens.add({ targets: at, x: this.cx(step.to.x), y: this.cy(step.to.y), duration: 320, onComplete: next });
+        return;
+      }
+      case 'give': {
+        // ponytail: keine der aktuellen 4 Szenen nutzt `give`; als Toast quittieren
+        // statt still zu schlucken. Echte Inventar-Uebergabe nachziehen, falls Szenen sie brauchen.
+        this.showSceneSummary('Erhalten', `${step.quantity}× ${step.itemId}`);
+        next();
+        return;
+      }
+      case 'wait': {
+        setTextVisible(false);
+        this.time.delayedCall(Math.max(0, step.ms), next);
+        return;
+      }
+      case 'face': {
+        // ponytail: Akteure sind Rechteck-Marker ohne Blickrichtung → keine Darstellung.
+        next();
+        return;
+      }
+    }
+  }
+
+  private showSceneSummary(title: string, body: string): void {
+    const layer = this.add.container(0, 0).setScrollFactor(0).setDepth(58);
+    const w = Math.min(GAME_WIDTH - 40, 560);
+    const panel = this.add.rectangle(GAME_WIDTH / 2, 70, w, 78, 0x0b1220, 0.94).setStrokeStyle(2, 0xe9c56c, 0.8);
+    layer.add(panel);
+    layer.add(this.add.text(panel.x, panel.y - 22, title, {
+      fontFamily: 'serif', fontSize: '17px', color: '#e9c56c'
+    }).setOrigin(0.5));
+    layer.add(this.add.text(panel.x, panel.y + 8, body, {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', align: 'center', wordWrap: { width: w - 28 }
+    }).setOrigin(0.5));
+    this.tweens.add({ targets: layer, alpha: 0, delay: 2600, duration: 600, onComplete: () => layer.destroy() });
   }
 
   // Fixierte Minimap oben rechts: Marker-Radar (Spieler/Gateway/NPC/Landmark) zur
@@ -458,6 +613,9 @@ export class OverworldScene extends Phaser.Scene {
     if (this.worldLayer) this.worldLayer.removeAll(true);
     else this.worldLayer = this.add.container(0, 0);
     const layer = this.worldLayer;
+    // Akteur-Register fuer Szenen-Skripte neu aufbauen (Sprites werden neu gezeichnet).
+    this.actorSprites.clear();
+    if (this.player) this.actorSprites.set('rimuru', this.player);
     const world = createWorldState(this.save);
     const objective = getTrackedQuestObjective(world);
     for (const location of getMapLocations(this.mapId, world)) {
@@ -514,8 +672,10 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     for (const npc of getMapNpcs(this.mapId, world)) {
-      layer.add(this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
-        .setStrokeStyle(2, 0xfff1aa, 0.9));
+      const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
+        .setStrokeStyle(2, 0xfff1aa, 0.9);
+      layer.add(npcSprite);
+      this.actorSprites.set(npc.id, npcSprite);
       // Name normalerweise über dem Marker; bei NPCs in den obersten Reihen nach
       // unten kippen, sonst wird der Name (und der Quest-Marker darüber) am oberen
       // Kartenrand abgeschnitten (z. B. „König Gazel Dwargo" im Dwargon-Thronsaal).
@@ -550,7 +710,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private interact(): void {
-    if (this.moving) return;
+    if (this.moving || this.cutsceneActive) return;
     const npc = getAdjacentNpc(this.mapId, this.pos, createWorldState(this.save));
     if (npc) {
       this.completeOnboardingStep('interact');
