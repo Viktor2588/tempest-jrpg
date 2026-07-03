@@ -73,7 +73,8 @@ Stellen (battleBackgroundAtlas, PreloadScene:353) stellen bereits manuell auf
 LINEAR um. Generierte Texturen (Battle-BGs 960x540, Portraits, VFX) sind nur
 in 1x-Aufloesung erzeugt; Kenney-Sprites sind 16x16 (12x-Upscale auf 4K).
 
-- [ ] Phase 61 — Asset-Aufloesungs-Pass (Imagegen bevorzugt): 16x16-Kenney-
+- [~] Phase 61 — Asset-Aufloesungs-Pass (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-61-asset-resolution`, Imagegen bevorzugt): 16x16-Kenney-
   Sprites durch hoeher aufgeloeste, artSpec-konforme generierte Sprites
   ersetzen (Overworld-Figuren, Gegner-Cutouts zuerst), Provenienz in
   `ASSETS.md`; Ziel: kein sichtbarer 12x-Upscale mehr auf 4K.

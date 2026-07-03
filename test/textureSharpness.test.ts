@@ -29,12 +29,7 @@ describe('Phase 58 texture sharpness helpers', () => {
     expect(KENNEY_PIXEL_TEXTURE_KEYS).toEqual([
       'tile-grass',
       'tile-wall',
-      'tile-path',
-      'sprite-hero',
-      'sprite-enemy-slime',
-      'sprite-enemy-wolf',
-      'sprite-enemy-imp',
-      'sprite-enemy-ogre'
+      'tile-path'
     ]);
   });
 

@@ -7,12 +7,7 @@ export const GENERATED_TEXTURE_SCALE = GAME_RENDER_SCALE;
 export const KENNEY_PIXEL_TEXTURE_KEYS = [
   'tile-grass',
   'tile-wall',
-  'tile-path',
-  'sprite-hero',
-  'sprite-enemy-slime',
-  'sprite-enemy-wolf',
-  'sprite-enemy-imp',
-  'sprite-enemy-ogre'
+  'tile-path'
 ] as const;
 
 export function generatedTextureSize(logicalSize: number, scale = GENERATED_TEXTURE_SCALE): number {

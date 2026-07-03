@@ -21,8 +21,8 @@ Generierungsprovenienz stehen. Kein Asset ohne Eintrag.
 - **itch.io** — nur ausgewiesene CC0-Packs.
 
 ## Aktuell verwendete Assets
-**Kenney „Tiny Town"** (Kacheln), **Kenney „Tiny Dungeon"** (Charaktere/Gegner),
-**Kenney „RPG Audio"** (SFX) und **Kenney „Music Jingles"** (kurze Musik-Motive) —
+**Kenney „Tiny Town"** (Kacheln), **Kenney „RPG Audio"** (SFX) und
+**Kenney „Music Jingles"** (kurze Musik-Motive) —
 alle **CC0** (License.txt: „Creative Commons Zero, CC0").
 Einzelne 16×16-Sprites wurden per Inhalts-/Farb-Klassifizierung (Hautton-Cluster → Held,
 Grün-Blob → Schleim usw.) ausgewählt und einzeln ins Repo übernommen. Die SFX wurden aus
@@ -69,10 +69,9 @@ Lizenzzeile.
 | `ui/region-lizardman-marsh.webp` | Gebietsindikator Echsen-Sumpf, 512×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: türkisfarbene Schilfsümpfe mit Stegen, Pfahlhütten und amphibischen Totems als kompaktes HUD-Banner | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `ui/region-ember-hollow.webp` | Gebietsindikator Glutgrotte, 512×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: Obsidianhöhle mit Lavaklüften, sicherem Basaltpfad und ferner Feuergeistkammer als kompaktes HUD-Banner | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `ui/region-blumund.webp` | Gebietsindikator Blumund, 512×128 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: helle Handelsstadt mit Kopfsteinpflaster, Fachwerk-Gildenhaus, rotbraunen Dächern und Marktständen als kompaktes HUD-Banner | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/hero.png` | Held/Spieler (Tiny Dungeon `tile_0088`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/overworld-rimuru-slime.webp` | Rimuru als blauer Oberwelt-Schleim, transparenter Spieler-Sprite | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Prompt-Zweck: freundlicher blauer Slime als steuerbare Hauptfigur, transparente/chroma-bereinigte Sprite-Silhouette | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-slime.png` | Gegner Schleim (Tiny Dungeon `tile_0108`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
 | `sprites/enemy-forest-slime.webp` | Grüner Waldschleim, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; Prompt-Zweck: grüner Waldschleim mit Blattdetails als farblich unterscheidbarer Gegner | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-direwolf-pup.webp` | Jung-Direwolf, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-02; Referenz: projektgeneriertes `enemy-direwolf-alpha.webp`; Prompt-Zweck: kleiner dunkler Jung-Direwolf ohne Horn mit silbernem Nackenfell und cyanfarbenen Sturmzeichen, magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-spore-moth.webp` | Sporenmotte, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: violette Sporenmotte mit leuchtenden Sporen, grüner Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-orc-scout.webp` | Orkspäher, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: schlanker grüner Orkspäher mit Leder, Axt und Speer, magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-lizardman-acolyte.webp` | Echsenakolyth, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-29; Prompt-Zweck: amphibischer Echsen-Priester mit Wassermagie und Speer, magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
@@ -86,9 +85,7 @@ Lizenzzeile.
 | `sprites/enemy-ifrit.webp` | Ifrit, transparenter Boss-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: humanoider Feuergeist in Glutrüstung mit kompakter Flammensilhouette und geschmolzenen Kernlinien, grüner Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-direwolf-alpha.webp` | Direwolf-Anfuehrer, transparenter Boss-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: maechtiger dunkler Sturmdirewolf mit silberner Maehne, Stirnhorn und cyanfarbenen Blitzzeichen; magentafarbener Chroma-Key lokal per Browser-Canvas entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-nameless-echo.webp` | Namenloses Echo, transparenter Boss-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: gesichtsloser Ritualwaechter aus gebrochener Steinruestung und schwebenden violetten Siegelringen; gruener Chroma-Key lokal per Browser-Canvas entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-wolf.png` | Gegner Bestie (Tiny Dungeon `tile_0065`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
-| `sprites/enemy-imp.png` | Gegner Imp (Tiny Dungeon `tile_0106`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
-| `sprites/enemy-ogre.png` | Gegner Oger (Tiny Dungeon `tile_0121`) | https://kenney.nl/assets/tiny-dungeon | Kenney | CC0 |
+| `sprites/enemy-ogre-warrior.webp` | Oger-Krieger, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-02; Referenz: projektgeneriertes `enemy-orc-soldier.webp`; Prompt-Zweck: breiter grauer Oger mit Stirnhorn, Lamellenrüstung und schwerer Eisenkeule, magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/kingdom-board-units.webp` | 5×4-Kampfatlas mit 20 Kreaturenlinien | lokales Schwesterprojekt `/kingdom/assets/battle/board-units.png`, als WebP optimiert | Projektgeneriert | Projektintern generiertes Original |
 | `sprites/enemy-human-lancer.webp` | Menschen-Lanzenträger, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-human-deserter.webp` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
