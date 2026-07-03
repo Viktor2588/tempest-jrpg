@@ -652,6 +652,11 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_69:
+    - data-driven TalentPerk union (systems/talentPerk): damage-dealt/-taken by category+element, max-hp %, dodge, counter, skill-chain, buff-power — with pure aggregation helpers
+    - wired into battle.ts at applyDamage (dealt/taken multipliers, dodge negation, independent counter proc), createCombatant (max-hp), resolveSkill (on-cast chain follow-up without turn/MP cost, no recursion) and applySkillStatus (buff duration extension)
+    - perk-less units are behaviorally unchanged and draw no extra RNG (short-circuited), so existing deterministic battles are untouched; perks flow via createBattlePartyFromMembers(perksByCharacterId) for the Phase 70 spec trees
+    - headless per-perk seed tests plus pure aggregation tests; typecheck, 375 unit tests, production build and an in-browser battle smoke verified
   phase_65:
     - RangaJourney discovery pattern generalized to walkable maps (systems/mapDiscovery): data-driven sparkle points carry lore + a reward item, claimed once via a flag
     - requiresFlag gates a discovery behind a story flag so the world visibly reacts — a healed Siegelhain in the spirit marsh appears only after the nameless echo is defeated (post-boss change)

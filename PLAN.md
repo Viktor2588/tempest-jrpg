@@ -64,16 +64,6 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [~] Phase 69 — Talent-Perk-Engine (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-69-talent-perks`): datengetriebene passive Effekte als
-  `TalentPerk`-Union, im Kampf ausgewertet: on-attacked (Konterchance,
-  Ausweichchance), Schadensmodifikatoren (+X % physisch/magisch/je Element,
-  erlitten/ausgeteilt), Stat-Prozente (+HP %), on-skill-cast-Ketten (Skill X
-  → Chance auf Folgeaktion Y ohne Zugkosten), Buff-Wirkung verstaerkt.
-  Hooks an bestehenden Stellen in `battle.ts` (applyDamage, resolveSkill,
-  Reaktions-/Konter-Mechanik wiederverwenden); Perks fliessen ueber
-  `createBattlePartyFromMembers` aus freigeschalteten Knoten ein; komplett
-  headless testbar (jeder Perk-Typ mit deterministischem Seed-Test).
 - [ ] Phase 70 — 3-Wege-Spezialisierungen: jeder Kaempfer (rimuru, gobta,
   rigurd, ranga, shuna, benimaru, shion, hakurou, souei) erhaelt 3 exklusive
   Straenge à 4–5 Knoten aus Perks der Phase 69; erster Knoten eines Strangs
