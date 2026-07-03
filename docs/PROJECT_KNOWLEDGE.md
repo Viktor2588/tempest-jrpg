@@ -652,6 +652,11 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_70:
+    - spec-tree mechanics on top of the Phase 69 perk engine: TalentPerk type moved to data/types so SkillTreeNodeDefinition nodes carry `branch` + `perks`; canUnlockSkillNode enforces branch-lock (first branch chosen locks the others via committedBranch)
+    - unlocked-node perks flow into battle through createProgressionBattleParty (talentPerksForNodes), so a fighter's chosen strand measurably shapes combat
+    - six fighters converted to 3 exclusive 4-node branches (benimaru Klingensturm/Schwarzflamme/Flammenkommandant; shion, hakurou, souei; new trees for rigurd and ranga); structural-integrity test asserts 3 branches, one strand-free entry each, non-empty perks and real damaging chain-skills
+    - the story/evolution/relationship-gated trees (gobta, shuna) are deferred to Phase 70b and rimuru's strands to Phase 71 to avoid regressing their gated content; typecheck, 382 unit tests, build and an in-browser battle smoke verified
   phase_69:
     - data-driven TalentPerk union (systems/talentPerk): damage-dealt/-taken by category+element, max-hp %, dodge, counter, skill-chain, buff-power — with pure aggregation helpers
     - wired into battle.ts at applyDamage (dealt/taken multipliers, dodge negation, independent counter proc), createCombatant (max-hp), resolveSkill (on-cast chain follow-up without turn/MP cost, no recursion) and applySkillStatus (buff duration extension)

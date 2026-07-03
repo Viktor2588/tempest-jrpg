@@ -64,18 +64,18 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [~] Phase 70 — 3-Wege-Spezialisierungen (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-70-spec-trees`): jeder Kaempfer (rimuru, gobta,
-  rigurd, ranga, shuna, benimaru, shion, hakurou, souei) erhaelt 3 exklusive
-  Straenge à 4–5 Knoten aus Perks der Phase 69; erster Knoten eines Strangs
-  sperrt die anderen Straenge (Branch-Lock; Respec spaeter als teures Item
-  moeglich). Vorlage Benimaru: „Klingensturm" (physisch) / „Schwarzflamme"
-  (Feuermagie) / „Flammenkommandant" (Team-Buffs). Rigurd und Ranga erhalten
-  damit erstmals Baeume. Rimurus Straenge verzahnen sich mit Verschlingen
-  (`requiredLearnedSkillId`: verschlungene Skills werden im Baum „entfaltet").
-  Balance-Harness: jede Spec muss die Korridore je Story-Beat schaffen und
-  sich im Sim messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
-- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern: Startskills auf
+- [ ] Phase 70b — Spec-Straenge fuer die story-gegateten Baeume (gobta, shuna):
+  Phase 70 lieferte die Perk-/Branch-Lock-Mechanik (systems/talentPerk,
+  canUnlockSkillNode, Perk-Zufluss ueber `createProgressionBattleParty`) und 6
+  volle 3-Strang-Baeume (benimaru, shion, hakurou, souei, rigurd, ranga). Offen:
+  gobta und shuna behutsam in 3 exklusive Straenge umbauen, ohne ihre
+  Evolutions-/Beziehungs-/Flag-Gates und die zugehoerigen Tests zu brechen
+  (bestehende Skills auf Straenge verteilen, Tests aktualisieren). Rimurus
+  Straenge sind in Phase 71 gebuendelt (Verschlingen-Verzahnung). Balance-
+  Harness: jede Spec muss die Korridore je Story-Beat schaffen und sich im Sim
+  messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
+- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
+  Straenge, die sich mit Verschlingen verzahnen): Startskills auf
   `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
   Schleimform-Faehigkeit) reduzieren; `water-blade`/`storm-gust` u. a. werden
   ueber Verschlingen erbeutet — Devour-Map-Pass ueber `enemies.ts`, damit
