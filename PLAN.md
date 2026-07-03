@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [x] Phase 75 — Menue-Smoke an zentrale Geometrie binden (Worktree
+  `/worktree/tempest-phase-75-menu-smoke`): Party-Tausch-Smoke nutzt
+  dieselben Layout-Konstanten wie `MenuScene`, damit Zentrierungen die
+  Desktop-/Mobile-Abnahme nicht durch veraltete Klickkoordinaten brechen.
+  Parallele Worktrees koennen per `PLAYWRIGHT_PORT` einen eigenen Vite-Port
+  nutzen. Abnahme/Checks: `git diff --check`; `bun run typecheck`; `bun run
+  test` (352 Tests); `bun run build`; `PLAYWRIGHT_PORT=4175 bun run test:e2e
+  -- --grep "Party-Menü" --project=desktop-chromium
+  --project=mobile-chromium --workers=1 --timeout=60000` (2 Tests).
 
 ## Integrationswarteschlange
 
