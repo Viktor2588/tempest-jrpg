@@ -28,7 +28,8 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
-- [ ] Phase 62 — Szenen-Skripte (Cutscene-light): kleines datengetriebenes
+- [~] Phase 62 — Szenen-Skripte (Cutscene-light) (in Bearbeitung im Worktree
+  `/worktree/tempest-phase-62-scenes`): kleines datengetriebenes
   Skriptsystem fuer inszenierte Momente in der Oberwelt (Schrittliste: Akteur
   bewegen/drehen, Emote, Kamera-Schwenk, Textbeat, Item-Uebergabe, Pause);
   Interpreter Phaser-frei testbar, Darstellung in OverworldScene. Die 4
