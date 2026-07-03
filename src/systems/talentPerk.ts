@@ -1,27 +1,10 @@
-import type { ElementType } from '../data';
+import { SKILL_TREES, type DamageCategory, type ElementType, type SkillTreeNodeDefinition, type TalentPerk } from '../data';
+
+export type { DamageCategory, TalentPerk } from '../data';
 
 // Phase 69 — Talent-Perk-Engine: datengetriebene passive Effekte/Procs, die im
-// Kampf ausgewertet werden. Die Spezialisierungs-Baeume (Phase 70) fuellen die
-// Knoten→Perk-Zuordnung; hier stehen nur die Perk-Typen und reine
-// Aggregations-Helfer (Phaser-frei, headless testbar).
-
-export type DamageCategory = 'physical' | 'magical';
-
-export type TalentPerk =
-  // +percent% ausgeteilter Schaden (optional gefiltert nach Kategorie/Element).
-  | { readonly kind: 'damage-dealt'; readonly percent: number; readonly category?: DamageCategory; readonly element?: ElementType }
-  // -percent% erlittener Schaden (optional gefiltert nach Kategorie/Element).
-  | { readonly kind: 'damage-taken'; readonly percent: number; readonly category?: DamageCategory; readonly element?: ElementType }
-  // +percent% maximale LP (Build-Zeit).
-  | { readonly kind: 'max-hp'; readonly percent: number }
-  // Ausweichchance gegen erlittene Angriffe (percent%).
-  | { readonly kind: 'dodge'; readonly percent: number }
-  // Konterchance bei erlittenem Angriff (percent%); scale skaliert den Konterschaden.
-  | { readonly kind: 'counter'; readonly percent: number; readonly scale?: number }
-  // On-Cast-Kette: nach triggerSkillId mit percent% Chance followUpSkillId ohne Zugkosten.
-  | { readonly kind: 'skill-chain'; readonly triggerSkillId: string; readonly followUpSkillId: string; readonly percent: number }
-  // Von dieser Figur gewirkte Buffs halten laenger (Wirkung verstaerkt).
-  | { readonly kind: 'buff-power'; readonly percent: number };
+// Kampf ausgewertet werden. Die Perk-Typen leben in data/types; hier stehen die
+// reinen Aggregations-Helfer und die Knoten→Perk-Ableitung (Phaser-frei, headless testbar).
 
 function matches(
   perkCategory: DamageCategory | undefined,
@@ -116,4 +99,34 @@ export function buffBonusTurns(perks: readonly TalentPerk[]): number {
     if (perk.kind === 'buff-power') percent += perk.percent;
   }
   return Math.floor(percent / 100);
+}
+
+// --- Phase 70: Spec-Baum-Knoten → Perks / Branch-Lock ---
+// Knoten-Register über alle Spec-Bäume (nodeId → {branch, perks}).
+const specNodeById = new Map<string, { readonly branch?: string; readonly perks: readonly TalentPerk[] }>(
+  SKILL_TREES.flatMap((tree) =>
+    (tree.nodes as readonly SkillTreeNodeDefinition[]).map(
+      (node) => [node.id, { branch: node.branch, perks: node.perks ?? [] }] as const
+    )
+  )
+);
+
+// Von einer Figur gewählte Spezialisierungsrichtung (erster freigeschalteter
+// Knoten mit Branch) oder null. Branch-Lock: andere Stränge bleiben gesperrt.
+export function committedBranch(unlockedNodeIds: readonly string[]): string | null {
+  for (const nodeId of unlockedNodeIds) {
+    const branch = specNodeById.get(nodeId)?.branch;
+    if (branch !== undefined) return branch;
+  }
+  return null;
+}
+
+// Alle Perks aus den freigeschalteten Knoten einer Figur.
+export function talentPerksForNodes(unlockedNodeIds: readonly string[]): TalentPerk[] {
+  return unlockedNodeIds.flatMap((nodeId) => [...(specNodeById.get(nodeId)?.perks ?? [])]);
+}
+
+// Branch eines Knotens (oder null, wenn strangfrei/unbekannt).
+export function branchOfNode(nodeId: string): string | null {
+  return specNodeById.get(nodeId)?.branch ?? null;
 }

@@ -73,6 +73,7 @@ export type {
 } from './world';
 export type {
   CharacterDefinition,
+  DamageCategory,
   ElementType,
   EnemyDefinition,
   EnemyDrop,
@@ -84,7 +85,8 @@ export type {
   SkillTag,
   SkillTarget,
   StatusEffectId,
-  StatBlock
+  StatBlock,
+  TalentPerk
 } from './types';
 
 export const GAME_DATA = {

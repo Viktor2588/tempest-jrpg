@@ -1,4 +1,4 @@
-import type { StatusEffectId, StatBlock } from './types';
+import type { StatusEffectId, StatBlock, TalentPerk } from './types';
 
 export type ProgressionUnlockSource = 'story' | 'evolution' | 'bond' | 'exploration';
 
@@ -91,6 +91,10 @@ export interface SkillTreeNodeDefinition {
   readonly requiredRegionId?: string;
   readonly skillId?: string;
   readonly statBonus?: Partial<StatBlock>;
+  // Phase 70 — Spezialisierungsstrang; das Wählen eines Strangs sperrt die anderen (Branch-Lock).
+  readonly branch?: string;
+  // Phase 70 — passive Perks/Procs, die dieser Knoten gewährt (Phase-69-Engine).
+  readonly perks?: readonly TalentPerk[];
 }
 
 export interface SkillTreeDefinition {
@@ -670,10 +674,21 @@ export const SKILL_TREES = [
     ]
   },
   { id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
-    { id: 'benimaru-flame-core', name: 'Flammenkern', description: 'Grundlage der Schwarzflamme.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { magic: 2, attack: 1 } },
-    { id: 'benimaru-black-flame', name: 'Schwarzflamme', description: 'Vertieft die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 4, requiredNodeIds: ['benimaru-flame-core'], skillId: 'black-flame' },
-    { id: 'benimaru-general-aura', name: 'Generals-Aura', description: 'Anführerpräsenz stärkt den Angriff.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-core'], skillId: 'war-cry' },
-    { id: 'benimaru-hellfire', name: 'Höllenbrand', description: 'Meisterschaft über die Flamme.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-black-flame'], statBonus: { magic: 4, attack: 3 } }
+    // Strang 1 — Klingensturm (physisch): rohe Nahkampfwucht und Konter.
+    { id: 'benimaru-blade-focus', name: 'Klingenfokus', description: 'Strang Klingensturm: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+    { id: 'benimaru-blade-counter', name: 'Konterhaltung', description: 'Pariert Angriffe mit einem Gegenschlag.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-blade-focus'], branch: 'blade', perks: [{ kind: 'counter', percent: 30 }] },
+    { id: 'benimaru-blade-resolve', name: 'Kriegerherz', description: 'Zähigkeit an der Front.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-blade-focus'], branch: 'blade', perks: [{ kind: 'max-hp', percent: 12 }] },
+    { id: 'benimaru-blade-storm', name: 'Klingensturm', description: 'Vollendung des physischen Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-blade-counter'], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'counter', percent: 20 }] },
+    // Strang 2 — Schwarzflamme (Feuermagie): Elementschaden und Kettenzauber.
+    { id: 'benimaru-flame-focus', name: 'Flammenfokus', description: 'Strang Schwarzflamme: entfacht die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 20, element: 'fire' }], skillId: 'black-flame' },
+    { id: 'benimaru-flame-mastery', name: 'Schwarzglut', description: 'Vertieft die Magie.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-flame-focus'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }] },
+    { id: 'benimaru-flame-chain', name: 'Flammenkette', description: 'Schwarzflamme entzündet ein nachfolgendes Inferno.', cost: 2, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-focus'], branch: 'flame', perks: [{ kind: 'skill-chain', triggerSkillId: 'black-flame', followUpSkillId: 'ifrit-inferno', percent: 40 }] },
+    { id: 'benimaru-flame-inferno', name: 'Hölleninferno', description: 'Vollendung des Feuerstrangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-flame-mastery'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 25, element: 'fire' }], skillId: 'ifrit-inferno' },
+    // Strang 3 — Flammenkommandant (Team-Buffs): stärkt und schützt die Gruppe.
+    { id: 'benimaru-command-presence', name: 'Kommandopräsenz', description: 'Strang Flammenkommandant: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'command', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'war-cry' },
+    { id: 'benimaru-command-wall', name: 'Feuerwall', description: 'Schirmt gegen erlittenen Schaden ab.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-command-presence'], branch: 'command', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'benimaru-command-rally', name: 'Anfeuerung', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-command-presence'], branch: 'command', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'benimaru-command-marshal', name: 'Flammenkommandant', description: 'Vollendung des Kommando-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-command-wall'], branch: 'command', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'damage-taken', percent: 10 }] }
   ] },
   { id: 'shion-tree', characterId: 'shion', name: 'Stahlfaust-Leibwache', nodes: [
     { id: 'shion-iron-body', name: 'Eisenkörper', description: 'Monströse Konstitution.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { maxHp: 18, defense: 2 } },

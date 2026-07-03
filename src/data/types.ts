@@ -7,6 +7,19 @@ export type ElementType =
   | 'shadow'
   | 'holy';
 
+// Phase 69/70 — Talent-Perks: datengetriebene passive Effekte/Procs, die Spec-
+// Baum-Knoten tragen und im Kampf ausgewertet werden (Helfer in systems/talentPerk).
+export type DamageCategory = 'physical' | 'magical';
+
+export type TalentPerk =
+  | { readonly kind: 'damage-dealt'; readonly percent: number; readonly category?: DamageCategory; readonly element?: ElementType }
+  | { readonly kind: 'damage-taken'; readonly percent: number; readonly category?: DamageCategory; readonly element?: ElementType }
+  | { readonly kind: 'max-hp'; readonly percent: number }
+  | { readonly kind: 'dodge'; readonly percent: number }
+  | { readonly kind: 'counter'; readonly percent: number; readonly scale?: number }
+  | { readonly kind: 'skill-chain'; readonly triggerSkillId: string; readonly followUpSkillId: string; readonly percent: number }
+  | { readonly kind: 'buff-power'; readonly percent: number };
+
 export type StatusEffectId =
   | 'poison'
   | 'attack-up'
