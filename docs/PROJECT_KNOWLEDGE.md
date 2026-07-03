@@ -652,6 +652,11 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_65:
+    - RangaJourney discovery pattern generalized to walkable maps (systems/mapDiscovery): data-driven sparkle points carry lore + a reward item, claimed once via a flag
+    - requiresFlag gates a discovery behind a story flag so the world visibly reacts — a healed Siegelhain in the spirit marsh appears only after the nameless echo is defeated (post-boss change)
+    - DiscoveryScene presents the find as a modal over the paused overworld and grants the item; OverworldScene renders markers and launches it on step-onto with priority over random encounters
+    - headless test covers tile gating, requiresFlag visibility, tile walkability and reward-item validity; typecheck, 364 unit tests, production build, and serial desktop/mobile e2e (38/38) verified
   phase_62:
     - data-driven, Phaser-free "cutscene-light" scene interpreter (systems/sceneScript) with move/face/emote/camera/text/give/wait steps, a headless runner and a validator against real actors/items
     - four biggest beats scripted (cave awakening, direwolf pact, Tempest naming, Geld victory) in data/scenes; flag-triggered and played once via a milestone-parity trigger (latest beat only, acknowledge all prior) so pre-existing saves do not replay old cutscenes

@@ -34,13 +34,6 @@ deutsches Originalwording, canon-first, keine kopierten Dialoge.
   Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
   und Bündnis-Bonus). Konsequenzen muessen in Welt, Shop oder Kampf sichtbar
   sein, nicht nur im Text; Verzahnung mit den Ende-Bedingungen aus Band 4.
-- [~] Phase 65 — Weltereignisse & Entdeckungen (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-65-world-events`): Karten-Events jenseits von
-  Kaempfen als datengetriebene Definitionen — Fundstellen/Glitzerpunkte mit
-  Lore + Item (RangaJourney-Entdeckungsmuster auf begehbare Karten
-  verallgemeinern), einmalige Ambient-Events (fahrender Haendler nach
-  Handelsquest, Fluesterhain sichtbar geheilt nach Siegelbruch), Post-Boss-
-  Weltveraenderungen. Ziel: Erkundung wird belohnt, die Welt wirkt lebendig.
 - [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
   Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
   Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge
