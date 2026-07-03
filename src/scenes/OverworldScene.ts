@@ -21,6 +21,7 @@ import {
 } from '../render/hiDpi';
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
+import { getMapDiscoveries, getMapDiscoveryAt } from '../systems/mapDiscovery';
 import { createSceneRunner, type SceneScript, type SceneStep } from '../systems/sceneScript';
 import { acknowledgeScene, getPendingScene } from '../data/scenes';
 import { makeRng } from '../systems/rng';
@@ -671,6 +672,18 @@ export class OverworldScene extends Phaser.Scene {
       }).setOrigin(0.5));
     }
 
+    // Entdeckungen: Glitzerpunkte mit Lore + Belohnung (Erkundungsanreiz); nur
+    // sichtbar, solange nicht eingesammelt (und ggf. erst nach Weltveraenderung).
+    for (const discovery of getMapDiscoveries(this.mapId, this.save.flags)) {
+      layer.add(this.add.rectangle(this.cx(discovery.x), this.cy(discovery.y), TILE * 0.66, TILE * 0.66, 0x2b5b57, 0.42)
+        .setStrokeStyle(2, 0x8affe4, 0.85));
+      layer.add(this.add.text(this.cx(discovery.x), this.cy(discovery.y), '✦', {
+        fontFamily: 'sans-serif',
+        fontSize: '20px',
+        color: '#b7ffe9'
+      }).setOrigin(0.5));
+    }
+
     for (const npc of getMapNpcs(this.mapId, world)) {
       const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
         .setStrokeStyle(2, 0xfff1aa, 0.9);
@@ -741,6 +754,13 @@ export class OverworldScene extends Phaser.Scene {
   private resolveEncounterAtCurrentPosition(): void {
     this.stepCount += 1;
     this.save = loadSave(window.localStorage) ?? this.save;
+    // Entdeckung auf der Kachel hat Vorrang vor einem Zufallskampf: als Modal
+    // zeigen, Belohnung/Flag setzt die Discovery-Szene; danach neu zeichnen.
+    if (getMapDiscoveryAt(this.mapId, this.pos.x, this.pos.y, this.save.flags)) {
+      this.scene.launch('Discovery', { mapId: this.mapId, x: this.pos.x, y: this.pos.y });
+      this.scene.pause();
+      return;
+    }
     const result = resolveEncounter(
       createWorldState(this.save),
       this.mapId,
