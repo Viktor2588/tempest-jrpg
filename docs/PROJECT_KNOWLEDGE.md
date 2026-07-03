@@ -652,6 +652,11 @@ completed_milestones:
     - bosses gain dedicated phase-2 skill sets (AoE/debuff) instead of only a higher skill chance
     - five-seed main-path sim keeps all 13 mandatory fights inside active corridors; underlevel boss benchmarks stay report-only pending Phase 55
     - typecheck, 332 unit tests across 46 files, production build, and 34 desktop/mobile e2e smokes verified
+  phase_62:
+    - data-driven, Phaser-free "cutscene-light" scene interpreter (systems/sceneScript) with move/face/emote/camera/text/give/wait steps, a headless runner and a validator against real actors/items
+    - four biggest beats scripted (cave awakening, direwolf pact, Tempest naming, Geld victory) in data/scenes; flag-triggered and played once via a milestone-parity trigger (latest beat only, acknowledge all prior) so pre-existing saves do not replay old cutscenes
+    - OverworldScene plays scenes in-world (input locked, actor-sprite registry, camera pan, emote bubbles) then shows the summary after; the existing milestone banner follows — moments are shown, not told beforehand
+    - typecheck, 359 unit tests, production build, and serial desktop/mobile e2e (37/38; the one is a pre-existing timing-flaky milestone auto-show, passes ~5/6) verified
   phase_61:
     - last 16x16 Kenney placeholder sprites (hero, slime, wolf, imp, ogre) replaced by high-res generated WebP cutouts; new enemy-direwolf-pup and enemy-ogre-warrior assets with ASSETS.md provenance
     - legacy sprite texture keys aliased to the generated art and dropped from the NEAREST pixel list so only Kenney tiles keep nearest-neighbor filtering

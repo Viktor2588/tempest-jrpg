@@ -28,14 +28,6 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
-- [~] Phase 62 — Szenen-Skripte (Cutscene-light) (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-62-scenes`): kleines datengetriebenes
-  Skriptsystem fuer inszenierte Momente in der Oberwelt (Schrittliste: Akteur
-  bewegen/drehen, Emote, Kamera-Schwenk, Textbeat, Item-Uebergabe, Pause);
-  Interpreter Phaser-frei testbar, Darstellung in OverworldScene. Die 4
-  groessten Beats umstellen: Hoehlen-Erwachen, Direwolf-Pakt mit Rangas
-  Benennung, Tempest-Benennungszeremonie, Sieg ueber Geld. Toast nur noch als
-  Zusammenfassung danach.
 - [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
   ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
   neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;
