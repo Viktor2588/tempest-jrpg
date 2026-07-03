@@ -4,16 +4,17 @@ import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
   DIREWOLF_ALPHA_TEXTURE_KEY,
+  DIREWOLF_PUP_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
-  KINGDOM_UNIT_TEXTURE_KEY,
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
+  OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
   ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
@@ -37,10 +38,12 @@ describe('Gegner-Art-Mapping', () => {
     expect(enemyArtFor('forest-slime', 'Waldschleim').frame).toBeUndefined();
   });
 
-  it('nutzt den Kingdom-Atlas für noch generische Kreaturenlinien', () => {
+  it('nutzt hochaufgeloeste Cutouts fuer die letzten Kenney-Gegnerlinien', () => {
     expect(enemyArtFor('direwolf-pup', 'Direwolf-Welpe')).toMatchObject({
-      textureKey: KINGDOM_UNIT_TEXTURE_KEY,
-      frame: 'wolf'
+      textureKey: DIREWOLF_PUP_TEXTURE_KEY
+    });
+    expect(enemyArtFor('ogre-warrior', 'Oger-Krieger')).toMatchObject({
+      textureKey: OGRE_WARRIOR_TEXTURE_KEY
     });
   });
 
@@ -105,7 +108,9 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-masked-majin.webp',
       'enemy-ifrit.webp',
       'enemy-direwolf-alpha.webp',
-      'enemy-nameless-echo.webp'
+      'enemy-direwolf-pup.webp',
+      'enemy-nameless-echo.webp',
+      'enemy-ogre-warrior.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

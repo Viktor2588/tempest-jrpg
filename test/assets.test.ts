@@ -13,6 +13,23 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
+  it('ersetzt die 16x16-Kenney-Sprites durch hochaufgeloeste Projektassets', () => {
+    expect(assetFiles).toEqual(expect.arrayContaining([
+      'sprites/overworld-rimuru-slime.webp',
+      'sprites/enemy-direwolf-pup.webp',
+      'sprites/enemy-ogre-warrior.webp'
+    ]));
+    for (const legacy of [
+      'sprites/hero.png',
+      'sprites/enemy-slime.png',
+      'sprites/enemy-wolf.png',
+      'sprites/enemy-imp.png',
+      'sprites/enemy-ogre.png'
+    ]) {
+      expect(assetFiles).not.toContain(legacy);
+    }
+  });
+
   it('nutzt echte CC0-SFX-Dateien statt prozeduraler Oszillator-Beep-Sounds', () => {
     expect(sfxSource).toContain('../assets/audio/ui-select.ogg');
     expect(sfxSource).toContain('../assets/audio/result-victory.ogg');

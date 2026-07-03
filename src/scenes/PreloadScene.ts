@@ -8,6 +8,7 @@ import { generatePrologueBattleBackgrounds } from '../render/battleBackgroundAtl
 import {
   BOG_TERROR_TEXTURE_KEY,
   DIREWOLF_ALPHA_TEXTURE_KEY,
+  DIREWOLF_PUP_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
@@ -18,6 +19,7 @@ import {
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
+  OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
   ORC_GENERAL_TEXTURE_KEY,
   ORC_SCOUT_TEXTURE_KEY,
@@ -70,11 +72,9 @@ import {
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
-// Echte CC0-Charakter-/Gegner-Sprites (Kenney „Tiny Dungeon", CC0 — siehe ASSETS.md).
-import heroUrl from '../assets/sprites/hero.png';
 import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
-import enemySlimeUrl from '../assets/sprites/enemy-slime.png';
 import enemyForestSlimeUrl from '../assets/sprites/enemy-forest-slime.webp';
+import enemyDirewolfPupUrl from '../assets/sprites/enemy-direwolf-pup.webp';
 import enemySporeMothUrl from '../assets/sprites/enemy-spore-moth.webp';
 import enemyOrcScoutUrl from '../assets/sprites/enemy-orc-scout.webp';
 import enemyLizardmanAcolyteUrl from '../assets/sprites/enemy-lizardman-acolyte.webp';
@@ -88,9 +88,7 @@ import enemyMaskedMajinUrl from '../assets/sprites/enemy-masked-majin.webp';
 import enemyIfritUrl from '../assets/sprites/enemy-ifrit.webp';
 import enemyDirewolfAlphaUrl from '../assets/sprites/enemy-direwolf-alpha.webp';
 import enemyNamelessEchoUrl from '../assets/sprites/enemy-nameless-echo.webp';
-import enemyWolfUrl from '../assets/sprites/enemy-wolf.png';
-import enemyImpUrl from '../assets/sprites/enemy-imp.png';
-import enemyOgreUrl from '../assets/sprites/enemy-ogre.png';
+import enemyOgreWarriorUrl from '../assets/sprites/enemy-ogre-warrior.webp';
 import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
@@ -192,11 +190,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY, tempestCampFloorTileUrl);
     this.load.image(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY, tempestVillageFloorTileUrl);
     this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
-    // Echte CC0-Sprites laden (Kenney Tiny Dungeon).
-    this.load.image('sprite-hero', heroUrl);
+    // Hochaufgeloeste Projekt-Sprites; die Legacy-Keys bleiben als robuste Aliasse.
+    this.load.image('sprite-hero', overworldRimuruSlimeUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
-    this.load.image('sprite-enemy-slime', enemySlimeUrl);
+    this.load.image('sprite-enemy-slime', enemyForestSlimeUrl);
     this.load.image(FOREST_SLIME_TEXTURE_KEY, enemyForestSlimeUrl);
+    this.load.image(DIREWOLF_PUP_TEXTURE_KEY, enemyDirewolfPupUrl);
     this.load.image(SPORE_MOTH_TEXTURE_KEY, enemySporeMothUrl);
     this.load.image(ORC_SCOUT_TEXTURE_KEY, enemyOrcScoutUrl);
     this.load.image(LIZARDMAN_ACOLYTE_TEXTURE_KEY, enemyLizardmanAcolyteUrl);
@@ -210,9 +209,10 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(IFRIT_TEXTURE_KEY, enemyIfritUrl);
     this.load.image(DIREWOLF_ALPHA_TEXTURE_KEY, enemyDirewolfAlphaUrl);
     this.load.image(NAMELESS_ECHO_TEXTURE_KEY, enemyNamelessEchoUrl);
-    this.load.image('sprite-enemy-wolf', enemyWolfUrl);
-    this.load.image('sprite-enemy-imp', enemyImpUrl);
-    this.load.image('sprite-enemy-ogre', enemyOgreUrl);
+    this.load.image('sprite-enemy-wolf', enemyDirewolfPupUrl);
+    this.load.image('sprite-enemy-imp', enemyNamelessEchoUrl);
+    this.load.image('sprite-enemy-ogre', enemyOgreWarriorUrl);
+    this.load.image(OGRE_WARRIOR_TEXTURE_KEY, enemyOgreWarriorUrl);
     this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
@@ -344,7 +344,14 @@ export class PreloadScene extends Phaser.Scene {
       MASKED_MAJIN_TEXTURE_KEY,
       IFRIT_TEXTURE_KEY,
       DIREWOLF_ALPHA_TEXTURE_KEY,
+      DIREWOLF_PUP_TEXTURE_KEY,
       NAMELESS_ECHO_TEXTURE_KEY,
+      OGRE_WARRIOR_TEXTURE_KEY,
+      'sprite-hero',
+      'sprite-enemy-slime',
+      'sprite-enemy-wolf',
+      'sprite-enemy-imp',
+      'sprite-enemy-ogre',
       portraitKey('rimuru'),
       portraitKey('gobta'),
       portraitKey('shuna'),
