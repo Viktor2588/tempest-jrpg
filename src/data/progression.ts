@@ -1,4 +1,4 @@
-import type { StatusEffectId, StatBlock } from './types';
+import type { StatusEffectId, StatBlock, TalentPerk } from './types';
 
 export type ProgressionUnlockSource = 'story' | 'evolution' | 'bond' | 'exploration';
 
@@ -91,6 +91,10 @@ export interface SkillTreeNodeDefinition {
   readonly requiredRegionId?: string;
   readonly skillId?: string;
   readonly statBonus?: Partial<StatBlock>;
+  // Phase 70 — Spezialisierungsstrang; das Wählen eines Strangs sperrt die anderen (Branch-Lock).
+  readonly branch?: string;
+  // Phase 70 — passive Perks/Procs, die dieser Knoten gewährt (Phase-69-Engine).
+  readonly perks?: readonly TalentPerk[];
 }
 
 export interface SkillTreeDefinition {
@@ -670,28 +674,106 @@ export const SKILL_TREES = [
     ]
   },
   { id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
-    { id: 'benimaru-flame-core', name: 'Flammenkern', description: 'Grundlage der Schwarzflamme.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { magic: 2, attack: 1 } },
-    { id: 'benimaru-black-flame', name: 'Schwarzflamme', description: 'Vertieft die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 4, requiredNodeIds: ['benimaru-flame-core'], skillId: 'black-flame' },
-    { id: 'benimaru-general-aura', name: 'Generals-Aura', description: 'Anführerpräsenz stärkt den Angriff.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-core'], skillId: 'war-cry' },
-    { id: 'benimaru-hellfire', name: 'Höllenbrand', description: 'Meisterschaft über die Flamme.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-black-flame'], statBonus: { magic: 4, attack: 3 } }
+    // Strang 1 — Klingensturm (physisch): rohe Nahkampfwucht und Konter.
+    { id: 'benimaru-blade-focus', name: 'Klingenfokus', description: 'Strang Klingensturm: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+    { id: 'benimaru-blade-counter', name: 'Konterhaltung', description: 'Pariert Angriffe mit einem Gegenschlag.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-blade-focus'], branch: 'blade', perks: [{ kind: 'counter', percent: 30 }] },
+    { id: 'benimaru-blade-resolve', name: 'Kriegerherz', description: 'Zähigkeit an der Front.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-blade-focus'], branch: 'blade', perks: [{ kind: 'max-hp', percent: 12 }] },
+    { id: 'benimaru-blade-storm', name: 'Klingensturm', description: 'Vollendung des physischen Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-blade-counter'], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'counter', percent: 20 }] },
+    // Strang 2 — Schwarzflamme (Feuermagie): Elementschaden und Kettenzauber.
+    { id: 'benimaru-flame-focus', name: 'Flammenfokus', description: 'Strang Schwarzflamme: entfacht die konzentrierte Schwarzflamme.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 20, element: 'fire' }], skillId: 'black-flame' },
+    { id: 'benimaru-flame-mastery', name: 'Schwarzglut', description: 'Vertieft die Magie.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-flame-focus'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }] },
+    { id: 'benimaru-flame-chain', name: 'Flammenkette', description: 'Schwarzflamme entzündet ein nachfolgendes Inferno.', cost: 2, requiredLevel: 6, requiredNodeIds: ['benimaru-flame-focus'], branch: 'flame', perks: [{ kind: 'skill-chain', triggerSkillId: 'black-flame', followUpSkillId: 'ifrit-inferno', percent: 40 }] },
+    { id: 'benimaru-flame-inferno', name: 'Hölleninferno', description: 'Vollendung des Feuerstrangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-flame-mastery'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 25, element: 'fire' }], skillId: 'ifrit-inferno' },
+    // Strang 3 — Flammenkommandant (Team-Buffs): stärkt und schützt die Gruppe.
+    { id: 'benimaru-command-presence', name: 'Kommandopräsenz', description: 'Strang Flammenkommandant: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'command', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'war-cry' },
+    { id: 'benimaru-command-wall', name: 'Feuerwall', description: 'Schirmt gegen erlittenen Schaden ab.', cost: 1, requiredLevel: 5, requiredNodeIds: ['benimaru-command-presence'], branch: 'command', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'benimaru-command-rally', name: 'Anfeuerung', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['benimaru-command-presence'], branch: 'command', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'benimaru-command-marshal', name: 'Flammenkommandant', description: 'Vollendung des Kommando-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['benimaru-command-wall'], branch: 'command', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'damage-taken', percent: 10 }] }
   ] },
   { id: 'shion-tree', characterId: 'shion', name: 'Stahlfaust-Leibwache', nodes: [
-    { id: 'shion-iron-body', name: 'Eisenkörper', description: 'Monströse Konstitution.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { maxHp: 18, defense: 2 } },
-    { id: 'shion-ogre-smash', name: 'Oger-Wucht', description: 'Vertieft den erderschütternden Hieb.', cost: 1, requiredLevel: 4, requiredNodeIds: ['shion-iron-body'], skillId: 'ogre-smash' },
-    { id: 'shion-bulwark', name: 'Bollwerk', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-iron-body'], skillId: 'iron-guard' },
-    { id: 'shion-titan-grip', name: 'Titanengriff', description: 'Rohe Kraft am Limit.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-ogre-smash'], statBonus: { attack: 5, maxHp: 20 } }
+    // Strang 1 — Zermalmen (rohe Kraft)
+    { id: 'shion-crush-focus', name: 'Zermalmerfokus', description: 'Strang Zermalmen: rohe physische Wucht.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], skillId: 'ogre-smash', statBonus: { attack: 2 } },
+    { id: 'shion-crush-quake', name: 'Nachbeben', description: 'Oger-Wucht entlädt einen Folgehieb.', cost: 2, requiredLevel: 5, requiredNodeIds: ['shion-crush-focus'], branch: 'crush', perks: [{ kind: 'skill-chain', triggerSkillId: 'ogre-smash', followUpSkillId: 'orc-cleave', percent: 35 }] },
+    { id: 'shion-crush-might', name: 'Titanenkraft', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-crush-focus'], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'shion-crush-titan', name: 'Titanengriff', description: 'Vollendung des Zermalmen-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-crush-quake'], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { attack: 4 } },
+    // Strang 2 — Bollwerk (Verteidigung)
+    { id: 'shion-bulwark-body', name: 'Eisenkörper', description: 'Strang Bollwerk: monströse Konstitution.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'bulwark', perks: [{ kind: 'max-hp', percent: 15 }], skillId: 'iron-guard', statBonus: { defense: 2 } },
+    { id: 'shion-bulwark-wall', name: 'Bollwerk', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shion-bulwark-body'], branch: 'bulwark', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'shion-bulwark-evade', name: 'Ausfallschritt', description: 'Weicht trotz Masse aus.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-bulwark-body'], branch: 'bulwark', perks: [{ kind: 'dodge', percent: 15 }] },
+    { id: 'shion-bulwark-fortress', name: 'Festungswall', description: 'Vollendung des Bollwerk-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-bulwark-wall'], branch: 'bulwark', perks: [{ kind: 'max-hp', percent: 15 }, { kind: 'damage-taken', percent: 10 }] },
+    // Strang 3 — Leibwache (Team)
+    { id: 'shion-guard-oath', name: 'Leibwachen-Schwur', description: 'Strang Leibwache: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'guardian', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'battle-cry' },
+    { id: 'shion-guard-aegis', name: 'Schutzschild', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shion-guard-oath'], branch: 'guardian', perks: [{ kind: 'damage-taken', percent: 12 }] },
+    { id: 'shion-guard-rally', name: 'Sammelruf', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-guard-oath'], branch: 'guardian', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'shion-guard-marshal', name: 'Schildmarschall', description: 'Vollendung des Leibwache-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-guard-aegis'], branch: 'guardian', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'counter', percent: 20 }] }
   ] },
   { id: 'hakurou-tree', characterId: 'hakurou', name: 'Schwertheiliger', nodes: [
-    { id: 'hakurou-stance', name: 'Stille Haltung', description: 'Grundlage der Schwertkunst.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 2, attack: 2 } },
-    { id: 'hakurou-flash-step', name: 'Blitzschritt', description: 'Vertieft das schnelle Vorstoßen.', cost: 1, requiredLevel: 4, requiredNodeIds: ['hakurou-stance'], skillId: 'quick-step' },
-    { id: 'hakurou-mentor', name: 'Lehrmeister', description: 'Anleitung stählt das Team.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-stance'], skillId: 'battle-cry' },
-    { id: 'hakurou-god-speed', name: 'Götterschnelle', description: 'Vollendung des Schwertwegs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-flash-step'], statBonus: { agility: 5, attack: 4 } }
+    // Strang 1 — Blitzschnitt (Tempo)
+    { id: 'hakurou-flash-focus', name: 'Blitzfokus', description: 'Strang Blitzschnitt: rasender Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'flash', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], skillId: 'quick-step', statBonus: { agility: 2 } },
+    { id: 'hakurou-flash-feint', name: 'Finte', description: 'Goblin-Finte entlädt einen Folgeschnitt.', cost: 2, requiredLevel: 5, requiredNodeIds: ['hakurou-flash-focus'], branch: 'flash', perks: [{ kind: 'skill-chain', triggerSkillId: 'goblin-feint', followUpSkillId: 'orc-cleave', percent: 35 }] },
+    { id: 'hakurou-flash-evade', name: 'Windschritt', description: 'Ausweichen durch Tempo.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-flash-focus'], branch: 'flash', perks: [{ kind: 'dodge', percent: 15 }] },
+    { id: 'hakurou-flash-godspeed', name: 'Götterschnelle', description: 'Vollendung des Blitz-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-flash-feint'], branch: 'flash', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { agility: 4 } },
+    // Strang 2 — Iai (Präzision/Konter)
+    { id: 'hakurou-iai-stance', name: 'Iai-Haltung', description: 'Strang Iai: geduldiger Gegenschlag.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'iai', perks: [{ kind: 'counter', percent: 30 }], statBonus: { attack: 2 } },
+    { id: 'hakurou-iai-read', name: 'Klingenlesen', description: 'Erhöht die Konterchance.', cost: 1, requiredLevel: 5, requiredNodeIds: ['hakurou-iai-stance'], branch: 'iai', perks: [{ kind: 'counter', percent: 20 }] },
+    { id: 'hakurou-iai-edge', name: 'Scharfe Schneide', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-iai-stance'], branch: 'iai', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'hakurou-iai-master', name: 'Schwertheiliger', description: 'Vollendung des Iai-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-iai-read'], branch: 'iai', perks: [{ kind: 'counter', percent: 30, scale: 1.4 }] },
+    // Strang 3 — Lehrmeister (Team)
+    { id: 'hakurou-mentor-call', name: 'Lehrmeister', description: 'Strang Lehrmeister: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'mentor', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'battle-cry' },
+    { id: 'hakurou-mentor-guard', name: 'Deckung lehren', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['hakurou-mentor-call'], branch: 'mentor', perks: [{ kind: 'damage-taken', percent: 12 }] },
+    { id: 'hakurou-mentor-poise', name: 'Gelassenheit', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-mentor-call'], branch: 'mentor', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'hakurou-mentor-sage', name: 'Altmeister', description: 'Vollendung des Lehrmeister-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-mentor-guard'], branch: 'mentor', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'dodge', percent: 10 }] }
   ] },
   { id: 'souei-tree', characterId: 'souei', name: 'Schattenklinge', nodes: [
-    { id: 'souei-silent-step', name: 'Lautloser Schritt', description: 'Verdeckte Beweglichkeit.', cost: 1, requiredLevel: 2, requiredNodeIds: [], statBonus: { agility: 3 } },
-    { id: 'souei-venom', name: 'Giftklinge', description: 'Vertieft den vergifteten Stoß.', cost: 1, requiredLevel: 4, requiredNodeIds: ['souei-silent-step'], skillId: 'venom-spit' },
-    { id: 'souei-shadow-strike', name: 'Schattenstoß', description: 'Schneller Vorstoß aus dem Schatten.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-silent-step'], skillId: 'quick-step' },
-    { id: 'souei-assassinate', name: 'Meucheln', description: 'Tödliche Präzision.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-venom'], statBonus: { agility: 4, attack: 4 } }
+    // Strang 1 — Gift (anhaltender Schaden)
+    { id: 'souei-venom-focus', name: 'Giftfokus', description: 'Strang Gift: der vergiftete Stoß.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'venom', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], skillId: 'venom-spit', statBonus: { attack: 2 } },
+    { id: 'souei-venom-lace', name: 'Giftranke', description: 'Giftstoß entlädt einen Folgeschnitt.', cost: 2, requiredLevel: 5, requiredNodeIds: ['souei-venom-focus'], branch: 'venom', perks: [{ kind: 'skill-chain', triggerSkillId: 'venom-spit', followUpSkillId: 'spear-charge', percent: 35 }] },
+    { id: 'souei-venom-edge', name: 'Ätzklinge', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-venom-focus'], branch: 'venom', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'souei-venom-master', name: 'Giftmeister', description: 'Vollendung des Gift-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-venom-lace'], branch: 'venom', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { attack: 4 } },
+    // Strang 2 — Schatten (Verdeckung)
+    { id: 'souei-shadow-step', name: 'Schattenschritt', description: 'Strang Schatten: verdeckte Beweglichkeit.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'shadow', perks: [{ kind: 'dodge', percent: 18 }], statBonus: { agility: 3 } },
+    { id: 'souei-shadow-veil', name: 'Schattenschleier', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['souei-shadow-step'], branch: 'shadow', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'souei-shadow-evade', name: 'Nebelgang', description: 'Erhöht die Ausweichchance.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-shadow-step'], branch: 'shadow', perks: [{ kind: 'dodge', percent: 12 }] },
+    { id: 'souei-shadow-phantom', name: 'Phantom', description: 'Vollendung des Schatten-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-shadow-veil'], branch: 'shadow', perks: [{ kind: 'dodge', percent: 20 }, { kind: 'damage-taken', percent: 10 }] },
+    // Strang 3 — Meucheln (Präzision/Konter)
+    { id: 'souei-assassin-focus', name: 'Meuchelfokus', description: 'Strang Meucheln: tödliche Präzision.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'assassin', perks: [{ kind: 'counter', percent: 25 }], skillId: 'quick-step', statBonus: { agility: 2 } },
+    { id: 'souei-assassin-mark', name: 'Todesmal', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['souei-assassin-focus'], branch: 'assassin', perks: [{ kind: 'damage-dealt', percent: 18, category: 'physical' }] },
+    { id: 'souei-assassin-riposte', name: 'Blutriposte', description: 'Erhöht die Konterchance.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-assassin-focus'], branch: 'assassin', perks: [{ kind: 'counter', percent: 20 }] },
+    { id: 'souei-assassin-execute', name: 'Meucheln', description: 'Vollendung des Meuchel-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-assassin-mark'], branch: 'assassin', perks: [{ kind: 'damage-dealt', percent: 22, category: 'physical' }, { kind: 'counter', percent: 15 }], statBonus: { attack: 3 } }
+  ] },
+  { id: 'rigurd-tree', characterId: 'rigurd', name: 'Goblin-Häuptling', nodes: [
+    // Strang 1 — Wall (Verteidigung)
+    { id: 'rigurd-wall-guard', name: 'Schildwall', description: 'Strang Wall: standhafte Verteidigung.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'wall', perks: [{ kind: 'max-hp', percent: 15 }], skillId: 'iron-guard', statBonus: { defense: 2 } },
+    { id: 'rigurd-wall-brace', name: 'Verschanzen', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rigurd-wall-guard'], branch: 'wall', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'rigurd-wall-endure', name: 'Zähigkeit', description: 'Stählt die Konstitution weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rigurd-wall-guard'], branch: 'wall', perks: [{ kind: 'max-hp', percent: 12 }] },
+    { id: 'rigurd-wall-bastion', name: 'Bastion', description: 'Vollendung des Wall-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rigurd-wall-brace'], branch: 'wall', perks: [{ kind: 'max-hp', percent: 15 }, { kind: 'damage-taken', percent: 10 }] },
+    // Strang 2 — Kriegsherr (Angriff)
+    { id: 'rigurd-war-fury', name: 'Kriegsfuror', description: 'Strang Kriegsherr: physische Wucht.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'warlord', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+    { id: 'rigurd-war-counter', name: 'Gegenwehr', description: 'Pariert Angriffe mit einem Gegenschlag.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rigurd-war-fury'], branch: 'warlord', perks: [{ kind: 'counter', percent: 25 }] },
+    { id: 'rigurd-war-might', name: 'Häuptlingskraft', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rigurd-war-fury'], branch: 'warlord', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'rigurd-war-warlord', name: 'Kriegsherr', description: 'Vollendung des Kriegsherr-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rigurd-war-counter'], branch: 'warlord', perks: [{ kind: 'damage-dealt', percent: 22, category: 'physical' }, { kind: 'counter', percent: 15 }], statBonus: { attack: 3 } },
+    // Strang 3 — Häuptling (Team)
+    { id: 'rigurd-chief-call', name: 'Häuptlingsruf', description: 'Strang Häuptling: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'chieftain', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'battle-cry' },
+    { id: 'rigurd-chief-banner', name: 'Kriegsbanner', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rigurd-chief-call'], branch: 'chieftain', perks: [{ kind: 'damage-taken', percent: 12 }] },
+    { id: 'rigurd-chief-rally', name: 'Stammesmut', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rigurd-chief-call'], branch: 'chieftain', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'rigurd-chief-warchief', name: 'Kriegshäuptling', description: 'Vollendung des Häuptling-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rigurd-chief-banner'], branch: 'chieftain', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'max-hp', percent: 10 }] }
+  ] },
+  { id: 'ranga-tree', characterId: 'ranga', name: 'Sturmdirewolf', nodes: [
+    // Strang 1 — Reißzahn (Angriff)
+    { id: 'ranga-fang-focus', name: 'Reißzahnfokus', description: 'Strang Reißzahn: der stürmische Ansturm.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'fang', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], skillId: 'direwolf-rush', statBonus: { attack: 2 } },
+    { id: 'ranga-fang-chain', name: 'Rudelhatz', description: 'Der Ansturm entlädt einen Folgebiss.', cost: 2, requiredLevel: 5, requiredNodeIds: ['ranga-fang-focus'], branch: 'fang', perks: [{ kind: 'skill-chain', triggerSkillId: 'direwolf-rush', followUpSkillId: 'orc-cleave', percent: 35 }] },
+    { id: 'ranga-fang-maul', name: 'Zermalmbiss', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['ranga-fang-focus'], branch: 'fang', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'ranga-fang-alpha', name: 'Alpha-Reißzahn', description: 'Vollendung des Reißzahn-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['ranga-fang-chain'], branch: 'fang', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { attack: 4 } },
+    // Strang 2 — Sturmböe (Tempo)
+    { id: 'ranga-gale-step', name: 'Sturmschritt', description: 'Strang Sturmböe: reines Tempo.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'gale', perks: [{ kind: 'dodge', percent: 18 }], skillId: 'quick-step', statBonus: { agility: 3 } },
+    { id: 'ranga-gale-veer', name: 'Windausweichen', description: 'Erhöht die Ausweichchance.', cost: 1, requiredLevel: 5, requiredNodeIds: ['ranga-gale-step'], branch: 'gale', perks: [{ kind: 'dodge', percent: 12 }] },
+    { id: 'ranga-gale-rush', name: 'Böenstoß', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['ranga-gale-step'], branch: 'gale', perks: [{ kind: 'damage-dealt', percent: 12, category: 'physical' }] },
+    { id: 'ranga-gale-tempest', name: 'Sturmläufer', description: 'Vollendung des Sturmböe-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['ranga-gale-veer'], branch: 'gale', perks: [{ kind: 'dodge', percent: 20 }, { kind: 'counter', percent: 15 }] },
+    // Strang 3 — Rudel (Team)
+    { id: 'ranga-pack-howl', name: 'Rudelheulen', description: 'Strang Rudel: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'pack', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'battle-cry' },
+    { id: 'ranga-pack-guard', name: 'Rudelschutz', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['ranga-pack-howl'], branch: 'pack', perks: [{ kind: 'damage-taken', percent: 12 }] },
+    { id: 'ranga-pack-bond', name: 'Rudelband', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['ranga-pack-howl'], branch: 'pack', perks: [{ kind: 'max-hp', percent: 10 }] },
+    { id: 'ranga-pack-alpha', name: 'Rudelführer', description: 'Vollendung des Rudel-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['ranga-pack-guard'], branch: 'pack', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'counter', percent: 15 }] }
   ] }
 ] as const satisfies readonly SkillTreeDefinition[];
 

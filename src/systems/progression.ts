@@ -27,6 +27,7 @@ import {
   type StatBlock
 } from '../data';
 import { battleLoadoutSkillIds, createHeroBattleUnit, type BattleUnitInput } from './battle';
+import { committedBranch, talentPerksForNodes } from './talentPerk';
 import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
@@ -387,6 +388,14 @@ export function canUnlockSkillNode(
   if (!node.requiredNodeIds.every((requiredId) => unlocked.includes(requiredId))) {
     return { ok: false, state, message: 'Vorgänger-Knoten fehlen.' };
   }
+  // Branch-Lock: hat die Figur bereits einen Spezialisierungsstrang gewählt,
+  // bleiben Knoten anderer Stränge gesperrt (Qual der Wahl).
+  if (node.branch !== undefined) {
+    const committed = committedBranch(unlocked);
+    if (committed !== null && committed !== node.branch) {
+      return { ok: false, state, message: 'Anderer Spezialisierungsstrang bereits gewählt.' };
+    }
+  }
   if ((state.skillPointsByCharacterId[member.characterId] ?? 0) < node.cost) {
     return { ok: false, state, message: 'Nicht genug Skill-Punkte.' };
   }
@@ -697,7 +706,9 @@ export function createProgressionBattleParty(
       skillIds: battleLoadoutSkillIds({ ...member, learnedSkillIds: getProgressionCoreSkillIds(member, state) }),
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
       formName: getActiveEvolution(state, member.characterId)?.formName,
-      openingStatusIds: getOpeningStatusIds(member.characterId, state)
+      openingStatusIds: getOpeningStatusIds(member.characterId, state),
+      // Phase 70: Perks aus den freigeschalteten Spec-Knoten fließen in den Kampf ein.
+      perks: talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [])
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
   });
