@@ -9,7 +9,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 71 — Rimuru: Verschlingen als Progressionskern (in Bearbeitung im
+  Worktree `/worktree/tempest-phase-71-rimuru-devour`): Startskills,
+  Gegner-Devour-Beute, drei exklusive Spec-Straenge, Onboarding und
+  Balance-Harness gemeinsam neu einpendeln.
 
 ## Integrationswarteschlange
 
@@ -74,7 +77,8 @@ verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
   Straenge sind in Phase 71 gebuendelt (Verschlingen-Verzahnung). Balance-
   Harness: jede Spec muss die Korridore je Story-Beat schaffen und sich im Sim
   messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
-- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
+- [~] Phase 71 — Rimuru: Verschlingen als Progressionskern (in Bearbeitung im
+  Worktree `/worktree/tempest-phase-71-rimuru-devour`; inkl. seiner 3 Spec-
   Straenge, die sich mit Verschlingen verzahnen): Startskills auf
   `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
   Schleimform-Faehigkeit) reduzieren; `water-blade`/`storm-gust` u. a. werden
