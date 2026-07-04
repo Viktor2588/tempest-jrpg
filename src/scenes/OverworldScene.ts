@@ -16,6 +16,7 @@ import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { regionBannerTextureForMap } from '../render/regionBannerArt';
 import {
   configureHiDpiScene,
+  hudZoomOffset,
   LOGICAL_GAME_HEIGHT as GAME_HEIGHT,
   LOGICAL_GAME_WIDTH as GAME_WIDTH
 } from '../render/hiDpi';
@@ -67,6 +68,8 @@ export class OverworldScene extends Phaser.Scene {
   private minimapOriginY = 0;
   private minimapCell = 4;
   private onboardingLayer?: Phaser.GameObjects.Container;
+  // Zoom-Kompensation für fixe HUD-Elemente (0 bei DPR 1). Siehe hudZoomOffset.
+  private hudOffset = { x: 0, y: 0 };
   // Cutscene-light: aktive Szene sperrt Bewegung/Interaktion; Akteur-Sprites
   // werden pro Zeichnung registriert, damit Schritte sie ansprechen koennen.
   private cutsceneActive = false;
@@ -78,6 +81,11 @@ export class OverworldScene extends Phaser.Scene {
 
   create(): void {
     configureHiDpiScene(this);
+    // Diese Kamera folgt dem Spieler und nutzt Bounds; Phasers clampX/Follow
+    // erwarten den Standard-Ursprung 0.5, daher hier zurücksetzen. Fixe HUD-
+    // Elemente werden stattdessen per hudOffset gegen den Zoom kompensiert.
+    this.cameras.main.setOrigin(0.5, 0.5);
+    this.hudOffset = hudZoomOffset();
     this.save = loadSave(window.localStorage) ?? createNewSave();
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.mapId = this.save.location.mapId;
@@ -140,8 +148,15 @@ export class OverworldScene extends Phaser.Scene {
     this.events.off(Phaser.Scenes.Events.RESUME, this.onResume, this);
     this.events.on(Phaser.Scenes.Events.RESUME, this.onResume, this);
 
-    // Kamera folgt, begrenzt auf die Kartengröße.
-    this.cameras.main.setBounds(0, 0, map.width * TILE, map.height * TILE);
+    // Kamera folgt, begrenzt auf die Kartengröße. Karten, die kleiner als der
+    // Viewport sind (z.B. die Starthöhle 768×480 < 960×540), würde Phaser sonst
+    // links-oben verankern statt zu zentrieren → Bounds auf mind. Viewport-Größe
+    // erweitern und auf der Karte zentrieren, dann klemmt die Kamera mittig.
+    const worldW = map.width * TILE;
+    const worldH = map.height * TILE;
+    const boundW = Math.max(worldW, GAME_WIDTH);
+    const boundH = Math.max(worldH, GAME_HEIGHT);
+    this.cameras.main.setBounds((worldW - boundW) / 2, (worldH - boundH) / 2, boundW, boundH);
     this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
 
     // Tastatur.
@@ -165,9 +180,11 @@ export class OverworldScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-SPACE', interact);
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const interactRect = touchControls.interact;
-    const interactBtn = this.add.rectangle(interactRect.x, interactRect.y, interactRect.width, interactRect.height, 0x1f3a2f, 0.68)
+    const interactX = interactRect.x + this.hudOffset.x;
+    const interactY = interactRect.y + this.hudOffset.y;
+    const interactBtn = this.add.rectangle(interactX, interactY, interactRect.width, interactRect.height, 0x1f3a2f, 0.68)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x75ffab, 0.7).setInteractive();
-    this.add.text(interactRect.x, interactRect.y, '◆', { fontFamily: 'sans-serif', fontSize: '24px', color: '#d9ffe7' })
+    this.add.text(interactX, interactY, '◆', { fontFamily: 'sans-serif', fontSize: '24px', color: '#d9ffe7' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     interactBtn.on('pointerdown', interact);
 
@@ -185,9 +202,11 @@ export class OverworldScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-M', openMenu);
     const hud = layoutOverworldHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const menuRect = hud.menu;
-    const menuBtn = this.add.rectangle(menuRect.x, menuRect.y, menuRect.width, menuRect.height, 0x223049, 0.9)
+    const menuX = menuRect.x + this.hudOffset.x;
+    const menuY = menuRect.y + this.hudOffset.y;
+    const menuBtn = this.add.rectangle(menuX, menuY, menuRect.width, menuRect.height, 0x223049, 0.9)
       .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.7).setInteractive();
-    this.add.text(menuRect.x, menuRect.y, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
+    this.add.text(menuX, menuY, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
 
@@ -201,7 +220,7 @@ export class OverworldScene extends Phaser.Scene {
   // Schritte verschwinden nach erfolgreicher Nutzung (Bewegung/Interaktion/Menü).
   private drawOnboardingHints(): void {
     if (this.onboardingLayer) this.onboardingLayer.removeAll(true);
-    else this.onboardingLayer = this.add.container(0, 0).setScrollFactor(0).setDepth(35);
+    else this.onboardingLayer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(35);
     const layer = this.onboardingLayer;
     const hints = getPendingOverworldTutorialHints(this.save.flags);
     if (hints.length === 0) {
@@ -215,7 +234,9 @@ export class OverworldScene extends Phaser.Scene {
     const panelX = 16;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
-    const panelY = Math.max(112, GAME_HEIGHT - panelH - 16);
+    // Oben-links verankern: die Touch-Controls (Steuerkreuz unten links,
+    // Interaktions-Button unten rechts) bleiben frei statt vom Panel verdeckt.
+    const panelY = 112;
     layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
       .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
     layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
@@ -246,11 +267,13 @@ export class OverworldScene extends Phaser.Scene {
 
     if (hints.some((hint) => hint.step === 'interact')) {
       const rect = touchControls.interact;
-      layer.add(this.add.text(rect.x, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
+      // Rechtsbündig am Button-Rand: das Label lief sonst über den rechten
+      // Viewport-Rand (Button sitzt am äußersten rechten HUD-Rand).
+      layer.add(this.add.text(rect.x + rect.width / 2, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#d9ffe7'
-      }).setOrigin(0.5).setStroke('#082012', 3));
+      }).setOrigin(1, 0.5).setStroke('#082012', 3));
     }
     if (hints.some((hint) => hint.step === 'menu')) {
       const rect = hud.menu;
@@ -366,7 +389,7 @@ export class OverworldScene extends Phaser.Scene {
     this.cameras.main.stopFollow(); // Kamera waehrend der Szene selbst fuehren.
     const runner = createSceneRunner(script);
 
-    const layer = this.add.container(0, 0).setScrollFactor(0).setDepth(60);
+    const layer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(60);
     layer.add(this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.34).setOrigin(0, 0));
     const boxH = 116;
     const box = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - boxH / 2 - 16, GAME_WIDTH - 40, boxH, 0x0b1220, 0.94)
@@ -481,7 +504,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private showSceneSummary(title: string, body: string): void {
-    const layer = this.add.container(0, 0).setScrollFactor(0).setDepth(58);
+    const layer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(58);
     const w = Math.min(GAME_WIDTH - 40, 560);
     const panel = this.add.rectangle(GAME_WIDTH / 2, 70, w, 78, 0x0b1220, 0.94).setStrokeStyle(2, 0xe9c56c, 0.8);
     layer.add(panel);
@@ -498,7 +521,7 @@ export class OverworldScene extends Phaser.Scene {
   // Orientierung, da die Karten größer als der Bildschirm sind und die Kamera folgt.
   private drawMinimap(): void {
     if (this.minimapLayer) this.minimapLayer.removeAll(true);
-    else this.minimapLayer = this.add.container(0, 0).setScrollFactor(0).setDepth(20);
+    else this.minimapLayer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(20);
     const layer = this.minimapLayer;
     const world = createWorldState(this.save);
 
@@ -802,9 +825,11 @@ export class OverworldScene extends Phaser.Scene {
   private buildDpad(): void {
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     for (const b of touchControls.dpad) {
-      const btn = this.add.rectangle(b.x, b.y, b.width, b.height, 0x223049, 0.55)
+      const bx = b.x + this.hudOffset.x;
+      const by = b.y + this.hudOffset.y;
+      const btn = this.add.rectangle(bx, by, b.width, b.height, 0x223049, 0.55)
         .setScrollFactor(0).setDepth(10).setStrokeStyle(2, 0x68d7ff, 0.6).setInteractive();
-      this.add.text(b.x, b.y, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
+      this.add.text(bx, by, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
         .setOrigin(0.5).setScrollFactor(0).setDepth(11);
       btn.on('pointerdown', () => { this.touchDir = b.dir; });
       btn.on('pointerup', () => { if (this.touchDir === b.dir) this.touchDir = null; });
