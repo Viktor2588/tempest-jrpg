@@ -9,9 +9,13 @@ Status:
 
 ## Laufende Arbeit
 
-- [~] Phase 72 — Spec-Baum-UI (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-72-spec-ui`): Talent-Tab als 3-Spalten-Spec-Layout
-  mit Vorschau, Sperrgruenden und bestaetigter Strangwahl.
+- [x] Phase 72 — Spec-Baum-UI (Worktree
+  `/worktree/tempest-phase-72-spec-ui`): 3-Spalten-Spec-Layout mit
+  Eltern-Kanten, Vorschau, Sperrgruenden, bestaetigter Strangwahl und
+  begrenztem Touch-/Mausrad-Panning. Abnahme/Checks: `git diff --check`;
+  `bun run typecheck`; `bun run test` (387 Tests); `bun run build`;
+  `bun run test:e2e -- game.smoke.spec.ts --grep "Spec-Baum bestätigt"`
+  (Desktop + Mobile, 2 Tests).
 
 ## Integrationswarteschlange
 
@@ -86,13 +90,18 @@ verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
   `RIMURU_CORE_LOADOUT_SKILLS` (battle.ts) und Onboarding-Texte anpassen;
   Balance-Harness neu einpendeln, da Rimurus Fruehspiel schwaecher wird
   (Abstimmung mit Phasen 53–56/67).
-- [~] Phase 72 — Spec-Baum-UI (in Bearbeitung im Worktree
-  `/worktree/tempest-phase-72-spec-ui`): Talent-Tab als 3-Spalten-Spec-Layout (eine
-  Spalte je Strang, Linien Eltern→Kind, Zustaende: aktiv / freischaltbar /
-  gesperrt mit sichtbarem Grund inkl. Branch-Lock); Knoten-Vorschau zeigt
-  Perk-Wirkung VOR dem Kauf; Strangwahl mit Bestaetigungsdialog („sperrt die
-  anderen Richtungen"). Layout als pure Funktion (headless testbar nach dem
-  `HudLayoutIssue`-Muster), mobile scroll-/pannbar; Abstimmung mit Phase 59.
+- [x] Phase 72 — Spec-Baum-UI (Worktree `/worktree/tempest-phase-72-spec-ui`):
+  Talent-Tab als 3-Spalten-Spec-Layout (eine Spalte je Strang, Linien
+  Eltern→Kind, Zustaende: aktiv / freischaltbar / gesperrt mit sichtbarem Grund
+  inkl. Branch-Lock); Knoten-Vorschau zeigt Perk-Wirkung VOR dem Kauf; Strangwahl
+  mit Bestaetigungsdialog („sperrt die anderen Richtungen"). Layout als pure
+  Funktion (`layoutSpecTree`/`analyzeSpecTreeLayout` in `specTreeLayout.ts`,
+  headless testbar nach dem `HudLayoutIssue`-Muster), in `MenuScene`
+  (Growth-Tab) verdrahtet; Legacy-Baeume ohne `branch` fallen auf die alte
+  Listenansicht zurueck. Abnahme/Checks: `git diff --check`; `bun run
+  typecheck`; `bun run test` (387 Tests); `bun run build`; `bun run test:e2e
+  -- game.smoke.spec.ts --grep "Spec-Baum bestätigt"` (Desktop + Mobile,
+  2 Tests).
 
 ## UX- und Welt-Backlog
 
