@@ -461,6 +461,55 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Spec-Baum bestätigt die Strangwahl und sperrt andere Richtungen', async ({ page }) => {
+  test.setTimeout(45_000);
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  const save = bandTwoBrowserSave({
+    party: {
+      active: [{ characterId: 'benimaru', level: 9 }],
+      reserve: [],
+      gold: 220
+    }
+  });
+  save.progression = {
+    evolutionIdsByCharacterId: {},
+    relationshipPoints: {},
+    discoveredRegionIds: [],
+    skillPointsByCharacterId: { benimaru: 3 },
+    unlockedSkillNodeIdsByCharacterId: {},
+    enchantmentLevelsByEquipmentKey: {}
+  };
+  await installBrowserSave(page, save);
+  page.on('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('sperrt die anderen Richtungen');
+    await dialog.accept();
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 530, 94); // Talente
+  await clickGamePoint(page, 398, 269); // Klingenfokus auswählen
+  await clickGamePoint(page, 884, 180); // Vorschau-Aktion: freischalten
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 610, 269); // Flammenfokus auswählen (nun gesperrt)
+  await clickGamePoint(page, 884, 180);
+
+  const stored = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(stored.progression.unlockedSkillNodeIdsByCharacterId.benimaru).toEqual(['benimaru-blade-focus']);
+  expect(stored.progression.skillPointsByCharacterId.benimaru).toBe(2);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
