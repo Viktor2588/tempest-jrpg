@@ -461,6 +461,9 @@ export function chooseDialogOption(
 
 export function buildShopView(state: WorldState, shopId: string): ShopView {
   const shop = requireShop(shopId);
+  const buyMultiplier = shop.buyMultiplierByFlag
+    ?.find((discount) => state.flags[discount.flag])?.multiplier
+    ?? shop.buyMultiplier;
   const itemRequirements = new Map(
     (shop.itemRequirements ?? []).map((entry) => [entry.itemId, entry.requirements])
   );
@@ -476,7 +479,7 @@ export function buildShopView(state: WorldState, shopId: string): ShopView {
         itemId,
         name: item.name,
         quantity: getItemCount(state.inventory, itemId),
-        buyPrice: Math.round(item.price * shop.buyMultiplier),
+        buyPrice: Math.round(item.price * buyMultiplier),
         sellPrice: Math.max(1, Math.floor(item.price * shop.sellMultiplier))
       }];
     })

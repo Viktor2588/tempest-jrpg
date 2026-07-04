@@ -9,7 +9,17 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [x] Phase 64 — Entscheidungen mit Konsequenz (abgeschlossen im Worktree
+  `/worktree/tempest-phase-64-consequences`, noch nicht nach `main` gemergt).
+  Abnahme: zwei Mittelspiel-Entscheidungen mit sichtbaren Folgen — (1) Gobtas
+  Grenzgänger: Gnade → neuer Dorf-NPC `deserter-refugee` + Rabatt bei
+  `tempest-supply`; Härte → Vergeltungs-Encounter `deserter-retaliation` +
+  Codexeintrag `deserter-reprisals`. (2) Gabiru nach dem Duell: Respekt →
+  Bündnisrabatt bei der Moorhändlerin `marsh-trader` + eigener Echsen-Dialog;
+  Demütigung → kein Rabatt + kühler Alternativdialog. Alles über bestehende
+  Flag-/Shop-/Encounter-Mechanik (`buyMultiplierByFlag`), deutsches
+  Originalwording, canon-first. Checks: typecheck ok, `npm test` 355/355 grün,
+  `npm run build` ok.
 
 ## Integrationswarteschlange
 
@@ -35,7 +45,7 @@ deutsches Originalwording, canon-first, keine kopierten Dialoge.
   groessten Beats umstellen: Hoehlen-Erwachen, Direwolf-Pakt mit Rangas
   Benennung, Tempest-Benennungszeremonie, Sieg ueber Geld. Toast nur noch als
   Zusammenfassung danach.
-- [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
+- [x] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
   ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
   neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;
   Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
