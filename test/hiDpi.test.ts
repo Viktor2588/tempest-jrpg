@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  hudZoomOffset,
   LOGICAL_GAME_HEIGHT,
   LOGICAL_GAME_WIDTH,
   MAX_RENDER_SCALE,
@@ -30,6 +31,17 @@ describe('HiDPI-Rendering', () => {
       .toEqual({ width: 1440, height: 810 });
     expect(renderBackingSize(LOGICAL_GAME_WIDTH, LOGICAL_GAME_HEIGHT, 2))
       .toEqual({ width: 1920, height: 1080 });
+  });
+
+  it('kompensiert fixes HUD gegen den Kamera-Zoom (0 bei DPR 1)', () => {
+    // Ausgleich = logical*(scale-1)/2, damit scrollFactor(0)-Elemente unter
+    // Zoom mit Ursprung 0.5 wieder korrekt in den Ecken sitzen.
+    expect(hudZoomOffset(1)).toEqual({ x: 0, y: 0 });
+    expect(hudZoomOffset(1.5)).toEqual({ x: 240, y: 135 });
+    expect(hudZoomOffset(2)).toEqual({
+      x: LOGICAL_GAME_WIDTH / 2,
+      y: LOGICAL_GAME_HEIGHT / 2
+    });
   });
 
   it('setzt Text-Resolution standardmäßig auf DPR, respektiert aber Overrides', () => {
