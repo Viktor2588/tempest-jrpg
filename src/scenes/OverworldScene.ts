@@ -215,7 +215,9 @@ export class OverworldScene extends Phaser.Scene {
     const panelX = 16;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
-    const panelY = Math.max(112, GAME_HEIGHT - panelH - 16);
+    // Oben-links verankern: die Touch-Controls (Steuerkreuz unten links,
+    // Interaktions-Button unten rechts) bleiben frei statt vom Panel verdeckt.
+    const panelY = 112;
     layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
       .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
     layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
@@ -246,11 +248,13 @@ export class OverworldScene extends Phaser.Scene {
 
     if (hints.some((hint) => hint.step === 'interact')) {
       const rect = touchControls.interact;
-      layer.add(this.add.text(rect.x, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
+      // Rechtsbündig am Button-Rand: das Label lief sonst über den rechten
+      // Viewport-Rand (Button sitzt am äußersten rechten HUD-Rand).
+      layer.add(this.add.text(rect.x + rect.width / 2, rect.y - rect.height / 2 - 18, '↘ Interaktion nutzen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#d9ffe7'
-      }).setOrigin(0.5).setStroke('#082012', 3));
+      }).setOrigin(1, 0.5).setStroke('#082012', 3));
     }
     if (hints.some((hint) => hint.step === 'menu')) {
       const rect = hud.menu;
