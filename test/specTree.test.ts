@@ -67,8 +67,8 @@ describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
   const specTrees = SKILL_TREES.filter((tree) =>
     (tree.nodes as readonly SkillTreeNodeDefinition[]).some((node) => node.branch !== undefined)
   );
-  // Die bereits auf Spec-Stränge umgestellten Kämpfer (Rimuru → Phase 71; gobta/shuna folgen).
-  const converted = ['benimaru', 'shion', 'hakurou', 'souei', 'rigurd', 'ranga'];
+  // Die bereits auf Spec-Stränge umgestellten Kämpfer (Rimuru → Phase 71).
+  const converted = ['benimaru', 'shion', 'hakurou', 'souei', 'rigurd', 'ranga', 'gobta', 'shuna'];
 
   it('deckt die umgestellten Kämpfer mit je genau 3 exklusiven Strängen ab', () => {
     for (const characterId of converted) {
@@ -84,6 +84,26 @@ describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
         expect(nodes.filter((node) => node.requiredNodeIds.length === 0).length, `${characterId}/${branch} entry`).toBe(1);
       }
     }
+  });
+
+  it('Phase 70b — sperrt bei gobta und shuna die anderen Stränge nach der Wahl (Gates bleiben)', () => {
+    const gobta = createPartyMember(hero('gobta'), { level: 9 });
+    const gState = grantSkillPoints(createProgressionState(), 'gobta', 10).state;
+    const trick = unlockSkillNode(gobta, gState, 'gobta-trick-guile');
+    expect(trick.ok).toBe(true);
+    // Reiter- (story-gegatet) und Sturmklingen-Strang jetzt gesperrt …
+    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-pack-footwork').ok).toBe(false);
+    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-blade-focus').ok).toBe(false);
+    // … der gewählte Strang lässt sich weiter ausbauen.
+    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-trick-slip').ok).toBe(true);
+
+    const shuna = createPartyMember(hero('shuna'), { level: 9 });
+    const sState = grantSkillPoints(createProgressionState(), 'shuna', 10).state;
+    const analyse = unlockSkillNode(shuna, sState, 'shuna-analyse-focus');
+    expect(analyse.ok).toBe(true);
+    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-prayer-thread').ok).toBe(false);
+    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-grace-veil').ok).toBe(false);
+    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-analyse-insight').ok).toBe(true);
   });
 
   it('jeder Strang-Knoten trägt Perks, und Ketten-Skills verweisen auf echte (schädigende) Fähigkeiten', () => {

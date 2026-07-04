@@ -564,115 +564,50 @@ export const SKILL_TREES = [
       }
     ]
   },
-  {
-    id: 'gobta-pack-tree',
-    characterId: 'gobta',
-    name: 'Rudeltaktik',
-    nodes: [
-      {
-        id: 'gobta-pack-footwork',
-        name: 'Rudelschritt',
-        description: 'Verbessert Gobtas Initiative.',
-        cost: 1,
-        requiredLevel: 2,
-        requiredNodeIds: [],
-        statBonus: { agility: 2 }
-      },
-      {
-        id: 'gobta-rider-feint',
-        name: 'Reiterfinte',
-        description: 'Lehrt den Schnellen Schritt, sobald Rangas Pakt und das Wolfsfang-Abzeichen Gobtas Reiterpfad eröffnen.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['gobta-pack-footwork'],
-        requiredFlag: 'progression.gobta.wolf-fang-token',
-        skillId: 'quick-step'
-      },
-      {
-        id: 'gobta-marsh-runner',
-        name: 'Marschenläufer',
-        description: 'Macht Sumpferkundung zu schneller Flankenarbeit und lehrt Sturmböe.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['gobta-pack-footwork'],
-        requiredRegionId: 'marsh-border',
-        skillId: 'storm-gust',
-        statBonus: { attack: 1, spirit: 1, agility: 4 }
-      },
-      {
-        id: 'gobta-tempest-knight',
-        name: 'Tempest-Ritter',
-        description: 'Bindet Rangas Rudel-Timing an robuste Frontwerte und Direwolf-Druck.',
-        cost: 2,
-        requiredLevel: 5,
-        requiredNodeIds: ['gobta-rider-feint'],
-        requiredRelationshipLevel: {
-          relationshipId: 'gobta-ranga',
-          level: 2
-        },
-        skillId: 'direwolf-rush',
-        statBonus: { maxHp: 8, attack: 3, defense: 3, agility: 1 }
-      },
-      {
-        id: 'gobta-alpha-charge',
-        name: 'Alpha-Ansturm',
-        description: 'Verbindet die benannte Form mit dem Direwolf-Ansturm.',
-        cost: 2,
-        requiredLevel: 6,
-        requiredNodeIds: ['gobta-rider-feint'],
-        requiredEvolutionId: 'gobta-hobgoblin-guard',
-        skillId: 'direwolf-rush',
-        statBonus: { attack: 3, agility: 2 }
-      }
-    ]
-  },
-  {
-    id: 'shuna-weaving-tree',
-    characterId: 'shuna',
-    name: 'Geistgewebe',
-    nodes: [
-      {
-        id: 'shuna-prayer-thread',
-        name: 'Gebetsfaden',
-        description: 'Stärkt Geist und MP.',
-        cost: 1,
-        requiredLevel: 2,
-        requiredNodeIds: [],
-        statBonus: { maxMp: 4, spirit: 2 }
-      },
-      {
-        id: 'shuna-warding-weave',
-        name: 'Schutzgewebe',
-        description: 'Lehrt das Barrieregebet.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['shuna-prayer-thread'],
-        skillId: 'barrier-prayer'
-      },
-      {
-        id: 'shuna-spirit-weaver',
-        name: 'Geistweberin',
-        description: 'Verwandelt Tempests Vertrauen in stärkere Heil- und Barrierewerte.',
-        cost: 2,
-        requiredLevel: 5,
-        requiredNodeIds: ['shuna-warding-weave'],
-        requiredFlag: 'bond.rigurd.trust-1',
-        skillId: 'sacred-weave',
-        statBonus: { maxMp: 8, magic: 2, spirit: 4 }
-      },
-      {
-        id: 'shuna-sacred-circle',
-        name: 'Sakralkreis',
-        description: 'Vollendet das Gewebe der benannten Kijin-Form.',
-        cost: 2,
-        requiredLevel: 6,
-        requiredNodeIds: ['shuna-warding-weave'],
-        requiredEvolutionId: 'shuna-kijin-weaver',
-        skillId: 'sacred-weave',
-        statBonus: { magic: 2, spirit: 3 }
-      }
-    ]
-  },
+  { id: 'gobta-pack-tree', characterId: 'gobta', name: 'Rudeltaktik', nodes: [
+    // Strang 1 — Reiter (Rudel): Gobtas story-gegatete Wolfsreiter-Kette (robuste Front + Direwolf-Druck).
+    // Gates (Flag/Region/Beziehung/Evolution) unverändert; nur Branch + Perks ergänzt.
+    // Balance-Hinweis: Ausdauer-/Angriffsperks statt Ausweichen — Dodge auf dem
+    // Einstiegsknoten kippt den Sim-Korridor der masked-majin-Ambush (Auto-Battler
+    // beendet den Kampf trivial); Ausweichen ist bewusst der Goblin-List-Strang.
+    { id: 'gobta-pack-footwork', name: 'Rudelschritt', description: 'Verbessert Gobtas Initiative und Zähigkeit an der Front.', cost: 1, requiredLevel: 2, requiredNodeIds: [], branch: 'rider', perks: [{ kind: 'max-hp', percent: 10 }], statBonus: { agility: 2 } },
+    { id: 'gobta-rider-feint', name: 'Reiterfinte', description: 'Lehrt den Schnellen Schritt, sobald Rangas Pakt und das Wolfsfang-Abzeichen Gobtas Reiterpfad eröffnen.', cost: 1, requiredLevel: 4, requiredNodeIds: ['gobta-pack-footwork'], requiredFlag: 'progression.gobta.wolf-fang-token', branch: 'rider', perks: [{ kind: 'damage-dealt', percent: 12, category: 'physical' }], skillId: 'quick-step' },
+    { id: 'gobta-marsh-runner', name: 'Marschenläufer', description: 'Macht Sumpferkundung zu schneller Flankenarbeit und lehrt Sturmböe.', cost: 1, requiredLevel: 4, requiredNodeIds: ['gobta-pack-footwork'], requiredRegionId: 'marsh-border', branch: 'rider', perks: [{ kind: 'damage-dealt', percent: 12, category: 'physical' }], skillId: 'storm-gust', statBonus: { attack: 1, spirit: 1, agility: 4 } },
+    { id: 'gobta-tempest-knight', name: 'Tempest-Ritter', description: 'Bindet Rangas Rudel-Timing an robuste Frontwerte und Direwolf-Druck.', cost: 2, requiredLevel: 5, requiredNodeIds: ['gobta-rider-feint'], requiredRelationshipLevel: { relationshipId: 'gobta-ranga', level: 2 }, branch: 'rider', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }, { kind: 'max-hp', percent: 10 }], skillId: 'direwolf-rush', statBonus: { maxHp: 8, attack: 3, defense: 3, agility: 1 } },
+    { id: 'gobta-alpha-charge', name: 'Alpha-Ansturm', description: 'Verbindet die benannte Form mit dem Direwolf-Ansturm.', cost: 2, requiredLevel: 6, requiredNodeIds: ['gobta-rider-feint'], requiredEvolutionId: 'gobta-hobgoblin-guard', branch: 'rider', perks: [{ kind: 'skill-chain', triggerSkillId: 'direwolf-rush', followUpSkillId: 'orc-cleave', percent: 40 }, { kind: 'damage-dealt', percent: 20, category: 'physical' }], skillId: 'direwolf-rush', statBonus: { attack: 3, agility: 2 } },
+
+    // Strang 2 — Goblin-List: ausweichender Skirmisher, der Finten in Folgeschläge verwandelt.
+    { id: 'gobta-trick-guile', name: 'Goblin-List', description: 'Strang Goblin-List: trickreiches Ausweichen.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'trick', perks: [{ kind: 'dodge', percent: 15 }], statBonus: { agility: 2 } },
+    { id: 'gobta-trick-feint', name: 'Doppelfinte', description: 'Goblin-Finte entlädt einen Folgeschnitt.', cost: 2, requiredLevel: 5, requiredNodeIds: ['gobta-trick-guile'], branch: 'trick', perks: [{ kind: 'skill-chain', triggerSkillId: 'goblin-feint', followUpSkillId: 'orc-cleave', percent: 35 }] },
+    { id: 'gobta-trick-slip', name: 'Nebelschritt', description: 'Mindert erlittenen Schaden durch Ausweichen.', cost: 1, requiredLevel: 6, requiredNodeIds: ['gobta-trick-guile'], branch: 'trick', perks: [{ kind: 'dodge', percent: 12 }, { kind: 'damage-taken', percent: 10 }] },
+    { id: 'gobta-trick-phantom', name: 'Phantomtänzer', description: 'Vollendung des Goblin-List-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['gobta-trick-slip'], branch: 'trick', perks: [{ kind: 'dodge', percent: 20 }, { kind: 'counter', percent: 20 }] },
+
+    // Strang 3 — Sturmklinge: rohe physische Offensive und Konter.
+    { id: 'gobta-blade-focus', name: 'Klingenfokus', description: 'Strang Sturmklinge: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+    { id: 'gobta-blade-counter', name: 'Gegenwehr', description: 'Pariert Angriffe mit einem Gegenschlag.', cost: 1, requiredLevel: 5, requiredNodeIds: ['gobta-blade-focus'], branch: 'blade', perks: [{ kind: 'counter', percent: 30 }] },
+    { id: 'gobta-blade-might', name: 'Sturmkraft', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['gobta-blade-focus'], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+    { id: 'gobta-blade-storm', name: 'Sturmklinge', description: 'Vollendung des Sturmklinge-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['gobta-blade-counter'], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'counter', percent: 15 }], statBonus: { attack: 3 } }
+  ] },
+  { id: 'shuna-weaving-tree', characterId: 'shuna', name: 'Geistgewebe', nodes: [
+    // Strang 1 — Geistgewebe (Schutz): story-gegatete Heil-/Barrierekette, stärkt das Team.
+    // Gates (Flag/Evolution) unverändert; nur Branch + Perks ergänzt.
+    { id: 'shuna-prayer-thread', name: 'Gebetsfaden', description: 'Stärkt Geist und MP.', cost: 1, requiredLevel: 2, requiredNodeIds: [], branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 4, spirit: 2 } },
+    { id: 'shuna-warding-weave', name: 'Schutzgewebe', description: 'Lehrt das Barrieregebet.', cost: 1, requiredLevel: 4, requiredNodeIds: ['shuna-prayer-thread'], branch: 'weave', perks: [{ kind: 'damage-taken', percent: 12 }], skillId: 'barrier-prayer' },
+    { id: 'shuna-spirit-weaver', name: 'Geistweberin', description: 'Verwandelt Tempests Vertrauen in stärkere Heil- und Barrierewerte.', cost: 2, requiredLevel: 5, requiredNodeIds: ['shuna-warding-weave'], requiredFlag: 'bond.rigurd.trust-1', branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'max-hp', percent: 10 }], skillId: 'sacred-weave', statBonus: { maxMp: 8, magic: 2, spirit: 4 } },
+    { id: 'shuna-sacred-circle', name: 'Sakralkreis', description: 'Vollendet das Gewebe der benannten Kijin-Form.', cost: 2, requiredLevel: 6, requiredNodeIds: ['shuna-warding-weave'], requiredEvolutionId: 'shuna-kijin-weaver', branch: 'weave', perks: [{ kind: 'damage-taken', percent: 12 }, { kind: 'max-hp', percent: 10 }], skillId: 'sacred-weave', statBonus: { magic: 2, spirit: 3 } },
+
+    // Strang 2 — Analyse: die Oger-Priesterin liest Schwächen und schlägt magisch zu.
+    { id: 'shuna-analyse-focus', name: 'Analysefokus', description: 'Strang Analyse: schärft die magische Offensive.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'analyse', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }], statBonus: { magic: 2 } },
+    { id: 'shuna-analyse-hex', name: 'Geistfessel', description: 'Lehrt die Geistfessel und schwächt Ziele.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-analyse-focus'], branch: 'analyse', perks: [{ kind: 'damage-dealt', percent: 12, category: 'magical' }], skillId: 'spirit-bind' },
+    { id: 'shuna-analyse-insight', name: 'Einsicht', description: 'Steigert den magischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-analyse-focus'], branch: 'analyse', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }] },
+    { id: 'shuna-analyse-oracle', name: 'Orakelweberin', description: 'Vollendung des Analyse-Strangs: Geistfessel entlädt eine Schattenwoge.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-analyse-insight'], branch: 'analyse', perks: [{ kind: 'damage-dealt', percent: 25, category: 'magical' }, { kind: 'skill-chain', triggerSkillId: 'spirit-bind', followUpSkillId: 'umbral-burst', percent: 35 }] },
+
+    // Strang 3 — Gnade: standhafte Schutzpriesterin, die selbst am Leben bleibt.
+    { id: 'shuna-grace-veil', name: 'Gebetsschleier', description: 'Strang Gnade: ausweichende Gelassenheit.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'grace', perks: [{ kind: 'dodge', percent: 15 }], statBonus: { agility: 2 } },
+    { id: 'shuna-grace-ward', name: 'Heiliger Schild', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-grace-veil'], branch: 'grace', perks: [{ kind: 'damage-taken', percent: 15 }] },
+    { id: 'shuna-grace-resolve', name: 'Standhaftigkeit', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-grace-veil'], branch: 'grace', perks: [{ kind: 'max-hp', percent: 12 }] },
+    { id: 'shuna-grace-sanctuary', name: 'Heiligtum', description: 'Vollendung des Gnade-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-grace-ward'], branch: 'grace', perks: [{ kind: 'dodge', percent: 12 }, { kind: 'damage-taken', percent: 10 }, { kind: 'max-hp', percent: 10 }] }
+  ] },
   { id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
     // Strang 1 — Klingensturm (physisch): rohe Nahkampfwucht und Konter.
     { id: 'benimaru-blade-focus', name: 'Klingenfokus', description: 'Strang Klingensturm: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'blade', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },

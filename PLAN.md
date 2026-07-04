@@ -70,16 +70,29 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [ ] Phase 70b — Spec-Straenge fuer die story-gegateten Baeume (gobta, shuna):
-  Phase 70 lieferte die Perk-/Branch-Lock-Mechanik (systems/talentPerk,
-  canUnlockSkillNode, Perk-Zufluss ueber `createProgressionBattleParty`) und 6
-  volle 3-Strang-Baeume (benimaru, shion, hakurou, souei, rigurd, ranga). Offen:
-  gobta und shuna behutsam in 3 exklusive Straenge umbauen, ohne ihre
-  Evolutions-/Beziehungs-/Flag-Gates und die zugehoerigen Tests zu brechen
-  (bestehende Skills auf Straenge verteilen, Tests aktualisieren). Rimurus
-  Straenge sind in Phase 71 gebuendelt (Verschlingen-Verzahnung). Balance-
-  Harness: jede Spec muss die Korridore je Story-Beat schaffen und sich im Sim
-  messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
+- [x] Phase 70b — Spec-Straenge fuer die story-gegateten Baeume (gobta, shuna).
+  Worktree: /worktree/tempest-phase-70b-spec-strands (Branch phase-70b-spec-strands).
+  Umgesetzt: gobta und shuna in je 3 exklusive Straenge (Branch-Lock ueber die
+  Phase-70-Engine) umgebaut, bestehende Skills + alle Gates unveraendert:
+  - gobta: Reiter (story-gegatete Wolfsreiter-Kette: quick-step/storm-gust/
+    direwolf-rush + Ausdauer/Physisch, Capstone-Kette direwolf-rush→orc-cleave)
+    ODER Goblin-List (Ausweichen/Konter, goblin-feint→orc-cleave) ODER
+    Sturmklinge (rohe physische Offensive + Konter).
+  - shuna: Geistgewebe (story-gegatete Heil-/Barrierekette: barrier-prayer/
+    sacred-weave + Team-Buffdauer/Schadensreduktion) ODER Analyse (magische
+    Offensive, spirit-bind→umbral-burst) ODER Gnade (Ausweichen/Zaehigkeit).
+  Alle Evolutions-/Beziehungs-/Flag-/Regions-Gates + die zugehoerigen Tests
+  (progression/world/playthrough) bleiben gruen; specTree.test.ts um gobta/shuna
+  (3 Straenge, ≥4 Knoten/Strang, Branch-Lock) erweitert. Balance-Hinweis:
+  Ausweichperks auf gobtas Reiter-Einstiegsknoten kippten den Sim-Korridor der
+  masked-majin-Ambush (Auto-Battler beendet den Kampf trivial → Rest-HP > 0.85) —
+  daher fuehrt der Reiter-Strang Ausdauer/Physisch statt Dodge; Dodge ist bewusst
+  der Goblin-List-Strang. Checks: typecheck ✓, npm test 388/388 ✓ (inkl.
+  balanceHarness), build ✓. Rimurus Straenge folgen in Phase 71.
+  Follow-up (Balance): masked-majin-Ambush sitzt schon ohne Specs bei Rest-HP
+  0.821 (Korridor-Decke 0.85) — der Boss ist fuer eine spec-ausgeruestete Party
+  knapp; eine spaetere Gegner-Nachjustierung (ausserhalb gobta/shuna-Scope) sollte
+  den Beat wieder straffen.
 - [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
   Straenge, die sich mit Verschlingen verzahnen): Startskills auf
   `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
