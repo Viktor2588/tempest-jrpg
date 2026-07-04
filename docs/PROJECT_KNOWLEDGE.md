@@ -734,6 +734,11 @@ completed_milestones:
     - the Party-Menue swap smoke now derives active-card and reserve-button clicks from MENU_PARTY_LAYOUT instead of duplicating coordinates
     - PLAYWRIGHT_PORT lets parallel worktrees use separate Vite ports instead of silently reusing another phase's server
     - typecheck, 352 unit tests across 50 files, production build, and an isolated desktop/mobile Party-Menue Playwright smoke verified
+  phase_72:
+    - Talentbaum renders branched fighter specs as three columns with parent-child edges, active/available/locked states, and the exact unlock failure in the selected-node preview
+    - perk effects are described before purchase; choosing the first node of a branch requires confirmation because the other two branches become locked
+    - pure specTreeLayout helpers cover placement, overlap checks, and bounded touch/wheel panning; unbranched legacy trees keep the paginated list
+    - typecheck, 387 unit tests, production build, and isolated desktop/mobile Spec-Baum Playwright smokes verified
 
 Git history is the source for exact acceptance notes and historical test counts.
 
