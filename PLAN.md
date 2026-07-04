@@ -57,11 +57,29 @@ deutsches Originalwording, canon-first, keine kopierten Dialoge.
   verallgemeinern), einmalige Ambient-Events (fahrender Haendler nach
   Handelsquest, Fluesterhain sichtbar geheilt nach Siegelbruch), Post-Boss-
   Weltveraenderungen. Ziel: Erkundung wird belohnt, die Welt wirkt lebendig.
-- [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
-  Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
-  Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge
-  bleibt; Milestone-Banner im Moment statt danach ausloesen;
-  `playthrough.test` um Beat-Reihenfolge/-Dichte-Checks ergaenzen.
+- [x] Phase 66 — Beat-Dramaturgie (Worktree `/worktree/tempest-phase-66-beats`):
+  Audit-Befund: Auf Beat-Ebene (dramatische Einheit = Quest-Schritt/Kampf/
+  Rekrutierung/Entscheidung) wechseln sich alle drei Hauptakte bereits sauber ab —
+  Act 1 = Szene,Rekrutierung,Kampf,Kampf,Szene; Act 2 = Szene,Kampf,Szene,Szene,
+  Kampf,Szene,Szene; Act 3 = Szene,Kampf,Kampf,Entscheidung (jeweils max. 2
+  gleiche Typen in Folge, kein 3x). Die „5 Gespraeche am Stueck" in Act 1/3 sind
+  die co-lokale Ratssammlung (Shuna/Gobta/Ranga setzen nur *.ready-Flags, schliessen
+  keinen Schritt ab) — ein Beat („Rat versammeln"), kein cross-map „geh hin, sprich,
+  komm zurueck"-Trip. In-Moment-Banner: Phase 64s StoryMoment-System zeigt alle
+  grossen Beats (Werbung/Pakt/Benennung/Schwur/Questabschluss) bereits IM Moment im
+  DialogueScene; die Ratsbeats feuern in-moment ueber ihren recruit-character-Effekt
+  (Rigurd/Ranga treten bei). Milestone-Karten sind nur noch Kapitel-/Kampf-
+  Verstaerkung beim Ruecktritt zur Overworld. Ergo kein manufacturter Content-Churn
+  noetig; Deliverable = codifizierte Guardrails.
+  Neue Checks in `test/playthrough.test.ts` (describe „Beat-Dramaturgie (Phase 66)"):
+  Beats werden aus dem ECHTEN gespielten Fluss + State-Deltas aufgezeichnet (Schritt/
+  Quest abgeschlossen, Party gewachsen, Ende gesetzt, Kampf geklaert); (1) kein
+  Beat-Typ 3x in Folge pro Akt, (2) jeder Akt mischt Kampf + Nicht-Kampf, (3)
+  Regressionsanker der Beat-Sequenz je Akt, (4) In-Moment-Deckung: jede Werbe-/
+  Questabschluss-Choice im Dialogbaum liefert ein Story-Moment-Banner.
+  Abnahme/Checks: `npm run typecheck` clean, `npm test` 359/359 (davon 4 neu),
+  `npm run build` ok. Keine Source-Aenderung an Story-Daten (Audit: Hauptpfad
+  erfuellt die Spec bereits).
 
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
