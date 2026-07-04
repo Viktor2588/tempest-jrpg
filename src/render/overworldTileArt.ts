@@ -34,6 +34,25 @@ export const DEFAULT_OVERWORLD_TILE_THEME: OverworldTileTheme = {
 };
 
 export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>> = {
+  // Frühe Band-1-Maps haben keine eigenen Kacheln – auf vorhandene, thematisch
+  // passende .webp-Sets zeigen statt auf das degenerierte Default-Theme
+  // (grass/wall.png). ponytail: reuse existing tiles, keine neuen Assets.
+  'sealed-cave': {
+    floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: DWARGON_WALL_TILE_TEXTURE_KEY
+  },
+  'goblin-village': {
+    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+  },
+  'direwolf-den': {
+    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+  },
+  'tempest-start': {
+    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+  },
   'spirit-marsh': {
     floorKey: MARSH_FLOOR_TILE_TEXTURE_KEY,
     wallKey: MARSH_WALL_TILE_TEXTURE_KEY

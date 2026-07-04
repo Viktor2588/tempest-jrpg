@@ -50,12 +50,14 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
-  it('lässt Start-/Prologkarten auf Default-Tiles fallen', () => {
+  it('themed frühe Band-1-Karten auf vorhandene .webp-Kacheln statt Default', () => {
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
+      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
       'ph-tile-grass'
     ]);
     expect(overworldTileTextureCandidates('sealed-cave', true)).toEqual([
+      DWARGON_WALL_TILE_TEXTURE_KEY,
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
     ]);
