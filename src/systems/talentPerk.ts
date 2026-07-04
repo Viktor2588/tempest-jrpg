@@ -130,3 +130,41 @@ export function talentPerksForNodes(unlockedNodeIds: readonly string[]): TalentP
 export function branchOfNode(nodeId: string): string | null {
   return specNodeById.get(nodeId)?.branch ?? null;
 }
+
+// --- Phase 72: Perk-Vorschau (menschenlesbar, für die Knoten-Vorschau) ---
+const ELEMENT_LABEL: Readonly<Record<string, string>> = {
+  neutral: 'neutral', water: 'Wasser', wind: 'Wind', fire: 'Feuer',
+  earth: 'Erde', shadow: 'Schatten', holy: 'Heilig'
+};
+
+function damageScopeLabel(category?: DamageCategory, element?: ElementType): string {
+  if (element) return `${ELEMENT_LABEL[element] ?? element}-Schaden`;
+  if (category === 'physical') return 'physischer Schaden';
+  if (category === 'magical') return 'magischer Schaden';
+  return 'Schaden';
+}
+
+// Kurze deutsche Beschreibung der Perk-Wirkung (Vorschau vor dem Kauf).
+export function describePerk(perk: TalentPerk): string {
+  switch (perk.kind) {
+    case 'damage-dealt':
+      return `+${perk.percent}% ${damageScopeLabel(perk.category, perk.element)}`;
+    case 'damage-taken':
+      return `-${perk.percent}% erlittener ${damageScopeLabel(perk.category, perk.element)}`;
+    case 'max-hp':
+      return `+${perk.percent}% max. LP`;
+    case 'dodge':
+      return `${perk.percent}% Ausweichchance`;
+    case 'counter':
+      return `${perk.percent}% Konterchance${perk.scale && perk.scale > 1 ? ` (×${perk.scale} Wucht)` : ''}`;
+    case 'skill-chain':
+      return `${perk.percent}% Chance auf Folgeskill nach Auslöser`;
+    case 'buff-power':
+      return `Eigene Buffs halten länger (+${Math.floor(perk.percent / 100)} Runde)`;
+  }
+}
+
+// Alle Perk-Beschreibungen eines Knotens (für die Vorschau).
+export function describeNodePerks(perks: readonly TalentPerk[] | undefined): string[] {
+  return (perks ?? []).map(describePerk);
+}

@@ -18,6 +18,7 @@ import {
 import { activateReserveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
+  canUnlockSkillNode,
   enchantEquipment,
   evolveMember,
   getActiveEquipmentSetTiers,
@@ -48,6 +49,8 @@ import {
 } from '../systems/menuLayout';
 import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
+import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
+import { committedBranch, describeNodePerks } from '../systems/talentPerk';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 type QuestStatusFilter = 'active' | 'completed';
@@ -91,6 +94,9 @@ export class MenuScene extends Phaser.Scene {
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
   private selectedQuestId: string | null = null;
+  private selectedTalentNodeId: string | null = null;
+  private specTreePanY = 0;
+  private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
 
@@ -122,6 +128,8 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private refresh(): void {
+    this.specTreeMask?.destroy();
+    this.specTreeMask = undefined;
     this.layer.removeAll(true);
     const view = buildMenuView(this.state);
     const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
@@ -149,6 +157,7 @@ export class MenuScene extends Phaser.Scene {
         this.questPage = 0;
         this.questStatus = 'active';
         this.selectedQuestId = null;
+        this.selectedTalentNodeId = null;
         this.refresh();
       }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
     });
@@ -451,19 +460,135 @@ export class MenuScene extends Phaser.Scene {
 
     const tree = getSkillTree(characterId);
     const points = this.save.progression.skillPointsByCharacterId[characterId] ?? 0;
-    this.layer.add(this.add.text(300, 158, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte verfügbar`, {
+    this.layer.add(this.add.text(300, 152, `${tree?.name ?? 'Skill-Baum'} · ${points} Punkte verfügbar`, {
       fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
     }));
+    if (!tree) return;
+
+    const hasSpecs = tree.nodes.some((node) => node.branch !== undefined);
+    if (!hasSpecs) {
+      this.drawLegacyGrowth(summary.member, tree.nodes);
+      return;
+    }
+
+    const unlockedIds = this.save.progression.unlockedSkillNodeIdsByCharacterId[characterId] ?? [];
+    const selectedNode = tree.nodes.find((node) => node.id === this.selectedTalentNodeId)
+      ?? tree.nodes[0];
+    this.selectedTalentNodeId = selectedNode?.id ?? null;
+    if (selectedNode) {
+      const unlocked = unlockedIds.includes(selectedNode.id);
+      const check = canUnlockSkillNode(summary.member, this.save.progression, selectedNode.id, {
+        flags: this.save.flags
+      });
+      const perkText = describeNodePerks(selectedNode.perks).join(' · ');
+      const stateText = unlocked ? 'Aktiv' : check.ok ? 'Freischaltbar' : check.message;
+      this.layer.add(this.add.text(300, 174, `${selectedNode.name}: ${perkText || selectedNode.description}\n${stateText}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: unlocked ? '#8dffc2' : check.ok ? '#cdeaff' : '#dca0a0',
+        wordWrap: { width: 520 }
+      }));
+      if (!unlocked) {
+        this.button(832, 180, 104, 'Freischalten', () => {
+          if (!check.ok) {
+            this.message = check.message;
+            this.refresh();
+            return;
+          }
+          const committed = committedBranch(unlockedIds);
+          if (selectedNode.branch && committed === null
+            && !window.confirm(`${branchLabel(tree.nodes, selectedNode.branch)} wählen? Das sperrt die anderen Richtungen.`)) {
+            return;
+          }
+          this.applyProgressionResult(unlockSkillNode(summary.member, this.save.progression, selectedNode.id, {
+            flags: this.save.flags
+          }));
+        }, check.ok ? 0x30506f : 0x2b3140);
+      }
+    }
+
+    const layoutOptions = {
+      left: 300,
+      top: 244,
+      columnWidth: 212,
+      rowHeight: 62,
+      nodeWidth: 196,
+      nodeHeight: 50,
+      viewportWidth: GAME_WIDTH,
+      viewportHeight: GAME_HEIGHT
+    } as const;
+    const layout = layoutSpecTree(tree, layoutOptions);
+    this.specTreePanY = clampSpecTreePan(layout, this.specTreePanY, layoutOptions);
+    const content = this.add.container(0, this.specTreePanY);
+    const maskShape = this.make.graphics({ x: 0, y: 0 }, false)
+      .fillStyle(0xffffff)
+      .fillRect(294, 214, 642, 306);
+    this.specTreeMask = maskShape;
+    content.setMask(maskShape.createGeometryMask());
+    const panZone = this.add.zone(294, 214, 642, 306).setOrigin(0).setInteractive();
+    let dragY: number | null = null;
+    const panTo = (value: number): void => {
+      this.specTreePanY = clampSpecTreePan(layout, value, layoutOptions);
+      content.y = this.specTreePanY;
+    };
+    panZone.on('wheel', (_pointer: Phaser.Input.Pointer, _dx: number, dy: number) => {
+      panTo(this.specTreePanY - Math.sign(dy) * layoutOptions.rowHeight);
+    });
+    panZone.on('pointerdown', (pointer: Phaser.Input.Pointer) => { dragY = pointer.y; });
+    panZone.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (!pointer.isDown || dragY === null) return;
+      panTo(this.specTreePanY + pointer.y - dragY);
+      dragY = pointer.y;
+    });
+    panZone.on('pointerup', () => { dragY = null; });
+    panZone.on('pointerout', () => { dragY = null; });
+    this.layer.add([panZone, content]);
+    const byId = new Map(layout.nodes.map((node) => [node.nodeId, node] as const));
+    const graphics = this.add.graphics();
+    graphics.lineStyle(2, 0x5c7196, 0.8);
+    for (const edge of layout.edges) {
+      const from = byId.get(edge.fromNodeId);
+      const to = byId.get(edge.toNodeId);
+      if (!from || !to) continue;
+      graphics.lineBetween(from.x + 98, from.y + 25, to.x + 98, to.y + 25);
+    }
+    content.add(graphics);
+    layout.columns.forEach((column) => {
+      content.add(this.add.text(column.x, 220, branchLabel(tree.nodes, column.branch), {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c',
+        wordWrap: { width: 196 }, align: 'center'
+      }).setFixedSize(196, 20));
+    });
+    layout.nodes.forEach((position) => {
+      const node = tree.nodes.find((candidate) => candidate.id === position.nodeId)!;
+      const unlocked = unlockedIds.includes(node.id);
+      const check = canUnlockSkillNode(summary.member, this.save.progression, node.id, {
+        flags: this.save.flags
+      });
+      const label = `${unlocked ? 'Aktiv' : check.ok ? `${node.cost} SP` : 'Gesperrt'} · ${node.name}`;
+      content.add(addUiTextButton(this, position.x, position.y + layoutOptions.nodeHeight / 2, 196, label, () => {
+        this.selectedTalentNodeId = node.id;
+        this.refresh();
+      }, {
+        height: 50,
+        fill: unlocked ? 0x1f3a2f : check.ok ? 0x30506f : 0x2b3140,
+        fontSize: '11px',
+        textOffsetX: 8
+      }));
+    });
+  }
+
+  private drawLegacyGrowth(
+    member: MenuGameState['party'][number],
+    nodes: readonly SkillTreeNodeDefinition[]
+  ): void {
     const nodeCol = MENU_LIST_COLUMNS.growthNodes;
-    const nodes = tree?.nodes ?? [];
     const nodePage = this.menuListPage(nodes.length, nodeCol);
     nodes.slice(nodePage.start, nodePage.start + nodePage.visible).forEach((node, index) => {
       const unlocked = (
-        this.save.progression.unlockedSkillNodeIdsByCharacterId[characterId] ?? []
+        this.save.progression.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []
       ).includes(node.id);
       const y = nodeCol.top + index * nodeCol.rowHeight;
       this.button(300, y, 230, `${unlocked ? 'Aktiv' : `${node.cost} SP`} · ${node.name}`, () => {
-        const result = unlockSkillNode(summary.member, this.save.progression, node.id, {
+        const result = unlockSkillNode(member, this.save.progression, node.id, {
           flags: this.save.flags
         });
         this.applyProgressionResult(result);
@@ -903,4 +1028,9 @@ function portraitKeyForCharacter(characterId: string): string | null {
 
 function isPortraitKind(value: string): value is PortraitKind {
   return PORTRAIT_KINDS.includes(value as PortraitKind);
+}
+
+function branchLabel(nodes: readonly SkillTreeNodeDefinition[], branch: string): string {
+  const description = nodes.find((node) => node.branch === branch)?.description ?? branch;
+  return /^Strang ([^:]+):/.exec(description)?.[1] ?? branch;
 }
