@@ -142,12 +142,14 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
 /** Bereitet im Auto-Kampf eine Reaktion vor, wenn ein analysierter Gegner seinen nächsten Skill telegraphiert. */
 export function prepareAutoReaction(state: BattleState): boolean {
   const actor = currentActor(state);
-  if (!actor || actor.side !== 'enemy' || actor.analysisLevel <= 0 || !actor.telegraphSkillId) {
+  if (!actor || actor.side !== 'enemy' || !actor.telegraphSkillId) {
     return false;
   }
 
+  // Phase 81 — gutes Spiel deckt gezielt die angekündigten Big-Hits (nicht jeden
+  // kleinen Poke). Big-Hits telegraphieren immer, also braucht es dafür keine Analyse.
   const skill = SKILLS.find((candidate) => candidate.id === actor.telegraphSkillId) as SkillDefinition | undefined;
-  if (!skill || skill.power <= 0 && !skill.statusEffect && !skill.ctDelta) {
+  if (!skill || skill.heavy !== true) {
     return false;
   }
 

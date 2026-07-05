@@ -1100,3 +1100,60 @@ describe('Phase 80 — Anti-Aussitzen / Eskalation', () => {
     expect(state.log.some((entry) => entry.includes('wird rasend'))).toBe(true);
   });
 });
+
+describe('Phase 81 — Telegraph → Konter-Entscheidung', () => {
+  const hero = (): BattleUnitInput => depthHero('rimuru', 'Rimuru', {
+    stats: { maxHp: 400, maxMp: 60, attack: 26, defense: 18, magic: 24, spirit: 18, agility: 22 }
+  });
+  // black-flame ist als Big-Hit (heavy) geflaggt.
+  const heavyBoss = (): BattleUnitInput => phaseEnemy({ skillIds: ['black-flame'], element: 'shadow' });
+
+  const heavyHitDamage = (braced: boolean): number => {
+    const state = startBattle({ party: [hero()], enemies: [heavyBoss()], seed: 3 });
+    const target = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const boss = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    boss.telegraphSkillId = 'black-flame'; // Big-Hit ist telegraphiert.
+    if (braced) target.reaction = { kind: 'timing-block', timing: 'success' };
+    state.activeId = boss.id;
+    const before = target.hp;
+    enemyTurn(state);
+    return before - target.hp;
+  };
+
+  it('ungedeckter Big-Hit trifft deutlich härter als ein rechtzeitig geblockter', () => {
+    const unbraced = heavyHitDamage(false);
+    const braced = heavyHitDamage(true);
+    expect(braced).toBeGreaterThan(0);
+    expect(unbraced).toBeGreaterThan(braced * 1.5);
+  });
+
+  it('kündigt Big-Hits auch ohne Analyse an (fair lesbar)', () => {
+    const state = startBattle({ party: [hero()], enemies: [heavyBoss()], seed: 2 });
+    let guard = 0;
+    while (currentActor(state)?.side !== 'enemy' && guard++ < 50) {
+      if (isPlayerTurn(state)) act(state, { type: 'guard' });
+    }
+    enemyTurn(state); // nach der Aktion sagt refreshEnemyTelegraph den nächsten Zug voraus
+    const boss = renderView(state).enemies[0]!;
+    expect(boss.analysisLevel).toBe(0); // nicht analysiert …
+    expect(boss.telegraphSkillId).toBe('black-flame'); // … und trotzdem telegraphiert
+    expect(boss.telegraphHeavy).toBe(true);
+  });
+
+  it('Deckung (brace) stellt der ganzen lebenden Party einen Block bereit', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru'), depthHero('gobta', 'Gobta')],
+      enemies: [heavyBoss()],
+      seed: 1
+    });
+    let guard = 0;
+    while (!isPlayerTurn(state) && guard++ < 50) {
+      enemyTurn(state);
+    }
+    const result = act(state, { type: 'brace' });
+    expect(result.ok).toBe(true);
+    for (const ally of state.combatants.filter((combatant) => combatant.side === 'party' && !combatant.dead)) {
+      expect(ally.reaction).toEqual({ kind: 'timing-block', timing: 'success' });
+    }
+  });
+});

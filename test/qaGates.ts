@@ -2,7 +2,7 @@ import { ENCOUNTERS, LOCATIONS, NPCS, SHOPS, type WorldLocationDefinition } from
 import { ENEMIES } from '../src/data/enemies';
 import { JURA_FIELD, MAPS } from '../src/data/maps';
 import { HEROES, SKILL_TREES } from '../src/data';
-import { chooseAutoAction } from '../src/systems/autoBattle';
+import { chooseAutoAction, prepareAutoReaction } from '../src/systems/autoBattle';
 import {
   act,
   enemyTurn,
@@ -569,6 +569,9 @@ export function autoPlayBattleToEnd(
         act(state, { type: 'guard' });
       }
     } else {
+      // Phase 81 — der Sim spiegelt einen Spieler, der Telegraphs liest und den
+      // vorhergesagten (Big-)Hit rechtzeitig blockt/kontert.
+      prepareAutoReaction(state);
       enemyTurn(state);
     }
   }

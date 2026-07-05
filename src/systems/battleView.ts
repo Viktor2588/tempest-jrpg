@@ -1,4 +1,4 @@
-import type { ElementType, StatusEffectId } from '../data';
+import type { ElementType, SkillDefinition, StatusEffectId } from '../data';
 import { SIGNATURES, SKILLS, type SignatureTarget } from '../data';
 import type {
   BattleRewards,
@@ -48,6 +48,8 @@ export interface CombatantView {
   readonly revealedResistances: readonly ElementType[];
   readonly telegraphSkillId: string | null;
   readonly telegraphSkillName: string | null;
+  // Phase 81 — der telegraphierte Zug ist ein Big-Hit (grosser Treffer → kontern!).
+  readonly telegraphHeavy: boolean;
   readonly devourable: boolean;
   readonly devourSuccessChance: number | null;
   readonly dead: boolean;
@@ -135,6 +137,7 @@ function renderCombatant(
     revealedResistances: combatant.analysisLevel >= 2 ? [...combatant.resistances] : [],
     telegraphSkillId: combatant.telegraphSkillId,
     telegraphSkillName: SKILLS.find((skill) => skill.id === combatant.telegraphSkillId)?.name ?? null,
+    telegraphHeavy: (SKILLS as readonly SkillDefinition[]).find((skill) => skill.id === combatant.telegraphSkillId)?.heavy === true,
     devourable: combatant.devourable,
     devourSuccessChance: calculateDevourSuccessChance(combatant, devourBonus),
     dead: combatant.dead,

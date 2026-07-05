@@ -548,6 +548,15 @@ export class BattleScene extends Phaser.Scene {
           color: '#ff8a7a'
         }).setOrigin(0.5).setAlpha(alpha));
       }
+      // Phase 81 — angekündigter Big-Hit: klare Warnung, kontern (Deckung/Verzögern/Bursten).
+      if (unit.telegraphHeavy) {
+        this.layer.add(this.add.text(x, y + 96, `⚡ GROSSER TREFFER — kontern!`, {
+          fontFamily: 'sans-serif',
+          fontSize: '9px',
+          fontStyle: 'bold',
+          color: '#ff5a5a'
+        }).setOrigin(0.5).setAlpha(alpha));
+      }
     }
 
     if (side === 'party' && unit.signatureId) {
@@ -663,6 +672,13 @@ export class BattleScene extends Phaser.Scene {
     }
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
+
+    // Phase 81 — Deckung anbieten, sobald ein Gegner einen Zug telegraphiert
+    // (v.a. Big-Hits): die Party blockt den vorhergesagten Treffer, statt ihn
+    // ungedeckt zu fressen. Kostet den Zug — Tempo gegen Sicherheit.
+    if (renderView(this.state).enemies.some((foe) => !foe.dead && foe.telegraphSkillId)) {
+      items.push(['🛡 Reagieren', () => this.doAct({ type: 'brace' })]);
+    }
 
     // Auto-Kampf: schaltet automatische Zugwahl an/aus (siehe systems/autoBattle).
     items.push([this.auto ? '⏸ Auto: AN' : '⚡ Auto: aus', () => { this.auto = !this.auto; this.afterAction(); }]);
