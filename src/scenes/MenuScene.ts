@@ -683,8 +683,12 @@ export class MenuScene extends Phaser.Scene {
       const y = cursorY;
       this.panel(24, y, 900, 92);
       const completed = quest.status === 'completed';
-      this.layer.add(this.add.text(42, y - 30, `${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
-        fontFamily: 'sans-serif', fontSize: '15px', color: completed ? '#8dffc2' : '#e9c56c'
+      // Hauptpfad-Quests markieren + farblich abheben (Sortierung stellt sie schon nach
+      // oben), damit der rote Faden der Story sichtbar von den Nebenquests absticht.
+      const mainTag = quest.main ? '★ HAUPTPFAD · ' : '';
+      this.layer.add(this.add.text(42, y - 30, `${mainTag}${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: completed ? '#8dffc2' : (quest.main ? '#8dd0ff' : '#e9c56c')
       }));
       this.layer.add(this.add.text(906, y - 29, `Belohnung: ${quest.rewardGold} Gold`, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'

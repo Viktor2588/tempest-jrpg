@@ -40,6 +40,9 @@ export interface QuestStepDefinition {
 
 export interface QuestDefinition {
   readonly id: string;
+  // Hauptpfad-Quest: wird im Log/Zielmarker bevorzugt, damit die Story eine sichtbare
+  // Richtung von Gebiet zu Gebiet hat. Nebenquests lassen das Feld weg.
+  readonly main?: boolean;
   readonly title: string;
   readonly description: string;
   readonly actId?: string;
@@ -151,6 +154,7 @@ export interface EncounterDefinition {
 export const QUESTS = [
   {
     id: 'slime-awakening',
+    main: true,
     title: 'Schleim-Prolog',
     description: 'Erlebe Rimurus erste Schritte: Höhlenerwachen, Schwur, Goblindorf, Direwolf-Bedrohung und die erste Gründungsidee.',
     actId: 'prologue',
@@ -217,6 +221,7 @@ export const QUESTS = [
   },
   {
     id: 'binding-of-ancestors',
+    main: true,
     title: 'Bindung der Ahnen',
     description: 'Führe Rigurd, Gobta, Ranga und Shuna durch den ersten Riss der alten Versiegelung.',
     actId: 'act-1',
@@ -256,6 +261,7 @@ export const QUESTS = [
   },
   {
     id: 'border-escalation',
+    main: true,
     title: 'Grenzfeuer',
     description: 'Folge Rangas sicherer Spur ins Geistmoor, entschärfe den Grenzkonflikt und stoppe eine anonyme Siegelvorhut.',
     actId: 'act-2',
@@ -295,6 +301,7 @@ export const QUESTS = [
   },
   {
     id: 'ancestors-choice',
+    main: true,
     title: 'Die Wahl der Ahnen',
     description: 'Schmiede Tempests Bündnis, brich die Linie der alten Ordnung und entscheide über das Schicksal des Siegels.',
     actId: 'act-3',
@@ -484,6 +491,7 @@ export const QUESTS = [
   },
   {
     id: 'dwargon-craft',
+    main: true,
     title: 'Handwerk aus Dwargon',
     description: 'Reise ins Bewaffnete Königreich Dwargon, schlichte den Zwischenfall um Kaijin und gewinne Tempest die Schmiedekunst der Zwerge.',
     steps: [
@@ -510,6 +518,7 @@ export const QUESTS = [
   },
   {
     id: 'blumund-guild',
+    main: true,
     title: 'Tempest tritt vor die Welt',
     description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
     steps: [
@@ -536,6 +545,7 @@ export const QUESTS = [
   },
   {
     id: 'geld-disaster',
+    main: true,
     title: 'Der hungernde Heerzug',
     description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
     steps: [
@@ -568,6 +578,7 @@ export const QUESTS = [
   },
   {
     id: 'lizard-alliance',
+    main: true,
     title: 'Das Bündnis der Echsenmenschen',
     description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru gedemütigt werden, ehe die Echsenmenschen ein Bündnis schließen.',
     steps: [
@@ -594,6 +605,7 @@ export const QUESTS = [
   },
   {
     id: 'shizu-vow',
+    main: true,
     title: 'Shizus Schwur',
     description: 'In der Glutgrotte ringt die Andersweltlerin Shizu mit dem Flammengeist Ifrit — angestachelt von einem maskierten Majin. Befreie sie und trage ihren letzten Schwur weiter.',
     steps: [

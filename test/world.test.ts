@@ -746,6 +746,30 @@ describe('Datengetriebene NPC-Sichtbarkeit', () => {
   });
 });
 
+describe('Hauptpfad-Führung', () => {
+  it('sortiert aktive Hauptquests vor Nebenquests und verfolgt sie im Zielmarker', () => {
+    // border-runner (Nebenquest) ist im Datensatz VOR blumund-guild (Hauptquest)
+    // definiert — ohne main-Flag würde die Nebenquest per Index zuerst kommen.
+    const state: WorldState = {
+      flags: {},
+      quests: {
+        'border-runner': { status: 'active', completedStepIds: [] },
+        'blumund-guild': { status: 'active', completedStepIds: [] }
+      },
+      inventory: [],
+      gold: 0
+    };
+
+    const active = buildQuestLog(state).filter((q) => q.status === 'active');
+    expect(active[0]!.id).toBe('blumund-guild');
+    expect(active.find((q) => q.id === 'blumund-guild')!.main).toBe(true);
+    expect(active.find((q) => q.id === 'border-runner')!.main).toBe(false);
+
+    // Der verfolgte Zielmarker greift dieselbe Hauptquest, nicht die Nebenquest.
+    expect(getTrackedQuestObjective(state)?.questId).toBe('blumund-guild');
+  });
+});
+
 describe('Verzaubern nur bei einem Schmied', () => {
   it('sperrt Verzaubern ohne Schmied und erlaubt es bei einem sichtbaren Schmied oder per Rimuru-Skill', () => {
     const noSmith = emptyWorld();
