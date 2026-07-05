@@ -1,6 +1,6 @@
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type QuestDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ENEMIES } from '../data/enemies';
-import { HEROES, ITEMS, type ItemDefinition } from '../data';
+import { HEROES, ITEMS, SKILLS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
 import { createPartyMember, type PartyMemberState } from './party';
@@ -365,6 +365,36 @@ export function getTrackedQuestObjective(state: WorldState): TrackedQuestObjecti
       ? `Zielmarker: ${location.name}`
       : `Zielort bekannt, aber noch nicht markiert: ${location.name}`
   };
+}
+
+// Phase 84 — Verschlingen-Kompendium: welcher devourbare Gegner lehrt Rimuru welchen
+// Skill (Checkliste: gelernt/offen), damit gezieltes Jagen zur Neugier wird statt Grind.
+export interface DevourCompendiumEntry {
+  readonly enemyId: string;
+  readonly enemyName: string;
+  readonly level: number;
+  readonly skillId: string;
+  readonly skillName: string;
+  readonly learned: boolean;
+}
+
+export function buildDevourCompendium(state: WorldState): DevourCompendiumEntry[] {
+  const rimuru = state.party?.find((member) => member.characterId === 'rimuru');
+  const learned = new Set(rimuru?.learnedSkillIds ?? []);
+  return ENEMIES.flatMap((enemy) => {
+    if (!enemy.devourable || !enemy.devourSkillId) {
+      return [];
+    }
+    const skill = SKILLS.find((candidate) => candidate.id === enemy.devourSkillId);
+    return [{
+      enemyId: enemy.id,
+      enemyName: enemy.name,
+      level: enemy.level,
+      skillId: enemy.devourSkillId,
+      skillName: skill?.name ?? enemy.devourSkillId,
+      learned: learned.has(enemy.devourSkillId)
+    }];
+  }).sort((a, b) => a.level - b.level || a.enemyName.localeCompare(b.enemyName));
 }
 
 export function buildCodexView(state: WorldState): LoreEntryView[] {

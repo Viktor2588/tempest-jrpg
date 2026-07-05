@@ -574,6 +574,11 @@ completed_milestones:
     - listSaveSlots/getActiveSlot/setActiveSlot/slotSaveKey/activeSaveKey helpers; new SaveSlotScene (per slot: Fortsetzen / Neues Spiel / Löschen with a confirm overlay; cards show chapter banner + lead name/level + date)
     - Title keeps "▶ Spiel starten" (continues the active slot — existing e2e flow unchanged) and adds a "🗂 Speicherstände" button; slot selection sets the active slot then enters the Overworld
     - typecheck, 415 unit tests (6 new slot tests: isolation, active-slot default/clamp, defaults follow active slot, delete scoping), production build, and a new desktop e2e smoke (slots render, New Game sets the slot active) verified
+  phase_84:
+    - devour as a directed hunt: buildDevourCompendium(WorldState) in world.ts lists every devourable enemy with the skill it teaches Rimuru (name resolved via SKILLS), sorted by level, flagged learned/open against Rimuru's learnedSkillIds — turns grind into a "which enemy do I hunt for which power" checklist
+    - surfaced as a toggle inside the existing Codex tab ("Wissen" ↔ "🍴 Verschlingen") rather than a new top-level tab (the 8-tab row is full and menuTabButtonX/menuLayout test fix tabCount=8); drawCodex split into drawLoreEntries + drawDevourCompendium + shared codexFooter, lore rows nudged 170→194 to clear the toggle
+    - progress note "N/M erbeutet"; entries show "✓/○ EnemyName (Lv X) — 🍴 Verschlingen lehrt: Skill"
+    - typecheck, 421 unit tests (2 new compendium tests), production build, and a new desktop e2e (open Codex → toggle Verschlingen renders without browser errors) verified
   phase_83:
     - resource arc, increment 1 (MP as a scarcer cross-fight resource). Finding correction: HP/MP already carry between fights and there is NO auto full-restore (restore-party fires at one story beat only); recovery is item-driven and there are no shops mid-dungeon, so each dungeon is already a ration — items were just too cheap/potent for it to bite
     - mana-drop tightened 15→13 MP, price 35→40 (kept starting qty 2); deliberately mild — an aggressive MP nerf (10–12) destabilised the escalating high-HP bosses (Geld's Phase-80 escalation + MP starvation compound into seed-specific losses), so a gentle notch that keeps the harness green for every Rimuru spec

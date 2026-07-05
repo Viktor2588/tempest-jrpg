@@ -34,7 +34,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildCodexView, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
+import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
   MENU_LIST_BOTTOM,
@@ -90,6 +90,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
+  private codexMode: 'lore' | 'devour' = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -777,6 +778,23 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
+    // Phase 84 — Umschalter: „Wissen" (Lore) ↔ „Verschlingen" (Beute-Kompendium).
+    this.button(300, 140, 168, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
+      () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
+    this.button(478, 140, 210, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
+      () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
+    if (this.codexMode === 'devour') this.drawDevourCompendium();
+    else this.drawLoreEntries();
+  }
+
+  private setCodexMode(mode: 'lore' | 'devour'): void {
+    if (this.codexMode === mode) return;
+    this.codexMode = mode;
+    this.codexPage = 0;
+    this.refresh();
+  }
+
+  private drawLoreEntries(): void {
     const all = buildCodexView(createWorldState(this.save));
     // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
     // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
@@ -784,7 +802,7 @@ export class MenuScene extends Phaser.Scene {
     const lockedCount = all.length - unlocked.length;
 
     if (unlocked.length === 0) {
-      this.layer.add(this.add.text(318, 172, 'Noch keine Codex-Einträge entdeckt — erkunde die Welt.', {
+      this.layer.add(this.add.text(318, 200, 'Noch keine Codex-Einträge entdeckt — erkunde die Welt.', {
         fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
       }));
     }
@@ -795,18 +813,43 @@ export class MenuScene extends Phaser.Scene {
     const pageEntries = unlocked.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
 
     pageEntries.forEach((entry, index) => {
-      const y = 170 + index * 84;
-      this.panel(300, y, 590, 66);
-      this.layer.add(this.add.text(318, y - 22, `${entry.newlyUnlocked ? '✦ NEU' : '◈'} ${entry.title}`, {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      this.layer.add(this.add.text(318, y - 20, `${entry.newlyUnlocked ? '✦ NEU' : '◈'} ${entry.title}`, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: entry.newlyUnlocked ? '#8dffc2' : '#e9c56c'
       }));
-      this.layer.add(this.add.text(318, y, entry.body ?? '', {
+      this.layer.add(this.add.text(318, y + 2, entry.body ?? '', {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
       }));
     });
 
-    // Fußzeile: Seitenblättern + Filterhinweis auf unentdeckte Einträge.
+    this.codexFooter(pageCount, lockedCount > 0 ? `${lockedCount} noch unentdeckt` : null);
+  }
+
+  private drawDevourCompendium(): void {
+    const entries = buildDevourCompendium(createWorldState(this.save));
+    const learnedCount = entries.filter((entry) => entry.learned).length;
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const page = entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    page.forEach((entry, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      this.layer.add(this.add.text(318, y - 20, `${entry.learned ? '✓' : '○'} ${entry.enemyName}  (Lv ${entry.level})`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: entry.learned ? '#8dffc2' : '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y + 2, `🍴 Verschlingen lehrt: ${entry.skillName}`, {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8'
+      }));
+    });
+
+    this.codexFooter(pageCount, `${learnedCount}/${entries.length} erbeutet`);
+  }
+
+  private codexFooter(pageCount: number, rightNote: string | null): void {
     const footerY = 512;
     if (pageCount > 1) {
       this.button(300, footerY, 96, '‹ Zurück', () => { this.codexPage -= 1; this.refresh(); });
@@ -815,8 +858,8 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
       }));
     }
-    if (lockedCount > 0) {
-      this.layer.add(this.add.text(888, footerY + 12, `${lockedCount} noch unentdeckt`, {
+    if (rightNote) {
+      this.layer.add(this.add.text(888, footerY + 12, rightNote, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
       }).setOrigin(1, 0));
     }
