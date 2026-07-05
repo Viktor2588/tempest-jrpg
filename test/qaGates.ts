@@ -217,9 +217,11 @@ const BALANCE_STORY_ROUTE: ReadonlyArray<{
   { id: 'ifrit-boss', mapId: 'ember-hollow', position: { x: 14, y: 6 }, chapterId: 'chapter-4', category: 'boss' }
 ];
 
+// Ein einzelner (ungegateter) Spezialisierungsstrang pro Figur — Branch-Lock verhindert
+// strangübergreifende Käufe, daher folgt die Prioritätsliste genau einem Strang.
 const TALENT_PRIORITIES: Readonly<Record<string, readonly string[]>> = {
-  rimuru: ['rimuru-fluid-core', 'rimuru-marsh-runner', 'rimuru-predator-instinct', 'rimuru-shadow-domain'],
-  gobta: ['gobta-pack-footwork', 'gobta-rider-feint', 'gobta-marsh-runner', 'gobta-tempest-knight']
+  rimuru: ['rimuru-predator-focus', 'rimuru-predator-devour', 'rimuru-predator-apex'],
+  gobta: ['gobta-alpha-focus', 'gobta-alpha-vigor']
 };
 
 // Reisereihenfolge der Regionen aus dem Gateway-Graphen (BFS ab Start), damit der

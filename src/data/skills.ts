@@ -146,6 +146,7 @@ export const SKILLS = [
     power: 32,
     tags: ['heal', 'magical']
   },
+  { id: 'spirit-flame', name: 'Geistflamme', description: 'Shunas geweihte Geistflamme versengt ein Ziel mit heiligem Feuer.', element: 'holy', target: 'single-enemy', costMp: 9, power: 34, tags: ['magical'] },
   { id: 'black-flame', name: 'Schwarzflamme', description: 'Benimarus konzentrierte Schwarzflamme verbrennt ein Ziel.', element: 'fire', target: 'single-enemy', costMp: 9, power: 38, tags: ['magical'] },
   { id: 'ifrit-inferno', name: 'Ifrits Inferno', description: 'Eine Feuerwand erfasst alle Gegner.', element: 'fire', target: 'all-enemies', costMp: 14, power: 30, tags: ['magical'] },
   { id: 'orc-cleave', name: 'Ork-Spalter', description: 'Brutaler Hieb mit grobem Schlachtbeil.', element: 'neutral', target: 'single-enemy', costMp: 5, power: 26, tags: ['physical'] },

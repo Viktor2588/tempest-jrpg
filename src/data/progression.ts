@@ -493,75 +493,21 @@ export const SKILL_TREES = [
     characterId: 'rimuru',
     name: 'Adaptive Essenz',
     nodes: [
-      {
-        id: 'rimuru-fluid-core',
-        name: 'Fließender Kern',
-        description: 'Verdichtet Magie und erhöht die MP-Reserve.',
-        cost: 1,
-        requiredLevel: 2,
-        requiredNodeIds: [],
-        statBonus: { maxMp: 4, magic: 1 }
-      },
-      {
-        id: 'rimuru-predator-instinct',
-        name: 'Raubtierinstinkt',
-        description: 'Öffnet nach der Entwicklung den Zugriff auf Giftdorn.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['rimuru-fluid-core'],
-        requiredEvolutionId: 'rimuru-predator-slime',
-        skillId: 'venom-spit'
-      },
-      {
-        id: 'rimuru-predator-devour',
-        name: 'Verschlinger-Archiv',
-        description: 'Stabilisiert verschlungene Essenzen, damit Rimuru absorbierte Skills kontrolliert ins Kampf-Loadout nimmt.',
-        cost: 1,
-        requiredLevel: 5,
-        requiredNodeIds: ['rimuru-predator-instinct'],
-        requiredFlag: 'codex.predator-devour',
-        statBonus: { maxMp: 4, spirit: 1 }
-      },
-      {
-        id: 'rimuru-ancestor-binding',
-        name: 'Ahnenbindung',
-        description: 'Verarbeitet den Abschluss der Bindung der Ahnen zu stabilerer Namensmagie.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['rimuru-fluid-core'],
-        requiredFlag: 'story.act1.completed',
-        statBonus: { maxMp: 4, spirit: 2 }
-      },
-      {
-        id: 'rimuru-marsh-runner',
-        name: 'Marschenläufer-Instinkt',
-        description: 'Wandelt Sumpferkundung in Tempo und robuste Geländekontrolle um.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['rimuru-fluid-core'],
-        requiredRegionId: 'marsh-border',
-        statBonus: { maxHp: 3, agility: 3 }
-      },
-      {
-        id: 'rimuru-shadow-domain',
-        name: 'Schattendomäne',
-        description: 'Verstärkt Schattenmagie und lehrt Geistfessel.',
-        cost: 2,
-        requiredLevel: 6,
-        requiredNodeIds: ['rimuru-predator-devour'],
-        skillId: 'spirit-bind',
-        statBonus: { magic: 3, spirit: 2 }
-      },
-      {
-        id: 'rimuru-predator-sage',
-        name: 'Raubtier-Weiser',
-        description: 'Faltet die frühere Raubtier-Weiser-Rolle in eine fokussierte Magie-Talentspitze.',
-        cost: 2,
-        requiredLevel: 7,
-        requiredNodeIds: ['rimuru-shadow-domain'],
-        requiredEvolutionId: 'rimuru-predator-slime',
-        statBonus: { maxMp: 8, magic: 3, spirit: 2, agility: 1 }
-      }
+      // Strang 1 — Raubtier (physische Offensive + Verschlingen/Konter)
+      { id: 'rimuru-predator-focus', name: 'Raubtierfokus', description: 'Strang Raubtier: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'predator', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+      { id: 'rimuru-predator-venom', name: 'Giftdorn', description: 'Nach der Raubtier-Entwicklung: lehrt Giftdorn.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-predator-focus'], requiredEvolutionId: 'rimuru-predator-slime', branch: 'predator', skillId: 'venom-spit', perks: [{ kind: 'damage-dealt', percent: 15, element: 'shadow' }] },
+      { id: 'rimuru-predator-devour', name: 'Verschlinger-Archiv', description: 'Stabilisierte Essenzen kontern Angreifer.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-predator-focus'], branch: 'predator', perks: [{ kind: 'counter', percent: 25 }], statBonus: { maxMp: 4 } },
+      { id: 'rimuru-predator-apex', name: 'Verschlingende Bestie', description: 'Vollendung des Raubtier-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-predator-devour'], branch: 'predator', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'counter', percent: 20 }], statBonus: { attack: 3 } },
+      // Strang 2 — Großer Weiser (Analyse: Skill-Ketten, Buff-Dauer, Ausweichen)
+      { id: 'rimuru-sage-focus', name: 'Weiser-Fokus', description: 'Strang Großer Weiser: vorausschauendes Ausweichen.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'sage', perks: [{ kind: 'dodge', percent: 8 }], statBonus: { magic: 1, spirit: 1 } },
+      { id: 'rimuru-sage-analysis', name: 'Analyse', description: 'Verlängert die Wirkung eigener Buffs.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-sage-focus'], branch: 'sage', perks: [{ kind: 'buff-power', percent: 100 }] },
+      { id: 'rimuru-sage-foresight', name: 'Vorausberechnung', description: 'Berechnet Angriffe voraus und weicht aus.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-sage-focus'], branch: 'sage', perks: [{ kind: 'dodge', percent: 12 }] },
+      { id: 'rimuru-sage-accel', name: 'Gedankenbeschleunigung', description: 'Wasserklinge entfesselt einen Folgestrahl.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-sage-analysis'], branch: 'sage', perks: [{ kind: 'skill-chain', triggerSkillId: 'water-blade', followUpSkillId: 'water-jet', percent: 40 }, { kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 6 } },
+      // Strang 3 — Schatten (Adaptivmagie: magischer Schaden + Resistenz)
+      { id: 'rimuru-shadow-focus', name: 'Schattenfokus', description: 'Strang Schatten: verstärkt Schattenmagie.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'shadow', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }], statBonus: { magic: 2 } },
+      { id: 'rimuru-shadow-bind', name: 'Geistfessel', description: 'Lehrt Geistfessel und schärft Schattenschaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-shadow-focus'], branch: 'shadow', skillId: 'spirit-bind', perks: [{ kind: 'damage-dealt', percent: 15, element: 'shadow' }] },
+      { id: 'rimuru-shadow-veil', name: 'Schattenschleier', description: 'Adaptive Hülle mindert erlittenen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-shadow-focus'], branch: 'shadow', perks: [{ kind: 'damage-taken', percent: 15 }] },
+      { id: 'rimuru-shadow-domain', name: 'Schattendomäne', description: 'Vollendung des Schatten-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-shadow-bind'], branch: 'shadow', perks: [{ kind: 'damage-dealt', percent: 25, category: 'magical' }, { kind: 'damage-taken', percent: 10 }], statBonus: { magic: 3, spirit: 2 } }
     ]
   },
   {
@@ -569,61 +515,21 @@ export const SKILL_TREES = [
     characterId: 'gobta',
     name: 'Rudeltaktik',
     nodes: [
-      {
-        id: 'gobta-pack-footwork',
-        name: 'Rudelschritt',
-        description: 'Verbessert Gobtas Initiative.',
-        cost: 1,
-        requiredLevel: 2,
-        requiredNodeIds: [],
-        statBonus: { agility: 2 }
-      },
-      {
-        id: 'gobta-rider-feint',
-        name: 'Reiterfinte',
-        description: 'Lehrt den Schnellen Schritt, sobald Rangas Pakt und das Wolfsfang-Abzeichen Gobtas Reiterpfad eröffnen.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['gobta-pack-footwork'],
-        requiredFlag: 'progression.gobta.wolf-fang-token',
-        skillId: 'quick-step'
-      },
-      {
-        id: 'gobta-marsh-runner',
-        name: 'Marschenläufer',
-        description: 'Macht Sumpferkundung zu schneller Flankenarbeit und lehrt Sturmböe.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['gobta-pack-footwork'],
-        requiredRegionId: 'marsh-border',
-        skillId: 'storm-gust',
-        statBonus: { attack: 1, spirit: 1, agility: 4 }
-      },
-      {
-        id: 'gobta-tempest-knight',
-        name: 'Tempest-Ritter',
-        description: 'Bindet Rangas Rudel-Timing an robuste Frontwerte und Direwolf-Druck.',
-        cost: 2,
-        requiredLevel: 5,
-        requiredNodeIds: ['gobta-rider-feint'],
-        requiredRelationshipLevel: {
-          relationshipId: 'gobta-ranga',
-          level: 2
-        },
-        skillId: 'direwolf-rush',
-        statBonus: { maxHp: 8, attack: 3, defense: 3, agility: 1 }
-      },
-      {
-        id: 'gobta-alpha-charge',
-        name: 'Alpha-Ansturm',
-        description: 'Verbindet die benannte Form mit dem Direwolf-Ansturm.',
-        cost: 2,
-        requiredLevel: 6,
-        requiredNodeIds: ['gobta-rider-feint'],
-        requiredEvolutionId: 'gobta-hobgoblin-guard',
-        skillId: 'direwolf-rush',
-        statBonus: { attack: 3, agility: 2 }
-      }
+      // Strang 1 — Reiter (Mobilität: Ausweichen + Direwolf-Ansturm; Rangas Pakt & Bindung)
+      { id: 'gobta-rider-focus', name: 'Reiterfokus', description: 'Strang Reiter: lehrt den Schnellen Schritt.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'rider', skillId: 'quick-step', perks: [{ kind: 'dodge', percent: 10 }], statBonus: { agility: 2 } },
+      { id: 'gobta-rider-charge', name: 'Direwolf-Ansturm', description: 'Rangas Pakt und das Wolfsfang-Abzeichen eröffnen den Ansturm.', cost: 1, requiredLevel: 5, requiredNodeIds: ['gobta-rider-focus'], requiredFlag: 'progression.gobta.wolf-fang-token', branch: 'rider', skillId: 'direwolf-rush', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
+      { id: 'gobta-rider-evade', name: 'Ausweichritt', description: 'Reiten schult das Ausweichen.', cost: 1, requiredLevel: 6, requiredNodeIds: ['gobta-rider-focus'], branch: 'rider', perks: [{ kind: 'dodge', percent: 12 }] },
+      { id: 'gobta-rider-knight', name: 'Tempest-Ritter', description: 'Vollendung des Reiter-Strangs — Rangas Rudel-Timing an robusten Werten.', cost: 2, requiredLevel: 9, requiredNodeIds: ['gobta-rider-charge'], requiredRelationshipLevel: { relationshipId: 'gobta-ranga', level: 2 }, branch: 'rider', perks: [{ kind: 'damage-dealt', percent: 20, category: 'physical' }, { kind: 'dodge', percent: 10 }], statBonus: { maxHp: 8, attack: 3, defense: 3 } },
+      // Strang 2 — Finte (Ausweichen + Konter)
+      { id: 'gobta-feint-focus', name: 'Fintenfokus', description: 'Strang Finte: lehrt die Goblin-Finte.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'feint', skillId: 'goblin-feint', perks: [{ kind: 'dodge', percent: 8 }], statBonus: { agility: 2 } },
+      { id: 'gobta-feint-counter', name: 'Konterfinte', description: 'Pariert einen Angriff mit einem Gegenschlag.', cost: 1, requiredLevel: 5, requiredNodeIds: ['gobta-feint-focus'], branch: 'feint', perks: [{ kind: 'counter', percent: 25 }] },
+      { id: 'gobta-feint-slip', name: 'Ausweichschritt', description: 'Schärft das Ausweichen weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['gobta-feint-focus'], branch: 'feint', perks: [{ kind: 'dodge', percent: 12 }] },
+      { id: 'gobta-feint-master', name: 'Meisterfinte', description: 'Vollendung des Finte-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['gobta-feint-counter'], branch: 'feint', perks: [{ kind: 'counter', percent: 25 }, { kind: 'dodge', percent: 10 }] },
+      // Strang 3 — Alpha (Offensive + Zähigkeit; Marschenläufer)
+      { id: 'gobta-alpha-focus', name: 'Alpha-Fokus', description: 'Strang Alpha: rohe Angriffswucht.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'alpha', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
+      { id: 'gobta-alpha-storm', name: 'Marschenläufer', description: 'Sumpferkundung lehrt Sturmböe.', cost: 1, requiredLevel: 5, requiredNodeIds: ['gobta-alpha-focus'], requiredRegionId: 'marsh-border', branch: 'alpha', skillId: 'storm-gust', perks: [{ kind: 'damage-dealt', percent: 15, element: 'wind' }] },
+      { id: 'gobta-alpha-vigor', name: 'Rudelzähigkeit', description: 'Stählt die Konstitution.', cost: 1, requiredLevel: 6, requiredNodeIds: ['gobta-alpha-focus'], branch: 'alpha', perks: [{ kind: 'max-hp', percent: 12 }] },
+      { id: 'gobta-alpha-charge', name: 'Alpha-Ansturm', description: 'Vollendung des Alpha-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['gobta-alpha-storm'], branch: 'alpha', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'max-hp', percent: 10 }], statBonus: { attack: 3 } }
     ]
   },
   {
@@ -631,46 +537,21 @@ export const SKILL_TREES = [
     characterId: 'shuna',
     name: 'Geistgewebe',
     nodes: [
-      {
-        id: 'shuna-prayer-thread',
-        name: 'Gebetsfaden',
-        description: 'Stärkt Geist und MP.',
-        cost: 1,
-        requiredLevel: 2,
-        requiredNodeIds: [],
-        statBonus: { maxMp: 4, spirit: 2 }
-      },
-      {
-        id: 'shuna-warding-weave',
-        name: 'Schutzgewebe',
-        description: 'Lehrt das Barrieregebet.',
-        cost: 1,
-        requiredLevel: 4,
-        requiredNodeIds: ['shuna-prayer-thread'],
-        skillId: 'barrier-prayer'
-      },
-      {
-        id: 'shuna-spirit-weaver',
-        name: 'Geistweberin',
-        description: 'Verwandelt Tempests Vertrauen in stärkere Heil- und Barrierewerte.',
-        cost: 2,
-        requiredLevel: 5,
-        requiredNodeIds: ['shuna-warding-weave'],
-        requiredFlag: 'bond.rigurd.trust-1',
-        skillId: 'sacred-weave',
-        statBonus: { maxMp: 8, magic: 2, spirit: 4 }
-      },
-      {
-        id: 'shuna-sacred-circle',
-        name: 'Sakralkreis',
-        description: 'Vollendet das Gewebe der benannten Kijin-Form.',
-        cost: 2,
-        requiredLevel: 6,
-        requiredNodeIds: ['shuna-warding-weave'],
-        requiredEvolutionId: 'shuna-kijin-weaver',
-        skillId: 'sacred-weave',
-        statBonus: { magic: 2, spirit: 3 }
-      }
+      // Strang 1 — Schutz (Verteidigung: Schadensresistenz + max-LP)
+      { id: 'shuna-ward-focus', name: 'Schutzfokus', description: 'Strang Schutz: lehrt das Barrieregebet.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'ward', skillId: 'barrier-prayer', perks: [{ kind: 'damage-taken', percent: 12 }], statBonus: { spirit: 2 } },
+      { id: 'shuna-ward-body', name: 'Schutzgewebe', description: 'Verwebt Zähigkeit ins Gewand.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }] },
+      { id: 'shuna-ward-veil', name: 'Segensschleier', description: 'Mindert erlittenen Schaden weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'damage-taken', percent: 12 }] },
+      { id: 'shuna-ward-circle', name: 'Sakralkreis', description: 'Vollendung des Schutz-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-ward-body'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }, { kind: 'damage-taken', percent: 10 }], statBonus: { spirit: 3 } },
+      // Strang 2 — Weberin (Support: Buff-Dauer + Heil-Kette)
+      { id: 'shuna-weave-focus', name: 'Weber-Fokus', description: 'Strang Weberin: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 4, spirit: 1 } },
+      { id: 'shuna-weave-prayer', name: 'Gebetsfaden', description: 'Beruhigendes Gebet webt ein Sakralgewebe nach.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-weave-focus'], branch: 'weave', perks: [{ kind: 'skill-chain', triggerSkillId: 'soothing-prayer', followUpSkillId: 'sacred-weave', percent: 35 }] },
+      { id: 'shuna-weave-grace', name: 'Segenshand', description: 'Verstärkt die Buff-Dauer weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-weave-focus'], branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }] },
+      { id: 'shuna-weave-spirit', name: 'Geistweberin', description: 'Vollendung des Weber-Strangs — Tempests Vertrauen lehrt das Sakralgewebe.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-weave-prayer'], requiredFlag: 'bond.rigurd.trust-1', branch: 'weave', skillId: 'sacred-weave', perks: [{ kind: 'buff-power', percent: 100 }, { kind: 'damage-taken', percent: 10 }], statBonus: { magic: 2, spirit: 3 } },
+      // Strang 3 — Geistflamme (Offensivmagie: heiliges Feuer)
+      { id: 'shuna-flame-focus', name: 'Geistflammen-Fokus', description: 'Strang Geistflamme: entfacht die geweihte Geistflamme.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'flame', skillId: 'spirit-flame', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }], statBonus: { magic: 2 } },
+      { id: 'shuna-flame-kindle', name: 'Geistglut', description: 'Vertieft den heiligen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-flame-focus'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 15, element: 'holy' }] },
+      { id: 'shuna-flame-clarity', name: 'Klarer Geist', description: 'Schärft die Magie weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-flame-focus'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 12, category: 'magical' }] },
+      { id: 'shuna-flame-nova', name: 'Geistflammen-Nova', description: 'Vollendung des Geistflammen-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-flame-kindle'], branch: 'flame', perks: [{ kind: 'damage-dealt', percent: 25, category: 'magical' }, { kind: 'damage-dealt', percent: 10, element: 'holy' }], statBonus: { magic: 4 } }
     ]
   },
   { id: 'benimaru-tree', characterId: 'benimaru', name: 'Schwarzflammen-General', nodes: [
