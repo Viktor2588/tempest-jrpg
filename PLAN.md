@@ -95,23 +95,6 @@ Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
   Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
   ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
 
-## Speicherstand-Verwaltung (Nutzer 2026-07-05)
-
-Befund: Es gibt nur EINEN Speicher-Slot (fester localStorage-Key
-`tempest-chronik.save.v3`); alle Szenen laden `loadSave(...) ?? createNewSave()`.
-Kein Löschen/Neu-Anfangen im Spiel — `resetSave()` existiert, wird aber nirgends
-aufgerufen. Die Save-Funktionen nehmen bereits einen `key`-Parameter entgegen.
-
-- [~] Phase 90 — Volle Slot-Verwaltung (Worktree
-  `/worktree/tempest-phase-90-save-slots`): Mehrere Speicher-Slots + Löschen +
-  Neu-Anfangen im Spiel. Slot 1 = bestehender Basis-Key (keine Migration
-  bestehender Saves), Slots 2/3 suffixed; aktiver Slot in eigenem Key;
-  `load/write/autoSave/resetSave` defaulten auf den aktiven Slot (Szenen bleiben
-  unangetastet). Neue `SaveSlotScene`: pro Slot Fortsetzen / Neues Spiel /
-  Löschen (mit Bestätigung), Karten zeigen Kapitel + Lead-Level + Datum.
-  Titel-„Spiel starten" führt in die Slot-Auswahl. Abnahme: save-Tests grün
-  (Slot 1 = Default), neue Slot-/Aktiv-Slot-/List-Tests, Browser-Smoke.
-
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
