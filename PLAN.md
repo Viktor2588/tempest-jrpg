@@ -52,16 +52,6 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
-  Straenge, die sich mit Verschlingen verzahnen): Startskills auf
-  `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
-  Schleimform-Faehigkeit) reduzieren; `water-blade`/`storm-gust` u. a. werden
-  ueber Verschlingen erbeutet — Devour-Map-Pass ueber `enemies.ts`, damit
-  jeder fruehe Gegner Rimuru etwas Neues beibringt (forest-slime lehrt aktuell
-  `slime-strike`, das er schon kann → totes Verschlingen).
-  `RIMURU_CORE_LOADOUT_SKILLS` (battle.ts) und Onboarding-Texte anpassen;
-  Balance-Harness neu einpendeln, da Rimurus Fruehspiel schwaecher wird
-  (Abstimmung mit Phasen 53–56/67).
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
