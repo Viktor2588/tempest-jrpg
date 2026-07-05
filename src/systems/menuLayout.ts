@@ -80,12 +80,12 @@ export interface MenuListColumn {
 // Anker der scrollbaren Zeilenlisten je Seite. Reihenfolge/Werte spiegeln die
 // Zeichenaufrufe der MenuScene.
 export const MENU_LIST_COLUMNS = {
-  inventoryItems: { id: 'inventory.items', left: 300, top: 160, width: 260, rowHeight: 48 },
-  equipUsable: { id: 'equipment.usable', left: 620, top: 160, width: 260, rowHeight: 48 },
-  statusSkills: { id: 'status.skills', left: 300, top: 306, width: 380, rowHeight: 32 },
-  statusBindings: { id: 'status.bindings', left: 710, top: 306, width: 230, rowHeight: 50 },
+  inventoryItems: { id: 'inventory.items', left: 300, top: 184, width: 260, rowHeight: 48 },
+  equipUsable: { id: 'equipment.usable', left: 620, top: 184, width: 260, rowHeight: 48 },
+  statusSkills: { id: 'status.skills', left: 300, top: 352, width: 380, rowHeight: 32 },
+  statusBindings: { id: 'status.bindings', left: 710, top: 352, width: 230, rowHeight: 50 },
   growthNodes: { id: 'growth.nodes', left: 300, top: 196, width: 230, rowHeight: 46 },
-  travelPoints: { id: 'travel.points', left: 300, top: 258, width: 238, rowHeight: 44 }
+  travelPoints: { id: 'travel.points', left: 300, top: 290, width: 238, rowHeight: 44 }
 } as const satisfies Record<string, MenuListColumn>;
 
 export function menuListCapacity(

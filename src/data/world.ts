@@ -40,6 +40,9 @@ export interface QuestStepDefinition {
 
 export interface QuestDefinition {
   readonly id: string;
+  // Hauptpfad-Quest: wird im Log/Zielmarker bevorzugt, damit die Story eine sichtbare
+  // Richtung von Gebiet zu Gebiet hat. Nebenquests lassen das Feld weg.
+  readonly main?: boolean;
   readonly title: string;
   readonly description: string;
   readonly actId?: string;
@@ -112,6 +115,8 @@ export interface NpcDefinition {
   // Optionale Story-Sichtbarkeit: Der NPC erscheint (und ist ansprechbar) erst, wenn
   // alle Anforderungen erfüllt sind. Fehlt das Feld, ist der NPC immer sichtbar.
   readonly requirements?: readonly WorldRequirement[];
+  // Ortsdienst: Ein 'smith'-NPC erlaubt Verzaubern, solange man auf seiner Karte ist.
+  readonly service?: 'smith';
 }
 
 export interface ShopDefinition {
@@ -126,6 +131,10 @@ export interface ShopDefinition {
   }[];
   readonly buyMultiplier: number;
   readonly sellMultiplier: number;
+  readonly buyMultiplierByFlag?: readonly {
+    readonly flag: string;
+    readonly multiplier: number;
+  }[];
 }
 
 export interface EncounterDefinition {
@@ -149,6 +158,7 @@ export interface EncounterDefinition {
 export const QUESTS = [
   {
     id: 'slime-awakening',
+    main: true,
     title: 'Schleim-Prolog',
     description: 'Erlebe Rimurus erste Schritte: Höhlenerwachen, Schwur, Goblindorf, Direwolf-Bedrohung und die erste Gründungsidee.',
     actId: 'prologue',
@@ -215,6 +225,7 @@ export const QUESTS = [
   },
   {
     id: 'binding-of-ancestors',
+    main: true,
     title: 'Bindung der Ahnen',
     description: 'Führe Rigurd, Gobta, Ranga und Shuna durch den ersten Riss der alten Versiegelung.',
     actId: 'act-1',
@@ -254,6 +265,7 @@ export const QUESTS = [
   },
   {
     id: 'border-escalation',
+    main: true,
     title: 'Grenzfeuer',
     description: 'Folge Rangas sicherer Spur ins Geistmoor, entschärfe den Grenzkonflikt und stoppe eine anonyme Siegelvorhut.',
     actId: 'act-2',
@@ -293,6 +305,7 @@ export const QUESTS = [
   },
   {
     id: 'ancestors-choice',
+    main: true,
     title: 'Die Wahl der Ahnen',
     description: 'Schmiede Tempests Bündnis, brich die Linie der alten Ordnung und entscheide über das Schicksal des Siegels.',
     actId: 'act-3',
@@ -482,6 +495,7 @@ export const QUESTS = [
   },
   {
     id: 'dwargon-craft',
+    main: true,
     title: 'Handwerk aus Dwargon',
     description: 'Reise ins Bewaffnete Königreich Dwargon, schlichte den Zwischenfall um Kaijin und gewinne Tempest die Schmiedekunst der Zwerge.',
     steps: [
@@ -508,6 +522,7 @@ export const QUESTS = [
   },
   {
     id: 'blumund-guild',
+    main: true,
     title: 'Tempest tritt vor die Welt',
     description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
     steps: [
@@ -534,6 +549,7 @@ export const QUESTS = [
   },
   {
     id: 'geld-disaster',
+    main: true,
     title: 'Der hungernde Heerzug',
     description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
     steps: [
@@ -566,8 +582,9 @@ export const QUESTS = [
   },
   {
     id: 'lizard-alliance',
+    main: true,
     title: 'Das Bündnis der Echsenmenschen',
-    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru gedemütigt werden, ehe die Echsenmenschen ein Bündnis schließen.',
+    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru besiegt werden, ehe die Echsenmenschen ein Bündnis schließen.',
     steps: [
       {
         id: 'parley',
@@ -577,7 +594,7 @@ export const QUESTS = [
       },
       {
         id: 'humble',
-        title: 'Gabirus Hochmut brechen',
+        title: 'Gabirus Hochmut prüfen',
         description: 'Stell den ruhmsüchtigen Gabiru und seine Wache im Herzen des Sumpfs.',
         locationId: 'lizard-marsh-heart'
       },
@@ -592,6 +609,7 @@ export const QUESTS = [
   },
   {
     id: 'shizu-vow',
+    main: true,
     title: 'Shizus Schwur',
     description: 'In der Glutgrotte ringt die Andersweltlerin Shizu mit dem Flammengeist Ifrit — angestachelt von einem maskierten Majin. Befreie sie und trage ihren letzten Schwur weiter.',
     steps: [
@@ -700,7 +718,7 @@ export const LOCATIONS = [
     name: 'Kijin-Viertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 12, y: 5 },
+    position: { x: 12, y: 6 },
     description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
     identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
     unlockFlag: 'story.kijin.named'
@@ -710,7 +728,8 @@ export const LOCATIONS = [
     name: 'Dwargon-Werkviertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 15, y: 5 },
+    // (15,5) liegt im Stadt-Layout selbst in einer Wand → Marker unerreichbar/verdeckt.
+    position: { x: 16, y: 6 },
     description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
     identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
     unlockFlag: 'faction.dwargon.allied'
@@ -905,7 +924,9 @@ export const LOCATIONS = [
     name: 'Osthandelsroute',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 20, y: 5 },
+    // (20,5) wird im Stadt-Ausbau zur Wand → Ziel/Kampf unerreichbar. (20,6) ist in
+    // allen Ausbaustufen begehbar. Muss mit dem east-route-deserter-Encounter matchen.
+    position: { x: 20, y: 6 },
     description: 'Die östliche Handelsroute, auf der ein Deserteurstrupp Reisende schikaniert.',
     identity: 'Optionaler Abfangort: Deserteur-Söldner an der Grenze.',
     unlockFlag: 'sidequest.deserter.started'
@@ -1414,6 +1435,13 @@ export const LORE_ENTRIES = [
     unlockFlag: 'sidequest.deserter.cleared'
   },
   {
+    id: 'deserter-reprisals',
+    title: 'Die Vergeltung der Grenzgänger',
+    category: 'history',
+    body: 'Tempests hartes Urteil an der Osthandelsroute trieb die versprengten Söldner nicht auseinander, sondern zurück in einen letzten Vergeltungsschlag. Erst dessen Abwehr machte die Route wieder sicher.',
+    unlockFlag: 'sidequest.deserter.retaliation-cleared'
+  },
+  {
     id: 'bestiary-elder-direwolf',
     title: 'Bestiarium: Urdirewolf',
     category: 'people',
@@ -1549,7 +1577,7 @@ export const LORE_ENTRIES = [
     title: 'Das Sumpf-Bündnis',
     lockedTitle: 'Ein unfertiges Bündnis',
     category: 'places',
-    body: 'Erst Gabirus Niederlage öffnet den Echsenmenschen die Augen: Souka und der Häuptling schließen ein Bündnis mit Tempest gegen den Heerzug. Gabiru zieht sich beschämt zurück — seine Läuterung und sein späterer Beitritt als Tempest-Offizier zeichnen sich erst ab.',
+    body: 'Erst Gabirus Niederlage öffnet den Echsenmenschen die Augen: Souka und der Häuptling schließen ein Bündnis mit Tempest gegen den Heerzug. Ob Rimuru Gabiru Respekt zeigt oder ihn demütigt, prägt den Ton dieses jungen Pakts.',
     unlockFlag: 'story.lizard.allied'
   },
   {
@@ -2395,9 +2423,9 @@ export const DIALOGS = [
             ]
           },
           {
-            id: 'report-deserter',
-            label: 'Route gesichert melden',
-            nextNodeId: 'deserter-done',
+            id: 'spare-deserters',
+            label: 'Den Überlebenden Gnade gewähren',
+            nextNodeId: 'deserter-mercy',
             requirements: [
               { questStatus: { questId: 'border-runner', status: 'active' } },
               { flag: 'sidequest.deserter.cleared' }
@@ -2405,7 +2433,24 @@ export const DIALOGS = [
             effects: [
               { type: 'complete-quest-step', questId: 'border-runner', stepId: 'report-deserter' },
               { type: 'complete-quest', questId: 'border-runner' },
+              { type: 'set-flag', flag: 'choice.deserters.mercy', value: true },
               { type: 'set-flag', flag: 'bond.lyrre.trust-2', value: true },
+              { type: 'add-gold', amount: 110 },
+              { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
+            ]
+          },
+          {
+            id: 'punish-deserters',
+            label: 'Ein hartes Exempel statuieren',
+            nextNodeId: 'deserter-hardline',
+            requirements: [
+              { questStatus: { questId: 'border-runner', status: 'active' } },
+              { flag: 'sidequest.deserter.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'border-runner', stepId: 'report-deserter' },
+              { type: 'complete-quest', questId: 'border-runner' },
+              { type: 'set-flag', flag: 'choice.deserters.hardline', value: true },
               { type: 'add-gold', amount: 110 },
               { type: 'add-item', itemId: 'mana-drop', quantity: 1 }
             ]
@@ -2429,10 +2474,16 @@ export const DIALOGS = [
         choices: [{ id: 'end', label: 'Zur Osthandelsroute' }]
       },
       {
-        id: 'deserter-done',
+        id: 'deserter-mercy',
         speaker: 'Gobta',
-        text: 'Die Route ist wieder offen, und du hast nicht mehr Blut vergossen als nötig. Genau so gewinnt Tempest Vertrauen. Danke.',
-        choices: [{ id: 'end', label: 'Verstanden' }]
+        text: 'Gobta nickt erleichtert. „Die Überlebenden bauen ihre Schulden in Tempest ab. Einer hilft schon beim Vorrat — und sorgt dafür, dass Reisende weniger zahlen.“',
+        choices: [{ id: 'end', label: 'Gnade schafft Verbündete' }]
+      },
+      {
+        id: 'deserter-hardline',
+        speaker: 'Gobta',
+        text: 'Gobta verzieht das Gesicht. „Die Route kennt jetzt unsere Härte. Aber die Entkommenen sammeln sich wieder am östlichen Grenzstein. Das war noch nicht das Ende.“',
+        choices: [{ id: 'end', label: 'Den Gegenschlag erwarten' }]
       },
       {
         id: 'after',
@@ -3157,6 +3208,18 @@ export const DIALOGS = [
     ]
   },
   {
+    id: 'deserter-refugee',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Geretteter Grenzgänger',
+        text: '„Ihr hättet uns erschlagen können. Stattdessen darf ich Vorräte tragen und Reisende warnen. Solange ich hier stehe, zahlt niemand den Aufschlag, den wir früher erpresst haben.“',
+        choices: [{ id: 'end', label: 'Mach etwas aus der zweiten Chance' }]
+      }
+    ]
+  },
+  {
     id: 'souka-alliance',
     startNodeId: 'start',
     nodes: [
@@ -3177,20 +3240,50 @@ export const DIALOGS = [
             ]
           },
           {
-            id: 'seal',
-            label: 'Das Bündnis besiegeln',
-            nextNodeId: 'allied',
+            id: 'seal-respect',
+            label: 'Gabiru Respekt erweisen',
+            nextNodeId: 'allied-respect',
             requirements: [
               { flag: 'story.gabiru.humbled' },
               { notFlag: 'story.lizard.allied' }
             ],
             effects: [
               { type: 'set-flag', flag: 'story.lizard.allied', value: true },
+              { type: 'set-flag', flag: 'choice.gabiru.respect', value: true },
               { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
               { type: 'complete-quest', questId: 'lizard-alliance' },
               { type: 'add-gold', amount: 200 },
               { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
             ]
+          },
+          {
+            id: 'seal-humiliate',
+            label: 'Gabiru öffentlich demütigen',
+            nextNodeId: 'allied-humiliate',
+            requirements: [
+              { flag: 'story.gabiru.humbled' },
+              { notFlag: 'story.lizard.allied' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.lizard.allied', value: true },
+              { type: 'set-flag', flag: 'choice.gabiru.humiliate', value: true },
+              { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
+              { type: 'complete-quest', questId: 'lizard-alliance' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'tempest-charm', quantity: 1 }
+            ]
+          },
+          {
+            id: 'aftermath-respect',
+            label: 'Nach Gabirus Wache fragen',
+            nextNodeId: 'respect-aftermath',
+            requirements: [{ flag: 'choice.gabiru.respect' }]
+          },
+          {
+            id: 'aftermath-humiliate',
+            label: 'Nach Gabirus Wache fragen',
+            nextNodeId: 'humiliate-aftermath',
+            requirements: [{ flag: 'choice.gabiru.humiliate' }]
           },
           { id: 'leave', label: 'Später wiederkommen' }
         ]
@@ -3198,14 +3291,32 @@ export const DIALOGS = [
       {
         id: 'await-duel',
         speaker: 'Souka',
-        text: 'Souka deutet zum Schilfkessel. „Gabiru wartet dort mit seiner Garde. Brich seinen Hochmut — danach hört auch er auf Vernunft.“',
+        text: 'Souka deutet zum Schilfkessel. „Gabiru wartet dort mit seiner Garde. Besieg ihn — danach entscheidet sich, ob aus seinem Stolz Loyalität oder Groll wird.“',
         choices: [{ id: 'end', label: 'Zum Schilfkessel' }]
       },
       {
-        id: 'allied',
+        id: 'allied-respect',
         speaker: 'Souka',
-        text: 'Souka verneigt sich knapp. „Gabiru kniet — sein Stolz ist gebrochen, nicht sein Mut. Die Echsenmenschen stehen nun an Tempests Seite. Den Rest seiner Läuterung trägt Gabiru selbst.“',
-        choices: [{ id: 'end', label: 'Für das Bündnis' }]
+        text: 'Souka verneigt sich. „Du hast Gabiru besiegt, ohne ihm die Würde zu nehmen. Seine Hundert bewachen nun unsere Händler — die Moorhändlerin gibt Tempest Bündnispreise.“',
+        choices: [{ id: 'end', label: 'Stärke verdient Respekt' }]
+      },
+      {
+        id: 'allied-humiliate',
+        speaker: 'Souka',
+        text: 'Soukas Blick bleibt kühl. „Gabiru wird gehorchen. Doch seine Hundert folgen aus Scham, nicht aus Vertrauen. Das Bündnis steht — seine Wunden bleiben sichtbar.“',
+        choices: [{ id: 'end', label: 'Das Bündnis genügt' }]
+      },
+      {
+        id: 'respect-aftermath',
+        speaker: 'Souka',
+        text: '„Gabirus Wache begleitet Händler durch den Sumpf. Sie erzählen inzwischen lieber von Rimurus Fairness als von ihrer Niederlage.“',
+        choices: [{ id: 'end', label: 'So wächst ein Bündnis' }]
+      },
+      {
+        id: 'humiliate-aftermath',
+        speaker: 'Souka',
+        text: '„Gabirus Wache hält Abstand. Sie erfüllt den Pakt, aber jedes Gespräch endet, sobald Tempests Banner auftaucht.“',
+        choices: [{ id: 'end', label: 'Misstrauen hat einen Preis' }]
       }
     ]
   },
@@ -3355,6 +3466,15 @@ export const NPCS = [
     requirements: [{ flag: 'story.slime-prologue.completed' }]
   },
   {
+    id: 'deserter-refugee',
+    name: 'Geretteter Grenzgänger',
+    mapId: 'tempest-start',
+    position: { x: 4, y: 5 },
+    dialogId: 'deserter-refugee',
+    color: 0xb7aa91,
+    requirements: [{ flag: 'choice.deserters.mercy' }]
+  },
+  {
     id: 'ranga-tempest',
     name: 'Ranga',
     mapId: 'tempest-start',
@@ -3439,6 +3559,7 @@ export const NPCS = [
     position: { x: 15, y: 6 },
     dialogId: 'tempest-builders',
     color: 0xd2a679,
+    service: 'smith',
     requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
   },
   {
@@ -3456,6 +3577,7 @@ export const NPCS = [
     position: { x: 6, y: 9 },
     dialogId: 'kaijin-forge',
     color: 0xd2a679,
+    service: 'smith',
     // Erscheint erst nach Gazels Urteil (Schmiedekunst freigeschaltet).
     requirements: [{ flag: 'craft.smithing.unlocked' }]
   },
@@ -3562,7 +3684,10 @@ export const SHOPS = [
       }
     ],
     buyMultiplier: 1,
-    sellMultiplier: 0.5
+    sellMultiplier: 0.5,
+    buyMultiplierByFlag: [
+      { flag: 'choice.deserters.mercy', multiplier: 0.8 }
+    ]
   },
   {
     id: 'border-field-medic',
@@ -3580,7 +3705,10 @@ export const SHOPS = [
     position: { x: 3, y: 5 },
     itemIds: ['healing-herb', 'mana-drop', 'tempest-charm', 'hipokte-herb', 'full-potion'],
     buyMultiplier: 1.15,
-    sellMultiplier: 0.5
+    sellMultiplier: 0.5,
+    buyMultiplierByFlag: [
+      { flag: 'choice.gabiru.respect', multiplier: 0.9 }
+    ]
   },
   {
     id: 'shrine-rest',
@@ -3824,7 +3952,8 @@ export const ENCOUNTERS = [
     id: 'east-route-deserter',
     mapId: 'tempest-start',
     kind: 'trigger',
-    position: { x: 20, y: 5 },
+    // Deckungsgleich mit der east-route-Location; (20,5) ist im Stadt-Ausbau Wand.
+    position: { x: 20, y: 6 },
     enemyIds: ['human-deserter', 'human-lancer'],
     chance: 1,
     requirements: [
@@ -3834,6 +3963,23 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.deserter.cleared', value: true },
       { type: 'complete-quest-step', questId: 'border-runner', stepId: 'stop-deserter' }
+    ]
+  },
+  {
+    id: 'deserter-retaliation',
+    mapId: 'tempest-start',
+    kind: 'trigger',
+    // (19,5) wird im Stadt-Ausbau zur Wand → Kampf unerreichbar. (19,6) ist in allen
+    // Ausbaustufen begehbar (neben dem east-route-deserter-Encounter (20,6)).
+    position: { x: 19, y: 6 },
+    enemyIds: ['human-deserter', 'human-deserter', 'human-lancer'],
+    chance: 1,
+    requirements: [
+      { flag: 'choice.deserters.hardline' },
+      { notFlag: 'sidequest.deserter.retaliation-cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.deserter.retaliation-cleared', value: true }
     ]
   },
   {

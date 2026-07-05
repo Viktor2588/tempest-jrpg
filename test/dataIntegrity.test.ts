@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_DATA } from '../src/data';
 import { validateGameData } from './dataValidation';
+import { ENCOUNTERS, LOCATIONS, NPCS, QUESTS } from '../src/data/world';
+import { JURA_FIELD, TEMPEST_CAMP, TEMPEST_CITY, TEMPEST_VILLAGE } from '../src/data/maps';
+import { WALL } from '../src/systems/overworld';
 
 describe('Game-Datenintegrität', () => {
   it('hat eindeutige IDs und gültige Referenzen im ersten Content-Set', () => {
@@ -111,5 +114,37 @@ describe('Game-Datenintegrität', () => {
       path: 'world.quests.orphan-quest.completion',
       message: "Quest 'orphan-quest' hat keine Dialog- oder Encounter-Quelle, die sie auf 'completed' setzt (Soft-Lock-Risiko)."
     });
+  });
+
+  // tempest-start wechselt sein Wandlayout mit dem Ausbaustand (Jura → Camp → Dorf →
+  // Stadt). Feste Objekt-Positionen dürfen in KEINER Stufe in einer Wand landen, sonst
+  // ist ein Zielmarker/Kampf-Trigger unerreichbar (Bug: east-route-deserter, (20,5)).
+  it('platziert kein tempest-start-Objekt in einer Wand irgendeiner Ausbaustufe', () => {
+    const variants = { jura: JURA_FIELD, camp: TEMPEST_CAMP, village: TEMPEST_VILLAGE, city: TEMPEST_CITY };
+    const locById = new Map(LOCATIONS.map((l) => [l.id, l]));
+    const wallStages = (x: number, y: number): string[] =>
+      Object.entries(variants)
+        .filter(([, m]) => {
+          const row = m.tiles[y];
+          return !row || x <= 0 || y <= 0 || x >= m.width - 1 || y >= m.height - 1 || row[x] === WALL;
+        })
+        .map(([name]) => name);
+
+    const offenders: string[] = [];
+    const check = (kind: string, id: string, x: number, y: number): void => {
+      const walls = wallStages(x, y);
+      if (walls.length > 0) offenders.push(`${kind} '${id}' @(${x},${y}) → Wand in: ${walls.join(',')}`);
+    };
+
+    for (const n of NPCS) if (n.mapId === 'tempest-start') check('npc', n.id, n.position.x, n.position.y);
+    for (const e of ENCOUNTERS) if (e.mapId === 'tempest-start' && 'position' in e && e.position) check('encounter', e.id, e.position.x, e.position.y);
+    for (const l of LOCATIONS) if (l.mapId === 'tempest-start') check('location', l.id, l.position.x, l.position.y);
+    for (const q of QUESTS)
+      for (const s of q.steps) {
+        const l = s.locationId ? locById.get(s.locationId) : undefined;
+        if (l && l.mapId === 'tempest-start') check('quest-ziel', `${q.id}/${s.id}`, l.position.x, l.position.y);
+      }
+
+    expect(offenders).toEqual([]);
   });
 });

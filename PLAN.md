@@ -9,10 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [~] Phase 71 — Rimuru: Verschlingen als Progressionskern (in Bearbeitung im
-  Worktree `/worktree/tempest-phase-71-rimuru-devour`): Startskills,
-  Gegner-Devour-Beute, drei exklusive Spec-Straenge, Onboarding und
-  Balance-Harness gemeinsam neu einpendeln.
+- Keine laufende Arbeit.
 
 ## Integrationswarteschlange
 
@@ -30,18 +27,6 @@ Konsequenz. Karten-„Events" sind ausschliesslich Kampf-Trigger ('!'-Kacheln);
 das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
-
-- [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
-  ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
-  neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;
-  Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
-  und Bündnis-Bonus). Konsequenzen muessen in Welt, Shop oder Kampf sichtbar
-  sein, nicht nur im Text; Verzahnung mit den Ende-Bedingungen aus Band 4.
-- [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
-  Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
-  Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge
-  bleibt; Milestone-Banner im Moment statt danach ausloesen;
-  `playthrough.test` um Beat-Reihenfolge/-Dichte-Checks ergaenzen.
 
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
@@ -67,18 +52,7 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [ ] Phase 70b — Spec-Straenge fuer die story-gegateten Baeume (gobta, shuna):
-  Phase 70 lieferte die Perk-/Branch-Lock-Mechanik (systems/talentPerk,
-  canUnlockSkillNode, Perk-Zufluss ueber `createProgressionBattleParty`) und 6
-  volle 3-Strang-Baeume (benimaru, shion, hakurou, souei, rigurd, ranga). Offen:
-  gobta und shuna behutsam in 3 exklusive Straenge umbauen, ohne ihre
-  Evolutions-/Beziehungs-/Flag-Gates und die zugehoerigen Tests zu brechen
-  (bestehende Skills auf Straenge verteilen, Tests aktualisieren). Rimurus
-  Straenge sind in Phase 71 gebuendelt (Verschlingen-Verzahnung). Balance-
-  Harness: jede Spec muss die Korridore je Story-Beat schaffen und sich im Sim
-  messbar unterscheiden (Schadensprofil, Rest-HP, Buff-Anteil).
-- [~] Phase 71 — Rimuru: Verschlingen als Progressionskern (in Bearbeitung im
-  Worktree `/worktree/tempest-phase-71-rimuru-devour`; inkl. seiner 3 Spec-
+- [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
   Straenge, die sich mit Verschlingen verzahnen): Startskills auf
   `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
   Schleimform-Faehigkeit) reduzieren; `water-blade`/`storm-gust` u. a. werden

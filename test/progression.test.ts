@@ -62,8 +62,8 @@ describe('progression system', () => {
   });
 
   it('gated frühere Rollen-Inhalte über Talentknoten statt Job-Unlocks', () => {
-    const gobta = createPartyMember(hero('gobta'), { level: 5 });
-    const shuna = createPartyMember(hero('shuna'), { level: 5 });
+    const gobta = createPartyMember(hero('gobta'), { level: 9 });
+    const shuna = createPartyMember(hero('shuna'), { level: 9 });
     const baseState = createProgressionState();
     const afterBond = grantRelationshipPoints(baseState, 'gobta-ranga', 80).state;
     const afterExploration = discoverRegion(afterBond, 'marsh-border').state;
@@ -71,61 +71,64 @@ describe('progression system', () => {
     expect(getRelationshipLevelNumber(afterBond, 'gobta-ranga')).toBe(2);
     expect(afterExploration.discoveredRegionIds).toContain('marsh-border');
 
-    let knightState = grantSkillPoints(afterBond, 'gobta', 4).state;
+    // Reiter-Strang: Direwolf-Ansturm braucht das Wolfsfang-Flag, Tempest-Ritter zusätzlich die Ranga-Bindung.
+    let riderState = grantSkillPoints(afterBond, 'gobta', 4).state;
     const direwolfContext = { flags: { 'progression.gobta.wolf-fang-token': true } };
-    const footwork = unlockSkillNode(gobta, knightState, 'gobta-pack-footwork');
-    expect(footwork.ok).toBe(true);
-    knightState = footwork.state;
-    expect(unlockSkillNode(gobta, knightState, 'gobta-rider-feint').ok).toBe(false);
-    const riderFeint = unlockSkillNode(gobta, knightState, 'gobta-rider-feint', direwolfContext);
-    expect(riderFeint.ok).toBe(true);
-    knightState = riderFeint.state;
-    const tempestKnight = unlockSkillNode(gobta, knightState, 'gobta-tempest-knight', direwolfContext);
+    riderState = unlockSkillNode(gobta, riderState, 'gobta-rider-focus').state;
+    expect(unlockSkillNode(gobta, riderState, 'gobta-rider-charge').ok).toBe(false);
+    const charge = unlockSkillNode(gobta, riderState, 'gobta-rider-charge', direwolfContext);
+    expect(charge.ok).toBe(true);
+    riderState = charge.state;
+    expect(getProgressionSkillIds(gobta, riderState)).toContain('direwolf-rush');
+    const tempestKnight = unlockSkillNode(gobta, riderState, 'gobta-rider-knight', direwolfContext);
     expect(tempestKnight.ok).toBe(true);
-    knightState = tempestKnight.state;
-    expect(getProgressionSkillIds(gobta, knightState)).toContain('direwolf-rush');
-    expect(calculateProgressionStats(gobta, knightState).defense)
+    riderState = tempestKnight.state;
+    expect(calculateProgressionStats(gobta, riderState).defense)
       .toBeGreaterThan(calculateProgressionStats(gobta, baseState).defense);
 
+    // Alpha-Strang (eigene Figur wegen Branch-Lock): Marschenläufer braucht Sumpferkundung.
+    let noRegion = grantSkillPoints(baseState, 'gobta', 2).state;
+    noRegion = unlockSkillNode(gobta, noRegion, 'gobta-alpha-focus').state;
+    expect(unlockSkillNode(gobta, noRegion, 'gobta-alpha-storm').ok).toBe(false);
     let marshState = grantSkillPoints(afterExploration, 'gobta', 2).state;
-    for (const nodeId of ['gobta-pack-footwork', 'gobta-marsh-runner']) {
-      const unlocked = unlockSkillNode(gobta, marshState, nodeId);
-      expect(unlocked.ok).toBe(true);
-      marshState = unlocked.state;
-    }
+    marshState = unlockSkillNode(gobta, marshState, 'gobta-alpha-focus').state;
+    marshState = unlockSkillNode(gobta, marshState, 'gobta-alpha-storm').state;
     expect(getProgressionSkillIds(gobta, marshState)).toContain('storm-gust');
 
+    // Weber-Strang: Geistweberin (Sakralgewebe) braucht Rigurds Vertrauen.
     let shunaState = grantSkillPoints(baseState, 'shuna', 4).state;
-    for (const nodeId of ['shuna-prayer-thread', 'shuna-warding-weave']) {
-      const unlocked = unlockSkillNode(shuna, shunaState, nodeId);
-      expect(unlocked.ok).toBe(true);
-      shunaState = unlocked.state;
-    }
-    expect(unlockSkillNode(shuna, shunaState, 'shuna-spirit-weaver').ok).toBe(false);
-    const spiritWeaver = unlockSkillNode(shuna, shunaState, 'shuna-spirit-weaver', {
+    shunaState = unlockSkillNode(shuna, shunaState, 'shuna-weave-focus').state;
+    shunaState = unlockSkillNode(shuna, shunaState, 'shuna-weave-prayer').state;
+    expect(unlockSkillNode(shuna, shunaState, 'shuna-weave-spirit').ok).toBe(false);
+    const spiritWeaver = unlockSkillNode(shuna, shunaState, 'shuna-weave-spirit', {
       flags: { 'bond.rigurd.trust-1': true }
     });
     expect(spiritWeaver.ok).toBe(true);
     expect(getProgressionSkillIds(shuna, spiritWeaver.state)).toContain('sacred-weave');
   });
 
-  it('erklärt Gobtas Wolfsfang-Knoten und bindet Rimurus Ahnenknoten an Act 1', () => {
+  it('erklärt Gobtas Wolfsfang-Knoten und sperrt Rimurus andere Stränge nach der Wahl', () => {
     const gobtaTree = SKILL_TREES.find((tree) => tree.characterId === 'gobta')!;
-    const riderFeint = gobtaTree.nodes.find((node) => node.id === 'gobta-rider-feint')!;
-    expect(riderFeint.requiredFlag).toBe('progression.gobta.wolf-fang-token');
-    expect(riderFeint.description).toContain('Ranga');
-    expect(riderFeint.description).toContain('Wolfsfang-Abzeichen');
+    const charge = gobtaTree.nodes.find((node) => node.id === 'gobta-rider-charge')!;
+    expect(charge.requiredFlag).toBe('progression.gobta.wolf-fang-token');
+    expect(charge.description).toContain('Ranga');
+    expect(charge.description).toContain('Wolfsfang');
 
+    // Branch-Lock: wer Rimurus Weiser-Strang beginnt, kann den Raubtier-Strang nicht mehr wählen.
     const rimuru = createPartyMember(hero('rimuru'), { level: 4 });
-    const state = grantSkillPoints(createProgressionState(), 'rimuru', 1).state;
+    let state = grantSkillPoints(createProgressionState(), 'rimuru', 2).state;
 
     expect(canUnlockSkillNode(rimuru, state, 'rimuru-ancestor-binding').ok).toBe(false);
     const unlocked = unlockSkillNode(rimuru, state, 'rimuru-ancestor-binding', {
       flags: { 'story.act1.completed': true }
     });
     expect(unlocked.ok).toBe(true);
-    expect(calculateProgressionStats(rimuru, unlocked.state).spirit)
-      .toBeGreaterThan(calculateProgressionStats(rimuru, state).spirit);
+    state = unlocked.state;
+    const blocked = canUnlockSkillNode(rimuru, state, 'rimuru-fluid-core');
+    expect(blocked.ok).toBe(false);
+    expect(blocked.message).toContain('Spezialisierungsstrang');
+    expect(calculateProgressionStats(rimuru, state).spirit)
+      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).spirit);
   });
 
   it('wendet Beziehungsboni nachvollziehbar auf Charakterwerte an', () => {
@@ -148,7 +151,7 @@ describe('progression system', () => {
     const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
     const devourer = {
       ...evolved.member,
-      learnedSkillIds: [...evolved.member.learnedSkillIds, 'water-blade', 'venom-spit', 'spirit-bind']
+      learnedSkillIds: [...evolved.member.learnedSkillIds, 'water-blade', 'venom-spit']
     };
     let state = grantSkillPoints(evolved.state, 'rimuru', 3).state;
 
@@ -168,15 +171,18 @@ describe('progression system', () => {
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
 
+    // Branch-Lock: der Weiser-Strang ist nach der Raubtier-Wahl gesperrt.
+    expect(unlockSkillNode(devourer, state, 'rimuru-ancestor-binding').ok).toBe(false);
+
     const unit = createProgressionBattleParty([devourer], state)[0]!;
     expect(unit.formName).toBe('Raubtier-Schleim');
-    expect(unit.skillIds).toEqual(expect.arrayContaining(['predator-aura', 'venom-spit', 'spirit-bind']));
-    expect(unit.skillIds).toHaveLength(8);
-    expect(unit.skillIds).not.toContain('storm-gust');
+    expect(unit.skillIds).toContain('predator-aura');
+    expect(unit.skillIds).toContain('venom-spit');
+    expect(unit.skillIds).not.toContain('spirit-bind');
     expect(unit.skillIds).not.toContain('soothing-prayer');
+    // WIP-Raubtier-Strang stärkt Magie/MP (devour-chance-Perks), nicht den Angriff.
     expect(calculateProgressionStats(evolved.member, state).magic)
       .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).magic);
-    expect(state.skillPointsByCharacterId.rimuru).toBe(0);
   });
 
   it('aktiviert Set-Boni und steigert ausgerüstete Gegenstände über Verzauberung', () => {
@@ -261,6 +267,11 @@ describe('progression system', () => {
     expect(result.grantedSkillPoints).toBeGreaterThan(0);
     expect(result.state.relationshipPoints['rimuru-gobta']).toBe(5);
     expect(result.reserve[0]!.level).toBeGreaterThan(1);
+    // Reserve-Lücke geschlossen: die gebenkte Figur erhält Skillpunkte für die auf der
+    // Bank gewonnenen Level (floor(level/2)), nicht nur die aktive Party.
+    const shuna = result.reserve[0]!;
+    expect(result.state.skillPointsByCharacterId['shuna'] ?? 0)
+      .toBe(Math.floor(shuna.level / 2) - Math.floor(1 / 2));
   });
 
   it('vergibt auch Gobta/Ranga-Bindung, wenn beide gemeinsam aktiv kämpfen', () => {

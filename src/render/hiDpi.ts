@@ -68,10 +68,28 @@ export function installHiDpiTextFactory(
   factory[HI_DPI_FACTORY_MARKER] = true;
 }
 
+// Fixe HUD-Elemente (setScrollFactor(0)) unter Kamera-Zoom mit Ursprung 0.5
+// landen um diesen Betrag nach links-oben verschoben; wer solche Elemente in
+// einer folgenden Kamera (Overworld) nutzt, muss sie hierum versetzen.
+export function hudZoomOffset(scale = GAME_RENDER_SCALE): { readonly x: number; readonly y: number } {
+  return {
+    x: (LOGICAL_GAME_WIDTH * (scale - 1)) / 2,
+    y: (LOGICAL_GAME_HEIGHT * (scale - 1)) / 2
+  };
+}
+
 export function configureHiDpiScene(
   scene: Phaser.Scene,
   scale = GAME_RENDER_SCALE
 ): void {
-  scene.cameras.main.setZoom(scale);
+  const cam = scene.cameras.main;
+  cam.setZoom(scale);
+  // Backing-Größe ist logical×scale. Bei Ursprung 0.5 (Default) zoomt die Kamera
+  // um die Backing-Mitte und schöbe alle Inhalte um die halbe Logikbreite nach
+  // links-oben (auf HiDPI, scale>1). Ursprung (0,0) mappt logische Koordinaten
+  // [0..logical] linear auf den Backing-Store [0..logical*scale] – korrekt für
+  // scrollende UND fixierte Inhalte. Kameras mit Bounds/Follow (Overworld) setzen
+  // den Ursprung danach zurück auf 0.5, weil Phasers clampX/Follow das annehmen.
+  cam.setOrigin(0, 0);
   installHiDpiTextFactory(scene, scale);
 }

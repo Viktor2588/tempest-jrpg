@@ -5,6 +5,7 @@ import {
   applyWorldState,
   buildCodexView,
   buildQuestLog,
+  buildShopView,
   chooseDialogOption,
   completeEncounter,
   createWorldState,
@@ -19,6 +20,9 @@ import {
   startDialogForNpc
 } from '../src/systems/world';
 import type { WorldEffect } from '../src/data/world';
+import { DIALOGS } from '../src/data/world';
+import type { DialogDefinition } from '../src/data/world';
+import { buildStoryMoment } from '../src/systems/storyMoment';
 import { MAPS, getMap } from '../src/data/maps';
 import { isWalkable, type TileMap, type Vec2 } from '../src/systems/overworld';
 import { makeRng } from '../src/systems/rng';
@@ -338,14 +342,30 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-stray-echo')?.unlocked).toBe(true);
   });
 
-  it('Nebenquest: Gobtas „Grenzgänger" ist annehm- und abschließbar', () => {
+  it('Nebenquest: Gnade macht den Grenzgänger sichtbar und senkt Vorratspreise', () => {
+    const normalHerbPrice = buildShopView(createWorldState(createNewSave()), 'tempest-supply')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice;
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
     save = talk(save, 'gobta', 'accept-deserter');
     expect(visibleTriggerIds(save)).toContain('east-route-deserter');
-    save = clearTriggerAt(save, { x: 20, y: 5 });
-    save = talk(save, 'gobta', 'report-deserter');
+    save = clearTriggerAt(save, { x: 20, y: 6 });
+    save = talk(save, 'gobta', 'spare-deserters');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-runner')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-human-deserter')?.unlocked).toBe(true);
+    expect(getMapNpcs('tempest-start', createWorldState(save)).map((npc) => npc.id)).toContain('deserter-refugee');
+    expect(buildShopView(createWorldState(save), 'tempest-supply')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice).toBeLessThan(normalHerbPrice);
+  });
+
+  it('Nebenquest: Härte löst einen Vergeltungskampf samt Codexfolge aus', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+    save = talk(save, 'gobta', 'accept-deserter');
+    save = clearTriggerAt(save, { x: 20, y: 6 });
+    save = talk(save, 'gobta', 'punish-deserters');
+
+    expect(visibleTriggerIds(save)).toContain('deserter-retaliation');
+    save = clearTriggerAt(save, { x: 19, y: 6 });
+    expect(buildCodexView(createWorldState(save)).find((entry) => entry.id === 'deserter-reprisals')?.unlocked).toBe(true);
   });
 
   it('Nebenquest (Postgame): Rigurds Apex-Kopfgeld „Urdirewolf" ist erst nach Act 3 verfügbar', () => {
@@ -520,6 +540,148 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
           `Gateway '${loc.id}' → Zielposition (${loc.travelTo.x},${loc.travelTo.y}) nicht begehbar`
         ).toBe(true);
       }
+    }
+  });
+});
+
+// Phase 66 — Beat-Dramaturgie. Ein „Beat" ist eine dramatische Einheit, kein
+// einzelnes Menü-Klick: ein abgeschlossener Quest-Schritt, ein Kampf, eine
+// Rekrutierung oder eine Entscheidung. Die Ratssammlung (Shuna/Gobta/Ranga)
+// setzt nur *.ready-Flags und schließt KEINEN Schritt ab — sie ist ein Beat
+// („Rat versammeln"), nicht drei. So misst der Test die tatsächlich empfundene
+// Abfolge und würde brechen, wenn jemand einen 3.-Gesprächs-Beat in Folge
+// einschöbe oder einen Hauptpfad-Kampf entfernte.
+describe('Beat-Dramaturgie (Phase 66)', () => {
+  type Beat = 'Kampf' | 'Szene' | 'Rekrutierung' | 'Entscheidung';
+
+  const partySize = (s: SaveGameV2) => s.party.active.length + s.party.reserve.length;
+  const stepCount = (s: SaveGameV2) =>
+    Object.values(s.quests).reduce((n, q) => n + (q?.completedStepIds.length ?? 0), 0)
+    + Object.values(s.quests).filter((q) => q?.status === 'completed').length;
+  const newEnding = (before: SaveGameV2, after: SaveGameV2) =>
+    (['ending.freedom', 'ending.order', 'ending.true'] as const)
+      .some((f) => after.flags[f] === true && before.flags[f] !== true);
+
+  // Talk-Beat: nur zählen, wenn das Gespräch die Handlung wirklich vorantreibt
+  // (Schritt/Quest abgeschlossen, Gefährte geworben, Ende gewählt). Reine
+  // Ready-Flag-Gespräche der Ratssammlung sind Teil EINES Beats, kein eigener.
+  const talkBeat = (save: SaveGameV2, npc: string, choice: string, beats: Beat[]): SaveGameV2 => {
+    const after = talk(save, npc, choice);
+    if (partySize(after) > partySize(save)) beats.push('Rekrutierung');
+    else if (newEnding(save, after)) beats.push('Entscheidung');
+    else if (stepCount(after) > stepCount(save)) beats.push('Szene');
+    return after;
+  };
+  const battleBeat = (save: SaveGameV2, pos: Vec2, beats: Beat[], mapId?: string): SaveGameV2 => {
+    beats.push('Kampf');
+    return clearTriggerAt(save, pos, mapId ?? MAP_ID);
+  };
+
+  const longestRun = (beats: readonly Beat[]): number => {
+    let best = 0;
+    let run = 0;
+    let prev: Beat | null = null;
+    for (const b of beats) {
+      run = b === prev ? run + 1 : 1;
+      prev = b;
+      if (run > best) best = run;
+    }
+    return best;
+  };
+
+  const playAct1 = (): Beat[] => {
+    const beats: Beat[] = [];
+    let save = saveAfterPrologue();
+    save = talkBeat(save, 'rigurd-tempest', 'after-prologue', beats);
+    save = talk(save, 'shuna', 'analyze');       // Ratssammlung: nur *.ready
+    save = talk(save, 'gobta', 'briefing');      // Ratssammlung: nur *.ready
+    save = talk(save, 'ranga-tempest', 'scout-route'); // Ratssammlung: nur *.ready
+    save = talkBeat(save, 'rigurd-tempest', 'council', beats); // schließt Schritt + wirbt Rigurd
+    save = battleBeat(save, { x: 14, y: 8 }, beats);
+    save = battleBeat(save, { x: 21, y: 13 }, beats);
+    talkBeat(save, 'rigurd-tempest', 'report-act1', beats);
+    return beats;
+  };
+
+  const playAct2 = (): Beat[] => {
+    const beats: Beat[] = [];
+    let save: SaveGameV2 = {
+      ...createNewSave(),
+      flags: { 'story.act1.completed': true, 'story.direwolf.pact': true }
+    };
+    save = talkBeat(save, 'gobta', 'muster', beats);
+    save = battleBeat(save, { x: 5, y: 11 }, beats, 'spirit-marsh');
+    save = talkBeat(save, 'border-survivor', 'aid-survivors', beats);
+    save = talkBeat(save, 'shuna', 'read-fracture', beats);
+    save = battleBeat(save, { x: 18, y: 4 }, beats, 'spirit-marsh');
+    save = talkBeat(save, 'ranga-vanguard-trace', 'secure-trace', beats);
+    talkBeat(save, 'gobta', 'report-act2', beats);
+    return beats;
+  };
+
+  const playAct3 = (): Beat[] => {
+    const beats: Beat[] = [];
+    // Band 3 abgeschlossen, Gobta/Ranga geworben — wie im echten Endspiel-Stand.
+    let save: SaveGameV2 = {
+      ...createNewSave(),
+      flags: {
+        'story.slime-prologue.completed': true,
+        'story.act1.completed': true,
+        'story.direwolf.pact': true,
+        'story.act2.completed': true
+      },
+      quests: {
+        'binding-of-ancestors': { status: 'completed', completedStepIds: ['awakening', 'gather-council', 'clear-grove', 'defeat-mordrahn-echo', 'report-sora'] },
+        'border-escalation': { status: 'completed', completedStepIds: ['muster', 'border-clash', 'read-fracture', 'break-vanguard', 'report-act2'] }
+      }
+    };
+    save = applyWorldState(save, applyEffects(createWorldState(save), [
+      { type: 'recruit-character', characterId: 'gobta' },
+      { type: 'recruit-character', characterId: 'ranga' }
+    ]));
+    save = talkBeat(save, 'rigurd-established', 'rally', beats);
+    save = talk(save, 'shuna', 'alliance-shuna');   // Bündnissammlung: nur *.ready
+    save = talk(save, 'gobta', 'alliance-gobta');   // Bündnissammlung: nur *.ready
+    save = talk(save, 'ranga-tempest', 'alliance-ranga'); // Bündnissammlung: nur *.ready
+    save = talkBeat(save, 'rigurd-established', 'complete-rally', beats); // Schritt + wirbt Ranga? bereits im Team → Szene
+    save = battleBeat(save, { x: 12, y: 7 }, beats);
+    save = battleBeat(save, { x: 15, y: 2 }, beats);
+    talkBeat(save, 'rigurd-established', 'choose-destroy', beats);
+    return beats;
+  };
+
+  it('kein Beat-Typ wiederholt sich 3x in Folge im Hauptpfad (keine „geh-hin-sprich-komm-zurück"-Kette)', () => {
+    // Pro Akt geprüft: Akte sind eigene Kapitel mit Übergang (band-*-complete-
+    // Milestone) dazwischen; der „3x in Folge"-Riegel gilt innerhalb eines Akts.
+    for (const [act, beats] of [['Act 1', playAct1()], ['Act 2', playAct2()], ['Act 3', playAct3()]] as const) {
+      expect(longestRun(beats), `${act}: Beats ${beats.join(',')}`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('jeder Hauptakt mischt Kampf und Nicht-Kampf (kein reiner Gesprächs- oder Kampf-Akt)', () => {
+    for (const [act, beats] of [['Act 1', playAct1()], ['Act 2', playAct2()], ['Act 3', playAct3()]] as const) {
+      expect(beats.filter((b) => b === 'Kampf').length, `${act} braucht ≥1 Kampf`).toBeGreaterThan(0);
+      expect(beats.filter((b) => b !== 'Kampf').length, `${act} braucht ≥1 Nicht-Kampf`).toBeGreaterThan(0);
+    }
+  });
+
+  it('bildet die erwartete Beat-Dramaturgie je Akt ab (Regressionsanker)', () => {
+    expect(playAct1()).toEqual(['Szene', 'Rekrutierung', 'Kampf', 'Kampf', 'Szene']);
+    expect(playAct2()).toEqual(['Szene', 'Kampf', 'Szene', 'Szene', 'Kampf', 'Szene', 'Szene']);
+    // rally startet nur die Quest (kein Schritt) → kein eigener Beat; die
+    // Bündnissammlung kollabiert zum complete-rally-Szene-Beat.
+    expect(playAct3()).toEqual(['Szene', 'Kampf', 'Kampf', 'Entscheidung']);
+  });
+
+  it('feuert Milestone-würdige Beats IM Moment: jede Werbung/Questabschluss zeigt ein Story-Moment-Banner', () => {
+    const worthy = (DIALOGS as readonly DialogDefinition[]).flatMap((d) => d.nodes.flatMap((n) => n.choices))
+      .filter((c) => (c.effects ?? []).some((e) => e.type === 'recruit-character' || e.type === 'complete-quest'));
+    expect(worthy.length, 'Es sollte Werbe-/Abschluss-Beats im Dialogbaum geben').toBeGreaterThan(0);
+    for (const choice of worthy) {
+      expect(
+        buildStoryMoment(choice.effects),
+        `Beat '${choice.id}' hat keinen In-Moment-Banner (feuert nur als Milestone danach)`
+      ).not.toBeNull();
     }
   });
 });

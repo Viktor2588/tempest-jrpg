@@ -34,7 +34,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
+import { buildCodexView, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
   MENU_LIST_BOTTOM,
@@ -285,7 +285,8 @@ export class MenuScene extends Phaser.Scene {
 
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
-    this.button(760, 126, 120, 'Sortiert', () => {
+    // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
+    this.button(760, 150, 120, 'Sortiert', () => {
       this.message = 'Inventar ist automatisch sortiert.';
       this.refresh();
     });
@@ -319,10 +320,14 @@ export class MenuScene extends Phaser.Scene {
     const summary = view.members.find((member) => member.member.characterId === characterId);
     if (!summary) return;
 
+    const canEnchant = canEnchantEquipment(createWorldState(this.save), this.save.location.mapId);
+
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
-      const y = 150 + index * 100;
+      // Basis 150 → 204: das erste Panel (Höhe 92, zentriert) ragte sonst mit
+      // Oberkante 104 in Haupt-Tab-Reihe (bis 116) und Titel (124).
+      const y = 204 + index * 100;
       this.panel(300, y, 290, 92);
       this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
@@ -335,6 +340,13 @@ export class MenuScene extends Phaser.Scene {
         this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
         if (item.enchantment && enchantmentLevel < item.enchantment.maxLevel) {
           const cost = item.enchantment.goldCostPerLevel * (enchantmentLevel + 1);
+          if (!canEnchant) {
+            this.button(310, y + 24, 184, 'Verzaubern · nur bei Schmied', () => {
+              this.message = 'Verzaubern geht nur bei einem Schmied — oder wenn Rimuru den Skill dafür gelernt hat.';
+              this.refresh();
+            }, 0x242b38);
+            return;
+          }
           this.button(310, y + 24, 184, `Verzaubern · ${cost} Gold`, () => {
             const result = enchantEquipment(
               summary.member,
@@ -355,7 +367,7 @@ export class MenuScene extends Phaser.Scene {
     const sets = getActiveEquipmentSetTiers(summary.member);
     this.layer.add(this.add.text(
       300,
-      430,
+      484,
       sets.map(({ set, pieces }) => `${set.name}: ${pieces}/${set.itemIds.length} Teile`).join(' · ')
         || 'Kein Ausrüstungsset aktiv.',
       {
@@ -390,21 +402,22 @@ export class MenuScene extends Phaser.Scene {
     const formName = getActiveEvolution(this.save.progression, characterId)?.formName
       ?? summary.character.species;
 
-    // Werte-Panel.
-    this.panel(300, 158, 570, 92);
-    this.drawPortrait(characterId, 348, 162, 58);
-    this.layer.add(this.add.text(392, 126, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
+    // Werte-Panel. Center 158 → 204 (Oberkante 112 ragte in Tabs/Titel);
+    // alle folgenden Zeilen um dasselbe Delta (+46) mit nach unten.
+    this.panel(300, 204, 570, 92);
+    this.drawPortrait(characterId, 348, 208, 58);
+    this.layer.add(this.add.text(392, 172, `${summary.member.name} · ${formName} · ${summary.character.role}`, {
       fontFamily: 'sans-serif', fontSize: '16px', color: '#e9eef7'
     }));
-    this.layer.add(this.add.text(392, 154, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
+    this.layer.add(this.add.text(392, 200, `LP ${stats.maxHp}  MP ${stats.maxMp}  Angriff ${stats.attack}  Verteidigung ${stats.defense}`, {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
     }));
-    this.layer.add(this.add.text(392, 176, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
+    this.layer.add(this.add.text(392, 222, `Magie ${stats.magic}  Geist ${stats.spirit}  Tempo ${stats.agility}`, {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
     }));
 
     // Namensgebung & Entwicklung (aus dem Talente-Tab hierher verschoben).
-    this.button(300, 224, 150, 'Neu benennen', () => {
+    this.button(300, 270, 150, 'Neu benennen', () => {
       const proposed = window.prompt('Neuer Name', summary.member.name);
       if (proposed === null) return;
       const result = renameMember(summary.member, proposed, this.save.progression);
@@ -416,7 +429,7 @@ export class MenuScene extends Phaser.Scene {
     });
     const availableEvolution = getAvailableEvolutions(summary.member, this.save.progression)[0];
     if (availableEvolution) {
-      this.button(464, 224, 150, 'Entwickeln', () => {
+      this.button(464, 270, 150, 'Entwickeln', () => {
         const result = evolveMember(summary.member, this.save.progression, availableEvolution.id);
         this.replaceMember(result.member);
         this.save = { ...this.save, progression: result.state };
@@ -427,7 +440,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     // Skills (linke Spalte).
-    this.layer.add(this.add.text(300, 280, 'Skills', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
+    this.layer.add(this.add.text(300, 326, 'Skills', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
     const skillCol = MENU_LIST_COLUMNS.statusSkills;
     const skills = getProgressionSkills(summary.member, this.save.progression);
     const skillPage = this.menuListPage(skills.length, skillCol);
@@ -439,7 +452,7 @@ export class MenuScene extends Phaser.Scene {
     this.drawListPager(skillCol, skillPage);
 
     // Bindungen (rechte Spalte).
-    this.layer.add(this.add.text(710, 280, 'Bindungen', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
+    this.layer.add(this.add.text(710, 326, 'Bindungen', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
     const bindCol = MENU_LIST_COLUMNS.statusBindings;
     const relationships = getProgressionRelationships(characterId);
     const bindPage = this.menuListPage(relationships.length, bindCol);
@@ -616,34 +629,39 @@ export class MenuScene extends Phaser.Scene {
 
   private drawQuestLog(view: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
-    const activeCount = allQuests.filter((q) => q.status === 'active').length;
-    const doneCount = allQuests.filter((q) => q.status === 'completed').length;
-    this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
     const quests = allQuests.filter((q) => q.status !== 'inactive');
-    this.button(24, 126, 120, `Aktiv (${activeCount})`, () => {
-      this.questStatus = 'active';
-      this.questPage = 0;
-      this.selectedQuestId = null;
-      this.refresh();
-    }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
-    this.button(152, 126, 140, `Erledigt (${doneCount})`, () => {
-      this.questStatus = 'completed';
-      this.questPage = 0;
-      this.selectedQuestId = null;
-      this.refresh();
-    }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
 
+    // Detail-Ansicht ersetzt die Liste komplett (eigener Titel + Zurück-Knopf) —
+    // vor dem Listen-Header prüfen, sonst zeichneten beide Titel übereinander.
     const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
     }
 
+    const activeCount = allQuests.filter((q) => q.status === 'active').length;
+    const doneCount = allQuests.filter((q) => q.status === 'completed').length;
+    this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
+    // Filter-Tabs auf eigener Zeile UNTER dem Titel: bei y=126 überlappten sie
+    // sonst oben die Haupt-Tab-Reihe (y=94) und unten die erste Quest-Karte.
+    this.button(24, 170, 120, `Aktiv (${activeCount})`, () => {
+      this.questStatus = 'active';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
+    this.button(152, 170, 140, `Erledigt (${doneCount})`, () => {
+      this.questStatus = 'completed';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
+
     const filtered = quests.filter((quest) => quest.status === this.questStatus);
-    let cursorY = 192;
+    let cursorY = 246;
     if (view.story && this.questStatus === 'active') {
-      this.drawStorySummary(view.story, 180);
-      cursorY = 296;
+      this.drawStorySummary(view.story, 246);
+      cursorY = 350;
     }
     if (filtered.length === 0) {
       const message = this.questStatus === 'active'
@@ -665,8 +683,12 @@ export class MenuScene extends Phaser.Scene {
       const y = cursorY;
       this.panel(24, y, 900, 92);
       const completed = quest.status === 'completed';
-      this.layer.add(this.add.text(42, y - 30, `${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
-        fontFamily: 'sans-serif', fontSize: '15px', color: completed ? '#8dffc2' : '#e9c56c'
+      // Hauptpfad-Quests markieren + farblich abheben (Sortierung stellt sie schon nach
+      // oben), damit der rote Faden der Story sichtbar von den Nebenquests absticht.
+      const mainTag = quest.main ? '★ HAUPTPFAD · ' : '';
+      this.layer.add(this.add.text(42, y - 30, `${mainTag}${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: completed ? '#8dffc2' : (quest.main ? '#8dd0ff' : '#e9c56c')
       }));
       this.layer.add(this.add.text(906, y - 29, `Belohnung: ${quest.rewardGold} Gold`, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'
@@ -728,7 +750,8 @@ export class MenuScene extends Phaser.Scene {
 
   private drawQuestDetail(quest: QuestLogEntryView): void {
     this.sectionTitle('Quest-Details');
-    this.button(744, 116, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
+    // y=116 überlappte die Haupt-Tab-Reihe (Zentrum 94, Höhe 44 → bis 116).
+    this.button(744, 150, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
 
     this.layer.add(this.add.text(42, 158, quest.title, { fontFamily: 'sans-serif', fontSize: '20px', color: '#e9c56c' }));
     const statusLabel = quest.status === 'active' ? 'Aktiv' : 'Abgeschlossen';
@@ -803,21 +826,23 @@ export class MenuScene extends Phaser.Scene {
     const view = buildRangaTravelView(createWorldState(this.save), this.save.location);
     this.sectionTitle('Ranga-Scout & Schnellreise');
 
-    this.panel(300, 170, 590, 92);
-    this.drawPortrait('ranga', 348, 170, 56);
-    this.layer.add(this.add.text(392, 132, view.scout.title, {
+    // Center 170 → 198 (Oberkante 124 ragte in Titel); Texte mit. Eng gehalten,
+    // damit Panel + Listenkopf + 6 Reiseziele ohne Blättern unter den Titel passen.
+    this.panel(300, 198, 590, 92);
+    this.drawPortrait('ranga', 348, 198, 56);
+    this.layer.add(this.add.text(392, 160, view.scout.title, {
       fontFamily: 'sans-serif',
       fontSize: '16px',
       color: view.enabled ? '#e9c56c' : '#6f83a5'
     }));
-    this.layer.add(this.add.text(392, 156, view.scout.body, {
+    this.layer.add(this.add.text(392, 184, view.scout.body, {
       fontFamily: 'sans-serif',
       fontSize: '12px',
       color: '#cbd6e8',
       wordWrap: { width: 470 }
     }));
     if (view.scout.warning) {
-      this.layer.add(this.add.text(392, 206, `⚠ ${view.scout.warning}`, {
+      this.layer.add(this.add.text(392, 234, `⚠ ${view.scout.warning}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: '#ffd6de',
@@ -825,7 +850,7 @@ export class MenuScene extends Phaser.Scene {
       }));
     }
 
-    this.layer.add(this.add.text(300, 238, 'Entdeckte sichere Reisepunkte', {
+    this.layer.add(this.add.text(300, 250, 'Entdeckte sichere Reisepunkte', {
       fontFamily: 'sans-serif',
       fontSize: '14px',
       color: '#cdeaff'
