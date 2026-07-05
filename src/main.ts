@@ -12,6 +12,7 @@ import { EndingScene } from './scenes/EndingScene';
 import { MilestoneScene } from './scenes/MilestoneScene';
 import { RangaJourneyScene } from './scenes/RangaJourneyScene';
 import { DiscoveryScene } from './scenes/DiscoveryScene';
+import { SaveSlotScene } from './scenes/SaveSlotScene';
 import {
   GAME_BACKING_SIZE,
   GAME_RENDER_SCALE,
@@ -53,7 +54,8 @@ const game = new Phaser.Game({
     EndingScene,
     MilestoneScene,
     RangaJourneyScene,
-    DiscoveryScene
+    DiscoveryScene,
+    SaveSlotScene
   ]
 });
 
