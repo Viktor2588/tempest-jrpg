@@ -170,6 +170,7 @@ export type BattleAction =
   | { type: 'devour'; targetId: string }
   | { type: 'signature'; targetId?: string }
   | { type: 'guard' }
+  | { type: 'brace' }
   | { type: 'flee' };
 
 export interface StartBattleOptions {
@@ -226,6 +227,9 @@ const MOMENTUM_CT_SURGE = 35;
 // überschreitet die Frist und wird zunehmend tödlich.
 const ESCALATION_GRACE_TURNS = 5;
 const ESCALATION_MAX_BONUS = 2;
+// Phase 81 — ungedeckter Big-Hit: Schadensschwung, damit das Lesen/Kontern des
+// Telegraphs eine echte Entscheidung wird (gedeckt via Block/Konter/Verteidigen).
+const HEAVY_UNBRACED_BONUS = 1.6;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -623,6 +627,19 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
   };
 }
 
+// Phase 81 — Deckung: der handelnde Kämpfer gibt seinen Zug auf, um die ganze Party
+// gegen den telegraphierten (Big-)Hit zu decken — ein rechtzeitiger Block halbiert den
+// nächsten Treffer je Verbündeten. Die bewusste Antwort auf einen angekündigten
+// Großangriff: Tempo gegen Sicherheit.
+function resolveBrace(state: BattleState, actor: Combatant): ActionResult {
+  for (const ally of livingCombatants(state, 'party')) {
+    ally.reaction = { kind: 'timing-block', timing: 'success' };
+  }
+  pushLog(state, `${actor.name} ruft die Party in Deckung.`);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
 function resolveAction(state: BattleState, actor: Combatant, action: BattleAction): ActionResult {
   if (actor.dead) {
     return { ok: false, reason: 'Ein besiegter Kämpfer kann nicht handeln.' };
@@ -634,6 +651,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
       pushLog(state, `${actor.name} verteidigt.`);
       endTurn(state, actor);
       return { ok: true };
+
+    case 'brace':
+      return resolveBrace(state, actor);
 
     case 'flee':
       return resolveFlee(state, actor);
@@ -757,7 +777,8 @@ function resolveSkill(
       * variance(state.rng);
     const damage = applyDamage(state, actor, target, rawDamage, true, {
       category: usesPhysicalScaling ? 'physical' : 'magical',
-      element: skill.element
+      element: skill.element,
+      heavy: skill.heavy
     });
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
@@ -810,7 +831,8 @@ function resolveChainSkill(
       * variance(state.rng);
     const damage = applyDamage(state, actor, target, rawDamage, true, {
       category: usesPhysicalScaling ? 'physical' : 'magical',
-      element: skill.element
+      element: skill.element,
+      heavy: skill.heavy
     });
     pushLog(state, `${skill.name} trifft ${target.name}: ${damage} Schaden.`);
     applyBreakPressure(state, target, skill.element, 0);
@@ -1251,11 +1273,15 @@ function predictTelegraph(state: BattleState, enemy: Combatant): string | null {
 }
 
 function refreshEnemyTelegraph(state: BattleState, enemy: Combatant): void {
-  if (enemy.analysisLevel > 0 && !enemy.dead && state.status === 'active') {
-    enemy.telegraphSkillId = predictTelegraph(state, enemy);
+  if (enemy.dead || state.status !== 'active') {
+    enemy.telegraphSkillId = null;
     return;
   }
-  enemy.telegraphSkillId = null;
+  const predicted = predictTelegraph(state, enemy);
+  // Analyse deckt jeden Telegraph auf; Big-Hits werden IMMER angekündigt (auch ohne
+  // Analyse), damit der grosse Treffer fair gelesen und gekontert werden kann.
+  const predictedHeavy = predicted ? getSkill(predicted)?.heavy === true : false;
+  enemy.telegraphSkillId = enemy.analysisLevel > 0 || predictedHeavy ? predicted : null;
 }
 
 function canUseSkill(actor: Combatant, skill: SkillDefinition): boolean {
@@ -1477,7 +1503,7 @@ function applyDamage(
   target: Combatant,
   rawDamage: number,
   allowReaction = true,
-  context: { readonly category?: DamageCategory; readonly element?: ElementType } = {}
+  context: { readonly category?: DamageCategory; readonly element?: ElementType; readonly heavy?: boolean } = {}
 ): number {
   // Perk: Ausweichchance negiert den Treffer (vor allem anderen).
   if (rawDamage > 0 && dodgeChance(target.perks) > 0 && state.rng() < dodgeChance(target.perks)) {
@@ -1498,21 +1524,31 @@ function applyDamage(
   const reaction = allowReaction ? target.reaction : null;
   target.reaction = null;
 
+  // Phase 81 — "gedeckt": ein rechtzeitiger Block/Konter ODER Verteidigen fängt den
+  // (Big-)Hit ab. Nur ein ungedeckter Big-Hit schlägt mit Bonus durch.
+  let braced = target.guarding;
   if (reaction && target.side === 'party') {
     if (reaction.timing === 'perfect') {
       adjustedDamage *= reaction.kind === 'counter' ? 0.45 : 0.25;
       state.teamMeter = clamp(state.teamMeter + 10, 0, TEAM_METER_MAX);
       pushLog(state, `${target.name} trifft das perfekte Reaktionsfenster.`);
+      braced = true;
     } else if (reaction.timing === 'success') {
       adjustedDamage *= reaction.kind === 'counter' ? 0.65 : 0.5;
       pushLog(state, `${target.name} blockt im Timing.`);
+      braced = true;
     } else {
       pushLog(state, `${target.name} verpasst das Reaktionsfenster.`);
     }
   }
 
   const guardedDamage = target.guarding ? adjustedDamage * 0.5 : adjustedDamage;
-  const damage = Math.max(1, Math.round(guardedDamage));
+  const unbracedHeavy = context.heavy === true && target.side === 'party' && !braced;
+  const heavyDamage = unbracedHeavy ? guardedDamage * HEAVY_UNBRACED_BONUS : guardedDamage;
+  const damage = Math.max(1, Math.round(heavyDamage));
+  if (unbracedHeavy) {
+    pushLog(state, `${target.name} wird vom ungedeckten Großangriff voll getroffen!`);
+  }
   target.hp = Math.max(0, target.hp - damage);
   if (target.hp > 0 && target.boss) {
     updateEnemyPhase(state, target);

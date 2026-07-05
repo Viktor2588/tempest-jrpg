@@ -76,6 +76,10 @@ export interface SkillDefinition {
   // Phase 40 — Zeitkontrolle: positiver Wert zieht ein Ziel auf der CT-Leiste vor (hasten),
   // negativer wirft es zurück (delay). Wird nach Schaden/Effekt angewandt.
   readonly ctDelta?: number;
+  // Phase 81 — Big-Hit: telegraphierter großer Treffer. Wird immer angekündigt
+  // (auch ohne Analyse) und schlägt gegen ein ungedecktes Ziel (kein Block/Guard)
+  // deutlich härter zu — der Spieler soll den Telegraph lesen und kontern.
+  readonly heavy?: boolean;
 }
 
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';

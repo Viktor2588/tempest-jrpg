@@ -568,6 +568,12 @@ completed_milestones:
     - Kijin and Kaijin party battle cutouts and roster portraits
     - Canon-region overworld tiles
     - Canon boss and trigger-enemy cutouts
+  phase_81:
+    - telegraph → counter-decision: the read→react loop already existed in the engine (prepareAutoReaction queues a block/counter on the predicted victim, applyDamage mitigates perfect 0.25×/success 0.5×/counter reflect) but was auto-battle-only and had no stakes; Phase 81 gives it stakes and a player path
+    - data-driven `heavy` flag on big boss skills (black-flame, drago-nova, ogre-smash, famished-bite, ifrit-inferno); heavy hits ALWAYS telegraph (even un-analyzed, via refreshEnemyTelegraph) and deal ×1.6 against an unbraced party target — braced = a timely block/counter OR guard
+    - new player `brace` action (BattleAction 'brace' → resolveBrace): spends the turn to queue a team-wide timing-block against the announced hit (tempo vs. safety); surfaced as a "🛡 Reagieren" button whenever an enemy telegraphs, plus a red "⚡ GROSSER TREFFER — kontern!" HUD warning (CombatantView.telegraphHeavy)
+    - the balance harness driver (autoPlayBattleToEnd) now calls prepareAutoReaction before enemy turns, and prepareAutoReaction is gated to heavy hits only (good play braces big hits, not every poke) — so optimal play nets neutral and all corridors stay green for every Rimuru spec; synergises with Phase 80 (escalation makes the pressure real, so reacting finally pays)
+    - typecheck, 409 unit tests across 55 files, production build, and desktop battle-render e2e smokes verified
   phase_80:
     - anti-turtle escalation: data-driven `escalationPercentPerTurn` on the seven story bosses; an escalating enemy's dealt damage ramps with its own action count (a consistent clock, independent of party size/speed), so drawn-out fights become lethal instead of a safe attrition race
     - escalationBonus grows only after a 5-action grace (efficient kills untouched → all balance-harness corridors stay green for every Rimuru spec), then +percent per action, capped at +200%; only direct hits are multiplied (DoT ticks are not)
