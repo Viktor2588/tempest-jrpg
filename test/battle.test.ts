@@ -1157,3 +1157,58 @@ describe('Phase 81 — Telegraph → Konter-Entscheidung', () => {
     }
   });
 });
+
+describe('Phase 82 — Gegner-Archetypen', () => {
+  const striker = (overrides = {}): BattleUnitInput => depthHero('rimuru', 'Rimuru', {
+    stats: { maxHp: 800, maxMp: 120, attack: 40, defense: 18, magic: 40, spirit: 18, agility: 22 },
+    skillIds: ['black-flame', 'water-blade', 'soothing-prayer'],
+    ...overrides
+  });
+
+  it('gepanzert bis Break: gebrochen (guard-break) nimmt der Gegner deutlich mehr Schaden als ungebrochen', () => {
+    const hit = (broken: boolean): number => {
+      const state = startBattle({ party: [striker()], enemies: [phaseEnemy({ armoredUntilBreak: true })], seed: 5 });
+      const attacker = state.combatants.find((c) => c.side === 'party')!;
+      const enemy = state.combatants.find((c) => c.side === 'enemy')!;
+      if (broken) enemy.statuses.push({ id: 'guard-break', turns: 2 });
+      state.activeId = attacker.id; // deterministisch: direkt der Party-Zug, gleiche RNG-Position
+      const before = enemy.hp;
+      act(state, { type: 'attack', targetId: enemy.id });
+      return before - enemy.hp;
+    };
+    const unbroken = hit(false);
+    const broken = hit(true);
+    expect(unbroken).toBeGreaterThan(0);
+    expect(broken).toBeGreaterThan(unbroken * 1.3);
+  });
+
+  it('Element-Reflektor: das reflektierte Element prallt auf den Angreifer zurück, ein anderes nicht', () => {
+    const selfDamageFrom = (skillId: string): number => {
+      const state = startBattle({ party: [striker()], enemies: [phaseEnemy({ reflectsElement: 'fire' })], seed: 4 });
+      const attacker = state.combatants.find((c) => c.side === 'party')!;
+      const enemy = state.combatants.find((c) => c.side === 'enemy')!;
+      state.activeId = attacker.id;
+      const before = attacker.hp;
+      act(state, { type: 'skill', skillId, targetId: enemy.id });
+      return before - attacker.hp;
+    };
+    expect(selfDamageFrom('black-flame')).toBeGreaterThan(0); // Feuer wird reflektiert
+    expect(selfDamageFrom('water-blade')).toBe(0); // Wasser nicht
+  });
+
+  it('Heiler-Bestrafer: heilt die Party, schlägt der Gegner gegen den Heiler zurück', () => {
+    const state = startBattle({
+      party: [striker(), depthHero('gobta', 'Gobta')],
+      enemies: [phaseEnemy({ punishesHealing: true })],
+      seed: 1
+    });
+    const healer = state.combatants.find((c) => c.sourceId === 'rimuru')!;
+    const ally = state.combatants.find((c) => c.sourceId === 'gobta')!;
+    ally.hp = Math.floor(ally.maxHp * 0.4); // verwundeter Verbündeter zum Heilen
+    state.activeId = healer.id;
+    const before = healer.hp;
+    act(state, { type: 'skill', skillId: 'soothing-prayer', targetId: ally.id });
+    expect(ally.hp).toBeGreaterThan(Math.floor(ally.maxHp * 0.4)); // Heilung wirkte
+    expect(healer.hp).toBeLessThan(before); // aber der Heiler wurde bestraft
+  });
+});

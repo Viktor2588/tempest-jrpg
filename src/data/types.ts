@@ -141,6 +141,17 @@ export interface EnemyDefinition {
   // Runde (nach einer Gnadenfrist). Zwingt lange Kämpfe zum Ende, statt sie
   // aussitzen zu lassen. Nur auf Bossen gesetzt; Trash bleibt schnell.
   readonly escalationPercentPerTurn?: number;
+  // Phase 82 — Gegner-Archetypen (bestrafen die Standardtaktik):
+  // gepanzert bis Break: nimmt stark reduzierten Schaden, solange nicht gebrochen
+  // (guard-break) → zwingt in den Break-Loop statt reinem Chippen.
+  readonly armoredUntilBreak?: boolean;
+  // Element-Reflektor: ein Bruchteil des Schadens dieses Elements prallt auf den
+  // Angreifer zurück (typisch die scheinbare Schwäche → „Dornen-Falle", zwingt zum
+  // Umschalten statt Schwäche-Spam).
+  readonly reflectsElement?: ElementType;
+  // Heiler-Bestrafer: schlägt zurück, sobald die Party heilt → macht reines
+  // Aussitzen/Sustain teuer.
+  readonly punishesHealing?: boolean;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];

@@ -70,6 +70,9 @@ export interface BattleUnitInput {
   readonly boss?: boolean;
   readonly phase2SkillIds?: readonly string[];
   readonly escalationPercentPerTurn?: number;
+  readonly armoredUntilBreak?: boolean;
+  readonly reflectsElement?: ElementType;
+  readonly punishesHealing?: boolean;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -111,6 +114,10 @@ export interface Combatant {
   // Partygröße/Tempo) — je länger er lebt und zuschlägt, desto tödlicher.
   escalationStacks: number;
   escalationAnnounced: boolean;
+  // Phase 82 — Archetyp-Merkmale (0/false = kein Archetyp).
+  readonly armoredUntilBreak: boolean;
+  readonly reflectsElement: ElementType | null;
+  readonly punishesHealing: boolean;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -230,6 +237,10 @@ const ESCALATION_MAX_BONUS = 2;
 // Phase 81 — ungedeckter Big-Hit: Schadensschwung, damit das Lesen/Kontern des
 // Telegraphs eine echte Entscheidung wird (gedeckt via Block/Konter/Verteidigen).
 const HEAVY_UNBRACED_BONUS = 1.6;
+// Phase 82 — Archetypen: gepanzert-bis-Break senkt Schaden, solange nicht gebrochen;
+// Element-Reflektor wirft einen Bruchteil zurück.
+const ARMOR_UNBROKEN_MULTIPLIER = 0.65;
+const ELEMENT_REFLECT_FRACTION = 0.5;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -351,6 +362,9 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     boss: enemy.boss,
     phase2SkillIds: enemy.phase2SkillIds,
     escalationPercentPerTurn: enemy.escalationPercentPerTurn,
+    armoredUntilBreak: enemy.armoredUntilBreak,
+    reflectsElement: enemy.reflectsElement,
+    punishesHealing: enemy.punishesHealing,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -598,6 +612,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     escalationPercentPerTurn: Math.max(0, unit.escalationPercentPerTurn ?? 0),
     escalationStacks: 0,
     escalationAnnounced: false,
+    armoredUntilBreak: unit.armoredUntilBreak ?? false,
+    reflectsElement: unit.reflectsElement ?? null,
+    punishesHealing: unit.punishesHealing ?? false,
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -753,6 +770,7 @@ function resolveSkill(
       applySkillStatus(state, actor, target, skill);
       applyCtDelta(target, skill.ctDelta);
     }
+    punishHealingIfNeeded(state, actor);
     endTurn(state, actor);
     return { ok: true };
   }
@@ -1491,6 +1509,33 @@ function awardEnemyRewards(state: BattleState, enemy: Combatant): void {
 // Phase 80 — Anti-Aussitzen: zeitabhängiger Schadenszuschlag eines eskalierenden
 // Gegners. Wächst pro Runde nach der Gnadenfrist, gedeckelt. 0 für alle nicht
 // eskalierenden Kämpfer (Party, Trash) → universell multiplizierbar.
+// Phase 82 — gepanzert bis Break: solange der Gegner nicht gebrochen (guard-break)
+// ist, nimmt er stark reduzierten Schaden → der Spieler muss erst die Break-Leiste
+// aufreißen (Schwächentreffer) statt stumpf zu chippen.
+// Phase 82 — Heiler-Bestrafer: sobald die Party heilt, schlägt ein solcher Gegner
+// gegen den Heiler zurück → reines Aussitzen/Sustain wird teuer.
+function punishHealingIfNeeded(state: BattleState, healer: Combatant): void {
+  if (healer.side !== 'party' || healer.dead) {
+    return;
+  }
+  const punisher = livingCombatants(state, 'enemy').find((foe) => foe.punishesHealing);
+  if (!punisher) {
+    return;
+  }
+  const raw = (effectiveStat(punisher, 'attack') * 0.7 + effectiveStat(punisher, 'magic') * 0.4) * variance(state.rng);
+  const dealt = applyDamage(state, punisher, healer, raw, false, { category: 'magical', element: punisher.element });
+  pushLog(state, `${punisher.name} bestraft die Heilung — ${dealt} Schaden an ${healer.name}.`);
+  checkDeath(state, healer);
+}
+
+function armorMultiplier(target: Combatant): number {
+  if (target.side !== 'enemy' || !target.armoredUntilBreak) {
+    return 1;
+  }
+  const broken = target.statuses.some((status) => status.id === 'guard-break');
+  return broken ? 1 : ARMOR_UNBROKEN_MULTIPLIER;
+}
+
 export function escalationBonus(attacker: Combatant): number {
   if (attacker.escalationPercentPerTurn <= 0) return 0;
   const activeTurns = Math.max(0, attacker.escalationStacks - ESCALATION_GRACE_TURNS);
@@ -1520,7 +1565,8 @@ function applyDamage(
     * takenMult
     * state.damageMultipliers[attacker.side]
     * damageTakenMultiplier(target)
-    * (1 + escalationBonus(attacker));
+    * (1 + escalationBonus(attacker))
+    * armorMultiplier(target);
   const reaction = allowReaction ? target.reaction : null;
   target.reaction = null;
 
@@ -1556,6 +1602,20 @@ function applyDamage(
   // Schaden weckt aus Schlaf/Eis und bricht Bezauberung.
   if (damage > 0) {
     wakeOnDamage(target);
+  }
+  // Phase 82 — Element-Reflektor: das reflektierte Element prallt anteilig auf den
+  // (Party-)Angreifer zurück → bestraft stures Schwäche-Spam, zwingt zum Umschalten.
+  if (
+    damage > 0
+    && target.side === 'enemy'
+    && attacker.side === 'party'
+    && target.reflectsElement !== null
+    && context.element === target.reflectsElement
+  ) {
+    const reflected = Math.max(1, Math.round(damage * ELEMENT_REFLECT_FRACTION));
+    attacker.hp = Math.max(0, attacker.hp - reflected);
+    pushLog(state, `${target.name} wirft ${reflected} Schaden auf ${attacker.name} zurück.`);
+    checkDeath(state, attacker);
   }
 
   if (reaction?.kind === 'counter' && reaction.timing !== 'miss' && !attacker.dead) {
@@ -1602,7 +1662,11 @@ function applyBreakPressure(
   const weaknessPressure = weaknessHit ? 2 : 0;
   // Großer Weiser: analysierte Schwächen reißen die Deckung schneller auf (+1 Druck ab Stufe 1).
   const analysisPressure = weaknessHit && target.analysisLevel >= 1 ? 1 : 0;
-  const pressure = weaknessPressure + analysisPressure + bonusPressure;
+  // Phase 82 — gepanzert bis Break: JEDER Treffer baut etwas Druck auf, damit die
+  // Rüstung für jeden Build aufreißbar ist (Schwächentreffer brechen schneller);
+  // sonst wäre ein Build ohne die passende Schwäche gegen den Panzer chancenlos.
+  const armorBasePressure = target.armoredUntilBreak ? 1 : 0;
+  const pressure = weaknessPressure + analysisPressure + bonusPressure + armorBasePressure;
   if (pressure <= 0) {
     return;
   }

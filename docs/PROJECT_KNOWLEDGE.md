@@ -574,6 +574,14 @@ completed_milestones:
     - listSaveSlots/getActiveSlot/setActiveSlot/slotSaveKey/activeSaveKey helpers; new SaveSlotScene (per slot: Fortsetzen / Neues Spiel / Löschen with a confirm overlay; cards show chapter banner + lead name/level + date)
     - Title keeps "▶ Spiel starten" (continues the active slot — existing e2e flow unchanged) and adds a "🗂 Speicherstände" button; slot selection sets the active slot then enters the Overworld
     - typecheck, 415 unit tests (6 new slot tests: isolation, active-slot default/clamp, defaults follow active slot, delete scoping), production build, and a new desktop e2e smoke (slots render, New Game sets the slot active) verified
+  phase_82:
+    - enemy archetypes that punish the standard "analyze weakness → exploit → sustain" tactic, all data-driven flags on EnemyDefinition wired through BattleUnitInput/Combatant like Phase 80's escalation
+    - armoredUntilBreak (gabiru): takes ×0.65 damage until broken (guard-break) — and armored enemies now build +1 break pressure on ANY hit (not just weakness) so the break loop is reachable by every build, weakness just breaks faster; forces the Break loop instead of raw chipping
+    - reflectsElement (masked-majin → 'holy', its apparent weakness): reflects 50% of that element's damage onto the party attacker — a thorns/false-weakness trap that punishes blind weakness-spam and pushes element variety
+    - punishesHealing (ifrit): a living punisher retaliates on the healer whenever the party heals, so pure sustain costs HP
+    - each archetype is one defining trait per boss (gabiru dropped its Phase-80 escalation so armor + escalation don't compound into an unwinnable drag); harness driver already brackets via Phase 81 reactions, tuned so all corridors stay green for every Rimuru spec while the archetype bosses' profiles shift measurably (masked-majin/sage 0.89→~0.76–0.89, ifrit rest ~0.4)
+    - splitter/summoner deferred (needs mid-fight combatant spawning); feedback is via battle log + existing break-gauge HUD (no scene render change)
+    - typecheck, 418 unit tests (3 new archetype tests), production build verified
   phase_81:
     - telegraph → counter-decision: the read→react loop already existed in the engine (prepareAutoReaction queues a block/counter on the predicted victim, applyDamage mitigates perfect 0.25×/success 0.5×/counter reflect) but was auto-battle-only and had no stakes; Phase 81 gives it stakes and a player path
     - data-driven `heavy` flag on big boss skills (black-flame, drago-nova, ogre-smash, famished-bite, ifrit-inferno); heavy hits ALWAYS telegraph (even un-analyzed, via refreshEnemyTelegraph) and deal ×1.6 against an unbraced party target — braced = a timely block/counter OR guard
