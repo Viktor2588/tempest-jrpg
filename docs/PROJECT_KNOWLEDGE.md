@@ -568,6 +568,12 @@ completed_milestones:
     - Kijin and Kaijin party battle cutouts and roster portraits
     - Canon-region overworld tiles
     - Canon boss and trigger-enemy cutouts
+  phase_80:
+    - anti-turtle escalation: data-driven `escalationPercentPerTurn` on the seven story bosses; an escalating enemy's dealt damage ramps with its own action count (a consistent clock, independent of party size/speed), so drawn-out fights become lethal instead of a safe attrition race
+    - escalationBonus grows only after a 5-action grace (efficient kills untouched → all balance-harness corridors stay green for every Rimuru spec), then +percent per action, capped at +200%; only direct hits are multiplied (DoT ticks are not)
+    - player-visible pressure: a "wird rasend" battle-log line once the grace is passed, plus a red "⚠ rasend +X%" enemy HUD indicator (CombatantView.escalationBonusPercent) so the ramp reads as a decision to push for the kill
+    - previously faceroll bosses (geld/gabiru/masked-majin ~0.92 rest-HP) now land mid-corridor (~0.64–0.82) without any becoming unwinnable; masked-majin/sage stays at 0.891 under its existing Phase-71 corridor override
+    - typecheck, 406 unit tests across 55 files, production build, and desktop/mobile e2e smokes verified
   phase_40:
     - analysis and weakness reveal
     - enemy telegraph

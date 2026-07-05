@@ -133,6 +133,10 @@ export interface EnemyDefinition {
   readonly stats: StatBlock;
   readonly skillIds: readonly string[];
   readonly phase2SkillIds?: readonly string[];
+  // Phase 80 — Anti-Aussitzen: erhöht den ausgeteilten Schaden dieses Gegners pro
+  // Runde (nach einer Gnadenfrist). Zwingt lange Kämpfe zum Ende, statt sie
+  // aussitzen zu lassen. Nur auf Bossen gesetzt; Trash bleibt schnell.
+  readonly escalationPercentPerTurn?: number;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];

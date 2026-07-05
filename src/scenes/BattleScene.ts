@@ -538,6 +538,16 @@ export class BattleScene extends Phaser.Scene {
           wordWrap: { width: width - 10, useAdvancedWrap: true }
         }).setOrigin(0.5).setAlpha(alpha));
       }
+      // Phase 80 — Anti-Aussitzen: sichtbarer Druck. Je länger der Kampf, desto
+      // tödlicher — der Spieler soll das lesen und aufs Beenden drängen.
+      if (unit.escalationBonusPercent > 0) {
+        this.layer.add(this.add.text(x, y + 85, `⚠ rasend +${unit.escalationBonusPercent}% Schaden`, {
+          fontFamily: 'sans-serif',
+          fontSize: '8px',
+          fontStyle: 'bold',
+          color: '#ff8a7a'
+        }).setOrigin(0.5).setAlpha(alpha));
+      }
     }
 
     if (side === 'party' && unit.signatureId) {

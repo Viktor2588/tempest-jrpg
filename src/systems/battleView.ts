@@ -8,7 +8,7 @@ import type {
   QueuedReaction,
   Side
 } from './battle';
-import { calculateDevourSuccessChance } from './battle';
+import { calculateDevourSuccessChance, escalationBonus } from './battle';
 import type { InventoryStack } from './inventory';
 import { devourChanceBonus } from './talentPerk';
 
@@ -40,6 +40,8 @@ export interface CombatantView {
   readonly breakGauge: number;
   readonly breakGaugeMax: number;
   readonly phaseIndex: number;
+  // Phase 80 — Anti-Aussitzen: aktueller Schaden/Runde-Zuschlag in % (0 = keine Eskalation).
+  readonly escalationBonusPercent: number;
   // Phase 40 — Großer Weiser: Analysestufe deckt Schwächen + Telegraph für die Anzeige auf.
   readonly analysisLevel: number;
   readonly revealedWeaknesses: readonly ElementType[];
@@ -127,6 +129,7 @@ function renderCombatant(
     breakGauge: combatant.breakGauge,
     breakGaugeMax: combatant.breakGaugeMax,
     phaseIndex: combatant.phaseIndex,
+    escalationBonusPercent: Math.round(escalationBonus(combatant) * 100),
     analysisLevel: combatant.analysisLevel,
     revealedWeaknesses: combatant.analysisLevel >= 1 ? [...combatant.weaknesses] : [],
     revealedResistances: combatant.analysisLevel >= 2 ? [...combatant.resistances] : [],

@@ -69,6 +69,7 @@ export interface BattleUnitInput {
   readonly skillIds: readonly string[];
   readonly boss?: boolean;
   readonly phase2SkillIds?: readonly string[];
+  readonly escalationPercentPerTurn?: number;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -104,6 +105,12 @@ export interface Combatant {
   skillIds: string[];
   readonly boss: boolean;
   readonly phase2SkillIds: readonly string[];
+  // Phase 80 — Anti-Aussitzen: Schaden-Zuschlag je eigener Aktion (0 = keine Eskalation).
+  readonly escalationPercentPerTurn: number;
+  // Zählt die eigenen Aktionen dieses Gegners (konsistenter Takt, unabhängig von
+  // Partygröße/Tempo) — je länger er lebt und zuschlägt, desto tödlicher.
+  escalationStacks: number;
+  escalationAnnounced: boolean;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -212,6 +219,13 @@ const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satis
 const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
 // Phase 41 — Verschlinger + Momentum
 const MOMENTUM_CT_SURGE = 35;
+// Phase 80 — Anti-Aussitzen: Gnadenfrist (Runden ohne Eskalation) + Deckel des
+// Zuschlags. Der Deckel verhindert One-Shots, zwingt aber lange Kämpfe zum Ende.
+// Gnadenfrist in eigenen Aktionen: effizient beendete Kämpfe (Boss handelt nur
+// wenige Male) bleiben unberührt; erst ein in die Länge gezogenes Aussitzen
+// überschreitet die Frist und wird zunehmend tödlich.
+const ESCALATION_GRACE_TURNS = 5;
+const ESCALATION_MAX_BONUS = 2;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -332,6 +346,7 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     skillIds: enemy.skillIds,
     boss: enemy.boss,
     phase2SkillIds: enemy.phase2SkillIds,
+    escalationPercentPerTurn: enemy.escalationPercentPerTurn,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -411,6 +426,14 @@ export function enemyTurn(state: BattleState): ActionResult {
     return { ok: false, reason: 'Kein Gegnerzug.' };
   }
   updateEnemyPhase(state, actor);
+
+  if (actor.escalationPercentPerTurn > 0) {
+    actor.escalationStacks += 1;
+    if (!actor.escalationAnnounced && actor.escalationStacks > ESCALATION_GRACE_TURNS) {
+      actor.escalationAnnounced = true;
+      pushLog(state, `${actor.name} wird rasend — sein Schaden steigt mit jeder Runde.`);
+    }
+  }
 
   const foes = livingCombatants(state, 'party');
   if (foes.length === 0) {
@@ -568,6 +591,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     skillIds: uniqueStrings([...baseSkillIds]),
     boss: unit.boss ?? false,
     phase2SkillIds: uniqueStrings(unit.phase2SkillIds ?? []),
+    escalationPercentPerTurn: Math.max(0, unit.escalationPercentPerTurn ?? 0),
+    escalationStacks: 0,
+    escalationAnnounced: false,
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -1436,6 +1462,15 @@ function awardEnemyRewards(state: BattleState, enemy: Combatant): void {
   }
 }
 
+// Phase 80 — Anti-Aussitzen: zeitabhängiger Schadenszuschlag eines eskalierenden
+// Gegners. Wächst pro Runde nach der Gnadenfrist, gedeckelt. 0 für alle nicht
+// eskalierenden Kämpfer (Party, Trash) → universell multiplizierbar.
+export function escalationBonus(attacker: Combatant): number {
+  if (attacker.escalationPercentPerTurn <= 0) return 0;
+  const activeTurns = Math.max(0, attacker.escalationStacks - ESCALATION_GRACE_TURNS);
+  return Math.min(ESCALATION_MAX_BONUS, (attacker.escalationPercentPerTurn / 100) * activeTurns);
+}
+
 function applyDamage(
   state: BattleState,
   attacker: Combatant,
@@ -1458,7 +1493,8 @@ function applyDamage(
     * dealtMult
     * takenMult
     * state.damageMultipliers[attacker.side]
-    * damageTakenMultiplier(target);
+    * damageTakenMultiplier(target)
+    * (1 + escalationBonus(attacker));
   const reaction = allowReaction ? target.reaction : null;
   target.reaction = null;
 
