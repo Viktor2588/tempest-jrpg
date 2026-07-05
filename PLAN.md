@@ -65,12 +65,15 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
 
-- [ ] Phase 83 — Ressourcen-Bogen ueber einen Dungeon (Sustain-Wurzel): heute
-  heilt die Party zwischen Kaempfen gratis auf voll (`restore-party`, MP billig)
-  → kein Attritions-Bogen, kein "Schwung" ueber eine Kartensequenz. Knapperes
-  MP / weniger Gratis-Voll-Restores, sodass die Kampf-*Folge* zum Ressourcen-
-  Puzzle wird ("bursten oder sparen?"). Groesster Design-Aufwand; Balance-
-  Harness um Carryover-Ressourcen ueber die Story-Route erweitern.
+- [~] Phase 83 — Ressourcen-Bogen ueber einen Dungeon (Worktree
+  `/worktree/tempest-phase-83-resource-arc`): Befund-Korrektur — HP/MP carryen
+  bereits, kein Auto-Voll-Restore; Erholung nur ueber Items, mitten im Dungeon
+  kein Shop → jeder Dungeon ist schon eine Ration, nur sind Items zu billig/
+  potent, sodass die Ration nie drueckt. Inkrement 1: MP zur knappen dungeon-
+  uebergreifenden Ressource machen (Manatropfen schwaecher/knapper; kein
+  In-Kampf-Regen bleibt), damit "bursten oder sparen" zur Entscheidung wird.
+  Harness gruen halten + Test, dass die Party-Ressourcen ueber die Route
+  messbar sinken. Voller Oekonomie-Umbau bleibt Folge-Inkrement.
 - [ ] Phase 84 — Verschlingen als gerichtete Jagd (Codex): die Devour-Map (jeder
   Gegner lehrt Rimuru einen Skill) im Codex sichtbar machen ("dieser Gegner
   lehrt X"), damit der Spieler gezielt Gegner sucht, um Rimuru zu formen —
