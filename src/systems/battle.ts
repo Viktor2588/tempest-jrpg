@@ -23,10 +23,12 @@ import { getItemCount, normalizeInventoryStacks, type InventoryStack } from './i
 import type { PartyMemberState } from './party';
 import { makeRng, type Rng } from './rng';
 import {
+  analysisBonusLevels,
   buffBonusTurns,
   counterProc,
   damageDealtMultiplier,
   damageTakenMultiplierFromPerks,
+  devourChanceBonus,
   dodgeChance,
   maxHpMultiplier,
   skillChainFor,
@@ -217,7 +219,6 @@ const RIMURU_CORE_LOADOUT_SKILLS = [
   'predator',
   'great-sage',
   'slime-strike',
-  'water-blade',
   'water-jet',
   'predator-aura'
 ] as const;
@@ -917,7 +918,10 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
 
-  target.analysisLevel = Math.min(ANALYSIS_MAX, target.analysisLevel + 1);
+  target.analysisLevel = Math.min(
+    ANALYSIS_MAX,
+    target.analysisLevel + 1 + analysisBonusLevels(actor.perks)
+  );
   target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
@@ -943,7 +947,7 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     return resolveBossDevourPressure(state, actor, target);
   }
 
-  const successChance = calculateDevourSuccessChance(target);
+  const successChance = calculateDevourSuccessChance(target, devourChanceBonus(actor.perks));
   if (successChance === 0) {
     return { ok: false, reason: 'Ziel ist noch nicht verwundbar genug.' };
   }
@@ -979,7 +983,8 @@ export function calculateDevourSuccessChance(
     Combatant,
     'analysisLevel' | 'boss' | 'devourable' | 'devourSkillId' | 'hp' | 'maxHp'
     | 'phaseIndex' | 'statuses'
-  >
+  >,
+  perkBonus = 0
 ): number | null {
   if (!target.devourable || !target.devourSkillId) {
     return null;
@@ -1005,7 +1010,8 @@ export function calculateDevourSuccessChance(
       + (broken ? BATTLE_BALANCE.devourBrokenBonus : 0)
       + (lowHp ? BATTLE_BALANCE.devourLowHpBonus : 0)
       + (debuffed ? BATTLE_BALANCE.devourDebuffBonus : 0)
-      + (target.analysisLevel > 0 ? 0.1 : 0)
+      + Math.min(0.3, target.analysisLevel * 0.1)
+      + Math.max(0, perkBonus)
     )
   );
   return chanceCeiling - BATTLE_BALANCE.devourWhiffFloor;

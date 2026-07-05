@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { runBalanceHarnessReport } from './qaGates';
+import { runBalanceHarnessReport, type RimuruSpecBranch } from './qaGates';
 
 const SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const STORY_ENCOUNTER_IDS = [
@@ -25,6 +25,7 @@ describe('Balance-Harness Report', () => {
     expect(report.hardAssertionsEnabled).toBe(true);
     expect(report.benchmarkAssertionsEnabled).toBe(false);
     expect(report.seeds).toEqual([...SEEDS]);
+    expect(report.rimuruSpecBranch).toBe('predator');
     expect(report.storyEncounterIds).toEqual([...STORY_ENCOUNTER_IDS]);
     expect(report.issues).toEqual([]);
     expect(report.storyRoute).toHaveLength(STORY_ENCOUNTER_IDS.length);
@@ -74,5 +75,29 @@ describe('Balance-Harness Report', () => {
     )).toBe(true);
 
     expect(runBalanceHarnessReport(SEEDS)).toEqual(report);
+  });
+
+  it('hält jeden Rimuru-Spec-Pfad in allen Story-Korridoren und unterscheidet die Profile', () => {
+    const branches: readonly RimuruSpecBranch[] = ['predator', 'sage', 'mimic'];
+    const entryNode: Readonly<Record<RimuruSpecBranch, string>> = {
+      predator: 'rimuru-fluid-core',
+      sage: 'rimuru-ancestor-binding',
+      mimic: 'rimuru-marsh-runner'
+    };
+    const reports = branches.map((branch) => runBalanceHarnessReport(SEEDS, branch));
+
+    for (const report of reports) {
+      expect(report.issues, report.rimuruSpecBranch).toEqual([]);
+      expect(report.storyRoute.every((encounter) => encounter.currentlyInsideTargetCorridor)).toBe(true);
+      expect(report.storyRoute.at(-1)!.runs.every((run) =>
+        run.unlockedRimuruNodeIdsAfter.includes(entryNode[report.rimuruSpecBranch])
+      )).toBe(true);
+    }
+
+    const profiles = reports.map((report) => report.storyRoute.slice(-5).map((encounter) => [
+      encounter.averageTurns,
+      encounter.averageRemainingPartyHpFraction
+    ]));
+    expect(new Set(profiles.map((profile) => JSON.stringify(profile))).size).toBe(3);
   });
 });

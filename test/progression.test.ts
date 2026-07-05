@@ -114,17 +114,21 @@ describe('progression system', () => {
     expect(charge.description).toContain('Ranga');
     expect(charge.description).toContain('Wolfsfang');
 
-    // Branch-Lock: wer Rimurus Raubtier-Strang beginnt, kann den Schatten-Strang nicht mehr wählen.
-    const rimuru = createPartyMember(hero('rimuru'), { level: 5 });
+    // Branch-Lock: wer Rimurus Weiser-Strang beginnt, kann den Raubtier-Strang nicht mehr wählen.
+    const rimuru = createPartyMember(hero('rimuru'), { level: 4 });
     let state = grantSkillPoints(createProgressionState(), 'rimuru', 2).state;
-    const focus = unlockSkillNode(rimuru, state, 'rimuru-predator-focus');
-    expect(focus.ok).toBe(true);
-    state = focus.state;
-    const blocked = canUnlockSkillNode(rimuru, state, 'rimuru-shadow-focus');
+
+    expect(canUnlockSkillNode(rimuru, state, 'rimuru-ancestor-binding').ok).toBe(false);
+    const unlocked = unlockSkillNode(rimuru, state, 'rimuru-ancestor-binding', {
+      flags: { 'story.act1.completed': true }
+    });
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    const blocked = canUnlockSkillNode(rimuru, state, 'rimuru-fluid-core');
     expect(blocked.ok).toBe(false);
     expect(blocked.message).toContain('Spezialisierungsstrang');
-    expect(calculateProgressionStats(rimuru, state).attack)
-      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).attack);
+    expect(calculateProgressionStats(rimuru, state).spirit)
+      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).spirit);
   });
 
   it('wendet Beziehungsboni nachvollziehbar auf Charakterwerte an', () => {
@@ -142,32 +146,43 @@ describe('progression system', () => {
   });
 
   it('führt Namensgebung, Entwicklung und Skill-Baum als zusammenhängenden Pfad aus', () => {
-    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const rimuru = createPartyMember(hero('rimuru'), { level: 7 });
     const renamed = renameMember(rimuru, 'Ciel');
     const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
+    const devourer = {
+      ...evolved.member,
+      learnedSkillIds: [...evolved.member.learnedSkillIds, 'water-blade', 'venom-spit']
+    };
     let state = grantSkillPoints(evolved.state, 'rimuru', 3).state;
 
-    // Raubtier-Strang: Giftdorn erst nach der Raubtier-Entwicklung (Evolutions-Gate).
-    let unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-focus');
+    let unlocked = unlockSkillNode(devourer, state, 'rimuru-fluid-core');
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
-    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-venom');
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-instinct');
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    expect(unlockSkillNode(devourer, state, 'rimuru-predator-devour').ok).toBe(false);
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-devour', {
+      flags: { 'codex.predator-devour': true }
+    });
+    expect(unlocked.ok).toBe(true);
+    state = unlocked.state;
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-sage');
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
 
-    // Branch-Lock: der Schatten-Strang (spirit-bind) ist nach der Raubtier-Wahl gesperrt.
-    expect(unlockSkillNode(evolved.member, state, 'rimuru-shadow-bind').ok).toBe(false);
+    // Branch-Lock: der Weiser-Strang ist nach der Raubtier-Wahl gesperrt.
+    expect(unlockSkillNode(devourer, state, 'rimuru-ancestor-binding').ok).toBe(false);
 
-    const unit = createProgressionBattleParty([evolved.member], state)[0]!;
+    const unit = createProgressionBattleParty([devourer], state)[0]!;
     expect(unit.formName).toBe('Raubtier-Schleim');
     expect(unit.skillIds).toContain('predator-aura');
     expect(unit.skillIds).toContain('venom-spit');
     expect(unit.skillIds).not.toContain('spirit-bind');
     expect(unit.skillIds).not.toContain('soothing-prayer');
-    expect(calculateProgressionStats(evolved.member, state).attack)
-      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).attack);
-    // Start 5 (Evolution +2, grant +3), Raubtierfokus + Giftdorn kosten je 1 → 3 übrig.
-    expect(state.skillPointsByCharacterId.rimuru).toBe(3);
+    // WIP-Raubtier-Strang stärkt Magie/MP (devour-chance-Perks), nicht den Angriff.
+    expect(calculateProgressionStats(evolved.member, state).magic)
+      .toBeGreaterThan(calculateProgressionStats(rimuru, createProgressionState()).magic);
   });
 
   it('aktiviert Set-Boni und steigert ausgerüstete Gegenstände über Verzauberung', () => {

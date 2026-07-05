@@ -491,23 +491,139 @@ export const SKILL_TREES = [
   {
     id: 'rimuru-adaptation-tree',
     characterId: 'rimuru',
-    name: 'Adaptive Essenz',
+    name: 'Drei Wege der Essenz',
     nodes: [
-      // Strang 1 — Raubtier (physische Offensive + Verschlingen/Konter)
-      { id: 'rimuru-predator-focus', name: 'Raubtierfokus', description: 'Strang Raubtier: schärft den physischen Angriff.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'predator', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], statBonus: { attack: 2 } },
-      { id: 'rimuru-predator-venom', name: 'Giftdorn', description: 'Nach der Raubtier-Entwicklung: lehrt Giftdorn.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-predator-focus'], requiredEvolutionId: 'rimuru-predator-slime', branch: 'predator', skillId: 'venom-spit', perks: [{ kind: 'damage-dealt', percent: 15, element: 'shadow' }] },
-      { id: 'rimuru-predator-devour', name: 'Verschlinger-Archiv', description: 'Stabilisierte Essenzen kontern Angreifer.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-predator-focus'], branch: 'predator', perks: [{ kind: 'counter', percent: 25 }], statBonus: { maxMp: 4 } },
-      { id: 'rimuru-predator-apex', name: 'Verschlingende Bestie', description: 'Vollendung des Raubtier-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-predator-devour'], branch: 'predator', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }, { kind: 'counter', percent: 20 }], statBonus: { attack: 3 } },
-      // Strang 2 — Großer Weiser (Analyse: Skill-Ketten, Buff-Dauer, Ausweichen)
-      { id: 'rimuru-sage-focus', name: 'Weiser-Fokus', description: 'Strang Großer Weiser: vorausschauendes Ausweichen.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'sage', perks: [{ kind: 'dodge', percent: 8 }], statBonus: { magic: 1, spirit: 1 } },
-      { id: 'rimuru-sage-analysis', name: 'Analyse', description: 'Verlängert die Wirkung eigener Buffs.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-sage-focus'], branch: 'sage', perks: [{ kind: 'buff-power', percent: 100 }] },
-      { id: 'rimuru-sage-foresight', name: 'Vorausberechnung', description: 'Berechnet Angriffe voraus und weicht aus.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-sage-focus'], branch: 'sage', perks: [{ kind: 'dodge', percent: 12 }] },
-      { id: 'rimuru-sage-accel', name: 'Gedankenbeschleunigung', description: 'Wasserklinge entfesselt einen Folgestrahl.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-sage-analysis'], branch: 'sage', perks: [{ kind: 'skill-chain', triggerSkillId: 'water-blade', followUpSkillId: 'water-jet', percent: 40 }, { kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 6 } },
-      // Strang 3 — Schatten (Adaptivmagie: magischer Schaden + Resistenz)
-      { id: 'rimuru-shadow-focus', name: 'Schattenfokus', description: 'Strang Schatten: verstärkt Schattenmagie.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'shadow', perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }], statBonus: { magic: 2 } },
-      { id: 'rimuru-shadow-bind', name: 'Geistfessel', description: 'Lehrt Geistfessel und schärft Schattenschaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['rimuru-shadow-focus'], branch: 'shadow', skillId: 'spirit-bind', perks: [{ kind: 'damage-dealt', percent: 15, element: 'shadow' }] },
-      { id: 'rimuru-shadow-veil', name: 'Schattenschleier', description: 'Adaptive Hülle mindert erlittenen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['rimuru-shadow-focus'], branch: 'shadow', perks: [{ kind: 'damage-taken', percent: 15 }] },
-      { id: 'rimuru-shadow-domain', name: 'Schattendomäne', description: 'Vollendung des Schatten-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['rimuru-shadow-bind'], branch: 'shadow', perks: [{ kind: 'damage-dealt', percent: 25, category: 'magical' }, { kind: 'damage-taken', percent: 10 }], statBonus: { magic: 3, spirit: 2 } }
+      {
+        id: 'rimuru-fluid-core',
+        name: 'Fließender Kern',
+        description: 'Strang Verschlinger: verdichtet Beute-Essenzen und erhöht die Aneignungschance.',
+        cost: 1,
+        requiredLevel: 2,
+        requiredNodeIds: [],
+        branch: 'predator',
+        perks: [{ kind: 'devour-chance', percent: 10 }],
+        statBonus: { maxMp: 4, magic: 1 }
+      },
+      {
+        id: 'rimuru-predator-instinct',
+        name: 'Raubtierinstinkt',
+        description: 'Die benannte Schleimform liest verwundbare Gegner sicherer.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        branch: 'predator',
+        perks: [{ kind: 'devour-chance', percent: 15 }]
+      },
+      {
+        id: 'rimuru-predator-devour',
+        name: 'Verschlinger-Archiv',
+        description: 'Stabilisiert verschlungene Essenzen, damit Rimuru absorbierte Skills kontrolliert ins Kampf-Loadout nimmt.',
+        cost: 1,
+        requiredLevel: 5,
+        requiredNodeIds: ['rimuru-predator-instinct'],
+        requiredFlag: 'codex.predator-devour',
+        branch: 'predator',
+        perks: [{ kind: 'devour-chance', percent: 15 }, { kind: 'max-hp', percent: 10 }],
+        statBonus: { maxMp: 4, spirit: 1 }
+      },
+      {
+        id: 'rimuru-predator-sage',
+        name: 'Raubtier-Weiser',
+        description: 'Vollendung des Verschlinger-Strangs: Schattenbeute wird sicherer und stärker.',
+        cost: 2,
+        requiredLevel: 7,
+        requiredNodeIds: ['rimuru-predator-devour'],
+        requiredEvolutionId: 'rimuru-predator-slime',
+        branch: 'predator',
+        perks: [{ kind: 'devour-chance', percent: 15 }, { kind: 'damage-dealt', percent: 20, element: 'shadow' }],
+        statBonus: { maxMp: 8, magic: 3, spirit: 2, agility: 1 }
+      },
+      {
+        id: 'rimuru-ancestor-binding',
+        name: 'Ahnenbindung',
+        description: 'Strang Großer Weiser: verarbeitet die Ahnenbindung zu tieferer Analyse.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: [],
+        requiredFlag: 'story.act1.completed',
+        branch: 'sage',
+        perks: [{ kind: 'analysis-power', levels: 1 }],
+        statBonus: { maxMp: 4, spirit: 2 }
+      },
+      {
+        id: 'rimuru-sage-foresight',
+        name: 'Vorhersage',
+        description: 'Großer Weiser berechnet Angriffe früh genug zum Ausweichen.',
+        cost: 1,
+        requiredLevel: 5,
+        requiredNodeIds: ['rimuru-ancestor-binding'],
+        branch: 'sage',
+        perks: [{ kind: 'dodge', percent: 15 }]
+      },
+      {
+        id: 'rimuru-sage-magicule',
+        name: 'Magicule-Kalkül',
+        description: 'Analysierte Zauber werden effizienter und durchschlagskräftiger.',
+        cost: 1,
+        requiredLevel: 6,
+        requiredNodeIds: ['rimuru-sage-foresight'],
+        branch: 'sage',
+        perks: [{ kind: 'damage-dealt', percent: 15, category: 'magical' }],
+        statBonus: { maxMp: 6, magic: 2 }
+      },
+      {
+        id: 'rimuru-sage-raphael',
+        name: 'Weiser Horizont',
+        description: 'Vollendung des Weiser-Strangs: maximale Analyse und Magiekontrolle.',
+        cost: 2,
+        requiredLevel: 9,
+        requiredNodeIds: ['rimuru-sage-magicule'],
+        branch: 'sage',
+        perks: [{ kind: 'analysis-power', levels: 1 }, { kind: 'damage-dealt', percent: 20, category: 'magical' }]
+      },
+      {
+        id: 'rimuru-marsh-runner',
+        name: 'Marschenläufer-Instinkt',
+        description: 'Strang Mimik: wandelt Sumpferkundung in adaptive Bewegung um.',
+        cost: 1,
+        requiredLevel: 4,
+        requiredNodeIds: [],
+        requiredFlag: 'story.act2.completed',
+        branch: 'mimic',
+        perks: [{ kind: 'dodge', percent: 10 }],
+        statBonus: { maxHp: 3, agility: 3 }
+      },
+      {
+        id: 'rimuru-shadow-domain',
+        name: 'Schattendomäne',
+        description: 'Verstärkt verschlungene Schattenmagie wie Geistfessel und Giftdorn.',
+        cost: 1,
+        requiredLevel: 6,
+        requiredNodeIds: ['rimuru-marsh-runner'],
+        branch: 'mimic',
+        perks: [{ kind: 'damage-dealt', percent: 20, element: 'shadow' }],
+        statBonus: { magic: 3, spirit: 2 }
+      },
+      {
+        id: 'rimuru-mimic-resonance',
+        name: 'Essenzen-Resonanz',
+        description: 'Verschlungene Wasserklinge kann eine erbeutete Sturmböe nachziehen.',
+        cost: 2,
+        requiredLevel: 7,
+        requiredNodeIds: ['rimuru-shadow-domain'],
+        branch: 'mimic',
+        perks: [{ kind: 'skill-chain', triggerSkillId: 'water-blade', followUpSkillId: 'storm-gust', percent: 40 }]
+      },
+      {
+        id: 'rimuru-mimic-master',
+        name: 'Adaptive Meisterschaft',
+        description: 'Vollendung des Mimik-Strangs: erbeutete Magie formt eine robuste Kampfgestalt.',
+        cost: 2,
+        requiredLevel: 9,
+        requiredNodeIds: ['rimuru-mimic-resonance'],
+        branch: 'mimic',
+        perks: [{ kind: 'damage-dealt', percent: 25, category: 'magical' }, { kind: 'max-hp', percent: 10 }]
+      }
     ]
   },
   {

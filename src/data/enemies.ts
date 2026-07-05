@@ -17,7 +17,7 @@ export const ENEMIES = [
     },
     skillIds: ['slime-strike'],
     devourable: true,
-    devourSkillId: 'slime-strike',
+    devourSkillId: 'water-blade',
     weaknesses: ['wind'],
     resistances: ['water'],
     experienceReward: 60,

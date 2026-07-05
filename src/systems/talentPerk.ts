@@ -101,6 +101,21 @@ export function buffBonusTurns(perks: readonly TalentPerk[]): number {
   return Math.floor(percent / 100);
 }
 
+export function devourChanceBonus(perks: readonly TalentPerk[]): number {
+  const percent = perks.reduce(
+    (sum, perk) => sum + (perk.kind === 'devour-chance' ? perk.percent : 0),
+    0
+  );
+  return Math.min(0.5, Math.max(0, percent / 100));
+}
+
+export function analysisBonusLevels(perks: readonly TalentPerk[]): number {
+  return perks.reduce(
+    (sum, perk) => sum + (perk.kind === 'analysis-power' ? Math.max(0, perk.levels) : 0),
+    0
+  );
+}
+
 // --- Phase 70: Spec-Baum-Knoten → Perks / Branch-Lock ---
 // Knoten-Register über alle Spec-Bäume (nodeId → {branch, perks}).
 const specNodeById = new Map<string, { readonly branch?: string; readonly perks: readonly TalentPerk[] }>(
@@ -161,6 +176,10 @@ export function describePerk(perk: TalentPerk): string {
       return `${perk.percent}% Chance auf Folgeskill nach Auslöser`;
     case 'buff-power':
       return `Eigene Buffs halten länger (+${Math.floor(perk.percent / 100)} Runde)`;
+    case 'devour-chance':
+      return `+${perk.percent}% Verschlingen-Chance`;
+    case 'analysis-power':
+      return `Großer Weiser analysiert +${perk.levels} Stufe`;
   }
 }
 

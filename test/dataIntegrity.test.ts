@@ -48,6 +48,25 @@ describe('Game-Datenintegrität', () => {
     });
   });
 
+  it('gibt jedem frühen verschlingbaren Gegner eine Fähigkeit außerhalb von Rimurus Startkern', () => {
+    const rimuru = GAME_DATA.heroes.find((hero) => hero.id === 'rimuru')!;
+    const startingSkills = new Set<string>(rimuru.initialSkillIds);
+    const earlyDevourable = GAME_DATA.enemies.filter((enemy) =>
+      enemy.level <= 7 && enemy.devourable
+    );
+
+    expect(rimuru.initialSkillIds).toEqual([
+      'predator', 'great-sage', 'slime-strike', 'water-jet'
+    ]);
+    expect(GAME_DATA.enemies.find((enemy) => enemy.id === 'forest-slime')?.devourSkillId)
+      .toBe('water-blade');
+    expect(earlyDevourable.every((enemy) =>
+      'devourSkillId' in enemy
+      && enemy.devourSkillId !== undefined
+      && !startingSkills.has(enemy.devourSkillId)
+    )).toBe(true);
+  });
+
   it('meldet Quest-Schritte ohne abschließende Dialog- oder Encounter-Quelle', () => {
     const quest = GAME_DATA.world.quests[0]!;
     const issues = validateGameData({

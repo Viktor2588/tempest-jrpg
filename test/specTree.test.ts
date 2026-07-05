@@ -67,8 +67,8 @@ describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
   const specTrees = SKILL_TREES.filter((tree) =>
     (tree.nodes as readonly SkillTreeNodeDefinition[]).some((node) => node.branch !== undefined)
   );
-  // Die bereits auf Spec-Stränge umgestellten Kämpfer (Rimuru → Phase 71).
-  const converted = ['benimaru', 'shion', 'hakurou', 'souei', 'rigurd', 'ranga', 'gobta', 'shuna'];
+  // Alle auf Spec-Stränge umgestellten Kämpfer (Rimuru → Phase 71, gobta/shuna → Phase 70b).
+  const converted = ['rimuru', 'benimaru', 'shion', 'hakurou', 'souei', 'rigurd', 'ranga', 'gobta', 'shuna'];
 
   it('deckt die umgestellten Kämpfer mit je genau 3 exklusiven Strängen ab', () => {
     for (const characterId of converted) {
