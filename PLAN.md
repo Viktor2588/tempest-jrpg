@@ -52,6 +52,60 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
+## Kampf-Tiefe-Roadmap (Nutzer 2026-07-05: "interessanter machen")
+
+Befund (Code-Analyse, nach Phase 80): Die Zahlen stimmen inzwischen (Balance-
+Phasen 51–56, Anti-Aussitz-Eskalation Phase 80 gemergt) — Normalkaempfe kosten
+~15–28 % HP, Bosse liegen mittig im Korridor, Aussitzen wird bestraft. Das
+verbleibende "langweilig" ist **fehlende Entscheidungstiefe und Vielfalt**:
+jeder Kampf hat dieselbe optimale Antwort (Schwaeche analysieren → ausnutzen →
+sustainen). Die reichen Mechaniken (Analyse/Telegraph, Break, Devour, CT-Delay,
+Reaktionen, Status) sind vorhanden, aber der Spieler *muss* sie nie waehlen.
+Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
+notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
+Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
+
+- [~] Phase 81 — Telegraph → Konter-Entscheidung (Worktree
+  `/worktree/tempest-phase-81-telegraph`): Der Telegraph (`telegraphSkillId`)
+  ist heute nur Info. Bosse sollen **telegraphierte Big-Hits** ansagen, die der
+  Spieler *beantworten* muss: Ziel decken (`guard`), Boss-CT verzoegern
+  (`temporal-snare`/negativer `ctDelta`), cleansen, oder vor dem Schlag
+  wegbursten. Datengetrieben ueber vorhandenes Analyse-/Telegraph-System +
+  `ctDelta`/`guard`/Reaktionen; HUD hebt den drohenden Big-Hit sichtbar hervor.
+  Verzahnt mit Phase 80: die Eskalation macht den Druck real, also lohnt
+  Reagieren endlich. Abnahme: Balance-Harness bleibt gruen (Auto-Battler
+  reagiert sinnvoll), neuer Test, dass ein telegraphierter Big-Hit ohne Antwort
+  deutlich mehr Schaden macht als mit korrektem Konter.
+- [ ] Phase 82 — Gegner-Archetypen, die das dominante Muster bestrafen: wenige,
+  datengetriebene Archetypen, die je eine andere Antwort erzwingen und den
+  Talentbaeumen + devourten Skills Zweck geben — Heiler-Bestrafer (kontert/
+  reflektiert Heilung), Element-Reflektor (zwingt zum Umschalten), Teiler/
+  Beschwoerer (zwingt zu AoE/Priorisierung), "gepanzert bis Break"-Tank (zwingt
+  in den Break-Loop). Ueber vorhandene Status-/Skill-Felder; Sim muss zeigen,
+  dass die Standardtaktik hier messbar schlechter abschneidet.
+- [ ] Phase 83 — Ressourcen-Bogen ueber einen Dungeon (Sustain-Wurzel): heute
+  heilt die Party zwischen Kaempfen gratis auf voll (`restore-party`, MP billig)
+  → kein Attritions-Bogen, kein "Schwung" ueber eine Kartensequenz. Knapperes
+  MP / weniger Gratis-Voll-Restores, sodass die Kampf-*Folge* zum Ressourcen-
+  Puzzle wird ("bursten oder sparen?"). Groesster Design-Aufwand; Balance-
+  Harness um Carryover-Ressourcen ueber die Story-Route erweitern.
+- [ ] Phase 84 — Verschlingen als gerichtete Jagd (Codex): die Devour-Map (jeder
+  Gegner lehrt Rimuru einen Skill) im Codex sichtbar machen ("dieser Gegner
+  lehrt X"), damit der Spieler gezielt Gegner sucht, um Rimuru zu formen —
+  verwandelt Grind in gerichtete Neugier. Codex existiert bereits; kleiner
+  Aufwand, hoher Sog.
+- [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
+  Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
+  Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
+  Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
+  (telegraphierter Big-Hit → perfektes Block-Fenster).
+- [ ] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
+  oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
+  Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung
+  (Karten-Events jenseits von Kaempfen, sichtbar veraenderte Welt nach Bossen,
+  Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
+  ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
