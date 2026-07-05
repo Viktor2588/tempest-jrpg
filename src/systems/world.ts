@@ -159,6 +159,13 @@ export function getMapNpcs(mapId: string, state?: WorldState): NpcDefinition[] {
   );
 }
 
+// Verzaubern nur bei einem (sichtbaren) Schmied auf der aktuellen Karte —
+// es sei denn, Rimuru hat den Skill zum Verzaubern unterwegs gelernt (Flag).
+export function canEnchantEquipment(state: WorldState, mapId: string): boolean {
+  if (state.flags['craft.mobileEnchant.unlocked'] === true) return true;
+  return getMapNpcs(mapId, state).some((npc) => npc.service === 'smith');
+}
+
 export function getMapShops(mapId: string): ShopDefinition[] {
   return SHOPS.filter((shop) => shop.mapId === mapId);
 }

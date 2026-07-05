@@ -112,6 +112,8 @@ export interface NpcDefinition {
   // Optionale Story-Sichtbarkeit: Der NPC erscheint (und ist ansprechbar) erst, wenn
   // alle Anforderungen erfüllt sind. Fehlt das Feld, ist der NPC immer sichtbar.
   readonly requirements?: readonly WorldRequirement[];
+  // Ortsdienst: Ein 'smith'-NPC erlaubt Verzaubern, solange man auf seiner Karte ist.
+  readonly service?: 'smith';
 }
 
 export interface ShopDefinition {
@@ -700,7 +702,7 @@ export const LOCATIONS = [
     name: 'Kijin-Viertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 12, y: 5 },
+    position: { x: 12, y: 6 },
     description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
     identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
     unlockFlag: 'story.kijin.named'
@@ -710,7 +712,8 @@ export const LOCATIONS = [
     name: 'Dwargon-Werkviertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 15, y: 5 },
+    // (15,5) liegt im Stadt-Layout selbst in einer Wand → Marker unerreichbar/verdeckt.
+    position: { x: 16, y: 6 },
     description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
     identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
     unlockFlag: 'faction.dwargon.allied'
@@ -905,7 +908,9 @@ export const LOCATIONS = [
     name: 'Osthandelsroute',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 20, y: 5 },
+    // (20,5) wird im Stadt-Ausbau zur Wand → Ziel/Kampf unerreichbar. (20,6) ist in
+    // allen Ausbaustufen begehbar. Muss mit dem east-route-deserter-Encounter matchen.
+    position: { x: 20, y: 6 },
     description: 'Die östliche Handelsroute, auf der ein Deserteurstrupp Reisende schikaniert.',
     identity: 'Optionaler Abfangort: Deserteur-Söldner an der Grenze.',
     unlockFlag: 'sidequest.deserter.started'
@@ -3439,6 +3444,7 @@ export const NPCS = [
     position: { x: 15, y: 6 },
     dialogId: 'tempest-builders',
     color: 0xd2a679,
+    service: 'smith',
     requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
   },
   {
@@ -3456,6 +3462,7 @@ export const NPCS = [
     position: { x: 6, y: 9 },
     dialogId: 'kaijin-forge',
     color: 0xd2a679,
+    service: 'smith',
     // Erscheint erst nach Gazels Urteil (Schmiedekunst freigeschaltet).
     requirements: [{ flag: 'craft.smithing.unlocked' }]
   },
@@ -3824,7 +3831,8 @@ export const ENCOUNTERS = [
     id: 'east-route-deserter',
     mapId: 'tempest-start',
     kind: 'trigger',
-    position: { x: 20, y: 5 },
+    // Deckungsgleich mit der east-route-Location; (20,5) ist im Stadt-Ausbau Wand.
+    position: { x: 20, y: 6 },
     enemyIds: ['human-deserter', 'human-lancer'],
     chance: 1,
     requirements: [

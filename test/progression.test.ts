@@ -260,6 +260,11 @@ describe('progression system', () => {
     expect(result.grantedSkillPoints).toBeGreaterThan(0);
     expect(result.state.relationshipPoints['rimuru-gobta']).toBe(5);
     expect(result.reserve[0]!.level).toBeGreaterThan(1);
+    // Reserve-Lücke geschlossen: die gebenkte Figur erhält Skillpunkte für die auf der
+    // Bank gewonnenen Level (floor(level/2)), nicht nur die aktive Party.
+    const shuna = result.reserve[0]!;
+    expect(result.state.skillPointsByCharacterId['shuna'] ?? 0)
+      .toBe(Math.floor(shuna.level / 2) - Math.floor(1 / 2));
   });
 
   it('vergibt auch Gobta/Ranga-Bindung, wenn beide gemeinsam aktiv kämpfen', () => {
