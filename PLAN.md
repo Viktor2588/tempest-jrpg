@@ -65,13 +65,15 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
 
-- [ ] Phase 82 — Gegner-Archetypen, die das dominante Muster bestrafen: wenige,
-  datengetriebene Archetypen, die je eine andere Antwort erzwingen und den
-  Talentbaeumen + devourten Skills Zweck geben — Heiler-Bestrafer (kontert/
-  reflektiert Heilung), Element-Reflektor (zwingt zum Umschalten), Teiler/
-  Beschwoerer (zwingt zu AoE/Priorisierung), "gepanzert bis Break"-Tank (zwingt
-  in den Break-Loop). Ueber vorhandene Status-/Skill-Felder; Sim muss zeigen,
-  dass die Standardtaktik hier messbar schlechter abschneidet.
+- [~] Phase 82 — Gegner-Archetypen, die das dominante Muster bestrafen (Worktree
+  `/worktree/tempest-phase-82-archetypes`): wenige, datengetriebene Archetypen,
+  die je eine andere Antwort erzwingen und den Talentbaeumen + devourten Skills
+  Zweck geben — Heiler-Bestrafer (kontert/reflektiert Heilung), Element-Reflektor
+  (zwingt zum Umschalten), "gepanzert bis Break"-Tank (zwingt in den Break-Loop).
+  Teiler/Beschwoerer vorerst zurueckgestellt (braucht Mid-Fight-Combatants).
+  Ueber vorhandene Status-/Skill-Felder; auf einige Bosse gesetzt, moderat
+  getunt, sodass der Harness gruen bleibt, aber die Archetypen die Profile
+  spuerbar verschieben; dedizierte Tests je Archetyp.
 - [ ] Phase 83 — Ressourcen-Bogen ueber einen Dungeon (Sustain-Wurzel): heute
   heilt die Party zwischen Kaempfen gratis auf voll (`restore-party`, MP billig)
   → kein Attritions-Bogen, kein "Schwung" ueber eine Kartensequenz. Knapperes
