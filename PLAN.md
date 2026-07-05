@@ -65,11 +65,13 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
 
-- [ ] Phase 84 — Verschlingen als gerichtete Jagd (Codex): die Devour-Map (jeder
-  Gegner lehrt Rimuru einen Skill) im Codex sichtbar machen ("dieser Gegner
-  lehrt X"), damit der Spieler gezielt Gegner sucht, um Rimuru zu formen —
-  verwandelt Grind in gerichtete Neugier. Codex existiert bereits; kleiner
-  Aufwand, hoher Sog.
+- [~] Phase 84 — Verschlingen als gerichtete Jagd (Worktree
+  `/worktree/tempest-phase-84-devour-codex`): die Devour-Map (jeder devourbare
+  Gegner lehrt Rimuru einen Skill) sichtbar machen — Umschalter im Codex-Tab
+  („Wissen" ↔ „🍴 Verschlingen"), der ALLE devourbaren Gegner + gelehrten Skill
+  als Checkliste zeigt (gelernt ✓ / offen ○, nach Level sortiert). Kein neuer
+  Top-Tab (Reihe voll). buildDevourCompendium in world.ts + Test; MenuScene-
+  Render + Browser-Smoke.
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
