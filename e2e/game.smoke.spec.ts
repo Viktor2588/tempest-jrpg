@@ -938,6 +938,30 @@ test('Phase 90 — Speicherstände rendern, „Neues Spiel" setzt den Slot aktiv
   expect(browserErrors).toEqual([]);
 });
 
+test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  await installBrowserSave(page, bandTwoBrowserSave());
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 760, 94); // Codex-Tab
+  await page.waitForTimeout(200);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 583, 140); // Umschalter „🍴 Verschlingen"
+  await page.waitForTimeout(250);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
   const box = await page.locator('canvas').boundingBox();
   if (!box) throw new Error('Game canvas not found');

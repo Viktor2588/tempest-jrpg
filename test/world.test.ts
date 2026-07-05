@@ -8,6 +8,7 @@ import {
   applyEffects,
   applyWorldState,
   buildCodexView,
+  buildDevourCompendium,
   buildEndingGallery,
   buildQuestLog,
   createWorldState,
@@ -784,5 +785,40 @@ describe('Verzaubern nur bei einem Schmied', () => {
     // … außer Rimuru hat den Skill zum Verzaubern unterwegs gelernt.
     const mobile: WorldState = { ...noSmith, flags: { 'craft.mobileEnchant.unlocked': true } };
     expect(canEnchantEquipment(mobile, 'jura-forest')).toBe(true);
+  });
+});
+
+describe('Phase 84 — Verschlingen-Kompendium', () => {
+  it('listet jeden devourbaren Gegner mit gelehrtem Skill, nach Level sortiert', () => {
+    const entries = buildDevourCompendium(createWorldState(createNewSave()));
+    expect(entries.length).toBeGreaterThan(0);
+    // Jeder Eintrag hat einen echten Skillnamen (nicht die rohe ID).
+    for (const entry of entries) {
+      expect(entry.skillName).not.toBe('');
+      expect(entry.skillName).not.toBe(entry.skillId);
+    }
+    // Nach Level aufsteigend sortiert (Jagd-Progression).
+    const levels = entries.map((entry) => entry.level);
+    expect([...levels].sort((a, b) => a - b)).toEqual(levels);
+  });
+
+  it('markiert gelernte Beute, sobald Rimuru den Skill kann', () => {
+    const save = createNewSave();
+    const target = buildDevourCompendium(createWorldState(save)).find((entry) => !entry.learned)!;
+    expect(target).toBeDefined();
+    // Rimuru lernt den Skill → der Eintrag gilt als erbeutet.
+    const withSkill = {
+      ...save,
+      party: {
+        ...save.party,
+        active: save.party.active.map((member) =>
+          member.characterId === 'rimuru'
+            ? { ...member, learnedSkillIds: [...member.learnedSkillIds, target.skillId] }
+            : member
+        )
+      }
+    };
+    const after = buildDevourCompendium(createWorldState(withSkill)).find((entry) => entry.enemyId === target.enemyId)!;
+    expect(after.learned).toBe(true);
   });
 });
