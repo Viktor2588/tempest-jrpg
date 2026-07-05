@@ -40,6 +40,9 @@ export interface QuestStepDefinition {
 
 export interface QuestDefinition {
   readonly id: string;
+  // Hauptpfad-Quest: wird im Log/Zielmarker bevorzugt, damit die Story eine sichtbare
+  // Richtung von Gebiet zu Gebiet hat. Nebenquests lassen das Feld weg.
+  readonly main?: boolean;
   readonly title: string;
   readonly description: string;
   readonly actId?: string;
@@ -112,6 +115,8 @@ export interface NpcDefinition {
   // Optionale Story-Sichtbarkeit: Der NPC erscheint (und ist ansprechbar) erst, wenn
   // alle Anforderungen erfüllt sind. Fehlt das Feld, ist der NPC immer sichtbar.
   readonly requirements?: readonly WorldRequirement[];
+  // Ortsdienst: Ein 'smith'-NPC erlaubt Verzaubern, solange man auf seiner Karte ist.
+  readonly service?: 'smith';
 }
 
 export interface ShopDefinition {
@@ -153,6 +158,7 @@ export interface EncounterDefinition {
 export const QUESTS = [
   {
     id: 'slime-awakening',
+    main: true,
     title: 'Schleim-Prolog',
     description: 'Erlebe Rimurus erste Schritte: Höhlenerwachen, Schwur, Goblindorf, Direwolf-Bedrohung und die erste Gründungsidee.',
     actId: 'prologue',
@@ -219,6 +225,7 @@ export const QUESTS = [
   },
   {
     id: 'binding-of-ancestors',
+    main: true,
     title: 'Bindung der Ahnen',
     description: 'Führe Rigurd, Gobta, Ranga und Shuna durch den ersten Riss der alten Versiegelung.',
     actId: 'act-1',
@@ -258,6 +265,7 @@ export const QUESTS = [
   },
   {
     id: 'border-escalation',
+    main: true,
     title: 'Grenzfeuer',
     description: 'Folge Rangas sicherer Spur ins Geistmoor, entschärfe den Grenzkonflikt und stoppe eine anonyme Siegelvorhut.',
     actId: 'act-2',
@@ -297,6 +305,7 @@ export const QUESTS = [
   },
   {
     id: 'ancestors-choice',
+    main: true,
     title: 'Die Wahl der Ahnen',
     description: 'Schmiede Tempests Bündnis, brich die Linie der alten Ordnung und entscheide über das Schicksal des Siegels.',
     actId: 'act-3',
@@ -486,6 +495,7 @@ export const QUESTS = [
   },
   {
     id: 'dwargon-craft',
+    main: true,
     title: 'Handwerk aus Dwargon',
     description: 'Reise ins Bewaffnete Königreich Dwargon, schlichte den Zwischenfall um Kaijin und gewinne Tempest die Schmiedekunst der Zwerge.',
     steps: [
@@ -512,6 +522,7 @@ export const QUESTS = [
   },
   {
     id: 'blumund-guild',
+    main: true,
     title: 'Tempest tritt vor die Welt',
     description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
     steps: [
@@ -538,6 +549,7 @@ export const QUESTS = [
   },
   {
     id: 'geld-disaster',
+    main: true,
     title: 'Der hungernde Heerzug',
     description: 'Die Dryade Treyni warnt vor einer Ork-Armee, die der Hunger in den Jura-Wald treibt. Stellt euch dem Orc-Disaster „Geld" und schmiedet aus dem Sieg ein Bündnis.',
     steps: [
@@ -570,6 +582,7 @@ export const QUESTS = [
   },
   {
     id: 'lizard-alliance',
+    main: true,
     title: 'Das Bündnis der Echsenmenschen',
     description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru besiegt werden, ehe die Echsenmenschen ein Bündnis schließen.',
     steps: [
@@ -596,6 +609,7 @@ export const QUESTS = [
   },
   {
     id: 'shizu-vow',
+    main: true,
     title: 'Shizus Schwur',
     description: 'In der Glutgrotte ringt die Andersweltlerin Shizu mit dem Flammengeist Ifrit — angestachelt von einem maskierten Majin. Befreie sie und trage ihren letzten Schwur weiter.',
     steps: [
@@ -704,7 +718,7 @@ export const LOCATIONS = [
     name: 'Kijin-Viertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 12, y: 5 },
+    position: { x: 12, y: 6 },
     description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
     identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
     unlockFlag: 'story.kijin.named'
@@ -714,7 +728,8 @@ export const LOCATIONS = [
     name: 'Dwargon-Werkviertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 15, y: 5 },
+    // (15,5) liegt im Stadt-Layout selbst in einer Wand → Marker unerreichbar/verdeckt.
+    position: { x: 16, y: 6 },
     description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
     identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
     unlockFlag: 'faction.dwargon.allied'
@@ -909,7 +924,9 @@ export const LOCATIONS = [
     name: 'Osthandelsroute',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 20, y: 5 },
+    // (20,5) wird im Stadt-Ausbau zur Wand → Ziel/Kampf unerreichbar. (20,6) ist in
+    // allen Ausbaustufen begehbar. Muss mit dem east-route-deserter-Encounter matchen.
+    position: { x: 20, y: 6 },
     description: 'Die östliche Handelsroute, auf der ein Deserteurstrupp Reisende schikaniert.',
     identity: 'Optionaler Abfangort: Deserteur-Söldner an der Grenze.',
     unlockFlag: 'sidequest.deserter.started'
@@ -3542,6 +3559,7 @@ export const NPCS = [
     position: { x: 15, y: 6 },
     dialogId: 'tempest-builders',
     color: 0xd2a679,
+    service: 'smith',
     requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
   },
   {
@@ -3559,6 +3577,7 @@ export const NPCS = [
     position: { x: 6, y: 9 },
     dialogId: 'kaijin-forge',
     color: 0xd2a679,
+    service: 'smith',
     // Erscheint erst nach Gazels Urteil (Schmiedekunst freigeschaltet).
     requirements: [{ flag: 'craft.smithing.unlocked' }]
   },
@@ -3933,7 +3952,8 @@ export const ENCOUNTERS = [
     id: 'east-route-deserter',
     mapId: 'tempest-start',
     kind: 'trigger',
-    position: { x: 20, y: 5 },
+    // Deckungsgleich mit der east-route-Location; (20,5) ist im Stadt-Ausbau Wand.
+    position: { x: 20, y: 6 },
     enemyIds: ['human-deserter', 'human-lancer'],
     chance: 1,
     requirements: [
@@ -3949,7 +3969,9 @@ export const ENCOUNTERS = [
     id: 'deserter-retaliation',
     mapId: 'tempest-start',
     kind: 'trigger',
-    position: { x: 19, y: 5 },
+    // (19,5) wird im Stadt-Ausbau zur Wand → Kampf unerreichbar. (19,6) ist in allen
+    // Ausbaustufen begehbar (neben dem east-route-deserter-Encounter (20,6)).
+    position: { x: 19, y: 6 },
     enemyIds: ['human-deserter', 'human-deserter', 'human-lancer'],
     chance: 1,
     requirements: [

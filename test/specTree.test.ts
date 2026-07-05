@@ -89,21 +89,21 @@ describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
   it('Phase 70b — sperrt bei gobta und shuna die anderen Stränge nach der Wahl (Gates bleiben)', () => {
     const gobta = createPartyMember(hero('gobta'), { level: 9 });
     const gState = grantSkillPoints(createProgressionState(), 'gobta', 10).state;
-    const trick = unlockSkillNode(gobta, gState, 'gobta-trick-guile');
-    expect(trick.ok).toBe(true);
-    // Reiter- (story-gegatet) und Sturmklingen-Strang jetzt gesperrt …
-    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-pack-footwork').ok).toBe(false);
-    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-blade-focus').ok).toBe(false);
+    const feint = unlockSkillNode(gobta, gState, 'gobta-feint-focus');
+    expect(feint.ok).toBe(true);
+    // Reiter- (story-gegatet) und Alpha-Strang jetzt gesperrt …
+    expect(canUnlockSkillNode(gobta, feint.state, 'gobta-rider-focus').ok).toBe(false);
+    expect(canUnlockSkillNode(gobta, feint.state, 'gobta-alpha-focus').ok).toBe(false);
     // … der gewählte Strang lässt sich weiter ausbauen.
-    expect(canUnlockSkillNode(gobta, trick.state, 'gobta-trick-slip').ok).toBe(true);
+    expect(canUnlockSkillNode(gobta, feint.state, 'gobta-feint-slip').ok).toBe(true);
 
     const shuna = createPartyMember(hero('shuna'), { level: 9 });
     const sState = grantSkillPoints(createProgressionState(), 'shuna', 10).state;
-    const analyse = unlockSkillNode(shuna, sState, 'shuna-analyse-focus');
-    expect(analyse.ok).toBe(true);
-    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-prayer-thread').ok).toBe(false);
-    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-grace-veil').ok).toBe(false);
-    expect(canUnlockSkillNode(shuna, analyse.state, 'shuna-analyse-insight').ok).toBe(true);
+    const flame = unlockSkillNode(shuna, sState, 'shuna-flame-focus');
+    expect(flame.ok).toBe(true);
+    expect(canUnlockSkillNode(shuna, flame.state, 'shuna-ward-focus').ok).toBe(false);
+    expect(canUnlockSkillNode(shuna, flame.state, 'shuna-weave-focus').ok).toBe(false);
+    expect(canUnlockSkillNode(shuna, flame.state, 'shuna-flame-clarity').ok).toBe(true);
   });
 
   it('jeder Strang-Knoten trägt Perks, und Ketten-Skills verweisen auf echte (schädigende) Fähigkeiten', () => {

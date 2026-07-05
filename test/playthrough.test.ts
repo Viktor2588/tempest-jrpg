@@ -348,7 +348,7 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
     save = talk(save, 'gobta', 'accept-deserter');
     expect(visibleTriggerIds(save)).toContain('east-route-deserter');
-    save = clearTriggerAt(save, { x: 20, y: 5 });
+    save = clearTriggerAt(save, { x: 20, y: 6 });
     save = talk(save, 'gobta', 'spare-deserters');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-runner')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-human-deserter')?.unlocked).toBe(true);
@@ -360,11 +360,11 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
   it('Nebenquest: Härte löst einen Vergeltungskampf samt Codexfolge aus', () => {
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
     save = talk(save, 'gobta', 'accept-deserter');
-    save = clearTriggerAt(save, { x: 20, y: 5 });
+    save = clearTriggerAt(save, { x: 20, y: 6 });
     save = talk(save, 'gobta', 'punish-deserters');
 
     expect(visibleTriggerIds(save)).toContain('deserter-retaliation');
-    save = clearTriggerAt(save, { x: 19, y: 5 });
+    save = clearTriggerAt(save, { x: 19, y: 6 });
     expect(buildCodexView(createWorldState(save)).find((entry) => entry.id === 'deserter-reprisals')?.unlocked).toBe(true);
   });
 

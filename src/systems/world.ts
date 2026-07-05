@@ -1,4 +1,4 @@
-import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
+import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type QuestDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ENEMIES } from '../data/enemies';
 import { HEROES, ITEMS, type ItemDefinition } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
@@ -46,6 +46,7 @@ export interface QuestStepView {
 export interface QuestLogEntryView {
   readonly id: string;
   readonly title: string;
+  readonly main: boolean;
   readonly description: string;
   readonly status: 'inactive' | 'active' | 'completed';
   readonly steps: readonly QuestStepView[];
@@ -159,6 +160,13 @@ export function getMapNpcs(mapId: string, state?: WorldState): NpcDefinition[] {
   );
 }
 
+// Verzaubern nur bei einem (sichtbaren) Schmied auf der aktuellen Karte —
+// es sei denn, Rimuru hat den Skill zum Verzaubern unterwegs gelernt (Flag).
+export function canEnchantEquipment(state: WorldState, mapId: string): boolean {
+  if (state.flags['craft.mobileEnchant.unlocked'] === true) return true;
+  return getMapNpcs(mapId, state).some((npc) => npc.service === 'smith');
+}
+
 export function getMapShops(mapId: string): ShopDefinition[] {
   return SHOPS.filter((shop) => shop.mapId === mapId);
 }
@@ -262,12 +270,8 @@ const QUEST_STATUS_ORDER: Record<QuestLogEntryView['status'], number> = {
   completed: 1,
   inactive: 2
 };
-// Canon-Hauptquests stehen vor aktiven Nebenquests, damit der aktuelle Bandanker
-// nicht unter optionalen Aufträgen verschwindet.
-const MAIN_QUEST_IDS = new Set(['slime-awakening', 'binding-of-ancestors', 'border-escalation', 'ancestors-choice']);
-
 export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
-  const entries = QUESTS.map((quest) => {
+  const entries = QUESTS.map((quest: QuestDefinition) => {
     const questState = state.quests[quest.id];
     const status = questState?.status ?? 'inactive';
     const completedStepIds = new Set(questState?.completedStepIds ?? []);
@@ -278,6 +282,7 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
     return {
       id: quest.id,
       title: quest.title,
+      main: quest.main === true,
       description: quest.description,
       status,
       steps: quest.steps.map((step) => ({
@@ -298,7 +303,7 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
       const statusOrder = QUEST_STATUS_ORDER[a.entry.status] - QUEST_STATUS_ORDER[b.entry.status];
       if (statusOrder !== 0) return statusOrder;
       if (a.entry.status === 'active') {
-        const mainOrder = Number(!MAIN_QUEST_IDS.has(a.entry.id)) - Number(!MAIN_QUEST_IDS.has(b.entry.id));
+        const mainOrder = Number(!a.entry.main) - Number(!b.entry.main);
         if (mainOrder !== 0) return mainOrder;
       }
       return a.index - b.index;

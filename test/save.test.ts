@@ -57,7 +57,7 @@ describe('save.ts', () => {
         ...save.progression,
         relationshipPoints: { 'rimuru-gobta': 75 },
         skillPointsByCharacterId: { rimuru: 2 },
-        unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-fluid-core'] }
+        unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-predator-focus'] }
       }
     };
 
@@ -77,7 +77,7 @@ describe('save.ts', () => {
     expect(loaded.flags.metVillageGuide).toBe(true);
     expect(loaded.progression.relationshipPoints['rimuru-gobta']).toBe(75);
     expect(loaded.progression.unlockedSkillNodeIdsByCharacterId.rimuru)
-      .toEqual(['rimuru-fluid-core']);
+      .toEqual(['rimuru-predator-focus']);
   });
 
   it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {

@@ -20,6 +20,7 @@ import {
   getAdjacentTravel,
   getTravelAtTile,
   getMapLocations,
+  canEnchantEquipment,
   getMapNpcs,
   getTrackedQuestObjective,
   resolveEncounter,
@@ -742,5 +743,46 @@ describe('Datengetriebene NPC-Sichtbarkeit', () => {
     // Interaktion respektiert die Sichtbarkeit.
     expect(getAdjacentNpc('direwolf-den', { x: 10, y: 5 }, before)).toBeUndefined();
     expect(getAdjacentNpc('direwolf-den', { x: 10, y: 5 }, after)?.id).toBe('ranga');
+  });
+});
+
+describe('Hauptpfad-Führung', () => {
+  it('sortiert aktive Hauptquests vor Nebenquests und verfolgt sie im Zielmarker', () => {
+    // border-runner (Nebenquest) ist im Datensatz VOR blumund-guild (Hauptquest)
+    // definiert — ohne main-Flag würde die Nebenquest per Index zuerst kommen.
+    const state: WorldState = {
+      flags: {},
+      quests: {
+        'border-runner': { status: 'active', completedStepIds: [] },
+        'blumund-guild': { status: 'active', completedStepIds: [] }
+      },
+      inventory: [],
+      gold: 0
+    };
+
+    const active = buildQuestLog(state).filter((q) => q.status === 'active');
+    expect(active[0]!.id).toBe('blumund-guild');
+    expect(active.find((q) => q.id === 'blumund-guild')!.main).toBe(true);
+    expect(active.find((q) => q.id === 'border-runner')!.main).toBe(false);
+
+    // Der verfolgte Zielmarker greift dieselbe Hauptquest, nicht die Nebenquest.
+    expect(getTrackedQuestObjective(state)?.questId).toBe('blumund-guild');
+  });
+});
+
+describe('Verzaubern nur bei einem Schmied', () => {
+  it('sperrt Verzaubern ohne Schmied und erlaubt es bei einem sichtbaren Schmied oder per Rimuru-Skill', () => {
+    const noSmith = emptyWorld();
+    // Dwargon-Schmied (Kaijin) erscheint erst nach freigeschalteter Schmiedekunst.
+    const dwargonForge: WorldState = { ...noSmith, flags: { 'craft.smithing.unlocked': true } };
+
+    expect(canEnchantEquipment(noSmith, 'dwargon')).toBe(false);
+    expect(canEnchantEquipment(noSmith, 'tempest-start')).toBe(false);
+    expect(canEnchantEquipment(dwargonForge, 'dwargon')).toBe(true);
+    // Abseits jeder Schmiede bleibt es gesperrt …
+    expect(canEnchantEquipment(dwargonForge, 'jura-forest')).toBe(false);
+    // … außer Rimuru hat den Skill zum Verzaubern unterwegs gelernt.
+    const mobile: WorldState = { ...noSmith, flags: { 'craft.mobileEnchant.unlocked': true } };
+    expect(canEnchantEquipment(mobile, 'jura-forest')).toBe(true);
   });
 });

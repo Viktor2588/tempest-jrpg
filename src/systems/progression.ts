@@ -736,6 +736,17 @@ export function applyBattleProgressionRewards(
   const reserveExperience = calculateReserveExperienceReward(experience);
   const rewardedReserve = reserveMembers.map((member) => addMemberExperience(member, reserveExperience));
   const caughtUp = catchUpReserveMembers(active, rewardedReserve, chapterId);
+  // Reserve-Mitglieder bekommen Skillpunkte für ihren gesamten Levelzuwachs (Kampf-XP
+  // + Catch-up), gemessen am Vor-Kampf-Level. Sonst verlieren gebenkte Figuren die
+  // Punkte für Level, die sie auf der Bank erreicht haben — Punkte bleiben so eine
+  // reine Funktion des erreichten Levels, egal ob aktiv oder Reserve.
+  caughtUp.reserve.forEach((member, index) => {
+    const points = skillPointsForLevelGain(reserveMembers[index]!.level, member.level);
+    if (points > 0) {
+      nextState = grantSkillPoints(nextState, member.characterId, points).state;
+      grantedSkillPoints += points;
+    }
+  });
   const activeCharacterIds = new Set(active.map((member) => member.characterId));
   for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
     if (activeCharacterIds.has(relationship.characterId)

@@ -34,7 +34,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildCodexView, buildQuestLog, createWorldState, type QuestLogEntryView } from '../systems/world';
+import { buildCodexView, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
   MENU_LIST_BOTTOM,
@@ -320,6 +320,8 @@ export class MenuScene extends Phaser.Scene {
     const summary = view.members.find((member) => member.member.characterId === characterId);
     if (!summary) return;
 
+    const canEnchant = canEnchantEquipment(createWorldState(this.save), this.save.location.mapId);
+
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
@@ -338,6 +340,13 @@ export class MenuScene extends Phaser.Scene {
         this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
         if (item.enchantment && enchantmentLevel < item.enchantment.maxLevel) {
           const cost = item.enchantment.goldCostPerLevel * (enchantmentLevel + 1);
+          if (!canEnchant) {
+            this.button(310, y + 24, 184, 'Verzaubern · nur bei Schmied', () => {
+              this.message = 'Verzaubern geht nur bei einem Schmied — oder wenn Rimuru den Skill dafür gelernt hat.';
+              this.refresh();
+            }, 0x242b38);
+            return;
+          }
           this.button(310, y + 24, 184, `Verzaubern · ${cost} Gold`, () => {
             const result = enchantEquipment(
               summary.member,
@@ -674,8 +683,12 @@ export class MenuScene extends Phaser.Scene {
       const y = cursorY;
       this.panel(24, y, 900, 92);
       const completed = quest.status === 'completed';
-      this.layer.add(this.add.text(42, y - 30, `${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
-        fontFamily: 'sans-serif', fontSize: '15px', color: completed ? '#8dffc2' : '#e9c56c'
+      // Hauptpfad-Quests markieren + farblich abheben (Sortierung stellt sie schon nach
+      // oben), damit der rote Faden der Story sichtbar von den Nebenquests absticht.
+      const mainTag = quest.main ? '★ HAUPTPFAD · ' : '';
+      this.layer.add(this.add.text(42, y - 30, `${mainTag}${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: completed ? '#8dffc2' : (quest.main ? '#8dd0ff' : '#e9c56c')
       }));
       this.layer.add(this.add.text(906, y - 29, `Belohnung: ${quest.rewardGold} Gold`, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'
