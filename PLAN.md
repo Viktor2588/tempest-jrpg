@@ -52,29 +52,6 @@ Beispiel Benimaru: physisch („alle Physical-Talente") ODER Flammenmagie ODER
 Flammen-Unterstuetzung/Team-Buffs. Ausserdem: die Schmiede Kaijin und Kurobe
 verlassen vorerst das Kampfroster (bleiben Story-/Schmiede-NPCs).
 
-- [x] Phase 70b — Spec-Straenge fuer die story-gegateten Baeume (gobta, shuna).
-  Worktree: /worktree/tempest-phase-70b-spec-strands (Branch phase-70b-spec-strands).
-  Umgesetzt: gobta und shuna in je 3 exklusive Straenge (Branch-Lock ueber die
-  Phase-70-Engine) umgebaut, bestehende Skills + alle Gates unveraendert:
-  - gobta: Reiter (story-gegatete Wolfsreiter-Kette: quick-step/storm-gust/
-    direwolf-rush + Ausdauer/Physisch, Capstone-Kette direwolf-rush→orc-cleave)
-    ODER Goblin-List (Ausweichen/Konter, goblin-feint→orc-cleave) ODER
-    Sturmklinge (rohe physische Offensive + Konter).
-  - shuna: Geistgewebe (story-gegatete Heil-/Barrierekette: barrier-prayer/
-    sacred-weave + Team-Buffdauer/Schadensreduktion) ODER Analyse (magische
-    Offensive, spirit-bind→umbral-burst) ODER Gnade (Ausweichen/Zaehigkeit).
-  Alle Evolutions-/Beziehungs-/Flag-/Regions-Gates + die zugehoerigen Tests
-  (progression/world/playthrough) bleiben gruen; specTree.test.ts um gobta/shuna
-  (3 Straenge, ≥4 Knoten/Strang, Branch-Lock) erweitert. Balance-Hinweis:
-  Ausweichperks auf gobtas Reiter-Einstiegsknoten kippten den Sim-Korridor der
-  masked-majin-Ambush (Auto-Battler beendet den Kampf trivial → Rest-HP > 0.85) —
-  daher fuehrt der Reiter-Strang Ausdauer/Physisch statt Dodge; Dodge ist bewusst
-  der Goblin-List-Strang. Checks: typecheck ✓, npm test 388/388 ✓ (inkl.
-  balanceHarness), build ✓. Rimurus Straenge folgen in Phase 71.
-  Follow-up (Balance): masked-majin-Ambush sitzt schon ohne Specs bei Rest-HP
-  0.821 (Korridor-Decke 0.85) — der Boss ist fuer eine spec-ausgeruestete Party
-  knapp; eine spaetere Gegner-Nachjustierung (ausserhalb gobta/shuna-Scope) sollte
-  den Beat wieder straffen.
 - [ ] Phase 71 — Rimuru: Verschlingen als Progressionskern (inkl. seiner 3 Spec-
   Straenge, die sich mit Verschlingen verzahnen): Startskills auf
   `predator`, `great-sage`, `slime-strike` (+ `water-jet` als angeborene
