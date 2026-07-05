@@ -65,17 +65,6 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
 
-- [~] Phase 81 — Telegraph → Konter-Entscheidung (Worktree
-  `/worktree/tempest-phase-81-telegraph`): Der Telegraph (`telegraphSkillId`)
-  ist heute nur Info. Bosse sollen **telegraphierte Big-Hits** ansagen, die der
-  Spieler *beantworten* muss: Ziel decken (`guard`), Boss-CT verzoegern
-  (`temporal-snare`/negativer `ctDelta`), cleansen, oder vor dem Schlag
-  wegbursten. Datengetrieben ueber vorhandenes Analyse-/Telegraph-System +
-  `ctDelta`/`guard`/Reaktionen; HUD hebt den drohenden Big-Hit sichtbar hervor.
-  Verzahnt mit Phase 80: die Eskalation macht den Druck real, also lohnt
-  Reagieren endlich. Abnahme: Balance-Harness bleibt gruen (Auto-Battler
-  reagiert sinnvoll), neuer Test, dass ein telegraphierter Big-Hit ohne Antwort
-  deutlich mehr Schaden macht als mit korrektem Konter.
 - [ ] Phase 82 — Gegner-Archetypen, die das dominante Muster bestrafen: wenige,
   datengetriebene Archetypen, die je eine andere Antwort erzwingen und den
   Talentbaeumen + devourten Skills Zweck geben — Heiler-Bestrafer (kontert/
