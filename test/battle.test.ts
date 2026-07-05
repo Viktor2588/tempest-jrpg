@@ -9,6 +9,7 @@ import {
   createHeroBattleUnit,
   currentActor,
   enemyTurn,
+  escalationBonus,
   isPlayerTurn,
   queueReaction,
   renderView,
@@ -1018,5 +1019,84 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
     expect(result.ok).toBe(true);
     expect(hero!.ct).toBe(35);
     expect(state.activeId).toBe(anchor!.id);
+  });
+});
+
+describe('Phase 80 — Anti-Aussitzen / Eskalation', () => {
+  // Sehr zäher Punching-Bag, der beide Vergleichsläufe überlebt (kein Tod → HP-Delta
+  // misst nur die Eskalation, nicht ein Cappen durch Ableben).
+  const tank = (): BattleUnitInput => depthHero('rimuru', 'Rimuru', {
+    stats: { maxHp: 60000, maxMp: 200, attack: 26, defense: 18, magic: 24, spirit: 18, agility: 22 }
+  });
+
+  it('Eskalations-Bonus: 0 in der Gnadenfrist, lineare Rampe danach, Deckel bei 200 %', () => {
+    const state = startBattle({ party: [tank()], enemies: [phaseEnemy({ escalationPercentPerTurn: 12 })], seed: 1 });
+    const boss = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    boss.escalationStacks = 0;
+    expect(escalationBonus(boss)).toBe(0);
+    boss.escalationStacks = 5; // Gnadenfrist: noch kein Zuschlag.
+    expect(escalationBonus(boss)).toBe(0);
+    boss.escalationStacks = 6;
+    expect(escalationBonus(boss)).toBeCloseTo(0.12);
+    boss.escalationStacks = 10;
+    expect(escalationBonus(boss)).toBeCloseTo(0.6);
+    boss.escalationStacks = 1000; // Deckel.
+    expect(escalationBonus(boss)).toBe(2);
+
+    // Nicht eskalierender Gegner bleibt unabhängig von der Zugzahl bei 0.
+    const calm = startBattle({ party: [tank()], enemies: [phaseEnemy()], seed: 1 })
+      .combatants.find((combatant) => combatant.side === 'enemy')!;
+    calm.escalationStacks = 1000;
+    expect(escalationBonus(calm)).toBe(0);
+  });
+
+  it('bestraft Aussitzen: ein eskalierender Boss teilt über die Zeit spürbar mehr Schaden aus', () => {
+    // Party sitzt nur aus (verteidigt) — misst den Boss-Schaden über 24 Gegnerzüge.
+    const stallDamage = (escalationPercentPerTurn: number): number => {
+      const state = startBattle({
+        party: [tank()],
+        // Nur Basisangriffe (keine DoT-Skills), damit der Vergleich allein die
+        // Eskalation misst — Gift-Ticks laufen nicht durch den Eskalations-Multiplikator.
+        enemies: [phaseEnemy({ escalationPercentPerTurn, skillIds: [] })],
+        seed: 7
+      });
+      let enemyActions = 0;
+      let guard = 0;
+      while (state.status === 'active' && enemyActions < 24 && guard++ < 5000) {
+        if (isPlayerTurn(state)) {
+          act(state, { type: 'guard' });
+        } else {
+          enemyTurn(state);
+          enemyActions += 1;
+        }
+      }
+      const hero = state.combatants.find((combatant) => combatant.side === 'party')!;
+      return hero.maxHp - hero.hp;
+    };
+
+    const escalated = stallDamage(12);
+    const flat = stallDamage(0);
+    // Gleicher Seed, gleiche Party/Boss — nur die Eskalation unterscheidet sich.
+    // Aussitzen gegen den eskalierenden Boss kostet spürbar mehr HP.
+    expect(flat).toBeGreaterThan(0);
+    expect(escalated).toBeGreaterThan(flat * 1.25);
+  });
+
+  it('kündigt die Eskalation sichtbar an, sobald die Gnadenfrist überschritten ist', () => {
+    const state = startBattle({
+      party: [tank()],
+      enemies: [phaseEnemy({ escalationPercentPerTurn: 12 })],
+      seed: 7
+    });
+    let guard = 0;
+    while (state.status === 'active' && guard++ < 5000) {
+      if (isPlayerTurn(state)) {
+        act(state, { type: 'guard' });
+      } else {
+        enemyTurn(state);
+      }
+      if (state.log.some((entry) => entry.includes('wird rasend'))) break;
+    }
+    expect(state.log.some((entry) => entry.includes('wird rasend'))).toBe(true);
   });
 });
