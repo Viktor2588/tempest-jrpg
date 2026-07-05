@@ -500,7 +500,7 @@ function runBalanceStoryRoute(seed: number): BalanceEncounterRun[] {
 
   save = chooseNpcOption(save, 'souka-marsh', 'parley');
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[10]!, seed + 67, runs);
-  save = chooseNpcOption(save, 'souka-marsh', 'seal');
+  save = chooseNpcOption(save, 'souka-marsh', 'seal-respect');
 
   save = recoverWithInventory(buyIfPossible(save, 'healing-herb', 4));
   save = recoverWithInventory(buyIfPossible(save, 'mana-drop', 2));

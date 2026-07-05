@@ -28,12 +28,6 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
-- [ ] Phase 64 — Entscheidungen mit Konsequenz: 2–3 Mittelspiel-Entscheidungen
-  ueber vorhandene Flag-/Requirement-Mechanik (z. B. Deserteure: Gnade →
-  neuer Dorf-NPC + Haendlerrabatt, Haerte → Folge-Encounter + Codexeintrag;
-  Gabiru nach dem Duell: demuetigen vs. respektieren → andere Echsen-Dialoge
-  und Bündnis-Bonus). Konsequenzen muessen in Welt, Shop oder Kampf sichtbar
-  sein, nicht nur im Text; Verzahnung mit den Ende-Bedingungen aus Band 4.
 - [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
   Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
   Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge

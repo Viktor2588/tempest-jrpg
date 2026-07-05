@@ -5,6 +5,7 @@ import {
   applyWorldState,
   buildCodexView,
   buildQuestLog,
+  buildShopView,
   chooseDialogOption,
   completeEncounter,
   createWorldState,
@@ -338,14 +339,30 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-stray-echo')?.unlocked).toBe(true);
   });
 
-  it('Nebenquest: Gobtas „Grenzgänger" ist annehm- und abschließbar', () => {
+  it('Nebenquest: Gnade macht den Grenzgänger sichtbar und senkt Vorratspreise', () => {
+    const normalHerbPrice = buildShopView(createWorldState(createNewSave()), 'tempest-supply')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice;
     let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
     save = talk(save, 'gobta', 'accept-deserter');
     expect(visibleTriggerIds(save)).toContain('east-route-deserter');
     save = clearTriggerAt(save, { x: 20, y: 5 });
-    save = talk(save, 'gobta', 'report-deserter');
+    save = talk(save, 'gobta', 'spare-deserters');
     expect(buildQuestLog(createWorldState(save)).find((q) => q.id === 'border-runner')!.status).toBe('completed');
     expect(buildCodexView(createWorldState(save)).find((e) => e.id === 'bestiary-human-deserter')?.unlocked).toBe(true);
+    expect(getMapNpcs('tempest-start', createWorldState(save)).map((npc) => npc.id)).toContain('deserter-refugee');
+    expect(buildShopView(createWorldState(save), 'tempest-supply')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice).toBeLessThan(normalHerbPrice);
+  });
+
+  it('Nebenquest: Härte löst einen Vergeltungskampf samt Codexfolge aus', () => {
+    let save: SaveGameV2 = { ...createNewSave(), flags: { 'story.act1.completed': true } };
+    save = talk(save, 'gobta', 'accept-deserter');
+    save = clearTriggerAt(save, { x: 20, y: 5 });
+    save = talk(save, 'gobta', 'punish-deserters');
+
+    expect(visibleTriggerIds(save)).toContain('deserter-retaliation');
+    save = clearTriggerAt(save, { x: 19, y: 5 });
+    expect(buildCodexView(createWorldState(save)).find((entry) => entry.id === 'deserter-reprisals')?.unlocked).toBe(true);
   });
 
   it('Nebenquest (Postgame): Rigurds Apex-Kopfgeld „Urdirewolf" ist erst nach Act 3 verfügbar', () => {

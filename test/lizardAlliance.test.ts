@@ -5,6 +5,7 @@ import { createNewSave } from '../src/systems/save';
 import {
   buildCodexView,
   buildQuestLog,
+  buildShopView,
   chooseDialogOption,
   completeEncounter,
   createWorldState,
@@ -52,9 +53,11 @@ describe('Echsenmenschen-Allianz (Phase 29)', () => {
     expect(back?.travelTo?.mapId).toBe('tempest-start');
   });
 
-  it('spielt den Arc durch: Parley → Gabiru demütigen → Bündnis', () => {
+  it('spielt den Arc mit Respekt und sichtbarem Bündnisrabatt durch', () => {
     let state = freshWorld();
     const startGold = state.gold;
+    const normalHerbPrice = buildShopView(state, 'marsh-trader')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice;
 
     // 1) Soukas Warnung startet die Quest.
     const parley = chooseDialogOption(state, 'souka-alliance', 'start', 'parley');
@@ -63,22 +66,46 @@ describe('Echsenmenschen-Allianz (Phase 29)', () => {
     expect(state.flags['story.lizard.met']).toBe(true);
 
     // Das Bündnis lässt sich noch nicht besiegeln, solange Gabiru ungebrochen ist.
-    expect(chooseDialogOption(state, 'souka-alliance', 'start', 'seal').ok).toBe(false);
+    expect(chooseDialogOption(state, 'souka-alliance', 'start', 'seal-respect').ok).toBe(false);
+    expect(chooseDialogOption(state, 'souka-alliance', 'start', 'seal-humiliate').ok).toBe(false);
 
     // 2) Gabiru-Duell.
     state = completeEncounter(state, 'gabiru-duel').state;
     expect(state.flags['story.gabiru.humbled']).toBe(true);
 
     // 3) Bündnis besiegeln (Belohnung + Quest-Abschluss).
-    const seal = chooseDialogOption(state, 'souka-alliance', 'start', 'seal');
+    const seal = chooseDialogOption(state, 'souka-alliance', 'start', 'seal-respect');
     expect(seal.ok).toBe(true);
+    expect(seal.state.next?.nodeId).toBe('allied-respect');
     state = seal.state.world;
     expect(state.flags['story.lizard.allied']).toBe(true);
+    expect(state.flags['choice.gabiru.respect']).toBe(true);
     expect(state.gold).toBe(startGold + 200);
+    expect(buildShopView(state, 'marsh-trader')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice).toBeLessThan(normalHerbPrice);
+    expect(chooseDialogOption(state, 'souka-alliance', 'start', 'aftermath-respect').state.next?.nodeId)
+      .toBe('respect-aftermath');
 
     const quest = buildQuestLog(state).find((entry) => entry.id === 'lizard-alliance');
     expect(quest?.status).toBe('completed');
     expect(quest?.steps.every((step) => step.completed)).toBe(true);
+  });
+
+  it('bewahrt nach öffentlicher Demütigung den anderen Echsen-Dialog ohne Bündnisrabatt', () => {
+    let state = chooseDialogOption(freshWorld(), 'souka-alliance', 'start', 'parley').state.world;
+    state = completeEncounter(state, 'gabiru-duel').state;
+    const normalHerbPrice = buildShopView(state, 'marsh-trader')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice;
+
+    const seal = chooseDialogOption(state, 'souka-alliance', 'start', 'seal-humiliate');
+    expect(seal.ok).toBe(true);
+    expect(seal.state.next?.nodeId).toBe('allied-humiliate');
+    state = seal.state.world;
+    expect(state.flags['choice.gabiru.humiliate']).toBe(true);
+    expect(buildShopView(state, 'marsh-trader')
+      .items.find((item) => item.itemId === 'healing-herb')!.buyPrice).toBe(normalHerbPrice);
+    expect(chooseDialogOption(state, 'souka-alliance', 'start', 'aftermath-humiliate').state.next?.nodeId)
+      .toBe('humiliate-aftermath');
   });
 
   it('schaltet die Codexeinträge über die Arc-Flags frei', () => {
