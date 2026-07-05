@@ -111,6 +111,11 @@ export interface BalanceEncounterAggregate {
   // Phase 55 — Anti-Grind: mittleres Party-Level beim Betreten dieses Kampfes auf
   // dem grindfreien Hauptpfad (nur Pflichtkaempfe, kein optionales Farmen).
   readonly averagePartyLevelBefore: number;
+  // Phase 83 — Ressourcen-Bogen: mittlere Party-HP/-MP-Fraktion beim BETRETEN dieses
+  // Kampfes. Macht die Attrition ueber die Dungeon-/Story-Folge messbar (sinkt, weil
+  // zwischen Kaempfen nur begrenzt via Items aufgefuellt wird — kein Auto-Voll-Restore).
+  readonly averagePartyHpFractionBefore: number;
+  readonly averagePartyMpFractionBefore: number;
   readonly winRate: number;
   readonly targetCorridor: BalanceCorridor;
   readonly currentlyInsideTargetCorridor: boolean;
@@ -462,6 +467,8 @@ export function runBalanceHarnessReport(
       averageSteps: roundedAverage(encounterRuns.map((run) => run.steps)),
       averageRemainingPartyHpFraction: roundedAverage(encounterRuns.map((run) => run.remainingPartyHpFraction)),
       averagePartyLevelBefore: roundedAverage(encounterRuns.map((run) => run.partyLevelAverageBefore)),
+      averagePartyHpFractionBefore: roundedAverage(encounterRuns.map((run) => run.partyHpFractionBefore)),
+      averagePartyMpFractionBefore: roundedAverage(encounterRuns.map((run) => run.partyMpFractionBefore)),
       winRate: winRate(encounterRuns),
       targetCorridor,
       currentlyInsideTargetCorridor: runsInsideCorridor(encounterRuns, targetCorridor)

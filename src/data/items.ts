@@ -14,12 +14,12 @@ export const ITEMS = [
   {
     id: 'mana-drop',
     name: 'Manatropfen',
-    description: 'Kristallisierte Magie. Stellt 15 MP wieder her.',
+    description: 'Kristallisierte Magie. Stellt 13 MP wieder her.',
     category: 'consumable',
-    price: 35,
+    price: 40,
     stackable: true,
     startingQuantity: 2,
-    effect: { kind: 'restore-mp', amount: 15 }
+    effect: { kind: 'restore-mp', amount: 13 }
   },
   {
     id: 'tempest-training-sword',
