@@ -100,4 +100,16 @@ describe('Balance-Harness Report', () => {
     ]));
     expect(new Set(profiles.map((profile) => JSON.stringify(profile))).size).toBe(3);
   });
+
+  it('Phase 83 — Ressourcen-Bogen: MP sinkt über die Story-Route (Attrition, kein Gratis-Voll-Restore)', () => {
+    const report = runBalanceHarnessReport(SEEDS);
+    const mpBefore = report.storyRoute.map((encounter) => encounter.averagePartyMpFractionBefore);
+    const avg = (values: number[]): number => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const early = avg(mpBefore.slice(0, 3));
+    const late = avg(mpBefore.slice(-3));
+    // Späte Kämpfe werden mit deutlich weniger MP betreten als frühe → echter Bogen.
+    expect(late).toBeLessThan(early - 0.15);
+    // Kein Kampf wird durchgängig mit vollem MP betreten (sonst wäre MP als Ressource bedeutungslos).
+    expect(Math.min(...mpBefore)).toBeLessThanOrEqual(0.6);
+  });
 });

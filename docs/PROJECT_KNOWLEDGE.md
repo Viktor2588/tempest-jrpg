@@ -574,6 +574,12 @@ completed_milestones:
     - listSaveSlots/getActiveSlot/setActiveSlot/slotSaveKey/activeSaveKey helpers; new SaveSlotScene (per slot: Fortsetzen / Neues Spiel / Löschen with a confirm overlay; cards show chapter banner + lead name/level + date)
     - Title keeps "▶ Spiel starten" (continues the active slot — existing e2e flow unchanged) and adds a "🗂 Speicherstände" button; slot selection sets the active slot then enters the Overworld
     - typecheck, 415 unit tests (6 new slot tests: isolation, active-slot default/clamp, defaults follow active slot, delete scoping), production build, and a new desktop e2e smoke (slots render, New Game sets the slot active) verified
+  phase_83:
+    - resource arc, increment 1 (MP as a scarcer cross-fight resource). Finding correction: HP/MP already carry between fights and there is NO auto full-restore (restore-party fires at one story beat only); recovery is item-driven and there are no shops mid-dungeon, so each dungeon is already a ration — items were just too cheap/potent for it to bite
+    - mana-drop tightened 15→13 MP, price 35→40 (kept starting qty 2); deliberately mild — an aggressive MP nerf (10–12) destabilised the escalating high-HP bosses (Geld's Phase-80 escalation + MP starvation compound into seed-specific losses), so a gentle notch that keeps the harness green for every Rimuru spec
+    - made the attrition measurable + guarded: BalanceEncounterAggregate now surfaces averagePartyHpFractionBefore/averagePartyMpFractionBefore (was captured per-run, not aggregated); new balanceHarness test asserts MP entering the late story fights is meaningfully below the early fights and no fight is entered at full MP (party enters late bosses at ~0.42–0.56 MP → real "burst or conserve" rationing)
+    - a deeper economy rework (healing-item scarcity, retreat/rest budgets) is deferred — it needs the escalating-boss balance reworked in tandem, out of scope for this increment
+    - typecheck, 419 unit tests (1 new attrition guardrail), production build verified; no scene/render change
   phase_82:
     - enemy archetypes that punish the standard "analyze weakness → exploit → sustain" tactic, all data-driven flags on EnemyDefinition wired through BattleUnitInput/Combatant like Phase 80's escalation
     - armoredUntilBreak (gabiru): takes ×0.65 damage until broken (guard-break) — and armored enemies now build +1 break pressure on ANY hit (not just weakness) so the break loop is reachable by every build, weakness just breaks faster; forces the Break loop instead of raw chipping
