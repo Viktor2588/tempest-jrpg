@@ -812,8 +812,11 @@ describe('battle: KI und Telegraph (Phase 45)', () => {
 
 // Phase 41 — Verschlinger und Momentum.
 describe('battle: Verschlinger und Momentum (Phase 41)', () => {
-  function predatorHero(skillIds: readonly string[] = ['predator', 'great-sage', 'water-blade']): BattleUnitInput {
-    return depthHero('rimuru', 'Rimuru', { skillIds });
+  function predatorHero(
+    skillIds: readonly string[] = ['predator', 'great-sage', 'water-jet'],
+    perks?: BattleUnitInput['perks']
+  ): BattleUnitInput {
+    return depthHero('rimuru', 'Rimuru', { skillIds, perks });
   }
 
   function devourSetup(seed: number): {
@@ -842,6 +845,35 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
     expect(act(state, { type: 'skill', skillId: 'predator', targetId: hero.id }).ok).toBe(false);
     expect(act(state, { type: 'skill', skillId: 'great-sage', targetId: hero.id }).ok).toBe(false);
     expect(act(state, { type: 'analyze', targetId: foe.id }).ok).toBe(true);
+  });
+
+  it('der Weiser-Strang vertieft die Analyse in einem Zug', () => {
+    const state = startBattle({
+      party: [predatorHero(undefined, [{ kind: 'analysis-power', levels: 2 }])],
+      enemies: [phaseEnemy()],
+      seed: 10
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const foe = state.combatants.find((c) => c.side === 'enemy')!;
+    state.activeId = hero.id;
+
+    expect(act(state, { type: 'analyze', targetId: foe.id }).ok).toBe(true);
+    expect(foe.analysisLevel).toBe(BATTLE_BALANCE.analysisMax);
+  });
+
+  it('der Verschlinger-Strang erhöht die im HUD sichtbare Aneignungschance', () => {
+    const chance = (perks?: BattleUnitInput['perks']): number => {
+      const state = startBattle({
+        party: [predatorHero(undefined, perks)],
+        enemies: [phaseEnemy()],
+        seed: 10
+      });
+      const foe = state.combatants.find((c) => c.side === 'enemy')!;
+      foe.hp = Math.floor(foe.maxHp * 0.25);
+      return renderView(state).enemies[0]!.devourSuccessChance ?? 0;
+    };
+
+    expect(chance([{ kind: 'devour-chance', percent: 25 }])).toBeGreaterThan(chance());
   });
 
   it('gated Analyse und Verschlingen über die passenden Unique-Skills', () => {
@@ -961,9 +993,9 @@ describe('battle: Verschlinger und Momentum (Phase 41)', () => {
       'predator',
       'great-sage',
       'slime-strike',
-      'water-blade',
       'water-jet',
       'predator-aura',
+      'spirit-bind',
       'quick-step',
       'direwolf-rush'
     ]);

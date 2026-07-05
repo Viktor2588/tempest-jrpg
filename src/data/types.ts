@@ -18,7 +18,9 @@ export type TalentPerk =
   | { readonly kind: 'dodge'; readonly percent: number }
   | { readonly kind: 'counter'; readonly percent: number; readonly scale?: number }
   | { readonly kind: 'skill-chain'; readonly triggerSkillId: string; readonly followUpSkillId: string; readonly percent: number }
-  | { readonly kind: 'buff-power'; readonly percent: number };
+  | { readonly kind: 'buff-power'; readonly percent: number }
+  | { readonly kind: 'devour-chance'; readonly percent: number }
+  | { readonly kind: 'analysis-power'; readonly levels: number };
 
 export type StatusEffectId =
   | 'poison'

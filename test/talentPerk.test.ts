@@ -7,10 +7,12 @@ import {
   type BattleUnitInput
 } from '../src/systems/battle';
 import {
+  analysisBonusLevels,
   buffBonusTurns,
   counterProc,
   damageDealtMultiplier,
   damageTakenMultiplierFromPerks,
+  devourChanceBonus,
   dodgeChance,
   maxHpMultiplier,
   skillChainFor,
@@ -45,6 +47,17 @@ describe('TalentPerk-Aggregation', () => {
     const perks: TalentPerk[] = [{ kind: 'skill-chain', triggerSkillId: 'slime-strike', followUpSkillId: 'orc-cleave', percent: 100 }];
     expect(skillChainFor(perks, 'slime-strike')).toEqual({ followUpSkillId: 'orc-cleave', chance: 1 });
     expect(skillChainFor(perks, 'water-blade')).toBeNull();
+  });
+
+  it('Verschlingen- und Analyse-Perks aggregieren mit sicheren Grenzen', () => {
+    expect(devourChanceBonus([
+      { kind: 'devour-chance', percent: 20 },
+      { kind: 'devour-chance', percent: 40 }
+    ])).toBe(0.5);
+    expect(analysisBonusLevels([
+      { kind: 'analysis-power', levels: 1 },
+      { kind: 'analysis-power', levels: 2 }
+    ])).toBe(3);
   });
 });
 

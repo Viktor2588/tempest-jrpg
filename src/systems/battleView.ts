@@ -10,6 +10,7 @@ import type {
 } from './battle';
 import { calculateDevourSuccessChance } from './battle';
 import type { InventoryStack } from './inventory';
+import { devourChanceBonus } from './talentPerk';
 
 export interface CombatantView {
   readonly id: string;
@@ -66,6 +67,10 @@ export interface BattleView {
 }
 
 export function renderView(state: BattleState): BattleView {
+  const devourer = state.combatants.find((combatant) =>
+    combatant.side === 'party' && combatant.skillIds.includes('predator')
+  );
+  const devourBonus = devourChanceBonus(devourer?.perks ?? []);
   return {
     status: state.status,
     party: state.combatants
@@ -73,7 +78,7 @@ export function renderView(state: BattleState): BattleView {
       .map((combatant) => renderCombatant(combatant, state.activeId)),
     enemies: state.combatants
       .filter((combatant) => combatant.side === 'enemy')
-      .map((combatant) => renderCombatant(combatant, state.activeId)),
+      .map((combatant) => renderCombatant(combatant, state.activeId, devourBonus)),
     activeId: state.activeId,
     teamMeter: state.teamMeter,
     log: [...state.log],
@@ -88,7 +93,11 @@ export function renderView(state: BattleState): BattleView {
   };
 }
 
-function renderCombatant(combatant: Combatant, activeId: string | null): CombatantView {
+function renderCombatant(
+  combatant: Combatant,
+  activeId: string | null,
+  devourBonus = 0
+): CombatantView {
   const signature = SIGNATURES.find((candidate) => candidate.id === combatant.signatureId);
   return {
     id: combatant.id,
@@ -124,7 +133,7 @@ function renderCombatant(combatant: Combatant, activeId: string | null): Combata
     telegraphSkillId: combatant.telegraphSkillId,
     telegraphSkillName: SKILLS.find((skill) => skill.id === combatant.telegraphSkillId)?.name ?? null,
     devourable: combatant.devourable,
-    devourSuccessChance: calculateDevourSuccessChance(combatant),
+    devourSuccessChance: calculateDevourSuccessChance(combatant, devourBonus),
     dead: combatant.dead,
     guarding: combatant.guarding,
     active: combatant.id === activeId

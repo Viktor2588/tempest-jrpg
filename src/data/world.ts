@@ -1533,7 +1533,7 @@ export const LORE_ENTRIES = [
     title: 'Verschlinger: Skill-Aneignung',
     lockedTitle: 'Rimurus Hunger',
     category: 'systems',
-    body: 'Rimurus Verschlinger ist kein bloßer Finisher: erst gebrochene, geschwächte oder fast besiegte Gegner lassen eine Essenz zurück, die als dauerhafte Fähigkeit in Rimurus Repertoire übergeht. Jede Essenz ist an einen konkreten Gegnerkern gebunden und wird im Kampf durch ein begrenztes Loadout gebändigt.',
+    body: 'Rimuru beginnt mit Wasserstrahl, doch Wasserklinge, Sturmböe und weitere Techniken müssen erbeutet werden. Erst gebrochene, geschwächte oder fast besiegte Gegner lassen per Verschlinger eine dauerhafte Fähigkeit zurück. Jede Essenz ist an einen konkreten Gegnerkern gebunden und wird im Kampf durch ein begrenztes Loadout gebändigt.',
     unlockFlag: 'codex.predator-devour'
   },
   {

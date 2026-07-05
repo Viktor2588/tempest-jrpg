@@ -117,10 +117,7 @@ describe('progression system', () => {
     expect(riderFeint.description).toContain('Wolfsfang-Abzeichen');
 
     const rimuru = createPartyMember(hero('rimuru'), { level: 4 });
-    let state = grantSkillPoints(createProgressionState(), 'rimuru', 2).state;
-    const fluidCore = unlockSkillNode(rimuru, state, 'rimuru-fluid-core');
-    expect(fluidCore.ok).toBe(true);
-    state = fluidCore.state;
+    const state = grantSkillPoints(createProgressionState(), 'rimuru', 1).state;
 
     expect(canUnlockSkillNode(rimuru, state, 'rimuru-ancestor-binding').ok).toBe(false);
     const unlocked = unlockSkillNode(rimuru, state, 'rimuru-ancestor-binding', {
@@ -146,28 +143,32 @@ describe('progression system', () => {
   });
 
   it('führt Namensgebung, Entwicklung und Skill-Baum als zusammenhängenden Pfad aus', () => {
-    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const rimuru = createPartyMember(hero('rimuru'), { level: 7 });
     const renamed = renameMember(rimuru, 'Ciel');
     const evolved = evolveMember(renamed.member, renamed.state, 'rimuru-predator-slime');
+    const devourer = {
+      ...evolved.member,
+      learnedSkillIds: [...evolved.member.learnedSkillIds, 'water-blade', 'venom-spit', 'spirit-bind']
+    };
     let state = grantSkillPoints(evolved.state, 'rimuru', 3).state;
 
-    let unlocked = unlockSkillNode(evolved.member, state, 'rimuru-fluid-core');
+    let unlocked = unlockSkillNode(devourer, state, 'rimuru-fluid-core');
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
-    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-instinct');
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-instinct');
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
-    expect(unlockSkillNode(evolved.member, state, 'rimuru-predator-devour').ok).toBe(false);
-    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-predator-devour', {
+    expect(unlockSkillNode(devourer, state, 'rimuru-predator-devour').ok).toBe(false);
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-devour', {
       flags: { 'codex.predator-devour': true }
     });
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
-    unlocked = unlockSkillNode(evolved.member, state, 'rimuru-shadow-domain');
+    unlocked = unlockSkillNode(devourer, state, 'rimuru-predator-sage');
     expect(unlocked.ok).toBe(true);
     state = unlocked.state;
 
-    const unit = createProgressionBattleParty([evolved.member], state)[0]!;
+    const unit = createProgressionBattleParty([devourer], state)[0]!;
     expect(unit.formName).toBe('Raubtier-Schleim');
     expect(unit.skillIds).toEqual(expect.arrayContaining(['predator-aura', 'venom-spit', 'spirit-bind']));
     expect(unit.skillIds).toHaveLength(8);

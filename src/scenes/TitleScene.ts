@@ -63,7 +63,7 @@ export class TitleScene extends Phaser.Scene {
       '🚶 Bewegen: WASD/Pfeiltasten oder das Touch-Steuerkreuz',
       '◆ Interaktion: Sprich zuerst mit Veldora',
       '📜 Questlog/Codex: Öffne das Menü, um Ziele und neue Lore zu prüfen',
-      '⚔ Bosskämpfe: Angriff, Skills, Items, Verteidigen und Teamleiste nutzen'
+      '⚔ Rimuru: Analysieren/Verschlingen erbeutet Skills; Wasserstrahl ist angeboren'
     ];
     lines.forEach((l, i) => overlay.add(this.add.text(cx, cy - 50 + i * 30, l, { fontFamily: 'sans-serif', fontSize: '16px', color: '#cdd8ea' }).setOrigin(0.5)));
     const bg = this.add.rectangle(cx, cy + 100, 200, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
