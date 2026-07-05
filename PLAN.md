@@ -28,12 +28,6 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
-- [ ] Phase 66 — Beat-Dramaturgie: Akt-Struktur auditieren, sodass sich
-  Beat-Typen (Kampf, Szene, Entscheidung, Entdeckung, Rekrutierung) im
-  Hauptpfad abwechseln und kein 3x-„geh hin, sprich, komm zurueck" in Folge
-  bleibt; Milestone-Banner im Moment statt danach ausloesen;
-  `playthrough.test` um Beat-Reihenfolge/-Dichte-Checks ergaenzen.
-
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
 Befund (Headless-Sim, Auto-Battle, 5 Seeds, ohne Talente/Ausruestung):
