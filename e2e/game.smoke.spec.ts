@@ -900,6 +900,44 @@ function bandFourDecisionBrowserSave(): Record<string, unknown> {
   });
 }
 
+test('Phase 90 — Speicherstände rendern, „Neues Spiel" setzt den Slot aktiv', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.addInitScript(() => {
+    window.localStorage.setItem('tempest-settings-v1', JSON.stringify({
+      masterVolume: 0, musicVolume: 0, sfxVolume: 0, reducedMotion: true, seenTutorial: true,
+      difficulty: 'normal', textSpeed: 'sofort', highContrast: false, colorblind: 'aus'
+    }));
+    for (const key of [
+      'tempest-chronik.save.v3',
+      'tempest-chronik.save.v3.slot2',
+      'tempest-chronik.save.v3.slot3',
+      'tempest-chronik.activeSlot'
+    ]) window.localStorage.removeItem(key);
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 392); // Titel: „🗂 Speicherstände"
+  await page.waitForTimeout(400);
+  await expectCanvasContent(page); // Slot-Auswahl rendert
+
+  // Slot 2 ist leer → „✚ Neues Spiel" (x = 160 + 640 − 170 = 630, y-Mitte der 2. Karte).
+  await clickGamePoint(page, 630, 274);
+  await page.waitForTimeout(700);
+
+  const activeSlot = await page.evaluate(() => window.localStorage.getItem('tempest-chronik.activeSlot'));
+  expect(activeSlot).toBe('2');
+  const slot2 = await page.evaluate(() => window.localStorage.getItem('tempest-chronik.save.v3.slot2'));
+  expect(slot2).not.toBeNull();
+  await expectCanvasContent(page); // in der Overworld angekommen
+  expect(browserErrors).toEqual([]);
+});
+
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
   const box = await page.locator('canvas').boundingBox();
   if (!box) throw new Error('Game canvas not found');

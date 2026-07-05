@@ -568,6 +568,12 @@ completed_milestones:
     - Kijin and Kaijin party battle cutouts and roster portraits
     - Canon-region overworld tiles
     - Canon boss and trigger-enemy cutouts
+  phase_90:
+    - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
+    - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes
+    - listSaveSlots/getActiveSlot/setActiveSlot/slotSaveKey/activeSaveKey helpers; new SaveSlotScene (per slot: Fortsetzen / Neues Spiel / Löschen with a confirm overlay; cards show chapter banner + lead name/level + date)
+    - Title keeps "▶ Spiel starten" (continues the active slot — existing e2e flow unchanged) and adds a "🗂 Speicherstände" button; slot selection sets the active slot then enters the Overworld
+    - typecheck, 415 unit tests (6 new slot tests: isolation, active-slot default/clamp, defaults follow active slot, delete scoping), production build, and a new desktop e2e smoke (slots render, New Game sets the slot active) verified
   phase_81:
     - telegraph → counter-decision: the read→react loop already existed in the engine (prepareAutoReaction queues a block/counter on the predicted victim, applyDamage mitigates perfect 0.25×/success 0.5×/counter reflect) but was auto-battle-only and had no stakes; Phase 81 gives it stakes and a player path
     - data-driven `heavy` flag on big boss skills (black-flame, drago-nova, ogre-smash, famished-bite, ifrit-inferno); heavy hits ALWAYS telegraph (even un-analyzed, via refreshEnemyTelegraph) and deal ×1.6 against an unbraced party target — braced = a timely block/counter OR guard

@@ -15,6 +15,44 @@ export const CURRENT_SAVE_VERSION = 3;
 export const SAVE_STORAGE_KEY = 'tempest-chronik.save.v3';
 export const LEGACY_SAVE_STORAGE_KEYS = ['tempest-chronik.save.v2'] as const;
 
+// Phase 90 — Mehrere Speicher-Slots. Slot 1 nutzt den bestehenden Basis-Key (so
+// wird ein vorhandener Einzel-Save nahtlos zu Slot 1, ohne Migration); weitere
+// Slots hängen ein Suffix an. Der aktive Slot steht in einem eigenen Key; die
+// Save-Funktionen defaulten darauf, damit die Spielszenen unverändert bleiben.
+export const SAVE_SLOT_COUNT = 3;
+export const ACTIVE_SLOT_STORAGE_KEY = 'tempest-chronik.activeSlot';
+
+export function slotSaveKey(slot: number): string {
+  return slot <= 1 ? SAVE_STORAGE_KEY : `${SAVE_STORAGE_KEY}.slot${slot}`;
+}
+
+export function getActiveSlot(storage: StorageLike): number {
+  const raw = Number.parseInt(storage.getItem(ACTIVE_SLOT_STORAGE_KEY) ?? '', 10);
+  return Number.isInteger(raw) && raw >= 1 && raw <= SAVE_SLOT_COUNT ? raw : 1;
+}
+
+export function setActiveSlot(storage: StorageLike, slot: number): void {
+  const clamped = Math.min(SAVE_SLOT_COUNT, Math.max(1, Math.trunc(slot)));
+  storage.setItem(ACTIVE_SLOT_STORAGE_KEY, String(clamped));
+}
+
+export function activeSaveKey(storage: StorageLike): string {
+  return slotSaveKey(getActiveSlot(storage));
+}
+
+export interface SaveSlotInfo {
+  readonly slot: number;
+  readonly save: SaveGameV3 | null;
+}
+
+// Übersicht aller Slots für die Auswahl-UI — pro Slot der geladene Save (oder null).
+export function listSaveSlots(storage: StorageLike): SaveSlotInfo[] {
+  return Array.from({ length: SAVE_SLOT_COUNT }, (_, index) => {
+    const slot = index + 1;
+    return { slot, save: loadSave(storage, slotSaveKey(slot)) };
+  });
+}
+
 export type Direction = 'down' | 'left' | 'right' | 'up';
 export type QuestStatus = 'inactive' | 'active' | 'completed';
 
@@ -210,7 +248,7 @@ export function importSave(json: string, now = new Date().toISOString()): SaveGa
   return migrate(JSON.parse(json) as unknown, now);
 }
 
-export function loadSave(storage: StorageLike, key = SAVE_STORAGE_KEY): SaveGameV3 | null {
+export function loadSave(storage: StorageLike, key = activeSaveKey(storage)): SaveGameV3 | null {
   const stored = storage.getItem(key);
   if (stored !== null) {
     return importSave(stored);
@@ -232,7 +270,7 @@ export function loadSave(storage: StorageLike, key = SAVE_STORAGE_KEY): SaveGame
 export function writeSave(
   storage: StorageLike,
   save: SaveGameV3,
-  key = SAVE_STORAGE_KEY
+  key = activeSaveKey(storage)
 ): SaveGameV3 {
   const normalized = normalize(save);
   storage.setItem(key, exportSave(normalized));
@@ -243,14 +281,14 @@ export function autoSave(
   storage: StorageLike,
   save: SaveGameV3,
   now = new Date().toISOString(),
-  key = SAVE_STORAGE_KEY
+  key = activeSaveKey(storage)
 ): SaveGameV3 {
   const normalized = normalize({ ...save, updatedAt: now }, now);
   storage.setItem(key, exportSave(normalized));
   return normalized;
 }
 
-export function resetSave(storage: StorageLike, key = SAVE_STORAGE_KEY): void {
+export function resetSave(storage: StorageLike, key = activeSaveKey(storage)): void {
   storage.removeItem(key);
   if (key === SAVE_STORAGE_KEY) {
     for (const legacyKey of LEGACY_SAVE_STORAGE_KEYS) {

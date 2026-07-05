@@ -11,6 +11,12 @@ import {
   normalize,
   resetSave,
   SAVE_STORAGE_KEY,
+  SAVE_SLOT_COUNT,
+  getActiveSlot,
+  setActiveSlot,
+  slotSaveKey,
+  listSaveSlots,
+  writeSave,
   startNewGamePlus,
   type StorageLike
 } from '../src/systems/save';
@@ -302,5 +308,65 @@ describe('save.ts', () => {
     expect(ids).not.toContain('kurobe');
     // Die restliche Party bleibt spielbar.
     expect(migrated.party.active.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Phase 90 — Speicher-Slots', () => {
+  it('listet SAVE_SLOT_COUNT Slots, anfangs alle leer', () => {
+    const storage = new MemoryStorage();
+    const slots = listSaveSlots(storage);
+    expect(slots).toHaveLength(SAVE_SLOT_COUNT);
+    expect(slots.map((entry) => entry.slot)).toEqual([1, 2, 3]);
+    expect(slots.every((entry) => entry.save === null)).toBe(true);
+  });
+
+  it('Slot 1 nutzt den Basis-Key — ein bestehender Einzel-Save wird zu Slot 1', () => {
+    const storage = new MemoryStorage();
+    expect(slotSaveKey(1)).toBe(SAVE_STORAGE_KEY);
+    writeSave(storage, createNewSave({ seed: 7 }), SAVE_STORAGE_KEY);
+    const slots = listSaveSlots(storage);
+    expect(slots[0]!.save?.seed).toBe(7);
+    expect(slots[1]!.save).toBeNull();
+  });
+
+  it('hält Slots isoliert (Schreiben in Slot 2 lässt Slot 1 unberührt)', () => {
+    const storage = new MemoryStorage();
+    writeSave(storage, createNewSave({ seed: 1 }), slotSaveKey(1));
+    writeSave(storage, createNewSave({ seed: 2 }), slotSaveKey(2));
+    const slots = listSaveSlots(storage);
+    expect(slots[0]!.save?.seed).toBe(1);
+    expect(slots[1]!.save?.seed).toBe(2);
+    expect(slots[2]!.save).toBeNull();
+  });
+
+  it('aktiver Slot: Default 1, setzen/lesen, klemmt außerhalb des Bereichs', () => {
+    const storage = new MemoryStorage();
+    expect(getActiveSlot(storage)).toBe(1);
+    setActiveSlot(storage, 2);
+    expect(getActiveSlot(storage)).toBe(2);
+    setActiveSlot(storage, 99);
+    expect(getActiveSlot(storage)).toBe(SAVE_SLOT_COUNT);
+    setActiveSlot(storage, 0);
+    expect(getActiveSlot(storage)).toBe(1);
+  });
+
+  it('Save-Funktionen defaulten auf den aktiven Slot', () => {
+    const storage = new MemoryStorage();
+    setActiveSlot(storage, 2);
+    autoSave(storage, createNewSave({ seed: 42 }));
+    // Default-loadSave liest Slot 2 …
+    expect(loadSave(storage)?.seed).toBe(42);
+    // … und Slot 1 bleibt leer.
+    expect(loadSave(storage, slotSaveKey(1))).toBeNull();
+  });
+
+  it('Löschen betrifft nur den aktiven Slot', () => {
+    const storage = new MemoryStorage();
+    writeSave(storage, createNewSave({ seed: 1 }), slotSaveKey(1));
+    setActiveSlot(storage, 2);
+    autoSave(storage, createNewSave({ seed: 2 }));
+    resetSave(storage); // aktiver Slot = 2
+    expect(loadSave(storage, slotSaveKey(2))).toBeNull();
+    expect(loadSave(storage, slotSaveKey(1))?.seed).toBe(1);
   });
 });

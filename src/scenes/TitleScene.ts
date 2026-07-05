@@ -31,6 +31,7 @@ export class TitleScene extends Phaser.Scene {
 
     this.menuButton(cx, 280, '▶ Spiel starten', () => { playSfx('confirm'); fadeToScene(this, 'Overworld'); });
     this.menuButton(cx, 336, '⚙ Optionen', () => { playSfx('select'); fadeToScene(this, 'Options', { from: 'Title' }); });
+    this.menuButton(cx, 392, '🗂 Speicherstände', () => { playSfx('select'); fadeToScene(this, 'SaveSlots'); });
 
     // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
     const unlockAudio = () => { resumeAudio(); resumeMusic(); };
