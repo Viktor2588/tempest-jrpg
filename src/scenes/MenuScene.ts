@@ -616,34 +616,39 @@ export class MenuScene extends Phaser.Scene {
 
   private drawQuestLog(view: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
-    const activeCount = allQuests.filter((q) => q.status === 'active').length;
-    const doneCount = allQuests.filter((q) => q.status === 'completed').length;
-    this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
     const quests = allQuests.filter((q) => q.status !== 'inactive');
-    this.button(24, 126, 120, `Aktiv (${activeCount})`, () => {
-      this.questStatus = 'active';
-      this.questPage = 0;
-      this.selectedQuestId = null;
-      this.refresh();
-    }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
-    this.button(152, 126, 140, `Erledigt (${doneCount})`, () => {
-      this.questStatus = 'completed';
-      this.questPage = 0;
-      this.selectedQuestId = null;
-      this.refresh();
-    }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
 
+    // Detail-Ansicht ersetzt die Liste komplett (eigener Titel + Zurück-Knopf) —
+    // vor dem Listen-Header prüfen, sonst zeichneten beide Titel übereinander.
     const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
     }
 
+    const activeCount = allQuests.filter((q) => q.status === 'active').length;
+    const doneCount = allQuests.filter((q) => q.status === 'completed').length;
+    this.sectionTitle(`Quests & Story — Aktiv ${activeCount} · Abgeschlossen ${doneCount}`);
+    // Filter-Tabs auf eigener Zeile UNTER dem Titel: bei y=126 überlappten sie
+    // sonst oben die Haupt-Tab-Reihe (y=94) und unten die erste Quest-Karte.
+    this.button(24, 170, 120, `Aktiv (${activeCount})`, () => {
+      this.questStatus = 'active';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
+    this.button(152, 170, 140, `Erledigt (${doneCount})`, () => {
+      this.questStatus = 'completed';
+      this.questPage = 0;
+      this.selectedQuestId = null;
+      this.refresh();
+    }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
+
     const filtered = quests.filter((quest) => quest.status === this.questStatus);
-    let cursorY = 192;
+    let cursorY = 246;
     if (view.story && this.questStatus === 'active') {
-      this.drawStorySummary(view.story, 180);
-      cursorY = 296;
+      this.drawStorySummary(view.story, 246);
+      cursorY = 350;
     }
     if (filtered.length === 0) {
       const message = this.questStatus === 'active'
@@ -728,7 +733,8 @@ export class MenuScene extends Phaser.Scene {
 
   private drawQuestDetail(quest: QuestLogEntryView): void {
     this.sectionTitle('Quest-Details');
-    this.button(744, 116, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
+    // y=116 überlappte die Haupt-Tab-Reihe (Zentrum 94, Höhe 44 → bis 116).
+    this.button(744, 150, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
 
     this.layer.add(this.add.text(42, 158, quest.title, { fontFamily: 'sans-serif', fontSize: '20px', color: '#e9c56c' }));
     const statusLabel = quest.status === 'active' ? 'Aktiv' : 'Abgeschlossen';
