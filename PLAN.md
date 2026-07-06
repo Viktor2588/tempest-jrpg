@@ -64,27 +64,18 @@ Reaktionen, Status) sind vorhanden, aber der Spieler *muss* sie nie waehlen.
 Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
-Raserei) und 88 (build-relevante Kategorie-Resistenz) sind gemergt.
+Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
+Rallyer) sind gemergt.
 
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
   Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
   (telegraphierter Big-Hit → perfektes Block-Fenster).
-- [x] Phase 88b — Build-relevante Encounter, Folge-Inkrement. (1) Kategorie-Reflektor:
-  neues Flag `reflectsCategory: 'physical' | 'magical'` — der falsche Damage-Typ (ganze
-  Kategorie) prallt zu 0.3× auf den Angreifer zurueck (Muster von reflectsElement),
-  bestraft stures Spammen einer Schadensart. Auf ogre-warrior (physisch → Stachelhaut,
-  off-route in grieving-ogres). (2) Support-Check: neuer Skill `rally-cry` (single-ally
-  attack-up) — ein Rallyer bufft laufend den Angriff seiner Verbuendeten, die Party muss
-  ihn kontrollieren (silence/CT/fokussieren) statt aussitzen. Auf human-deserter (off-route).
-  Party-Auto-Battle meidet jetzt reflektierte UND abgewehrte Kategorien (scoreSkillTarget:
-  wrongCategoryPenalty) → bringt den Konter-Typ. Legibilitaet ueber Kampf-Log, kein Render-
-  Change. Abnahme: typecheck; 433 Unit-Tests (4 neu: Reflektor prallt nur die eigene Kategorie
-  zurueck / Rallyer bufft Verbuendeten / verstummt bufft niemand / KI meidet reflektierte
-  Kategorie); Balance-Harness alle 3 Rimuru-Specs gruen; Production-Build. Offen: on-route-
-  Platzierung der Kategorie-Mechaniken, sobald die Harness-Party beide Damage-Typen sicher
-  traegt (braucht ggf. Anpassung der fixen Harness-Party).
+- [ ] Phase 88c — die build-relevanten Kategorie-Mechaniken (`resistsCategory`,
+  `reflectsCategory`, `rally-cry`-Support-Check) zusaetzlich ON-ROUTE platzieren; bisher
+  nur off-route (kein Korridor-Risiko). Braucht ggf. Anpassung der fixen Harness-Party,
+  damit sie in jedem Rimuru-Spec beide Damage-Typen + Kontrolle sicher traegt.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen

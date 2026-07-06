@@ -584,6 +584,14 @@ completed_milestones:
     - applied to two OFF-ROUTE enemies to avoid corridor churn: bog-terror (physical-resistant tank → burn it with magic) and stray-echo (magical-resistant echo → hit it with weapons)
     - deferred to a follow-up increment (Phase 88b): category-wide magic reflect, an explicit support-check add that flips the fight without control, and on-route placement once the harness party reliably carries both damage types
     - typecheck, 429 unit tests (3 new: physical-/magical-resist reduces only its own category, AI picks the counter type), balance harness green for all three Rimuru specs, and production build verified
+  phase_88b:
+    - build-relevant encounters, follow-up increment: two more data-driven combat archetypes on top of Phase 88
+    - reflectsCategory ('physical' | 'magical'): the wrong damage type (whole category) reflects 0.3× back onto the party attacker (mirrors the Phase-82 reflectsElement block), punishing single-damage-type spam. Applied to ogre-warrior (physical / spiked hide, off-route in grieving-ogres)
+    - support-check: new rally-cry skill (single-ally attack-up) makes an enemy a rallyer that keeps buffing its allies' attack — the party must control it (silence/CT-delay/focus) rather than out-sustain it. Applied to human-deserter (off-route, replacing its self-only battle-cry)
+    - autoBattle scoreSkillTarget now avoids both reflected and resisted categories via one wrongCategoryPenalty (resisted: power*element*0.45; reflected: power*element*0.5 + 5), so the AI/harness bring the counter damage type
+    - legibility via the battle log only, no scene/render/asset change → E2E not required
+    - still open (Phase 88c): place the category mechanics on-route once the fixed harness party reliably carries both damage types plus control
+    - typecheck, 433 unit tests (4 new: reflector bounces only its own category, rallyer buffs an ally, a silenced rallyer buffs no one, AI avoids the reflected category), balance harness green for all three Rimuru specs, and production build verified
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes
