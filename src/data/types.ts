@@ -152,6 +152,13 @@ export interface EnemyDefinition {
   // Heiler-Bestrafer: schlägt zurück, sobald die Party heilt → macht reines
   // Aussitzen/Sustain teuer.
   readonly punishesHealing?: boolean;
+  // Phase 87 — Normalgegner-Archetypen (Boss-Muster auf den Alltagskampf ausgeweitet):
+  // Mender: heilt verwundete Verbündete (die Gegner-KI darf dafür Heil-Skills wählen,
+  // die sonst gefiltert werden) → der Spieler muss den Heiler fokussen/ausschalten.
+  readonly healsAllies?: boolean;
+  // Rudel: gerät einmalig in Raserei (attack-up, +25 % Angriff), sobald ein Verbündeter
+  // fällt → einen Einzelnen zu zerlegen macht den Rest gefährlich (Kill-Reihenfolge zählt).
+  readonly enrageOnAllyDeath?: boolean;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];

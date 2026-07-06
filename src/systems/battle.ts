@@ -73,6 +73,8 @@ export interface BattleUnitInput {
   readonly armoredUntilBreak?: boolean;
   readonly reflectsElement?: ElementType;
   readonly punishesHealing?: boolean;
+  readonly healsAllies?: boolean;
+  readonly enrageOnAllyDeath?: boolean;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -118,6 +120,10 @@ export interface Combatant {
   readonly armoredUntilBreak: boolean;
   readonly reflectsElement: ElementType | null;
   readonly punishesHealing: boolean;
+  // Phase 87 — Normalgegner-Archetypen.
+  readonly healsAllies: boolean;
+  readonly enrageOnAllyDeath: boolean;
+  enraged: boolean;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -241,6 +247,12 @@ const HEAVY_UNBRACED_BONUS = 1.6;
 // Element-Reflektor wirft einen Bruchteil zurück.
 const ARMOR_UNBROKEN_MULTIPLIER = 0.65;
 const ELEMENT_REFLECT_FRACTION = 0.5;
+// Phase 87 — Rudel-Raserei hält praktisch den ganzen Kampf (attack-up, einmalig).
+const ENRAGE_TURNS = 99;
+// Phase 87 — Mender-Heilabsicht: skaliert mit den fehlenden LP des Verbündeten. Hoch genug,
+// dass ein stark verwundeter Verbündeter über einen Angriff gewählt wird, aber ~0 bei vollen
+// LP (dann greift der Mender an, statt sinnlos zu heilen).
+const MENDER_HEAL_INTENT = 4.2;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -365,6 +377,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     armoredUntilBreak: enemy.armoredUntilBreak,
     reflectsElement: enemy.reflectsElement,
     punishesHealing: enemy.punishesHealing,
+    healsAllies: enemy.healsAllies,
+    enrageOnAllyDeath: enemy.enrageOnAllyDeath,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -464,7 +478,8 @@ export function enemyTurn(state: BattleState): ActionResult {
     : actor.skillIds
       .map(getSkill)
       .filter((skill): skill is SkillDefinition => !!skill && canUseSkill(actor, skill))
-      .filter((skill) => !isHealingSkill(skill));
+      // Phase 87 — Mender dürfen ihre Heil-Skills behalten; alle anderen Gegner heilen nie.
+      .filter((skill) => actor.healsAllies || !isHealingSkill(skill));
 
   if (actor.analysisLevel > 0) {
     actor.telegraphSkillId = predictTelegraph(state, actor);
@@ -615,6 +630,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     armoredUntilBreak: unit.armoredUntilBreak ?? false,
     reflectsElement: unit.reflectsElement ?? null,
     punishesHealing: unit.punishesHealing ?? false,
+    healsAllies: unit.healsAllies ?? false,
+    enrageOnAllyDeath: unit.enrageOnAllyDeath ?? false,
+    enraged: false,
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -1489,6 +1507,22 @@ function checkDeath(state: BattleState, target: Combatant): void {
   if (target.side === 'enemy') {
     awardEnemyRewards(state, target);
   }
+
+  triggerEnrageOnAllyDeath(state, target);
+}
+
+// Phase 87 — Rudel-Raserei: fällt ein Verbündeter, geraten noch lebende Rudeltiere
+// (enrageOnAllyDeath) einmalig in Raserei (attack-up, +25 % Angriff). Einen Einzelnen zu
+// zerlegen macht den Rest gefährlich → der Spieler muss die Kill-Reihenfolge bedenken.
+function triggerEnrageOnAllyDeath(state: BattleState, fallen: Combatant): void {
+  for (const ally of livingCombatants(state, fallen.side)) {
+    if (ally === fallen || !ally.enrageOnAllyDeath || ally.enraged) {
+      continue;
+    }
+    ally.enraged = true;
+    applyStatus(ally, 'attack-up', ENRAGE_TURNS);
+    pushLog(state, `${ally.name} gerät in Raserei!`);
+  }
 }
 
 function awardEnemyRewards(state: BattleState, enemy: Combatant): void {
@@ -1728,6 +1762,12 @@ function scoreEnemySkillTarget(
     const breakPriority = hasStatus(target, 'guard-break') ? 2.2 : 0;
     const disabledPenalty = hasAnyControlStatus(target) && target.hp / target.maxHp > 0.35 ? -1.2 : 0;
     score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty;
+  }
+
+  // Phase 87 — Mender: heilt am liebsten den am stärksten verwundeten Verbündeten;
+  // volle Verbündete lohnen nicht (Score ~0 → er greift stattdessen an).
+  if (isHealingSkill(skill) && !targetIsOpponent) {
+    score += (1 - target.hp / target.maxHp) * MENDER_HEAL_INTENT;
   }
 
   if (skill.tags.includes('buff') && !targetIsOpponent) {

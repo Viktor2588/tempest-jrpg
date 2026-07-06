@@ -39,6 +39,7 @@ export const ENEMIES = [
       agility: 15
     },
     skillIds: ['goblin-feint'],
+    enrageOnAllyDeath: true,
     devourable: true,
     devourSkillId: 'quick-step',
     weaknesses: ['earth'],
@@ -62,6 +63,7 @@ export const ENEMIES = [
       agility: 18
     },
     skillIds: ['direwolf-rush', 'quick-step'],
+    enrageOnAllyDeath: true,
     devourable: true,
     devourSkillId: 'direwolf-rush',
     weaknesses: ['earth'],
@@ -131,6 +133,7 @@ export const ENEMIES = [
       agility: 13
     },
     skillIds: ['water-blade', 'soothing-prayer'],
+    healsAllies: true,
     devourable: true,
     devourSkillId: 'water-blade',
     weaknesses: ['earth', 'shadow'],
