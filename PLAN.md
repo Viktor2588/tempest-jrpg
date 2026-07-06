@@ -150,6 +150,43 @@ Empfehlung: 91 zuerst (schliesst den toten Material-Faden, Fundament fuer 92/93)
   Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
   (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
 
+### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
+
+Die drei JRPG-Pfeiler, die noch ganz fehlen: Figuren-Bindung, Endgame/Replay,
+politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
+
+- [ ] Phase 98 — Bande (Bond-/Support-System). Befund: Relationships sind nur
+  Punkte, Team-Mix-Fusionen haengen an `synergyPartnerIds`, es gibt keine
+  Bond-Events. Bauen: optionale Bond-Szenen ueber den vorhandenen sceneScript-
+  Interpreter (Phase 62), gegatet ueber Rast/Story/Relationship-Punkte; eine
+  erreichte Bond-Stufe schaltet/verstaerkt Team-Mix-Partner + verleiht eine
+  Bond-Perk (baut auf talentPerk). Charakter-Tiefe mit direktem Kampf-Payoff.
+  Akzeptanz: Gating + Unlock + Perk headless getestet, Szenen-Runner-Test,
+  Save-Migration, Dialog-/Szenen-Smoke. Risikoarm, hoher Hebel.
+- [ ] Phase 99 — Das Labyrinth (Roguelike-Abstieg). Befund: greenfield; Battle-
+  Engine + Scaling (67) + Archetypen (87/88/88b) sind da, aber Content ist
+  einmalig-linear. Bauen: ein prozedural (deterministisch geseedet) aus
+  vorhandenen Encounter-/Map-Bausteinen zusammengesetzter Etagen-Abstieg mit
+  Run-Modifikatoren, eskalierender Tiefe und HP/MP-Carry ohne Zwischenrast
+  (Risk/Reward). Run-Loot = Material/seltene Rezept-Inputs -> speist die Schmiede
+  (91). On-theme (Ramiris' Dungeon), groesster Replay-/Endgame-Hebel. Akzeptanz:
+  deterministische Etagen-Generierung + Run-Abbruch/Belohnung headless getestet
+  (Seed-Reproduzierbarkeit), Balance-Sim fuer die Tiefenskalierung, Dungeon-Smoke.
+- [ ] Phase 100 — Diplomatie (Faktionen/Reputation). Befund: Faktionen nur
+  binaere Flags (faction.dwargon.allied, faction.orcs.joined) + ein
+  partnerKind:'faction'; keine Skala. Bauen: graduelle Reputation pro Faktion
+  (Dwargon, Echsen, Orks, Blumund, Daemonenlords), bewegt durch Entscheidungen/
+  Quests/Handel; Schwellen schalten frei/zu: Faktions-Truppen als Kampf-
+  Verbuendete/Team-Mix, Handelsrouten (speist die Nation-Oekonomie 93), exklusive
+  Rezepte/Gegner. Externe Seite des Nation-Baus (91-93 intern); baut auf den
+  vorhandenen faction.*-Flags. Akzeptanz: Reputationsuebergaenge + Schwellen-
+  Unlocks + Save-Migration headless getestet, UI-Smoke.
+- [ ] Phase 101 — Welt-Uhr (Zeit/Wetter). Overworld-Tag/Nacht + Wetter-Zyklus,
+  der Encounter-Tabellen, NPC-Verfuegbarkeit und — verzahnt mit Phase 94 —
+  Elementarfelder/Reaktionen beeinflusst (Regen = Wasserfeld, Nacht = Schatten-
+  stark). Lebendige Welt + Erkundungs-Textur. Akzeptanz: deterministischer Zyklus
+  + Encounter-/Feld-Einfluss headless getestet, Overworld-Smoke.
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
