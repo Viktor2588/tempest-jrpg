@@ -1212,3 +1212,115 @@ describe('Phase 82 — Gegner-Archetypen', () => {
     expect(healer.hp).toBeLessThan(before); // aber der Heiler wurde bestraft
   });
 });
+
+describe('Phase 87 — Normalgegner-Archetypen', () => {
+  it('Mender: heilt einen verwundeten Verbündeten, statt nur anzugreifen', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', {
+        stats: { maxHp: 500, maxMp: 20, attack: 8, defense: 40, magic: 8, spirit: 40, agility: 1 }
+      })],
+      enemies: [
+        phaseEnemy({
+          sourceId: 'mender', name: 'Heiler', healsAllies: true, skillIds: ['soothing-prayer'],
+          stats: { maxHp: 120, maxMp: 80, attack: 10, defense: 12, magic: 24, spirit: 14, agility: 20 }
+        }),
+        phaseEnemy({ sourceId: 'ward', name: 'Schützling', skillIds: ['slime-strike'] })
+      ],
+      seed: 3
+    });
+    const mender = state.combatants.find((c) => c.sourceId === 'mender')!;
+    const ward = state.combatants.find((c) => c.sourceId === 'ward')!;
+    const wounded = Math.floor(ward.maxHp * 0.3);
+    ward.hp = wounded;
+
+    let healed = false;
+    for (let i = 0; i < 30 && !healed; i++) {
+      state.activeId = mender.id; // deterministisch: der Mender ist am Zug
+      enemyTurn(state);
+      if (ward.hp > wounded) healed = true;
+    }
+    expect(healed).toBe(true); // der Mender wählt aktiv die Heilung des Verwundeten
+  });
+
+  it('nicht-Mender heilen nie, auch wenn sie einen Heil-Skill kennen', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', {
+        stats: { maxHp: 500, maxMp: 20, attack: 8, defense: 40, magic: 8, spirit: 40, agility: 1 }
+      })],
+      enemies: [
+        phaseEnemy({ sourceId: 'cleric', name: 'Kleriker', skillIds: ['soothing-prayer'] }),
+        phaseEnemy({ sourceId: 'ward', name: 'Schützling', skillIds: ['slime-strike'] })
+      ],
+      seed: 3
+    });
+    const cleric = state.combatants.find((c) => c.sourceId === 'cleric')!;
+    const ward = state.combatants.find((c) => c.sourceId === 'ward')!;
+    const wounded = Math.floor(ward.maxHp * 0.3);
+    ward.hp = wounded;
+
+    for (let i = 0; i < 30; i++) {
+      state.activeId = cleric.id;
+      enemyTurn(state);
+    }
+    expect(ward.hp).toBe(wounded); // ohne healsAllies bleibt die Heilung gefiltert
+  });
+
+  it('Rudel-Raserei: fällt ein Verbündeter, gerät der Überlebende in Raserei (attack-up)', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', {
+        stats: { maxHp: 400, maxMp: 60, attack: 220, defense: 20, magic: 40, spirit: 20, agility: 30 }
+      })],
+      enemies: [
+        phaseEnemy({
+          sourceId: 'packA', name: 'Rudeltier A', enrageOnAllyDeath: true,
+          stats: { maxHp: 200, maxMp: 10, attack: 20, defense: 12, magic: 8, spirit: 10, agility: 16 }
+        }),
+        phaseEnemy({
+          sourceId: 'packB', name: 'Rudeltier B',
+          stats: { maxHp: 1, maxMp: 10, attack: 20, defense: 12, magic: 8, spirit: 10, agility: 16 }
+        })
+      ],
+      seed: 2
+    });
+    const attacker = state.combatants.find((c) => c.side === 'party')!;
+    const packA = state.combatants.find((c) => c.sourceId === 'packA')!;
+    const packB = state.combatants.find((c) => c.sourceId === 'packB')!;
+
+    expect(packA.enraged).toBe(false);
+    packB.hp = 1;
+    state.activeId = attacker.id;
+    act(state, { type: 'attack', targetId: packB.id });
+
+    expect(packB.dead).toBe(true);
+    expect(packA.enraged).toBe(true);
+    expect(packA.statuses.some((s) => s.id === 'attack-up')).toBe(true);
+  });
+
+  it('Raserei feuert nur einmal, nicht bei jedem weiteren Verbündeten-Tod', () => {
+    const state = startBattle({
+      party: [depthHero('rimuru', 'Rimuru', {
+        stats: { maxHp: 400, maxMp: 60, attack: 220, defense: 20, magic: 40, spirit: 20, agility: 30 }
+      })],
+      enemies: [
+        phaseEnemy({ sourceId: 'packA', name: 'A', enrageOnAllyDeath: true,
+          stats: { maxHp: 200, maxMp: 10, attack: 20, defense: 12, magic: 8, spirit: 10, agility: 16 } }),
+        phaseEnemy({ sourceId: 'packB', name: 'B', stats: { maxHp: 1, maxMp: 10, attack: 20, defense: 12, magic: 8, spirit: 10, agility: 16 } }),
+        phaseEnemy({ sourceId: 'packC', name: 'C', stats: { maxHp: 1, maxMp: 10, attack: 20, defense: 12, magic: 8, spirit: 10, agility: 16 } })
+      ],
+      seed: 2
+    });
+    const attacker = state.combatants.find((c) => c.side === 'party')!;
+    const packA = state.combatants.find((c) => c.sourceId === 'packA')!;
+    const packB = state.combatants.find((c) => c.sourceId === 'packB')!;
+    const packC = state.combatants.find((c) => c.sourceId === 'packC')!;
+
+    packB.hp = 1;
+    state.activeId = attacker.id;
+    act(state, { type: 'attack', targetId: packB.id });
+    packC.hp = 1;
+    state.activeId = attacker.id;
+    act(state, { type: 'attack', targetId: packC.id });
+
+    expect(packA.statuses.filter((s) => s.id === 'attack-up')).toHaveLength(1); // kein Stapeln
+  });
+});

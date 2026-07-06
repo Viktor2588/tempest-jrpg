@@ -173,7 +173,12 @@ function chooseTarget(enemies: BattleState['combatants']): BattleState['combatan
   return enemies.slice().sort((a, b) => {
     const aBroken = a.statuses.some((status) => status.id === 'guard-break') ? 1 : 0;
     const bBroken = b.statuses.some((status) => status.id === 'guard-break') ? 1 : 0;
+    // Phase 87 — einen Mender (heilt Verbündete) nach einem gebrochenen Ziel zuerst
+    // ausschalten, sonst sustained er den Rest über den Schaden hinweg.
+    const aMender = a.healsAllies ? 1 : 0;
+    const bMender = b.healsAllies ? 1 : 0;
     return bBroken - aBroken
+      || bMender - aMender
       || b.phaseIndex - a.phaseIndex
       || (a.hp / a.maxHp) - (b.hp / b.maxHp);
   })[0];
@@ -309,8 +314,10 @@ function scoreSkillTarget(
   const statusPressure = skill.statusEffect && !enemy.statuses.some((status) => status.id === skill.statusEffect!.id)
     ? scoreStatusPressure(skill.statusEffect.id, enemy)
     : 0;
+  // Phase 87 — Schadensfähigkeiten bevorzugt auf einen Mender lenken (Heiler wegbrennen).
+  const menderPressure = enemy.healsAllies ? 12 : 0;
 
-  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure - skill.costMp * 1.5;
+  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure + menderPressure - skill.costMp * 1.5;
 }
 
 function scoreStatusPressure(statusId: StatusEffectId, enemy: BattleState['combatants'][number]): number {

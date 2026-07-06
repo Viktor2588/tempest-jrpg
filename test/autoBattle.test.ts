@@ -313,3 +313,22 @@ describe('autoBattle', () => {
     }
   });
 });
+
+describe('Phase 87 — Party-KI fokussiert einen Mender', () => {
+  it('richtet den Angriff auf den heilenden Gegner statt den gleichwertigen Nicht-Heiler', () => {
+    const state = startBattle({
+      party: [autoHero('gobta', 'Gobta')],
+      enemies: [
+        autoEnemy({ sourceId: 'bruiser', name: 'Schläger' }),
+        autoEnemy({ sourceId: 'mender', name: 'Heiler', healsAllies: true, skillIds: ['soothing-prayer'] })
+      ],
+      seed: 4
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    const mender = state.combatants.find((c) => c.sourceId === 'mender')!;
+    state.activeId = hero.id;
+    const action = chooseAutoAction(state);
+    expect(action).not.toBeNull();
+    expect((action as { targetId?: string }).targetId).toBe(mender.id);
+  });
+});

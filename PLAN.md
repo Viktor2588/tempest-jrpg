@@ -63,13 +63,47 @@ sustainen). Die reichen Mechaniken (Analyse/Telegraph, Break, Devour, CT-Delay,
 Reaktionen, Status) sind vorhanden, aber der Spieler *muss* sie nie waehlen.
 Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
-Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
+Fundament: Phase 80 (Eskalation) ist gemergt; Phase 87 verzahnt sich direkt damit.
 
+Kern-Befund (Code, 2026-07-06): Saemtliche taktische Tiefe sitzt auf den 7
+Story-Bossen — `boss`, `escalationPercentPerTurn` (6), `armoredUntilBreak` (1),
+`reflectsElement` (1), `punishesHealing` (1), `heavy`/`telegraph` (nur
+Boss-Skills). Normale Gegner tragen NULL davon und sind damit reines
+"chip mit Schwaeche". Normalkaempfe sind aber ~80 % der Spielzeit; die vorhandene
+Flag-Maschinerie (Phase 80/82) wird also auf 7 Kaempfe von hunderten genutzt.
+
+- [x] Phase 87 — Gegner-Archetypen von den Bossen auf Normalkaempfe ausgeweitet
+  (rein datengetrieben, Flag-Muster von Phase 82). Zwei neue EnemyDefinition-Flags:
+  `healsAllies` (Mender heilt verwundete Verbuendete — die Gegner-KI darf dafuer
+  Heil-Skills waehlen, die sonst gefiltert werden; scoreEnemySkillTarget priorisiert
+  den am staerksten verwundeten Verbuendeten, ~0 bei vollen LP) und `enrageOnAllyDeath`
+  (Ueberlebender geraet einmalig in Raserei = attack-up/+25 % Angriff; Hook im einzigen
+  Tod-Chokepoint checkDeath). Party-Auto-Battle fokussiert jetzt Mender (chooseTarget +
+  scoreSkillTarget) — der Mender ist damit fair und der Harness spielt ihn korrekt.
+  Angewandt auf 3 Route-Gegner: lizardman-acolyte (Mender, shrine-approach + Echsen-
+  Encounter), direwolf-pup + direwolf-alpha (Rudel-Raserei, direwolf-pack-leader +
+  training-clearing). Enrage bewusst attack-up-only (attack-up+haste kippte den fragilen
+  Kapitel-1-Wolfskampf → Harness-Verlust). HUD-Feedback ueber vorhandene Pfade (Status-
+  Icon + Kampf-Log), kein Scene-/Render-Change. Abnahme: typecheck; 426 Unit-Tests (5 neu:
+  Mender heilt / nicht-Mender heilt nie / Enrage feuert + einmalig / Party-KI fokussiert
+  Mender); Balance-Harness fuer alle 3 Rimuru-Specs gruen; Production-Build. E2E nicht
+  erforderlich (keine Scene-/Render-/Asset-Aenderung).
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
   Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
   (telegraphierter Big-Hit → perfektes Block-Fenster).
+- [ ] Phase 88 — Build-relevante Encounter: die Spec-Baeume haben Branch-Lock
+  ("Qual der Wahl"), aber wenn jeder Build jeden Kampf gleich loest, ist die
+  Wahl kosmetisch. Ein paar Kaempfe, die physisch vs. magisch vs. Support
+  soft-checken (z. B. hohe Physisch-Resistenz, Magie-Reflect, ein Add das ohne
+  Support-Kontrolle den Kampf kippt), geben der Progression-Tiefe endlich
+  Kampf-Konsequenz. Verzahnt Phase 87 mit den Talentbaeumen (69/70/72).
+- [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
+  devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
+  Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen
+  Encounter nacheinander eingefuehrt werden statt gedumpt. Phase 85 leistet das
+  fuer Reaktionen — hier das Gesamtkonzept.
 - [ ] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
   oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
   Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung
@@ -80,3 +114,7 @@ Fundament: Phase 80 (Eskalation) ist gemergt; #1 verzahnt sich direkt damit.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
+- [ ] Content-Breite fuer "Schwung": 25 Gegner/25 Encounter fuer 4 Baende ist
+  duenn, ebenso 3 Musik-Motive + 8 SFX. Mehr Region-Gegner (Vielfalt) und mehr
+  CC0-Musik/SFX pro Region heben das Feel spuerbar — durch den CC0-Zwang aber
+  begrenzt und niedrigerer Hebel als die Kampf-Tiefe-Roadmap.
