@@ -316,8 +316,14 @@ function scoreSkillTarget(
     : 0;
   // Phase 87 — Schadensfähigkeiten bevorzugt auf einen Mender lenken (Heiler wegbrennen).
   const menderPressure = enemy.healsAllies ? 12 : 0;
+  // Phase 88 — wehrt der Gegner die Kategorie dieses Skills ab, den erwarteten Schaden
+  // abwerten, damit die KI (und der Harness) auf den Konter-Damage-Typ umschaltet.
+  const skillIsPhysical = skill.tags.includes('physical') && !skill.tags.includes('magical');
+  const resistedCategoryPenalty = enemy.resistsCategory === (skillIsPhysical ? 'physical' : 'magical')
+    ? skill.power * element * 0.45 // battle.ts mindert diese Kategorie auf 0.55×
+    : 0;
 
-  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure + menderPressure - skill.costMp * 1.5;
+  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure + menderPressure - resistedCategoryPenalty - skill.costMp * 1.5;
 }
 
 function scoreStatusPressure(statusId: StatusEffectId, enemy: BattleState['combatants'][number]): number {

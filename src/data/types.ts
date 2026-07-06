@@ -159,6 +159,10 @@ export interface EnemyDefinition {
   // Rudel: gerät einmalig in Raserei (attack-up, +25 % Angriff), sobald ein Verbündeter
   // fällt → einen Einzelnen zu zerlegen macht den Rest gefährlich (Kill-Reihenfolge zählt).
   readonly enrageOnAllyDeath?: boolean;
+  // Phase 88 — build-relevante Encounter: wehrt eine ganze Schadenskategorie (physisch
+  // ODER magisch) teils ab → der falsche Damage-Typ trifft nur gemindert, die Spec-/
+  // Build-Wahl bekommt Kampf-Konsequenz (auf die passende Kategorie umschalten).
+  readonly resistsCategory?: DamageCategory;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];

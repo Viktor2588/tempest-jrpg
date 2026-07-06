@@ -75,6 +75,7 @@ export interface BattleUnitInput {
   readonly punishesHealing?: boolean;
   readonly healsAllies?: boolean;
   readonly enrageOnAllyDeath?: boolean;
+  readonly resistsCategory?: DamageCategory;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -124,6 +125,8 @@ export interface Combatant {
   readonly healsAllies: boolean;
   readonly enrageOnAllyDeath: boolean;
   enraged: boolean;
+  // Phase 88 — build-relevante Encounter: abgewehrte Schadenskategorie (null = keine).
+  readonly resistsCategory: DamageCategory | null;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -253,6 +256,10 @@ const ENRAGE_TURNS = 99;
 // dass ein stark verwundeter Verbündeter über einen Angriff gewählt wird, aber ~0 bei vollen
 // LP (dann greift der Mender an, statt sinnlos zu heilen).
 const MENDER_HEAL_INTENT = 4.2;
+// Phase 88 — build-relevante Encounter: eine abgewehrte Schadenskategorie trifft nur
+// gemindert (soft-check, kein harter Wall) → der Spieler soll auf den passenden
+// Damage-Typ umschalten, nicht komplett ausgesperrt werden.
+const CATEGORY_RESIST_MULTIPLIER = 0.55;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -379,6 +386,7 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     punishesHealing: enemy.punishesHealing,
     healsAllies: enemy.healsAllies,
     enrageOnAllyDeath: enemy.enrageOnAllyDeath,
+    resistsCategory: enemy.resistsCategory,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -633,6 +641,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     healsAllies: unit.healsAllies ?? false,
     enrageOnAllyDeath: unit.enrageOnAllyDeath ?? false,
     enraged: false,
+    resistsCategory: unit.resistsCategory ?? null,
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -1570,6 +1579,12 @@ function armorMultiplier(target: Combatant): number {
   return broken ? 1 : ARMOR_UNBROKEN_MULTIPLIER;
 }
 
+// Phase 88 — build-relevante Encounter: ein Gegner kann eine ganze Schadenskategorie
+// (physisch ODER magisch) teils abwehren → der falsche Damage-Typ trifft nur gemindert.
+function categoryResistMultiplier(target: Combatant, category: DamageCategory | undefined): number {
+  return category && target.resistsCategory === category ? CATEGORY_RESIST_MULTIPLIER : 1;
+}
+
 export function escalationBonus(attacker: Combatant): number {
   if (attacker.escalationPercentPerTurn <= 0) return 0;
   const activeTurns = Math.max(0, attacker.escalationStacks - ESCALATION_GRACE_TURNS);
@@ -1594,13 +1609,20 @@ function applyDamage(
   // Perk: ausgeteilter (+X %) und erlittener (-X %) Schaden nach Kategorie/Element.
   const dealtMult = damageDealtMultiplier(attacker.perks, context.category, context.element);
   const takenMult = damageTakenMultiplierFromPerks(target.perks, context.category, context.element);
+  // Phase 88 — abgewehrte Schadenskategorie: gemindert + einmalige Log-Rückmeldung pro Treffer,
+  // damit der Spieler den falschen Damage-Typ erkennt (Legibilität ohne HUD-/Render-Änderung).
+  const categoryResist = categoryResistMultiplier(target, context.category);
+  if (categoryResist < 1 && rawDamage > 0) {
+    pushLog(state, `${target.name} wehrt ${context.category === 'physical' ? 'körperliche' : 'magische'} Angriffe ab — stark reduziert.`);
+  }
   let adjustedDamage = rawDamage
     * dealtMult
     * takenMult
     * state.damageMultipliers[attacker.side]
     * damageTakenMultiplier(target)
     * (1 + escalationBonus(attacker))
-    * armorMultiplier(target);
+    * armorMultiplier(target)
+    * categoryResist;
   const reaction = allowReaction ? target.reaction : null;
   target.reaction = null;
 

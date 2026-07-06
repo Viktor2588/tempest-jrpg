@@ -332,3 +332,21 @@ describe('Phase 87 — Party-KI fokussiert einen Mender', () => {
     expect((action as { targetId?: string }).targetId).toBe(mender.id);
   });
 });
+
+describe('Phase 88 — Party-KI bringt den Konter-Damage-Typ', () => {
+  it('wählt gegen einen physisch-resistenten Gegner den magischen statt physischen Skill', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', {
+        skillIds: ['spear-charge', 'water-blade'],
+        stats: { maxHp: 300, maxMp: 60, attack: 40, defense: 16, magic: 40, spirit: 14, agility: 30 }
+      })],
+      enemies: [autoEnemy({ sourceId: 'stone', name: 'Steinwall', resistsCategory: 'physical', element: 'neutral', weaknesses: [], resistances: [] })],
+      seed: 4
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    state.activeId = hero.id;
+    const action = chooseAutoAction(state);
+    expect(action).not.toBeNull();
+    expect((action as { skillId?: string }).skillId).toBe('water-blade'); // magischer Konter statt Speersturm
+  });
+});
