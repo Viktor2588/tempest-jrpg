@@ -350,3 +350,21 @@ describe('Phase 88 — Party-KI bringt den Konter-Damage-Typ', () => {
     expect((action as { skillId?: string }).skillId).toBe('water-blade'); // magischer Konter statt Speersturm
   });
 });
+
+describe('Phase 88b — Party-KI meidet die reflektierte Kategorie', () => {
+  it('wählt gegen einen physisch-reflektierenden Gegner den magischen statt physischen Skill', () => {
+    const state = startBattle({
+      party: [autoHero('rimuru', 'Rimuru', {
+        skillIds: ['spear-charge', 'water-blade'],
+        stats: { maxHp: 300, maxMp: 60, attack: 40, defense: 16, magic: 40, spirit: 14, agility: 30 }
+      })],
+      enemies: [autoEnemy({ sourceId: 'mirror', name: 'Spiegelhaut', reflectsCategory: 'physical', element: 'neutral', weaknesses: [], resistances: [] })],
+      seed: 4
+    });
+    const hero = state.combatants.find((c) => c.side === 'party')!;
+    state.activeId = hero.id;
+    const action = chooseAutoAction(state);
+    expect(action).not.toBeNull();
+    expect((action as { skillId?: string }).skillId).toBe('water-blade'); // meidet den reflektierten Speersturm
+  });
+});

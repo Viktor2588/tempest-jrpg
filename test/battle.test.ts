@@ -1369,3 +1369,65 @@ describe('Phase 88 — build-relevante Encounter (Kategorie-Resistenz)', () => {
     expect(physResisted).toBe(physNormal); // magische Resistenz mindert Physisch NICHT
   });
 });
+
+describe('Phase 88b — Kategorie-Reflektor + Support-Rallyer', () => {
+  const striker = (): BattleUnitInput => depthHero('rimuru', 'Rimuru', {
+    stats: { maxHp: 800, maxMp: 120, attack: 60, defense: 18, magic: 60, spirit: 18, agility: 22 },
+    skillIds: ['slime-strike', 'water-blade']
+  });
+
+  it('Kategorie-Reflektor: der falsche Damage-Typ prallt zurück, der richtige nicht', () => {
+    const selfDamageFrom = (skillId: string | null): number => {
+      const state = startBattle({
+        party: [striker()],
+        enemies: [phaseEnemy({ reflectsCategory: 'physical', element: 'neutral', weaknesses: [], resistances: [] })],
+        seed: 4
+      });
+      const attacker = state.combatants.find((c) => c.side === 'party')!;
+      const enemy = state.combatants.find((c) => c.side === 'enemy')!;
+      state.activeId = attacker.id;
+      const before = attacker.hp;
+      act(state, skillId ? { type: 'skill', skillId, targetId: enemy.id } : { type: 'attack', targetId: enemy.id });
+      return before - attacker.hp;
+    };
+    expect(selfDamageFrom(null)).toBeGreaterThan(0); // physischer Angriff wird reflektiert
+    expect(selfDamageFrom('water-blade')).toBe(0); // magischer nicht
+  });
+
+  const rallyerFight = () => startBattle({
+    party: [depthHero('rimuru', 'Rimuru', {
+      stats: { maxHp: 600, maxMp: 20, attack: 8, defense: 40, magic: 8, spirit: 40, agility: 1 }
+    })],
+    enemies: [
+      phaseEnemy({ sourceId: 'rallyer', name: 'Sergeant', skillIds: ['rally-cry'],
+        stats: { maxHp: 120, maxMp: 40, attack: 12, defense: 12, magic: 8, spirit: 10, agility: 20 } }),
+      phaseEnemy({ sourceId: 'ally', name: 'Verbündeter', skillIds: ['slime-strike'] })
+    ],
+    seed: 3
+  });
+  const enemySideHasAttackUp = (state: BattleState): boolean =>
+    state.combatants.some((c) => c.side === 'enemy' && c.statuses.some((s) => s.id === 'attack-up'));
+
+  it('Support-Rallyer: bufft mit rally-cry den Angriff eines Verbündeten (attack-up)', () => {
+    const state = rallyerFight();
+    const rallyer = state.combatants.find((c) => c.sourceId === 'rallyer')!;
+    let buffed = false;
+    for (let i = 0; i < 30 && !buffed; i++) {
+      state.activeId = rallyer.id;
+      enemyTurn(state);
+      if (enemySideHasAttackUp(state)) buffed = true;
+    }
+    expect(buffed).toBe(true);
+  });
+
+  it('per Silence kontrollierbar: ein verstummter Rallyer bufft niemanden (Support-Check konterbar)', () => {
+    const state = rallyerFight();
+    const rallyer = state.combatants.find((c) => c.sourceId === 'rallyer')!;
+    rallyer.statuses.push({ id: 'silence', turns: 9 });
+    for (let i = 0; i < 12; i++) {
+      state.activeId = rallyer.id;
+      enemyTurn(state);
+    }
+    expect(enemySideHasAttackUp(state)).toBe(false);
+  });
+});

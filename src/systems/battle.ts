@@ -76,6 +76,7 @@ export interface BattleUnitInput {
   readonly healsAllies?: boolean;
   readonly enrageOnAllyDeath?: boolean;
   readonly resistsCategory?: DamageCategory;
+  readonly reflectsCategory?: DamageCategory;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
   readonly synergyPartnerIds?: readonly string[];
@@ -127,6 +128,8 @@ export interface Combatant {
   enraged: boolean;
   // Phase 88 — build-relevante Encounter: abgewehrte Schadenskategorie (null = keine).
   readonly resistsCategory: DamageCategory | null;
+  // Phase 88b — reflektierte Schadenskategorie (null = keine).
+  readonly reflectsCategory: DamageCategory | null;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
   readonly devourable: boolean;
@@ -260,6 +263,9 @@ const MENDER_HEAL_INTENT = 4.2;
 // gemindert (soft-check, kein harter Wall) → der Spieler soll auf den passenden
 // Damage-Typ umschalten, nicht komplett ausgesperrt werden.
 const CATEGORY_RESIST_MULTIPLIER = 0.55;
+// Phase 88b — Kategorie-Reflektor: Anteil des zurückgeworfenen Kategorie-Schadens (breiter
+// als ein Element-Reflektor, daher milder pro Treffer).
+const CATEGORY_REFLECT_FRACTION = 0.3;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -387,6 +393,7 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     healsAllies: enemy.healsAllies,
     enrageOnAllyDeath: enemy.enrageOnAllyDeath,
     resistsCategory: enemy.resistsCategory,
+    reflectsCategory: enemy.reflectsCategory,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
     experienceReward: enemy.experienceReward,
@@ -642,6 +649,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     enrageOnAllyDeath: unit.enrageOnAllyDeath ?? false,
     enraged: false,
     resistsCategory: unit.resistsCategory ?? null,
+    reflectsCategory: unit.reflectsCategory ?? null,
     mimicSkillIds: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
@@ -1671,6 +1679,20 @@ function applyDamage(
     const reflected = Math.max(1, Math.round(damage * ELEMENT_REFLECT_FRACTION));
     attacker.hp = Math.max(0, attacker.hp - reflected);
     pushLog(state, `${target.name} wirft ${reflected} Schaden auf ${attacker.name} zurück.`);
+    checkDeath(state, attacker);
+  }
+  // Phase 88b — Kategorie-Reflektor: der falsche Damage-Typ (ganze physische/magische
+  // Kategorie) prallt anteilig zurück → bestraft stures Spammen einer Schadensart.
+  if (
+    damage > 0
+    && target.side === 'enemy'
+    && attacker.side === 'party'
+    && target.reflectsCategory !== null
+    && context.category === target.reflectsCategory
+  ) {
+    const reflected = Math.max(1, Math.round(damage * CATEGORY_REFLECT_FRACTION));
+    attacker.hp = Math.max(0, attacker.hp - reflected);
+    pushLog(state, `${target.name} wirft ${reflected} ${context.category === 'physical' ? 'körperlichen' : 'magischen'} Schaden auf ${attacker.name} zurück.`);
     checkDeath(state, attacker);
   }
 
