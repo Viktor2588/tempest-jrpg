@@ -109,6 +109,30 @@ export interface ItemDefinition {
   readonly effect?: ItemEffect;
 }
 
+// Phase 91 — Die Schmiede (Crafting): datengetriebene Rezepte verwandeln die
+// bislang toten Materialien (magic-ore, magisteel, orc-tusk) und Boss-Kerne
+// (geld-core, spirit-ember) über Kaijin/Kurobe in Ausrüstung. Reine Daten;
+// die Auswertung liegt in systems/crafting.
+export interface CraftingRecipeInput {
+  readonly itemId: string;
+  readonly quantity: number;
+}
+
+export interface CraftingRecipe {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly outputItemId: string;
+  readonly outputQuantity: number;
+  readonly goldCost: number;
+  readonly inputs: readonly CraftingRecipeInput[];
+  // Gating über ein bestehendes Story-Flag (typisch craft.smithing.unlocked).
+  readonly requiresFlag?: string;
+  // Einmalige Rezepte (einzigartige Boss-Kern-Ausrüstung) verschwinden nach dem
+  // Schmieden; wiederholbare (Material-Veredelung, Standardausrüstung) bleiben.
+  readonly repeatable: boolean;
+}
+
 export interface CharacterDefinition {
   readonly id: string;
   readonly name: string;

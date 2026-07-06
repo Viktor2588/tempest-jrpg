@@ -34,6 +34,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
+import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
@@ -96,6 +97,8 @@ export class MenuScene extends Phaser.Scene {
   private questStatus: QuestStatusFilter = 'active';
   private selectedQuestId: string | null = null;
   private selectedTalentNodeId: string | null = null;
+  // Phase 91 — Schmiede-Ansicht innerhalb des Ausrüstungs-Tabs (nur am Schmied).
+  private showForge = false;
   private specTreePanY = 0;
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
@@ -159,6 +162,7 @@ export class MenuScene extends Phaser.Scene {
         this.questStatus = 'active';
         this.selectedQuestId = null;
         this.selectedTalentNodeId = null;
+        this.showForge = false;
         this.refresh();
       }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
     });
@@ -317,11 +321,30 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawEquipment(view: MenuView, characterId: string): void {
-    this.sectionTitle('Ausrüstung');
     const summary = view.members.find((member) => member.member.characterId === characterId);
     if (!summary) return;
 
     const canEnchant = canEnchantEquipment(createWorldState(this.save), this.save.location.mapId);
+
+    // Phase 91 — an einem Schmied lässt sich zwischen Ausrüsten und Schmieden umschalten.
+    if (canEnchant) {
+      this.button(474, 124, 130, this.showForge ? '◂ Ausrüstung' : 'Schmieden ▸', () => {
+        this.showForge = !this.showForge;
+        this.message = this.showForge
+          ? 'Die Esse glüht — wähle ein Rezept.'
+          : TAB_DESCRIPTIONS.equipment;
+        this.refresh();
+      }, this.showForge ? 0x3a2743 : 0x1f3a2f);
+    } else if (this.showForge) {
+      this.showForge = false;
+    }
+
+    if (this.showForge) {
+      this.drawForge();
+      return;
+    }
+
+    this.sectionTitle('Ausrüstung');
 
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
@@ -392,6 +415,53 @@ export class MenuScene extends Phaser.Scene {
       });
     });
     this.drawListPager(usableCol, usable);
+  }
+
+  private forgeContext(): CraftContext {
+    return {
+      inventory: this.state.inventory,
+      gold: this.state.gold,
+      flags: this.state.flags ?? this.save.flags,
+      craftedRecipeIds: this.save.progression.craftedRecipeIds
+    };
+  }
+
+  private drawForge(): void {
+    this.sectionTitle('Schmiede');
+    const recipes = buildForgeView(this.forgeContext());
+    if (recipes.length === 0) {
+      this.layer.add(this.add.text(300, 176, 'Noch keine Rezepte freigeschaltet.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      return;
+    }
+
+    recipes.forEach((row, index) => {
+      const y = 176 + index * 58;
+      const inputs = row.inputs
+        .map((input) => `${input.name} ${input.owned}/${input.required}`)
+        .join(' · ');
+      this.layer.add(this.add.text(300, y, `${row.outputName}`, {
+        fontFamily: 'sans-serif', fontSize: '14px', color: row.craftable ? '#e9eef7' : '#7d8aa0'
+      }));
+      this.layer.add(this.add.text(300, y + 20, `${inputs} · ${row.goldCost} Gold`, {
+        fontFamily: 'sans-serif', fontSize: '11px',
+        color: row.affordable ? '#9fb2cc' : '#c98a8a'
+      }));
+      this.button(660, y + 12, 150, row.craftable ? 'Schmieden' : 'Fehlt', () => {
+        const result = craftRecipe(row.recipe, this.forgeContext());
+        this.message = result.message;
+        if (result.ok) {
+          this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+          this.save = {
+            ...this.save,
+            progression: { ...this.save.progression, craftedRecipeIds: result.craftedRecipeIds }
+          };
+          this.persist();
+        }
+        this.refresh();
+      }, row.craftable ? 0x2f6f55 : 0x242b38);
+    });
   }
 
   private drawStatus(view: MenuView, characterId: string): void {

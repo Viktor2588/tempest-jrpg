@@ -1,4 +1,5 @@
 import { HEROES } from './characters';
+import { CRAFTING_RECIPES } from './crafting';
 import { ENEMIES } from './enemies';
 import { ELEMENT_FUSIONS } from './fusions';
 import { ITEMS } from './items';
@@ -16,6 +17,7 @@ import { SIGNATURES } from './signatures';
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 
 export { HEROES } from './characters';
+export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
@@ -73,6 +75,8 @@ export type {
 } from './world';
 export type {
   CharacterDefinition,
+  CraftingRecipe,
+  CraftingRecipeInput,
   DamageCategory,
   ElementType,
   EnemyDefinition,
@@ -94,6 +98,7 @@ export const GAME_DATA = {
   enemies: ENEMIES,
   elementFusions: ELEMENT_FUSIONS,
   items: ITEMS,
+  craftingRecipes: CRAFTING_RECIPES,
   skills: SKILLS,
   signatures: SIGNATURES,
   progression: {

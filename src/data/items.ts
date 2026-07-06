@@ -120,5 +120,7 @@ export const ITEMS = [
   { id: 'forge-band', name: 'Schmiedereif', description: 'Ein zwergischer Ring, der Hieb und Deckung schärft.', category: 'accessory', price: 280, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'dwargon-forged', statBonus: { attack: 3, defense: 3 } },
   // — Ork-Ausrüstung —
   { id: 'orc-cleaver', name: 'Ork-Schlachtbeil', description: 'Grobes, schweres Beil — viel Wucht, wenig Finesse.', category: 'weapon', price: 150, stackable: false, equipmentSlot: 'weapon', enchantment: { maxLevel: 3, goldCostPerLevel: 70, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 11 } },
-  { id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxHp: 16, attack: 2 } }
+  { id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxHp: 16, attack: 2 } },
+  // — Phase 91: an der Schmiede aus Geistglut gefertigt (einzigartig) —
+  { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 6, spirit: 3, maxMp: 6 } }
 ] as const satisfies readonly ItemDefinition[];

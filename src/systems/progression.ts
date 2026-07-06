@@ -49,6 +49,9 @@ export interface ProgressionState {
   readonly skillPointsByCharacterId: Readonly<Record<string, number>>;
   readonly unlockedSkillNodeIdsByCharacterId: Readonly<Record<string, readonly string[]>>;
   readonly enchantmentLevelsByEquipmentKey: Readonly<Record<string, number>>;
+  // Phase 91 — Die Schmiede: IDs bereits geschmiedeter, einmaliger Rezepte
+  // (einzigartige Boss-Kern-Ausrüstung), damit sie nicht erneut angeboten werden.
+  readonly craftedRecipeIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -58,6 +61,7 @@ export interface CreateProgressionStateOptions {
   readonly skillPointsByCharacterId?: Readonly<Record<string, number>>;
   readonly unlockedSkillNodeIdsByCharacterId?: Readonly<Record<string, readonly string[]>>;
   readonly enchantmentLevelsByEquipmentKey?: Readonly<Record<string, number>>;
+  readonly craftedRecipeIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -132,7 +136,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     ),
     enchantmentLevelsByEquipmentKey: normalizePointRecord(
       options.enchantmentLevelsByEquipmentKey ?? {}
-    )
+    ),
+    craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? [])
   };
 }
 
