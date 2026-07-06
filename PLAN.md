@@ -100,20 +100,12 @@ verbraucht (totes Inventar); Kaijin/Kurobe sind reine Story-NPCs; das Flag
 (kaempfen->Belohnung, erkunden->Fund, Tempest waechst) zeigen auf denselben
 fehlenden Kern: Rimuru baut Tempest zur Nation. Non-Goals beachten: kein Backend/
 PWA, kein Job/Klassen-System (Spec-Baeume bleiben das Progressionsmodell).
-Empfehlung: 91 zuerst (schliesst den toten Material-Faden, Fundament fuer 92/93);
+Empfehlung: Phase 91 (Schmiede) ist gemergt und schliesst den toten Material-
+Faden; 92 baut direkt darauf auf (Bewohner rekrutieren, dann 93 Produktion).
 94 und die Side-Options sind unabhaengig und koennen dazwischen gezogen werden.
 
 ### Flaggschiff: Nation-Arc (Meta-Loop, optional, save-persistent, headless-testbar)
 
-- [ ] Phase 91 — Die Schmiede (Crafting). Datengetriebenes `CraftingRecipe`
-  (Inputs = Materialien + Gold -> Output = Ausruestung/Upgrade); Forge-Interaktion
-  an Kaijin/Kurobe, die Inventar/Equipment/Enchantment wiederverwendet. Macht die
-  toten Materialien + Boss-Cores (geld-core, spirit-ember) zu Verschlingen-/Jagd-
-  zielen. Gating ueber das vorhandene `craft.smithing.unlocked`. Save-Migration
-  (neue Rezept-/Freischalt-Flags). Kleinster Schritt, hoechster ROI, halb schon
-  angelegt; zugleich erste Facility von Phase 93. Akzeptanz: Rezept verbraucht
-  Inputs / gibt Output / respektiert Gating (Headless-Test), Menue-Smoke,
-  Save-Roundtrip + Migration.
 - [ ] Phase 92 — Bewohner (Residents). Verschonte/verschlungene Gegner per Naming
   als Bewohner rekrutieren (Tensura-Naming; knuepft an devour/naming/bonds).
   Save-State: Bewohnerliste mit Rolle/Herkunft + Roster-Ansicht. Noch keine
