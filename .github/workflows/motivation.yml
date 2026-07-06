@@ -3,56 +3,79 @@ name: Taegliche Motivations-Mail
 on:
   schedule:
     - cron: '30 5 * * *'   # 05:30 UTC = 07:30 Europe/Berlin (Sommerzeit; im Winter 06:30)
-  workflow_dispatch: {}      # manueller Test-Button in der Actions-UI
+  workflow_dispatch: {}      # manueller Test-Button: sendet IMMER (umgeht die Frequenz-Sperre)
 
-# Laeuft unabhaengig vom PC auf GitHubs Servern. Braucht zwei Repo-Secrets:
-#   MAIL_USER           = sendende Gmail-Adresse (voll, inkl. @gmail.com)
-#   MAIL_APP_PASSWORD   = Gmail-App-Passwort (16 Zeichen, 2-Schritt-Verifizierung noetig)
-# Empfaenger ist unten fest hinterlegt (MAIL_TO) und leicht aenderbar.
+# Laeuft PC-unabhaengig auf GitHubs Servern. Braucht zwei Repo-Secrets:
+#   MAIL_USER          = sendende Gmail-Adresse (das Konto, das das App-Passwort erzeugt hat)
+#   MAIL_APP_PASSWORD  = 16-stelliges Gmail-App-Passwort (2-Schritt-Verifizierung noetig)
+# Empfaenger (MAIL_TO) und Absendername (FROM_NAME) stehen unten und sind leicht aenderbar.
+# Frequenz: pro ISO-Woche werden zufaellig 0..7 Sendetage gewaehlt (nicht mehr jeden Tag).
 
 jobs:
   send:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Spruch waehlen und per Gmail-SMTP senden
+      - name: Vielleicht senden (0-7x pro Woche, zufaellig)
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_APP_PASSWORD: ${{ secrets.MAIL_APP_PASSWORD }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
           MAIL_TO="flyingclassix@gmail.com"
+          FROM_NAME="Dein Morgengruß"
 
-          # Secrets saeubern: Google zeigt App-Passwoerter mit Leerzeichen an, die NICHT Teil
-          # des Passworts sind; ausserdem versehentliche Zeilenumbrueche/Spaces entfernen.
+          # Secrets saeubern (Google zeigt App-Passwoerter mit Leerzeichen an, die nicht dazugehoeren).
           USER_ADDR="$(printf '%s' "${MAIL_USER:-}" | tr -d '[:space:]')"
           PW="$(printf '%s' "${MAIL_APP_PASSWORD:-}" | tr -d '[:space:]')"
-
           if [ -z "$USER_ADDR" ] || [ -z "$PW" ]; then
-            echo "MAIL_USER/MAIL_APP_PASSWORD Secret fehlt noch — bitte in den Repo-Secrets setzen. Ueberspringe."
-            exit 0
+            echo "MAIL_USER/MAIL_APP_PASSWORD Secret fehlt noch. Ueberspringe."; exit 0
           fi
 
-          # Diagnose (Secret-Werte sind in GitHub-Logs maskiert; Laengen sind sicher & aussagekraeftig):
-          echo "Diagnose: MAIL_USER-Laenge=${#USER_ADDR}, App-Passwort-Laenge(bereinigt)=${#PW} (erwartet: 16)."
-          case "$USER_ADDR" in
-            *@*.*) : ;;
-            *) echo "WARNUNG: MAIL_USER sieht nicht wie eine volle E-Mail-Adresse aus (fehlt @...?)." ;;
-          esac
+          # deterministischer Hash eines Strings -> Zahl in [0, $2)
+          hexmod() { echo $(( 16#$(printf '%s' "$1" | md5sum | cut -c1-8) % $2 )); }
 
-          FILE=".github/motivation-messages.txt"
-          mapfile -t MSGS < "$FILE"
-          COUNT="${#MSGS[@]}"
-          if [ "$COUNT" -eq 0 ]; then echo "Keine Nachrichten in $FILE"; exit 1; fi
+          # --- Wochenplan: pro ISO-Woche N (0..7) Sendetage, deterministisch gewaehlt ---
+          WEEK="$(date -u +%G-%V)"           # ISO Jahr-Woche, z.B. 2026-28
+          N="$(hexmod "${WEEK}|count" 8)"     # 0..7 Mails diese Woche
+          TODAY="$(date -u +%u)"              # 1..7 (Mo..So)
+          # Rang von heute unter allen 7 Tagen nach Tages-Hash; die N kleinsten sind Sendetage.
+          th=$(( 16#$(printf '%s' "${WEEK}|day|${TODAY}" | md5sum | cut -c1-8) ))
+          rank=0
+          for d in 1 2 3 4 5 6 7; do
+            [ "$d" = "$TODAY" ] && continue
+            dh=$(( 16#$(printf '%s' "${WEEK}|day|${d}" | md5sum | cut -c1-8) ))
+            if [ "$dh" -lt "$th" ] || { [ "$dh" -eq "$th" ] && [ "$d" -lt "$TODAY" ]; }; then
+              rank=$((rank+1))
+            fi
+          done
 
-          # Rotierende Auswahl nach Tag-des-Jahres (10# verhindert Oktal-Fehler bei fuehrenden Nullen).
-          IDX=$(( 10#$(date -u +%j) % COUNT ))
-          BODY="${MSGS[$IDX]}"
+          FORCE="no"; [ "${EVENT_NAME:-}" = "workflow_dispatch" ] && FORCE="yes"
+          echo "Woche $WEEK: $N Mail(s) geplant. Heute=Tag $TODAY (Rang $rank). Manuell(force)=$FORCE."
+          if [ "$FORCE" != "yes" ] && [ "$rank" -ge "$N" ]; then
+            echo "Heute ist kein Sendetag — kein Versand."; exit 0
+          fi
+
+          # --- Spruch + Betreff zufaellig nach Datum (verschieden pro Tag) ---
+          DAY="$(date -u +%F)"
+          mapfile -t MSGS < .github/motivation-messages.txt
+          mapfile -t SUBS < .github/motivation-subjects.txt
+          MC="${#MSGS[@]}"; SC="${#SUBS[@]}"
+          if [ "$MC" -eq 0 ] || [ "$SC" -eq 0 ]; then echo "Spruch-/Betreff-Pool leer."; exit 1; fi
+          BODY="${MSGS[$(hexmod "${DAY}|msg" "$MC")]}"
+          SUBJECT="${SUBS[$(hexmod "${DAY}|sub" "$SC")]}"
+
+          # Betreff + Absendername als UTF-8 kodieren (damit Umlaute/Emoji sauber ankommen).
+          SUBJECT_ENC="=?UTF-8?B?$(printf '%s' "$SUBJECT" | base64 -w0)?="
+          FROM_ENC="=?UTF-8?B?$(printf '%s' "$FROM_NAME" | base64 -w0)?="
 
           {
-            printf 'From: %s\r\n' "$USER_ADDR"
+            printf 'Date: %s\r\n' "$(date -R)"
+            printf 'From: %s <%s>\r\n' "$FROM_ENC" "$USER_ADDR"
             printf 'To: %s\r\n' "$MAIL_TO"
-            printf 'Subject: Dein Motivationsschub fuer heute\r\n'
+            printf 'Subject: %s\r\n' "$SUBJECT_ENC"
+            printf 'MIME-Version: 1.0\r\n'
             printf 'Content-Type: text/plain; charset=UTF-8\r\n'
             printf '\r\n'
             printf '%s\r\n' "$BODY"
@@ -72,4 +95,4 @@ jobs:
             printf '%s\n' "$OUT" | grep -E '^< ' | grep -viE 'assword' || echo "(keine Serverzeile gefunden)"
             exit "$RC"
           fi
-          echo "Gesendet an $MAIL_TO — Spruch #$IDX von $COUNT."
+          echo "Gesendet an $MAIL_TO — Betreff: \"$SUBJECT\"."
