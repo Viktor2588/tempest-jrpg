@@ -58,11 +58,18 @@ jobs:
             printf '%s\r\n' "$BODY"
           } > mail.txt
 
-          curl --silent --show-error --ssl-reqd \
+          set +e
+          OUT="$(curl --silent --show-error --ssl-reqd -v \
             --url 'smtps://smtp.gmail.com:465' \
             --user "${USER_ADDR}:${PW}" \
             --mail-from "$USER_ADDR" \
             --mail-rcpt "$MAIL_TO" \
-            --upload-file mail.txt
-
+            --upload-file mail.txt 2>&1)"
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            echo "SMTP fehlgeschlagen (RC=$RC). Gmail-Serverantwort (nur '<'-Zeilen, ohne Zugangsdaten):"
+            printf '%s\n' "$OUT" | grep -E '^< ' | grep -viE 'assword' || echo "(keine Serverzeile gefunden)"
+            exit "$RC"
+          fi
           echo "Gesendet an $MAIL_TO — Spruch #$IDX von $COUNT."
