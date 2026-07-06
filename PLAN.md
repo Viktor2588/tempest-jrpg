@@ -88,6 +88,68 @@ Rallyer) sind gemergt.
   Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
   ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
 
+## Erweiterungs-Roadmap (Nutzer 2026-07-06: umfangreichere Spielmechanik)
+
+Befund (Code): Der Kampf-Moment traegt jetzt (Kampf-Tiefe-Roadmap 87/88/88b),
+aber die Schichten drumherum fehlen. `tempestGrowth.ts` ist nur ein Label
+(wilderness/camp/village/city aus Story-Flags) — keine Bevoelkerung, Ressourcen
+oder Oekonomie. Crafting ist ein nie angeschlossener Faden: magic-ore/magisteel/
+orc-tusk/geld-core/spirit-ember fallen als Drops an und werden von NICHTS
+verbraucht (totes Inventar); Kaijin/Kurobe sind reine Story-NPCs; das Flag
+`craft.smithing.unlocked` oeffnet nur einen Gold-Shop. Drei tote Schleifen
+(kaempfen->Belohnung, erkunden->Fund, Tempest waechst) zeigen auf denselben
+fehlenden Kern: Rimuru baut Tempest zur Nation. Non-Goals beachten: kein Backend/
+PWA, kein Job/Klassen-System (Spec-Baeume bleiben das Progressionsmodell).
+Empfehlung: 91 zuerst (schliesst den toten Material-Faden, Fundament fuer 92/93);
+94 und die Side-Options sind unabhaengig und koennen dazwischen gezogen werden.
+
+### Flaggschiff: Nation-Arc (Meta-Loop, optional, save-persistent, headless-testbar)
+
+- [ ] Phase 91 — Die Schmiede (Crafting). Datengetriebenes `CraftingRecipe`
+  (Inputs = Materialien + Gold -> Output = Ausruestung/Upgrade); Forge-Interaktion
+  an Kaijin/Kurobe, die Inventar/Equipment/Enchantment wiederverwendet. Macht die
+  toten Materialien + Boss-Cores (geld-core, spirit-ember) zu Verschlingen-/Jagd-
+  zielen. Gating ueber das vorhandene `craft.smithing.unlocked`. Save-Migration
+  (neue Rezept-/Freischalt-Flags). Kleinster Schritt, hoechster ROI, halb schon
+  angelegt; zugleich erste Facility von Phase 93. Akzeptanz: Rezept verbraucht
+  Inputs / gibt Output / respektiert Gating (Headless-Test), Menue-Smoke,
+  Save-Roundtrip + Migration.
+- [ ] Phase 92 — Bewohner (Residents). Verschonte/verschlungene Gegner per Naming
+  als Bewohner rekrutieren (Tensura-Naming; knuepft an devour/naming/bonds).
+  Save-State: Bewohnerliste mit Rolle/Herkunft + Roster-Ansicht. Noch keine
+  Produktion, nur Bestand. Akzeptanz: Rekrutierung + Persistenz + Migration
+  headless getestet, Roster-Smoke.
+- [ ] Phase 93 — Einrichtungen & Produktion. Facilities (Schmiede, Kueche,
+  Trainingshalle, Wache) nehmen Bewohner auf und produzieren pro Zyklus
+  (Rast/Reise): Schmiede->Material/Rabatt, Kueche->Rast-Buffs (Cooking),
+  Trainingshalle->Reserve-XP/Catch-up, Wache->Encounter-Kontrolle. Facility-Stufen
+  koppeln an die tempestGrowth-Stufen. Schliesst die Schleife kaempfen/erkunden ->
+  Material+Bewohner -> bauen/zuweisen -> Macht. Akzeptanz: Produktions-Zyklus
+  deterministisch + balance-gesimt, Save-Migration, Facility-UI-Smoke.
+
+### Kampf-Ausbau: Elementarfelder
+
+- [ ] Phase 94 — Schlachtfeld-Zustand (Elementarfelder). Ein Feld-/Terrain-Zustand
+  auf dem `BattleState`: ein Skill laedt das Feld elementar auf -> verstaerkt das
+  passende Element, loest Reaktionen mit Status/anderen Elementen aus
+  (brennend+Wind=Ausbreitung, Wasserfeld+Schatten=..., verzahnt mit der 21-Paar-
+  Fusionstabelle). Element-Wahl wird Board-Control statt nur Schwaeche-Treffer.
+  Rein logisch auf dem vorhandenen Element/Fusion/Status-Motor. Akzeptanz:
+  Feld-Erzeugung/-Reaktion/-Abklingen headless getestet, HUD-Anzeige des Feldes,
+  Balance-Harness fuer jede Rimuru-Spec gruen.
+
+### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
+
+- [ ] Phase 95 — Arena/Kolosseum. Wellen-Modus als Pruefstand fuer die tiefe
+  Kampfmechanik; wiederverwendet Battle-Engine + Encounters; Raenge/Belohnungen
+  (u. a. Material fuer die Schmiede). On-theme (Tensura-Turniere), wiederholbar.
+- [ ] Phase 96 — Jagd-/Kopfgeldbrett. Erweitert das Verschlingen-Kompendium
+  (Phase 84) zu wiederholbaren Auftraegen mit Material-/Gold-Belohnung -> speist
+  die Schmiede (Phase 91).
+- [ ] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
+  Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
+  (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
