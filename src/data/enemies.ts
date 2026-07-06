@@ -252,6 +252,7 @@ export const ENEMIES = [
       agility: 10
     },
     skillIds: ['venom-spit', 'goblin-feint'],
+    resistsCategory: 'physical',
     devourable: true,
     devourSkillId: 'venom-spit',
     weaknesses: ['wind', 'fire'],
@@ -275,6 +276,7 @@ export const ENEMIES = [
       agility: 19
     },
     skillIds: ['spirit-bind', 'water-blade'],
+    resistsCategory: 'magical',
     devourable: true,
     devourSkillId: 'spirit-bind',
     weaknesses: ['holy', 'wind'],

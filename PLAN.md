@@ -71,12 +71,20 @@ Rudel-Raserei) sind gemergt.
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
   Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
   (telegraphierter Big-Hit → perfektes Block-Fenster).
-- [ ] Phase 88 — Build-relevante Encounter: die Spec-Baeume haben Branch-Lock
-  ("Qual der Wahl"), aber wenn jeder Build jeden Kampf gleich loest, ist die
-  Wahl kosmetisch. Ein paar Kaempfe, die physisch vs. magisch vs. Support
-  soft-checken (z. B. hohe Physisch-Resistenz, Magie-Reflect, ein Add das ohne
-  Support-Kontrolle den Kampf kippt), geben der Progression-Tiefe endlich
-  Kampf-Konsequenz. Verzahnt Phase 87 mit den Talentbaeumen (69/70/72).
+- [x] Phase 88 — Build-relevante Encounter (Inkrement 1: Kategorie-Resistenz).
+  Neues datengetriebenes EnemyDefinition-Flag `resistsCategory: 'physical' | 'magical'`:
+  der Gegner mindert eine ganze Schadenskategorie auf 0.55× (soft-check, kein Wall) →
+  der falsche Damage-Typ lohnt weniger, die Spec-/Build-Wahl bekommt Kampf-Konsequenz.
+  Party-Auto-Battle wertet Skills der abgewehrten Kategorie ab (scoreSkillTarget) und
+  bringt den Konter-Typ — fair + Harness spielt korrekt (wie schon bei Element-Schwaechen,
+  ohne Analyse-Gate). Legibilitaet ueber Kampf-Log ("wehrt koerperliche/magische Angriffe
+  ab — stark reduziert"), kein HUD-/Render-Change. Angewandt auf zwei OFF-ROUTE-Gegner
+  (kein Korridor-Risiko): bog-terror (physisch-resistent → mit Magie brennen) + stray-echo
+  (magie-resistent → mit Waffen schlagen). Abnahme: typecheck; 429 Unit-Tests (3 neu:
+  physisch-/magie-resistent mindert nur die eigene Kategorie, KI bringt den Konter-Typ);
+  Balance-Harness alle 3 Rimuru-Specs gruen; Production-Build. Offen (Folge-Inkrement):
+  Magie-Reflect als Kategorie + expliziter Support-Check (Add, das ohne Kontrolle kippt);
+  on-route-Platzierung, sobald die Harness-Party beide Damage-Typen sicher traegt.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen

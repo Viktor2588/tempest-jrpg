@@ -1324,3 +1324,48 @@ describe('Phase 87 — Normalgegner-Archetypen', () => {
     expect(packA.statuses.filter((s) => s.id === 'attack-up')).toHaveLength(1); // kein Stapeln
   });
 });
+
+describe('Phase 88 — build-relevante Encounter (Kategorie-Resistenz)', () => {
+  const striker = (): BattleUnitInput => depthHero('rimuru', 'Rimuru', {
+    stats: { maxHp: 800, maxMp: 120, attack: 60, defense: 18, magic: 60, spirit: 18, agility: 22 },
+    skillIds: ['slime-strike', 'water-blade']
+  });
+
+  // Ein Treffer gegen einen (optional kategorie-resistenten) neutralen Gegner; gleicher Seed +
+  // erzwungener Party-Zug -> identische Varianz, sodass nur die Resistenz den Unterschied macht.
+  const damageFrom = (skillId: string | null, enemyOverrides: Partial<BattleUnitInput>): number => {
+    const state = startBattle({
+      party: [striker()],
+      enemies: [phaseEnemy({ element: 'neutral', weaknesses: [], resistances: [], ...enemyOverrides })],
+      seed: 5
+    });
+    const attacker = state.combatants.find((c) => c.side === 'party')!;
+    const enemy = state.combatants.find((c) => c.side === 'enemy')!;
+    state.activeId = attacker.id;
+    const before = enemy.hp;
+    act(state, skillId ? { type: 'skill', skillId, targetId: enemy.id } : { type: 'attack', targetId: enemy.id });
+    return before - enemy.hp;
+  };
+
+  it('physisch-resistent: weniger physischer Schaden, magischer bleibt voll', () => {
+    const physNormal = damageFrom(null, {});
+    const physResisted = damageFrom(null, { resistsCategory: 'physical' });
+    expect(physNormal).toBeGreaterThan(0);
+    expect(physResisted).toBeLessThan(physNormal); // physisch wird abgewehrt
+
+    const magNormal = damageFrom('water-blade', {});
+    const magResisted = damageFrom('water-blade', { resistsCategory: 'physical' });
+    expect(magResisted).toBe(magNormal); // physische Resistenz mindert Magie NICHT
+  });
+
+  it('magie-resistent: weniger magischer Schaden, physischer bleibt voll', () => {
+    const magNormal = damageFrom('water-blade', {});
+    const magResisted = damageFrom('water-blade', { resistsCategory: 'magical' });
+    expect(magNormal).toBeGreaterThan(0);
+    expect(magResisted).toBeLessThan(magNormal); // magisch wird abgewehrt
+
+    const physNormal = damageFrom(null, {});
+    const physResisted = damageFrom(null, { resistsCategory: 'magical' });
+    expect(physResisted).toBe(physNormal); // magische Resistenz mindert Physisch NICHT
+  });
+});
