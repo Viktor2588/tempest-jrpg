@@ -568,6 +568,14 @@ completed_milestones:
     - Kijin and Kaijin party battle cutouts and roster portraits
     - Canon-region overworld tiles
     - Canon boss and trigger-enemy cutouts
+  phase_87:
+    - normal-enemy archetypes: extends the boss-only tactical-depth flags (Phase 82) to everyday fights, data-driven via two new EnemyDefinition flags wired through BattleUnitInput/Combatant
+    - healsAllies (Mender): the enemy AI filtered out healing skills entirely (line in enemyTurn), so no enemy ever healed; menders now keep their heal skills, and scoreEnemySkillTarget scores healing the most-wounded ally (~0 at full HP, so a mender attacks when nobody is hurt). Applied to lizardman-acolyte (already had soothing-prayer)
+    - party auto-battle now focuses menders (chooseTarget priority just under guard-break + a menderPressure term in scoreSkillTarget) so the mender is fair AND the balance harness plays it the way a human would (kill the healer)
+    - enrageOnAllyDeath (pack): a surviving flagged ally enrages once (attack-up, +25 % attack) via a hook in checkDeath — the single death chokepoint, so every lethal path routes through it exactly once (guarded by an `enraged` flag). Applied to direwolf-pup + direwolf-alpha
+    - balance lesson: enrage was first attack-up + haste, which flipped the fragile chapter-1 wolf fight (direwolf-pack-leader) and cascaded into a Geld carryover loss; reduced to attack-up-only, then all corridors green for every Rimuru spec
+    - player feedback via existing paths only (status icon + battle log), no scene/render/asset change → E2E not required
+    - typecheck, 426 unit tests (5 new: mender heals wounded ally, non-mender never heals, enrage fires + fires once, party AI focuses mender), balance harness green for all three Rimuru specs, and production build verified
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes

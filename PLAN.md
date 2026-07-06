@@ -63,31 +63,9 @@ sustainen). Die reichen Mechaniken (Analyse/Telegraph, Break, Devour, CT-Delay,
 Reaktionen, Status) sind vorhanden, aber der Spieler *muss* sie nie waehlen.
 Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
-Fundament: Phase 80 (Eskalation) ist gemergt; Phase 87 verzahnt sich direkt damit.
+Fundament: Phase 80 (Eskalation) + Phase 87 (Normalgegner-Archetypen: Mender +
+Rudel-Raserei) sind gemergt.
 
-Kern-Befund (Code, 2026-07-06): Saemtliche taktische Tiefe sitzt auf den 7
-Story-Bossen — `boss`, `escalationPercentPerTurn` (6), `armoredUntilBreak` (1),
-`reflectsElement` (1), `punishesHealing` (1), `heavy`/`telegraph` (nur
-Boss-Skills). Normale Gegner tragen NULL davon und sind damit reines
-"chip mit Schwaeche". Normalkaempfe sind aber ~80 % der Spielzeit; die vorhandene
-Flag-Maschinerie (Phase 80/82) wird also auf 7 Kaempfe von hunderten genutzt.
-
-- [x] Phase 87 — Gegner-Archetypen von den Bossen auf Normalkaempfe ausgeweitet
-  (rein datengetrieben, Flag-Muster von Phase 82). Zwei neue EnemyDefinition-Flags:
-  `healsAllies` (Mender heilt verwundete Verbuendete — die Gegner-KI darf dafuer
-  Heil-Skills waehlen, die sonst gefiltert werden; scoreEnemySkillTarget priorisiert
-  den am staerksten verwundeten Verbuendeten, ~0 bei vollen LP) und `enrageOnAllyDeath`
-  (Ueberlebender geraet einmalig in Raserei = attack-up/+25 % Angriff; Hook im einzigen
-  Tod-Chokepoint checkDeath). Party-Auto-Battle fokussiert jetzt Mender (chooseTarget +
-  scoreSkillTarget) — der Mender ist damit fair und der Harness spielt ihn korrekt.
-  Angewandt auf 3 Route-Gegner: lizardman-acolyte (Mender, shrine-approach + Echsen-
-  Encounter), direwolf-pup + direwolf-alpha (Rudel-Raserei, direwolf-pack-leader +
-  training-clearing). Enrage bewusst attack-up-only (attack-up+haste kippte den fragilen
-  Kapitel-1-Wolfskampf → Harness-Verlust). HUD-Feedback ueber vorhandene Pfade (Status-
-  Icon + Kampf-Log), kein Scene-/Render-Change. Abnahme: typecheck; 426 Unit-Tests (5 neu:
-  Mender heilt / nicht-Mender heilt nie / Enrage feuert + einmalig / Party-KI fokussiert
-  Mender); Balance-Harness fuer alle 3 Rimuru-Specs gruen; Production-Build. E2E nicht
-  erforderlich (keine Scene-/Render-/Asset-Aenderung).
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
