@@ -63,28 +63,19 @@ sustainen). Die reichen Mechaniken (Analyse/Telegraph, Break, Devour, CT-Delay,
 Reaktionen, Status) sind vorhanden, aber der Spieler *muss* sie nie waehlen.
 Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
-Fundament: Phase 80 (Eskalation) + Phase 87 (Normalgegner-Archetypen: Mender +
-Rudel-Raserei) sind gemergt.
+Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
+Raserei) und 88 (build-relevante Kategorie-Resistenz) sind gemergt.
 
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
   Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
   (telegraphierter Big-Hit → perfektes Block-Fenster).
-- [x] Phase 88 — Build-relevante Encounter (Inkrement 1: Kategorie-Resistenz).
-  Neues datengetriebenes EnemyDefinition-Flag `resistsCategory: 'physical' | 'magical'`:
-  der Gegner mindert eine ganze Schadenskategorie auf 0.55× (soft-check, kein Wall) →
-  der falsche Damage-Typ lohnt weniger, die Spec-/Build-Wahl bekommt Kampf-Konsequenz.
-  Party-Auto-Battle wertet Skills der abgewehrten Kategorie ab (scoreSkillTarget) und
-  bringt den Konter-Typ — fair + Harness spielt korrekt (wie schon bei Element-Schwaechen,
-  ohne Analyse-Gate). Legibilitaet ueber Kampf-Log ("wehrt koerperliche/magische Angriffe
-  ab — stark reduziert"), kein HUD-/Render-Change. Angewandt auf zwei OFF-ROUTE-Gegner
-  (kein Korridor-Risiko): bog-terror (physisch-resistent → mit Magie brennen) + stray-echo
-  (magie-resistent → mit Waffen schlagen). Abnahme: typecheck; 429 Unit-Tests (3 neu:
-  physisch-/magie-resistent mindert nur die eigene Kategorie, KI bringt den Konter-Typ);
-  Balance-Harness alle 3 Rimuru-Specs gruen; Production-Build. Offen (Folge-Inkrement):
-  Magie-Reflect als Kategorie + expliziter Support-Check (Add, das ohne Kontrolle kippt);
-  on-route-Platzierung, sobald die Harness-Party beide Damage-Typen sicher traegt.
+- [ ] Phase 88b — Build-relevante Encounter, Folge-Inkrement (Inkrement 1
+  `resistsCategory` ist gemergt): Magie-Reflect als ganze Kategorie + expliziter
+  Support-Check (ein Add, das ohne Kontrolle/Silence den Kampf kippt); die
+  Kategorie-Resistenz zusaetzlich on-route platzieren, sobald die Harness-Party
+  beide Damage-Typen sicher traegt.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen

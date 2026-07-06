@@ -576,6 +576,14 @@ completed_milestones:
     - balance lesson: enrage was first attack-up + haste, which flipped the fragile chapter-1 wolf fight (direwolf-pack-leader) and cascaded into a Geld carryover loss; reduced to attack-up-only, then all corridors green for every Rimuru spec
     - player feedback via existing paths only (status icon + battle log), no scene/render/asset change → E2E not required
     - typecheck, 426 unit tests (5 new: mender heals wounded ally, non-mender never heals, enrage fires + fires once, party AI focuses mender), balance harness green for all three Rimuru specs, and production build verified
+  phase_88:
+    - build-relevant encounters, increment 1 (damage-category resistance) — makes the branch-locked spec choice matter in combat instead of being cosmetic
+    - new data-driven EnemyDefinition flag resistsCategory ('physical' | 'magical'): the enemy takes an entire damage category at 0.55× (soft-check, not a wall), so the wrong damage type is clearly worse and the player switches to the matching build/skill; wired via categoryResistMultiplier in applyDamage plus BattleUnitInput/Combatant plumbing
+    - legibility via the battle log ("wehrt körperliche/magische Angriffe ab — stark reduziert") on each resisted hit, so no HUD/scene/render change
+    - party auto-battle discounts skills of the resisted category in scoreSkillTarget (penalty = power*element*0.45, mirroring the 0.55× resist) so the AI — and the balance harness — bring the counter damage type, consistent with how element weaknesses are already used without an analysis gate
+    - applied to two OFF-ROUTE enemies to avoid corridor churn: bog-terror (physical-resistant tank → burn it with magic) and stray-echo (magical-resistant echo → hit it with weapons)
+    - deferred to a follow-up increment (Phase 88b): category-wide magic reflect, an explicit support-check add that flips the fight without control, and on-route placement once the harness party reliably carries both damage types
+    - typecheck, 429 unit tests (3 new: physical-/magical-resist reduces only its own category, AI picks the counter type), balance harness green for all three Rimuru specs, and production build verified
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes
