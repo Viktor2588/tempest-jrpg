@@ -163,6 +163,9 @@ export interface EnemyDefinition {
   // ODER magisch) teils ab → der falsche Damage-Typ trifft nur gemindert, die Spec-/
   // Build-Wahl bekommt Kampf-Konsequenz (auf die passende Kategorie umschalten).
   readonly resistsCategory?: DamageCategory;
+  // Phase 88b — Kategorie-Reflektor: ein Bruchteil des Schadens dieser Kategorie prallt auf
+  // den (Party-)Angreifer zurück → bestraft stures Spammen einer Schadensart (Spiegel-Gegner).
+  readonly reflectsCategory?: DamageCategory;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
   readonly weaknesses: readonly ElementType[];
