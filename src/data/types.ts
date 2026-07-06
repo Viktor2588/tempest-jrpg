@@ -133,6 +133,22 @@ export interface CraftingRecipe {
   readonly repeatable: boolean;
 }
 
+// Phase 92 — Bewohner (Residents): Rimuru benennt verschlungene Gegner-Arten und
+// nimmt sie als Bewohner in Tempest auf (Tensura-Naming = Evolution + Bindung).
+// Reine Daten; die Rekrutierungs-/Roster-Logik liegt in systems/residents. Noch
+// keine Produktion — nur Bestand (Phase 93 baut Einrichtungen darauf auf).
+export type ResidentRole = 'Wache' | 'Späher' | 'Handwerk' | 'Heilung' | 'Bau';
+
+export interface ResidentDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly species: string;
+  readonly role: ResidentRole;
+  // Die Gegner-Art, deren Verschlingen diesen Bewohner freischaltet (per Naming).
+  readonly originEnemyId: string;
+  readonly origin: string;
+}
+
 export interface CharacterDefinition {
   readonly id: string;
   readonly name: string;

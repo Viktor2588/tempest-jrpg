@@ -1,6 +1,7 @@
 import type { BattleView } from './battle';
 import { normalizeInventoryStacks } from './inventory';
 import { applyBattleProgressionRewards, calculateProgressionStats } from './progression';
+import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
 import { applyWorldState, completeEncounter, createWorldState } from './world';
 
@@ -30,7 +31,15 @@ export function applyBattleResultToSave(
         state: save.progression,
         grantedSkillPoints: 0
       };
-  const progression = progressionResult.state;
+  // Phase 92 — Bewohner: in diesem Kampf verschlungene Gegner-Arten als Bewohner
+  // rekrutieren (per Naming). Idempotent; alte Bewohner bleiben erhalten.
+  const recruited = won
+    ? recruitResidentsFromDevour(progressionResult.state.residentIds, battle.devouredSourceIds)
+    : null;
+  const progression =
+    recruited && recruited.newlyRecruited.length > 0
+      ? { ...progressionResult.state, residentIds: recruited.residentIds }
+      : progressionResult.state;
   const active = progressionResult.active.map((member) => {
     if (battle.status === 'lost') {
       return member;

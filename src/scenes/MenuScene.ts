@@ -35,6 +35,7 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
+import { buildResidentRoster } from '../systems/residents';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
@@ -91,7 +92,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' = 'lore';
+  private codexMode: 'lore' | 'devour' | 'residents' = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -851,13 +852,16 @@ export class MenuScene extends Phaser.Scene {
     // Phase 84 — Umschalter: „Wissen" (Lore) ↔ „Verschlingen" (Beute-Kompendium).
     this.button(300, 140, 168, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
       () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(478, 140, 210, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
+    this.button(478, 140, 172, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
       () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
+    this.button(660, 140, 172, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
+      () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
     if (this.codexMode === 'devour') this.drawDevourCompendium();
+    else if (this.codexMode === 'residents') this.drawResidentRoster();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour'): void {
+  private setCodexMode(mode: 'lore' | 'devour' | 'residents'): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
@@ -917,6 +921,42 @@ export class MenuScene extends Phaser.Scene {
     });
 
     this.codexFooter(pageCount, `${learnedCount}/${entries.length} erbeutet`);
+  }
+
+  // Phase 92 — Bewohner-Roster: benannte, in Tempest aufgenommene Gegner-Arten.
+  private drawResidentRoster(): void {
+    const roster = buildResidentRoster(this.save.progression.residentIds);
+    const roleSummary = (['Wache', 'Späher', 'Handwerk', 'Heilung', 'Bau'] as const)
+      .filter((role) => roster.countsByRole[role] > 0)
+      .map((role) => `${role} ${roster.countsByRole[role]}`)
+      .join('   ');
+    this.layer.add(this.add.text(318, 172, roleSummary || 'Noch keine Bewohner benannt.', {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
+    }));
+
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(roster.entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const page = roster.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    page.forEach((entry, index) => {
+      const y = 206 + index * 78;
+      this.panel(300, y, 590, 60);
+      const heading = entry.recruited
+        ? `✓ ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
+        : `○ Unbenannt — ${entry.resident.species}`;
+      this.layer.add(this.add.text(318, y - 19, heading, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: entry.recruited ? '#8dffc2' : '#6f83a5'
+      }));
+      const body = entry.recruited
+        ? entry.resident.origin
+        : `Verschlinge einen ${entry.originEnemyName}, um ihn zu benennen.`;
+      this.layer.add(this.add.text(318, y + 2, body, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      }));
+    });
+
+    this.codexFooter(pageCount, `${roster.recruitedCount}/${roster.totalCount} Bewohner`);
   }
 
   private codexFooter(pageCount: number, rightNote: string | null): void {

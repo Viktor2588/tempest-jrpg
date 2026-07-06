@@ -52,6 +52,9 @@ export interface ProgressionState {
   // Phase 91 — Die Schmiede: IDs bereits geschmiedeter, einmaliger Rezepte
   // (einzigartige Boss-Kern-Ausrüstung), damit sie nicht erneut angeboten werden.
   readonly craftedRecipeIds: readonly string[];
+  // Phase 92 — Bewohner: IDs der als Bewohner in Tempest aufgenommenen (per Naming
+  // verschlungenen) Gegner-Arten. Reiner Bestand; Phase 93 setzt Produktion darauf.
+  readonly residentIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -62,6 +65,7 @@ export interface CreateProgressionStateOptions {
   readonly unlockedSkillNodeIdsByCharacterId?: Readonly<Record<string, readonly string[]>>;
   readonly enchantmentLevelsByEquipmentKey?: Readonly<Record<string, number>>;
   readonly craftedRecipeIds?: readonly string[];
+  readonly residentIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -137,7 +141,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     enchantmentLevelsByEquipmentKey: normalizePointRecord(
       options.enchantmentLevelsByEquipmentKey ?? {}
     ),
-    craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? [])
+    craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? []),
+    residentIds: uniqueStrings(options.residentIds ?? [])
   };
 }
 

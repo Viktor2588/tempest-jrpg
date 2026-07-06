@@ -3,6 +3,7 @@ import { CRAFTING_RECIPES } from './crafting';
 import { ENEMIES } from './enemies';
 import { ELEMENT_FUSIONS } from './fusions';
 import { ITEMS } from './items';
+import { RESIDENTS } from './residents';
 import {
   CATCH_UP_CONFIG,
   EQUIPMENT_SETS,
@@ -21,6 +22,7 @@ export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
+export { RESIDENTS } from './residents';
 export {
   CATCH_UP_CONFIG,
   EQUIPMENT_SETS,
@@ -84,6 +86,8 @@ export type {
   EquipmentSlot,
   ItemDefinition,
   ItemEffect,
+  ResidentDefinition,
+  ResidentRole,
   SkillDefinition,
   SkillStatusEffect,
   SkillTag,
@@ -98,6 +102,7 @@ export const GAME_DATA = {
   enemies: ENEMIES,
   elementFusions: ELEMENT_FUSIONS,
   items: ITEMS,
+  residents: RESIDENTS,
   craftingRecipes: CRAFTING_RECIPES,
   skills: SKILLS,
   signatures: SIGNATURES,

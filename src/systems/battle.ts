@@ -178,6 +178,9 @@ export interface BattleState {
   readonly rng: Rng;
   log: string[];
   rewards: BattleRewards;
+  // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten
+  // (für die Rekrutierung nach dem Sieg). Nur erfolgreiche Verschlinger-Finisher.
+  devouredSourceIds: string[];
 }
 
 export type BattleAction =
@@ -427,7 +430,8 @@ export function startBattle(options: StartBattleOptions): BattleState {
     seed: options.seed,
     rng,
     log: ['Ein Kampf beginnt!'],
-    rewards: { experience: 0, gold: 0, items: [] }
+    rewards: { experience: 0, gold: 0, items: [] },
+    devouredSourceIds: []
   };
 
   advanceToNextActor(state);
@@ -1066,6 +1070,8 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
 
   const learnedSkill = chooseDevourSkill(actor, target);
   target.hp = 0;
+  // Phase 92 — den verschlungenen Gegner für die Bewohner-Rekrutierung merken.
+  state.devouredSourceIds = uniqueStrings([...state.devouredSourceIds, target.sourceId]);
   checkDeath(state, target);
   if (learnedSkill) {
     actor.mimicSkillIds = uniqueStrings([...actor.mimicSkillIds, learnedSkill.id]);

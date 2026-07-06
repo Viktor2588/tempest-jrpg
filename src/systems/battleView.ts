@@ -68,6 +68,8 @@ export interface BattleView {
   readonly inventory: readonly InventoryStack[];
   readonly turn: number;
   readonly round: number;
+  // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten.
+  readonly devouredSourceIds: readonly string[];
 }
 
 export function renderView(state: BattleState): BattleView {
@@ -93,7 +95,8 @@ export function renderView(state: BattleState): BattleView {
     },
     inventory: [...state.inventory],
     turn: state.turns,
-    round: state.round
+    round: state.round,
+    devouredSourceIds: [...state.devouredSourceIds]
   };
 }
 

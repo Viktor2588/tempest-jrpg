@@ -469,7 +469,9 @@ function readProgressionState(raw: unknown): ProgressionState {
     enchantmentLevelsByEquipmentKey: readNumberRecord(raw.enchantmentLevelsByEquipmentKey),
     // Phase 91 — Die Schmiede: alte Spielstände ohne dieses Feld erhalten []
     // (noch nichts geschmiedet), einmalige Rezepte bleiben verfügbar.
-    craftedRecipeIds: readStringArray(raw.craftedRecipeIds)
+    craftedRecipeIds: readStringArray(raw.craftedRecipeIds),
+    // Phase 92 — Bewohner: alte Stände ohne dieses Feld starten mit leerem Roster.
+    residentIds: readStringArray(raw.residentIds)
   });
 }
 
