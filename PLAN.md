@@ -100,19 +100,16 @@ verbraucht (totes Inventar); Kaijin/Kurobe sind reine Story-NPCs; das Flag
 (kaempfen->Belohnung, erkunden->Fund, Tempest waechst) zeigen auf denselben
 fehlenden Kern: Rimuru baut Tempest zur Nation. Non-Goals beachten: kein Backend/
 PWA, kein Job/Klassen-System (Spec-Baeume bleiben das Progressionsmodell).
-Empfehlung: Phase 91 (Schmiede) ist gemergt und schliesst den toten Material-
-Faden; 92 baut direkt darauf auf (Bewohner rekrutieren, dann 93 Produktion).
-94 und die Side-Options sind unabhaengig und koennen dazwischen gezogen werden.
+Empfehlung: Phase 91 (Schmiede) und Phase 92 (Bewohner rekrutieren, Bestand +
+Roster) sind gemergt und schliessen den toten Material-/Naming-Faden; 93
+(Produktion) baut direkt auf 92 auf und nutzt die residentIds/Rollen. 94 und die
+Side-Options sind unabhaengig und koennen dazwischen gezogen werden.
 
 ### Flaggschiff: Nation-Arc (Meta-Loop, optional, save-persistent, headless-testbar)
 
-- [ ] Phase 92 — Bewohner (Residents). Verschonte/verschlungene Gegner per Naming
-  als Bewohner rekrutieren (Tensura-Naming; knuepft an devour/naming/bonds).
-  Save-State: Bewohnerliste mit Rolle/Herkunft + Roster-Ansicht. Noch keine
-  Produktion, nur Bestand. Akzeptanz: Rekrutierung + Persistenz + Migration
-  headless getestet, Roster-Smoke.
 - [ ] Phase 93 — Einrichtungen & Produktion. Facilities (Schmiede, Kueche,
-  Trainingshalle, Wache) nehmen Bewohner auf und produzieren pro Zyklus
+  Trainingshalle, Wache) nehmen die Bewohner aus Phase 92 (progression.residentIds
+  + Rollen) auf und produzieren pro Zyklus
   (Rast/Reise): Schmiede->Material/Rabatt, Kueche->Rast-Buffs (Cooking),
   Trainingshalle->Reserve-XP/Catch-up, Wache->Encounter-Kontrolle. Facility-Stufen
   koppeln an die tempestGrowth-Stufen. Schliesst die Schleife kaempfen/erkunden ->
