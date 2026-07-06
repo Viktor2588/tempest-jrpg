@@ -1,0 +1,56 @@
+name: Taegliche Motivations-Mail
+
+on:
+  schedule:
+    - cron: '30 5 * * *'   # 05:30 UTC = 07:30 Europe/Berlin (Sommerzeit; im Winter 06:30)
+  workflow_dispatch: {}      # manueller Test-Button in der Actions-UI
+
+# Laeuft unabhaengig vom PC auf GitHubs Servern. Braucht zwei Repo-Secrets:
+#   MAIL_USER           = sendende Gmail-Adresse
+#   MAIL_APP_PASSWORD   = Gmail-App-Passwort (16 Zeichen, 2-Schritt-Verifizierung noetig)
+# Empfaenger ist unten fest hinterlegt (MAIL_TO) und leicht aenderbar.
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Spruch waehlen und per Gmail-SMTP senden
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_APP_PASSWORD: ${{ secrets.MAIL_APP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          MAIL_TO="flyingclassix@gmail.com"
+
+          if [ -z "${MAIL_USER:-}" ] || [ -z "${MAIL_APP_PASSWORD:-}" ]; then
+            echo "MAIL_USER/MAIL_APP_PASSWORD Secret fehlt noch — bitte in den Repo-Secrets setzen. Ueberspringe."
+            exit 0
+          fi
+
+          FILE=".github/motivation-messages.txt"
+          mapfile -t MSGS < "$FILE"
+          COUNT="${#MSGS[@]}"
+          if [ "$COUNT" -eq 0 ]; then echo "Keine Nachrichten in $FILE"; exit 1; fi
+
+          # Rotierende Auswahl nach Tag-des-Jahres (10# verhindert Oktal-Fehler bei fuehrenden Nullen).
+          IDX=$(( 10#$(date -u +%j) % COUNT ))
+          BODY="${MSGS[$IDX]}"
+
+          {
+            printf 'From: %s\r\n' "$MAIL_USER"
+            printf 'To: %s\r\n' "$MAIL_TO"
+            printf 'Subject: Dein Motivationsschub fuer heute\r\n'
+            printf 'Content-Type: text/plain; charset=UTF-8\r\n'
+            printf '\r\n'
+            printf '%s\r\n' "$BODY"
+          } > mail.txt
+
+          curl --silent --show-error --ssl-reqd \
+            --url 'smtps://smtp.gmail.com:465' \
+            --user "${MAIL_USER}:${MAIL_APP_PASSWORD}" \
+            --mail-from "$MAIL_USER" \
+            --mail-rcpt "$MAIL_TO" \
+            --upload-file mail.txt
+
+          echo "Gesendet an $MAIL_TO — Spruch #$IDX von $COUNT."
