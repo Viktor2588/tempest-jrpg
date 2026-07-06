@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}      # manueller Test-Button in der Actions-UI
 
 # Laeuft unabhaengig vom PC auf GitHubs Servern. Braucht zwei Repo-Secrets:
-#   MAIL_USER           = sendende Gmail-Adresse
+#   MAIL_USER           = sendende Gmail-Adresse (voll, inkl. @gmail.com)
 #   MAIL_APP_PASSWORD   = Gmail-App-Passwort (16 Zeichen, 2-Schritt-Verifizierung noetig)
 # Empfaenger ist unten fest hinterlegt (MAIL_TO) und leicht aenderbar.
 
@@ -23,10 +23,22 @@ jobs:
           set -euo pipefail
           MAIL_TO="flyingclassix@gmail.com"
 
-          if [ -z "${MAIL_USER:-}" ] || [ -z "${MAIL_APP_PASSWORD:-}" ]; then
+          # Secrets saeubern: Google zeigt App-Passwoerter mit Leerzeichen an, die NICHT Teil
+          # des Passworts sind; ausserdem versehentliche Zeilenumbrueche/Spaces entfernen.
+          USER_ADDR="$(printf '%s' "${MAIL_USER:-}" | tr -d '[:space:]')"
+          PW="$(printf '%s' "${MAIL_APP_PASSWORD:-}" | tr -d '[:space:]')"
+
+          if [ -z "$USER_ADDR" ] || [ -z "$PW" ]; then
             echo "MAIL_USER/MAIL_APP_PASSWORD Secret fehlt noch — bitte in den Repo-Secrets setzen. Ueberspringe."
             exit 0
           fi
+
+          # Diagnose (Secret-Werte sind in GitHub-Logs maskiert; Laengen sind sicher & aussagekraeftig):
+          echo "Diagnose: MAIL_USER-Laenge=${#USER_ADDR}, App-Passwort-Laenge(bereinigt)=${#PW} (erwartet: 16)."
+          case "$USER_ADDR" in
+            *@*.*) : ;;
+            *) echo "WARNUNG: MAIL_USER sieht nicht wie eine volle E-Mail-Adresse aus (fehlt @...?)." ;;
+          esac
 
           FILE=".github/motivation-messages.txt"
           mapfile -t MSGS < "$FILE"
@@ -38,7 +50,7 @@ jobs:
           BODY="${MSGS[$IDX]}"
 
           {
-            printf 'From: %s\r\n' "$MAIL_USER"
+            printf 'From: %s\r\n' "$USER_ADDR"
             printf 'To: %s\r\n' "$MAIL_TO"
             printf 'Subject: Dein Motivationsschub fuer heute\r\n'
             printf 'Content-Type: text/plain; charset=UTF-8\r\n'
@@ -48,8 +60,8 @@ jobs:
 
           curl --silent --show-error --ssl-reqd \
             --url 'smtps://smtp.gmail.com:465' \
-            --user "${MAIL_USER}:${MAIL_APP_PASSWORD}" \
-            --mail-from "$MAIL_USER" \
+            --user "${USER_ADDR}:${PW}" \
+            --mail-from "$USER_ADDR" \
             --mail-rcpt "$MAIL_TO" \
             --upload-file mail.txt
 
