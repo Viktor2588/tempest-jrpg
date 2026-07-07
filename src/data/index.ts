@@ -1,6 +1,7 @@
 import { HEROES } from './characters';
 import { CRAFTING_RECIPES } from './crafting';
 import { ENEMIES } from './enemies';
+import { FACILITIES } from './facilities';
 import { ELEMENT_FUSIONS } from './fusions';
 import { ITEMS } from './items';
 import { RESIDENTS } from './residents';
@@ -20,6 +21,7 @@ import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } fro
 export { HEROES } from './characters';
 export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
+export { FACILITIES } from './facilities';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
 export { RESIDENTS } from './residents';
@@ -84,6 +86,8 @@ export type {
   EnemyDefinition,
   EnemyDrop,
   EquipmentSlot,
+  FacilityDefinition,
+  FacilityOutput,
   ItemDefinition,
   ItemEffect,
   ResidentDefinition,
@@ -103,6 +107,7 @@ export const GAME_DATA = {
   elementFusions: ELEMENT_FUSIONS,
   items: ITEMS,
   residents: RESIDENTS,
+  facilities: FACILITIES,
   craftingRecipes: CRAFTING_RECIPES,
   skills: SKILLS,
   signatures: SIGNATURES,

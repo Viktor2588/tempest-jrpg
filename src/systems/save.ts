@@ -471,8 +471,14 @@ function readProgressionState(raw: unknown): ProgressionState {
     // (noch nichts geschmiedet), einmalige Rezepte bleiben verfügbar.
     craftedRecipeIds: readStringArray(raw.craftedRecipeIds),
     // Phase 92 — Bewohner: alte Stände ohne dieses Feld starten mit leerem Roster.
-    residentIds: readStringArray(raw.residentIds)
+    residentIds: readStringArray(raw.residentIds),
+    // Phase 93 — Einrichtungen: alte Stände ohne Zähler starten bei 0 Produktionszyklen.
+    productionCycles: readNonNegativeInteger(raw.productionCycles)
   });
+}
+
+function readNonNegativeInteger(raw: unknown): number {
+  return typeof raw === 'number' && Number.isFinite(raw) ? Math.max(0, Math.trunc(raw)) : 0;
 }
 
 function readStringRecord(raw: unknown): Record<string, string> {

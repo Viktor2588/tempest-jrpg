@@ -962,6 +962,50 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
   expect(browserErrors).toEqual([]);
 });
 
+test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  const base = bandTwoBrowserSave();
+  const save = {
+    ...base,
+    progression: {
+      ...(base.progression as Record<string, unknown>),
+      // Ein Bewohner je Rolle → jede Einrichtung ist besetzt (Wache: Wache + Späher).
+      residentIds: ['kohleschuppe', 'flossreiter', 'gobkyu', 'sturmzahn', 'seidenschwinge']
+    }
+  };
+  await installBrowserSave(page, save);
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 760, 94); // Codex-Tab
+  await page.waitForTimeout(200);
+  await clickGamePoint(page, 860, 140); // Umschalter „🏭 Einrichtungen"
+  await page.waitForTimeout(250);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 450, 508); // „🏕️ Tempest-Rast halten"
+  await page.waitForTimeout(300);
+  await expectCanvasContent(page);
+
+  const stored = await page.evaluate(() =>
+    JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}')
+  );
+  // Wache (Sturmzahn + Seidenschwinge = 2 × Stufe 1 × 8) trägt 16 Gold bei.
+  expect(stored.party.gold).toBe(236);
+  expect(stored.progression.productionCycles).toBe(1);
+  const ore = stored.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'magic-ore');
+  expect(ore?.quantity).toBeGreaterThanOrEqual(1);
+  expect(browserErrors).toEqual([]);
+});
+
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
   const box = await page.locator('canvas').boundingBox();
   if (!box) throw new Error('Game canvas not found');

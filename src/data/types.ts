@@ -149,6 +149,24 @@ export interface ResidentDefinition {
   readonly origin: string;
 }
 
+// Phase 93 — Einrichtungen & Produktion. Die Bewohner (Phase 92) besetzen nach
+// ihrer Rolle automatisch eine Einrichtung; jede Einrichtung produziert pro
+// Rast-Zyklus deterministisch Ressourcen (Material/Verbrauchsgut/Gold) und
+// schliesst so die Schleife kaempfen/erkunden -> Material+Bewohner -> Nation.
+// Reine Daten; die Produktions-/Ansichts-Logik liegt in systems/facilities.
+export type FacilityOutput =
+  | { readonly kind: 'item'; readonly itemId: string; readonly perStaffPerLevel: number }
+  | { readonly kind: 'gold'; readonly perStaffPerLevel: number };
+
+export interface FacilityDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Welche Bewohner-Rollen diese Einrichtung besetzen (automatische Zuweisung).
+  readonly staffRoles: readonly ResidentRole[];
+  readonly output: FacilityOutput;
+}
+
 export interface CharacterDefinition {
   readonly id: string;
   readonly name: string;

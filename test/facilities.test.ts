@@ -1,0 +1,187 @@
+import { describe, expect, it } from 'vitest';
+import { FACILITIES, ITEMS, RESIDENTS, type ResidentRole } from '../src/data';
+import {
+  buildFacilityOverview,
+  facilityLevelForStage,
+  facilityOutputAmount,
+  runProductionCycle
+} from '../src/systems/facilities';
+import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
+
+const VALID_ROLES: readonly ResidentRole[] = ['Wache', 'Späher', 'Handwerk', 'Heilung', 'Bau'];
+const itemIds = new Set(ITEMS.map((item) => item.id));
+
+// Flags, die die Tempest-Wachstumsstufe (systems/tempestGrowth) auf 'camp' heben.
+const CAMP_FLAGS = { 'story.tempest.named': true } as const;
+
+function residentIdsForRole(role: ResidentRole): string[] {
+  return RESIDENTS.filter((resident) => resident.role === role).map((resident) => resident.id);
+}
+
+describe('Einrichtungs-Daten', () => {
+  it('haben eindeutige IDs, gültige Rollen und existierende Ausgabe-Items', () => {
+    const ids = new Set<string>();
+    for (const facility of FACILITIES) {
+      expect(ids.has(facility.id), `doppelte Einrichtungs-ID '${facility.id}'`).toBe(false);
+      ids.add(facility.id);
+      expect(facility.staffRoles.length, `Einrichtung '${facility.id}' braucht Rollen`).toBeGreaterThan(0);
+      for (const role of facility.staffRoles) {
+        expect(VALID_ROLES).toContain(role);
+      }
+      expect(facility.output.perStaffPerLevel).toBeGreaterThan(0);
+      if (facility.output.kind === 'item') {
+        expect(itemIds.has(facility.output.itemId), `Ausgabe-Item '${facility.output.itemId}' unbekannt`).toBe(true);
+      }
+    }
+  });
+
+  it('decken jede Bewohner-Rolle durch genau eine Einrichtung ab', () => {
+    const covered = new Map<ResidentRole, number>();
+    for (const facility of FACILITIES) {
+      for (const role of facility.staffRoles) {
+        covered.set(role, (covered.get(role) ?? 0) + 1);
+      }
+    }
+    for (const role of VALID_ROLES) {
+      expect(covered.get(role), `Rolle '${role}' nicht (eindeutig) zugewiesen`).toBe(1);
+    }
+  });
+});
+
+describe('facilityLevelForStage', () => {
+  it('skaliert monoton mit dem Nationsausbau, Wildnis produziert nicht', () => {
+    expect(facilityLevelForStage('wilderness')).toBe(0);
+    expect(facilityLevelForStage('camp')).toBe(1);
+    expect(facilityLevelForStage('village')).toBe(2);
+    expect(facilityLevelForStage('city')).toBe(3);
+  });
+});
+
+describe('buildFacilityOverview', () => {
+  it('sperrt alle Einrichtungen in der Wildnis (Stufe 0, keine Ausbeute)', () => {
+    const overview = buildFacilityOverview(RESIDENTS.map((r) => r.id), {});
+    expect(overview.stage).toBe('wilderness');
+    expect(overview.level).toBe(0);
+    expect(overview.totalPerCycle).toBe(0);
+    expect(overview.facilities.every((view) => !view.unlocked)).toBe(true);
+    expect(overview.facilities.every((view) => view.amountPerCycle === 0)).toBe(true);
+  });
+
+  it('weist Bewohner nach Rolle zu und beziffert die Ausbeute pro Zyklus', () => {
+    const forge = FACILITIES.find((f) => f.id === 'forge')!;
+    const handwerker = residentIdsForRole('Handwerk');
+    const overview = buildFacilityOverview(handwerker, CAMP_FLAGS);
+    const forgeView = overview.facilities.find((view) => view.facility.id === forge.id)!;
+    expect(forgeView.unlocked).toBe(true);
+    expect(forgeView.staff.length).toBe(handwerker.length);
+    expect(forgeView.amountPerCycle).toBe(handwerker.length * 1 * forge.output.perStaffPerLevel);
+  });
+});
+
+describe('facilityOutputAmount', () => {
+  const watch = FACILITIES.find((f) => f.id === 'watch')!;
+
+  it('ist null ohne Ausbau oder ohne besetzende Bewohner', () => {
+    expect(facilityOutputAmount(watch, residentIdsForRole('Wache'), 0)).toBe(0);
+    expect(facilityOutputAmount(watch, [], 1)).toBe(0);
+  });
+
+  it('steigt monoton mit Stufe und Bewohnerzahl', () => {
+    const one = residentIdsForRole('Wache').slice(0, 1);
+    const all = [...residentIdsForRole('Wache'), ...residentIdsForRole('Späher')];
+    expect(facilityOutputAmount(watch, all, 2)).toBeGreaterThan(facilityOutputAmount(watch, all, 1));
+    expect(facilityOutputAmount(watch, all, 1)).toBeGreaterThan(facilityOutputAmount(watch, one, 1));
+  });
+});
+
+describe('runProductionCycle', () => {
+  it('produziert deterministisch dieselbe Ausbeute für dieselbe Eingabe', () => {
+    const input = {
+      residentIds: RESIDENTS.map((r) => r.id),
+      flags: CAMP_FLAGS,
+      inventory: [],
+      gold: 0
+    };
+    const a = runProductionCycle(input);
+    const b = runProductionCycle(input);
+    expect(a.ok).toBe(true);
+    expect(a.gold).toBe(b.gold);
+    expect(a.inventory).toEqual(b.inventory);
+    expect(a.yields).toEqual(b.yields);
+  });
+
+  it('fügt Material und Gold der besetzten Einrichtungen hinzu, ohne die Eingabe zu verändern', () => {
+    const inputInventory = [{ itemId: 'magic-ore', quantity: 2 }] as const;
+    const result = runProductionCycle({
+      residentIds: RESIDENTS.map((r) => r.id),
+      flags: CAMP_FLAGS,
+      inventory: inputInventory,
+      gold: 10
+    });
+    expect(result.ok).toBe(true);
+    // Schmiede (1 Handwerker × Stufe 1) legt 1 magisches Erz auf die vorhandenen 2.
+    const ore = result.inventory.find((stack) => stack.itemId === 'magic-ore');
+    expect(ore?.quantity).toBe(3);
+    // Wache (Wache + Späher = 3 Bewohner × Stufe 1 × 8) trägt 24 Gold bei.
+    const watch = FACILITIES.find((f) => f.id === 'watch')!;
+    const watchStaff = residentIdsForRole('Wache').length + residentIdsForRole('Späher').length;
+    if (watch.output.kind === 'gold') {
+      expect(result.gold).toBe(10 + watchStaff * watch.output.perStaffPerLevel);
+    }
+    // Eingabe bleibt unangetastet (reine Funktion).
+    expect(inputInventory).toEqual([{ itemId: 'magic-ore', quantity: 2 }]);
+  });
+
+  it('höhere Wachstumsstufe erhöht die Gesamtausbeute', () => {
+    const residents = RESIDENTS.map((r) => r.id);
+    const camp = runProductionCycle({ residentIds: residents, flags: CAMP_FLAGS, inventory: [], gold: 0 });
+    const city = runProductionCycle({
+      residentIds: residents,
+      flags: { 'story.kijin.named': true, 'faction.dwargon.allied': true },
+      inventory: [],
+      gold: 0
+    });
+    const total = (r: { gold: number; yields: readonly { amount: number }[] }) =>
+      r.gold + r.yields.reduce((sum, y) => sum + y.amount, 0);
+    expect(total(city)).toBeGreaterThan(total(camp));
+  });
+
+  it('meldet Fehlschlag in der Wildnis (keine Nation)', () => {
+    const result = runProductionCycle({
+      residentIds: RESIDENTS.map((r) => r.id),
+      flags: {},
+      inventory: [],
+      gold: 5
+    });
+    expect(result.ok).toBe(false);
+    expect(result.gold).toBe(5);
+    expect(result.yields).toEqual([]);
+  });
+
+  it('meldet Fehlschlag, wenn keine Bewohner die Einrichtungen besetzen', () => {
+    const result = runProductionCycle({ residentIds: [], flags: CAMP_FLAGS, inventory: [], gold: 5 });
+    expect(result.ok).toBe(false);
+    expect(result.gold).toBe(5);
+  });
+});
+
+describe('Save-Migration: productionCycles', () => {
+  it('startet für neue Spielstände bei 0', () => {
+    expect(createNewSave().progression.productionCycles).toBe(0);
+  });
+
+  it('erhält den Zähler über einen Export/Import-Roundtrip', () => {
+    const save = createNewSave();
+    const advanced = {
+      ...save,
+      progression: { ...save.progression, productionCycles: 7 }
+    };
+    const round = importSave(exportSave(advanced));
+    expect(round.progression.productionCycles).toBe(7);
+  });
+
+  it('migriert alte Stände ohne das Feld auf 0', () => {
+    const migrated = migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z');
+    expect(migrated.progression.productionCycles).toBe(0);
+  });
+});

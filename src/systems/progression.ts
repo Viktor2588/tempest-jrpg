@@ -55,6 +55,10 @@ export interface ProgressionState {
   // Phase 92 — Bewohner: IDs der als Bewohner in Tempest aufgenommenen (per Naming
   // verschlungenen) Gegner-Arten. Reiner Bestand; Phase 93 setzt Produktion darauf.
   readonly residentIds: readonly string[];
+  // Phase 93 — Einrichtungen & Produktion: Anzahl bereits abgerechneter Rast-/
+  // Produktions-Zyklen. Reiner Zaehler fuer Anzeige/Statistik (die Ausbeute selbst
+  // fliesst direkt in Inventar/Gold), stellt aber eine klare Save-Migration bereit.
+  readonly productionCycles: number;
 }
 
 export interface CreateProgressionStateOptions {
@@ -66,6 +70,7 @@ export interface CreateProgressionStateOptions {
   readonly enchantmentLevelsByEquipmentKey?: Readonly<Record<string, number>>;
   readonly craftedRecipeIds?: readonly string[];
   readonly residentIds?: readonly string[];
+  readonly productionCycles?: number;
 }
 
 export interface MemberActionResult {
@@ -142,7 +147,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
       options.enchantmentLevelsByEquipmentKey ?? {}
     ),
     craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? []),
-    residentIds: uniqueStrings(options.residentIds ?? [])
+    residentIds: uniqueStrings(options.residentIds ?? []),
+    productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0)
   };
 }
 

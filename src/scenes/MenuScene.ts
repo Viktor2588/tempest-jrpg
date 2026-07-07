@@ -36,6 +36,8 @@ import {
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
 import { buildResidentRoster } from '../systems/residents';
+import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
+import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import {
@@ -92,7 +94,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' | 'residents' = 'lore';
+  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -849,19 +851,22 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84 — Umschalter: „Wissen" (Lore) ↔ „Verschlingen" (Beute-Kompendium).
-    this.button(300, 140, 168, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
+    // Phase 84/92/93 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔ Einrichtungen.
+    this.button(300, 140, 148, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
       () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(478, 140, 172, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
+    this.button(452, 140, 170, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
       () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
-    this.button(660, 140, 172, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
+    this.button(626, 140, 150, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
       () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
+    this.button(780, 140, 170, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
+      () => this.setCodexMode('facilities'), this.codexMode === 'facilities' ? 0x30506f : 0x1b2940);
     if (this.codexMode === 'devour') this.drawDevourCompendium();
     else if (this.codexMode === 'residents') this.drawResidentRoster();
+    else if (this.codexMode === 'facilities') this.drawFacilities();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour' | 'residents'): void {
+  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities'): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
@@ -957,6 +962,65 @@ export class MenuScene extends Phaser.Scene {
     });
 
     this.codexFooter(pageCount, `${roster.recruitedCount}/${roster.totalCount} Bewohner`);
+  }
+
+  // Phase 93 — Einrichtungen: nach Rolle besetzte Werke, ihre erwartete Ausbeute pro
+  // Rast und die „Tempest-Rast halten"-Aktion, die einen Produktions-Zyklus abrechnet.
+  private drawFacilities(): void {
+    const overview = buildFacilityOverview(this.save.progression.residentIds, this.save.flags);
+    const cycles = this.save.progression.productionCycles;
+    const stageLabel = tempestGrowthLabel(overview.stage);
+    const summary = overview.level > 0
+      ? `${stageLabel} · Ausbaustufe ${overview.level} · ${cycles} Produktionszyklen`
+      : `${stageLabel} · noch keine Einrichtungen — gründe zuerst Tempest`;
+    this.layer.add(this.add.text(318, 172, summary, {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
+    }));
+
+    overview.facilities.forEach((view, index) => {
+      const y = 210 + index * 72;
+      this.panel(300, y, 590, 56);
+      const heading = view.unlocked
+        ? `${view.facility.name} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
+        : `${view.facility.name} (verschlossen)`;
+      this.layer.add(this.add.text(318, y - 18, heading, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: view.amountPerCycle > 0 ? '#8dffc2' : '#6f83a5'
+      }));
+      const staffText = view.staff.length > 0 ? view.staff.join(', ') : 'unbesetzt';
+      this.layer.add(this.add.text(318, y + 4, `${view.facility.description}  ·  ${staffText}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      }));
+    });
+
+    const canProduce = overview.totalPerCycle > 0;
+    this.button(300, 508, 300, canProduce ? '🏕️ Tempest-Rast halten' : 'Rast (nichts zu produzieren)',
+      () => this.produceOneCycle(), canProduce ? 0x2f6f55 : 0x242b38);
+    this.layer.add(this.add.text(888, 520, `≈ ${overview.totalPerCycle} Ausbeute/Rast`, {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
+    }).setOrigin(1, 0));
+  }
+
+  private produceOneCycle(): void {
+    const result = runProductionCycle({
+      residentIds: this.save.progression.residentIds,
+      flags: this.save.flags,
+      inventory: this.state.inventory,
+      gold: this.state.gold
+    });
+    this.message = result.message;
+    if (result.ok) {
+      this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+      this.save = {
+        ...this.save,
+        progression: {
+          ...this.save.progression,
+          productionCycles: this.save.progression.productionCycles + 1
+        }
+      };
+      this.persist();
+    }
+    this.refresh();
   }
 
   private codexFooter(pageCount: number, rightNote: string | null): void {
