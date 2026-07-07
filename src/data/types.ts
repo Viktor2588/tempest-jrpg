@@ -141,6 +141,18 @@ export interface CraftingRecipe {
   readonly repeatable: boolean;
 }
 
+// Phase 114 — Geister-Ingenieurskunst: kleine Forschungsprojekte verbrauchen
+// Materialien + Magicules und setzen Flags, die bestehende Systeme freischalten.
+export interface ResearchProject {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly inputs: readonly CraftingRecipeInput[];
+  readonly magiculeCost: number;
+  readonly requiresFlag?: string;
+  readonly unlockFlag: string;
+}
+
 // Phase 92 — Bewohner (Residents): Rimuru benennt verschlungene Gegner-Arten und
 // nimmt sie als Bewohner in Tempest auf (Tensura-Naming = Evolution + Bindung).
 // Reine Daten; die Rekrutierungs-/Roster-Logik liegt in systems/residents. Noch

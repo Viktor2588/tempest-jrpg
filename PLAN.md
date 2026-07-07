@@ -340,7 +340,8 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
-- [ ] Phase 114 — Geister-Ingenieurskunst: Forschung & Geist-Infusion (Nation-R&D,
+- [x] Phase 114 — Geister-Ingenieurskunst: Forschung & Geist-Infusion (Nation-R&D,
+  umgesetzt in `/worktree/tempest-phase-114-geistertechnik`;
   Band 5-6). Befund: Die Nation (93) produziert nur Rohstoffe; die kanonische
   Magitech-Entwicklung (Vesta/Gadora, Dungeon-Geister, Massenfertigung) fehlt als
   Mechanik. Bauen: eine Forschungs-/Entwicklungs-Einrichtung auf der Nation-Schicht
@@ -349,7 +350,10 @@ liefern die Grundlage fuers Gating in 112/104.
   Elementarfeldern) und die **Geist-Kerne der Kinder** (die 113-Loesung) frei. Reuse:
   crafting.ts, facilities (93/93b). Balance bewusst klein starten (einfachstes
   Forschungs-Inkrement, das traegt). Akzeptanz: Forschung/Freischaltung/Infusion
-  headless getestet, Balance-Sim, Save-Migration, Menue-Smoke.
+  headless getestet, Balance-Sim, Save-Migration, Menue-Smoke. Abnahme 2026-07-07:
+  Forschung ueber bestehende Save-Flags statt neuer Migration; `git diff --check`,
+  `bun run typecheck`, `bun run test`, `bun run build` und
+  `bun run test:e2e -- --project=desktop-chromium -g Einrichtungen-Menü` gruen.
 - [ ] Phase 115 — Das Labyrinth des Ramiris & der Magiekoloss (Set-Piece, Band 5-6).
   Befund: greenfield; das Labyrinth (99) und Skript-Bosse/Adds (109) sind geplant,
   aber Ramiris (Labyrinth-Meisterin) und der vom Nutzer gewuenschte Magiekoloss-

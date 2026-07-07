@@ -25,6 +25,7 @@ export { FACILITIES } from './facilities';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
 export { RESIDENTS } from './residents';
+export { RESEARCH_PROJECTS } from './research';
 export {
   CATCH_UP_CONFIG,
   EQUIPMENT_SETS,
@@ -94,6 +95,7 @@ export type {
   ItemEffect,
   ResidentDefinition,
   ResidentRole,
+  ResearchProject,
   SkillDefinition,
   SkillStatusEffect,
   SkillTag,

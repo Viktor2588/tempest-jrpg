@@ -40,6 +40,7 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
+import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
@@ -432,6 +433,14 @@ export class MenuScene extends Phaser.Scene {
       gold: this.state.gold,
       flags: this.state.flags ?? this.save.flags,
       craftedRecipeIds: this.save.progression.craftedRecipeIds
+    };
+  }
+
+  private researchContext(): ResearchContext {
+    return {
+      inventory: this.state.inventory,
+      magicules: this.save.progression.magicules,
+      flags: this.state.flags ?? this.save.flags
     };
   }
 
@@ -1040,7 +1049,7 @@ export class MenuScene extends Phaser.Scene {
     }));
 
     overview.facilities.forEach((view, index) => {
-      const y = 210 + index * 72;
+      const y = 204 + index * 60;
       this.panel(300, y, 590, 56);
       const heading = view.unlocked
         ? `${view.facility.name} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
@@ -1054,6 +1063,31 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
       }));
     });
+
+    const research = buildResearchView(this.researchContext())[0];
+    this.panel(300, 446, 590, 44);
+    if (research) {
+      const inputs = research.inputs
+        .map((input) => `${input.name} ${input.owned}/${input.required}`)
+        .join(' · ');
+      this.layer.add(this.add.text(318, 432, `Forschung: ${research.project.name}`, {
+        fontFamily: 'sans-serif',
+        fontSize: '14px',
+        color: research.completable ? '#e9eef7' : '#7d8aa0'
+      }));
+      this.layer.add(this.add.text(318, 452, `${inputs} · ${research.project.magiculeCost} Magicules`, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: research.affordable ? '#9fb2cc' : '#c98a8a'
+      }));
+      this.button(748, 448, 126, research.completable ? 'Forschen' : 'Fehlt',
+        () => this.completeResearch(research.project.id),
+        research.completable ? 0x2f6f55 : 0x242b38);
+    } else {
+      this.layer.add(this.add.text(318, 442, 'Forschung: keine offenen Projekte.', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
+      }));
+    }
 
     const canProduce = overview.totalPerCycle > 0;
     this.button(300, 508, 300, canProduce ? '🏕️ Tempest-Rast halten' : 'Rast (nichts zu produzieren)',
@@ -1080,6 +1114,31 @@ export class MenuScene extends Phaser.Scene {
         progression: {
           ...this.save.progression,
           productionCycles: this.save.progression.productionCycles + 1
+        }
+      };
+      this.persist();
+    }
+    this.refresh();
+  }
+
+  private completeResearch(projectId: string): void {
+    const project = buildResearchView(this.researchContext())
+      .find((entry) => entry.project.id === projectId)?.project;
+    if (!project) {
+      this.message = 'Forschung nicht verfügbar.';
+      this.refresh();
+      return;
+    }
+    const result = completeResearchProject(project, this.researchContext());
+    this.message = result.message;
+    if (result.ok) {
+      this.state = { ...this.state, inventory: result.inventory, flags: result.flags };
+      this.save = {
+        ...this.save,
+        flags: result.flags,
+        progression: {
+          ...this.save.progression,
+          magicules: result.magicules
         }
       };
       this.persist();
