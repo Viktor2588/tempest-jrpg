@@ -129,6 +129,28 @@ describe('craftRecipe', () => {
     expect(result.craftedRecipeIds).toHaveLength(0);
     expect(isRecipeUnlocked(recipe, SMITH_FLAG, result.craftedRecipeIds)).toBe(true);
   });
+
+  it('schaltet den Geistkern-Talisman erst nach Geist-Infusion frei', () => {
+    const recipe = getRecipe('forge-spirit-core-ward')!;
+    expect(buildForgeView(context()).some((row) => row.recipe.id === recipe.id)).toBe(false);
+
+    const result = craftRecipe(
+      recipe,
+      context({
+        inventory: [
+          { itemId: 'spirit-ember', quantity: 1 },
+          { itemId: 'magisteel', quantity: 1 },
+          { itemId: 'mana-drop', quantity: 1 }
+        ],
+        gold: 300,
+        flags: { ...SMITH_FLAG, 'research.spirit-infusion.unlocked': true }
+      })
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.craftedRecipeIds).toContain('forge-spirit-core-ward');
+    expect(getItemCount(result.inventory, 'spirit-core-ward')).toBe(1);
+  });
 });
 
 describe('buildForgeView', () => {

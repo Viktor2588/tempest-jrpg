@@ -717,6 +717,53 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   expect(browserErrors).toEqual([]);
 });
 
+test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const save = bandTwoBrowserSave({
+    inventory: {
+      stacks: [
+        { itemId: 'spirit-ember', quantity: 1 },
+        { itemId: 'mana-drop', quantity: 2 }
+      ]
+    },
+    flags: {
+      'story.children.first-core': true
+    }
+  });
+  save.progression = {
+    ...(save.progression as Record<string, unknown>),
+    magicules: 20
+  };
+
+  await installBrowserSave(page, save);
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 760, 94); // Codex
+  await clickGamePoint(page, 840, 140); // Einrichtungen
+  await page.waitForTimeout(250);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 810, 448); // Forschen
+  await page.waitForTimeout(250);
+
+  const stored = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(stored.flags['research.spirit-cores.stabilized']).toBe(true);
+  expect(stored.progression.magicules).toBe(0);
+  expect(stored.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'spirit-ember')).toBe(false);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

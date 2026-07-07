@@ -122,5 +122,7 @@ export const ITEMS = [
   { id: 'orc-cleaver', name: 'Ork-Schlachtbeil', description: 'Grobes, schweres Beil — viel Wucht, wenig Finesse.', category: 'weapon', price: 150, stackable: false, equipmentSlot: 'weapon', enchantment: { maxLevel: 3, goldCostPerLevel: 70, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 11 } },
   { id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxHp: 16, attack: 2 } },
   // — Phase 91: an der Schmiede aus Geistglut gefertigt (einzigartig) —
-  { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 6, spirit: 3, maxMp: 6 } }
+  { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 6, spirit: 3, maxMp: 6 } },
+  // — Phase 114: Geist-Infusion nach Vestas Forschung —
+  { id: 'spirit-core-ward', name: 'Geistkern-Talisman', description: 'Ein infundierter Schutzanker für instabile Geist-Kerne.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxMp: 10, magic: 3, spirit: 5 } }
 ] as const satisfies readonly ItemDefinition[];

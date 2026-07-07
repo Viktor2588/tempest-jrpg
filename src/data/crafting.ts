@@ -82,5 +82,20 @@ export const CRAFTING_RECIPES = [
     ],
     requiresFlag: 'craft.smithing.unlocked',
     repeatable: false
+  },
+  {
+    id: 'forge-spirit-core-ward',
+    name: 'Geistkern-Talisman infundieren',
+    description: 'Stabilisierte Geistfrequenz in Magisteel bannen — ein Prototyp fuer die Kinder-Kerne.',
+    outputItemId: 'spirit-core-ward',
+    outputQuantity: 1,
+    goldCost: 260,
+    inputs: [
+      { itemId: 'spirit-ember', quantity: 1 },
+      { itemId: 'magisteel', quantity: 1 },
+      { itemId: 'mana-drop', quantity: 1 }
+    ],
+    requiresFlag: 'research.spirit-infusion.unlocked',
+    repeatable: false
   }
 ] as const satisfies readonly CraftingRecipe[];
