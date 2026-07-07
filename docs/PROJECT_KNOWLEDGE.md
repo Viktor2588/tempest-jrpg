@@ -541,6 +541,10 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_113:
+    - Shizu's legacy continuation is playable after `story.shizu.vow`: new `freedom-academy` map, Blumund gateway, five child NPCs (Kenya, Chloe, Alice, Ryota, Gale), `shizu-legacy` quest, `shizu-children` codex entry, and a first Geist-core stabilization choice (`story.children.comforted` vs `story.children.tested`) with visible follow-up dialog.
+    - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.png` and `src/assets/ui/region-freedom-academy.png`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (498 tests), `bun run build`, and desktop Chromium smoke `Shizu-Schwur-Save lädt Freiheitsakademie`.
   phase_116a:
     - Dead-code sub-PR from the YAGNI audit (Phase 116). Removed 7 exported functions with zero callers anywhere (getUnlockedRelationshipScenes, createMenuState, stopMusic, getTeamFusion, getProgressionLine, getProgressionRegions, getResident) plus the production-unused RNG helpers pick/randomInt (and their two rng.test cases).
     - Cascade: removed the now-unused imports the deletions orphaned (PROGRESSION_LINES + ProgressionLineDefinition in systems/progression.ts, ElementFusionDefinition in battle.ts). The underlying types stay — they still type the real PROGRESSION_LINES/PROGRESSION_REGIONS data arrays, so they were NOT orphaned (audit note "z.B. these types" turned out false on re-check).

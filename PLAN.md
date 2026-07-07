@@ -340,18 +340,6 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
-- [x] Phase 113 — Shizus Vermaechtnis: Rettung der Kinder (Story-Arc, Band 4-5). (abgeschlossen in `/worktree/tempest-phase-113-shizus-kinder`; Checks: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Shizu-Schwur-Save lädt Freiheitsakademie"`)
-  Befund: Der Shizu/Ifrit-Bogen (`shizu-vow`) existiert, endet aber mit ihrem
-  Schwur — die kanonische Fortsetzung (ihre fuenf Schueler an der Freiheitsakademie,
-  deren instabile Geist-Beschwoerung sie toetet) fehlt. Bauen: ein neues Kapitel
-  nach `shizu-vow` — neue Karte(n) (Akademie/Ingrassia-Anklang), fuenf Kind-NPCs,
-  Szenen ueber den sceneScript-Interpreter (62), eine Stabilisierungs-Mechanik fuer
-  ihre Geist-Kerne. Loesung kanonisch ueber die Geister-Technik (114) + die Geister
-  des Labyrinths (115) — als erstes Inkrement steht der Arc auch allein (Rettung als
-  Story-Kette mit sichtbarer Welt-/Roster-Folge, Richtung Story-Roadmap oben).
-  Choice/Consequence einbauen (mehr als Fortschritts-Gate). Reuse: sceneScript (62),
-  Quest-/Flag-System, Naming/Roster (92). Akzeptanz: Kapitel spielbar (Gates +
-  Folgen), Szenen-Runner-Test, Save-Migration, Dialog-/Szenen-Smoke.
 - [ ] Phase 114 — Geister-Ingenieurskunst: Forschung & Geist-Infusion (Nation-R&D,
   Band 5-6). Befund: Die Nation (93) produziert nur Rohstoffe; die kanonische
   Magitech-Entwicklung (Vesta/Gadora, Dungeon-Geister, Massenfertigung) fehlt als
