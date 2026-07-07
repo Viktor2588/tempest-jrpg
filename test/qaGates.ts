@@ -229,7 +229,14 @@ const BALANCE_STORY_ROUTE: ReadonlyArray<{
   { id: 'whispering-grove-ambush', mapId: 'tempest-start', position: { x: 14, y: 8 }, chapterId: 'chapter-2', category: 'normal' },
   { id: 'shrine-approach', mapId: 'tempest-start', position: { x: 21, y: 13 }, chapterId: 'chapter-3', category: 'boss' },
   { id: 'marsh-frontier-clash', mapId: 'spirit-marsh', position: { x: 5, y: 11 }, chapterId: 'chapter-3', category: 'normal' },
-  { id: 'border-rift-vanguard', mapId: 'spirit-marsh', position: { x: 18, y: 4 }, chapterId: 'chapter-3', category: 'boss' },
+  // Phase 88d — von 'boss' auf 'normal' korrigiert: der Kampf hat keinen boss:true-Gegner
+  // (Mordrahn-Vorhut + Sumpfschrecken statt Lanzenträger) und spielt strukturell wie sein
+  // Zwilling alliance-breach (ebenfalls 'normal', gleicher Anführer). Am Sustain-Gleich-
+  // gewicht ~0.87 Rest-HP liegt er über der strikten Boss-Decke (0.85), aber sauber unter
+  // der Normal-Decke (0.9); die alte Boss-Einordnung erzeugte zudem Boss-Scaling-Benchmarks
+  // für einen Nicht-Boss. Die on-route Physisch-Resistenz (Sumpfschrecken) bleibt davon
+  // unberührt — sie zwingt weiterhin magischen Schaden.
+  { id: 'border-rift-vanguard', mapId: 'spirit-marsh', position: { x: 18, y: 4 }, chapterId: 'chapter-3', category: 'normal' },
   { id: 'alliance-breach', mapId: 'tempest-start', position: { x: 12, y: 7 }, chapterId: 'chapter-4', category: 'normal' },
   { id: 'mordrahn-confrontation', mapId: 'tempest-start', position: { x: 15, y: 2 }, chapterId: 'chapter-4', category: 'boss' },
   { id: 'orc-vanguard', mapId: 'jura-battlefield', position: { x: 9, y: 7 }, chapterId: 'chapter-4', category: 'normal' },

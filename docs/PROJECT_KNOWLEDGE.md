@@ -541,6 +541,12 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_88d_physical:
+    - Physical-resistance category branch now ON-ROUTE (counterpart to 88c's magic-resist stray-echo). bog-terror (resistsCategory 'physical') replaces the human-lancer in the mandatory 'border-rift-vanguard' fight and forces magical damage; its XP is matched to the lancer (280) so the level/resource arc into the late bosses holds.
+    - border-rift-vanguard recategorized boss→normal in qaGates STORY_ENCOUNTERS — it has no boss:true enemy (mordrahn-vanguard + bog-terror), plays like its twin alliance-breach, sits at the ~0.87 sustain equilibrium (over the strict 0.85 boss ceiling, under the 0.9 normal ceiling), and the old boss label spuriously generated boss-scaling benchmarks for a non-boss.
+    - Deliberately narrow cut (per the phase's "small cut" rule): only the physical-resister was placed. Measured findings recorded in PLAN.md — a 2nd on-route category enemy on the same border/alliance pair pushes the sage HP-carryover into the late masked-majin corridor (>0.9), and adding it as a 3rd combatant inflates the XP/level arc (training-clearing/geld fall out). The rally-cry support-check therefore needs its own placement + rebalance and stays open.
+    - Regression guard extended: a new balanceHarness test anchors bog-terror.resistsCategory==='physical' in border-rift-vanguard and asserts BOTH categories (magical ⇒ physical, physical ⇒ magical) are forced somewhere on the mandatory route.
+    - Balance harness green for all three Rimuru specs (predator/sage/mimic), 487 unit tests, typecheck, production build.
   phase_85:
     - Reactions as a visible, teachable active defense: the timing-block windows existed in the engine (perfect=0.25x / success=0.5x / miss=full) but queueReaction was only reachable from tests + autoBattle — the player could never earn a perfect block. Wired into the BattleScene "Reagieren" action.
     - Engine: BattleAction 'brace' gains an optional timing (ReactionTiming); resolveBrace applies it party-wide, defaulting to 'success' when absent — so autoBattle/sim/old callers and every balance harness stay byte-for-byte unchanged. Only the manual UI path can now MISS (risk) or hit PERFECT (reward).

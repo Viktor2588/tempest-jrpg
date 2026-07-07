@@ -3887,7 +3887,10 @@ export const ENCOUNTERS = [
     mapId: 'spirit-marsh',
     kind: 'trigger',
     position: { x: 18, y: 4 },
-    enemyIds: ['mordrahn-vanguard', 'human-lancer'],
+    // Phase 88d — Physisch-Resistenz-Zweig ON-ROUTE: der Sumpfschrecken
+    // (resistsCategory 'physical') ersetzt den Lanzenträger und zwingt magischen
+    // Schaden — Gegenstück zum Streunenden Echo (marsh-frontier-clash, zwingt physisch).
+    enemyIds: ['mordrahn-vanguard', 'bog-terror'],
     chance: 1,
     requirements: [
       { flag: 'story.fracture.read' },

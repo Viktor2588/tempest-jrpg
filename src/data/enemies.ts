@@ -252,12 +252,15 @@ export const ENEMIES = [
       agility: 10
     },
     skillIds: ['venom-spit', 'goblin-feint'],
+    // Phase 88d — Physisch-Resistenz-Zweig ON-ROUTE (border-rift-vanguard): ersetzt den
+    // Lanzenträger und zwingt magischen Schaden. XP an den Lanzenträger (280) angeglichen,
+    // damit der Level-/Ressourcen-Bogen in die späten Bosse erhalten bleibt.
     resistsCategory: 'physical',
     devourable: true,
     devourSkillId: 'venom-spit',
     weaknesses: ['wind', 'fire'],
     resistances: ['earth', 'water'],
-    experienceReward: 120,
+    experienceReward: 280,
     goldReward: 95,
     drops: [{ itemId: 'healing-herb', chance: 0.5 }]
   },

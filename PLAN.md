@@ -70,16 +70,17 @@ erzwungen) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
 perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
 ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
-- [ ] Phase 88d — die verbleibenden Kategorie-Mechaniken ON-ROUTE platzieren.
-  Phase 88c hat den Magie-Resistenz-Zweig (`resistsCategory: 'magical'`, stray-echo in
-  `marsh-frontier-clash`) auf den Pflichtpfad gebracht — der Hauptpfad zwingt jetzt
-  physischen Schaden und die Balance-Harness erzwingt das ueber alle drei Rimuru-Specs.
-  Offen bleiben der Physisch-Resistenz-/Reflekt-Zweig (`resistsCategory: 'physical'` /
-  `reflectsCategory`, zwingt Magie) und der `rally-cry`-Support-Check (zwingt Kontrolle).
-  Zuschnitt bewusst klein halten: jeder zaehe/XP-schwache On-Route-Zusatz vor dem
-  hauchduennen Geld-Boss braucht eine eigene, gemessene Nachbalance (siehe Phase 88c —
-  Ressourcen-/Level-Bogen kippt sonst). Akzeptanz: alle Story-/Boss-Korridore je Spec
-  gruen, Regressions-Guard erweitert.
+- [ ] Phase 88d (Rest) — der `rally-cry`-Support-Check bleibt noch off-route.
+  Erledigt: der Physisch-Resistenz-Zweig (`resistsCategory: 'physical'`, Sumpfschrecken)
+  liegt jetzt ON-ROUTE im Pflichtkampf `border-rift-vanguard` (ersetzt den Lanzenträger,
+  zwingt magischen Schaden) — Gegenstück zum Magie-Resistenz-Echo (88c). Alle Story-
+  Korridore je Rimuru-Spec gruen, Regressions-Guard erweitert (beide Kategorien on-route).
+  Messbefund (wichtig für den Rest): ein zweiter On-Route-Kategorie-Gegner auf demselben
+  Border-/Alliance-Paar treibt den Sage-HP-Carryover in den späten masked-majin-Korridor
+  (>0.9) bzw. — als 3. Gegner — den XP-/Level-Bogen aus dem Ruder (training-clearing/geld
+  kippen). Der `rally-cry`-Support-Check (`reflectsCategory` bzw. Rufer, zwingt Kontrolle)
+  braucht daher eine EIGENE Platzierung mit eigener Nachbalance, nicht das Border-/
+  Alliance-Paar. Akzeptanz: alle Story-/Boss-Korridore je Spec gruen, Regressions-Guard.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen

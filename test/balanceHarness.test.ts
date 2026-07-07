@@ -125,6 +125,27 @@ describe('Balance-Harness Report', () => {
     expect(marsh?.enemyIds).toContain('stray-echo');
   });
 
+  it('Phase 88d — der Physisch-Resistenz-Zweig liegt jetzt ebenfalls ON-ROUTE (zwingt Magie)', () => {
+    // Gegenstück zum Streunenden Echo: der Sumpfschrecken (resistsCategory 'physical')
+    // steht im Pflichtkampf 'border-rift-vanguard' und zwingt so magischen Schaden.
+    const bogTerror = (ENEMIES as readonly EnemyDefinition[]).find((enemy) => enemy.id === 'bog-terror');
+    expect(bogTerror?.resistsCategory).toBe('physical');
+    const borderRift = ENCOUNTERS.find((candidate) => candidate.id === 'border-rift-vanguard');
+    expect(borderRift?.enemyIds).toContain('bog-terror');
+
+    // Beide Schadenskategorien werden nun auf dem Pflichtpfad erzwungen (magical ⇒ physisch,
+    // physical ⇒ magisch) — kein reiner Ein-Kategorie-Build trägt mehr durch die Story.
+    const routeResists = new Set<string>();
+    for (const encounterId of STORY_ENCOUNTER_IDS) {
+      const encounter = ENCOUNTERS.find((candidate) => candidate.id === encounterId);
+      for (const enemyId of encounter?.enemyIds ?? []) {
+        const enemy = (ENEMIES as readonly EnemyDefinition[]).find((candidate) => candidate.id === enemyId);
+        if (enemy?.resistsCategory) routeResists.add(enemy.resistsCategory);
+      }
+    }
+    expect(routeResists).toEqual(new Set(['magical', 'physical']));
+  });
+
   it('Phase 83 — Ressourcen-Bogen: MP sinkt über die Story-Route (Attrition, kein Gratis-Voll-Restore)', () => {
     const report = runBalanceHarnessReport(SEEDS);
     const mpBefore = report.storyRoute.map((encounter) => encounter.averagePartyMpFractionBefore);
