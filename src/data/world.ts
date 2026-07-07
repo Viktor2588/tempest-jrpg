@@ -520,32 +520,36 @@ export const QUESTS = [
     ],
     reward: { gold: 120, itemIds: ['magisteel'] }
   },
+  // Phase 106 — Haupthandlungsstrang: die regionalen Hauptquests stehen in der
+  // Reihenfolge, in der ihre Gateways aufgehen (Dwargon → Echsen → Geld → Blumund
+  // → Shizu/Ifrit). getTrackedQuestObjective bewahrt die QUESTS-Reihenfolge, also
+  // zeigt der Zielmarker so stets die naechste TATSAECHLICH erreichbare Region.
   {
-    id: 'blumund-guild',
+    id: 'lizard-alliance',
     main: true,
-    title: 'Tempest tritt vor die Welt',
-    description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
+    title: 'Das Bündnis der Echsenmenschen',
+    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru besiegt werden, ehe die Echsenmenschen ein Bündnis schließen.',
     steps: [
       {
-        id: 'register',
-        title: 'Bei Fuze vorsprechen',
-        description: 'Melde Tempests Gesandtschaft im Gildenhaus von Blumund an.',
-        locationId: 'blumund-guildhall'
+        id: 'parley',
+        title: 'Souka anhören',
+        description: 'Triff Kommandantin Souka am Rand des Echsen-Sumpfs.',
+        locationId: 'lizard-marsh-camp'
       },
       {
-        id: 'route-report',
-        title: 'Den Jura-Bericht abgleichen',
-        description: 'Sprich mit Kaval, Eren und Gido über die sicheren Routen durch den Jura-Wald.',
-        locationId: 'blumund-market'
+        id: 'humble',
+        title: 'Gabirus Hochmut prüfen',
+        description: 'Stell den ruhmsüchtigen Gabiru und seine Wache im Herzen des Sumpfs.',
+        locationId: 'lizard-marsh-heart'
       },
       {
-        id: 'trade-seal',
-        title: 'Das Handelsabkommen besiegeln',
-        description: 'Kehr zu Fuze zurück und öffne Blumunds Markt für Tempests Waren.',
-        locationId: 'blumund-guildhall'
+        id: 'ally',
+        title: 'Das Bündnis besiegeln',
+        description: 'Kehre zu Souka zurück und schließe das Bündnis gegen die Orks.',
+        locationId: 'lizard-marsh-camp'
       }
     ],
-    reward: { gold: 180, itemIds: ['full-potion'] }
+    reward: { gold: 200, itemIds: ['tempest-charm'] }
   },
   {
     id: 'geld-disaster',
@@ -581,31 +585,31 @@ export const QUESTS = [
     reward: { gold: 320, itemIds: ['famine-charm'] }
   },
   {
-    id: 'lizard-alliance',
+    id: 'blumund-guild',
     main: true,
-    title: 'Das Bündnis der Echsenmenschen',
-    description: 'Im Echsen-Sumpf warnt Kommandantin Souka vor der Ork-Armee. Doch erst muss der überhebliche Gabiru besiegt werden, ehe die Echsenmenschen ein Bündnis schließen.',
+    title: 'Tempest tritt vor die Welt',
+    description: 'Stell Tempest der Freien Gilde von Blumund vor, gewinne Fuzes Vertrauen und eröffne einen verlässlichen Handelsweg zu den Menschen.',
     steps: [
       {
-        id: 'parley',
-        title: 'Souka anhören',
-        description: 'Triff Kommandantin Souka am Rand des Echsen-Sumpfs.',
-        locationId: 'lizard-marsh-camp'
+        id: 'register',
+        title: 'Bei Fuze vorsprechen',
+        description: 'Melde Tempests Gesandtschaft im Gildenhaus von Blumund an.',
+        locationId: 'blumund-guildhall'
       },
       {
-        id: 'humble',
-        title: 'Gabirus Hochmut prüfen',
-        description: 'Stell den ruhmsüchtigen Gabiru und seine Wache im Herzen des Sumpfs.',
-        locationId: 'lizard-marsh-heart'
+        id: 'route-report',
+        title: 'Den Jura-Bericht abgleichen',
+        description: 'Sprich mit Kaval, Eren und Gido über die sicheren Routen durch den Jura-Wald.',
+        locationId: 'blumund-market'
       },
       {
-        id: 'ally',
-        title: 'Das Bündnis besiegeln',
-        description: 'Kehre zu Souka zurück und schließe das Bündnis gegen die Orks.',
-        locationId: 'lizard-marsh-camp'
+        id: 'trade-seal',
+        title: 'Das Handelsabkommen besiegeln',
+        description: 'Kehr zu Fuze zurück und öffne Blumunds Markt für Tempests Waren.',
+        locationId: 'blumund-guildhall'
       }
     ],
-    reward: { gold: 200, itemIds: ['tempest-charm'] }
+    reward: { gold: 180, itemIds: ['full-potion'] }
   },
   {
     id: 'shizu-vow',
@@ -1091,7 +1095,10 @@ export const LOCATIONS = [
     position: { x: 22, y: 2 },
     description: 'Ein breitgetretener Heerpfad, der nach Norden zum offenen Jura-Schlachtfeld führt.',
     identity: 'Reisepunkt: Übergang zum Orc-Disaster-Set-Piece (Jura-Schlachtfeld).',
-    unlockFlag: 'faction.kijin.sworn',
+    // Phase 106 — Haupthandlungsstrang: erst nach dem besiegelten Echsen-Bündnis
+    // (Kette Dwargon → Echsen → Geld), damit der High-Level-Orc-Disaster nicht
+    // sofort nach dem Kijin-Beat erreichbar ist.
+    unlockFlag: 'story.lizard.allied',
     travelTo: { mapId: 'jura-battlefield', x: 2, y: 7 }
   },
   {
@@ -1132,7 +1139,9 @@ export const LOCATIONS = [
     position: { x: 22, y: 13 },
     description: 'Ein feuchter Pfad, der südöstlich aus dem Jura-Wald in den Echsen-Sumpf führt.',
     identity: 'Reisepunkt: Übergang zur Band-2-Allianzregion (Echsen-Sumpf).',
-    unlockFlag: 'faction.kijin.sworn',
+    // Phase 106 — Haupthandlungsstrang: erst nach dem Dwargon-Bündnis (zweite
+    // Region der Kette), nicht mehr zeitgleich mit allen anderen am Kijin-Beat.
+    unlockFlag: 'faction.dwargon.allied',
     travelTo: { mapId: 'lizardman-marsh', x: 2, y: 7 }
   },
   {
@@ -1173,7 +1182,9 @@ export const LOCATIONS = [
     position: { x: 22, y: 5 },
     description: 'Ein heißer Spalt im Fels am Ostrand des Jura-Walds, aus dem Rauch und ein fernes Lodern dringen.',
     identity: 'Reisepunkt: Übergang zur Band-1-Story-Region (Glutgrotte / Shizus Episode).',
-    unlockFlag: 'story.kijin.named',
+    // Phase 106 — Haupthandlungsstrang: die Glutgrotte (Ifrit, hoechstes Level der
+    // Kette) oeffnet zuletzt, erst nach der Jura-Tempest-Foederation (nach Geld).
+    unlockFlag: 'faction.orcs.joined',
     travelTo: { mapId: 'ember-hollow', x: 2, y: 6 }
   },
   {

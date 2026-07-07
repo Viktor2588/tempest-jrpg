@@ -102,17 +102,10 @@ Schleife, kein Zusatz-Feature). Vor der Erweiterungs-/Zweiten/Dritten Welle
 einplanen.
 
 Befund (Code-Analyse):
-1. **Laufweg-Gating zu weit offen.** Am tempest-start-Hub haengen die regionalen
-   Gateways an geteilten Flags: `story.kijin.named` oeffnet gate-to-dwargon UND
-   gate-to-ember-hollow (Ifrit/Glutgrotte); `faction.kijin.sworn` oeffnet
-   gate-to-battlefield (Orc-Katastrophe/Geld) UND gate-to-lizard-marsh. Beide
-   Flags werden im SELBEN Kijin-Dialog gesetzt (world.ts 2827–2828) → ein
-   einziger Story-Beat laesst VIER Regionen gleichzeitig aufpoppen, darunter die
-   High-Level-Set-Pieces Orc-Disaster und Ifrit; man kann sofort hineinlaufen.
-   Die Encounter-Trigger sind zwar zweitgegatet, aber die ganze Regionskette ist
-   dann am Stueck begehbar. Es gibt keine erzwungene Reihenfolge ZWISCHEN den
-   Regionen — dwargon-craft/blumund-guild/geld-disaster/lizard-alliance/shizu-vow
-   sind alle `main: true` und laufen parallel statt sequenziell.
+1. **Laufweg-Gating (Phase 106 — ERLEDIGT).** Die regionalen Gateways bilden jetzt
+   eine lineare Kette (Dwargon → Echsen → Geld → Blumund/Ifrit), gegatet ueber die
+   Abschluss-Flags der jeweils vorigen Region; die QUESTS-Reihenfolge (Zielmarker)
+   folgt. Details in PROJECT_KNOWLEDGE (phase_106).
 2. **Karten-Marker verrauscht.** `drawWorldObjects` (OverworldScene) zeichnet
    jedes Gateway/jeden Encounter/jede Entdeckung/jeden NPC als halbtransparentes
    farbiges Rechteck (Gateway TILE*0.86 @0.28, Encounter TILE*0.72 @0.55, dazu
@@ -124,28 +117,6 @@ Befund (Code-Analyse):
 Canon-Regeln beachten: stabile Flag-/Step-IDs NICHT umbenennen (Save-Kompat),
 deutsches Wording, keine kopierten Dialoge. Reihenfolge = Prioritaet.
 
-- [~] Phase 106 — (in Bearbeitung: Worktree/Branch phase-106-gateway-order,
-  lokale Session) Regionale Gateways in echte Reihenfolge (Laufweg = Haupthand-
-  lungsstrang). Befund: ein Kijin-Beat oeffnet 4 Regionen auf einmal (s. o.).
-  Bauen: (a) die kanonische lineare Reihenfolge der regionalen Arcs festlegen —
-  verifiziert gegen die Story-Spine (PROJECT_KNOWLEDGE), die Gegner-/Balance-Level
-  (Mordrahn ~L9 < Geld ~L12 < Ifrit ~L13) UND die Fraktionslogik (Echsen-Buendnis
-  vor Orc-Katastrophe); (b) jedes regionale Gateway hinter das ABSCHLUSS-Flag der
-  jeweils vorigen Region haengen (bestehende Flags wiederverwenden:
-  faction.dwargon.allied, story.gabiru.humbled, story.geld.devoured,
-  story.ifrit.subdued, faction.orcs.joined …) STATT hinter dem geteilten
-  story.kijin.named/faction.kijin.sworn — so oeffnet die Karte eine Region nach der
-  anderen; (c) die Encounter-Trigger-Sub-Flags als zweites Schloss belassen;
-  (d) `main: true` bereinigen, sodass getTrackedQuestObjective genau EIN naechstes
-  Regionsziel liefert (echter Hauptpfad vs. optionale Region). Save-Kompat:
-  laufende Saves duerfen nicht soft-locken — da auf bereits gehaltene
-  Abschluss-Flags gegatet wird, heilt das weitgehend selbst; Normalisierung +
-  Migrations-Test fuer einen Save hinter dem alten offenen Hub. Akzeptanz:
-  Headless-Playthrough beweist, dass jura-battlefield/ember-hollow NICHT vor der
-  jeweiligen Vorgaenger-Region erreichbar sind; Objektiv-Tracker zeigt stets die
-  eine naechste Region; Balance-Harness je Rimuru-Spec gruen (Pflicht-Korridor-
-  Reihenfolge erhalten); playthrough/balance-Erwartungen an die neue Reihenfolge
-  angepasst; Save-Migrations-Test.
 - [ ] Phase 107 — Karten-Marker entstoeren (nur Praesentation). Befund: alles ist
   ein farbiger Kasten. Bauen (niedrige Komplexitaet, reine OverworldScene-
   Darstellung, KEIN Daten-/Save-/Flag-Eingriff): die gefuellten Rechtecke fuer

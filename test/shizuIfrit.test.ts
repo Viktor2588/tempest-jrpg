@@ -40,11 +40,13 @@ describe('Shizu & Ifrit (Phase 30)', () => {
     }
   });
 
-  it('öffnet das Grotten-Tor erst nach der Kijin-Benennung', () => {
+  it('öffnet das Grotten-Tor erst nach der Jura-Tempest-Föderation (Phase 106)', () => {
     const locked = freshWorld();
     expect(getTravelAtTile('tempest-start', { x: 22, y: 5 }, locked)).toBeUndefined();
 
-    const open = withFlag(locked, 'story.kijin.named');
+    // Phase 106 — die Glutgrotte (Ifrit, höchstes Level) öffnet zuletzt, erst nach Geld.
+    expect(getTravelAtTile('tempest-start', { x: 22, y: 5 }, withFlag(locked, 'story.kijin.named'))).toBeUndefined();
+    const open = withFlag(locked, 'faction.orcs.joined');
     const gate = getTravelAtTile('tempest-start', { x: 22, y: 5 }, open);
     expect(gate?.id).toBe('gate-to-ember-hollow');
     expect(gate?.travelTo?.mapId).toBe('ember-hollow');

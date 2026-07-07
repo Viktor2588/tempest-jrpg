@@ -40,11 +40,13 @@ describe('Echsenmenschen-Allianz (Phase 29)', () => {
     }
   });
 
-  it('öffnet das Sumpf-Tor erst nach dem Kijin-Schwur', () => {
+  it('öffnet das Sumpf-Tor erst nach dem Dwargon-Bündnis (Phase 106)', () => {
     const locked = freshWorld();
     expect(getTravelAtTile('tempest-start', { x: 22, y: 13 }, locked)).toBeUndefined();
 
-    const open = withFlag(locked, 'faction.kijin.sworn');
+    // Phase 106 — zweite Region der Kette: erst nach Dwargon, nicht mehr am Kijin-Beat.
+    expect(getTravelAtTile('tempest-start', { x: 22, y: 13 }, withFlag(locked, 'faction.kijin.sworn'))).toBeUndefined();
+    const open = withFlag(locked, 'faction.dwargon.allied');
     const gate = getTravelAtTile('tempest-start', { x: 22, y: 13 }, open);
     expect(gate?.id).toBe('gate-to-lizard-marsh');
     expect(gate?.travelTo?.mapId).toBe('lizardman-marsh');

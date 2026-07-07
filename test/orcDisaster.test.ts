@@ -42,11 +42,17 @@ describe('Orc-Disaster-Arc (Phase 28)', () => {
     }
   });
 
-  it('öffnet das Heerfeld-Tor erst nach dem Kijin-Schwur', () => {
+  it('öffnet das Heerfeld-Tor erst nach dem besiegelten Echsen-Bündnis (Phase 106)', () => {
     const locked = freshWorld();
     expect(getTravelAtTile('tempest-start', { x: 22, y: 2 }, locked)).toBeUndefined();
 
-    const open = withFlag(locked, 'faction.kijin.sworn');
+    // Phase 106 — der Kijin-Schwur allein reicht NICHT mehr: erst das besiegelte
+    // Echsen-Bündnis (Kette Dwargon → Echsen → Geld) öffnet das Heerfeld, damit der
+    // High-Level-Orc-Disaster nicht direkt nach dem Kijin-Beat erreichbar ist.
+    const kijinOnly = withFlag(locked, 'faction.kijin.sworn');
+    expect(getTravelAtTile('tempest-start', { x: 22, y: 2 }, kijinOnly)).toBeUndefined();
+
+    const open = withFlag(locked, 'story.lizard.allied');
     const gate = getTravelAtTile('tempest-start', { x: 22, y: 2 }, open);
     expect(gate?.id).toBe('gate-to-battlefield');
     expect(gate?.travelTo?.mapId).toBe('jura-battlefield');
