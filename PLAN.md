@@ -213,7 +213,10 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [ ] Phase 102 — Magicule-/Seelen-Oekonomie (die fehlende Meta-Ressource).
+- [x] Phase 102 — Magicule-/Seelen-Oekonomie (die fehlende Meta-Ressource). Abnahme:
+  `/worktree/tempest-phase-102-magicules`; `git diff --check`; `bun run typecheck`;
+  `bun run test`; `bun run build`; `bun run test:e2e -- e2e/game.smoke.spec.ts
+  --grep "Title" --project=desktop-chromium --project=mobile-chromium`.
   Befund: Kaempfe zahlen nur in XP/Gold/Item/Skill; es gibt keinen Pool, den
   Benennen/Evolution/Erwachen verbrauchen koennten. Bauen: ein gepoolter
   `magicules`-Zaehler auf `ProgressionState` (clampNonNegativeInteger,

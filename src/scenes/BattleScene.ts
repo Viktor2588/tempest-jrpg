@@ -61,6 +61,7 @@ export class BattleScene extends Phaser.Scene {
   private resultAnnounced = false;
   private rewardsApplied = false;
   private levelUps: LevelUpSummary[] = [];
+  private magiculeGain = 0;
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -95,6 +96,8 @@ export class BattleScene extends Phaser.Scene {
     });
     this.resultAnnounced = false;
     this.rewardsApplied = false;
+    this.levelUps = [];
+    this.magiculeGain = 0;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
     this.unitPos.clear();
@@ -811,7 +814,11 @@ export class BattleScene extends Phaser.Scene {
     const title = won ? '🏆 Sieg!' : status === 'fled' ? '🏃 Entkommen' : '💀 Niederlage';
     const lines: { text: string; size: number; color: string }[] = [];
     if (won) {
-      lines.push({ text: `+${rewards.experience} EP   +${rewards.gold} Gold`, size: 16, color: '#cbd6e8' });
+      lines.push({
+        text: `+${rewards.experience} EP   +${rewards.gold} Gold   +${this.magiculeGain} Magicules`,
+        size: 16,
+        color: '#cbd6e8'
+      });
       const drops = rewards.items
         .map((stack) => `${itemById.get(stack.itemId)?.name ?? stack.itemId} ×${stack.quantity}`)
         .join(', ');
@@ -862,6 +869,7 @@ export class BattleScene extends Phaser.Scene {
       encounterId: status === 'won' ? this.encounterId : null
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
+    this.magiculeGain = after.progression.magicules - before.progression.magicules;
     this.save = autoSave(window.localStorage, after);
   }
 

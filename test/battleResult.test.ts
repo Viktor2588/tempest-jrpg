@@ -2,11 +2,16 @@ import { describe, expect, it } from 'vitest';
 import {
   act,
   createBattlePartyFromMembers,
+  type BattleView,
   renderView,
   startBattle
 } from '../src/systems/battle';
-import { applyBattleResultToSave, summarizeBattleLevelUps } from '../src/systems/battleResult';
-import { createNewSave } from '../src/systems/save';
+import {
+  applyBattleResultToSave,
+  calculateBattleMagicules,
+  summarizeBattleLevelUps
+} from '../src/systems/battleResult';
+import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
 
 describe('battle result: dauerhafte Skill-Aneignung', () => {
   it('persistiert einen verschlungenen Skill einmalig und schaltet den Codex frei', () => {
@@ -36,8 +41,34 @@ describe('battle result: dauerhafte Skill-Aneignung', () => {
     const repeated = applyBattleResultToSave(result, view);
     const learned = repeated.party.active[0]!.learnedSkillIds;
 
+    expect(result.progression.magicules).toBe(13);
     expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
     expect(repeated.flags['codex.predator-devour']).toBe(true);
+  });
+});
+
+describe('battle result: Magicules', () => {
+  it('wertet Verschlingen und Bosse deutlich hoeher als Trash', () => {
+    const battle = {
+      status: 'won',
+      enemies: [{ boss: false }, { boss: true }],
+      devouredSourceIds: ['spore-moth', 'spore-moth']
+    } as unknown as BattleView;
+
+    expect(calculateBattleMagicules(battle)).toBe(44);
+  });
+
+  it('migriert und speichert den Magicule-Pool', () => {
+    const save = createNewSave();
+    expect(save.progression.magicules).toBe(0);
+
+    const round = importSave(exportSave({
+      ...save,
+      progression: { ...save.progression, magicules: 77 }
+    }));
+    expect(round.progression.magicules).toBe(77);
+    expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.magicules)
+      .toBe(0);
   });
 });
 

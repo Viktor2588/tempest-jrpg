@@ -59,6 +59,9 @@ export interface ProgressionState {
   // Produktions-Zyklen. Reiner Zaehler fuer Anzeige/Statistik (die Ausbeute selbst
   // fliesst direkt in Inventar/Gold), stellt aber eine klare Save-Migration bereit.
   readonly productionCycles: number;
+  // Phase 102 — Magicule-/Seelen-Oekonomie: Meta-Ressource fuer spaeteres Benennen,
+  // Evolution und Erwachen. Diese Phase verdient/zeigt nur an; Ausgaben folgen.
+  readonly magicules: number;
 }
 
 export interface CreateProgressionStateOptions {
@@ -71,6 +74,7 @@ export interface CreateProgressionStateOptions {
   readonly craftedRecipeIds?: readonly string[];
   readonly residentIds?: readonly string[];
   readonly productionCycles?: number;
+  readonly magicules?: number;
 }
 
 export interface MemberActionResult {
@@ -148,7 +152,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     ),
     craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? []),
     residentIds: uniqueStrings(options.residentIds ?? []),
-    productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0)
+    productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0),
+    magicules: clampNonNegativeInteger(options.magicules ?? 0)
   };
 }
 
@@ -365,6 +370,18 @@ export function grantSkillPoints(
       }
     },
     message: `${granted} Skill-Punkte erhalten.`
+  };
+}
+
+export function grantMagicules(state: ProgressionState, amount: number): ProgressionActionResult {
+  const granted = clampNonNegativeInteger(amount);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      magicules: state.magicules + granted
+    },
+    message: `${granted} Magicules erhalten.`
   };
 }
 

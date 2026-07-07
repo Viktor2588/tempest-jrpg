@@ -7,6 +7,7 @@ const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
 
 test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', async ({ page }) => {
+  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {

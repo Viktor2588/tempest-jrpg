@@ -1,6 +1,6 @@
 import type { BattleView } from './battle';
 import { normalizeInventoryStacks } from './inventory';
-import { applyBattleProgressionRewards, calculateProgressionStats } from './progression';
+import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules } from './progression';
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
 import { applyWorldState, completeEncounter, createWorldState } from './world';
@@ -8,6 +8,16 @@ import { applyWorldState, completeEncounter, createWorldState } from './world';
 export interface ApplyBattleResultOptions {
   readonly encounterId?: string | null;
   readonly chapterId?: string;
+}
+
+export function calculateBattleMagicules(battle: BattleView): number {
+  if (battle.status !== 'won') {
+    return 0;
+  }
+  const enemyMagicules = battle.enemies.length;
+  const devourMagicules = uniqueStrings(battle.devouredSourceIds).length * 12;
+  const bossMagicules = battle.enemies.filter((enemy) => enemy.boss).length * 30;
+  return enemyMagicules + devourMagicules + bossMagicules;
 }
 
 export function applyBattleResultToSave(
@@ -33,13 +43,17 @@ export function applyBattleResultToSave(
       };
   // Phase 92 — Bewohner: in diesem Kampf verschlungene Gegner-Arten als Bewohner
   // rekrutieren (per Naming). Idempotent; alte Bewohner bleiben erhalten.
+  const withMagicules = grantMagicules(
+    progressionResult.state,
+    calculateBattleMagicules(battle)
+  ).state;
   const recruited = won
-    ? recruitResidentsFromDevour(progressionResult.state.residentIds, battle.devouredSourceIds)
+    ? recruitResidentsFromDevour(withMagicules.residentIds, battle.devouredSourceIds)
     : null;
   const progression =
     recruited && recruited.newlyRecruited.length > 0
-      ? { ...progressionResult.state, residentIds: recruited.residentIds }
-      : progressionResult.state;
+      ? { ...withMagicules, residentIds: recruited.residentIds }
+      : withMagicules;
   const active = progressionResult.active.map((member) => {
     if (battle.status === 'lost') {
       return member;

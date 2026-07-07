@@ -146,7 +146,8 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '30px',
       color: '#e9c56c'
     }));
-    this.layer.add(this.add.text(24, 52, `${view.gold} Gold · ${this.message}`, {
+    const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules`;
+    this.layer.add(this.add.text(24, 52, `${resources} · ${this.message}`, {
       fontFamily: 'sans-serif',
       fontSize: '13px',
       color: '#9fb2cc'
