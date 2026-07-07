@@ -35,9 +35,12 @@ describe('Portrait-Atlas-Zuordnung', () => {
   it('ordnet Shizu und Gildenmeister Fuze eigene Storyportraits zu', () => {
     expect(portraitSource).toContain("case 'shizu':");
     expect(portraitSource).toContain("return 'shizu';");
+    expect(portraitSource).toContain("case 'shizus schüler':");
+    expect(portraitSource).toContain("return 'shizu-children';");
     expect(portraitSource).toContain("case 'gildenmeister fuze':");
     expect(portraitSource).toContain("return 'fuze';");
     expect(preloadSource).toContain('../assets/sprites/portrait-shizu.webp');
+    expect(preloadSource).toContain('../assets/sprites/portrait-shizu-children.png');
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 

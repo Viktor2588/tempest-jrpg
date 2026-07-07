@@ -643,6 +643,33 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 260, itemIds: ['spirit-ember'] }
+  },
+  {
+    id: 'shizu-legacy',
+    main: true,
+    title: 'Shizus Vermächtnis',
+    description: 'Folge Shizus letztem Schwur zur Freiheitsakademie, triff ihre fünf Schüler und stabilisiere ihren ersten Geist-Kern, bis Tempests Forschung eine dauerhafte Lösung findet.',
+    steps: [
+      {
+        id: 'reach-academy',
+        title: 'Zur Freiheitsakademie reisen',
+        description: 'Nutze nach Shizus Schwur den Blumunder Akademieweg.',
+        locationId: 'freedom-academy-yard'
+      },
+      {
+        id: 'hear-children',
+        title: 'Die fünf Schüler anhören',
+        description: 'Sprich mit Kenya, Chloe, Alice, Ryota und Gale über die instabilen Geist-Kerne.',
+        locationId: 'academy-infirmary'
+      },
+      {
+        id: 'first-core',
+        title: 'Den ersten Geist-Kern stabilisieren',
+        description: 'Entscheide, ob Rimuru zuerst beruhigt oder prüft — beides hilft, aber der Ton prägt ihr Vertrauen.',
+        locationId: 'academy-infirmary'
+      }
+    ],
+    reward: { gold: 120, itemIds: ['spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -1216,6 +1243,47 @@ export const LOCATIONS = [
     bounds: { x: 12, y: 4, width: 6, height: 5 },
     description: 'Das glühende Herz der Grotte, in dem ein maskierter Majin den Flammengeist Ifrit entfesselt.',
     identity: 'Bossort: maskierter Majin und der Greater Spirit Ifrit.'
+  },
+  {
+    id: 'gate-to-freedom-academy',
+    name: 'Akademieweg nach Ingrassia',
+    kind: 'gateway',
+    mapId: 'blumund',
+    position: { x: 18, y: 12 },
+    description: 'Ein sicherer Wagenweg führt von Blumund zur Akademie, an der Shizus Schüler unter Beobachtung stehen.',
+    identity: 'Reisepunkt: Übergang zur Band-4-Folge von Shizus Schwur.',
+    unlockFlag: 'story.shizu.vow',
+    travelTo: { mapId: 'freedom-academy', x: 2, y: 7 }
+  },
+  {
+    id: 'academy-gate-blumund',
+    name: 'Rückweg nach Blumund',
+    kind: 'gateway',
+    mapId: 'freedom-academy',
+    position: { x: 1, y: 7 },
+    description: 'Der bewachte Weg zurück zur Freien Gilde von Blumund.',
+    identity: 'Reisepunkt: zurück nach Blumund.',
+    travelTo: { mapId: 'blumund', x: 18, y: 12 }
+  },
+  {
+    id: 'freedom-academy-yard',
+    name: 'Hof der Freiheitsakademie',
+    kind: 'outpost',
+    mapId: 'freedom-academy',
+    position: { x: 5, y: 6 },
+    bounds: { x: 3, y: 4, width: 6, height: 5 },
+    description: 'Ein stiller Schulhof, auf dem Beschwörungskreise im Stein nur schwach leuchten.',
+    identity: 'Story-Treffpunkt: Rimuru erreicht Shizus Schüler und beginnt den Schutzschwur einzulösen.'
+  },
+  {
+    id: 'academy-infirmary',
+    name: 'Akademie-Krankenflügel',
+    kind: 'shrine',
+    mapId: 'freedom-academy',
+    position: { x: 13, y: 6 },
+    bounds: { x: 11, y: 4, width: 6, height: 5 },
+    description: 'Ein heller Raum mit Decken, Kreidezeichen und schwankenden Geist-Kernen.',
+    identity: 'Mechanik-Ort: erste Stabilisierung der Kinder, bevor spätere Geistertechnik die Lösung liefert.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1614,6 +1682,14 @@ export const LORE_ENTRIES = [
     category: 'systems',
     body: 'Magie ruft Menschen aus einer anderen Welt; sie tragen besondere Gaben und einen Hunger nach Magie. Indem Rimuru Shizu auf ihren Wunsch in sich aufnimmt, gewinnt er ihre menschliche Gestalt und Ifrits Flamme — und den Schwur, ihre fünf Schüler zu schützen (ein ferner Faden bis zu Leon Cromwell).',
     unlockFlag: 'story.shizu.vow'
+  },
+  {
+    id: 'shizu-children',
+    title: 'Shizus Schüler',
+    lockedTitle: 'Fünf unruhige Kerne',
+    category: 'people',
+    body: 'Kenya, Chloe, Alice, Ryota und Gale sind Andersweltler-Kinder der Freiheitsakademie. Ihre beschworenen Geist-Kerne halten sie am Leben und zerreißen sie zugleich langsam; Rimurus Schutzschwur macht aus Shizus Bitte eine spielbare Folgeaufgabe.',
+    unlockFlag: 'story.children.met'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -3385,6 +3461,138 @@ export const DIALOGS = [
     ]
   },
   {
+    id: 'shizu-children',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Shizus Schüler',
+        text: 'Fünf Kinder stehen eng beieinander. Ihre Geist-Kerne flackern in verschiedenen Farben; jedes Flackern kostet Kraft. Sie kennen Shizus Namen — und warten, ob Rimuru nur ein weiterer Erwachsener mit Versprechen ist.',
+        choices: [
+          {
+            id: 'arrive',
+            label: 'Shizus Schwur nennen',
+            nextNodeId: 'choice',
+            requirements: [{ notFlag: 'story.children.met' }],
+            effects: [
+              { type: 'start-quest', questId: 'shizu-legacy' },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'reach-academy' },
+              { type: 'set-flag', flag: 'story.children.met', value: true }
+            ]
+          },
+          {
+            id: 'comfort',
+            label: 'Erst beruhigen',
+            nextNodeId: 'comforted',
+            requirements: [
+              { flag: 'story.children.met' },
+              { notFlag: 'story.children.first-core' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.children.comforted', value: true },
+              { type: 'set-flag', flag: 'story.children.first-core', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'hear-children' },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'first-core' },
+              { type: 'complete-quest', questId: 'shizu-legacy' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          },
+          {
+            id: 'test',
+            label: 'Erst prüfen',
+            nextNodeId: 'tested',
+            requirements: [
+              { flag: 'story.children.met' },
+              { notFlag: 'story.children.first-core' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'story.children.tested', value: true },
+              { type: 'set-flag', flag: 'story.children.first-core', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'hear-children' },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'first-core' },
+              { type: 'complete-quest', questId: 'shizu-legacy' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          },
+          {
+            id: 'after-comfort',
+            label: 'Nach den Kindern sehen',
+            nextNodeId: 'after-comfort',
+            requirements: [{ flag: 'story.children.comforted' }]
+          },
+          {
+            id: 'after-test',
+            label: 'Messwerte abgleichen',
+            nextNodeId: 'after-test',
+            requirements: [{ flag: 'story.children.tested' }]
+          },
+          { id: 'leave', label: 'Noch beobachten' }
+        ]
+      },
+      {
+        id: 'choice',
+        speaker: 'Shizus Schüler',
+        text: 'Chloe hält die anderen zurück, Kenya tritt vor, Alice klammert sich an ihren Ärmel. Ein Kern gerät aus dem Takt. Rimuru kann zuerst Angst lösen — oder sofort die magische Struktur lesen.',
+        choices: [
+          {
+            id: 'comfort',
+            label: 'Erst beruhigen',
+            nextNodeId: 'comforted',
+            effects: [
+              { type: 'set-flag', flag: 'story.children.comforted', value: true },
+              { type: 'set-flag', flag: 'story.children.first-core', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'hear-children' },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'first-core' },
+              { type: 'complete-quest', questId: 'shizu-legacy' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          },
+          {
+            id: 'test',
+            label: 'Erst prüfen',
+            nextNodeId: 'tested',
+            effects: [
+              { type: 'set-flag', flag: 'story.children.tested', value: true },
+              { type: 'set-flag', flag: 'story.children.first-core', value: true },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'hear-children' },
+              { type: 'complete-quest-step', questId: 'shizu-legacy', stepId: 'first-core' },
+              { type: 'complete-quest', questId: 'shizu-legacy' },
+              { type: 'add-gold', amount: 120 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'comforted',
+        speaker: 'Shizus Schüler',
+        text: 'Rimuru senkt die Stimme und lässt Shizus Erinnerung sprechen. Die Kerne werden nicht geheilt, aber ihr Flackern wird ruhiger. Vertrauen entsteht, bevor die eigentliche Forschung beginnt.',
+        choices: [{ id: 'end', label: 'Ich komme wieder' }]
+      },
+      {
+        id: 'tested',
+        speaker: 'Shizus Schüler',
+        text: 'Der Große Weise liest die Kernstruktur in einem Atemzug. Die Kinder weichen erst zurück, sehen dann aber, dass der Schmerz nachlässt. Vertrauen kommt langsamer — die Daten sind klarer.',
+        choices: [{ id: 'end', label: 'Ich komme wieder' }]
+      },
+      {
+        id: 'after-comfort',
+        speaker: 'Shizus Schüler',
+        text: '„Du hast zuerst zu uns gesprochen, nicht zu den Kernen", sagt Chloe. Die Kinder warten auf die Geisterlösung, aber sie verstecken sich nicht mehr.',
+        choices: [{ id: 'end', label: 'Der Schwur bleibt' }]
+      },
+      {
+        id: 'after-test',
+        speaker: 'Shizus Schüler',
+        text: 'Kenya fragt nach jedem Messergebnis, Alice zählt die Pausen zwischen den Flackern. Sie vertrauen Rimuru vorsichtig — weil die Prüfung ihnen Zeit verschafft hat.',
+        choices: [{ id: 'end', label: 'Der Schwur bleibt' }]
+      }
+    ]
+  },
+  {
     id: 'tempest-builders',
     startNodeId: 'start',
     nodes: [
@@ -3653,6 +3861,51 @@ export const NPCS = [
     position: { x: 4, y: 5 },
     dialogId: 'shizu-vow',
     color: 0xe8a04a
+  },
+  {
+    id: 'academy-kenya',
+    name: 'Kenya',
+    mapId: 'freedom-academy',
+    position: { x: 12, y: 5 },
+    dialogId: 'shizu-children',
+    color: 0xe8a04a,
+    requirements: [{ flag: 'story.shizu.vow' }]
+  },
+  {
+    id: 'academy-chloe',
+    name: 'Chloe',
+    mapId: 'freedom-academy',
+    position: { x: 13, y: 5 },
+    dialogId: 'shizu-children',
+    color: 0x8fb8ff,
+    requirements: [{ flag: 'story.shizu.vow' }]
+  },
+  {
+    id: 'academy-alice',
+    name: 'Alice',
+    mapId: 'freedom-academy',
+    position: { x: 14, y: 6 },
+    dialogId: 'shizu-children',
+    color: 0xf2d36b,
+    requirements: [{ flag: 'story.shizu.vow' }]
+  },
+  {
+    id: 'academy-ryota',
+    name: 'Ryota',
+    mapId: 'freedom-academy',
+    position: { x: 12, y: 7 },
+    dialogId: 'shizu-children',
+    color: 0x6ec6ff,
+    requirements: [{ flag: 'story.shizu.vow' }]
+  },
+  {
+    id: 'academy-gale',
+    name: 'Gale',
+    mapId: 'freedom-academy',
+    position: { x: 14, y: 7 },
+    dialogId: 'shizu-children',
+    color: 0x7ed957,
+    requirements: [{ flag: 'story.shizu.vow' }]
   }
 ] as const satisfies readonly NpcDefinition[];
 

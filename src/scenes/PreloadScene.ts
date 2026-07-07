@@ -109,6 +109,7 @@ import rigurdPortraitUrl from '../assets/sprites/portrait-rigurd.webp';
 import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
+import shizuChildrenPortraitUrl from '../assets/sprites/portrait-shizu-children.png';
 import fuzePortraitUrl from '../assets/sprites/portrait-fuze.webp';
 import benimaruPortraitUrl from '../assets/sprites/portrait-benimaru.webp';
 import shionPortraitUrl from '../assets/sprites/portrait-shion.webp';
@@ -146,6 +147,7 @@ import regionJuraBattlefieldUrl from '../assets/ui/region-jura-battlefield.webp'
 import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
 import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
 import regionBlumundUrl from '../assets/ui/region-blumund.webp';
+import regionFreedomAcademyUrl from '../assets/ui/region-freedom-academy.png';
 import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
@@ -233,6 +235,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('ranga'), rangaPortraitUrl);
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(portraitKey('shizu'), shizuPortraitUrl);
+    this.load.image(portraitKey('shizu-children'), shizuChildrenPortraitUrl);
     this.load.image(portraitKey('fuze'), fuzePortraitUrl);
     this.load.image(portraitKey('benimaru'), benimaruPortraitUrl);
     this.load.image(portraitKey('shion'), shionPortraitUrl);
@@ -270,6 +273,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(REGION_BANNER_TEXTURES['lizardman-marsh'], regionLizardmanMarshUrl);
     this.load.image(REGION_BANNER_TEXTURES['ember-hollow'], regionEmberHollowUrl);
     this.load.image(REGION_BANNER_TEXTURES['blumund'], regionBlumundUrl);
+    this.load.image(REGION_BANNER_TEXTURES['freedom-academy'], regionFreedomAcademyUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.camp, regionTempestCampUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
@@ -359,6 +363,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('ranga'),
       portraitKey('storm-dragon'),
       portraitKey('shizu'),
+      portraitKey('shizu-children'),
       portraitKey('fuze'),
       portraitKey('benimaru'),
       portraitKey('shion'),

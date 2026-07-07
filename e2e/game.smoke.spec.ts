@@ -686,6 +686,37 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(browserErrors).toEqual([]);
 });
 
+test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'freedom-academy', x: 2, y: 7, facing: 'right' },
+    flags: {
+      'story.shizu.vow': true
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('freedom-academy');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

@@ -65,6 +65,7 @@ export type PortraitKind =
   | 'storm-dragon'
   | 'ranga'
   | 'shizu'
+  | 'shizu-children'
   | 'fuze'
   | 'benimaru'
   | 'shion'
@@ -165,6 +166,7 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'storm-dragon',
   'ranga',
   'shizu',
+  'shizu-children',
   'fuze',
   'benimaru',
   'shion',
@@ -243,6 +245,8 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.steel, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'shizu':
       return { size: 64, base: PALETTE.ember, accent: PALETTE.bone, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
+    case 'shizu-children':
+      return { size: 64, base: PALETTE.mist, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'mage' };
     case 'fuze':
       return { size: 64, base: PALETTE.steel, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
     case 'benimaru':
