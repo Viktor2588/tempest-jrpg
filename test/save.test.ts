@@ -63,7 +63,9 @@ describe('save.ts', () => {
         ...save.progression,
         relationshipPoints: { 'rimuru-gobta': 75 },
         skillPointsByCharacterId: { rimuru: 2 },
-        unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-predator-focus'] }
+        unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-predator-focus'] },
+        awakeningCompleted: true,
+        awakenedResidentIds: ['sturmzahn']
       }
     };
 
@@ -84,6 +86,8 @@ describe('save.ts', () => {
     expect(loaded.progression.relationshipPoints['rimuru-gobta']).toBe(75);
     expect(loaded.progression.unlockedSkillNodeIdsByCharacterId.rimuru)
       .toEqual(['rimuru-predator-focus']);
+    expect(loaded.progression.awakeningCompleted).toBe(true);
+    expect(loaded.progression.awakenedResidentIds).toEqual(['sturmzahn']);
   });
 
   it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {

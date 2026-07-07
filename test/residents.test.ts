@@ -89,6 +89,16 @@ describe('buildResidentRoster', () => {
     expect(roster.recruitedCount).toBe(0);
     expect(roster.entries.every((entry) => !entry.recruited)).toBe(true);
   });
+
+  it('markiert erwachte Offiziere nur, wenn sie rekrutiert und befördert sind', () => {
+    const target = RESIDENTS[0]!;
+    const roster = buildResidentRoster([target.id], [target.id], [target.id, 'nicht-existent']);
+    const entry = roster.entries.find((candidate) => candidate.resident.id === target.id)!;
+    expect(entry.promoted).toBe(true);
+    expect(entry.awakened).toBe(true);
+    expect(buildResidentRoster([target.id], [], [target.id]).entries
+      .find((candidate) => candidate.resident.id === target.id)?.awakened).toBe(false);
+  });
 });
 
 describe('promoteResident', () => {
@@ -102,6 +112,9 @@ describe('promoteResident', () => {
       .find((entry) => entry.resident.id === target.id)?.promoted).toBe(true);
     expect(officerPerksForResidents(result.promotedResidentIds)).toEqual([
       { kind: 'max-hp', percent: 3 }
+    ]);
+    expect(officerPerksForResidents(result.promotedResidentIds, result.promotedResidentIds)).toEqual([
+      { kind: 'max-hp', percent: 5 }
     ]);
   });
 
@@ -148,6 +161,25 @@ describe('Bewohner-Persistenz', () => {
     expect(round.progression.promotedResidentIds).toEqual([target.id]);
     expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.promotedResidentIds)
       .toEqual([]);
+  });
+
+  it('speichert und migriert das Erntefest', () => {
+    const target = RESIDENTS[0]!;
+    const save = createNewSave({ seed: 1, now: '2026-07-07T10:00:00.000Z' });
+    const round = importSave(exportSave({
+      ...save,
+      progression: {
+        ...save.progression,
+        residentIds: [target.id],
+        promotedResidentIds: [target.id],
+        awakeningCompleted: true,
+        awakenedResidentIds: [target.id]
+      }
+    }));
+    expect(round.progression.awakeningCompleted).toBe(true);
+    expect(round.progression.awakenedResidentIds).toEqual([target.id]);
+    expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.awakeningCompleted)
+      .toBe(false);
   });
 });
 

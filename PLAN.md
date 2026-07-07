@@ -213,7 +213,7 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [ ] Phase 104 — Das Erwachen / Erntefest (Endgame-Massen-Evolution).
+- [x] Phase 104 — Das Erwachen / Erntefest (Endgame-Massen-Evolution). (abgeschlossen in `/worktree/tempest-phase-104-erwachen`; Checks: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Phase 93"`)
   Befund: greenfield; „Daemonenlord" nur Lore. Bauen: ein **einmaliges, story-
   und magicule-gegatetes Erwachen** (spaet, nach Band 3; NG+-bewusst), das den
   angesparten Pool (102) verbraucht und (a) auf Rimurus Spec-Baeumen eine vierte

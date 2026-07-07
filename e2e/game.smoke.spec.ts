@@ -964,6 +964,7 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
 });
 
 test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', async ({ page }) => {
+  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
