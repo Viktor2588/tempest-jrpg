@@ -66,13 +66,10 @@ notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
 Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
 Rallyer) und 88c (Magie-Resistenz jetzt ON-ROUTE, Korridor-Risiko harness-
-erzwungen) sind gemergt.
+erzwungen) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
+perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
+ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
-- [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
-  Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
-  Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
-  Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
-  (telegraphierter Big-Hit → perfektes Block-Fenster).
 - [ ] Phase 88d — die verbleibenden Kategorie-Mechaniken ON-ROUTE platzieren.
   Phase 88c hat den Magie-Resistenz-Zweig (`resistsCategory: 'magical'`, stray-echo in
   `marsh-frontier-clash`) auf den Pflichtpfad gebracht — der Hauptpfad zwingt jetzt

@@ -192,7 +192,9 @@ export type BattleAction =
   | { type: 'devour'; targetId: string }
   | { type: 'signature'; targetId?: string }
   | { type: 'guard' }
-  | { type: 'brace' }
+  // Phase 85 — optionales Reaktions-Timing: die UI liefert das im Timing-Fenster
+  // erspielte Ergebnis. Fehlt es (Auto/Sim/Alt-Save), gilt der garantierte Block.
+  | { type: 'brace'; timing?: ReactionTiming }
   | { type: 'flee' };
 
 export interface StartBattleOptions {
@@ -687,11 +689,24 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
 // gegen den telegraphierten (Big-)Hit zu decken — ein rechtzeitiger Block halbiert den
 // nächsten Treffer je Verbündeten. Die bewusste Antwort auf einen angekündigten
 // Großangriff: Tempo gegen Sicherheit.
-function resolveBrace(state: BattleState, actor: Combatant): ActionResult {
+// Phase 85 — das Timing wird jetzt im HUD-Fenster erspielt: `perfect` (0.25×) belohnt
+// exaktes Lesen, `miss` lässt den Treffer voll durch. Ohne UI-Timing (Auto/Sim) bleibt
+// der garantierte `success`-Block (0.5×) erhalten — Balance-Sims unverändert.
+function resolveBrace(
+  state: BattleState,
+  actor: Combatant,
+  timing: ReactionTiming = 'success'
+): ActionResult {
   for (const ally of livingCombatants(state, 'party')) {
-    ally.reaction = { kind: 'timing-block', timing: 'success' };
+    ally.reaction = { kind: 'timing-block', timing };
   }
-  pushLog(state, `${actor.name} ruft die Party in Deckung.`);
+  const outcome =
+    timing === 'perfect'
+      ? 'im perfekten Fenster'
+      : timing === 'miss'
+        ? '— zu spät!'
+        : 'rechtzeitig';
+  pushLog(state, `${actor.name} ruft die Party in Deckung ${outcome}.`);
   endTurn(state, actor);
   return { ok: true };
 }
@@ -709,7 +724,7 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
       return { ok: true };
 
     case 'brace':
-      return resolveBrace(state, actor);
+      return resolveBrace(state, actor, action.timing);
 
     case 'flee':
       return resolveFlee(state, actor);

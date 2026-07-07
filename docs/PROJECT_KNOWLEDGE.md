@@ -541,6 +541,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_85:
+    - Reactions as a visible, teachable active defense: the timing-block windows existed in the engine (perfect=0.25x / success=0.5x / miss=full) but queueReaction was only reachable from tests + autoBattle — the player could never earn a perfect block. Wired into the BattleScene "Reagieren" action.
+    - Engine: BattleAction 'brace' gains an optional timing (ReactionTiming); resolveBrace applies it party-wide, defaulting to 'success' when absent — so autoBattle/sim/old callers and every balance harness stay byte-for-byte unchanged. Only the manual UI path can now MISS (risk) or hit PERFECT (reward).
+    - UI: picking "Reagieren" opens a sweeping timing bar (gold center zone = perfect, green band = success, else miss; Space or click to lock). A one-time tutorial overlay (flag tutorial.battle.reaction.seen) teaches the zones first. Auto-battle skips the window and plays the guaranteed block.
+    - typecheck, 486 unit tests (added a brace-timing perfect/miss test), production build, and desktop game smoke verified.
   phases_0_8:
     - project setup and release pipeline
     - grid overworld

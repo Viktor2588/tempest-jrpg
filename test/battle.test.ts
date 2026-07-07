@@ -1156,6 +1156,22 @@ describe('Phase 81 — Telegraph → Konter-Entscheidung', () => {
       expect(ally.reaction).toEqual({ kind: 'timing-block', timing: 'success' });
     }
   });
+
+  it('Phase 85 — Deckung übernimmt das im HUD erspielte Timing (perfect/miss)', () => {
+    for (const timing of ['perfect', 'miss'] as const) {
+      const state = startBattle({
+        party: [depthHero('rimuru', 'Rimuru'), depthHero('gobta', 'Gobta')],
+        enemies: [heavyBoss()],
+        seed: 1
+      });
+      let guard = 0;
+      while (!isPlayerTurn(state) && guard++ < 50) enemyTurn(state);
+      expect(act(state, { type: 'brace', timing }).ok).toBe(true);
+      for (const ally of state.combatants.filter((c) => c.side === 'party' && !c.dead)) {
+        expect(ally.reaction).toEqual({ kind: 'timing-block', timing });
+      }
+    }
+  });
 });
 
 describe('Phase 82 — Gegner-Archetypen', () => {

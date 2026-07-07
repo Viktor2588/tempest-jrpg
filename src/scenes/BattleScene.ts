@@ -11,7 +11,8 @@ import {
   renderView,
   startBattle,
   type BattleState,
-  type CombatantView
+  type CombatantView,
+  type ReactionTiming
 } from '../systems/battle';
 import {
   calculateStartingTeamMeter,
@@ -65,6 +66,7 @@ export class BattleScene extends Phaser.Scene {
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
+  private reacting = false; // Phase 85 — Timing-Fenster aktiv, Menü blockiert
 
   constructor() {
     super('Battle');
@@ -100,6 +102,7 @@ export class BattleScene extends Phaser.Scene {
     this.magiculeGain = 0;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
+    this.reacting = false;
     this.unitPos.clear();
     this.drawArena();
     this.layer = this.add.container(0, 0);
@@ -317,6 +320,112 @@ export class BattleScene extends Phaser.Scene {
     this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
     this.afterAction();
+  }
+
+  // Phase 85 — Reaktion als Könnens-Moment: das erste Mal erklärt ein kurzer
+  // Tutorial-Beat das Timing-Fenster, danach folgt es sofort. Auto-Kampf spielt
+  // den garantierten Block (kein Timing) und umgeht das Fenster ganz.
+  private beginReaction(): void {
+    if (this.reacting) return;
+    if (this.auto) {
+      this.doAct({ type: 'brace' });
+      return;
+    }
+    const seen = this.save.flags['tutorial.battle.reaction.seen'] === true;
+    if (!seen) {
+      this.save = autoSave(window.localStorage, {
+        ...this.save,
+        flags: { ...this.save.flags, 'tutorial.battle.reaction.seen': true }
+      });
+      this.showReactionTutorial(() => this.runReactionWindow());
+    } else {
+      this.runReactionWindow();
+    }
+  }
+
+  // Sweep-Balken mit zentraler Perfekt-Zone und breiterem Erfolgsband. Ein Druck
+  // (Klick/Leertaste) friert den Marker ein; ohne Druck bis zum Rand = verpasst.
+  private runReactionWindow(): void {
+    this.reacting = true;
+    this.mode = 'busy';
+    this.refresh();
+
+    const overlay = this.add.container(0, 0).setDepth(130);
+    const cx = GAME_WIDTH / 2;
+    const cy = 430;
+    const trackW = 360;
+    const left = cx - trackW / 2;
+
+    overlay.add(this.add.rectangle(cx, cy - 40, trackW + 60, 120, 0x05080f, 0.82));
+    overlay.add(this.add.text(cx, cy - 78, 'JETZT blocken!', {
+      fontFamily: 'serif', fontSize: '20px', color: '#e9c56c'
+    }).setOrigin(0.5));
+    overlay.add(this.add.rectangle(cx, cy, trackW, 22, 0x24344d).setStrokeStyle(1, 0x4a5f80));
+    // Erfolgsband (0.5×) und darin die Perfekt-Zone (0.25×).
+    overlay.add(this.add.rectangle(cx, cy, trackW * 0.46, 22, 0x2f6f4a));
+    overlay.add(this.add.rectangle(cx, cy, trackW * 0.14, 22, 0xe9c56c));
+    const marker = this.add.rectangle(left, cy, 5, 30, 0xffffff);
+    overlay.add(marker);
+    overlay.add(this.add.text(cx, cy + 30, 'Leertaste / Klick', {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#9cabc0'
+    }).setOrigin(0.5));
+
+    let done = false;
+    const sweep = this.tweens.add({
+      targets: marker,
+      x: left + trackW,
+      duration: 950,
+      ease: 'Linear',
+      onComplete: () => finish('miss')
+    });
+
+    const finish = (timing: ReactionTiming) => {
+      if (done) return;
+      done = true;
+      sweep.remove();
+      this.input.off('pointerdown', onPress);
+      spaceKey?.off('down', onPress);
+      overlay.destroy();
+      this.reacting = false;
+      this.doAct({ type: 'brace', timing });
+    };
+    const onPress = () => {
+      const v = (marker.x - left) / trackW; // 0..1 über den Track
+      const d = Math.abs(v - 0.5);
+      finish(d < 0.07 ? 'perfect' : d < 0.23 ? 'success' : 'miss');
+    };
+
+    this.input.on('pointerdown', onPress);
+    const spaceKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    spaceKey?.on('down', onPress);
+  }
+
+  private showReactionTutorial(onClose: () => void): void {
+    const overlay = this.add.container(0, 0).setDepth(140);
+    overlay.add(this.add.rectangle(
+      GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.8
+    ).setInteractive());
+    overlay.add(addUiPanel(this, 200, 130, 560, 280, { originY: 0 }));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 168, 'Reaktion: aktives Blocken', {
+      fontFamily: 'serif', fontSize: '25px', color: '#e9c56c'
+    }).setOrigin(0.5));
+    overlay.add(this.add.text(GAME_WIDTH / 2, 232,
+      'Ein angekündigter Großangriff öffnet ein Timing-Fenster. Triff mit '
+      + 'Leertaste oder Klick die Mitte des Balkens:',
+      { fontFamily: 'sans-serif', fontSize: '14px', color: '#cbd6e8', align: 'center', wordWrap: { width: 480 } }
+    ).setOrigin(0.5));
+    ['Goldene Zone = perfekt: nur ¼ Schaden.',
+     'Grünes Band = rechtzeitig: halber Schaden.',
+     'Daneben/zu spät = voller Treffer.'
+    ].forEach((tip, i) => {
+      overlay.add(this.add.text(255, 285 + i * 26, `◆ ${tip}`, {
+        fontFamily: 'sans-serif', fontSize: '14px', color: '#cdeaff'
+      }));
+    });
+    overlay.add(addUiTextButton(this, GAME_WIDTH / 2 - 100, 372, 200, 'Bereit', () => {
+      overlay.destroy();
+      onClose();
+    }, { height: 44, fill: 0x1b2940, fontSize: '15px' }));
   }
 
   // Kurze gerichtete Angriffsbewegung (Lunge/Geschoss) vom Angreifer zum Ziel.
@@ -680,7 +789,7 @@ export class BattleScene extends Phaser.Scene {
     // (v.a. Big-Hits): die Party blockt den vorhergesagten Treffer, statt ihn
     // ungedeckt zu fressen. Kostet den Zug — Tempo gegen Sicherheit.
     if (renderView(this.state).enemies.some((foe) => !foe.dead && foe.telegraphSkillId)) {
-      items.push(['🛡 Reagieren', () => this.doAct({ type: 'brace' })]);
+      items.push(['🛡 Reagieren', () => this.beginReaction()]);
     }
 
     // Auto-Kampf: schaltet automatische Zugwahl an/aus (siehe systems/autoBattle).
