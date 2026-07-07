@@ -11,7 +11,6 @@ import {
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
-  type ElementFusionDefinition,
   type ItemDefinition,
   type SignatureDefinition,
   type SignatureEffectScope,
@@ -1314,13 +1313,6 @@ function signatureEffectTargets(
     case 'enemies':
       return livingCombatants(state, actor.side === 'party' ? 'enemy' : 'party');
   }
-}
-
-export function getTeamFusion(
-  actor: Pick<Combatant, 'resonanceElement'>,
-  partner: Pick<Combatant, 'resonanceElement'>
-): ElementFusionDefinition | null {
-  return resolveElementFusion(actor.resonanceElement, partner.resonanceElement);
 }
 
 function chooseDevourSkill(actor: Combatant, target: Combatant): SkillDefinition | null {

@@ -5,7 +5,6 @@ import {
   EVOLUTIONS,
   HEROES,
   ITEMS,
-  PROGRESSION_LINES,
   PROGRESSION_REGIONS,
   RELATIONSHIPS,
   SKILL_TREES,
@@ -16,7 +15,6 @@ import {
   type EquipmentSlot,
   type EvolutionDefinition,
   type ItemDefinition,
-  type ProgressionLineDefinition,
   type RegionProgressionDefinition,
   type RelationshipDefinition,
   type RelationshipLevelDefinition,
@@ -210,10 +208,6 @@ export function hasCustomName(member: PartyMemberState): boolean {
   return !!hero && member.name.trim().length > 0 && member.name.trim() !== hero.name;
 }
 
-export function getProgressionLine(characterId: string): ProgressionLineDefinition | undefined {
-  return PROGRESSION_LINES.find((line) => line.characterId === characterId);
-}
-
 export function getAvailableEvolutions(
   member: PartyMemberState,
   state: ProgressionState
@@ -350,22 +344,6 @@ export function getRelationshipLevel(
 
 export function getRelationshipLevelNumber(state: ProgressionState, relationshipId: string): number {
   return getRelationshipLevel(state, relationshipId)?.level ?? 0;
-}
-
-export function getUnlockedRelationshipScenes(
-  state: ProgressionState,
-  relationshipId: string,
-  flags: Readonly<Record<string, boolean>> = {}
-): readonly string[] {
-  const relationship = relationshipById.get(relationshipId);
-  if (!relationship) {
-    return [];
-  }
-  const level = getRelationshipLevelNumber(state, relationshipId);
-  return relationship.scenes
-    .filter((scene) => level >= scene.requiredLevel)
-    .filter((scene) => !scene.flagId || flags[scene.flagId])
-    .map((scene) => scene.id);
 }
 
 export function getSkillTree(characterId: string): SkillTreeDefinition | undefined {
@@ -1027,10 +1005,6 @@ export function analyzeProgressionBalance(sampleLevels: readonly number[] = [1, 
   }
 
   return issues;
-}
-
-export function getProgressionRegions(): readonly RegionProgressionDefinition[] {
-  return PROGRESSION_REGIONS;
 }
 
 export function getProgressionRelationships(characterId: string): readonly RelationshipDefinition[] {

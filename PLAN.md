@@ -391,15 +391,15 @@ sondern gezielte Streichungen: toter Code und test-only Seams. Netto grob
   benutzt). Jede Sub-Phase kommt als **eigener, kleiner PR** (leicht pruef- und
   reviewbar); reines Loeschen wird durch gruene Typecheck+Tests+Build bewiesen.
   Reihenfolge = Sicherheit/Hebel (oben zuerst):
-  - 116a — Toter Code (sicher, hoechste Confidence). Exportierte Funktionen ohne
-    jeden Aufrufer (weder `src` noch `test`; je nur an der Definitionszeile):
-    `getUnlockedRelationshipScenes` (progression.ts), `createMenuState` (menu.ts),
-    `stopMusic` (audio/music.ts), `getTeamFusion` (battle.ts), `getProgressionLine`
-    + `getProgressionRegions` (progression.ts), `getResident` (residents.ts). Dazu
-    die produktiv ungenutzten RNG-Helfer `pick` + `randomInt` (rng.ts, nur im
-    rng-Test). **Kaskade:** dadurch verwaiste Typen mitnehmen (z.B.
-    `ProgressionLineDefinition`, `RegionProgressionDefinition`). Delete-only.
-    Akzeptanz: Typecheck + Tests + Build gruen (der Beweis, dass nichts daran hing).
+  - [x] 116a — Toter Code — GEMERGT. Die 7 aufruferlosen Funktionen
+    (`getUnlockedRelationshipScenes`, `createMenuState`, `stopMusic`, `getTeamFusion`,
+    `getProgressionLine`, `getProgressionRegions`, `getResident`) + die produktiv
+    ungenutzten RNG-Helfer `pick`/`randomInt` (+ deren rng-Tests) entfernt; verwaiste
+    Imports mitgenommen (`ProgressionLineDefinition`/`PROGRESSION_LINES` in
+    progression.ts, `ElementFusionDefinition` in battle.ts). Netto -88 Zeilen,
+    Typecheck + 493 Tests + Build gruen. Anmerkung: die Typen selbst
+    (`ProgressionLineDefinition`, `RegionProgressionDefinition`) bleiben — sie typisieren
+    weiter die realen Daten-Arrays, waren also nicht verwaist.
   - 116b — Test-Seam-Hygiene (mittlere Confidence). Funktionen, die NUR fuer Tests
     exportiert sind und Layout/Balance parallel zum echten Pfad nachrechnen (Shadow
     → Drift-Risiko): `analyzeMenuColumns` (menuLayout.ts), `analyzeTouchControlLayout`

@@ -66,20 +66,6 @@ const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 
-export function createMenuState(
-  party: readonly PartyMemberState[],
-  inventory: readonly InventoryStack[],
-  gold: number,
-  reserve: readonly PartyMemberState[] = []
-): MenuGameState {
-  return {
-    party,
-    reserve,
-    inventory: normalizeInventoryStacks(inventory),
-    gold: Math.max(0, Math.trunc(gold))
-  };
-}
-
 export function buildMenuView(state: MenuGameState): MenuView {
   return {
     members: state.party.flatMap((member) => {

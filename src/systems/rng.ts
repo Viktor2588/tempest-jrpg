@@ -14,13 +14,3 @@ export function makeRng(seed: number): Rng {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-
-/** Ganzzahl in [min, max] (inklusiv). */
-export function randomInt(rng: Rng, min: number, max: number): number {
-  return min + Math.floor(rng() * (max - min + 1));
-}
-
-/** Wählt deterministisch ein Element aus einer nicht-leeren Liste. */
-export function pick<T>(rng: Rng, items: readonly T[]): T {
-  return items[Math.floor(rng() * items.length)]!;
-}

@@ -24,10 +24,6 @@ export function residentForEnemy(enemyId: string): ResidentDefinition | undefine
   return residentByOriginEnemyId.get(enemyId);
 }
 
-export function getResident(residentId: string): ResidentDefinition | undefined {
-  return residentById.get(residentId);
-}
-
 // Aus einer Menge verschlungener Gegner-Arten die neuen Bewohner rekrutieren.
 // Idempotent: bereits vorhandene Bewohner werden nicht doppelt aufgenommen, die
 // Reihenfolge bleibt stabil (bestehende zuerst, neue in RESIDENTS-Reihenfolge).

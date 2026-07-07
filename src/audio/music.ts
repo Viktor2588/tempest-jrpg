@@ -59,11 +59,3 @@ export function resumeMusic(): void {
 export function updateMusicVolume(): void {
   if (currentAudio) currentAudio.volume = currentVolume();
 }
-
-export function stopMusic(): void {
-  if (!currentAudio) return;
-  currentAudio.pause();
-  currentAudio.currentTime = 0;
-  currentAudio = null;
-  currentTrack = null;
-}
