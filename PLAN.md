@@ -95,6 +95,68 @@ erzwungen) sind gemergt.
   Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
   ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
 
+## Haupthandlungsstrang & Karten-Lesbarkeit (Nutzer 2026-07-07: Quest-Flow geradebiegen)
+
+Prioritaet: HOCH — betrifft das aktuelle Spielerlebnis (Korrektur der Kern-
+Schleife, kein Zusatz-Feature). Vor der Erweiterungs-/Zweiten/Dritten Welle
+einplanen.
+
+Befund (Code-Analyse):
+1. **Laufweg-Gating zu weit offen.** Am tempest-start-Hub haengen die regionalen
+   Gateways an geteilten Flags: `story.kijin.named` oeffnet gate-to-dwargon UND
+   gate-to-ember-hollow (Ifrit/Glutgrotte); `faction.kijin.sworn` oeffnet
+   gate-to-battlefield (Orc-Katastrophe/Geld) UND gate-to-lizard-marsh. Beide
+   Flags werden im SELBEN Kijin-Dialog gesetzt (world.ts 2827–2828) → ein
+   einziger Story-Beat laesst VIER Regionen gleichzeitig aufpoppen, darunter die
+   High-Level-Set-Pieces Orc-Disaster und Ifrit; man kann sofort hineinlaufen.
+   Die Encounter-Trigger sind zwar zweitgegatet, aber die ganze Regionskette ist
+   dann am Stueck begehbar. Es gibt keine erzwungene Reihenfolge ZWISCHEN den
+   Regionen — dwargon-craft/blumund-guild/geld-disaster/lizard-alliance/shizu-vow
+   sind alle `main: true` und laufen parallel statt sequenziell.
+2. **Karten-Marker verrauscht.** `drawWorldObjects` (OverworldScene) zeichnet
+   jedes Gateway/jeden Encounter/jede Entdeckung/jeden NPC als halbtransparentes
+   farbiges Rechteck (Gateway TILE*0.86 @0.28, Encounter TILE*0.72 @0.55, dazu
+   Bounds-Rechtecke + Dauer-Namenslabels). Die Overworld wird zum Kaesten-Feld —
+   besonders der Gateway-Cluster nach dem Kijin-Beat und die „!"-Encounter-Kaesten
+   stoeren. Cleared-Trigger verschwinden korrekt (encounter.*.cleared-Filter); das
+   Problem ist Menge + Kasten-Stil, nicht Haengenbleiben.
+
+Canon-Regeln beachten: stabile Flag-/Step-IDs NICHT umbenennen (Save-Kompat),
+deutsches Wording, keine kopierten Dialoge. Reihenfolge = Prioritaet.
+
+- [ ] Phase 106 — Regionale Gateways in echte Reihenfolge (Laufweg = Haupthand-
+  lungsstrang). Befund: ein Kijin-Beat oeffnet 4 Regionen auf einmal (s. o.).
+  Bauen: (a) die kanonische lineare Reihenfolge der regionalen Arcs festlegen —
+  verifiziert gegen die Story-Spine (PROJECT_KNOWLEDGE), die Gegner-/Balance-Level
+  (Mordrahn ~L9 < Geld ~L12 < Ifrit ~L13) UND die Fraktionslogik (Echsen-Buendnis
+  vor Orc-Katastrophe); (b) jedes regionale Gateway hinter das ABSCHLUSS-Flag der
+  jeweils vorigen Region haengen (bestehende Flags wiederverwenden:
+  faction.dwargon.allied, story.gabiru.humbled, story.geld.devoured,
+  story.ifrit.subdued, faction.orcs.joined …) STATT hinter dem geteilten
+  story.kijin.named/faction.kijin.sworn — so oeffnet die Karte eine Region nach der
+  anderen; (c) die Encounter-Trigger-Sub-Flags als zweites Schloss belassen;
+  (d) `main: true` bereinigen, sodass getTrackedQuestObjective genau EIN naechstes
+  Regionsziel liefert (echter Hauptpfad vs. optionale Region). Save-Kompat:
+  laufende Saves duerfen nicht soft-locken — da auf bereits gehaltene
+  Abschluss-Flags gegatet wird, heilt das weitgehend selbst; Normalisierung +
+  Migrations-Test fuer einen Save hinter dem alten offenen Hub. Akzeptanz:
+  Headless-Playthrough beweist, dass jura-battlefield/ember-hollow NICHT vor der
+  jeweiligen Vorgaenger-Region erreichbar sind; Objektiv-Tracker zeigt stets die
+  eine naechste Region; Balance-Harness je Rimuru-Spec gruen (Pflicht-Korridor-
+  Reihenfolge erhalten); playthrough/balance-Erwartungen an die neue Reihenfolge
+  angepasst; Save-Migrations-Test.
+- [ ] Phase 107 — Karten-Marker entstoeren (nur Praesentation). Befund: alles ist
+  ein farbiger Kasten. Bauen (niedrige Komplexitaet, reine OverworldScene-
+  Darstellung, KEIN Daten-/Save-/Flag-Eingriff): die gefuellten Rechtecke fuer
+  Gateways/Encounter/Entdeckungen durch ruhigere Marker ersetzen (das vorhandene
+  Glyph ⇄ / ! / ✦ auf dezentem Sockel — kleiner weicher Punkt/Pille oder Glyph mit
+  Schlagschatten statt flaechigem Kasten), Nicht-Ziel-Marker deutlich zuruecknehmen
+  und die starke Hervorhebung nur am getrackten Ziel (◆ Ziel) belassen,
+  Dauer-Namenslabels nur nahe Spieler/Ziel zeigen statt an allen gleichzeitig.
+  Marker bleiben funktional (Interaktionsort erkennbar), aber leise. Akzeptanz:
+  Overworld rendert ohne Kasten-Clutter, Ziel weiter klar markiert, In-Bounds-Check
+  (menuLayout-Stil), Desktop-/Mobile-Smoke ohne Konsolenfehler.
+
 ## Erweiterungs-Roadmap (Nutzer 2026-07-06: umfangreichere Spielmechanik)
 
 Befund (Code): Der Kampf-Moment traegt jetzt (Kampf-Tiefe-Roadmap 87/88/88b),
@@ -260,6 +322,67 @@ kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
   Antwort auf die resistsCategory/reflectsCategory-Archetypen (88/88b/88c/88d).
   Unabhaengig von 102-104. Akzeptanz: Form-Wechsel/-Ablauf headless getestet,
   Balance-Harness je Rimuru-Spec gruen, HUD-Anzeige der aktiven Form.
+
+## Vierte Welle: Skill-Fusion, Skript-Bosse & Tempest-Invasion (Nutzer 2026-07-07: umfangreich)
+
+Befund (Code-Abgleich, drei bestaetigte Luecken): (1) `fusion.ts`/`fusions.ts`
+ist ausschliesslich die **Element**-Team-Mix-Fusion (`resolveElementFusion` ueber
+zwei ElementTypes) — es gibt KEIN System, das gelernte/verschlungene *Fertigkeiten*
+zu neuen oder Ultimate-Skills verschmilzt, obwohl das Rimurus zentralste
+Canon-Fantasie ist (Predator->Voellerei->Beelzebub, Grosser Weiser->Raphael,
+Kombination zu Ultimate Skills). (2) `battle.ts` kennt kein mid-fight
+Combatant-Spawning — genau die Grundfaehigkeit, die Phase 82 als
+„splitter/summoner deferred" vertagt hat; skript-getriebene Bossphasen fehlen
+ebenso. (3) Die Nation (Bewohner 92 / Einrichtungen 93 / Offiziere 103) produziert
+nur, wird aber nie bedroht — keine Invasion/Belagerung/Verteidigung, obwohl der
+Falmuth-Ueberfall auf Tempest canonisch DAS Wendepunkt-Ereignis vor dem Erwachen
+ist. Diese drei sind je eine grosse, eigenstaendige Schicht (Progression, Kampf,
+Nation/Story), alle auf dem vorhandenen Motor und mit den frueheren Wellen
+verzahnt. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System).
+Reihenfolge: 108/109 unabhaengig; 110 setzt Offiziere (103) voraus und ist der
+narrative Ausloeser fuer das Erwachen (104).
+
+Hinweis: Der Plan ist inzwischen ausfuehrungs-, nicht planungsgebunden (20+ offene
+Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
+
+- [ ] Phase 108 — Skill-Fusion/-Evolution (Fertigkeiten verschmelzen zu einzig-
+  artigen/Ultimate-Skills). Befund: nur Element-Team-Mix vorhanden, keine
+  Skill-Verschmelzung (s. o.). Bauen: eine datengetriebene `SkillFusionRecipe`
+  (Inputs = 2+ gelernte Skill-IDs, optional Material/Magicules aus 102; Output =
+  ein neuer Skill), aufgeloest in einem reinen `systems/skillFusion`-Modul (analog
+  crafting.ts): gegated ueber `learnedSkillIds` statt Gold; die Basis-Skills
+  verschmelzen (aus dem Loadout entfernt, durch den fusionierten ersetzt).
+  Persistenz ueber learnedSkillIds/eine neue uniqueStrings-Liste, Save-Migration
+  automatisch. UI: „Verschmelzen"-Tab (analog Schmiede) im Skill-/Talent-Menue.
+  Verzahnt mit 102 (Magicule-Kosten), 105 (Mimikry-Formen als Input), Devour-
+  Kompendium (84). Balance: Ultimate-Skills spaet gaten. Akzeptanz: Rezept-
+  Aufloesung + Verbrauch/Ersatz + Gating headless getestet, Save-Roundtrip +
+  Migration, Balance-Harness je Rimuru-Spec gruen (Korridore halten), Menue-Smoke.
+- [ ] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
+  Inszenierung). Befund: Bosse haben phase2SkillIds + Archetyp-Flags, aber
+  mid-fight Combatant-Spawning fehlt (Phase 82 „splitter/summoner deferred"), und
+  echte skript-getriebene Bossphasen fehlen. Bauen: (a) eine Add-/Beschwoerungs-
+  Mechanik — ein Boss-Skill/Flag spawnt zur Laufzeit zusaetzliche Combatants in
+  den BattleState (die eine fehlende Grundfaehigkeit); (b) darauf skript-getriebene
+  Bossphasen (bei HP-Schwelle: Add-Welle / Musterwechsel / Umgebungseffekt),
+  datengetrieben. Reuse: BattleState/Combatant-Modell, escalation-/Archetyp-Muster.
+  Macht die Endbosse zu echten Set-Pieces. WICHTIG: Hard-Termination-Guards fuer
+  Sims/Tests erhalten (Spawns duerfen nicht endlos/kein Soft-Lock). Akzeptanz:
+  Spawn/Phasenwechsel deterministisch + terminierend headless getestet, Auto-Battle
+  kommt mit Adds klar, Balance-Harness je Rimuru-Spec gruen, HUD zeigt neue
+  Combatants, Battle-Smoke.
+- [ ] Phase 110 — Tempest-Invasion & Verteidigung (die fehlende Bedrohungsschicht;
+  Ausloeser fuer 104). Befund: Die Nation wird nie angegriffen (s. o.). Bauen: ein
+  story-gegateter Invasions-/Verteidigungs-Arc — eine rivalisierende (menschliche)
+  Armee greift Tempest an; der Spieler verteidigt in einer Encounter-Sequenz, in
+  der die benannten Offiziere (103) als Verbuendete/Abschnittsverteidiger einge-
+  setzt werden (reuse Ally-/Team-Mix-Pfad + Wellenstruktur der Arena 95), mit
+  Folgen fuer Bevoelkerung/Produktion je nach Ausgang. Das Opfer/der Verlust
+  triggert narrativ das Erwachen (104). Externe Bedrohungsseite zum internen
+  Nation-Bau; wer angreift/hilft, kann an der Diplomatie-Reputation (100) haengen.
+  Akzeptanz: Invasions-Gate + Verteidigungs-Sequenz + Ausgangsfolgen (Produktions-/
+  Roster-Effekt) headless getestet, Save-Migration, Balance-Sim der Wellen, Szene
+  ueber den sceneScript-Interpreter (62) + Smoke.
 
 ## UX- und Welt-Backlog
 
