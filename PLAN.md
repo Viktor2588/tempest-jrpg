@@ -213,21 +213,6 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [x] Phase 102 — Magicule-/Seelen-Oekonomie (die fehlende Meta-Ressource). Abnahme:
-  `/worktree/tempest-phase-102-magicules`; `git diff --check`; `bun run typecheck`;
-  `bun run test`; `bun run build`; `bun run test:e2e -- e2e/game.smoke.spec.ts
-  --grep "Title" --project=desktop-chromium --project=mobile-chromium`.
-  Befund: Kaempfe zahlen nur in XP/Gold/Item/Skill; es gibt keinen Pool, den
-  Benennen/Evolution/Erwachen verbrauchen koennten. Bauen: ein gepoolter
-  `magicules`-Zaehler auf `ProgressionState` (clampNonNegativeInteger,
-  Save-Migration automatisch wie `productionCycles`/`craftedRecipeIds`; alte
-  Saves -> 0), verdient in `battleResult` — deutlich mehr aus Verschlingen
-  (koppelt an die vorhandene `devouredSourceIds`) und Boss-Kills (`boss`-Flag)
-  als aus Trash, optional ein kleiner Zufluss pro Produktionszyklus (93).
-  Ausgegeben wird er erst von 103/104 (hier nur Verdienst + Anzeige). Reine
-  Daten+`systems`, kein Scene-Zwang. Akzeptanz: Verdien-Hook deterministisch
-  getestet (Devour/Boss deutlich > Trash), Save-Roundtrip + v-Migration,
-  Balance-Sim zeigt keinen XP-/Gold-Bruch, HUD-/Menue-Anzeige des Standes.
 - [ ] Phase 103 — Benannte Offiziere (Bewohner-Befoerderung mit Kampf-Payoff).
   Befund: Bewohner (92) sind reiner Bestand + Auto-Staffing (93); das Benennen
   bleibt folgenlos. Bauen: ein magicule-kostender **Befoerderungs-Schritt** je
