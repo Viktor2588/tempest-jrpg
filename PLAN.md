@@ -100,21 +100,29 @@ verbraucht (totes Inventar); Kaijin/Kurobe sind reine Story-NPCs; das Flag
 (kaempfen->Belohnung, erkunden->Fund, Tempest waechst) zeigen auf denselben
 fehlenden Kern: Rimuru baut Tempest zur Nation. Non-Goals beachten: kein Backend/
 PWA, kein Job/Klassen-System (Spec-Baeume bleiben das Progressionsmodell).
-Empfehlung: Phase 91 (Schmiede) und Phase 92 (Bewohner rekrutieren, Bestand +
-Roster) sind gemergt und schliessen den toten Material-/Naming-Faden; 93
-(Produktion) baut direkt auf 92 auf und nutzt die residentIds/Rollen. 94 und die
-Side-Options sind unabhaengig und koennen dazwischen gezogen werden.
+Empfehlung: Phase 91 (Schmiede), Phase 92 (Bewohner rekrutieren, Bestand +
+Roster) und Phase 93 (Einrichtungen & Produktion) sind gemergt und schliessen
+den toten Material-/Naming-/Wachstums-Faden — die Bewohner besetzen jetzt
+rollenbasiert vier Einrichtungen, die pro Tempest-Rast deterministisch
+Ressourcen (magic-ore/healing-herb/mana-drop/Gold) produzieren und die Schmiede
+speisen. 94 und die Side-Options sind unabhaengig; als naechster Nation-Ausbau
+bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 
-### Flaggschiff: Nation-Arc (Meta-Loop, optional, save-persistent, headless-testbar)
+### Nation-Arc: Folge-Inkremente zu Phase 93 (optional, kleiner Zuschnitt)
 
-- [ ] Phase 93 — Einrichtungen & Produktion. Facilities (Schmiede, Kueche,
-  Trainingshalle, Wache) nehmen die Bewohner aus Phase 92 (progression.residentIds
-  + Rollen) auf und produzieren pro Zyklus
-  (Rast/Reise): Schmiede->Material/Rabatt, Kueche->Rast-Buffs (Cooking),
-  Trainingshalle->Reserve-XP/Catch-up, Wache->Encounter-Kontrolle. Facility-Stufen
-  koppeln an die tempestGrowth-Stufen. Schliesst die Schleife kaempfen/erkunden ->
-  Material+Bewohner -> bauen/zuweisen -> Macht. Akzeptanz: Produktions-Zyklus
-  deterministisch + balance-gesimt, Save-Migration, Facility-UI-Smoke.
+- [ ] Phase 93b — Facility-Effekte jenseits reiner Ressourcen. Die aktuelle
+  Produktion (Phase 93) liefert bewusst nur Material/Gold ins Inventar. Die im
+  urspruenglichen Plan skizzierten Zusatz-Effekte fehlen noch: Kueche ->
+  temporaerer Rast-Buff (Cooking, wirkt in den naechsten Kaempfen),
+  Trainingshalle -> Reserve-XP/Catch-up statt mana-drop, Wache ->
+  Encounter-Kontrolle (Rate/Vermeidung) statt reinem Gold. Braucht Verzahnung mit
+  dem Rast-/Encounter-Fluss (nicht nur dem Menue-Knopf). Akzeptanz: Effekte
+  headless getestet, Balance-Sim, Save-Migration, Smoke.
+- [ ] Phase 93c — Produktion an einen echten Rast-/Reise-Trigger koppeln. Heute
+  laeuft ein Zyklus ueber den "Tempest-Rast halten"-Knopf im Einrichtungs-Menue
+  (spielerinitiiert, idle-artig). Alternativ/zusaetzlich: automatisch bei
+  `restore-party` (Lager/Rast) bzw. Schnellreise abrechnen, damit die Nation auch
+  im normalen Spielfluss produziert. Braucht residentIds im WorldState-Pfad.
 
 ### Kampf-Ausbau: Elementarfelder
 
