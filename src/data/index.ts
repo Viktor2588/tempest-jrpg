@@ -35,6 +35,8 @@ export {
   SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
+export { SKILL_TIER_META, skillTierRank, skillTierBadge } from './skillRank';
+export type { SkillTierMeta } from './skillRank';
 export { SIGNATURES } from './signatures';
 export { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 export type {
@@ -96,6 +98,7 @@ export type {
   SkillStatusEffect,
   SkillTag,
   SkillTarget,
+  SkillTier,
   StatusEffectId,
   StatBlock,
   TalentPerk

@@ -9,7 +9,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 0,
     power: 12,
-    tags: ['physical']
+    tags: ['physical'],
+    tier: 'skill'
   },
   {
     id: 'water-blade',
@@ -19,7 +20,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 4,
     power: 22,
-    tags: ['magical']
+    tags: ['magical'],
+    tier: 'extra-skill'
   },
   {
     id: 'water-jet',
@@ -29,7 +31,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 6,
     power: 28,
-    tags: ['magical']
+    tags: ['magical'],
+    tier: 'extra-skill'
   },
   {
     id: 'storm-gust',
@@ -39,7 +42,8 @@ export const SKILLS = [
     target: 'all-enemies',
     costMp: 7,
     power: 15,
-    tags: ['magical']
+    tags: ['magical'],
+    tier: 'extra-skill'
   },
   {
     id: 'goblin-feint',
@@ -49,7 +53,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 2,
     power: 16,
-    tags: ['physical', 'debuff']
+    tags: ['physical', 'debuff'],
+    tier: 'skill'
   },
   {
     id: 'battle-cry',
@@ -60,6 +65,7 @@ export const SKILLS = [
     costMp: 3,
     power: 0,
     tags: ['buff'],
+    tier: 'skill',
     statusEffect: { id: 'attack-up', chance: 1, turns: 3 }
   },
   {
@@ -71,6 +77,7 @@ export const SKILLS = [
     costMp: 3,
     power: 0,
     tags: ['buff'],
+    tier: 'skill',
     statusEffect: { id: 'haste', chance: 1, turns: 3 }
   },
   {
@@ -82,6 +89,7 @@ export const SKILLS = [
     costMp: 3,
     power: 14,
     tags: ['magical', 'debuff'],
+    tier: 'skill',
     statusEffect: { id: 'poison', chance: 0.8, turns: 3 }
   },
   {
@@ -93,6 +101,7 @@ export const SKILLS = [
     costMp: 5,
     power: 10,
     tags: ['magical', 'debuff'],
+    tier: 'skill',
     statusEffect: { id: 'spirit-down', chance: 1, turns: 3 }
   },
   {
@@ -103,7 +112,8 @@ export const SKILLS = [
     target: 'single-ally',
     costMp: 8,
     power: 20,
-    tags: ['heal', 'magical']
+    tags: ['heal', 'magical'],
+    tier: 'extra-skill'
   },
   {
     id: 'barrier-prayer',
@@ -114,6 +124,7 @@ export const SKILLS = [
     costMp: 6,
     power: 0,
     tags: ['buff', 'magical'],
+    tier: 'extra-skill',
     statusEffect: { id: 'defense-up', chance: 1, turns: 3 }
   },
   {
@@ -124,7 +135,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 8,
     power: 30,
-    tags: ['magical']
+    tags: ['magical'],
+    tier: 'extra-skill'
   },
   {
     id: 'direwolf-rush',
@@ -134,7 +146,8 @@ export const SKILLS = [
     target: 'single-enemy',
     costMp: 5,
     power: 24,
-    tags: ['physical']
+    tags: ['physical'],
+    tier: 'skill'
   },
   {
     id: 'sacred-weave',
@@ -144,27 +157,28 @@ export const SKILLS = [
     target: 'single-ally',
     costMp: 14,
     power: 32,
-    tags: ['heal', 'magical']
+    tags: ['heal', 'magical'],
+    tier: 'extra-skill'
   },
-  { id: 'spirit-flame', name: 'Geistflamme', description: 'Shunas geweihte Geistflamme versengt ein Ziel mit heiligem Feuer.', element: 'holy', target: 'single-enemy', costMp: 9, power: 34, tags: ['magical'] },
-  { id: 'black-flame', name: 'Schwarzflamme', description: 'Benimarus konzentrierte Schwarzflamme verbrennt ein Ziel.', element: 'fire', target: 'single-enemy', costMp: 9, power: 38, tags: ['magical'], heavy: true },
-  { id: 'ifrit-inferno', name: 'Ifrits Inferno', description: 'Eine Feuerwand erfasst alle Gegner.', element: 'fire', target: 'all-enemies', costMp: 14, power: 30, tags: ['magical'], heavy: true },
-  { id: 'orc-cleave', name: 'Ork-Spalter', description: 'Brutaler Hieb mit grobem Schlachtbeil.', element: 'neutral', target: 'single-enemy', costMp: 5, power: 26, tags: ['physical'] },
-  { id: 'war-cry', name: 'Kriegsschrei', description: 'Anstachelnder Ruf — eigener Angriff steigt.', element: 'neutral', target: 'self', costMp: 6, power: 0, tags: ['buff'], statusEffect: { id: 'attack-up', chance: 1, turns: 3 } },
-  { id: 'rally-cry', name: 'Sammelruf', description: 'Feuert einen Verbündeten an — dessen Angriff steigt.', element: 'neutral', target: 'single-ally', costMp: 6, power: 0, tags: ['buff'], statusEffect: { id: 'attack-up', chance: 1, turns: 3 } },
-  { id: 'iron-guard', name: 'Eisenwall', description: 'Verschanzt sich — eigene Verteidigung steigt.', element: 'neutral', target: 'self', costMp: 5, power: 0, tags: ['buff'], statusEffect: { id: 'defense-up', chance: 1, turns: 3 } },
-  { id: 'famished-bite', name: 'Hungerbiss', description: 'Der Hunger der „Ausgehungerten" reißt Fleisch und Kraft heraus.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 34, tags: ['physical'], heavy: true },
-  { id: 'calamity-roar', name: 'Katastrophenbrüllen', description: 'Ein Brüllen bricht die Deckung aller Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 0, tags: ['debuff'], statusEffect: { id: 'guard-break', chance: 0.9, turns: 3 } },
-  { id: 'ogre-smash', name: 'Oger-Wucht', description: 'Erderschütternder Hieb roher Ogerkraft.', element: 'earth', target: 'single-enemy', costMp: 7, power: 32, tags: ['physical'], heavy: true },
+  { id: 'spirit-flame', name: 'Geistflamme', description: 'Shunas geweihte Geistflamme versengt ein Ziel mit heiligem Feuer.', element: 'holy', target: 'single-enemy', costMp: 9, power: 34, tags: ['magical'], tier: 'extra-skill' },
+  { id: 'black-flame', name: 'Schwarzflamme', description: 'Benimarus konzentrierte Schwarzflamme verbrennt ein Ziel.', element: 'fire', target: 'single-enemy', costMp: 9, power: 38, tags: ['magical'], tier: 'extra-skill', heavy: true },
+  { id: 'ifrit-inferno', name: 'Ifrits Inferno', description: 'Eine Feuerwand erfasst alle Gegner.', element: 'fire', target: 'all-enemies', costMp: 14, power: 30, tags: ['magical'], tier: 'extra-skill', heavy: true },
+  { id: 'orc-cleave', name: 'Ork-Spalter', description: 'Brutaler Hieb mit grobem Schlachtbeil.', element: 'neutral', target: 'single-enemy', costMp: 5, power: 26, tags: ['physical'], tier: 'skill' },
+  { id: 'war-cry', name: 'Kriegsschrei', description: 'Anstachelnder Ruf — eigener Angriff steigt.', element: 'neutral', target: 'self', costMp: 6, power: 0, tags: ['buff'], tier: 'skill', statusEffect: { id: 'attack-up', chance: 1, turns: 3 } },
+  { id: 'rally-cry', name: 'Sammelruf', description: 'Feuert einen Verbündeten an — dessen Angriff steigt.', element: 'neutral', target: 'single-ally', costMp: 6, power: 0, tags: ['buff'], tier: 'skill', statusEffect: { id: 'attack-up', chance: 1, turns: 3 } },
+  { id: 'iron-guard', name: 'Eisenwall', description: 'Verschanzt sich — eigene Verteidigung steigt.', element: 'neutral', target: 'self', costMp: 5, power: 0, tags: ['buff'], tier: 'skill', statusEffect: { id: 'defense-up', chance: 1, turns: 3 } },
+  { id: 'famished-bite', name: 'Hungerbiss', description: 'Der Hunger der „Ausgehungerten" reißt Fleisch und Kraft heraus.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 34, tags: ['physical'], tier: 'extra-skill', heavy: true },
+  { id: 'calamity-roar', name: 'Katastrophenbrüllen', description: 'Ein Brüllen bricht die Deckung aller Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 0, tags: ['debuff'], tier: 'extra-skill', statusEffect: { id: 'guard-break', chance: 0.9, turns: 3 } },
+  { id: 'ogre-smash', name: 'Oger-Wucht', description: 'Erderschütternder Hieb roher Ogerkraft.', element: 'earth', target: 'single-enemy', costMp: 7, power: 32, tags: ['physical'], tier: 'extra-skill', heavy: true },
   // Phase 56 — verlaesslicher Flaechendruck fuer Schatten-Bosse (kein Guard-Break-Stapeln).
-  { id: 'umbral-burst', name: 'Schattenwoge', description: 'Eine Woge aus Schattenmagie erfasst alle Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 18, tags: ['magical'] },
-  { id: 'spear-charge', name: 'Speersturm', description: 'Schneller Vorstoß mit der Wasserklinge.', element: 'wind', target: 'single-enemy', costMp: 5, power: 24, tags: ['physical'] },
-  { id: 'tide-lance', name: 'Flutlanze', description: 'Ein Wasserdruckstoß durchbohrt das Ziel.', element: 'water', target: 'single-enemy', costMp: 7, power: 26, tags: ['magical'] },
-  { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'], heavy: true },
+  { id: 'umbral-burst', name: 'Schattenwoge', description: 'Eine Woge aus Schattenmagie erfasst alle Gegner.', element: 'shadow', target: 'all-enemies', costMp: 12, power: 18, tags: ['magical'], tier: 'extra-skill' },
+  { id: 'spear-charge', name: 'Speersturm', description: 'Schneller Vorstoß mit der Wasserklinge.', element: 'wind', target: 'single-enemy', costMp: 5, power: 24, tags: ['physical'], tier: 'skill' },
+  { id: 'tide-lance', name: 'Flutlanze', description: 'Ein Wasserdruckstoß durchbohrt das Ziel.', element: 'water', target: 'single-enemy', costMp: 7, power: 26, tags: ['magical'], tier: 'extra-skill' },
+  { id: 'drago-nova', name: 'Drago Nova', description: 'Milims überwältigende Drachenenergie — ein Schlag wie ein Sternenfall.', element: 'fire', target: 'all-enemies', costMp: 20, power: 60, tags: ['magical'], tier: 'ultimate-skill', heavy: true },
   // Phase 40 — Zeitkontrolle (Zeitleiste-Rewrite)
-  { id: 'temporal-snare', name: 'Zeitfalle', description: 'Verzerrt den Zeitfluss und wirft das Ziel auf der Zeitleiste zurück.', element: 'shadow', target: 'single-enemy', costMp: 6, power: 8, tags: ['magical', 'debuff'], ctDelta: -55 },
-  { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], ctDelta: 60 },
+  { id: 'temporal-snare', name: 'Zeitfalle', description: 'Verzerrt den Zeitfluss und wirft das Ziel auf der Zeitleiste zurück.', element: 'shadow', target: 'single-enemy', costMp: 6, power: 8, tags: ['magical', 'debuff'], tier: 'extra-skill', ctDelta: -55 },
+  { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], tier: 'extra-skill', ctDelta: 60 },
   // Phase 41 — Rimurus Unique-Skills: aktivieren die Verben Analysieren/Verschlingen (nicht direkt wirkbar).
-  { id: 'great-sage', name: 'Großer Weiser', description: 'Rimurus einzigartige Fähigkeit: analysiert Gegner, deckt Schwächen auf und liest ihre nächsten Züge.', element: 'neutral', target: 'self', costMp: 0, power: 0, tags: ['buff'] },
-  { id: 'predator', name: 'Verschlinger', description: 'Rimurus einzigartige Fähigkeit: verschlingt gebrochene, geschwächte Gegner und eignet sich ihre Kraft an.', element: 'shadow', target: 'self', costMp: 0, power: 0, tags: ['buff'] }
+  { id: 'great-sage', name: 'Großer Weiser', description: 'Rimurus einzigartige Fähigkeit: analysiert Gegner, deckt Schwächen auf und liest ihre nächsten Züge.', element: 'neutral', target: 'self', costMp: 0, power: 0, tags: ['buff'], tier: 'unique-skill' },
+  { id: 'predator', name: 'Verschlinger', description: 'Rimurus einzigartige Fähigkeit: verschlingt gebrochene, geschwächte Gegner und eignet sich ihre Kraft an.', element: 'shadow', target: 'self', costMp: 0, power: 0, tags: ['buff'], tier: 'unique-skill' }
 ] as const satisfies readonly SkillDefinition[];

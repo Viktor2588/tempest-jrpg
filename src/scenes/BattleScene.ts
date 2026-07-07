@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ITEMS, SKILLS } from '../data';
+import { ITEMS, SKILLS, skillTierBadge } from '../data';
 import type { ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
@@ -810,7 +810,7 @@ export class BattleScene extends Phaser.Scene {
     });
 
     const choices: Array<[string, () => void]> = skills.map((skill) => [
-      `${skill.name} (${skill.costMp} MP)`,
+      `${skillTierBadge(skill.tier)}${skill.name} (${skill.costMp} MP)`,
       () => {
         if (actor.mp < skill.costMp) {
           this.flash('Nicht genug MP.');

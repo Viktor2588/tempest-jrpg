@@ -541,6 +541,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_111:
+    - Skill-Rank system (Tensura's Skill -> Extra Skill -> Unique Skill -> Ultimate Skill ladder; see IDEE.md). Added a required `tier: SkillTier` to SkillDefinition (types.ts) and classified all 32 skills — canonical anchors: predator + great-sage = 'unique-skill', Milim's drago-nova = 'ultimate-skill', basic hits = 'skill', elemental magic = 'extra-skill'. `tier` is data-only (skills are not persisted; saves store only learnedSkillIds), so no save migration.
+    - New src/data/skillRank.ts: SKILL_TIER_META (rank order 0-3, German label, badge glyph, color, canonical unlock source) + skillTierRank/skillTierBadge helpers. The `unlock` text encodes the gating rule as visible metadata; enforcement is deferred to the phases that grant those tiers (112 steal/fuse, 104 awakening) rather than built as unused infra.
+    - UI: MenuScene status skill list colors each skill by its tier color and prefixes the rank glyph; BattleScene skill buttons prefix the glyph too (common 'skill' tier stays unadorned/grey).
+    - typecheck (no hidden SkillDefinition constructors broke on the new required field), 492 unit tests (+5 skillRank: completeness, canonical classification, strict rank ordering, badge behavior, every rank populated), production build, desktop game smoke.
   phase_88d_physical:
     - Physical-resistance category branch now ON-ROUTE (counterpart to 88c's magic-resist stray-echo). bog-terror (resistsCategory 'physical') replaces the human-lancer in the mandatory 'border-rift-vanguard' fight and forces magical damage; its XP is matched to the lancer (280) so the level/resource arc into the late bosses holds.
     - border-rift-vanguard recategorized boss→normal in qaGates STORY_ENCOUNTERS — it has no boss:true enemy (mordrahn-vanguard + bog-terror), plays like its twin alliance-breach, sits at the ~0.87 sustain equilibrium (over the strict 0.85 boss ceiling, under the 0.9 normal ceiling), and the old boss label spuriously generated boss-scaling benchmarks for a non-boss.

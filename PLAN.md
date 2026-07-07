@@ -319,19 +319,12 @@ Ultimate beim Erwachen (104); die Kinder-Krise wird durch Geister-Technik
 Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System; Canon-first,
 deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit:
 111 ist Fundament fuer 112/104; 113 braucht Shizu (existiert) und wird von
-114/115 aufgeloest.
+114/115 aufgeloest. Phase 111 (Skill-Rang-System) ist gemergt — `SkillDefinition`
+traegt jetzt `tier` (skill/extra-skill/unique-skill/ultimate-skill), alle Skills
+sind kanonisch eingestuft (`great-sage`/Praedator = Unique, Milims Drachenkraft =
+Ultimate) und die UI zeigt Rang-Glyphe + -Farbe; die Rang-Metadaten (`skillRank.ts`)
+liefern die Grundlage fuers Gating in 112/104.
 
-- [ ] Phase 111 — Skill-Rang-System (Fundament). Befund: `SkillDefinition` ist
-  flach. Bauen: optionales Feld `tier: 'skill' | 'extra-skill' | 'unique-skill' |
-  'ultimate-skill'` auf `SkillDefinition` (+ Signaturen als Ultimate gefuehrt);
-  alle 37 Skills + Signaturen kanonisch einstufen (Basis-Angriffe = Skill,
-  Element-/Kombo-Zauber = Extra Skill, `great-sage`/Praedator = Unique, Signaturen/
-  Erwachen = Ultimate); Rang-Badge/-Farbe im Skill-/Talent-/Menue-UI; Gating-Regeln
-  (Unique ueber Story/Naming, Ultimate ueber Erwachen 104). Rein additiv, Save-
-  sicher (Default-Tier fuer Altdaten). Verzahnt mit 108 (Fusion die Leiter hinauf),
-  104 (Ultimate-Freischaltung), 102/103 (Naming-Machtsprung). Akzeptanz: jeder
-  Skill hat einen Rang, UI zeigt ihn, Gating-Regeln headless getestet, Balance-
-  Harness je Rimuru-Spec unveraendert gruen, Menue-Smoke.
 - [ ] Phase 112 — Praedator-Perversion: Skill-Raub & -Kombination (Unique Skill).
   Canon-Check (Nutzerauftrag): die gewuenschte Faehigkeit ist kanonisch KEIN
   eigener Skill „Degenerate", sondern der *Voellerei/Gluttony*-Zweig von Praedator

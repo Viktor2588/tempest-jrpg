@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
+import { SKILL_TIER_META, skillTierBadge } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
@@ -524,8 +525,9 @@ export class MenuScene extends Phaser.Scene {
     const skills = getProgressionSkills(summary.member, this.save.progression);
     const skillPage = this.menuListPage(skills.length, skillCol);
     skills.slice(skillPage.start, skillPage.start + skillPage.visible).forEach((skill, index) => {
-      this.layer.add(this.add.text(skillCol.left, skillCol.top + index * skillCol.rowHeight, `${skill.name} (${skill.costMp} MP): ${skill.description}`, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 380 }
+      // Phase 111 — Rang sichtbar machen: Glyphe + Rang-Farbe je Skill-Tier.
+      this.layer.add(this.add.text(skillCol.left, skillCol.top + index * skillCol.rowHeight, `${skillTierBadge(skill.tier)}${skill.name} (${skill.costMp} MP): ${skill.description}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: SKILL_TIER_META[skill.tier].color, wordWrap: { width: 380 }
       }));
     });
     this.drawListPager(skillCol, skillPage);

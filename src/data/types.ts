@@ -57,6 +57,12 @@ export interface StatBlock {
 export type SkillTarget = 'single-enemy' | 'all-enemies' | 'single-ally' | 'self';
 export type SkillTag = 'physical' | 'magical' | 'heal' | 'buff' | 'debuff';
 
+// Phase 111 — Tensura-Rang-Leiter (Bedeutung/Einzigartigkeit/Staerke, s. IDEE.md):
+// skill = Allgemeinfaehigkeit, extra-skill = verfeinerte/elementare Form,
+// unique-skill = einzigartige Willenskraft (Rimurus Praedator/Grosser Weiser),
+// ultimate-skill = Gipfel (Signaturen/Erwachen, Milims Drachenkraft).
+export type SkillTier = 'skill' | 'extra-skill' | 'unique-skill' | 'ultimate-skill';
+
 export interface SkillStatusEffect {
   readonly id: StatusEffectId;
   readonly chance: number;
@@ -72,6 +78,8 @@ export interface SkillDefinition {
   readonly costMp: number;
   readonly power: number;
   readonly tags: readonly SkillTag[];
+  // Phase 111 — Rang auf der Tensura-Skill-Leiter (Anzeige + spaeteres Gating 112/104).
+  readonly tier: SkillTier;
   readonly statusEffect?: SkillStatusEffect;
   // Phase 40 — Zeitkontrolle: positiver Wert zieht ein Ziel auf der CT-Leiste vor (hasten),
   // negativer wirft es zurück (delay). Wird nach Schaden/Effekt angewandt.
