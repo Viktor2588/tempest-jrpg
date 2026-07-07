@@ -83,6 +83,7 @@ describe('artSpec', () => {
       'storm-dragon',
       'ranga',
       'shizu',
+      'shizu-children',
       'fuze',
       'benimaru',
       'shion',

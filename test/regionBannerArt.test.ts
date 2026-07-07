@@ -34,6 +34,7 @@ describe('Gebietsindikator-Banner', () => {
     expect(regionBannerTextureForMap('lizardman-marsh')).toBe('ui-region-lizardman-marsh');
     expect(regionBannerTextureForMap('ember-hollow')).toBe('ui-region-ember-hollow');
     expect(regionBannerTextureForMap('blumund')).toBe('ui-region-blumund');
+    expect(regionBannerTextureForMap('freedom-academy')).toBe('ui-region-freedom-academy');
     expect(regionBannerTextureForMap('unknown-map')).toBe(DEFAULT_REGION_BANNER_TEXTURE_KEY);
     expect(regionBannerTextureForMap('sealed-cave', () => false)).toBeNull();
   });
@@ -55,6 +56,7 @@ describe('Gebietsindikator-Banner', () => {
       'region-lizardman-marsh.webp',
       'region-ember-hollow.webp',
       'region-blumund.webp',
+      'region-freedom-academy.png',
       'region-tempest-camp.webp',
       'region-tempest-village.webp',
       'region-tempest-city.webp'

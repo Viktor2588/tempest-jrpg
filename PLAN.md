@@ -340,7 +340,7 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
-- [ ] Phase 113 — Shizus Vermaechtnis: Rettung der Kinder (Story-Arc, Band 4-5).
+- [x] Phase 113 — Shizus Vermaechtnis: Rettung der Kinder (Story-Arc, Band 4-5). (abgeschlossen in `/worktree/tempest-phase-113-shizus-kinder`; Checks: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Shizu-Schwur-Save lädt Freiheitsakademie"`)
   Befund: Der Shizu/Ifrit-Bogen (`shizu-vow`) existiert, endet aber mit ihrem
   Schwur — die kanonische Fortsetzung (ihre fuenf Schueler an der Freiheitsakademie,
   deren instabile Geist-Beschwoerung sie toetet) fehlt. Bauen: ein neues Kapitel

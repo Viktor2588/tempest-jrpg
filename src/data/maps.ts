@@ -101,6 +101,12 @@ export const BLUMUND: TileMap = buildMap(20, 14, [
   [4, 2, 3, 2], [11, 2, 3, 2], [15, 3, 2, 2], [4, 9, 3, 2], [11, 9, 3, 2], [16, 8, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-4-Folgeort: Freiheitsakademie (20×14, Schulhof mit Lehrtrakt und
+// Krankenflügel). Sichere Karte für Shizus Schüler, keine Zufallskämpfe.
+export const FREEDOM_ACADEMY: TileMap = buildMap(20, 14, [
+  [3, 2, 3, 2], [10, 2, 4, 2], [15, 3, 2, 3], [4, 9, 2, 3], [11, 9, 4, 2], [16, 8, 2, 3]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -114,7 +120,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'jura-battlefield': JURA_BATTLEFIELD,
   'lizardman-marsh': LIZARDMAN_MARSH,
   'ember-hollow': EMBER_HOLLOW,
-  'blumund': BLUMUND
+  'blumund': BLUMUND,
+  'freedom-academy': FREEDOM_ACADEMY
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -141,7 +148,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'jura-battlefield': 'Jura-Schlachtfeld',
   'lizardman-marsh': 'Echsen-Sumpf',
   'ember-hollow': 'Glutgrotte',
-  'blumund': 'Blumund'
+  'blumund': 'Blumund',
+  'freedom-academy': 'Freiheitsakademie'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

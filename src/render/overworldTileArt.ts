@@ -65,6 +65,10 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
     wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
   },
+  'freedom-academy': {
+    floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
+  },
   'dwargon': {
     floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
     wallKey: DWARGON_WALL_TILE_TEXTURE_KEY
