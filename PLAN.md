@@ -373,6 +373,48 @@ liefern die Grundlage fuers Gating in 112/104.
   Akzeptanz: Koloss-Phasen deterministisch + terminierend headless getestet,
   Balance-Sim der Tiefenskalierung, HUD neuer Combatants, Dungeon-/Boss-Smoke.
 
+## Architektur-/Aufraeum-Roadmap (YAGNI-Audit 2026-07-07)
+
+Befund (ponytail-audit, ganzer Baum): Die Codebasis ist architektonisch **schlank**
+— eine Prod-Dependency (phaser), kein Factory-/Manager-/Strategy-Wildwuchs, rein
+funktionale `systems/`-Module, datengetriebener Content. Die grossen Dateien
+(`data/world.ts` 4242, `battle.ts` 2129, `MenuScene.ts` 1316) sind Spiel-Inhalt bzw.
+eine legitime Engine, keine Ueber-Abstraktion. Zu holen sind daher **kein Umbau**,
+sondern gezielte Streichungen: toter Code und test-only Seams. Netto grob
+`-60` Zeilen (nur toter Code) bis `-150` (inkl. Test-Seams), `-0` Deps.
+
+- [ ] Phase 116 — Architektur-/YAGNI-Aufraeumung (frischer Voll-Scan zuerst,
+  Umsetzung in getrennten Sub-PRs je Sub-Phase). **Vorgehen bei Aufnahme:** ZUERST
+  den kompletten Repo-Scan neu fahren (ponytail-audit) — der Baum bewegt sich
+  laufend (parallele Feature-Phasen), die unten notierten Funde sind eine
+  Momentaufnahme (Datei:Zeile driftet, manches ist ggf. schon weg oder inzwischen
+  benutzt). Jede Sub-Phase kommt als **eigener, kleiner PR** (leicht pruef- und
+  reviewbar); reines Loeschen wird durch gruene Typecheck+Tests+Build bewiesen.
+  Reihenfolge = Sicherheit/Hebel (oben zuerst):
+  - 116a — Toter Code (sicher, hoechste Confidence). Exportierte Funktionen ohne
+    jeden Aufrufer (weder `src` noch `test`; je nur an der Definitionszeile):
+    `getUnlockedRelationshipScenes` (progression.ts), `createMenuState` (menu.ts),
+    `stopMusic` (audio/music.ts), `getTeamFusion` (battle.ts), `getProgressionLine`
+    + `getProgressionRegions` (progression.ts), `getResident` (residents.ts). Dazu
+    die produktiv ungenutzten RNG-Helfer `pick` + `randomInt` (rng.ts, nur im
+    rng-Test). **Kaskade:** dadurch verwaiste Typen mitnehmen (z.B.
+    `ProgressionLineDefinition`, `RegionProgressionDefinition`). Delete-only.
+    Akzeptanz: Typecheck + Tests + Build gruen (der Beweis, dass nichts daran hing).
+  - 116b — Test-Seam-Hygiene (mittlere Confidence). Funktionen, die NUR fuer Tests
+    exportiert sind und Layout/Balance parallel zum echten Pfad nachrechnen (Shadow
+    → Drift-Risiko): `analyzeMenuColumns` (menuLayout.ts), `analyzeTouchControlLayout`
+    + `analyzeHudLayout` (mobileLayout.ts), `analyzeSpecTreeLayout` (specTreeLayout.ts),
+    `analyzeProgressionBalance` (progression.ts) und das test-only Sammel-Objekt
+    `GAME_DATA` (data/index.ts). Pro Fund entscheiden: an den echten Render-/
+    Balance-Pfad KOPPELN (dann kein Schatten mehr, Test bleibt sinnvoll) ODER samt
+    Assertions entfernen. Akzeptanz: Tests gruen, keine verwaiste Test-nur-API.
+  - 116c — Mikro-Shrinks + Rest des Voll-Scans. `RENDER_PIXEL_ART` /
+    `RENDER_ROUND_PIXELS` sind Konstanten, die nie von `false` abweichen
+    (textureSharpness.ts → main.ts) — inlinen oder streichen. Plus alles, was der
+    frische Scan (Vorgehen oben) zusaetzlich findet: Einzel-Aufrufer-Abstraktionen,
+    reine Delegations-Wrapper, tote Flags/Config. Akzeptanz: Typecheck + Tests +
+    Build gruen.
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
