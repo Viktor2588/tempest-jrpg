@@ -57,6 +57,7 @@ export interface ResidentRosterEntry {
   readonly resident: ResidentDefinition;
   readonly recruited: boolean;
   readonly promoted: boolean;
+  readonly awakened: boolean;
   readonly originEnemyName: string;
 }
 
@@ -71,10 +72,12 @@ export interface ResidentRosterView {
 // Status, plus Zählung je Rolle (nur rekrutierte). Die Scene rendert daraus Text.
 export function buildResidentRoster(
   residentIds: readonly string[],
-  promotedResidentIds: readonly string[] = []
+  promotedResidentIds: readonly string[] = [],
+  awakenedResidentIds: readonly string[] = []
 ): ResidentRosterView {
   const owned = new Set(residentIds.filter((id) => residentById.has(id)));
   const promoted = new Set(promotedResidentIds.filter((id) => owned.has(id)));
+  const awakened = new Set(awakenedResidentIds.filter((id) => promoted.has(id)));
   const countsByRole: Record<ResidentRole, number> = {
     Wache: 0,
     Späher: 0,
@@ -91,6 +94,7 @@ export function buildResidentRoster(
       resident,
       recruited,
       promoted: promoted.has(resident.id),
+      awakened: awakened.has(resident.id),
       originEnemyName: enemyNameById.get(resident.originEnemyId) ?? resident.species
     };
   });
@@ -151,9 +155,14 @@ export function promoteResident(
   };
 }
 
-export function officerPerksForResidents(promotedResidentIds: readonly string[]): readonly TalentPerk[] {
+export function officerPerksForResidents(
+  promotedResidentIds: readonly string[],
+  awakenedResidentIds: readonly string[] = []
+): readonly TalentPerk[] {
   const count = promotedResidentIds.filter((id) => residentById.has(id)).length;
-  return count > 0 ? [{ kind: 'max-hp', percent: Math.min(20, count * 3) }] : [];
+  const promoted = new Set(promotedResidentIds);
+  const awakened = awakenedResidentIds.filter((id) => promoted.has(id) && residentById.has(id)).length;
+  return count > 0 ? [{ kind: 'max-hp', percent: Math.min(30, count * 3 + awakened * 2) }] : [];
 }
 
 function orderedPromotedIds(promoted: ReadonlySet<string>): string[] {

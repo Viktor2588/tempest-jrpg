@@ -24,7 +24,8 @@ import {
   type SkillTreeDefinition,
   type SkillTreeNodeDefinition,
   type StatusEffectId,
-  type StatBlock
+  type StatBlock,
+  type TalentPerk
 } from '../data';
 import { battleLoadoutSkillIds, createHeroBattleUnit, type BattleUnitInput } from './battle';
 import { committedBranch, talentPerksForNodes } from './talentPerk';
@@ -65,6 +66,10 @@ export interface ProgressionState {
   readonly magicules: number;
   // Phase 103 — benannte Offiziere: Bewohner, die mit Magicules befoerdert wurden.
   readonly promotedResidentIds: readonly string[];
+  // Phase 104 — Erntefest: einmaliges Massen-Erwachen, das Offiziere dauerhaft
+  // verstaerkt und im NG+ ueber Progression erhalten bleibt.
+  readonly awakeningCompleted: boolean;
+  readonly awakenedResidentIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -79,6 +84,8 @@ export interface CreateProgressionStateOptions {
   readonly productionCycles?: number;
   readonly magicules?: number;
   readonly promotedResidentIds?: readonly string[];
+  readonly awakeningCompleted?: boolean;
+  readonly awakenedResidentIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -141,6 +148,13 @@ const skillTreeByCharacterId = new Map<string, SkillTreeDefinition>(
 const skillTreeNodeById = new Map<string, SkillTreeNodeDefinition>(
   SKILL_TREES.flatMap((tree) => tree.nodes.map((node) => [node.id, node] as const))
 );
+export const AWAKENING_MAGICULE_COST = 160;
+export const AWAKENING_REQUIRED_FLAG = 'story.geld.devoured';
+export const AWAKENING_SCENE_FLAG = 'story.harvest-festival.awakened';
+const AWAKENED_RIMURU_PERKS: readonly TalentPerk[] = [
+  { kind: 'max-hp', percent: 10 },
+  { kind: 'damage-dealt', percent: 10 }
+];
 
 export function createProgressionState(options: CreateProgressionStateOptions = {}): ProgressionState {
   return {
@@ -158,7 +172,9 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     residentIds: uniqueStrings(options.residentIds ?? []),
     productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0),
     magicules: clampNonNegativeInteger(options.magicules ?? 0),
-    promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? [])
+    promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? []),
+    awakeningCompleted: options.awakeningCompleted === true,
+    awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? [])
   };
 }
 
@@ -387,6 +403,43 @@ export function grantMagicules(state: ProgressionState, amount: number): Progres
       magicules: state.magicules + granted
     },
     message: `${granted} Magicules erhalten.`
+  };
+}
+
+export function canAwakenTempest(
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
+): ProgressionActionResult {
+  if (state.awakeningCompleted) {
+    return { ok: false, state, message: 'Das Erntefest wurde bereits vollzogen.' };
+  }
+  if (!flags[AWAKENING_REQUIRED_FLAG]) {
+    return { ok: false, state, message: 'Sieg ueber Geld erforderlich.' };
+  }
+  if (state.promotedResidentIds.length === 0) {
+    return { ok: false, state, message: 'Mindestens ein Offizier ist erforderlich.' };
+  }
+  if (state.magicules < AWAKENING_MAGICULE_COST) {
+    return { ok: false, state, message: `${AWAKENING_MAGICULE_COST} Magicules erforderlich.` };
+  }
+  return { ok: true, state, message: 'Das Erntefest kann beginnen.' };
+}
+
+export function awakenTempest(
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
+): ProgressionActionResult {
+  const check = canAwakenTempest(state, flags);
+  if (!check.ok) return check;
+  return {
+    ok: true,
+    state: {
+      ...state,
+      magicules: state.magicules - AWAKENING_MAGICULE_COST,
+      awakeningCompleted: true,
+      awakenedResidentIds: uniqueStrings(state.promotedResidentIds)
+    },
+    message: 'Das Erntefest erweckt Tempests Offiziere.'
   };
 }
 
@@ -743,16 +796,30 @@ export function createProgressionBattleParty(
       currentMp: member.currentMp,
       skillIds: battleLoadoutSkillIds({ ...member, learnedSkillIds: getProgressionCoreSkillIds(member, state) }),
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
-      formName: getActiveEvolution(state, member.characterId)?.formName,
+      formName: progressionBattleFormName(member.characterId, state),
       openingStatusIds: getOpeningStatusIds(member.characterId, state),
       // Phase 70: Perks aus den freigeschalteten Spec-Knoten fließen in den Kampf ein.
       perks: [
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
-        ...officerPerksForResidents(state.promotedResidentIds)
+        ...awakenedPerksForMember(member.characterId, state),
+        ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds)
       ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
   });
+}
+
+function progressionBattleFormName(characterId: string, state: ProgressionState): string | undefined {
+  const formName = getActiveEvolution(state, characterId)?.formName;
+  if (characterId !== 'rimuru' || !state.awakeningCompleted) return formName;
+  return formName ? `${formName} · Erwacht` : 'Erwachter Schleim';
+}
+
+function awakenedPerksForMember(
+  characterId: string,
+  state: ProgressionState
+): readonly TalentPerk[] {
+  return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
 }
 
 export function applyBattleProgressionRewards(

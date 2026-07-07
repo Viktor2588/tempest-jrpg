@@ -76,6 +76,11 @@ describe('buildFacilityOverview', () => {
     expect(forgeView.staff.length).toBe(handwerker.length);
     expect(forgeView.staff[0]).toContain('★');
     expect(forgeView.amountPerCycle).toBe((handwerker.length + 1) * 1 * forge.output.perStaffPerLevel);
+
+    const awakened = buildFacilityOverview(handwerker, CAMP_FLAGS, handwerker.slice(0, 1), handwerker.slice(0, 1));
+    const awakenedForge = awakened.facilities.find((view) => view.facility.id === forge.id)!;
+    expect(awakenedForge.staff[0]).toContain('✦');
+    expect(awakenedForge.amountPerCycle).toBe((handwerker.length + 2) * 1 * forge.output.perStaffPerLevel);
   });
 });
 
@@ -93,6 +98,7 @@ describe('facilityOutputAmount', () => {
     expect(facilityOutputAmount(watch, all, 2)).toBeGreaterThan(facilityOutputAmount(watch, all, 1));
     expect(facilityOutputAmount(watch, all, 1)).toBeGreaterThan(facilityOutputAmount(watch, one, 1));
     expect(facilityOutputAmount(watch, one, 1, one)).toBe(facilityOutputAmount(watch, one, 1) * 2);
+    expect(facilityOutputAmount(watch, one, 1, one, one)).toBe(facilityOutputAmount(watch, one, 1) * 3);
   });
 });
 
@@ -123,6 +129,15 @@ describe('runProductionCycle', () => {
       gold: 0
     });
     expect(promoted.yields[0]?.amount).toBe((plain.yields[0]?.amount ?? 0) * 2);
+    const awakened = runProductionCycle({
+      residentIds: handwerker,
+      promotedResidentIds: handwerker,
+      awakenedResidentIds: handwerker,
+      flags: CAMP_FLAGS,
+      inventory: [],
+      gold: 0
+    });
+    expect(awakened.yields[0]?.amount).toBe((plain.yields[0]?.amount ?? 0) * 3);
   });
 
   it('fügt Material und Gold der besetzten Einrichtungen hinzu, ohne die Eingabe zu verändern', () => {

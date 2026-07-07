@@ -37,15 +37,17 @@ function outputLabel(facility: FacilityDefinition): string {
 function staffPower(
   facility: FacilityDefinition,
   residentIds: readonly string[],
-  promotedResidentIds: readonly string[] = []
+  promotedResidentIds: readonly string[] = [],
+  awakenedResidentIds: readonly string[] = []
 ): number {
   const roles = new Set(facility.staffRoles);
   const promoted = new Set(promotedResidentIds);
+  const awakened = new Set(awakenedResidentIds);
   let power = 0;
   for (const id of residentIds) {
     const resident = residentById.get(id);
     if (resident && roles.has(resident.role)) {
-      power += promoted.has(id) ? 2 : 1;
+      power += awakened.has(id) && promoted.has(id) ? 3 : promoted.has(id) ? 2 : 1;
     }
   }
   return power;
@@ -58,12 +60,18 @@ export function facilityOutputAmount(
   facility: FacilityDefinition,
   residentIds: readonly string[],
   level: number,
-  promotedResidentIds: readonly string[] = []
+  promotedResidentIds: readonly string[] = [],
+  awakenedResidentIds: readonly string[] = []
 ): number {
   if (level <= 0) {
     return 0;
   }
-  return staffPower(facility, residentIds, promotedResidentIds) * level * facility.output.perStaffPerLevel;
+  return staffPower(
+    facility,
+    residentIds,
+    promotedResidentIds,
+    awakenedResidentIds
+  ) * level * facility.output.perStaffPerLevel;
 }
 
 export interface FacilityYield {
@@ -96,23 +104,38 @@ export interface FacilityOverview {
 export function buildFacilityOverview(
   residentIds: readonly string[],
   flags: StoryFlags = {},
-  promotedResidentIds: readonly string[] = []
+  promotedResidentIds: readonly string[] = [],
+  awakenedResidentIds: readonly string[] = []
 ): FacilityOverview {
   const stage = resolveTempestGrowthStage(flags);
   const level = facilityLevelForStage(stage);
+  const promoted = new Set(promotedResidentIds);
+  const awakened = new Set(awakenedResidentIds);
   const facilities = FACILITIES.map<FacilityView>((facility) => {
     const roles = new Set<ResidentRole>(facility.staffRoles);
     const staff = residentIds
       .map((id) => residentById.get(id))
       .filter((resident): resident is ResidentDefinition => !!resident && roles.has(resident.role))
-      .map((resident) => promotedResidentIds.includes(resident.id) ? `${resident.name} ★` : resident.name);
+      .map((resident) =>
+        awakened.has(resident.id) && promoted.has(resident.id)
+          ? `${resident.name} ✦`
+          : promoted.has(resident.id)
+            ? `${resident.name} ★`
+            : resident.name
+      );
     return {
       facility,
       unlocked: level > 0,
       level,
       staff,
       outputLabel: outputLabel(facility),
-      amountPerCycle: facilityOutputAmount(facility, residentIds, level, promotedResidentIds)
+      amountPerCycle: facilityOutputAmount(
+        facility,
+        residentIds,
+        level,
+        promotedResidentIds,
+        awakenedResidentIds
+      )
     };
   });
   return {
@@ -126,6 +149,7 @@ export function buildFacilityOverview(
 export interface ProductionCycleInput {
   readonly residentIds: readonly string[];
   readonly promotedResidentIds?: readonly string[];
+  readonly awakenedResidentIds?: readonly string[];
   readonly flags: StoryFlags;
   readonly inventory: readonly InventoryStack[];
   readonly gold: number;
@@ -144,7 +168,12 @@ export interface ProductionCycleResult {
 // false (mit Begruendung), wenn nichts produziert wurde — die Scene zeigt dann eine
 // erklaerende Meldung statt einer leeren Rast.
 export function runProductionCycle(input: ProductionCycleInput): ProductionCycleResult {
-  const overview = buildFacilityOverview(input.residentIds, input.flags, input.promotedResidentIds ?? []);
+  const overview = buildFacilityOverview(
+    input.residentIds,
+    input.flags,
+    input.promotedResidentIds ?? [],
+    input.awakenedResidentIds ?? []
+  );
   if (overview.level <= 0) {
     return {
       ok: false,

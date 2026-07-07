@@ -18,6 +18,7 @@ import {
 import { activateReserveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
+  canAwakenTempest,
   canUnlockSkillNode,
   enchantEquipment,
   evolveMember,
@@ -31,6 +32,9 @@ import {
   getSkillTree,
   renameMember,
   unlockSkillNode,
+  awakenTempest,
+  AWAKENING_MAGICULE_COST,
+  AWAKENING_SCENE_FLAG,
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
@@ -933,8 +937,10 @@ export class MenuScene extends Phaser.Scene {
   private drawResidentRoster(): void {
     const roster = buildResidentRoster(
       this.save.progression.residentIds,
-      this.save.progression.promotedResidentIds
+      this.save.progression.promotedResidentIds,
+      this.save.progression.awakenedResidentIds
     );
+    const awakening = canAwakenTempest(this.save.progression, this.save.flags);
     const roleSummary = (['Wache', 'Späher', 'Handwerk', 'Heilung', 'Bau'] as const)
       .filter((role) => roster.countsByRole[role] > 0)
       .map((role) => `${role} ${roster.countsByRole[role]}`)
@@ -942,6 +948,8 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(318, 172, roleSummary || 'Noch keine Bewohner benannt.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
     }));
+    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}`, () =>
+      this.awakenTempest(), awakening.ok ? 0x3b3154 : 0x242b38);
 
     const PER_PAGE = 4;
     const pageCount = Math.max(1, Math.ceil(roster.entries.length / PER_PAGE));
@@ -952,7 +960,7 @@ export class MenuScene extends Phaser.Scene {
       const y = 206 + index * 78;
       this.panel(300, y, 590, 60);
       const heading = entry.recruited
-        ? `${entry.promoted ? '★' : '✓'} ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
+        ? `${entry.awakened ? '✦' : entry.promoted ? '★' : '✓'} ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
         : `○ Unbenannt — ${entry.resident.species}`;
       this.layer.add(this.add.text(318, y - 19, heading, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.recruited ? '#8dffc2' : '#6f83a5'
@@ -997,13 +1005,28 @@ export class MenuScene extends Phaser.Scene {
     this.refresh();
   }
 
+  private awakenTempest(): void {
+    const result = awakenTempest(this.save.progression, this.save.flags);
+    this.message = result.message;
+    if (result.ok) {
+      this.save = {
+        ...this.save,
+        flags: { ...this.save.flags, [AWAKENING_SCENE_FLAG]: true },
+        progression: result.state
+      };
+      this.persist();
+    }
+    this.refresh();
+  }
+
   // Phase 93 — Einrichtungen: nach Rolle besetzte Werke, ihre erwartete Ausbeute pro
   // Rast und die „Tempest-Rast halten"-Aktion, die einen Produktions-Zyklus abrechnet.
   private drawFacilities(): void {
     const overview = buildFacilityOverview(
       this.save.progression.residentIds,
       this.save.flags,
-      this.save.progression.promotedResidentIds
+      this.save.progression.promotedResidentIds,
+      this.save.progression.awakenedResidentIds
     );
     const cycles = this.save.progression.productionCycles;
     const stageLabel = tempestGrowthLabel(overview.stage);
@@ -1042,6 +1065,7 @@ export class MenuScene extends Phaser.Scene {
     const result = runProductionCycle({
       residentIds: this.save.progression.residentIds,
       promotedResidentIds: this.save.progression.promotedResidentIds,
+      awakenedResidentIds: this.save.progression.awakenedResidentIds,
       flags: this.save.flags,
       inventory: this.state.inventory,
       gold: this.state.gold

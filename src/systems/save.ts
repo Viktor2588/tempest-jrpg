@@ -477,7 +477,10 @@ function readProgressionState(raw: unknown): ProgressionState {
     // Phase 102 — Magicules: alte Stände starten ohne angesparten Pool.
     magicules: readNonNegativeInteger(raw.magicules),
     // Phase 103 — Offiziere: alte Stände haben noch keine befoerderten Bewohner.
-    promotedResidentIds: readStringArray(raw.promotedResidentIds)
+    promotedResidentIds: readStringArray(raw.promotedResidentIds),
+    // Phase 104 — Erntefest: alte Stände haben das einmalige Erwachen noch offen.
+    awakeningCompleted: raw.awakeningCompleted === true,
+    awakenedResidentIds: readStringArray(raw.awakenedResidentIds)
   });
 }
 

@@ -69,6 +69,19 @@ export const SCENE_SCRIPTS = [
       title: 'Sieg ueber Geld',
       body: 'Die Ork-Katastrophe „Geld" ist besiegt; der Jura-Wald atmet auf.'
     }
+  },
+  {
+    id: 'harvest-festival',
+    steps: [
+      { kind: 'text', line: 'Die gesammelten Magicules steigen wie ein stiller Sturm ueber Tempest auf.' },
+      { kind: 'wait', ms: 600 },
+      { kind: 'text', speaker: 'Rimuru', line: 'Das ist kein Opfer. Es ist ein Versprechen: Tempest erwacht gemeinsam.' },
+      { kind: 'text', line: 'Die benannten Offiziere antworten mit neuer Kraft. Aus einer Nation wird ein Schwur.' }
+    ],
+    summary: {
+      title: 'Erntefest vollzogen',
+      body: 'Rimuru verbraucht den Magicule-Pool und erweckt Tempests Offiziere dauerhaft.'
+    }
   }
 ] as const satisfies readonly SceneScript[];
 
@@ -85,7 +98,8 @@ const SCENE_TRIGGERS: readonly { readonly sceneId: SceneScriptId; readonly flag:
   { sceneId: 'cave-awakening', flag: 'story.storm-dragon.oath' },
   { sceneId: 'direwolf-pact', flag: 'story.direwolf.pact' },
   { sceneId: 'tempest-naming', flag: 'story.tempest.named' },
-  { sceneId: 'geld-victory', flag: 'story.geld.devoured' }
+  { sceneId: 'geld-victory', flag: 'story.geld.devoured' },
+  { sceneId: 'harvest-festival', flag: 'story.harvest-festival.awakened' }
 ];
 
 export function scenePlayedFlag(sceneId: string): string {

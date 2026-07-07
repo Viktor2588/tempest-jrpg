@@ -17,9 +17,12 @@ import { createPartyMember } from '../src/systems/party';
 import {
   analyzeProgressionBalance,
   applyBattleProgressionRewards,
+  awakenTempest,
+  AWAKENING_MAGICULE_COST,
   calculateProgressionStats,
   calculateStartingTeamMeter,
   catchUpReserveMembers,
+  canAwakenTempest,
   canUnlockSkillNode,
   canEvolve,
   createProgressionState,
@@ -244,6 +247,29 @@ describe('progression system', () => {
     expect(withOfficer.perks).toContainEqual({ kind: 'max-hp', percent: 3 });
     expect(officerBattle.combatants.find((unit) => unit.side === 'party')!.maxHp)
       .toBeGreaterThan(baseBattle.combatants.find((unit) => unit.side === 'party')!.maxHp);
+  });
+
+  it('vollzieht das Erntefest einmalig, verbraucht Magicules und verstärkt Offiziere', () => {
+    const flags = { 'story.geld.devoured': true };
+    const state = createProgressionState({
+      magicules: AWAKENING_MAGICULE_COST + 5,
+      promotedResidentIds: ['sturmzahn', 'hainspore']
+    });
+
+    expect(canAwakenTempest(state, {}).ok).toBe(false);
+    const awakened = awakenTempest(state, flags);
+
+    expect(awakened.ok).toBe(true);
+    expect(awakened.state.magicules).toBe(5);
+    expect(awakened.state.awakeningCompleted).toBe(true);
+    expect(awakened.state.awakenedResidentIds).toEqual(['sturmzahn', 'hainspore']);
+    expect(awakenTempest(awakened.state, flags).ok).toBe(false);
+
+    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const unit = createProgressionBattleParty([rimuru], awakened.state)[0]!;
+    expect(unit.formName).toBe('Erwachter Schleim');
+    expect(unit.perks).toContainEqual({ kind: 'max-hp', percent: 10 });
+    expect(unit.perks).toContainEqual({ kind: 'damage-dealt', percent: 10 });
   });
 
   it('holt Reservefiguren über Kapitel-Baselines und Party-Abstand ohne Grinding auf', () => {
