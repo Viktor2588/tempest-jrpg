@@ -191,6 +191,76 @@ politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
   stark). Lebendige Welt + Erkundungs-Textur. Akzeptanz: deterministischer Zyklus
   + Encounter-/Feld-Einfluss headless getestet, Overworld-Smoke.
 
+## Dritte Welle: Magicule-Oekonomie, benannte Offiziere & das Erwachen (Nutzer 2026-07-07: umfangreichere Spielmechanik)
+
+Befund (Code + Canon-Abgleich): Die bestehende Roadmap deckt viele klassische
+JRPG-Schichten ab (Felder 94, Arena 95, Jagd 96, Formation 97, Bande 98,
+Labyrinth 99, Diplomatie 100, Welt-Uhr 101) — aber die **Tensura-eigenen
+Kern-Fantasien, die Kampf und Nation verzahnen, fehlen strukturell**:
+(1) Es gibt keine **Magicule-/Seelen-Ressource** — Verschlingen (Phase 84) und
+Boss-Kills geben nur XP/Items/Skill, obwohl im Canon Macht *und das Benennen* an
+Magicules haengen. (2) Bewohner (Phase 92) werden beim Verschlingen gratis
+benannt und besetzen automatisch Einrichtungen (93); Benennen ist im Canon aber
+eine **kostspielige Investition mit Machtsprung** — hier folgenlos. (3) Das
+kanonische **Endgame — das Erwachen zum Daemonenlord / Erntefest (Massen-
+Evolution der Nation)** existiert nur als Lore (`demon-lords`), nicht als
+Mechanik; das einzige geplante Endgame ist das Labyrinth (99). Diese drei
+schliessen die bereits gebauten toten Enden (Devour->Naming 84/92,
+Nation-Produktion 93, Rimurus predator/sage/mimic-Specs) zu EINER Oekonomie mit
+echtem Endgame-Machtsprung zusammen. Non-Goals gelten weiter (kein Backend/PWA,
+kein Job/Klassen-System — Spec-Baeume bleiben das Progressionsmodell).
+Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig.
+Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
+kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
+
+- [ ] Phase 102 — Magicule-/Seelen-Oekonomie (die fehlende Meta-Ressource).
+  Befund: Kaempfe zahlen nur in XP/Gold/Item/Skill; es gibt keinen Pool, den
+  Benennen/Evolution/Erwachen verbrauchen koennten. Bauen: ein gepoolter
+  `magicules`-Zaehler auf `ProgressionState` (clampNonNegativeInteger,
+  Save-Migration automatisch wie `productionCycles`/`craftedRecipeIds`; alte
+  Saves -> 0), verdient in `battleResult` — deutlich mehr aus Verschlingen
+  (koppelt an die vorhandene `devouredSourceIds`) und Boss-Kills (`boss`-Flag)
+  als aus Trash, optional ein kleiner Zufluss pro Produktionszyklus (93).
+  Ausgegeben wird er erst von 103/104 (hier nur Verdienst + Anzeige). Reine
+  Daten+`systems`, kein Scene-Zwang. Akzeptanz: Verdien-Hook deterministisch
+  getestet (Devour/Boss deutlich > Trash), Save-Roundtrip + v-Migration,
+  Balance-Sim zeigt keinen XP-/Gold-Bruch, HUD-/Menue-Anzeige des Standes.
+- [ ] Phase 103 — Benannte Offiziere (Bewohner-Befoerderung mit Kampf-Payoff).
+  Befund: Bewohner (92) sind reiner Bestand + Auto-Staffing (93); das Benennen
+  bleibt folgenlos. Bauen: ein magicule-kostender **Befoerderungs-Schritt** je
+  Bewohner (im Bewohner-/Einrichtungs-Menue), der ihn zum **Offizier** evolviert:
+  (a) hebt seine Einrichtungs-Produktionsstufe (verzahnt mit
+  `facilityOutputAmount`) und (b) schaltet ihn als **passiven Party-Buff ODER
+  einsetzbaren Kampf-Verbuendeten** frei (wiederverwendet den Ally-/Team-Mix-
+  Pfad — Zuschnitt klein: zuerst Passiv-Buff, Deploy optionaler Folgeschritt).
+  Qual der Wahl ueber knappe Magicules. Eigene Quelle neben Bande (98) und
+  Diplomatie-Truppen (100): die *eigenen* Bewohner statt Kampfgefaehrten/
+  Fraktionen. Akzeptanz: Befoerderung kostet + persistiert (uniqueStrings
+  `promotedResidentIds`), Produktions- + Kampf-Effekt headless getestet,
+  Save-Migration, Balance-Harness gruen, Menue-Smoke.
+- [ ] Phase 104 — Das Erwachen / Erntefest (Endgame-Massen-Evolution).
+  Befund: greenfield; „Daemonenlord" nur Lore. Bauen: ein **einmaliges, story-
+  und magicule-gegatetes Erwachen** (spaet, nach Band 3; NG+-bewusst), das den
+  angesparten Pool (102) verbraucht und (a) auf Rimurus Spec-Baeumen eine vierte
+  **„Erwacht"-Stufe** bzw. eine Uebersignatur freischaltet (wiederverwendet
+  evolution + signature) und (b) alle benannten Offiziere (103) eine Stufe
+  evolviert (dauerhafter Einrichtungs- + Kampf-Boost). Der kanonische Endgame-
+  Machtsprung, der 84/92/93/102/103 auszahlt — groesstes Endgame-/Replay-Ereignis
+  neben dem Labyrinth (99). Akzeptanz: Gate (Story + Ressource) + einmalige
+  Persistenz + NG+-Verhalten headless getestet, Evolutions-Anwendung
+  deterministisch, Balance-Sim (Post-Erwachen sprengt die Korridore nicht),
+  Erwachen-Szene ueber den sceneScript-Interpreter (62) + Smoke.
+- [ ] Phase 105 (optional, kleiner Zuschnitt) — Mimikry als aktive Kampf-Form.
+  Befund: `mimic` ist nur ein Spec-Zweig mit Passiv-Perks (resonance/master);
+  die Predator-Mimikry aus dem Canon (eine verschlungene Form annehmen) fehlt als
+  Aktion. Bauen: eine Aktion/Signatur, die fuer einige Zuege Rimurus Loadout/
+  Element auf das eines **verschlungenen Gegners** umstellt (wiederverwendet die
+  8-Slot-Loadout + `devourSkillIds`) -> On-Demand-Wechsel von Schadenstyp/Element.
+  Macht den mimic-Strang zur aktiven Identitaet und ist die direkte Spieler-
+  Antwort auf die resistsCategory/reflectsCategory-Archetypen (88/88b/88c/88d).
+  Unabhaengig von 102-104. Akzeptanz: Form-Wechsel/-Ablauf headless getestet,
+  Balance-Harness je Rimuru-Spec gruen, HUD-Anzeige der aktiven Form.
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
