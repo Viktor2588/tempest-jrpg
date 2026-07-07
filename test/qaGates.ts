@@ -538,7 +538,10 @@ function runBalanceStoryRoute(
   save = chooseNpcOption(save, 'rigurd-tempest', 'choose-true');
 
   save = chooseNpcOption(save, 'treyni-battlefield', 'accept');
-  save = recoverWithInventory(buyIfPossible(save, 'healing-herb', 6));
+  // Phase 88c — nach der on-route Kategorie-Mechanik (zäheres Streunendes Echo im
+  // Sumpf) stockt der modellierte Spieler vor dem Federation-/Geld-Doppelboss etwas
+  // stärker auf; deckt den erhöhten Attritionsdruck des Act-4-Einstiegs ab.
+  save = recoverWithInventory(buyIfPossible(save, 'healing-herb', 8));
   save = recoverWithInventory(buyIfPossible(save, 'mana-drop', 2));
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[8]!, seed + 59, runs, priorities);
   save = playBalanceEncounter(save, BALANCE_STORY_ROUTE[9]!, seed + 61, runs, priorities);

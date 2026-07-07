@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { runBalanceHarnessReport, type RimuruSpecBranch } from './qaGates';
+import { ENCOUNTERS } from '../src/data/world';
+import { ENEMIES } from '../src/data/enemies';
+import type { EnemyDefinition } from '../src/data/types';
 
 const SEEDS = [1501, 1502, 1503, 1504, 1505] as const;
 const STORY_ENCOUNTER_IDS = [
@@ -99,6 +102,27 @@ describe('Balance-Harness Report', () => {
       encounter.averageRemainingPartyHpFraction
     ]));
     expect(new Set(profiles.map((profile) => JSON.stringify(profile))).size).toBe(3);
+  });
+
+  it('Phase 88c — build-relevante Kategorie-Mechanik liegt auf dem Pflichtpfad (Korridor-Risiko)', () => {
+    // Bis Phase 88c standen resistsCategory/reflectsCategory/rally-cry nur off-route
+    // (Nebenquests/optionale Trigger) — der Hauptpfad ließ sich ohne Kategorie-Wahl
+    // durchspielen. Mindestens ein Pflichtkampf muss die Mechanik jetzt erzwingen.
+    const categoryEnemyIds = new Set(
+      (ENEMIES as readonly EnemyDefinition[])
+        .filter((enemy) => enemy.resistsCategory || enemy.reflectsCategory)
+        .map((enemy) => enemy.id)
+    );
+    const onRouteCategoryEncounters = STORY_ENCOUNTER_IDS.filter((encounterId) => {
+      const encounter = ENCOUNTERS.find((candidate) => candidate.id === encounterId);
+      return encounter?.enemyIds.some((enemyId) => categoryEnemyIds.has(enemyId)) ?? false;
+    });
+    expect(onRouteCategoryEncounters.length).toBeGreaterThan(0);
+
+    // Konkret verankert: das Streunende Echo (resistsCategory 'magical') steht im
+    // Pflichtkampf 'marsh-frontier-clash' und zwingt so zu physischem Schaden.
+    const marsh = ENCOUNTERS.find((candidate) => candidate.id === 'marsh-frontier-clash');
+    expect(marsh?.enemyIds).toContain('stray-echo');
   });
 
   it('Phase 83 — Ressourcen-Bogen: MP sinkt über die Story-Route (Attrition, kein Gratis-Voll-Restore)', () => {

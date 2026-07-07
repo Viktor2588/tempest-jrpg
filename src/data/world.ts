@@ -3855,7 +3855,12 @@ export const ENCOUNTERS = [
     mapId: 'spirit-marsh',
     kind: 'trigger',
     position: { x: 5, y: 11 },
-    enemyIds: ['human-lancer', 'spore-moth'],
+    // Phase 88c — Kategorie-Mechanik ON-ROUTE: das Streunende Echo (resistsCategory
+    // 'magical') steht jetzt auf dem Pflichtpfad statt nur in Nebenquests. Wer nur
+    // Magie spammt, wird ausgebremst — der Kampf zwingt physischen Schaden zu wählen.
+    // Ersetzt die Sporenmotte (statt des XP-starken Lanzenträgers), damit der
+    // Ressourcen-/Level-Bogen zu den späten Bossen erhalten bleibt.
+    enemyIds: ['human-lancer', 'stray-echo'],
     chance: 1,
     requirements: [
       { flag: 'story.act2.started' },

@@ -65,17 +65,24 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
 Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
-Rallyer) sind gemergt.
+Rallyer) und 88c (Magie-Resistenz jetzt ON-ROUTE, Korridor-Risiko harness-
+erzwungen) sind gemergt.
 
 - [ ] Phase 85 — Reaktionen als sichtbare, lehrbare aktive Verteidigung: die
   Timing-Block/Konter-Fenster (`perfect` = 0.25×/0.45×) existieren, sind dem
   Spieler aber kaum vermittelt. Sichtbar + lehrbar machen (Tutorial-Beat, HUD-
   Fenster), sodass Verteidigung ein Koennens-Moment wird. Verzahnt mit Phase 81
   (telegraphierter Big-Hit → perfektes Block-Fenster).
-- [ ] Phase 88c — die build-relevanten Kategorie-Mechaniken (`resistsCategory`,
-  `reflectsCategory`, `rally-cry`-Support-Check) zusaetzlich ON-ROUTE platzieren; bisher
-  nur off-route (kein Korridor-Risiko). Braucht ggf. Anpassung der fixen Harness-Party,
-  damit sie in jedem Rimuru-Spec beide Damage-Typen + Kontrolle sicher traegt.
+- [ ] Phase 88d — die verbleibenden Kategorie-Mechaniken ON-ROUTE platzieren.
+  Phase 88c hat den Magie-Resistenz-Zweig (`resistsCategory: 'magical'`, stray-echo in
+  `marsh-frontier-clash`) auf den Pflichtpfad gebracht — der Hauptpfad zwingt jetzt
+  physischen Schaden und die Balance-Harness erzwingt das ueber alle drei Rimuru-Specs.
+  Offen bleiben der Physisch-Resistenz-/Reflekt-Zweig (`resistsCategory: 'physical'` /
+  `reflectsCategory`, zwingt Magie) und der `rally-cry`-Support-Check (zwingt Kontrolle).
+  Zuschnitt bewusst klein halten: jeder zaehe/XP-schwache On-Route-Zusatz vor dem
+  hauchduennen Geld-Boss braucht eine eigene, gemessene Nachbalance (siehe Phase 88c —
+  Ressourcen-/Level-Bogen kippt sonst). Akzeptanz: alle Story-/Boss-Korridore je Spec
+  gruen, Regressions-Guard erweitert.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen
