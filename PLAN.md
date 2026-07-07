@@ -124,7 +124,8 @@ Befund (Code-Analyse):
 Canon-Regeln beachten: stabile Flag-/Step-IDs NICHT umbenennen (Save-Kompat),
 deutsches Wording, keine kopierten Dialoge. Reihenfolge = Prioritaet.
 
-- [ ] Phase 106 — Regionale Gateways in echte Reihenfolge (Laufweg = Haupthand-
+- [~] Phase 106 — (in Bearbeitung: Worktree/Branch phase-106-gateway-order,
+  lokale Session) Regionale Gateways in echte Reihenfolge (Laufweg = Haupthand-
   lungsstrang). Befund: ein Kijin-Beat oeffnet 4 Regionen auf einmal (s. o.).
   Bauen: (a) die kanonische lineare Reihenfolge der regionalen Arcs festlegen —
   verifiziert gegen die Story-Spine (PROJECT_KNOWLEDGE), die Gegner-/Balance-Level
