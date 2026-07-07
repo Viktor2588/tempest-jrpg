@@ -295,6 +295,91 @@ Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
   Roster-Effekt) headless getestet, Save-Migration, Balance-Sim der Wellen, Szene
   ueber den sceneScript-Interpreter (62) + Smoke.
 
+## Fuenfte Welle: Skill-Raenge, Praedator-Perversion & Shizus Kinder (IDEEN.md, 2026-07-07)
+
+Befund (Canon-Abgleich + Code, aus `IDEEN.md`): Der Skill-Layer ist flach —
+`SkillDefinition` (types.ts) kennt kein Rang-Feld, obwohl die gesamte Tensura-
+Machtfantasie auf der 4-Stufen-Leiter **Skill -> Extra Skill -> Unique Skill ->
+Ultimate Skill** (Bedeutung, Einzigartigkeit, Staerke) beruht. Heute existieren
+die Stufen unbenannt und vermischt: `great-sage`/Praedator sind faktisch Unique
+Skills, die Signaturen (`signatures.ts`) faktisch ein Ultimate-Layer, aber
+nichts sagt das dem Spieler oder dem System. Zweitens endet die Story derzeit
+~Band 4 (Ahnenhueter-Finale); die vom Nutzer gewuenschten kanonischen Band-4-6-
+Beats fehlen strukturell: (a) **Shizus Absorption -> Skill-Manipulation** (der
+Nutzer nennt es „Degenerate/Perversion" und flaggt selbst „muss man
+gegenchecken" — Canon ist Praedators *Voellerei/Gluttony*-Zweig + *Grosser
+Weiser*: Skills rauben, kombinieren, manipulieren, sofern sie NICHT an
+Existenz/Seele haengen), (b) **die Rettung von Shizus Kindern** (Andersweltler
+der Freiheitsakademie, deren instabile Geist-Beschwoerung sie verzehrt), (c) das
+**Labyrinth des Ramiris + Magiekoloss** und (d) die **Ingenieurskunst der
+Geister** (Band-5-6-Magitech). Diese greifen ineinander: Shizu -> tiefere
+Skill-Manipulation (Unique) -> Skill-Fusion (108) die Rang-Leiter hinauf ->
+Ultimate beim Erwachen (104); die Kinder-Krise wird durch Geister-Technik
+(Nation-R&D, 93-Linie) und die Geister des Labyrinths (99/Ramiris) geloest.
+Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System; Canon-first,
+deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit:
+111 ist Fundament fuer 112/104; 113 braucht Shizu (existiert) und wird von
+114/115 aufgeloest.
+
+- [ ] Phase 111 — Skill-Rang-System (Fundament). Befund: `SkillDefinition` ist
+  flach. Bauen: optionales Feld `tier: 'skill' | 'extra-skill' | 'unique-skill' |
+  'ultimate-skill'` auf `SkillDefinition` (+ Signaturen als Ultimate gefuehrt);
+  alle 37 Skills + Signaturen kanonisch einstufen (Basis-Angriffe = Skill,
+  Element-/Kombo-Zauber = Extra Skill, `great-sage`/Praedator = Unique, Signaturen/
+  Erwachen = Ultimate); Rang-Badge/-Farbe im Skill-/Talent-/Menue-UI; Gating-Regeln
+  (Unique ueber Story/Naming, Ultimate ueber Erwachen 104). Rein additiv, Save-
+  sicher (Default-Tier fuer Altdaten). Verzahnt mit 108 (Fusion die Leiter hinauf),
+  104 (Ultimate-Freischaltung), 102/103 (Naming-Machtsprung). Akzeptanz: jeder
+  Skill hat einen Rang, UI zeigt ihn, Gating-Regeln headless getestet, Balance-
+  Harness je Rimuru-Spec unveraendert gruen, Menue-Smoke.
+- [ ] Phase 112 — Praedator-Perversion: Skill-Raub & -Kombination (Unique Skill).
+  Canon-Check (Nutzerauftrag): die gewuenschte Faehigkeit ist kanonisch KEIN
+  eigener Skill „Degenerate", sondern der *Voellerei/Gluttony*-Zweig von Praedator
+  (rauben/zersetzen) + *Grosser Weiser* (kombinieren); ein Skill ist raubbar, wenn
+  er nicht an Existenz/Seele gebunden ist (Bosse/Ultimate-Traeger sind es -> nicht
+  raubbar). Bauen: (a) aktive „Rauben"-Praedator-Aktion — auf einem analysierten/
+  verschlingbaren Gegner wird EIN nicht-seelengebundener Skill in Rimurus Loadout
+  gezogen (temporaer im Kampf, dauerhaft bei Kill ueber `learnedSkillIds`); (b)
+  Skill-Fusion (108) vertiefen: gelernte Skills entlang der Rang-Leiter (111) zu
+  hoeherrangigen Skills verschmelzen. Story-gegated nach Shizu-Absorption (das
+  bestehende `shizu-vow`-Quest-Ende schaltet die Perversion frei). Reuse: devour/
+  analyze, `learnedSkillIds`, 108, 111. Balance: Ultimate-Ergebnisse spaet gaten,
+  seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
+  Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
+  Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
+- [ ] Phase 113 — Shizus Vermaechtnis: Rettung der Kinder (Story-Arc, Band 4-5).
+  Befund: Der Shizu/Ifrit-Bogen (`shizu-vow`) existiert, endet aber mit ihrem
+  Schwur — die kanonische Fortsetzung (ihre fuenf Schueler an der Freiheitsakademie,
+  deren instabile Geist-Beschwoerung sie toetet) fehlt. Bauen: ein neues Kapitel
+  nach `shizu-vow` — neue Karte(n) (Akademie/Ingrassia-Anklang), fuenf Kind-NPCs,
+  Szenen ueber den sceneScript-Interpreter (62), eine Stabilisierungs-Mechanik fuer
+  ihre Geist-Kerne. Loesung kanonisch ueber die Geister-Technik (114) + die Geister
+  des Labyrinths (115) — als erstes Inkrement steht der Arc auch allein (Rettung als
+  Story-Kette mit sichtbarer Welt-/Roster-Folge, Richtung Story-Roadmap oben).
+  Choice/Consequence einbauen (mehr als Fortschritts-Gate). Reuse: sceneScript (62),
+  Quest-/Flag-System, Naming/Roster (92). Akzeptanz: Kapitel spielbar (Gates +
+  Folgen), Szenen-Runner-Test, Save-Migration, Dialog-/Szenen-Smoke.
+- [ ] Phase 114 — Geister-Ingenieurskunst: Forschung & Geist-Infusion (Nation-R&D,
+  Band 5-6). Befund: Die Nation (93) produziert nur Rohstoffe; die kanonische
+  Magitech-Entwicklung (Vesta/Gadora, Dungeon-Geister, Massenfertigung) fehlt als
+  Mechanik. Bauen: eine Forschungs-/Entwicklungs-Einrichtung auf der Nation-Schicht
+  — Material/Magicules -> Forschungspunkte -> schaltet Rezepte, **elementare Geist-
+  Infusionen** (Ausruestung/Skill um ein Element augmentieren, verzahnt mit 94
+  Elementarfeldern) und die **Geist-Kerne der Kinder** (die 113-Loesung) frei. Reuse:
+  crafting.ts, facilities (93/93b). Balance bewusst klein starten (einfachstes
+  Forschungs-Inkrement, das traegt). Akzeptanz: Forschung/Freischaltung/Infusion
+  headless getestet, Balance-Sim, Save-Migration, Menue-Smoke.
+- [ ] Phase 115 — Das Labyrinth des Ramiris & der Magiekoloss (Set-Piece, Band 5-6).
+  Befund: greenfield; das Labyrinth (99) und Skript-Bosse/Adds (109) sind geplant,
+  aber Ramiris (Labyrinth-Meisterin) und der vom Nutzer gewuenschte Magiekoloss-
+  Kampf fehlen. Bauen: Ramiris als Labyrinth-Rahmen (NPC/Story) + einen skript-
+  getriebenen **Magiekoloss**-Waechterboss (reuse 109 Bossphasen/Adds + 94 Felder);
+  das Labyrinth liefert die beherrschbaren Grossgeister, die 113/114 aufloesen.
+  Setzt 99 (Etagen-Abstieg) + 109 (Skript-Bosse) voraus bzw. baut sie mit. WICHTIG:
+  Hard-Termination-Guards fuer Sims/Tests (kein Soft-Lock durch Adds/Phasen).
+  Akzeptanz: Koloss-Phasen deterministisch + terminierend headless getestet,
+  Balance-Sim der Tiefenskalierung, HUD neuer Combatants, Dungeon-/Boss-Smoke.
+
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
