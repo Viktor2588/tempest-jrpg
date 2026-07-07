@@ -70,11 +70,12 @@ describe('buildFacilityOverview', () => {
   it('weist Bewohner nach Rolle zu und beziffert die Ausbeute pro Zyklus', () => {
     const forge = FACILITIES.find((f) => f.id === 'forge')!;
     const handwerker = residentIdsForRole('Handwerk');
-    const overview = buildFacilityOverview(handwerker, CAMP_FLAGS);
+    const overview = buildFacilityOverview(handwerker, CAMP_FLAGS, handwerker.slice(0, 1));
     const forgeView = overview.facilities.find((view) => view.facility.id === forge.id)!;
     expect(forgeView.unlocked).toBe(true);
     expect(forgeView.staff.length).toBe(handwerker.length);
-    expect(forgeView.amountPerCycle).toBe(handwerker.length * 1 * forge.output.perStaffPerLevel);
+    expect(forgeView.staff[0]).toContain('★');
+    expect(forgeView.amountPerCycle).toBe((handwerker.length + 1) * 1 * forge.output.perStaffPerLevel);
   });
 });
 
@@ -91,6 +92,7 @@ describe('facilityOutputAmount', () => {
     const all = [...residentIdsForRole('Wache'), ...residentIdsForRole('Späher')];
     expect(facilityOutputAmount(watch, all, 2)).toBeGreaterThan(facilityOutputAmount(watch, all, 1));
     expect(facilityOutputAmount(watch, all, 1)).toBeGreaterThan(facilityOutputAmount(watch, one, 1));
+    expect(facilityOutputAmount(watch, one, 1, one)).toBe(facilityOutputAmount(watch, one, 1) * 2);
   });
 });
 
@@ -108,6 +110,19 @@ describe('runProductionCycle', () => {
     expect(a.gold).toBe(b.gold);
     expect(a.inventory).toEqual(b.inventory);
     expect(a.yields).toEqual(b.yields);
+  });
+
+  it('zählt Offiziere bei der Produktion doppelt', () => {
+    const handwerker = residentIdsForRole('Handwerk').slice(0, 1);
+    const plain = runProductionCycle({ residentIds: handwerker, flags: CAMP_FLAGS, inventory: [], gold: 0 });
+    const promoted = runProductionCycle({
+      residentIds: handwerker,
+      promotedResidentIds: handwerker,
+      flags: CAMP_FLAGS,
+      inventory: [],
+      gold: 0
+    });
+    expect(promoted.yields[0]?.amount).toBe((plain.yields[0]?.amount ?? 0) * 2);
   });
 
   it('fügt Material und Gold der besetzten Einrichtungen hinzu, ohne die Eingabe zu verändern', () => {

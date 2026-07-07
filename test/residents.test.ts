@@ -9,7 +9,10 @@ import {
 import { applyBattleResultToSave } from '../src/systems/battleResult';
 import {
   buildResidentRoster,
+  officerPerksForResidents,
+  promoteResident,
   recruitResidentsFromDevour,
+  RESIDENT_PROMOTION_MAGICULE_COST,
   residentForEnemy
 } from '../src/systems/residents';
 import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
@@ -77,6 +80,7 @@ describe('buildResidentRoster', () => {
     expect(roster.countsByRole[target.role]).toBeGreaterThanOrEqual(1);
     const entry = roster.entries.find((candidate) => candidate.resident.id === target.id)!;
     expect(entry.recruited).toBe(true);
+    expect(entry.promoted).toBe(false);
     expect(entry.originEnemyName).toBe(enemyById.get(target.originEnemyId)?.name);
   });
 
@@ -84,6 +88,28 @@ describe('buildResidentRoster', () => {
     const roster = buildResidentRoster(['nicht-existent']);
     expect(roster.recruitedCount).toBe(0);
     expect(roster.entries.every((entry) => !entry.recruited)).toBe(true);
+  });
+});
+
+describe('promoteResident', () => {
+  it('kostet Magicules, persistiert stabil und liefert einen Kampf-Perk', () => {
+    const target = RESIDENTS[0]!;
+    const result = promoteResident([target.id], [], RESIDENT_PROMOTION_MAGICULE_COST + 5, target.id);
+    expect(result.ok).toBe(true);
+    expect(result.promotedResidentIds).toEqual([target.id]);
+    expect(result.magicules).toBe(5);
+    expect(buildResidentRoster([target.id], result.promotedResidentIds).entries
+      .find((entry) => entry.resident.id === target.id)?.promoted).toBe(true);
+    expect(officerPerksForResidents(result.promotedResidentIds)).toEqual([
+      { kind: 'max-hp', percent: 3 }
+    ]);
+  });
+
+  it('lehnt unbekannte, unbenannte, bereits beförderte oder zu teure Beförderungen ab', () => {
+    const target = RESIDENTS[0]!;
+    expect(promoteResident([], [], 100, target.id).ok).toBe(false);
+    expect(promoteResident([target.id], [target.id], 100, target.id).ok).toBe(false);
+    expect(promoteResident([target.id], [], RESIDENT_PROMOTION_MAGICULE_COST - 1, target.id).ok).toBe(false);
   });
 });
 
@@ -110,6 +136,18 @@ describe('Bewohner-Persistenz', () => {
   it('migriert alte Spielstände ohne Bewohner-Feld zu leerem Roster', () => {
     const migrated = migrate({ schemaVersion: 1, seed: 1 }, '2026-07-06T10:00:00.000Z');
     expect(migrated.progression.residentIds).toEqual([]);
+  });
+
+  it('speichert und migriert beförderte Offiziere', () => {
+    const target = RESIDENTS[0]!;
+    const save = createNewSave({ seed: 1, now: '2026-07-07T10:00:00.000Z' });
+    const round = importSave(exportSave({
+      ...save,
+      progression: { ...save.progression, residentIds: [target.id], promotedResidentIds: [target.id] }
+    }));
+    expect(round.progression.promotedResidentIds).toEqual([target.id]);
+    expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.promotedResidentIds)
+      .toEqual([]);
   });
 });
 

@@ -35,7 +35,7 @@ import {
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
-import { buildResidentRoster } from '../systems/residents';
+import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
@@ -931,7 +931,10 @@ export class MenuScene extends Phaser.Scene {
 
   // Phase 92 — Bewohner-Roster: benannte, in Tempest aufgenommene Gegner-Arten.
   private drawResidentRoster(): void {
-    const roster = buildResidentRoster(this.save.progression.residentIds);
+    const roster = buildResidentRoster(
+      this.save.progression.residentIds,
+      this.save.progression.promotedResidentIds
+    );
     const roleSummary = (['Wache', 'Späher', 'Handwerk', 'Heilung', 'Bau'] as const)
       .filter((role) => roster.countsByRole[role] > 0)
       .map((role) => `${role} ${roster.countsByRole[role]}`)
@@ -949,7 +952,7 @@ export class MenuScene extends Phaser.Scene {
       const y = 206 + index * 78;
       this.panel(300, y, 590, 60);
       const heading = entry.recruited
-        ? `✓ ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
+        ? `${entry.promoted ? '★' : '✓'} ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
         : `○ Unbenannt — ${entry.resident.species}`;
       this.layer.add(this.add.text(318, y - 19, heading, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.recruited ? '#8dffc2' : '#6f83a5'
@@ -960,15 +963,48 @@ export class MenuScene extends Phaser.Scene {
       this.layer.add(this.add.text(318, y + 2, body, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
       }));
+      if (entry.recruited && !entry.promoted) {
+        this.button(748, y + 13, 126, `Offizier · ${RESIDENT_PROMOTION_MAGICULE_COST}`, () =>
+          this.promoteResident(entry.resident.id), this.save.progression.magicules >= RESIDENT_PROMOTION_MAGICULE_COST
+            ? 0x2f6f55
+            : 0x242b38
+        );
+      }
     });
 
     this.codexFooter(pageCount, `${roster.recruitedCount}/${roster.totalCount} Bewohner`);
   }
 
+  private promoteResident(residentId: string): void {
+    const result = promoteResidentRule(
+      this.save.progression.residentIds,
+      this.save.progression.promotedResidentIds,
+      this.save.progression.magicules,
+      residentId
+    );
+    this.message = result.message;
+    if (result.ok) {
+      this.save = {
+        ...this.save,
+        progression: {
+          ...this.save.progression,
+          promotedResidentIds: result.promotedResidentIds,
+          magicules: result.magicules
+        }
+      };
+      this.persist();
+    }
+    this.refresh();
+  }
+
   // Phase 93 — Einrichtungen: nach Rolle besetzte Werke, ihre erwartete Ausbeute pro
   // Rast und die „Tempest-Rast halten"-Aktion, die einen Produktions-Zyklus abrechnet.
   private drawFacilities(): void {
-    const overview = buildFacilityOverview(this.save.progression.residentIds, this.save.flags);
+    const overview = buildFacilityOverview(
+      this.save.progression.residentIds,
+      this.save.flags,
+      this.save.progression.promotedResidentIds
+    );
     const cycles = this.save.progression.productionCycles;
     const stageLabel = tempestGrowthLabel(overview.stage);
     const summary = overview.level > 0
@@ -1005,6 +1041,7 @@ export class MenuScene extends Phaser.Scene {
   private produceOneCycle(): void {
     const result = runProductionCycle({
       residentIds: this.save.progression.residentIds,
+      promotedResidentIds: this.save.progression.promotedResidentIds,
       flags: this.save.flags,
       inventory: this.state.inventory,
       gold: this.state.gold

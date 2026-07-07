@@ -975,7 +975,8 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
     progression: {
       ...(base.progression as Record<string, unknown>),
       // Ein Bewohner je Rolle → jede Einrichtung ist besetzt (Wache: Wache + Späher).
-      residentIds: ['kohleschuppe', 'flossreiter', 'gobkyu', 'sturmzahn', 'seidenschwinge']
+      residentIds: ['kohleschuppe', 'flossreiter', 'gobkyu', 'sturmzahn', 'seidenschwinge'],
+      magicules: 45
     }
   };
   await installBrowserSave(page, save);
@@ -989,6 +990,10 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
+  await clickGamePoint(page, 700, 140); // Umschalter „🏛️ Bewohner"
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
+  await page.waitForTimeout(250);
   await clickGamePoint(page, 860, 140); // Umschalter „🏭 Einrichtungen"
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
@@ -999,8 +1004,10 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   const stored = await page.evaluate(() =>
     JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}')
   );
-  // Wache (Sturmzahn + Seidenschwinge = 2 × Stufe 1 × 8) trägt 16 Gold bei.
-  expect(stored.party.gold).toBe(236);
+  // Wache (Offizier Sturmzahn zählt doppelt + Seidenschwinge = 3 × Stufe 1 × 8) trägt 24 Gold bei.
+  expect(stored.party.gold).toBe(244);
+  expect(stored.progression.magicules).toBe(5);
+  expect(stored.progression.promotedResidentIds).toEqual(['sturmzahn']);
   expect(stored.progression.productionCycles).toBe(1);
   const ore = stored.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'magic-ore');
   expect(ore?.quantity).toBeGreaterThanOrEqual(1);

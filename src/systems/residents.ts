@@ -1,5 +1,5 @@
 import { ENEMIES, RESIDENTS } from '../data';
-import type { ResidentDefinition, ResidentRole } from '../data';
+import type { ResidentDefinition, ResidentRole, TalentPerk } from '../data';
 
 // Phase 92 — Bewohner (Residents): reine Regeln über die persistente Bewohner-ID-
 // Liste (in der Progression gespeichert). Keine Scene-/BattleState-Abhängigkeit,
@@ -12,6 +12,7 @@ const residentById = new Map<string, ResidentDefinition>(
   RESIDENTS.map((resident) => [resident.id, resident])
 );
 const enemyNameById = new Map<string, string>(ENEMIES.map((enemy) => [enemy.id, enemy.name]));
+export const RESIDENT_PROMOTION_MAGICULE_COST = 40;
 
 export interface RecruitResult {
   readonly residentIds: readonly string[];
@@ -55,6 +56,7 @@ export function recruitResidentsFromDevour(
 export interface ResidentRosterEntry {
   readonly resident: ResidentDefinition;
   readonly recruited: boolean;
+  readonly promoted: boolean;
   readonly originEnemyName: string;
 }
 
@@ -67,8 +69,12 @@ export interface ResidentRosterView {
 
 // Roster-Ansicht fürs Menü: alle bekannten Bewohner-Plätze mit Rekrutierungs-
 // Status, plus Zählung je Rolle (nur rekrutierte). Die Scene rendert daraus Text.
-export function buildResidentRoster(residentIds: readonly string[]): ResidentRosterView {
+export function buildResidentRoster(
+  residentIds: readonly string[],
+  promotedResidentIds: readonly string[] = []
+): ResidentRosterView {
   const owned = new Set(residentIds.filter((id) => residentById.has(id)));
+  const promoted = new Set(promotedResidentIds.filter((id) => owned.has(id)));
   const countsByRole: Record<ResidentRole, number> = {
     Wache: 0,
     Späher: 0,
@@ -84,6 +90,7 @@ export function buildResidentRoster(residentIds: readonly string[]): ResidentRos
     return {
       resident,
       recruited,
+      promoted: promoted.has(resident.id),
       originEnemyName: enemyNameById.get(resident.originEnemyId) ?? resident.species
     };
   });
@@ -93,4 +100,62 @@ export function buildResidentRoster(residentIds: readonly string[]): ResidentRos
     totalCount: RESIDENTS.length,
     countsByRole
   };
+}
+
+export interface PromoteResidentResult {
+  readonly ok: boolean;
+  readonly promotedResidentIds: readonly string[];
+  readonly magicules: number;
+  readonly message: string;
+}
+
+export function promoteResident(
+  residentIds: readonly string[],
+  promotedResidentIds: readonly string[],
+  magicules: number,
+  residentId: string
+): PromoteResidentResult {
+  const resident = residentById.get(residentId);
+  const recruited = new Set(residentIds.filter((id) => residentById.has(id)));
+  const promoted = new Set(promotedResidentIds.filter((id) => recruited.has(id)));
+  if (!resident || !recruited.has(residentId)) {
+    return {
+      ok: false,
+      promotedResidentIds: orderedPromotedIds(promoted),
+      magicules,
+      message: 'Bewohner ist noch nicht benannt.'
+    };
+  }
+  if (promoted.has(residentId)) {
+    return {
+      ok: false,
+      promotedResidentIds: orderedPromotedIds(promoted),
+      magicules,
+      message: `${resident.name} ist bereits Offizier.`
+    };
+  }
+  if (magicules < RESIDENT_PROMOTION_MAGICULE_COST) {
+    return {
+      ok: false,
+      promotedResidentIds: orderedPromotedIds(promoted),
+      magicules,
+      message: `${RESIDENT_PROMOTION_MAGICULE_COST} Magicules erforderlich.`
+    };
+  }
+  promoted.add(residentId);
+  return {
+    ok: true,
+    promotedResidentIds: orderedPromotedIds(promoted),
+    magicules: magicules - RESIDENT_PROMOTION_MAGICULE_COST,
+    message: `${resident.name} steigt zum Offizier auf.`
+  };
+}
+
+export function officerPerksForResidents(promotedResidentIds: readonly string[]): readonly TalentPerk[] {
+  const count = promotedResidentIds.filter((id) => residentById.has(id)).length;
+  return count > 0 ? [{ kind: 'max-hp', percent: Math.min(20, count * 3) }] : [];
+}
+
+function orderedPromotedIds(promoted: ReadonlySet<string>): string[] {
+  return RESIDENTS.filter((resident) => promoted.has(resident.id)).map((resident) => resident.id);
 }

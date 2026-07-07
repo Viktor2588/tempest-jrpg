@@ -475,7 +475,9 @@ function readProgressionState(raw: unknown): ProgressionState {
     // Phase 93 — Einrichtungen: alte Stände ohne Zähler starten bei 0 Produktionszyklen.
     productionCycles: readNonNegativeInteger(raw.productionCycles),
     // Phase 102 — Magicules: alte Stände starten ohne angesparten Pool.
-    magicules: readNonNegativeInteger(raw.magicules)
+    magicules: readNonNegativeInteger(raw.magicules),
+    // Phase 103 — Offiziere: alte Stände haben noch keine befoerderten Bewohner.
+    promotedResidentIds: readStringArray(raw.promotedResidentIds)
   });
 }
 

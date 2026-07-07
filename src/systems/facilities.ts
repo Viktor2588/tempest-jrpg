@@ -34,16 +34,21 @@ function outputLabel(facility: FacilityDefinition): string {
 }
 
 // Wie viele rekrutierte Bewohner besetzen diese Einrichtung (Rollen-Match)?
-function staffCount(facility: FacilityDefinition, residentIds: readonly string[]): number {
+function staffPower(
+  facility: FacilityDefinition,
+  residentIds: readonly string[],
+  promotedResidentIds: readonly string[] = []
+): number {
   const roles = new Set(facility.staffRoles);
-  let count = 0;
+  const promoted = new Set(promotedResidentIds);
+  let power = 0;
   for (const id of residentIds) {
     const resident = residentById.get(id);
     if (resident && roles.has(resident.role)) {
-      count += 1;
+      power += promoted.has(id) ? 2 : 1;
     }
   }
-  return count;
+  return power;
 }
 
 // Produktionsmenge einer Einrichtung fuer genau einen Rast-Zyklus:
@@ -52,12 +57,13 @@ function staffCount(facility: FacilityDefinition, residentIds: readonly string[]
 export function facilityOutputAmount(
   facility: FacilityDefinition,
   residentIds: readonly string[],
-  level: number
+  level: number,
+  promotedResidentIds: readonly string[] = []
 ): number {
   if (level <= 0) {
     return 0;
   }
-  return staffCount(facility, residentIds) * level * facility.output.perStaffPerLevel;
+  return staffPower(facility, residentIds, promotedResidentIds) * level * facility.output.perStaffPerLevel;
 }
 
 export interface FacilityYield {
@@ -89,7 +95,8 @@ export interface FacilityOverview {
 // und erwarteter Ausbeute pro Rast. Die Scene rendert daraus nur Text + Buttons.
 export function buildFacilityOverview(
   residentIds: readonly string[],
-  flags: StoryFlags = {}
+  flags: StoryFlags = {},
+  promotedResidentIds: readonly string[] = []
 ): FacilityOverview {
   const stage = resolveTempestGrowthStage(flags);
   const level = facilityLevelForStage(stage);
@@ -98,14 +105,14 @@ export function buildFacilityOverview(
     const staff = residentIds
       .map((id) => residentById.get(id))
       .filter((resident): resident is ResidentDefinition => !!resident && roles.has(resident.role))
-      .map((resident) => resident.name);
+      .map((resident) => promotedResidentIds.includes(resident.id) ? `${resident.name} ★` : resident.name);
     return {
       facility,
       unlocked: level > 0,
       level,
       staff,
       outputLabel: outputLabel(facility),
-      amountPerCycle: facilityOutputAmount(facility, residentIds, level)
+      amountPerCycle: facilityOutputAmount(facility, residentIds, level, promotedResidentIds)
     };
   });
   return {
@@ -118,6 +125,7 @@ export function buildFacilityOverview(
 
 export interface ProductionCycleInput {
   readonly residentIds: readonly string[];
+  readonly promotedResidentIds?: readonly string[];
   readonly flags: StoryFlags;
   readonly inventory: readonly InventoryStack[];
   readonly gold: number;
@@ -136,7 +144,7 @@ export interface ProductionCycleResult {
 // false (mit Begruendung), wenn nichts produziert wurde — die Scene zeigt dann eine
 // erklaerende Meldung statt einer leeren Rast.
 export function runProductionCycle(input: ProductionCycleInput): ProductionCycleResult {
-  const overview = buildFacilityOverview(input.residentIds, input.flags);
+  const overview = buildFacilityOverview(input.residentIds, input.flags, input.promotedResidentIds ?? []);
   if (overview.level <= 0) {
     return {
       ok: false,

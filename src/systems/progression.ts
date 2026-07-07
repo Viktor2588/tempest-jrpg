@@ -31,6 +31,7 @@ import { committedBranch, talentPerksForNodes } from './talentPerk';
 import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
+import { officerPerksForResidents } from './residents';
 import {
   addPartialStats,
   addStats,
@@ -62,6 +63,8 @@ export interface ProgressionState {
   // Phase 102 — Magicule-/Seelen-Oekonomie: Meta-Ressource fuer spaeteres Benennen,
   // Evolution und Erwachen. Diese Phase verdient/zeigt nur an; Ausgaben folgen.
   readonly magicules: number;
+  // Phase 103 — benannte Offiziere: Bewohner, die mit Magicules befoerdert wurden.
+  readonly promotedResidentIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -75,6 +78,7 @@ export interface CreateProgressionStateOptions {
   readonly residentIds?: readonly string[];
   readonly productionCycles?: number;
   readonly magicules?: number;
+  readonly promotedResidentIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -153,7 +157,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     craftedRecipeIds: uniqueStrings(options.craftedRecipeIds ?? []),
     residentIds: uniqueStrings(options.residentIds ?? []),
     productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0),
-    magicules: clampNonNegativeInteger(options.magicules ?? 0)
+    magicules: clampNonNegativeInteger(options.magicules ?? 0),
+    promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? [])
   };
 }
 
@@ -741,7 +746,10 @@ export function createProgressionBattleParty(
       formName: getActiveEvolution(state, member.characterId)?.formName,
       openingStatusIds: getOpeningStatusIds(member.characterId, state),
       // Phase 70: Perks aus den freigeschalteten Spec-Knoten fließen in den Kampf ein.
-      perks: talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [])
+      perks: [
+        ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
+        ...officerPerksForResidents(state.promotedResidentIds)
+      ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
   });

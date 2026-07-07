@@ -232,6 +232,20 @@ describe('progression system', () => {
     expect(renderView(state).teamMeter).toBe(0);
   });
 
+  it('gibt aktiven Kämpfern den passiven Offiziers-Bonus aus beförderten Bewohnern', () => {
+    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const base = createProgressionBattleParty([rimuru], createProgressionState())[0]!;
+    const withOfficer = createProgressionBattleParty([rimuru], createProgressionState({
+      promotedResidentIds: ['sturmzahn']
+    }))[0]!;
+    const baseBattle = startBattle({ party: [base], enemyIds: ['forest-slime'], seed: 1 });
+    const officerBattle = startBattle({ party: [withOfficer], enemyIds: ['forest-slime'], seed: 1 });
+
+    expect(withOfficer.perks).toContainEqual({ kind: 'max-hp', percent: 3 });
+    expect(officerBattle.combatants.find((unit) => unit.side === 'party')!.maxHp)
+      .toBeGreaterThan(baseBattle.combatants.find((unit) => unit.side === 'party')!.maxHp);
+  });
+
   it('holt Reservefiguren über Kapitel-Baselines und Party-Abstand ohne Grinding auf', () => {
     const active = [
       createPartyMember(hero('rimuru'), { level: 8 }),
