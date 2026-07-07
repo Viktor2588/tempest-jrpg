@@ -117,7 +117,8 @@ Befund (Code-Analyse):
 Canon-Regeln beachten: stabile Flag-/Step-IDs NICHT umbenennen (Save-Kompat),
 deutsches Wording, keine kopierten Dialoge. Reihenfolge = Prioritaet.
 
-- [ ] Phase 107 — Karten-Marker entstoeren (nur Praesentation). Befund: alles ist
+- [~] Phase 107 — (in Bearbeitung: Worktree phase-107-marker, lokale Session)
+  Karten-Marker entstoeren (nur Praesentation). Befund: alles ist
   ein farbiger Kasten. Bauen (niedrige Komplexitaet, reine OverworldScene-
   Darstellung, KEIN Daten-/Save-/Flag-Eingriff): die gefuellten Rechtecke fuer
   Gateways/Encounter/Entdeckungen durch ruhigere Marker ersetzen (das vorhandene
