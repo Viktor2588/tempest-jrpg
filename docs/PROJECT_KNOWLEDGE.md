@@ -541,6 +541,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_114:
+    - Added a small Nation R&D layer without a save-schema change: `src/data/research.ts` defines Geist-core stabilization and Geist-Infusion projects; `src/systems/research.ts` consumes inventory plus Magicules and persists completion through existing save flags.
+    - Wired the first open research project into the Codex Einrichtungen view, reusing the existing facilities screen and persistence path instead of adding a fifth facility that would violate the one-role/one-facility invariant.
+    - Geist-Infusion unlocks a new one-off forge recipe, `forge-spirit-core-ward`, which creates the `spirit-core-ward` accessory from Geistglut, Magisteel, and Manatropfen.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (504 tests), `bun run build`, and focused desktop Chromium smoke `Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab`.
   phase_113:
     - Shizu's legacy continuation is playable after `story.shizu.vow`: new `freedom-academy` map, Blumund gateway, five child NPCs (Kenya, Chloe, Alice, Ryota, Gale), `shizu-legacy` quest, `shizu-children` codex entry, and a first Geist-core stabilization choice (`story.children.comforted` vs `story.children.tested`) with visible follow-up dialog.
     - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.png` and `src/assets/ui/region-freedom-academy.png`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
