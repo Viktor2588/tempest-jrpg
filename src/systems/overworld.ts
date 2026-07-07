@@ -57,3 +57,17 @@ export function parseMap(rows: readonly string[], spawn: Vec2): TileMap {
   for (const r of tiles) while (r.length < width) r.push(FLOOR);
   return { width, height: tiles.length, tiles, spawn };
 }
+
+// Phase 107 — Karten-Marker entstoeren: Dauer-Namenslabels nur nahe dem Spieler
+// (oder am getrackten Ziel) zeigen, damit die Overworld — v. a. der Gateway-Cluster
+// nach dem Kijin-Beat — nicht zum Beschriftungs-Feld wird. Chebyshev-Distanz auf
+// dem Kachelgitter (ein Ring von `radius` Kacheln um den Spieler).
+export function markerLabelVisible(
+  player: Vec2,
+  target: Vec2,
+  isObjective: boolean,
+  radius = 3
+): boolean {
+  if (isObjective) return true;
+  return Math.max(Math.abs(player.x - target.x), Math.abs(player.y - target.y)) <= radius;
+}

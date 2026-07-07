@@ -95,41 +95,6 @@ erzwungen) sind gemergt.
   Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
   ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
 
-## Haupthandlungsstrang & Karten-Lesbarkeit (Nutzer 2026-07-07: Quest-Flow geradebiegen)
-
-Prioritaet: HOCH — betrifft das aktuelle Spielerlebnis (Korrektur der Kern-
-Schleife, kein Zusatz-Feature). Vor der Erweiterungs-/Zweiten/Dritten Welle
-einplanen.
-
-Befund (Code-Analyse):
-1. **Laufweg-Gating (Phase 106 — ERLEDIGT).** Die regionalen Gateways bilden jetzt
-   eine lineare Kette (Dwargon → Echsen → Geld → Blumund/Ifrit), gegatet ueber die
-   Abschluss-Flags der jeweils vorigen Region; die QUESTS-Reihenfolge (Zielmarker)
-   folgt. Details in PROJECT_KNOWLEDGE (phase_106).
-2. **Karten-Marker verrauscht.** `drawWorldObjects` (OverworldScene) zeichnet
-   jedes Gateway/jeden Encounter/jede Entdeckung/jeden NPC als halbtransparentes
-   farbiges Rechteck (Gateway TILE*0.86 @0.28, Encounter TILE*0.72 @0.55, dazu
-   Bounds-Rechtecke + Dauer-Namenslabels). Die Overworld wird zum Kaesten-Feld —
-   besonders der Gateway-Cluster nach dem Kijin-Beat und die „!"-Encounter-Kaesten
-   stoeren. Cleared-Trigger verschwinden korrekt (encounter.*.cleared-Filter); das
-   Problem ist Menge + Kasten-Stil, nicht Haengenbleiben.
-
-Canon-Regeln beachten: stabile Flag-/Step-IDs NICHT umbenennen (Save-Kompat),
-deutsches Wording, keine kopierten Dialoge. Reihenfolge = Prioritaet.
-
-- [~] Phase 107 — (in Bearbeitung: Worktree phase-107-marker, lokale Session)
-  Karten-Marker entstoeren (nur Praesentation). Befund: alles ist
-  ein farbiger Kasten. Bauen (niedrige Komplexitaet, reine OverworldScene-
-  Darstellung, KEIN Daten-/Save-/Flag-Eingriff): die gefuellten Rechtecke fuer
-  Gateways/Encounter/Entdeckungen durch ruhigere Marker ersetzen (das vorhandene
-  Glyph ⇄ / ! / ✦ auf dezentem Sockel — kleiner weicher Punkt/Pille oder Glyph mit
-  Schlagschatten statt flaechigem Kasten), Nicht-Ziel-Marker deutlich zuruecknehmen
-  und die starke Hervorhebung nur am getrackten Ziel (◆ Ziel) belassen,
-  Dauer-Namenslabels nur nahe Spieler/Ziel zeigen statt an allen gleichzeitig.
-  Marker bleiben funktional (Interaktionsort erkennbar), aber leise. Akzeptanz:
-  Overworld rendert ohne Kasten-Clutter, Ziel weiter klar markiert, In-Bounds-Check
-  (menuLayout-Stil), Desktop-/Mobile-Smoke ohne Konsolenfehler.
-
 ## Erweiterungs-Roadmap (Nutzer 2026-07-06: umfangreichere Spielmechanik)
 
 Befund (Code): Der Kampf-Moment traegt jetzt (Kampf-Tiefe-Roadmap 87/88/88b),

@@ -10,7 +10,7 @@ import {
   shouldShowOverworldTutorial,
   type OverworldOnboardingStep
 } from '../systems/tutorial';
-import { isWalkable, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
+import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { regionBannerTextureForMap } from '../render/regionBannerArt';
@@ -652,6 +652,8 @@ export class OverworldScene extends Phaser.Scene {
             : location.kind === 'gateway'
               ? 0x68d7ff
               : 0xd2b35f;
+      const isObjective = objective?.status === 'visible' && objective.locationId === location.id;
+      // Phase 107 — Region nur dezent umranden statt gefuellt zukleistern.
       if (location.bounds) {
         layer.add(this.add.rectangle(
           this.cx(location.bounds.x) - TILE / 2,
@@ -659,23 +661,27 @@ export class OverworldScene extends Phaser.Scene {
           location.bounds.width * TILE,
           location.bounds.height * TILE,
           color,
-          0.12
-        ).setOrigin(0, 0).setStrokeStyle(2, color, 0.42));
+          0
+        ).setOrigin(0, 0).setStrokeStyle(1, color, 0.22));
       }
-      layer.add(this.add.rectangle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.86, TILE * 0.86, color, 0.28)
-        .setStrokeStyle(2, color, 0.85));
-      layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 31, location.name, {
-        fontFamily: 'sans-serif',
-        fontSize: '10px',
-        color: '#e9eef7'
-      }).setOrigin(0.5));
+      // Phase 107 — ruhiger runder Punkt-Marker statt gefuelltem Kasten; das Ziel kraeftiger.
+      layer.add(this.add.circle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.26, color, isObjective ? 0.5 : 0.3)
+        .setStrokeStyle(2, color, isObjective ? 0.95 : 0.6));
       // Gateways bekommen ein Reise-Symbol, damit klar ist, dass man hier die Region wechselt.
       if (location.kind === 'gateway') {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y), '⇄', {
-          fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeeff'
-        }).setOrigin(0.5));
+          fontFamily: 'sans-serif', fontSize: '18px', color: '#cdeeff'
+        }).setOrigin(0.5).setStroke('#0a1a24', 3));
       }
-      if (objective?.status === 'visible' && objective.locationId === location.id) {
+      // Phase 107 — Dauer-Namenslabel nur nahe Spieler oder am Ziel (entstoert den Cluster).
+      if (markerLabelVisible(this.pos, location.position, isObjective)) {
+        layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 28, location.name, {
+          fontFamily: 'sans-serif',
+          fontSize: '10px',
+          color: '#e9eef7'
+        }).setOrigin(0.5).setStroke('#0a0f1a', 3));
+      }
+      if (isObjective) {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) - 25, '◆ Ziel', {
           fontFamily: 'sans-serif',
           fontSize: '13px',
@@ -686,25 +692,25 @@ export class OverworldScene extends Phaser.Scene {
 
     const triggerEncounters = getVisibleMapEncounters(this.mapId, world).filter(isPlacedTrigger);
     for (const encounter of triggerEncounters) {
-      layer.add(this.add.rectangle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.72, TILE * 0.72, 0x633050, 0.55)
-        .setStrokeStyle(2, 0xff8aa0, 0.8));
+      layer.add(this.add.circle(this.cx(encounter.position.x), this.cy(encounter.position.y), TILE * 0.24, 0x9c2f57, 0.42)
+        .setStrokeStyle(2, 0xff8aa0, 0.7));
       layer.add(this.add.text(this.cx(encounter.position.x), this.cy(encounter.position.y), '!', {
         fontFamily: 'sans-serif',
-        fontSize: '20px',
+        fontSize: '18px',
         color: '#ffd6de'
-      }).setOrigin(0.5));
+      }).setOrigin(0.5).setStroke('#3a0a1c', 3));
     }
 
     // Entdeckungen: Glitzerpunkte mit Lore + Belohnung (Erkundungsanreiz); nur
     // sichtbar, solange nicht eingesammelt (und ggf. erst nach Weltveraenderung).
     for (const discovery of getMapDiscoveries(this.mapId, this.save.flags)) {
-      layer.add(this.add.rectangle(this.cx(discovery.x), this.cy(discovery.y), TILE * 0.66, TILE * 0.66, 0x2b5b57, 0.42)
-        .setStrokeStyle(2, 0x8affe4, 0.85));
+      layer.add(this.add.circle(this.cx(discovery.x), this.cy(discovery.y), TILE * 0.24, 0x1f6f66, 0.36)
+        .setStrokeStyle(2, 0x8affe4, 0.7));
       layer.add(this.add.text(this.cx(discovery.x), this.cy(discovery.y), '✦', {
         fontFamily: 'sans-serif',
-        fontSize: '20px',
+        fontSize: '18px',
         color: '#b7ffe9'
-      }).setOrigin(0.5));
+      }).setOrigin(0.5).setStroke('#08201c', 3));
     }
 
     for (const npc of getMapNpcs(this.mapId, world)) {
