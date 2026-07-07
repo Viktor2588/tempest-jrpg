@@ -645,6 +645,11 @@ completed_milestones:
     - persistence: new ProgressionState.magicules counter (clampNonNegativeInteger, defaults 0); save migration automatic — readProgressionState reads raw.magicules via readNonNegativeInteger, old saves default to 0.
     - UI: Battle victory rewards include the Magicules gained, and the Menu header shows the current Gold + Magicules pool. No spending UI yet; Phase 103/104 consume the pool.
     - typecheck, 480 unit tests (5 battleResult tests cover reward formula, battle-result hook, save roundtrip + migration), production build, and desktop/mobile Title→Menu→Battle smoke verified.
+  phase_103:
+    - Named officers: recruited residents can be promoted with Magicules in the Bewohner Codex view. Promotion persists in ProgressionState.promotedResidentIds and spends the pooled ProgressionState.magicules resource.
+    - Facility payoff: promoted residents count double for facility output, and facility staff labels show a star marker for officers.
+    - Combat payoff: promoted residents grant the active battle party a small global max-HP TalentPerk via createProgressionBattleParty. This keeps the first increment passive and avoids a separate deploy/ally UI.
+    - typecheck, 485 unit tests (promotion rules, persistence/migration, facility multiplier, battle max-HP effect), production build, and desktop/mobile Codex→Bewohner→Offizier→Einrichtungen smoke verified.
   phase_84:
     - devour as a directed hunt: buildDevourCompendium(WorldState) in world.ts lists every devourable enemy with the skill it teaches Rimuru (name resolved via SKILLS), sorted by level, flagged learned/open against Rimuru's learnedSkillIds — turns grind into a "which enemy do I hunt for which power" checklist
     - surfaced as a toggle inside the existing Codex tab ("Wissen" ↔ "🍴 Verschlingen") rather than a new top-level tab (the 8-tab row is full and menuTabButtonX/menuLayout test fix tabCount=8); drawCodex split into drawLoreEntries + drawDevourCompendium + shared codexFooter, lore rows nudged 170→194 to clear the toggle

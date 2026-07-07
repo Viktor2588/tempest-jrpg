@@ -213,22 +213,6 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [x] Phase 103 — Benannte Offiziere (Bewohner-Befoerderung mit Kampf-Payoff). Abnahme:
-  `/worktree/tempest-phase-103-offiziere`; `git diff --check`; `bun run typecheck`;
-  `bun run test`; `bun run build`; `bun run test:e2e -- e2e/game.smoke.spec.ts
-  --grep "Phase 93" --project=desktop-chromium --project=mobile-chromium`.
-  Befund: Bewohner (92) sind reiner Bestand + Auto-Staffing (93); das Benennen
-  bleibt folgenlos. Bauen: ein magicule-kostender **Befoerderungs-Schritt** je
-  Bewohner (im Bewohner-/Einrichtungs-Menue), der ihn zum **Offizier** evolviert:
-  (a) hebt seine Einrichtungs-Produktionsstufe (verzahnt mit
-  `facilityOutputAmount`) und (b) schaltet ihn als **passiven Party-Buff ODER
-  einsetzbaren Kampf-Verbuendeten** frei (wiederverwendet den Ally-/Team-Mix-
-  Pfad — Zuschnitt klein: zuerst Passiv-Buff, Deploy optionaler Folgeschritt).
-  Qual der Wahl ueber knappe Magicules. Eigene Quelle neben Bande (98) und
-  Diplomatie-Truppen (100): die *eigenen* Bewohner statt Kampfgefaehrten/
-  Fraktionen. Akzeptanz: Befoerderung kostet + persistiert (uniqueStrings
-  `promotedResidentIds`), Produktions- + Kampf-Effekt headless getestet,
-  Save-Migration, Balance-Harness gruen, Menue-Smoke.
 - [ ] Phase 104 — Das Erwachen / Erntefest (Endgame-Massen-Evolution).
   Befund: greenfield; „Daemonenlord" nur Lore. Bauen: ein **einmaliges, story-
   und magicule-gegatetes Erwachen** (spaet, nach Band 3; NG+-bewusst), das den
