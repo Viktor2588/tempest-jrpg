@@ -190,18 +190,6 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [x] Phase 104 — Das Erwachen / Erntefest (Endgame-Massen-Evolution). (abgeschlossen in `/worktree/tempest-phase-104-erwachen`; Checks: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Phase 93"`)
-  Befund: greenfield; „Daemonenlord" nur Lore. Bauen: ein **einmaliges, story-
-  und magicule-gegatetes Erwachen** (spaet, nach Band 3; NG+-bewusst), das den
-  angesparten Pool (102) verbraucht und (a) auf Rimurus Spec-Baeumen eine vierte
-  **„Erwacht"-Stufe** bzw. eine Uebersignatur freischaltet (wiederverwendet
-  evolution + signature) und (b) alle benannten Offiziere (103) eine Stufe
-  evolviert (dauerhafter Einrichtungs- + Kampf-Boost). Der kanonische Endgame-
-  Machtsprung, der 84/92/93/102/103 auszahlt — groesstes Endgame-/Replay-Ereignis
-  neben dem Labyrinth (99). Akzeptanz: Gate (Story + Ressource) + einmalige
-  Persistenz + NG+-Verhalten headless getestet, Evolutions-Anwendung
-  deterministisch, Balance-Sim (Post-Erwachen sprengt die Korridore nicht),
-  Erwachen-Szene ueber den sceneScript-Interpreter (62) + Smoke.
 - [ ] Phase 105 (optional, kleiner Zuschnitt) — Mimikry als aktive Kampf-Form.
   Befund: `mimic` ist nur ein Spec-Zweig mit Passiv-Perks (resonance/master);
   die Predator-Mimikry aus dem Canon (eine verschlungene Form annehmen) fehlt als
