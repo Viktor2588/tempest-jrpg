@@ -278,7 +278,10 @@ const RIMURU_CORE_LOADOUT_SKILLS = [
   'great-sage',
   'slime-strike',
   'water-jet',
-  'predator-aura'
+  'predator-aura',
+  // Phase 108 — verschmolzene Skills bleiben im Loadout sichtbar.
+  'hydro-lash',
+  'maelstrom-fang'
 ] as const;
 const DEBUFF_STATUSES: readonly StatusEffectId[] = [
   'poison', 'spirit-down', 'guard-break', 'stun', 'sleep', 'freeze',

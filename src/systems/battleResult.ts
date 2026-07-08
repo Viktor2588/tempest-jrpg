@@ -1,4 +1,5 @@
 import type { BattleView } from './battle';
+import { tallyDefeatedEnemies } from './bounties';
 import { normalizeInventoryStacks } from './inventory';
 import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules } from './progression';
 import { recruitResidentsFromDevour } from './residents';
@@ -50,10 +51,21 @@ export function applyBattleResultToSave(
   const recruited = won
     ? recruitResidentsFromDevour(withMagicules.residentIds, battle.devouredSourceIds)
     : null;
-  const progression =
+  const progressionBase =
     recruited && recruited.newlyRecruited.length > 0
       ? { ...withMagicules, residentIds: recruited.residentIds }
       : withMagicules;
+  // Phase 96 — Kopfgeldbrett: erlegte Gegner-Arten dieses Siegs in die Zaehler
+  // einbuchen (Grundlage fuer den Auftrags-Fortschritt).
+  const progression = won
+    ? {
+        ...progressionBase,
+        defeatedEnemyCountsByEnemyId: tallyDefeatedEnemies(
+          progressionBase.defeatedEnemyCountsByEnemyId,
+          battle.enemies.filter((enemy) => enemy.dead).map((enemy) => enemy.sourceId)
+        )
+      }
+    : progressionBase;
   const active = progressionResult.active.map((member) => {
     if (battle.status === 'lost') {
       return member;

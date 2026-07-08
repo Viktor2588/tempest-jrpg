@@ -1140,11 +1140,11 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 700, 140); // Umschalter „🏛️ Bewohner"
+  await clickGamePoint(page, 564, 140); // Umschalter „🏛️ Bewohner"
   await page.waitForTimeout(250);
   await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
   await page.waitForTimeout(250);
-  await clickGamePoint(page, 860, 140); // Umschalter „🏭 Einrichtungen"
+  await clickGamePoint(page, 692, 140); // Umschalter „🏭 Einrichtungen"
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 450, 508); // „🏕️ Tempest-Rast halten"
@@ -1161,6 +1161,30 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   expect(stored.progression.productionCycles).toBe(1);
   const ore = stored.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'magic-ore');
   expect(ore?.quantity).toBeGreaterThanOrEqual(1);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', async ({ page }) => {
+  test.setTimeout(45_000);
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  await installBrowserSave(page, bandTwoBrowserSave());
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.waitForTimeout(250);
+  await clickGamePoint(page, 760, 94); // Codex-Tab
+  await page.waitForTimeout(200);
+  await clickGamePoint(page, 911, 140); // Umschalter „🤝 Politik"
+  await page.waitForTimeout(250);
+  await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
 

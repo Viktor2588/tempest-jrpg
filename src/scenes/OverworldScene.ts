@@ -25,6 +25,7 @@ import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones
 import { getMapDiscoveries, getMapDiscoveryAt } from '../systems/mapDiscovery';
 import { createSceneRunner, type SceneScript, type SceneStep } from '../systems/sceneScript';
 import { acknowledgeScene, getPendingScene } from '../data/scenes';
+import { acknowledgeBondScene, bondSceneToScript, getPendingBondScene } from '../systems/bondScenes';
 import { makeRng } from '../systems/rng';
 import {
   applyWorldState,
@@ -379,12 +380,30 @@ export class OverworldScene extends Phaser.Scene {
     if (this.cutsceneActive) return false;
     if (this.scene.isActive('Milestone') || this.scene.isActive('Ending')) return false;
     const script = getPendingScene(this.save.flags);
-    if (!script) return false;
-    this.playScene(script);
-    return true;
+    if (script) {
+      this.playScene(script, (flags) => acknowledgeScene(flags, script.id));
+      return true;
+    }
+    // Phase 98 — Bande: faellige Bindungs-Szene (nach den Story-Beats) spielen. Gegatet
+    // ueber die erreichte Bindungsstufe (Punkte aus Kampf-Siegen) + Verfuegbarkeit im
+    // Roster; sie erscheinen bei Gelegenheit im normalen Reisefluss.
+    const rosterIds = new Set<string>([
+      ...this.save.party.active.map((member) => member.characterId),
+      ...this.save.party.reserve.map((member) => member.characterId)
+    ]);
+    const pending = getPendingBondScene(this.save.progression, this.save.flags, rosterIds);
+    if (pending) {
+      const bondScript = bondSceneToScript(pending.relationship, pending.scene);
+      this.playScene(bondScript, (flags) => acknowledgeBondScene(flags, pending.scene.id));
+      return true;
+    }
+    return false;
   }
 
-  private playScene(script: SceneScript): void {
+  private playScene(
+    script: SceneScript,
+    acknowledge: (flags: Readonly<Record<string, boolean>>) => Readonly<Record<string, boolean>>
+  ): void {
     this.cutsceneActive = true;
     this.cameras.main.stopFollow(); // Kamera waehrend der Szene selbst fuehren.
     const runner = createSceneRunner(script);
@@ -409,7 +428,7 @@ export class OverworldScene extends Phaser.Scene {
     const finish = (): void => {
       layer.destroy();
       this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
-      this.save = { ...this.save, flags: acknowledgeScene(this.save.flags, script.id) };
+      this.save = { ...this.save, flags: acknowledge(this.save.flags) };
       autoSave(window.localStorage, this.save);
       this.cutsceneActive = false;
       if (script.summary) this.showSceneSummary(script.summary.title, script.summary.body);

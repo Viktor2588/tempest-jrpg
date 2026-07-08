@@ -130,11 +130,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
   Encounter-Kontrolle (Rate/Vermeidung) statt reinem Gold. Braucht Verzahnung mit
   dem Rast-/Encounter-Fluss (nicht nur dem Menue-Knopf). Akzeptanz: Effekte
   headless getestet, Balance-Sim, Save-Migration, Smoke.
-- [ ] Phase 93c — Produktion an einen echten Rast-/Reise-Trigger koppeln. Heute
-  laeuft ein Zyklus ueber den "Tempest-Rast halten"-Knopf im Einrichtungs-Menue
-  (spielerinitiiert, idle-artig). Alternativ/zusaetzlich: automatisch bei
-  `restore-party` (Lager/Rast) bzw. Schnellreise abrechnen, damit die Nation auch
-  im normalen Spielfluss produziert. Braucht residentIds im WorldState-Pfad.
 
 ### Kampf-Ausbau: Elementarfelder
 
@@ -149,9 +144,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 
 ### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
 
-- [ ] Phase 96 — Jagd-/Kopfgeldbrett. Erweitert das Verschlingen-Kompendium
-  (Phase 84) zu wiederholbaren Auftraegen mit Material-/Gold-Belohnung -> speist
-  die Schmiede (Phase 91).
 - [ ] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
   Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
   (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
@@ -159,16 +151,8 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 ### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
 
 Die drei JRPG-Pfeiler, die noch ganz fehlen: Figuren-Bindung, Endgame/Replay,
-politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
+politische Aussenwelt. Empfehlung: 99 (Labyrinth) als naechster grosser Replay-Hebel.
 
-- [ ] Phase 98 — Bande (Bond-/Support-System). Befund: Relationships sind nur
-  Punkte, Team-Mix-Fusionen haengen an `synergyPartnerIds`, es gibt keine
-  Bond-Events. Bauen: optionale Bond-Szenen ueber den vorhandenen sceneScript-
-  Interpreter (Phase 62), gegatet ueber Rast/Story/Relationship-Punkte; eine
-  erreichte Bond-Stufe schaltet/verstaerkt Team-Mix-Partner + verleiht eine
-  Bond-Perk (baut auf talentPerk). Charakter-Tiefe mit direktem Kampf-Payoff.
-  Akzeptanz: Gating + Unlock + Perk headless getestet, Szenen-Runner-Test,
-  Save-Migration, Dialog-/Szenen-Smoke. Risikoarm, hoher Hebel.
 - [ ] Phase 99 — Das Labyrinth (Roguelike-Abstieg). Befund: greenfield; Battle-
   Engine + Scaling (67) + Archetypen (87/88/88b) sind da, aber Content ist
   einmalig-linear. Bauen: ein prozedural (deterministisch geseedet) aus
@@ -178,15 +162,6 @@ politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
   (91). On-theme (Ramiris' Dungeon), groesster Replay-/Endgame-Hebel. Akzeptanz:
   deterministische Etagen-Generierung + Run-Abbruch/Belohnung headless getestet
   (Seed-Reproduzierbarkeit), Balance-Sim fuer die Tiefenskalierung, Dungeon-Smoke.
-- [ ] Phase 100 — Diplomatie (Faktionen/Reputation). Befund: Faktionen nur
-  binaere Flags (faction.dwargon.allied, faction.orcs.joined) + ein
-  partnerKind:'faction'; keine Skala. Bauen: graduelle Reputation pro Faktion
-  (Dwargon, Echsen, Orks, Blumund, Daemonenlords), bewegt durch Entscheidungen/
-  Quests/Handel; Schwellen schalten frei/zu: Faktions-Truppen als Kampf-
-  Verbuendete/Team-Mix, Handelsrouten (speist die Nation-Oekonomie 93), exklusive
-  Rezepte/Gegner. Externe Seite des Nation-Baus (91-93 intern); baut auf den
-  vorhandenen faction.*-Flags. Akzeptanz: Reputationsuebergaenge + Schwellen-
-  Unlocks + Save-Migration headless getestet, UI-Smoke.
 - [ ] Phase 101 — Welt-Uhr (Zeit/Wetter). Overworld-Tag/Nacht + Wetter-Zyklus,
   der Encounter-Tabellen, NPC-Verfuegbarkeit und — verzahnt mit Phase 94 —
   Elementarfelder/Reaktionen beeinflusst (Regen = Wasserfeld, Nacht = Schatten-
@@ -260,19 +235,6 @@ narrative Ausloeser fuer das Erwachen (104).
 Hinweis: Der Plan ist inzwischen ausfuehrungs-, nicht planungsgebunden (20+ offene
 Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
 
-- [ ] Phase 108 — Skill-Fusion/-Evolution (Fertigkeiten verschmelzen zu einzig-
-  artigen/Ultimate-Skills). Befund: nur Element-Team-Mix vorhanden, keine
-  Skill-Verschmelzung (s. o.). Bauen: eine datengetriebene `SkillFusionRecipe`
-  (Inputs = 2+ gelernte Skill-IDs, optional Material/Magicules aus 102; Output =
-  ein neuer Skill), aufgeloest in einem reinen `systems/skillFusion`-Modul (analog
-  crafting.ts): gegated ueber `learnedSkillIds` statt Gold; die Basis-Skills
-  verschmelzen (aus dem Loadout entfernt, durch den fusionierten ersetzt).
-  Persistenz ueber learnedSkillIds/eine neue uniqueStrings-Liste, Save-Migration
-  automatisch. UI: „Verschmelzen"-Tab (analog Schmiede) im Skill-/Talent-Menue.
-  Verzahnt mit 102 (Magicule-Kosten), 105 (Mimikry-Formen als Input), Devour-
-  Kompendium (84). Balance: Ultimate-Skills spaet gaten. Akzeptanz: Rezept-
-  Aufloesung + Verbrauch/Ersatz + Gating headless getestet, Save-Roundtrip +
-  Migration, Balance-Harness je Rimuru-Spec gruen (Korridore halten), Menue-Smoke.
 - [ ] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
   Inszenierung). Befund: Bosse haben phase2SkillIds + Archetyp-Flags, aber
   mid-fight Combatant-Spawning fehlt (Phase 82 „splitter/summoner deferred"), und

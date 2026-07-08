@@ -31,6 +31,7 @@ import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import { officerPerksForResidents } from './residents';
+import { buildSkillFusionView, canFuseSkill, fuseSkill, getSkillFusionRecipe, type SkillFusionView } from './skillFusion';
 import {
   addPartialStats,
   addStats,
@@ -68,6 +69,14 @@ export interface ProgressionState {
   // verstaerkt und im NG+ ueber Progression erhalten bleibt.
   readonly awakeningCompleted: boolean;
   readonly awakenedResidentIds: readonly string[];
+  // Phase 96 — Jagd-/Kopfgeldbrett: kumulierte Erlegungen je Gegner-Art (Grundlage
+  // fuer den Auftrags-Fortschritt) und wie oft jeder Auftrag bereits eingeloest
+  // wurde (hebt die Fortschritts-Schwelle wiederholbarer Auftraege).
+  readonly defeatedEnemyCountsByEnemyId: Readonly<Record<string, number>>;
+  readonly claimedBountyCountsByBountyId: Readonly<Record<string, number>>;
+  // Phase 100 — Diplomatie: graduelle Reputation je Faktion (factionId -> Punkte),
+  // bewegt über den Welt-Effekt `adjust-reputation`. Schwellen setzen Story-Flags.
+  readonly factionReputationByFactionId: Readonly<Record<string, number>>;
 }
 
 export interface CreateProgressionStateOptions {
@@ -84,6 +93,9 @@ export interface CreateProgressionStateOptions {
   readonly promotedResidentIds?: readonly string[];
   readonly awakeningCompleted?: boolean;
   readonly awakenedResidentIds?: readonly string[];
+  readonly defeatedEnemyCountsByEnemyId?: Readonly<Record<string, number>>;
+  readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
+  readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
 }
 
 export interface MemberActionResult {
@@ -172,7 +184,10 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     magicules: clampNonNegativeInteger(options.magicules ?? 0),
     promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? []),
     awakeningCompleted: options.awakeningCompleted === true,
-    awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? [])
+    awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
+    defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
+    claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
+    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {})
   };
 }
 
@@ -283,6 +298,49 @@ export function evolveMember(
     member: evolvedMember,
     state: nextState,
     message: `${member.name} entwickelt sich zu ${evolution.formName}.`
+  };
+}
+
+// Phase 108 — Skill-Fusion: die für ein Party-Mitglied sichtbaren Verschmelzungs-
+// Rezepte (gegated über die gelernten Skills des Mitglieds + Magicules + Flags).
+export function getSkillFusionViews(
+  member: PartyMemberState,
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
+): SkillFusionView[] {
+  return buildSkillFusionView({
+    learnedSkillIds: member.learnedSkillIds,
+    magicules: state.magicules,
+    flags
+  });
+}
+
+// Phase 108 — Skill-Fusion: verschmilzt zwei gelernte Skills des Mitglieds zu einem
+// höherrangigen. Verbraucht die Eingaben aus learnedSkillIds (dauerhaft) und die
+// Magicules aus dem Pool (Phase 102). Rein deterministisch; Persistenz läuft über
+// die bestehenden Felder (learnedSkillIds + magicules), keine Save-Migration nötig.
+export function fuseMemberSkill(
+  member: PartyMemberState,
+  state: ProgressionState,
+  recipeId: string,
+  flags: Readonly<Record<string, boolean>> = {}
+): MemberActionResult {
+  const recipe = getSkillFusionRecipe(recipeId);
+  if (!recipe) {
+    return { ok: false, member, state, message: 'Verschmelzung nicht gefunden.' };
+  }
+  const context = { learnedSkillIds: member.learnedSkillIds, magicules: state.magicules, flags };
+  const check = canFuseSkill(recipe, context);
+  if (!check.ok) {
+    return { ok: false, member, state, message: check.reason };
+  }
+
+  const result = fuseSkill(recipe, context);
+  return {
+    ok: result.ok,
+    member: { ...member, learnedSkillIds: result.learnedSkillIds },
+    state: { ...state, magicules: result.magicules },
+    message: result.message
   };
 }
 
@@ -780,7 +838,8 @@ export function createProgressionBattleParty(
       perks: [
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
         ...awakenedPerksForMember(member.characterId, state),
-        ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds)
+        ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds),
+        ...bondPerksForCharacter(member.characterId, state)
       ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
@@ -798,6 +857,22 @@ function awakenedPerksForMember(
   state: ProgressionState
 ): readonly TalentPerk[] {
   return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
+}
+
+// Phase 98 — Bande: alle Bond-Perks der erreichten Bindungsstufen, in denen dieser
+// Charakter der Hauptcharakter (`characterId`) ist. Eine tiefe Bindung (hoechste
+// Stufe) formt spuerbar, wie das Paar kaempft — der Kampf-Payoff der Investition.
+export function bondPerksForCharacter(
+  characterId: string,
+  state: ProgressionState
+): readonly TalentPerk[] {
+  return (RELATIONSHIPS as readonly RelationshipDefinition[]).flatMap((relationship) => {
+    if (relationship.characterId !== characterId) return [];
+    const level = getRelationshipLevelNumber(state, relationship.id);
+    return relationship.levels
+      .filter((entry) => entry.level <= level && entry.perk !== undefined)
+      .map((entry) => entry.perk as TalentPerk);
+  });
 }
 
 export function applyBattleProgressionRewards(

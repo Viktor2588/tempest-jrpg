@@ -1,3 +1,4 @@
+import { BOUNTIES } from './bounties';
 import { HEROES } from './characters';
 import { CRAFTING_RECIPES } from './crafting';
 import { ENEMIES } from './enemies';
@@ -18,10 +19,12 @@ import { SKILLS } from './skills';
 import { SIGNATURES } from './signatures';
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 
+export { BOUNTIES } from './bounties';
 export { HEROES } from './characters';
 export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
 export { FACILITIES } from './facilities';
+export { FACTIONS } from './factions';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
 export { RESIDENTS } from './residents';
@@ -36,6 +39,7 @@ export {
   SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
+export { SKILL_FUSIONS } from './skillFusions';
 export { SKILL_TIER_META, skillTierRank, skillTierBadge } from './skillRank';
 export type { SkillTierMeta } from './skillRank';
 export { SIGNATURES } from './signatures';
@@ -81,6 +85,8 @@ export type {
   WorldRequirement
 } from './world';
 export type {
+  BountyDefinition,
+  BountyReward,
   CharacterDefinition,
   CraftingRecipe,
   CraftingRecipeInput,
@@ -91,12 +97,15 @@ export type {
   EquipmentSlot,
   FacilityDefinition,
   FacilityOutput,
+  FactionDefinition,
+  FactionThreshold,
   ItemDefinition,
   ItemEffect,
   ResidentDefinition,
   ResidentRole,
   ResearchProject,
   SkillDefinition,
+  SkillFusionRecipe,
   SkillStatusEffect,
   SkillTag,
   SkillTarget,
@@ -114,6 +123,7 @@ export const GAME_DATA = {
   residents: RESIDENTS,
   facilities: FACILITIES,
   craftingRecipes: CRAFTING_RECIPES,
+  bounties: BOUNTIES,
   skills: SKILLS,
   signatures: SIGNATURES,
   progression: {

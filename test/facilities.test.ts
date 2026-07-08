@@ -7,6 +7,7 @@ import {
   runProductionCycle
 } from '../src/systems/facilities';
 import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
+import { applyEffects, applyWorldState, createWorldState } from '../src/systems/world';
 
 const VALID_ROLES: readonly ResidentRole[] = ['Wache', 'Späher', 'Handwerk', 'Heilung', 'Bau'];
 const itemIds = new Set(ITEMS.map((item) => item.id));
@@ -213,5 +214,51 @@ describe('Save-Migration: productionCycles', () => {
   it('migriert alte Stände ohne das Feld auf 0', () => {
     const migrated = migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z');
     expect(migrated.progression.productionCycles).toBe(0);
+  });
+});
+
+describe('Phase 93c — Produktion an der Tempest-Rast (restore-party)', () => {
+  function saveWithResidents(flags: Record<string, boolean>) {
+    const base = createNewSave({ seed: 5, now: '2026-07-08T00:00:00.000Z' });
+    return {
+      ...base,
+      flags: { ...base.flags, ...flags },
+      progression: { ...base.progression, residentIds: RESIDENTS.map((r) => r.id) }
+    };
+  }
+
+  it('rechnet bei restore-party automatisch einen Produktions-Zyklus ab', () => {
+    const save = saveWithResidents(CAMP_FLAGS);
+    const rested = applyEffects(createWorldState(save), [{ type: 'restore-party' }]);
+
+    expect(rested.productionCycles).toBe(1);
+    const oreBefore = save.inventory.stacks.find((s) => s.itemId === 'magic-ore')?.quantity ?? 0;
+    const oreAfter = rested.inventory.find((s) => s.itemId === 'magic-ore')?.quantity ?? 0;
+    expect(oreAfter).toBeGreaterThan(oreBefore);
+
+    const next = applyWorldState(save, rested);
+    expect(next.progression.productionCycles).toBe(1);
+    expect(next.inventory.stacks.find((s) => s.itemId === 'magic-ore')?.quantity ?? 0).toBe(oreAfter);
+  });
+
+  it('heilt nur, solange Tempest Wildnis ist (keine Produktion)', () => {
+    const save = saveWithResidents({});
+    const rested = applyEffects(createWorldState(save), [{ type: 'restore-party' }]);
+    expect(rested.productionCycles).toBe(0);
+    expect(applyWorldState(save, rested).progression.productionCycles).toBe(0);
+  });
+
+  it('heilt die Party und produziert im selben Rast-Schritt', () => {
+    const base = saveWithResidents(CAMP_FLAGS);
+    const wounded = {
+      ...base,
+      party: {
+        ...base.party,
+        active: base.party.active.map((member) => ({ ...member, currentHp: 1 }))
+      }
+    };
+    const rested = applyEffects(createWorldState(wounded), [{ type: 'restore-party' }]);
+    expect(rested.productionCycles).toBe(1);
+    expect(rested.party?.every((member) => member.currentHp > 1)).toBe(true);
   });
 });

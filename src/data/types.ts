@@ -141,6 +141,33 @@ export interface CraftingRecipe {
   readonly repeatable: boolean;
 }
 
+// Phase 96 — Jagd-/Kopfgeldbrett (Bounties): wiederholbare Subjugations-Auftraege
+// der Blumund-Gilde, die das Verschlingen-Kompendium (Phase 84) zu einer belohnten
+// Jagd erweitern. Ein Auftrag verlangt N erlegte Ziel-Gegner und zahlt Material
+// (speist die Schmiede, Phase 91) + Gold. Reine Daten; die Fortschritts-/Einloese-
+// Logik liegt in systems/bounties (analog systems/crafting).
+export interface BountyReward {
+  readonly gold: number;
+  readonly items: readonly CraftingRecipeInput[];
+}
+
+export interface BountyDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Die Gegner-Art, deren Erlegen den Auftrag erfuellt (Enemy-ID).
+  readonly targetEnemyId: string;
+  // Wie viele Erlegungen ein Einloesen freischalten.
+  readonly requiredCount: number;
+  readonly reward: BountyReward;
+  // Gating ueber ein bestehendes Story-Flag (typisch story.blumund.guild-tested —
+  // die Gilde, die Auftraege ausgibt).
+  readonly requiresFlag?: string;
+  // Wiederholbare Auftraege (Standard-Jagd) koennen mit weiteren Erlegungen erneut
+  // eingeloest werden; einmalige (seltene Ziele) verschwinden nach dem Einloesen.
+  readonly repeatable: boolean;
+}
+
 // Phase 114 — Geister-Ingenieurskunst: kleine Forschungsprojekte verbrauchen
 // Materialien + Magicules und setzen Flags, die bestehende Systeme freischalten.
 export interface ResearchProject {
@@ -151,6 +178,49 @@ export interface ResearchProject {
   readonly magiculeCost: number;
   readonly requiresFlag?: string;
   readonly unlockFlag: string;
+}
+
+// Phase 108 — Skill-Fusion: gelernte Fertigkeiten (learnedSkillIds) entlang der
+// Rang-Leiter (Phase 111) zu einem hoeherrangigen Skill verschmelzen — Rimurus
+// Grosser-Weiser-Fantasie. Reine Daten; die Aufloesung liegt in systems/skillFusion.
+// Die Eingabe-Skills werden aus dem Loadout entfernt und durch den fusionierten
+// ersetzt; gegated ueber learnedSkillIds (statt Gold) + optional Magicules/Flag.
+export interface SkillFusionRecipe {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Zwei oder mehr gelernte Skill-IDs, die verbraucht werden.
+  readonly inputSkillIds: readonly string[];
+  // Der neue, verschmolzene Skill (muss in SKILLS existieren).
+  readonly outputSkillId: string;
+  // Magicule-Kosten (Phase 102); 0 fuer fruehe, guenstige Verschmelzungen.
+  readonly magiculeCost: number;
+  // Optionales Story-Gate (typisch fuer die hoeherrangigen/spaeten Rezepte).
+  readonly requiresFlag?: string;
+}
+
+// Phase 100 — Diplomatie (Faktionen/Reputation): die aussenpolitische Seite des
+// Nation-Baus. Jede Faktion traegt eine graduelle Reputationsskala; Schwellen
+// setzen beim Ueberschreiten ein Flag (`unlockFlag`), das bestehende Systeme
+// (Rezepte/Shops/Encounter) freischalten koennen. Reine Daten; die Auswertung
+// liegt in systems/diplomacy (analog systems/crafting).
+export interface FactionThreshold {
+  // Ab wie vielen Reputationspunkten diese Stufe erreicht ist (streng aufsteigend).
+  readonly points: number;
+  // Kurzer Rang-Titel (Fremd, Bekannt, Verbündet …) für die Anzeige.
+  readonly title: string;
+  // Flag, das beim Erreichen der Stufe gesetzt wird (typisch `reputation.<id>.<rang>`).
+  readonly unlockFlag: string;
+  // Was die Stufe konkret freischaltet (Anzeigetext).
+  readonly reward: string;
+}
+
+export interface FactionDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Streng aufsteigend nach `points`. Die letzte erreichte Stufe ist der Rang.
+  readonly thresholds: readonly FactionThreshold[];
 }
 
 // Phase 92 — Bewohner (Residents): Rimuru benennt verschlungene Gegner-Arten und

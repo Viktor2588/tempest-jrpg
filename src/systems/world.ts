@@ -1,6 +1,8 @@
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type QuestDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ENEMIES } from '../data/enemies';
 import { HEROES, ITEMS, SKILLS, type ItemDefinition } from '../data';
+import { runProductionCycle } from './facilities';
+import { adjustReputation } from './diplomacy';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
 import { createPartyMember, type PartyMemberState } from './party';
@@ -24,6 +26,18 @@ export interface WorldState {
   // Aktive Party-Ressourcen für Welt-Effekte wie Ruhepunkte. Optional, damit
   // bestehende WorldState-Literale gültig bleiben.
   readonly party?: readonly PartyMemberState[];
+  // Phase 93c — Nation-Produktion im Reisefluss: Bewohner-/Ausbau-Kontext, damit ein
+  // Tempest-Rast (`restore-party`) automatisch einen Produktions-Zyklus abrechnet
+  // (nicht nur der Menü-Knopf). Optional, damit bestehende WorldState-Literale
+  // (Tests, Smokes) gültig bleiben; fehlen sie, produziert die Rast nichts.
+  readonly residentIds?: readonly string[];
+  readonly promotedResidentIds?: readonly string[];
+  readonly awakenedResidentIds?: readonly string[];
+  readonly productionCycles?: number;
+  // Phase 100 — Diplomatie: Reputationskarte (factionId -> Punkte), damit der
+  // `adjust-reputation`-Welteffekt sie verschieben kann. Optional, damit bestehende
+  // WorldState-Literale (Tests, Smokes) gültig bleiben; fehlt sie, ist sie neutral.
+  readonly factionReputation?: Readonly<Record<string, number>>;
 }
 
 export interface DialogView {
@@ -115,7 +129,12 @@ export function createWorldState(save: SaveGameV2): WorldState {
     gold: save.party.gold,
     partyLevel: save.party.active.reduce((max, member) => Math.max(max, member.level), 0),
     roster: [...save.party.active, ...save.party.reserve].map((member) => member.characterId),
-    party: save.party.active
+    party: save.party.active,
+    residentIds: save.progression.residentIds,
+    promotedResidentIds: save.progression.promotedResidentIds,
+    awakenedResidentIds: save.progression.awakenedResidentIds,
+    productionCycles: save.progression.productionCycles,
+    factionReputation: save.progression.factionReputationByFactionId
   };
 }
 
@@ -136,11 +155,26 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
   const activeRecruits = recruits.slice(0, openSlots);
   const reserveRecruits = recruits.slice(openSlots);
 
+  // Phase 93c — ein im Reisefluss abgerechneter Produktions-Zyklus (Tempest-Rast)
+  // erhoeht den Zaehler; nur dann die Progression anfassen (alte Literale ohne das
+  // Feld bleiben unberuehrt).
+  let progression = save.progression;
+  if (world.productionCycles !== undefined && world.productionCycles !== save.progression.productionCycles) {
+    progression = { ...progression, productionCycles: world.productionCycles };
+  }
+  // Phase 100 — eine im Reisefluss (Dialog/Encounter) verschobene Reputation zurück
+  // in die Progression schreiben; alte Literale ohne das Feld bleiben unberührt.
+  if (world.factionReputation !== undefined
+    && world.factionReputation !== save.progression.factionReputationByFactionId) {
+    progression = { ...progression, factionReputationByFactionId: world.factionReputation };
+  }
+
   return {
     ...save,
     flags: world.flags,
     quests: world.quests,
     inventory: { stacks: world.inventory },
+    progression,
     party: {
       ...save.party,
       active: [...active, ...activeRecruits],
@@ -678,10 +712,15 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
       return { ...state, inventory: addInventoryItem(state.inventory, effect.itemId, effect.quantity) };
     case 'add-gold':
       return { ...state, gold: Math.max(0, state.gold + effect.amount) };
-    case 'restore-party':
-      return state.party
+    case 'restore-party': {
+      // Phase 93c — die Tempest-Rast heilt UND rechnet automatisch einen Produktions-
+      // Zyklus der Einrichtungen ab (die Nation produziert auch im normalen Spielfluss,
+      // nicht nur ueber den Menue-Knopf).
+      const healed = state.party
         ? { ...state, party: state.party.map(restorePartyMember) }
         : state;
+      return applyTempestRestProduction(healed);
+    }
     case 'recruit-character': {
       // Idempotent: schon im Roster → unverändert. So bleibt ein wiederholt ausgelöster
       // Dialog/Encounter belohnungs- und mitgliederneutral.
@@ -689,7 +728,41 @@ function applyEffect(state: WorldState, effect: WorldEffect): WorldState {
       if (roster.includes(effect.characterId)) return state;
       return { ...state, roster: [...roster, effect.characterId] };
     }
+    case 'adjust-reputation': {
+      // Phase 100 — Reputation verschieben; überschrittene Schwellen setzen ihre
+      // Unlock-Flags. Idempotent bzgl. der Flags (bereits gesetzte bleiben gesetzt).
+      const change = adjustReputation(
+        state.factionReputation ?? {},
+        state.flags,
+        effect.factionId,
+        effect.amount
+      );
+      return { ...state, factionReputation: change.reputation, flags: change.flags };
+    }
   }
+}
+
+// Phase 93c — einen Produktions-Zyklus im Reisefluss abrechnen. Nutzt denselben
+// deterministischen Kern wie der Menue-Knopf (systems/facilities). Ohne Bewohner/
+// Einrichtungen liefert der Zyklus nichts (ok:false) und die Rast heilt nur.
+function applyTempestRestProduction(state: WorldState): WorldState {
+  const result = runProductionCycle({
+    residentIds: state.residentIds ?? [],
+    promotedResidentIds: state.promotedResidentIds ?? [],
+    awakenedResidentIds: state.awakenedResidentIds ?? [],
+    flags: state.flags,
+    inventory: state.inventory,
+    gold: state.gold
+  });
+  if (!result.ok) {
+    return state;
+  }
+  return {
+    ...state,
+    inventory: result.inventory,
+    gold: result.gold,
+    productionCycles: (state.productionCycles ?? 0) + 1
+  };
 }
 
 function restorePartyMember(member: PartyMemberState): PartyMemberState {

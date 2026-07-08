@@ -12,7 +12,10 @@ export type WorldEffect =
   // Heilt die aktive Party vollständig; wird für sichere Ruhepunkte genutzt.
   | { readonly type: 'restore-party' }
   // Nimmt eine Figur idempotent in die aktive Party auf (Story-Rekrutierung).
-  | { readonly type: 'recruit-character'; readonly characterId: string };
+  | { readonly type: 'recruit-character'; readonly characterId: string }
+  // Phase 100 — Diplomatie: verschiebt die Reputation einer Faktion (kann negativ
+  // sein). Überschrittene Schwellen setzen deterministisch ihre Unlock-Flags.
+  | { readonly type: 'adjust-reputation'; readonly factionId: string; readonly amount: number };
 
 export interface WorldRequirement {
   readonly flag?: string;
@@ -3245,6 +3248,8 @@ export const DIALOGS = [
             effects: [
               // Kaijin zieht als Schmiede-NPC nach Tempest, nicht als Kaempfer.
               { type: 'set-flag', flag: 'faction.dwargon.allied', value: true },
+              // Phase 100 — das Zwergenbündnis hebt Tempests Ruf bei Dwargon aufs Maximum.
+              { type: 'adjust-reputation', factionId: 'dwargon', amount: 90 },
               { type: 'complete-quest-step', questId: 'dwargon-craft', stepId: 'smiths' },
               { type: 'complete-quest', questId: 'dwargon-craft' },
               { type: 'add-gold', amount: 120 },
@@ -3295,6 +3300,8 @@ export const DIALOGS = [
               { type: 'complete-quest', questId: 'blumund-guild' },
               { type: 'set-flag', flag: 'faction.blumund.allied', value: true },
               { type: 'set-flag', flag: 'trade.blumund.unlocked', value: true },
+              // Phase 100 — der Handelspakt mit Blumund festigt Tempests Ruf dort.
+              { type: 'adjust-reputation', factionId: 'blumund', amount: 90 },
               { type: 'add-gold', amount: 180 },
               { type: 'add-item', itemId: 'full-potion', quantity: 1 }
             ]
@@ -3396,6 +3403,8 @@ export const DIALOGS = [
             requirements: [{ notFlag: 'faction.orcs.joined' }],
             effects: [
               { type: 'set-flag', flag: 'faction.orcs.joined', value: true },
+              // Phase 100 — die Föderation nimmt die Orks unter Tempests Banner auf.
+              { type: 'adjust-reputation', factionId: 'orcs', amount: 90 },
               { type: 'complete-quest-step', questId: 'geld-disaster', stepId: 'federation' },
               { type: 'complete-quest', questId: 'geld-disaster' },
               { type: 'add-gold', amount: 320 },
@@ -3485,6 +3494,8 @@ export const DIALOGS = [
             effects: [
               { type: 'set-flag', flag: 'story.lizard.allied', value: true },
               { type: 'set-flag', flag: 'choice.gabiru.respect', value: true },
+              // Phase 100 — Gabiru mit Respekt zu behandeln bringt das volle Bündnis.
+              { type: 'adjust-reputation', factionId: 'lizardmen', amount: 90 },
               { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
               { type: 'complete-quest', questId: 'lizard-alliance' },
               { type: 'add-gold', amount: 200 },
@@ -3502,6 +3513,9 @@ export const DIALOGS = [
             effects: [
               { type: 'set-flag', flag: 'story.lizard.allied', value: true },
               { type: 'set-flag', flag: 'choice.gabiru.humiliate', value: true },
+              // Phase 100 — Gabiru zu demütigen sichert das Bündnis, aber weniger
+              // Wohlwollen: nur „Bundesgenossen" statt volles Verbündet.
+              { type: 'adjust-reputation', factionId: 'lizardmen', amount: 50 },
               { type: 'complete-quest-step', questId: 'lizard-alliance', stepId: 'ally' },
               { type: 'complete-quest', questId: 'lizard-alliance' },
               { type: 'add-gold', amount: 200 },
