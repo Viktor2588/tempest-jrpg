@@ -166,15 +166,6 @@ politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
   (91). On-theme (Ramiris' Dungeon), groesster Replay-/Endgame-Hebel. Akzeptanz:
   deterministische Etagen-Generierung + Run-Abbruch/Belohnung headless getestet
   (Seed-Reproduzierbarkeit), Balance-Sim fuer die Tiefenskalierung, Dungeon-Smoke.
-- [ ] Phase 100 — Diplomatie (Faktionen/Reputation). Befund: Faktionen nur
-  binaere Flags (faction.dwargon.allied, faction.orcs.joined) + ein
-  partnerKind:'faction'; keine Skala. Bauen: graduelle Reputation pro Faktion
-  (Dwargon, Echsen, Orks, Blumund, Daemonenlords), bewegt durch Entscheidungen/
-  Quests/Handel; Schwellen schalten frei/zu: Faktions-Truppen als Kampf-
-  Verbuendete/Team-Mix, Handelsrouten (speist die Nation-Oekonomie 93), exklusive
-  Rezepte/Gegner. Externe Seite des Nation-Baus (91-93 intern); baut auf den
-  vorhandenen faction.*-Flags. Akzeptanz: Reputationsuebergaenge + Schwellen-
-  Unlocks + Save-Migration headless getestet, UI-Smoke.
 - [ ] Phase 101 — Welt-Uhr (Zeit/Wetter). Overworld-Tag/Nacht + Wetter-Zyklus,
   der Encounter-Tabellen, NPC-Verfuegbarkeit und — verzahnt mit Phase 94 —
   Elementarfelder/Reaktionen beeinflusst (Regen = Wasserfeld, Nacht = Schatten-
