@@ -147,16 +147,8 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 ### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
 
 Die drei JRPG-Pfeiler, die noch ganz fehlen: Figuren-Bindung, Endgame/Replay,
-politische Aussenwelt. Empfehlung: 98 (Bande) als bester Griff nach 91.
+politische Aussenwelt. Empfehlung: 99 (Labyrinth) als naechster grosser Replay-Hebel.
 
-- [ ] Phase 98 — Bande (Bond-/Support-System). Befund: Relationships sind nur
-  Punkte, Team-Mix-Fusionen haengen an `synergyPartnerIds`, es gibt keine
-  Bond-Events. Bauen: optionale Bond-Szenen ueber den vorhandenen sceneScript-
-  Interpreter (Phase 62), gegatet ueber Rast/Story/Relationship-Punkte; eine
-  erreichte Bond-Stufe schaltet/verstaerkt Team-Mix-Partner + verleiht eine
-  Bond-Perk (baut auf talentPerk). Charakter-Tiefe mit direktem Kampf-Payoff.
-  Akzeptanz: Gating + Unlock + Perk headless getestet, Szenen-Runner-Test,
-  Save-Migration, Dialog-/Szenen-Smoke. Risikoarm, hoher Hebel.
 - [ ] Phase 99 — Das Labyrinth (Roguelike-Abstieg). Befund: greenfield; Battle-
   Engine + Scaling (67) + Archetypen (87/88/88b) sind da, aber Content ist
   einmalig-linear. Bauen: ein prozedural (deterministisch geseedet) aus
