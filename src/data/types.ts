@@ -199,6 +199,30 @@ export interface SkillFusionRecipe {
   readonly requiresFlag?: string;
 }
 
+// Phase 100 — Diplomatie (Faktionen/Reputation): die aussenpolitische Seite des
+// Nation-Baus. Jede Faktion traegt eine graduelle Reputationsskala; Schwellen
+// setzen beim Ueberschreiten ein Flag (`unlockFlag`), das bestehende Systeme
+// (Rezepte/Shops/Encounter) freischalten koennen. Reine Daten; die Auswertung
+// liegt in systems/diplomacy (analog systems/crafting).
+export interface FactionThreshold {
+  // Ab wie vielen Reputationspunkten diese Stufe erreicht ist (streng aufsteigend).
+  readonly points: number;
+  // Kurzer Rang-Titel (Fremd, Bekannt, Verbündet …) für die Anzeige.
+  readonly title: string;
+  // Flag, das beim Erreichen der Stufe gesetzt wird (typisch `reputation.<id>.<rang>`).
+  readonly unlockFlag: string;
+  // Was die Stufe konkret freischaltet (Anzeigetext).
+  readonly reward: string;
+}
+
+export interface FactionDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Streng aufsteigend nach `points`. Die letzte erreichte Stufe ist der Rang.
+  readonly thresholds: readonly FactionThreshold[];
+}
+
 // Phase 92 — Bewohner (Residents): Rimuru benennt verschlungene Gegner-Arten und
 // nimmt sie als Bewohner in Tempest auf (Tensura-Naming = Evolution + Bindung).
 // Reine Daten; die Rekrutierungs-/Roster-Logik liegt in systems/residents. Noch

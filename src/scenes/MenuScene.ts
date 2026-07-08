@@ -45,6 +45,7 @@ import { buildForgeView, craftRecipe, type CraftContext } from '../systems/craft
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
+import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
@@ -103,7 +104,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' = 'lore';
+  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -889,25 +890,29 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84/92/93/96 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔ Einrichtungen ↔ Kopfgeld.
-    this.button(300, 140, 92, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
+    // Phase 84/92/93/96/100 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
+    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie. Kompakt, damit alle sechs in eine Zeile passen.
+    this.button(300, 140, 70, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
       () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(396, 140, 150, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
+    this.button(374, 140, 132, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
       () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
-    this.button(550, 140, 126, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
+    this.button(510, 140, 108, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
       () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
-    this.button(680, 140, 150, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
+    this.button(622, 140, 140, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
       () => this.setCodexMode('facilities'), this.codexMode === 'facilities' ? 0x30506f : 0x1b2940);
-    this.button(834, 140, 118, `${this.codexMode === 'bounties' ? '● ' : ''}🎯 Kopfgeld`,
+    this.button(766, 140, 96, `${this.codexMode === 'bounties' ? '● ' : ''}🎯 Kopfgeld`,
       () => this.setCodexMode('bounties'), this.codexMode === 'bounties' ? 0x30506f : 0x1b2940);
+    this.button(866, 140, 90, `${this.codexMode === 'diplomacy' ? '● ' : ''}🤝 Politik`,
+      () => this.setCodexMode('diplomacy'), this.codexMode === 'diplomacy' ? 0x30506f : 0x1b2940);
     if (this.codexMode === 'devour') this.drawDevourCompendium();
     else if (this.codexMode === 'residents') this.drawResidentRoster();
     else if (this.codexMode === 'facilities') this.drawFacilities();
     else if (this.codexMode === 'bounties') this.drawBountyBoard();
+    else if (this.codexMode === 'diplomacy') this.drawDiplomacy();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties'): void {
+  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy'): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
@@ -1120,6 +1125,36 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(888, 520, `≈ ${overview.totalPerCycle} Ausbeute/Rast`, {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
     }).setOrigin(1, 0));
+  }
+
+  // Phase 100 — Diplomatie: Reputationsstände je Faktion, Rang, Fortschritt zur
+  // nächsten Stufe und der Freischalt-Status jeder Schwelle. Reine Anzeige.
+  private drawDiplomacy(): void {
+    const standings = buildDiplomacyView(this.save.progression.factionReputationByFactionId);
+    this.layer.add(this.add.text(318, 172, 'Tempests Ruf bei den Mächten der Region — bewegt durch Entscheidungen und Bündnisse.', {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc', wordWrap: { width: 600 }
+    }));
+
+    standings.forEach((standing, index) => {
+      const y = 210 + index * 74;
+      this.panel(300, y, 590, 68);
+      this.layer.add(this.add.text(318, y - 24, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})`, {
+        fontFamily: 'sans-serif', fontSize: '15px',
+        color: standing.points > 0 ? '#8dffc2' : '#6f83a5'
+      }));
+      const tiers = standing.thresholds
+        .map((threshold) => `${threshold.reached ? '✓' : '○'} ${threshold.title} (${threshold.points})`)
+        .join('   ');
+      this.layer.add(this.add.text(318, y - 2, tiers, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8'
+      }));
+      const footer = standing.nextThreshold
+        ? `Nächste Stufe „${standing.nextThreshold.title}" in ${standing.pointsToNext} Punkten — schaltet frei: ${standing.nextThreshold.reward}`
+        : `Höchste Stufe erreicht — ${standing.faction.description}`;
+      this.layer.add(this.add.text(318, y + 18, footer, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 552 }
+      }));
+    });
   }
 
   private produceOneCycle(): void {

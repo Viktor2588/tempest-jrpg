@@ -74,6 +74,9 @@ export interface ProgressionState {
   // wurde (hebt die Fortschritts-Schwelle wiederholbarer Auftraege).
   readonly defeatedEnemyCountsByEnemyId: Readonly<Record<string, number>>;
   readonly claimedBountyCountsByBountyId: Readonly<Record<string, number>>;
+  // Phase 100 — Diplomatie: graduelle Reputation je Faktion (factionId -> Punkte),
+  // bewegt über den Welt-Effekt `adjust-reputation`. Schwellen setzen Story-Flags.
+  readonly factionReputationByFactionId: Readonly<Record<string, number>>;
 }
 
 export interface CreateProgressionStateOptions {
@@ -92,6 +95,7 @@ export interface CreateProgressionStateOptions {
   readonly awakenedResidentIds?: readonly string[];
   readonly defeatedEnemyCountsByEnemyId?: Readonly<Record<string, number>>;
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
+  readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
 }
 
 export interface MemberActionResult {
@@ -182,7 +186,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     awakeningCompleted: options.awakeningCompleted === true,
     awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
-    claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {})
+    claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
+    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {})
   };
 }
 

@@ -24,6 +24,7 @@ export { HEROES } from './characters';
 export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
 export { FACILITIES } from './facilities';
+export { FACTIONS } from './factions';
 export { ELEMENT_FUSIONS } from './fusions';
 export { ITEMS } from './items';
 export { RESIDENTS } from './residents';
@@ -96,6 +97,8 @@ export type {
   EquipmentSlot,
   FacilityDefinition,
   FacilityOutput,
+  FactionDefinition,
+  FactionThreshold,
   ItemDefinition,
   ItemEffect,
   ResidentDefinition,

@@ -484,7 +484,10 @@ function readProgressionState(raw: unknown): ProgressionState {
     // Phase 96 — Kopfgeldbrett: alte Stände ohne diese Zähler starten ohne
     // Erlegungen/Einlösungen (createProgressionState normalisiert auf {}).
     defeatedEnemyCountsByEnemyId: readNumberRecord(raw.defeatedEnemyCountsByEnemyId),
-    claimedBountyCountsByBountyId: readNumberRecord(raw.claimedBountyCountsByBountyId)
+    claimedBountyCountsByBountyId: readNumberRecord(raw.claimedBountyCountsByBountyId),
+    // Phase 100 — Diplomatie: alte Stände ohne Reputationskarte starten neutral
+    // (createProgressionState normalisiert auf {}).
+    factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId)
   });
 }
 
