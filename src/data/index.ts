@@ -38,6 +38,7 @@ export {
   SKILL_TREES
 } from './progression';
 export { SKILLS } from './skills';
+export { SKILL_FUSIONS } from './skillFusions';
 export { SKILL_TIER_META, skillTierRank, skillTierBadge } from './skillRank';
 export type { SkillTierMeta } from './skillRank';
 export { SIGNATURES } from './signatures';
@@ -101,6 +102,7 @@ export type {
   ResidentRole,
   ResearchProject,
   SkillDefinition,
+  SkillFusionRecipe,
   SkillStatusEffect,
   SkillTag,
   SkillTarget,

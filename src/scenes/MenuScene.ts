@@ -30,7 +30,9 @@ import {
   getProgressionRelationships,
   getProgressionSkills,
   getRelationshipLevelNumber,
+  getSkillFusionViews,
   getSkillTree,
+  fuseMemberSkill,
   renameMember,
   unlockSkillNode,
   awakenTempest,
@@ -527,6 +529,25 @@ export class MenuScene extends Phaser.Scene {
         if (result.ok) this.persist();
         this.refresh();
       }, 0x3b3154);
+    }
+    // Phase 108 — Skill-Fusion: das erste verschmelzbare Rezept dieses Mitglieds
+    // (analog „Entwickeln"). Verbraucht gelernte Skills + Magicules zu einem stärkeren.
+    const fusion = getSkillFusionViews(summary.member, this.save.progression, this.save.flags)
+      .find((row) => row.fusable);
+    if (fusion) {
+      this.button(628, 270, 172, `⚗️ ${fusion.outputName} (${fusion.magiculeCost} MG)`, () => {
+        const result = fuseMemberSkill(
+          summary.member,
+          this.save.progression,
+          fusion.recipe.id,
+          this.save.flags
+        );
+        this.replaceMember(result.member);
+        this.save = { ...this.save, progression: result.state };
+        this.message = result.message;
+        if (result.ok) this.persist();
+        this.refresh();
+      }, 0x2f4a52);
     }
 
     // Skills (linke Spalte).

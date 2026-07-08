@@ -31,6 +31,7 @@ import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import { officerPerksForResidents } from './residents';
+import { buildSkillFusionView, canFuseSkill, fuseSkill, getSkillFusionRecipe, type SkillFusionView } from './skillFusion';
 import {
   addPartialStats,
   addStats,
@@ -292,6 +293,49 @@ export function evolveMember(
     member: evolvedMember,
     state: nextState,
     message: `${member.name} entwickelt sich zu ${evolution.formName}.`
+  };
+}
+
+// Phase 108 — Skill-Fusion: die für ein Party-Mitglied sichtbaren Verschmelzungs-
+// Rezepte (gegated über die gelernten Skills des Mitglieds + Magicules + Flags).
+export function getSkillFusionViews(
+  member: PartyMemberState,
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
+): SkillFusionView[] {
+  return buildSkillFusionView({
+    learnedSkillIds: member.learnedSkillIds,
+    magicules: state.magicules,
+    flags
+  });
+}
+
+// Phase 108 — Skill-Fusion: verschmilzt zwei gelernte Skills des Mitglieds zu einem
+// höherrangigen. Verbraucht die Eingaben aus learnedSkillIds (dauerhaft) und die
+// Magicules aus dem Pool (Phase 102). Rein deterministisch; Persistenz läuft über
+// die bestehenden Felder (learnedSkillIds + magicules), keine Save-Migration nötig.
+export function fuseMemberSkill(
+  member: PartyMemberState,
+  state: ProgressionState,
+  recipeId: string,
+  flags: Readonly<Record<string, boolean>> = {}
+): MemberActionResult {
+  const recipe = getSkillFusionRecipe(recipeId);
+  if (!recipe) {
+    return { ok: false, member, state, message: 'Verschmelzung nicht gefunden.' };
+  }
+  const context = { learnedSkillIds: member.learnedSkillIds, magicules: state.magicules, flags };
+  const check = canFuseSkill(recipe, context);
+  if (!check.ok) {
+    return { ok: false, member, state, message: check.reason };
+  }
+
+  const result = fuseSkill(recipe, context);
+  return {
+    ok: result.ok,
+    member: { ...member, learnedSkillIds: result.learnedSkillIds },
+    state: { ...state, magicules: result.magicules },
+    message: result.message
   };
 }
 

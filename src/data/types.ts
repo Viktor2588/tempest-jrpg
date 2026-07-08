@@ -180,6 +180,25 @@ export interface ResearchProject {
   readonly unlockFlag: string;
 }
 
+// Phase 108 — Skill-Fusion: gelernte Fertigkeiten (learnedSkillIds) entlang der
+// Rang-Leiter (Phase 111) zu einem hoeherrangigen Skill verschmelzen — Rimurus
+// Grosser-Weiser-Fantasie. Reine Daten; die Aufloesung liegt in systems/skillFusion.
+// Die Eingabe-Skills werden aus dem Loadout entfernt und durch den fusionierten
+// ersetzt; gegated ueber learnedSkillIds (statt Gold) + optional Magicules/Flag.
+export interface SkillFusionRecipe {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Zwei oder mehr gelernte Skill-IDs, die verbraucht werden.
+  readonly inputSkillIds: readonly string[];
+  // Der neue, verschmolzene Skill (muss in SKILLS existieren).
+  readonly outputSkillId: string;
+  // Magicule-Kosten (Phase 102); 0 fuer fruehe, guenstige Verschmelzungen.
+  readonly magiculeCost: number;
+  // Optionales Story-Gate (typisch fuer die hoeherrangigen/spaeten Rezepte).
+  readonly requiresFlag?: string;
+}
+
 // Phase 92 — Bewohner (Residents): Rimuru benennt verschlungene Gegner-Arten und
 // nimmt sie als Bewohner in Tempest auf (Tensura-Naming = Evolution + Bindung).
 // Reine Daten; die Rekrutierungs-/Roster-Logik liegt in systems/residents. Noch

@@ -180,5 +180,9 @@ export const SKILLS = [
   { id: 'quicken', name: 'Beschleunigung', description: 'Verdichtet Magie zu Tempo und zieht einen Verbündeten auf der Zeitleiste vor.', element: 'wind', target: 'single-ally', costMp: 5, power: 0, tags: ['buff', 'magical'], tier: 'extra-skill', ctDelta: 60 },
   // Phase 41 — Rimurus Unique-Skills: aktivieren die Verben Analysieren/Verschlingen (nicht direkt wirkbar).
   { id: 'great-sage', name: 'Großer Weiser', description: 'Rimurus einzigartige Fähigkeit: analysiert Gegner, deckt Schwächen auf und liest ihre nächsten Züge.', element: 'neutral', target: 'self', costMp: 0, power: 0, tags: ['buff'], tier: 'unique-skill' },
-  { id: 'predator', name: 'Verschlinger', description: 'Rimurus einzigartige Fähigkeit: verschlingt gebrochene, geschwächte Gegner und eignet sich ihre Kraft an.', element: 'shadow', target: 'self', costMp: 0, power: 0, tags: ['buff'], tier: 'unique-skill' }
+  { id: 'predator', name: 'Verschlinger', description: 'Rimurus einzigartige Fähigkeit: verschlingt gebrochene, geschwächte Gegner und eignet sich ihre Kraft an.', element: 'shadow', target: 'self', costMp: 0, power: 0, tags: ['buff'], tier: 'unique-skill' },
+  // Phase 108 — Skill-Fusion: verschmolzene Fertigkeiten. Der Große Weiser bündelt
+  // gelernte Skills zu einem stärkeren; jeder Output steht über seinen Eingaben.
+  { id: 'hydro-lash', name: 'Hydra-Schneide', description: 'Der Große Weiser bündelt Schleimschlag und Wasserstrahl zu einer geformten Wasserklinge, die härter und präziser trifft.', element: 'water', target: 'single-enemy', costMp: 7, power: 40, tags: ['magical'], tier: 'extra-skill', heavy: true },
+  { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true }
 ] as const satisfies readonly SkillDefinition[];
