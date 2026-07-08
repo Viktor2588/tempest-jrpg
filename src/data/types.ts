@@ -141,6 +141,33 @@ export interface CraftingRecipe {
   readonly repeatable: boolean;
 }
 
+// Phase 96 — Jagd-/Kopfgeldbrett (Bounties): wiederholbare Subjugations-Auftraege
+// der Blumund-Gilde, die das Verschlingen-Kompendium (Phase 84) zu einer belohnten
+// Jagd erweitern. Ein Auftrag verlangt N erlegte Ziel-Gegner und zahlt Material
+// (speist die Schmiede, Phase 91) + Gold. Reine Daten; die Fortschritts-/Einloese-
+// Logik liegt in systems/bounties (analog systems/crafting).
+export interface BountyReward {
+  readonly gold: number;
+  readonly items: readonly CraftingRecipeInput[];
+}
+
+export interface BountyDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  // Die Gegner-Art, deren Erlegen den Auftrag erfuellt (Enemy-ID).
+  readonly targetEnemyId: string;
+  // Wie viele Erlegungen ein Einloesen freischalten.
+  readonly requiredCount: number;
+  readonly reward: BountyReward;
+  // Gating ueber ein bestehendes Story-Flag (typisch story.blumund.guild-tested —
+  // die Gilde, die Auftraege ausgibt).
+  readonly requiresFlag?: string;
+  // Wiederholbare Auftraege (Standard-Jagd) koennen mit weiteren Erlegungen erneut
+  // eingeloest werden; einmalige (seltene Ziele) verschwinden nach dem Einloesen.
+  readonly repeatable: boolean;
+}
+
 // Phase 114 — Geister-Ingenieurskunst: kleine Forschungsprojekte verbrauchen
 // Materialien + Magicules und setzen Flags, die bestehende Systeme freischalten.
 export interface ResearchProject {

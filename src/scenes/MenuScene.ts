@@ -43,6 +43,7 @@ import { buildForgeView, craftRecipe, type CraftContext } from '../systems/craft
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
+import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
@@ -100,7 +101,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' = 'lore';
+  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -867,22 +868,25 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84/92/93 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔ Einrichtungen.
-    this.button(300, 140, 148, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
+    // Phase 84/92/93/96 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔ Einrichtungen ↔ Kopfgeld.
+    this.button(300, 140, 92, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
       () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(452, 140, 170, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
+    this.button(396, 140, 150, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
       () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
-    this.button(626, 140, 150, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
+    this.button(550, 140, 126, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
       () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
-    this.button(780, 140, 170, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
+    this.button(680, 140, 150, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
       () => this.setCodexMode('facilities'), this.codexMode === 'facilities' ? 0x30506f : 0x1b2940);
+    this.button(834, 140, 118, `${this.codexMode === 'bounties' ? '● ' : ''}🎯 Kopfgeld`,
+      () => this.setCodexMode('bounties'), this.codexMode === 'bounties' ? 0x30506f : 0x1b2940);
     if (this.codexMode === 'devour') this.drawDevourCompendium();
     else if (this.codexMode === 'residents') this.drawResidentRoster();
     else if (this.codexMode === 'facilities') this.drawFacilities();
+    else if (this.codexMode === 'bounties') this.drawBountyBoard();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities'): void {
+  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties'): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
@@ -1114,6 +1118,79 @@ export class MenuScene extends Phaser.Scene {
         progression: {
           ...this.save.progression,
           productionCycles: this.save.progression.productionCycles + 1
+        }
+      };
+      this.persist();
+    }
+    this.refresh();
+  }
+
+  private bountyContext(): BountyContext {
+    return {
+      defeatedEnemyCounts: this.save.progression.defeatedEnemyCountsByEnemyId,
+      claimedBountyCounts: this.save.progression.claimedBountyCountsByBountyId,
+      inventory: this.state.inventory,
+      gold: this.state.gold,
+      flags: this.state.flags ?? this.save.flags
+    };
+  }
+
+  // Phase 96 — Kopfgeldbrett: freigeschaltete Subjugations-Auftraege mit Fortschritt
+  // (erlegte Ziele/erforderlich) + Belohnung und die „Einlösen"-Aktion, sobald das
+  // Ziel oft genug erlegt wurde.
+  private drawBountyBoard(): void {
+    const board = buildBountyBoardView(this.bountyContext());
+    if (board.length === 0) {
+      this.layer.add(this.add.text(318, 200, 'Noch keine Auftraege — registriere dich bei der Gilde in Blumund.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      this.codexFooter(1, null);
+      return;
+    }
+
+    const claimableCount = board.filter((view) => view.claimable).length;
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(board.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const page = board.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    page.forEach((view, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      this.layer.add(this.add.text(318, y - 20, `${view.claimable ? '✦' : '◎'} ${view.bounty.name}  (${view.progress}/${view.required})`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: view.claimable ? '#8dffc2' : '#e9c56c'
+      }));
+      const rewardText = [
+        view.rewardGold > 0 ? `${view.rewardGold} Gold` : null,
+        ...view.rewardItems.map((reward) => `${reward.label} +${reward.amount}`)
+      ].filter((entry): entry is string => entry !== null).join(', ');
+      this.layer.add(this.add.text(318, y + 2, `Ziel: ${view.targetName} · Lohn: ${rewardText}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 430 }
+      }));
+      if (view.claimable) {
+        this.button(748, y + 13, 126, 'Einlösen', () => this.claimBountyReward(view.bounty.id), 0x2f6f55);
+      }
+    });
+
+    this.codexFooter(pageCount, `${claimableCount} einlösbar`);
+  }
+
+  private claimBountyReward(bountyId: string): void {
+    const bounty = getBounty(bountyId);
+    if (!bounty) {
+      this.message = 'Auftrag nicht verfügbar.';
+      this.refresh();
+      return;
+    }
+    const result = claimBounty(bounty, this.bountyContext());
+    this.message = result.message;
+    if (result.ok) {
+      this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+      this.save = {
+        ...this.save,
+        progression: {
+          ...this.save.progression,
+          claimedBountyCountsByBountyId: result.claimedBountyCounts
         }
       };
       this.persist();

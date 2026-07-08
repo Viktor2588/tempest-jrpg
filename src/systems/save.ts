@@ -480,7 +480,11 @@ function readProgressionState(raw: unknown): ProgressionState {
     promotedResidentIds: readStringArray(raw.promotedResidentIds),
     // Phase 104 — Erntefest: alte Stände haben das einmalige Erwachen noch offen.
     awakeningCompleted: raw.awakeningCompleted === true,
-    awakenedResidentIds: readStringArray(raw.awakenedResidentIds)
+    awakenedResidentIds: readStringArray(raw.awakenedResidentIds),
+    // Phase 96 — Kopfgeldbrett: alte Stände ohne diese Zähler starten ohne
+    // Erlegungen/Einlösungen (createProgressionState normalisiert auf {}).
+    defeatedEnemyCountsByEnemyId: readNumberRecord(raw.defeatedEnemyCountsByEnemyId),
+    claimedBountyCountsByBountyId: readNumberRecord(raw.claimedBountyCountsByBountyId)
   });
 }
 

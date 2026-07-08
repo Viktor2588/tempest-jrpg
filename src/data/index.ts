@@ -1,3 +1,4 @@
+import { BOUNTIES } from './bounties';
 import { HEROES } from './characters';
 import { CRAFTING_RECIPES } from './crafting';
 import { ENEMIES } from './enemies';
@@ -18,6 +19,7 @@ import { SKILLS } from './skills';
 import { SIGNATURES } from './signatures';
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS } from './world';
 
+export { BOUNTIES } from './bounties';
 export { HEROES } from './characters';
 export { CRAFTING_RECIPES } from './crafting';
 export { ENEMIES } from './enemies';
@@ -81,6 +83,8 @@ export type {
   WorldRequirement
 } from './world';
 export type {
+  BountyDefinition,
+  BountyReward,
   CharacterDefinition,
   CraftingRecipe,
   CraftingRecipeInput,
@@ -114,6 +118,7 @@ export const GAME_DATA = {
   residents: RESIDENTS,
   facilities: FACILITIES,
   craftingRecipes: CRAFTING_RECIPES,
+  bounties: BOUNTIES,
   skills: SKILLS,
   signatures: SIGNATURES,
   progression: {

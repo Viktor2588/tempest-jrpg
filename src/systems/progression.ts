@@ -68,6 +68,11 @@ export interface ProgressionState {
   // verstaerkt und im NG+ ueber Progression erhalten bleibt.
   readonly awakeningCompleted: boolean;
   readonly awakenedResidentIds: readonly string[];
+  // Phase 96 — Jagd-/Kopfgeldbrett: kumulierte Erlegungen je Gegner-Art (Grundlage
+  // fuer den Auftrags-Fortschritt) und wie oft jeder Auftrag bereits eingeloest
+  // wurde (hebt die Fortschritts-Schwelle wiederholbarer Auftraege).
+  readonly defeatedEnemyCountsByEnemyId: Readonly<Record<string, number>>;
+  readonly claimedBountyCountsByBountyId: Readonly<Record<string, number>>;
 }
 
 export interface CreateProgressionStateOptions {
@@ -84,6 +89,8 @@ export interface CreateProgressionStateOptions {
   readonly promotedResidentIds?: readonly string[];
   readonly awakeningCompleted?: boolean;
   readonly awakenedResidentIds?: readonly string[];
+  readonly defeatedEnemyCountsByEnemyId?: Readonly<Record<string, number>>;
+  readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
 }
 
 export interface MemberActionResult {
@@ -172,7 +179,9 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     magicules: clampNonNegativeInteger(options.magicules ?? 0),
     promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? []),
     awakeningCompleted: options.awakeningCompleted === true,
-    awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? [])
+    awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
+    defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
+    claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {})
   };
 }
 
