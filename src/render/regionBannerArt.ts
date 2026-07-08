@@ -12,7 +12,8 @@ export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
   'lizardman-marsh': 'ui-region-lizardman-marsh',
   'ember-hollow': 'ui-region-ember-hollow',
   'blumund': 'ui-region-blumund',
-  'freedom-academy': 'ui-region-freedom-academy'
+  'freedom-academy': 'ui-region-freedom-academy',
+  'ramiris-labyrinth': 'ui-region-ramiris-labyrinth'
 };
 
 export const DEFAULT_REGION_BANNER_TEXTURE_KEY = REGION_BANNER_TEXTURES['tempest-start'];

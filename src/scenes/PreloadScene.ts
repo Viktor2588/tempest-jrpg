@@ -18,6 +18,7 @@ import {
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
+  MAGIC_COLOSSUS_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
   OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
@@ -89,6 +90,7 @@ import enemyIfritUrl from '../assets/sprites/enemy-ifrit.webp';
 import enemyDirewolfAlphaUrl from '../assets/sprites/enemy-direwolf-alpha.webp';
 import enemyNamelessEchoUrl from '../assets/sprites/enemy-nameless-echo.webp';
 import enemyOgreWarriorUrl from '../assets/sprites/enemy-ogre-warrior.webp';
+import enemyMagicColossusUrl from '../assets/sprites/enemy-magic-colossus.png';
 import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
@@ -148,6 +150,7 @@ import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
 import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
 import regionBlumundUrl from '../assets/ui/region-blumund.webp';
 import regionFreedomAcademyUrl from '../assets/ui/region-freedom-academy.png';
+import regionRamirisLabyrinthUrl from '../assets/ui/region-ramiris-labyrinth.png';
 import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
@@ -211,6 +214,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(IFRIT_TEXTURE_KEY, enemyIfritUrl);
     this.load.image(DIREWOLF_ALPHA_TEXTURE_KEY, enemyDirewolfAlphaUrl);
     this.load.image(NAMELESS_ECHO_TEXTURE_KEY, enemyNamelessEchoUrl);
+    this.load.image(MAGIC_COLOSSUS_TEXTURE_KEY, enemyMagicColossusUrl);
     this.load.image('sprite-enemy-wolf', enemyDirewolfPupUrl);
     this.load.image('sprite-enemy-imp', enemyNamelessEchoUrl);
     this.load.image('sprite-enemy-ogre', enemyOgreWarriorUrl);
@@ -274,6 +278,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(REGION_BANNER_TEXTURES['ember-hollow'], regionEmberHollowUrl);
     this.load.image(REGION_BANNER_TEXTURES['blumund'], regionBlumundUrl);
     this.load.image(REGION_BANNER_TEXTURES['freedom-academy'], regionFreedomAcademyUrl);
+    this.load.image(REGION_BANNER_TEXTURES['ramiris-labyrinth'], regionRamirisLabyrinthUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.camp, regionTempestCampUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);

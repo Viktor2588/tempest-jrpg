@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { FREEDOM_ACADEMY, getMap, getMapName, MAPS } from '../src/data/maps';
+import { FREEDOM_ACADEMY, RAMIRIS_LABYRINTH, getMap, getMapName, MAPS } from '../src/data/maps';
 import { isWalkable } from '../src/systems/overworld';
+import { makeRng } from '../src/systems/rng';
 import { createNewSave } from '../src/systems/save';
 import {
   buildCodexView,
   buildQuestLog,
   chooseDialogOption,
+  completeEncounter,
   createWorldState,
   getMapNpcs,
   getTravelAtTile,
+  resolveEncounter,
   type WorldState
 } from '../src/systems/world';
 import portraitSource from '../src/render/portraitAtlas.ts?raw';
@@ -26,6 +29,32 @@ describe('Shizus Vermächtnis (Phase 113)', () => {
     expect(MAPS['freedom-academy']).toBe(FREEDOM_ACADEMY);
     expect(getMap('freedom-academy')).toBe(FREEDOM_ACADEMY);
     expect(getMapName('freedom-academy')).toBe('Freiheitsakademie');
+  });
+
+  it('öffnet Ramiris-Labyrinth als ersten Koloss-Set-Piece-Slice', () => {
+    expect(MAPS['ramiris-labyrinth']).toBe(RAMIRIS_LABYRINTH);
+    expect(getMap('ramiris-labyrinth')).toBe(RAMIRIS_LABYRINTH);
+    expect(getMapName('ramiris-labyrinth')).toBe('Ramiris-Labyrinth');
+
+    let state = withFlag(freshWorld(), 'story.children.first-core');
+    expect(getMapNpcs('freedom-academy', state).map((npc) => npc.id)).toContain('academy-ramiris');
+    expect(getTravelAtTile('freedom-academy', { x: 18, y: 7 }, state)).toBeUndefined();
+
+    const opened = chooseDialogOption(state, 'ramiris-labyrinth', 'start', 'open');
+    expect(opened.ok).toBe(true);
+    state = opened.state.world;
+    expect(state.flags['story.ramiris.met']).toBe(true);
+    expect(getTravelAtTile('freedom-academy', { x: 18, y: 7 }, state)?.travelTo?.mapId)
+      .toBe('ramiris-labyrinth');
+
+    const encounter = resolveEncounter(state, 'ramiris-labyrinth', { x: 18, y: 6 }, makeRng(1));
+    expect(encounter.state.encounter?.id).toBe('magic-colossus');
+    state = completeEncounter(encounter.state.world, encounter.state.encounter!.id).state;
+    expect(state.flags['story.magic-colossus.defeated']).toBe(true);
+    const quest = buildQuestLog(state).find((entry) => entry.id === 'ramiris-labyrinth');
+    expect(quest?.status).toBe('completed');
+    expect(quest?.steps.every((step) => step.completed)).toBe(true);
+    expect(buildCodexView(state).find((entry) => entry.id === 'ramiris-labyrinth')?.unlocked).toBe(true);
   });
 
   it('öffnet den Akademieweg erst nach Shizus Schwur', () => {

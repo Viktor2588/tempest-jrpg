@@ -52,7 +52,8 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'orc-battlefield': 'orc-battlefield',
   'lizardman-marsh': 'lizardman-marsh',
   'spirit-cave': 'spirit-cave',
-  'milim-clearing': 'milim-arrival'
+  'milim-clearing': 'milim-arrival',
+  'ramiris-labyrinth': 'spirit-cave'
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -67,6 +68,7 @@ const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'lizardman-skirmish': 'lizardman-marsh',
   'spirit-trial': 'spirit-cave',
   ifrit: 'spirit-cave',
+  'magic-colossus': 'spirit-cave',
   'milim-arrives': 'milim-arrival',
   'milim-spar': 'milim-arrival'
 };

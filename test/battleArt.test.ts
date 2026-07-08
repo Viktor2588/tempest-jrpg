@@ -30,6 +30,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('lizardman-marsh').textureKey).toBe(BATTLE_ARENA_TEXTURES['lizardman-marsh']);
     expect(battleArenaForMap('spirit-cave').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('milim-clearing').textureKey).toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
+    expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
@@ -44,6 +45,8 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('tempest-start', 'lizard-alliance').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['lizardman-marsh']);
     expect(battleArenaForMap('tempest-start', 'ifrit').textureKey)
+      .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+    expect(battleArenaForMap('ramiris-labyrinth', 'magic-colossus').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('tempest-start', 'milim-arrives').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);

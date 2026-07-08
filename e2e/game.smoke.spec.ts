@@ -717,6 +717,45 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   expect(browserErrors).toEqual([]);
 });
 
+test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'ramiris-labyrinth', x: 2, y: 7, facing: 'right' },
+    flags: {
+      'story.shizu.vow': true,
+      'story.children.first-core': true,
+      'story.ramiris.met': true
+    },
+    quests: {
+      'ramiris-labyrinth': {
+        status: 'active',
+        completedStepIds: ['meet-ramiris']
+      }
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await page.waitForTimeout(700);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('ramiris-labyrinth');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('region-ramiris-labyrinth'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-magic-colossus'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

@@ -13,6 +13,7 @@ import {
   LIZARDMAN_ACOLYTE_TEXTURE_KEY,
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
+  MAGIC_COLOSSUS_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
   OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
@@ -90,7 +91,8 @@ describe('Gegner-Art-Mapping', () => {
       ['lizardman-warrior', LIZARDMAN_WARRIOR_TEXTURE_KEY],
       ['gabiru', GABIRU_TEXTURE_KEY],
       ['masked-majin', MASKED_MAJIN_TEXTURE_KEY],
-      ['ifrit', IFRIT_TEXTURE_KEY]
+      ['ifrit', IFRIT_TEXTURE_KEY],
+      ['magic-colossus', MAGIC_COLOSSUS_TEXTURE_KEY]
     ] as const) {
       const art = enemyArtFor(id, '');
       expect(art.textureKey).toBe(expectedTexture);
@@ -110,7 +112,8 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-direwolf-alpha.webp',
       'enemy-direwolf-pup.webp',
       'enemy-nameless-echo.webp',
-      'enemy-ogre-warrior.webp'
+      'enemy-ogre-warrior.webp',
+      'enemy-magic-colossus.png'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

@@ -107,6 +107,13 @@ export const FREEDOM_ACADEMY: TileMap = buildMap(20, 14, [
   [3, 2, 3, 2], [10, 2, 4, 2], [15, 3, 2, 3], [4, 9, 2, 3], [11, 9, 4, 2], [16, 8, 2, 3]
 ], { x: 2, y: 7 });
 
+// Band-5/6-Set-Piece: Ramiris' Labyrinth (24x14, verwinkelte Terrassen mit
+// freier Koloss-Kammer). Erstes kleines Labyrinth-Inkrement statt Roguelike-System.
+export const RAMIRIS_LABYRINTH: TileMap = buildMap(24, 14, [
+  [4, 2, 2, 3], [8, 4, 3, 2], [14, 2, 2, 3], [18, 4, 2, 2],
+  [5, 9, 3, 2], [11, 8, 2, 3], [17, 9, 3, 2], [20, 6, 2, 2]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -121,7 +128,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'lizardman-marsh': LIZARDMAN_MARSH,
   'ember-hollow': EMBER_HOLLOW,
   'blumund': BLUMUND,
-  'freedom-academy': FREEDOM_ACADEMY
+  'freedom-academy': FREEDOM_ACADEMY,
+  'ramiris-labyrinth': RAMIRIS_LABYRINTH
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -149,7 +157,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'lizardman-marsh': 'Echsen-Sumpf',
   'ember-hollow': 'Glutgrotte',
   'blumund': 'Blumund',
-  'freedom-academy': 'Freiheitsakademie'
+  'freedom-academy': 'Freiheitsakademie',
+  'ramiris-labyrinth': 'Ramiris-Labyrinth'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

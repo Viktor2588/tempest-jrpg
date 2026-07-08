@@ -78,6 +78,7 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
       'elder-direwolf',
       'gabiru',
       'ifrit',
+      'magic-colossus',
       'masked-majin',
       'milim',
       'mordrahn',
