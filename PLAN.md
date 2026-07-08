@@ -149,9 +149,12 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 
 ### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
 
-- [ ] Phase 95 — Arena/Kolosseum. Wellen-Modus als Pruefstand fuer die tiefe
+- [x] Phase 95 — Arena/Kolosseum. (umgesetzt in `/worktree/tempest-phase-95-kolosseum`)
+  Wellen-Modus als Pruefstand fuer die tiefe
   Kampfmechanik; wiederverwendet Battle-Engine + Encounters; Raenge/Belohnungen
   (u. a. Material fuer die Schmiede). On-theme (Tensura-Turniere), wiederholbar.
+  Abnahme: `git diff --check`, `bun run typecheck`, `bun run test` (506 Tests),
+  `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Kolosseum"`.
 - [ ] Phase 96 — Jagd-/Kopfgeldbrett. Erweitert das Verschlingen-Kompendium
   (Phase 84) zu wiederholbaren Auftraegen mit Material-/Gold-Belohnung -> speist
   die Schmiede (Phase 91).

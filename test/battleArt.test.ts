@@ -30,6 +30,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('lizardman-marsh').textureKey).toBe(BATTLE_ARENA_TEXTURES['lizardman-marsh']);
     expect(battleArenaForMap('spirit-cave').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('milim-clearing').textureKey).toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
+    expect(battleArenaForMap('tempest-colosseum').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
@@ -47,6 +48,8 @@ describe('Battle-Art-Zuordnung', () => {
       .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('tempest-start', 'milim-arrives').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
+    expect(battleArenaForMap('tempest-start', 'arena-gold-wave').textureKey)
+      .toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
     expect(battleArenaForMap('tempest-start', 'unknown').kind).toBe('tempest-grove');
   });
 
@@ -62,7 +65,8 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-orc-battlefield.webp',
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
-      'battle-milim-arrival.webp'
+      'battle-milim-arrival.webp',
+      'battle-tempest-colosseum.png'
     ]) {
       expect(preloadSource).toContain(`../assets/backgrounds/${file}`);
     }

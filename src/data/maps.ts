@@ -107,6 +107,13 @@ export const FREEDOM_ACADEMY: TileMap = buildMap(20, 14, [
   [3, 2, 3, 2], [10, 2, 4, 2], [15, 3, 2, 3], [4, 9, 2, 3], [11, 9, 4, 2], [16, 8, 2, 3]
 ], { x: 2, y: 7 });
 
+// Tempest-Nebenanlage: Kolosseum (22×14, klare Ringmitte für wiederholbare
+// Wellenkämpfe, seitliche Tribünen und sichere Zu-/Ausgänge).
+export const TEMPEST_COLOSSEUM: TileMap = buildMap(22, 14, [
+  [3, 2, 3, 2], [16, 2, 3, 2], [3, 10, 3, 2], [16, 10, 3, 2],
+  [9, 3, 1, 2], [12, 3, 1, 2], [9, 9, 1, 2], [12, 9, 1, 2]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -121,7 +128,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'lizardman-marsh': LIZARDMAN_MARSH,
   'ember-hollow': EMBER_HOLLOW,
   'blumund': BLUMUND,
-  'freedom-academy': FREEDOM_ACADEMY
+  'freedom-academy': FREEDOM_ACADEMY,
+  'tempest-colosseum': TEMPEST_COLOSSEUM
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -149,7 +157,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'lizardman-marsh': 'Echsen-Sumpf',
   'ember-hollow': 'Glutgrotte',
   'blumund': 'Blumund',
-  'freedom-academy': 'Freiheitsakademie'
+  'freedom-academy': 'Freiheitsakademie',
+  'tempest-colosseum': 'Tempest-Kolosseum'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

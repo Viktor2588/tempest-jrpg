@@ -670,6 +670,38 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 120, itemIds: ['spirit-ember'] }
+  },
+  {
+    id: 'tempest-arena',
+    title: 'Ränge des Kolosseums',
+    description: 'Der Arena-Vorstand eröffnet ein wiederholbares Kolosseum, in dem Tempest Kampfränge und Schmiedematerialien verdient.',
+    steps: [
+      {
+        id: 'register',
+        title: 'Im Kolosseum melden',
+        description: 'Melde dich beim Arena-Vorstand von Tempest für die erste Rangfolge an.',
+        locationId: 'colosseum-desk'
+      },
+      {
+        id: 'bronze',
+        title: 'Bronze-Rang bestehen',
+        description: 'Bezwinge die erste Welle im Ring.',
+        locationId: 'colosseum-ring'
+      },
+      {
+        id: 'silver',
+        title: 'Silber-Rang bestehen',
+        description: 'Bezwinge die zweite Welle im Ring.',
+        locationId: 'colosseum-ring'
+      },
+      {
+        id: 'gold',
+        title: 'Gold-Rang bestehen',
+        description: 'Bezwinge die Finalwelle und sichere Tempests Arena-Lieferung.',
+        locationId: 'colosseum-ring'
+      }
+    ],
+    reward: { gold: 180, itemIds: ['magisteel'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -1063,6 +1095,46 @@ export const LOCATIONS = [
     bounds: { x: 5, y: 3, width: 12, height: 8 },
     description: 'Ambosse hämmern, Essen glühen: das Handwerksherz Dwargons mit Schmiede, Apotheke und Handelskontor.',
     identity: 'Sicherer Stadt-Hub: Zwergenschmiede, Magisteel-Handel und Kaijins Werkstatt.'
+  },
+  {
+    id: 'gate-to-colosseum',
+    name: 'Pfad zum Tempest-Kolosseum',
+    kind: 'gateway',
+    mapId: 'tempest-start',
+    position: { x: 18, y: 12 },
+    description: 'Ein breiter Holzsteg führt aus der Jungstadt zu Tempests neuem Kampfring.',
+    identity: 'Optionaler Reisepunkt: öffnet die wiederholbare Arena nach der Kijin-Benennung.',
+    unlockFlag: 'story.kijin.named',
+    travelTo: { mapId: 'tempest-colosseum', x: 2, y: 7 }
+  },
+  {
+    id: 'colosseum-gate-tempest',
+    name: 'Rückweg nach Tempest',
+    kind: 'gateway',
+    mapId: 'tempest-colosseum',
+    position: { x: 1, y: 7 },
+    description: 'Der Steg zurück zum Tempest-Hain.',
+    identity: 'Reisepunkt: zurück zur Jungstadt.',
+    travelTo: { mapId: 'tempest-start', x: 18, y: 12 }
+  },
+  {
+    id: 'colosseum-desk',
+    name: 'Arena-Schalter',
+    kind: 'outpost',
+    mapId: 'tempest-colosseum',
+    position: { x: 5, y: 7 },
+    description: 'Am Kampfrand werden Ränge, Wellenfolge und Materialprämien verzeichnet.',
+    identity: 'Arena-Hub: Anmeldung, Reset und Rangübersicht.'
+  },
+  {
+    id: 'colosseum-ring',
+    name: 'Kolosseumsring',
+    kind: 'dungeon',
+    mapId: 'tempest-colosseum',
+    position: { x: 11, y: 6 },
+    bounds: { x: 7, y: 4, width: 8, height: 5 },
+    description: 'Ein freier Sandring mit Tribünen, auf dem Tempest Kampfränge ausruft.',
+    identity: 'Wellenarena: Bronze, Silber und Gold als wiederholbare Kampfkette.'
   },
   {
     id: 'dwargon-throne',
@@ -3593,6 +3665,72 @@ export const DIALOGS = [
     ]
   },
   {
+    id: 'tempest-arena',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Arena-Vorstand',
+        text: 'Der Ring ist frei. Bronze prüft Haltung, Silber prüft Ressourcen, Gold prüft, ob Tempest unter Druck noch koordiniert bleibt. Nach dem Goldrang kann ich die Liste für einen neuen Materiallauf zurücksetzen.',
+        choices: [
+          {
+            id: 'register',
+            label: 'Arena-Lauf starten',
+            nextNodeId: 'registered',
+            requirements: [
+              { questStatus: { questId: 'tempest-arena', status: 'inactive' } },
+              { notFlag: 'arena.run.active' }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'tempest-arena' },
+              { type: 'complete-quest-step', questId: 'tempest-arena', stepId: 'register' },
+              { type: 'set-flag', flag: 'arena.run.active', value: true },
+              { type: 'set-flag', flag: 'arena.bronze.cleared', value: false },
+              { type: 'set-flag', flag: 'arena.silver.cleared', value: false },
+              { type: 'set-flag', flag: 'arena.gold.cleared', value: false }
+            ]
+          },
+          {
+            id: 'restart',
+            label: 'Neuen Materiallauf starten',
+            nextNodeId: 'registered',
+            requirements: [
+              { flag: 'arena.gold.cleared' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'arena.run.active', value: true },
+              { type: 'set-flag', flag: 'arena.bronze.cleared', value: false },
+              { type: 'set-flag', flag: 'arena.silver.cleared', value: false },
+              { type: 'set-flag', flag: 'arena.gold.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.arena-bronze-wave.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.arena-silver-wave.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.arena-gold-wave.cleared', value: false }
+            ]
+          },
+          {
+            id: 'status',
+            label: 'Rangliste prüfen',
+            nextNodeId: 'status',
+            requirements: [{ flag: 'arena.run.active' }]
+          },
+          { id: 'end', label: 'Später' }
+        ]
+      },
+      {
+        id: 'registered',
+        speaker: 'Arena-Vorstand',
+        text: 'Eingetragen. Tritt in die Ringmitte; die Wellen laufen nacheinander auf. Wer Gold schafft, bringt Magisteel und Ork-Hauer in Tempests Schmiede.',
+        choices: [{ id: 'end', label: 'In den Ring' }]
+      },
+      {
+        id: 'status',
+        speaker: 'Arena-Vorstand',
+        text: 'Die Tafel zeigt Bronze, Silber und Gold. Der nächste offene Rang erscheint in der Ringmitte; nach Gold kann ich denselben Lauf für weitere Materialien neu ansetzen.',
+        choices: [{ id: 'end', label: 'Verstanden' }]
+      }
+    ]
+  },
+  {
     id: 'tempest-builders',
     startNodeId: 'start',
     nodes: [
@@ -3906,6 +4044,14 @@ export const NPCS = [
     dialogId: 'shizu-children',
     color: 0x7ed957,
     requirements: [{ flag: 'story.shizu.vow' }]
+  },
+  {
+    id: 'arena-steward',
+    name: 'Arena-Vorstand',
+    mapId: 'tempest-colosseum',
+    position: { x: 5, y: 6 },
+    dialogId: 'tempest-arena',
+    color: 0xd9b36c
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -4489,6 +4635,62 @@ export const ENCOUNTERS = [
     ],
     victoryEffects: [
       { type: 'set-flag', flag: 'story.milim.duel', value: true },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+    ]
+  },
+  {
+    id: 'arena-bronze-wave',
+    mapId: 'tempest-colosseum',
+    kind: 'trigger',
+    position: { x: 11, y: 6 },
+    enemyIds: ['forest-slime', 'direwolf-pup', 'orc-grunt'],
+    chance: 1,
+    requirements: [
+      { flag: 'arena.run.active' },
+      { notFlag: 'arena.bronze.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'arena.bronze.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'tempest-arena', stepId: 'bronze' },
+      { type: 'add-gold', amount: 40 },
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+    ]
+  },
+  {
+    id: 'arena-silver-wave',
+    mapId: 'tempest-colosseum',
+    kind: 'trigger',
+    position: { x: 11, y: 6 },
+    enemyIds: ['lizardman-warrior', 'ogre-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'arena.bronze.cleared' },
+      { notFlag: 'arena.silver.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'arena.silver.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'tempest-arena', stepId: 'silver' },
+      { type: 'add-gold', amount: 70 },
+      { type: 'add-item', itemId: 'orc-tusk', quantity: 1 }
+    ]
+  },
+  {
+    id: 'arena-gold-wave',
+    mapId: 'tempest-colosseum',
+    kind: 'trigger',
+    position: { x: 11, y: 6 },
+    enemyIds: ['orc-general', 'ogre-warrior', 'lizardman-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'arena.silver.cleared' },
+      { notFlag: 'arena.gold.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'arena.gold.cleared', value: true },
+      { type: 'set-flag', flag: 'arena.run.active', value: false },
+      { type: 'complete-quest-step', questId: 'tempest-arena', stepId: 'gold' },
+      { type: 'complete-quest', questId: 'tempest-arena' },
+      { type: 'add-gold', amount: 180 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
   }
