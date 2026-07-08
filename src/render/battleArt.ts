@@ -22,7 +22,8 @@ export type BattleArenaKind =
   | 'orc-battlefield'
   | 'lizardman-marsh'
   | 'spirit-cave'
-  | 'milim-arrival';
+  | 'milim-arrival'
+  | 'tempest-colosseum';
 
 export const BATTLE_ARENA_TEXTURES = {
   'tempest-grove': 'battle-bg-tempest-grove',
@@ -36,7 +37,8 @@ export const BATTLE_ARENA_TEXTURES = {
   'orc-battlefield': 'battle-bg-orc-battlefield',
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
-  'milim-arrival': 'battle-bg-milim-arrival'
+  'milim-arrival': 'battle-bg-milim-arrival',
+  'tempest-colosseum': 'battle-bg-tempest-colosseum'
 } as const satisfies Record<BattleArenaKind, string>;
 
 const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -52,7 +54,8 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'orc-battlefield': 'orc-battlefield',
   'lizardman-marsh': 'lizardman-marsh',
   'spirit-cave': 'spirit-cave',
-  'milim-clearing': 'milim-arrival'
+  'milim-clearing': 'milim-arrival',
+  'tempest-colosseum': 'tempest-colosseum'
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -68,7 +71,10 @@ const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'spirit-trial': 'spirit-cave',
   ifrit: 'spirit-cave',
   'milim-arrives': 'milim-arrival',
-  'milim-spar': 'milim-arrival'
+  'milim-spar': 'milim-arrival',
+  'arena-bronze-wave': 'tempest-colosseum',
+  'arena-silver-wave': 'tempest-colosseum',
+  'arena-gold-wave': 'tempest-colosseum'
 };
 
 export function partyBattleTextureFor(sourceId: string): string | null {

@@ -136,6 +136,7 @@ import orcBattlefieldBattleUrl from '../assets/backgrounds/battle-orc-battlefiel
 import lizardmanMarshBattleUrl from '../assets/backgrounds/battle-lizardman-marsh.webp';
 import spiritCaveBattleUrl from '../assets/backgrounds/battle-spirit-cave.webp';
 import milimArrivalBattleUrl from '../assets/backgrounds/battle-milim-arrival.webp';
+import tempestColosseumBattleUrl from '../assets/backgrounds/battle-tempest-colosseum.png';
 import regionSealedCaveUrl from '../assets/ui/region-sealed-cave.webp';
 import regionGoblinVillageUrl from '../assets/ui/region-goblin-village.webp';
 import regionDirewolfDenUrl from '../assets/ui/region-direwolf-den.webp';
@@ -148,6 +149,7 @@ import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
 import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
 import regionBlumundUrl from '../assets/ui/region-blumund.webp';
 import regionFreedomAcademyUrl from '../assets/ui/region-freedom-academy.png';
+import regionTempestColosseumUrl from '../assets/ui/region-tempest-colosseum.png';
 import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
@@ -262,6 +264,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['lizardman-marsh'], lizardmanMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-cave'], spiritCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['milim-arrival'], milimArrivalBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['tempest-colosseum'], tempestColosseumBattleUrl);
     this.load.image(REGION_BANNER_TEXTURES['sealed-cave'], regionSealedCaveUrl);
     this.load.image(REGION_BANNER_TEXTURES['goblin-village'], regionGoblinVillageUrl);
     this.load.image(REGION_BANNER_TEXTURES['direwolf-den'], regionDirewolfDenUrl);
@@ -274,6 +277,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(REGION_BANNER_TEXTURES['ember-hollow'], regionEmberHollowUrl);
     this.load.image(REGION_BANNER_TEXTURES['blumund'], regionBlumundUrl);
     this.load.image(REGION_BANNER_TEXTURES['freedom-academy'], regionFreedomAcademyUrl);
+    this.load.image(REGION_BANNER_TEXTURES['tempest-colosseum'], regionTempestColosseumUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.camp, regionTempestCampUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
