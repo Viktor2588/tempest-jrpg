@@ -13,7 +13,8 @@ export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
   'ember-hollow': 'ui-region-ember-hollow',
   'blumund': 'ui-region-blumund',
   'freedom-academy': 'ui-region-freedom-academy',
-  'tempest-colosseum': 'ui-region-tempest-colosseum'
+  'tempest-colosseum': 'ui-region-tempest-colosseum',
+  'ramiris-labyrinth': 'ui-region-ramiris-labyrinth'
 };
 
 export const DEFAULT_REGION_BANNER_TEXTURE_KEY = REGION_BANNER_TEXTURES['tempest-start'];

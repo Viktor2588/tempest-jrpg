@@ -702,6 +702,33 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 180, itemIds: ['magisteel'] }
+  },
+  {
+    id: 'ramiris-labyrinth',
+    main: true,
+    title: "Ramiris' Labyrinth",
+    description: 'Ramiris öffnet einen ersten Labyrinthflügel, in dem ein Magiekoloss die Geistertechnik für Shizus Schüler bewacht.',
+    steps: [
+      {
+        id: 'meet-ramiris',
+        title: 'Ramiris anhören',
+        description: 'Sprich nach dem ersten stabilisierten Geist-Kern mit Ramiris an der Freiheitsakademie.',
+        locationId: 'academy-infirmary'
+      },
+      {
+        id: 'enter-labyrinth',
+        title: 'Den Labyrinthflügel betreten',
+        description: "Nimm den neuen Weg in Ramiris' Labyrinth und suche die Kolosskammer.",
+        locationId: 'ramiris-threshold'
+      },
+      {
+        id: 'defeat-colossus',
+        title: 'Den Magiekoloss brechen',
+        description: 'Besiege den steinernen Wächter, damit die beherrschbaren Großgeister erreichbar werden.',
+        locationId: 'magic-colossus-chamber'
+      }
+    ],
+    reward: { gold: 220, itemIds: ['magisteel', 'spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -1356,6 +1383,47 @@ export const LOCATIONS = [
     bounds: { x: 11, y: 4, width: 6, height: 5 },
     description: 'Ein heller Raum mit Decken, Kreidezeichen und schwankenden Geist-Kernen.',
     identity: 'Mechanik-Ort: erste Stabilisierung der Kinder, bevor spätere Geistertechnik die Lösung liefert.'
+  },
+  {
+    id: 'gate-to-ramiris-labyrinth',
+    name: 'Ramiris-Tor',
+    kind: 'gateway',
+    mapId: 'freedom-academy',
+    position: { x: 18, y: 7 },
+    description: 'Ein schwebender Türbogen faltet den Schulhof in einen Labyrinthflügel.',
+    identity: "Reisepunkt: Übergang in Ramiris' Labyrinth.",
+    unlockFlag: 'story.ramiris.met',
+    travelTo: { mapId: 'ramiris-labyrinth', x: 2, y: 7 }
+  },
+  {
+    id: 'labyrinth-gate-academy',
+    name: 'Rücktor zur Akademie',
+    kind: 'gateway',
+    mapId: 'ramiris-labyrinth',
+    position: { x: 1, y: 7 },
+    description: 'Der Ausgang hält den Faden zur Freiheitsakademie offen.',
+    identity: 'Reisepunkt: zurück zu Shizus Schülern.',
+    travelTo: { mapId: 'freedom-academy', x: 18, y: 7 }
+  },
+  {
+    id: 'ramiris-threshold',
+    name: 'Labyrinth-Schwelle',
+    kind: 'dungeon',
+    mapId: 'ramiris-labyrinth',
+    position: { x: 6, y: 6 },
+    bounds: { x: 4, y: 4, width: 6, height: 5 },
+    description: 'Wurzeln, Kristalle und alte Steinplatten bilden einen kontrollierten Testflügel.',
+    identity: 'Story-Ort: erster begehbarer Labyrinthabschnitt Ramiris.'
+  },
+  {
+    id: 'magic-colossus-chamber',
+    name: 'Kolosskammer',
+    kind: 'dungeon',
+    mapId: 'ramiris-labyrinth',
+    position: { x: 18, y: 6 },
+    bounds: { x: 15, y: 4, width: 6, height: 5 },
+    description: 'Ein steinerner Wächter hält Geistkristalle und Magisteel-Vorrichtungen im Gleichgewicht.',
+    identity: 'Bossort: Magiekoloss als erster Ramiris-Set-Piece-Kampf.'
   }
 ] as const satisfies readonly WorldLocationDefinition[];
 
@@ -1762,6 +1830,14 @@ export const LORE_ENTRIES = [
     category: 'people',
     body: 'Kenya, Chloe, Alice, Ryota und Gale sind Andersweltler-Kinder der Freiheitsakademie. Ihre beschworenen Geist-Kerne halten sie am Leben und zerreißen sie zugleich langsam; Rimurus Schutzschwur macht aus Shizus Bitte eine spielbare Folgeaufgabe.',
     unlockFlag: 'story.children.met'
+  },
+  {
+    id: 'ramiris-labyrinth',
+    title: "Ramiris' Labyrinth",
+    lockedTitle: 'Ein gefalteter Raum',
+    category: 'places',
+    body: 'Ramiris öffnet für Tempest zunächst nur einen kontrollierten Labyrinthflügel. Der Magiekoloss darin ist kein Zufallsmonster, sondern ein Wächter für Geistkristalle, Magisteel und spätere Großgeist-Bindungen.',
+    unlockFlag: 'story.ramiris.met'
   }
 ] as const satisfies readonly LoreEntryDefinition[];
 
@@ -3731,6 +3807,52 @@ export const DIALOGS = [
     ]
   },
   {
+    id: 'ramiris-labyrinth',
+    startNodeId: 'start',
+    nodes: [
+      {
+        id: 'start',
+        speaker: 'Ramiris',
+        text: 'Ramiris schwebt über den Kreidekreisen und zeigt auf einen gefalteten Türspalt. „Wenn ihr die Kinder retten wollt, braucht ihr beherrschbare Großgeister. Mein Labyrinth kann prüfen, ob Tempests Technik das aushält.“',
+        choices: [
+          {
+            id: 'open',
+            label: 'Labyrinthflügel öffnen',
+            nextNodeId: 'opened',
+            requirements: [
+              { flag: 'story.children.first-core' },
+              { notFlag: 'story.ramiris.met' }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'ramiris-labyrinth' },
+              { type: 'complete-quest-step', questId: 'ramiris-labyrinth', stepId: 'meet-ramiris' },
+              { type: 'set-flag', flag: 'story.ramiris.met', value: true }
+            ]
+          },
+          {
+            id: 'after',
+            label: 'Kolossdaten abgleichen',
+            nextNodeId: 'after',
+            requirements: [{ flag: 'story.magic-colossus.defeated' }]
+          },
+          { id: 'leave', label: 'Noch vorbereiten' }
+        ]
+      },
+      {
+        id: 'opened',
+        speaker: 'Ramiris',
+        text: 'Der Türspalt klappt in die Tiefe. „Nur ein Flügel, keine Prahlerei. Der Wächter dort lässt euch erst weiter, wenn ihr Break, Elemente und Forschung zusammendenkt.“',
+        choices: [{ id: 'end', label: 'Zum Labyrinth' }]
+      },
+      {
+        id: 'after',
+        speaker: 'Ramiris',
+        text: 'Ramiris klopft gegen einen Geistkristall. „Gut. Der Koloss ist gebrochen, nicht zerstört. Genau so kommt ihr später an die Großgeister, ohne die Kinder zu verbrennen.“',
+        choices: [{ id: 'end', label: 'Daten sichern' }]
+      }
+    ]
+  },
+  {
     id: 'tempest-builders',
     startNodeId: 'start',
     nodes: [
@@ -4052,6 +4174,24 @@ export const NPCS = [
     position: { x: 5, y: 6 },
     dialogId: 'tempest-arena',
     color: 0xd9b36c
+  },
+  {
+    id: 'academy-ramiris',
+    name: 'Ramiris',
+    mapId: 'freedom-academy',
+    position: { x: 16, y: 5 },
+    dialogId: 'ramiris-labyrinth',
+    color: 0x9af7ff,
+    requirements: [{ flag: 'story.children.first-core' }]
+  },
+  {
+    id: 'labyrinth-ramiris',
+    name: 'Ramiris',
+    mapId: 'ramiris-labyrinth',
+    position: { x: 5, y: 7 },
+    dialogId: 'ramiris-labyrinth',
+    color: 0x9af7ff,
+    requirements: [{ flag: 'story.ramiris.met' }]
   }
 ] as const satisfies readonly NpcDefinition[];
 
@@ -4571,6 +4711,29 @@ export const ENCOUNTERS = [
       { type: 'set-flag', flag: 'story.ifrit.subdued', value: true },
       { type: 'complete-quest-step', questId: 'shizu-vow', stepId: 'ifrit' },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+    ]
+  },
+  {
+    id: 'magic-colossus',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 18, y: 6 },
+    enemyIds: ['magic-colossus'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.ramiris.met' },
+      { notFlag: 'story.magic-colossus.defeated' }
+    ],
+    startEffects: [
+      { type: 'complete-quest-step', questId: 'ramiris-labyrinth', stepId: 'enter-labyrinth' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.magic-colossus.defeated', value: true },
+      { type: 'complete-quest-step', questId: 'ramiris-labyrinth', stepId: 'defeat-colossus' },
+      { type: 'complete-quest', questId: 'ramiris-labyrinth' },
+      { type: 'add-gold', amount: 220 },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 },
+      { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
     ]
   },
   // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale

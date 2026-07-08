@@ -17,6 +17,7 @@ export const DIREWOLF_ALPHA_TEXTURE_KEY = 'sprite-enemy-direwolf-alpha';
 export const DIREWOLF_PUP_TEXTURE_KEY = 'sprite-enemy-direwolf-pup';
 export const NAMELESS_ECHO_TEXTURE_KEY = 'sprite-enemy-nameless-echo';
 export const OGRE_WARRIOR_TEXTURE_KEY = 'sprite-enemy-ogre-warrior';
+export const MAGIC_COLOSSUS_TEXTURE_KEY = 'sprite-enemy-magic-colossus';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -78,7 +79,8 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   gabiru: generatedTexture(GABIRU_TEXTURE_KEY, 'enemy-lizard'),
   'masked-majin': generatedTexture(MASKED_MAJIN_TEXTURE_KEY, 'enemy-boss'),
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
-  'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre')
+  'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
+  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss')
 };
 
 export function enemyArtFor(sourceId: string, name: string): EnemyArtSpec {

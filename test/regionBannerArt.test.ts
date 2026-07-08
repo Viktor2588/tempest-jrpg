@@ -36,6 +36,7 @@ describe('Gebietsindikator-Banner', () => {
     expect(regionBannerTextureForMap('blumund')).toBe('ui-region-blumund');
     expect(regionBannerTextureForMap('freedom-academy')).toBe('ui-region-freedom-academy');
     expect(regionBannerTextureForMap('tempest-colosseum')).toBe('ui-region-tempest-colosseum');
+    expect(regionBannerTextureForMap('ramiris-labyrinth')).toBe('ui-region-ramiris-labyrinth');
     expect(regionBannerTextureForMap('unknown-map')).toBe(DEFAULT_REGION_BANNER_TEXTURE_KEY);
     expect(regionBannerTextureForMap('sealed-cave', () => false)).toBeNull();
   });
@@ -59,6 +60,7 @@ describe('Gebietsindikator-Banner', () => {
       'region-blumund.webp',
       'region-freedom-academy.png',
       'region-tempest-colosseum.png',
+      'region-ramiris-labyrinth.png',
       'region-tempest-camp.webp',
       'region-tempest-village.webp',
       'region-tempest-city.webp'

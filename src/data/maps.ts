@@ -114,6 +114,13 @@ export const TEMPEST_COLOSSEUM: TileMap = buildMap(22, 14, [
   [9, 3, 1, 2], [12, 3, 1, 2], [9, 9, 1, 2], [12, 9, 1, 2]
 ], { x: 2, y: 7 });
 
+// Band-5/6-Set-Piece: Ramiris' Labyrinth (24x14, verwinkelte Terrassen mit
+// freier Koloss-Kammer). Erstes kleines Labyrinth-Inkrement statt Roguelike-System.
+export const RAMIRIS_LABYRINTH: TileMap = buildMap(24, 14, [
+  [4, 2, 2, 3], [8, 4, 3, 2], [14, 2, 2, 3], [18, 4, 2, 2],
+  [5, 9, 3, 2], [11, 8, 2, 3], [17, 9, 3, 2], [20, 6, 2, 2]
+], { x: 2, y: 7 });
+
 // Map-Registry: mapId → TileMap. Die Overworld rendert die Karte des aktuellen
 // Save-Standorts statt einer fest verdrahteten Karte.
 export const MAPS: Readonly<Record<string, TileMap>> = {
@@ -129,7 +136,8 @@ export const MAPS: Readonly<Record<string, TileMap>> = {
   'ember-hollow': EMBER_HOLLOW,
   'blumund': BLUMUND,
   'freedom-academy': FREEDOM_ACADEMY,
-  'tempest-colosseum': TEMPEST_COLOSSEUM
+  'tempest-colosseum': TEMPEST_COLOSSEUM,
+  'ramiris-labyrinth': RAMIRIS_LABYRINTH
 };
 
 /** Karte zur mapId; Fallback auf das Startgebiet bei unbekannter ID. */
@@ -158,7 +166,8 @@ const MAP_NAMES: Readonly<Record<string, string>> = {
   'ember-hollow': 'Glutgrotte',
   'blumund': 'Blumund',
   'freedom-academy': 'Freiheitsakademie',
-  'tempest-colosseum': 'Tempest-Kolosseum'
+  'tempest-colosseum': 'Tempest-Kolosseum',
+  'ramiris-labyrinth': 'Ramiris-Labyrinth'
 };
 
 /** Sichtbarer Gebietsname zur mapId (für den Gebietsindikator). */

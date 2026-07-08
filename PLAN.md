@@ -350,7 +350,8 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
-- [ ] Phase 115 — Das Labyrinth des Ramiris & der Magiekoloss (Set-Piece, Band 5-6).
+- [x] Phase 115 — Das Labyrinth des Ramiris & der Magiekoloss (Set-Piece, Band 5-6;
+  umgesetzt in `/worktree/tempest-phase-115-ramiris-labyrinth`).
   Befund: greenfield; das Labyrinth (99) und Skript-Bosse/Adds (109) sind geplant,
   aber Ramiris (Labyrinth-Meisterin) und der vom Nutzer gewuenschte Magiekoloss-
   Kampf fehlen. Bauen: Ramiris als Labyrinth-Rahmen (NPC/Story) + einen skript-
@@ -358,8 +359,11 @@ liefern die Grundlage fuers Gating in 112/104.
   das Labyrinth liefert die beherrschbaren Grossgeister, die 113/114 aufloesen.
   Setzt 99 (Etagen-Abstieg) + 109 (Skript-Bosse) voraus bzw. baut sie mit. WICHTIG:
   Hard-Termination-Guards fuer Sims/Tests (kein Soft-Lock durch Adds/Phasen).
-  Akzeptanz: Koloss-Phasen deterministisch + terminierend headless getestet,
-  Balance-Sim der Tiefenskalierung, HUD neuer Combatants, Dungeon-/Boss-Smoke.
+  Akzeptanz 2026-07-08: erster Ramiris-Labyrinthfluegel mit generiertem 4:1-Banner
+  und Magiekoloss-Cutout, Quest-/Gateway-/Boss-Trigger deterministisch und
+  terminierend. Checks: `git diff --check`, `bun run typecheck`, `bun run test`
+  (505 Tests inkl. Balance-Harness), `bun run build`, `bun run test:e2e --
+  --project=desktop-chromium -g "Ramiris-Labyrinth"`.
 
 ## UX- und Welt-Backlog
 
