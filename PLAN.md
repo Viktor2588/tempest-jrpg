@@ -248,19 +248,6 @@ narrative Ausloeser fuer das Erwachen (104).
 Hinweis: Der Plan ist inzwischen ausfuehrungs-, nicht planungsgebunden (20+ offene
 Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
 
-- [ ] Phase 108 — Skill-Fusion/-Evolution (Fertigkeiten verschmelzen zu einzig-
-  artigen/Ultimate-Skills). Befund: nur Element-Team-Mix vorhanden, keine
-  Skill-Verschmelzung (s. o.). Bauen: eine datengetriebene `SkillFusionRecipe`
-  (Inputs = 2+ gelernte Skill-IDs, optional Material/Magicules aus 102; Output =
-  ein neuer Skill), aufgeloest in einem reinen `systems/skillFusion`-Modul (analog
-  crafting.ts): gegated ueber `learnedSkillIds` statt Gold; die Basis-Skills
-  verschmelzen (aus dem Loadout entfernt, durch den fusionierten ersetzt).
-  Persistenz ueber learnedSkillIds/eine neue uniqueStrings-Liste, Save-Migration
-  automatisch. UI: „Verschmelzen"-Tab (analog Schmiede) im Skill-/Talent-Menue.
-  Verzahnt mit 102 (Magicule-Kosten), 105 (Mimikry-Formen als Input), Devour-
-  Kompendium (84). Balance: Ultimate-Skills spaet gaten. Akzeptanz: Rezept-
-  Aufloesung + Verbrauch/Ersatz + Gating headless getestet, Save-Roundtrip +
-  Migration, Balance-Harness je Rimuru-Spec gruen (Korridore halten), Menue-Smoke.
 - [ ] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
   Inszenierung). Befund: Bosse haben phase2SkillIds + Archetyp-Flags, aber
   mid-fight Combatant-Spawning fehlt (Phase 82 „splitter/summoner deferred"), und
