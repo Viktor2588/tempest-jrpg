@@ -541,6 +541,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_93c:
+    - Coupled Nation production to the travel flow: the `restore-party` world effect (the Tempest campfire rest, its only usage) now also settles one facility production cycle, so the Nation produces during normal play, not only via the facilities menu button.
+    - `WorldState` gained optional `residentIds`/`promotedResidentIds`/`awakenedResidentIds`/`productionCycles`; `createWorldState` fills them from progression and `applyWorldState` writes the incremented cycle counter back. Optional fields keep every existing WorldState literal (tests, smokes) valid.
+    - Reused the deterministic `systems/facilities.runProductionCycle`; with no residents or still-wilderness Tempest the cycle yields nothing and the rest only heals (backward-compatible, no balance change beyond the already-unlimited menu button).
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (521 tests), `bun run build`.
   phase_96:
     - Added a repeatable bounty board that extends the devour compendium (Phase 84) into rewarded hunts: `src/data/bounties.ts` defines seven subjugation bounties (target enemy, required kills, material+gold reward), gated behind `story.blumund.guild-tested` and later story flags; one-off bounties disappear after claiming.
     - Pure rules in `src/systems/bounties.ts` (progress, claim, board view) over two new non-negative counter records, mirroring `systems/crafting`; `tallyDefeatedEnemies` folds a victory's defeated enemy species into the counters. Each claim raises the progress threshold by `requiredCount`, so a repeatable bounty re-arms only after further kills.

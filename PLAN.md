@@ -123,11 +123,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
   Encounter-Kontrolle (Rate/Vermeidung) statt reinem Gold. Braucht Verzahnung mit
   dem Rast-/Encounter-Fluss (nicht nur dem Menue-Knopf). Akzeptanz: Effekte
   headless getestet, Balance-Sim, Save-Migration, Smoke.
-- [ ] Phase 93c — Produktion an einen echten Rast-/Reise-Trigger koppeln. Heute
-  laeuft ein Zyklus ueber den "Tempest-Rast halten"-Knopf im Einrichtungs-Menue
-  (spielerinitiiert, idle-artig). Alternativ/zusaetzlich: automatisch bei
-  `restore-party` (Lager/Rast) bzw. Schnellreise abrechnen, damit die Nation auch
-  im normalen Spielfluss produziert. Braucht residentIds im WorldState-Pfad.
 
 ### Kampf-Ausbau: Elementarfelder
 
