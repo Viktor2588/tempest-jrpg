@@ -541,6 +541,12 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_96:
+    - Added a repeatable bounty board that extends the devour compendium (Phase 84) into rewarded hunts: `src/data/bounties.ts` defines seven subjugation bounties (target enemy, required kills, material+gold reward), gated behind `story.blumund.guild-tested` and later story flags; one-off bounties disappear after claiming.
+    - Pure rules in `src/systems/bounties.ts` (progress, claim, board view) over two new non-negative counter records, mirroring `systems/crafting`; `tallyDefeatedEnemies` folds a victory's defeated enemy species into the counters. Each claim raises the progress threshold by `requiredCount`, so a repeatable bounty re-arms only after further kills.
+    - Persistence: `ProgressionState` gains `defeatedEnemyCountsByEnemyId` and `claimedBountyCountsByBountyId` with save migration (old saves start with empty records); `battleResult` books defeated species on win; rewards feed the forge economy (Phase 91).
+    - UI: a fifth Codex tab `🎯 Kopfgeld` shows unlocked bounties with progress and a claim button; the tab row was reflowed to fit five tabs.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (518 tests), `bun run build`. No combat math touched, so the balance corridors are unaffected.
   phase_114:
     - Added a small Nation R&D layer without a save-schema change: `src/data/research.ts` defines Geist-core stabilization and Geist-Infusion projects; `src/systems/research.ts` consumes inventory plus Magicules and persists completion through existing save flags.
     - Wired the first open research project into the Codex Einrichtungen view, reusing the existing facilities screen and persistence path instead of adding a fifth facility that would violate the one-role/one-facility invariant.

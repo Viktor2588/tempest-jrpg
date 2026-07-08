@@ -145,9 +145,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 - [ ] Phase 95 — Arena/Kolosseum. Wellen-Modus als Pruefstand fuer die tiefe
   Kampfmechanik; wiederverwendet Battle-Engine + Encounters; Raenge/Belohnungen
   (u. a. Material fuer die Schmiede). On-theme (Tensura-Turniere), wiederholbar.
-- [ ] Phase 96 — Jagd-/Kopfgeldbrett. Erweitert das Verschlingen-Kompendium
-  (Phase 84) zu wiederholbaren Auftraegen mit Material-/Gold-Belohnung -> speist
-  die Schmiede (Phase 91).
 - [ ] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
   Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
   (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
