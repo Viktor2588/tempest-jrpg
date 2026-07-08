@@ -149,12 +149,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 
 ### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
 
-- [x] Phase 95 — Arena/Kolosseum. (umgesetzt in `/worktree/tempest-phase-95-kolosseum`)
-  Wellen-Modus als Pruefstand fuer die tiefe
-  Kampfmechanik; wiederverwendet Battle-Engine + Encounters; Raenge/Belohnungen
-  (u. a. Material fuer die Schmiede). On-theme (Tensura-Turniere), wiederholbar.
-  Abnahme: `git diff --check`, `bun run typecheck`, `bun run test` (506 Tests),
-  `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Kolosseum"`.
 - [ ] Phase 96 — Jagd-/Kopfgeldbrett. Erweitert das Verschlingen-Kompendium
   (Phase 84) zu wiederholbaren Auftraegen mit Material-/Gold-Belohnung -> speist
   die Schmiede (Phase 91).
@@ -350,21 +344,6 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
-- [x] Phase 115 — Das Labyrinth des Ramiris & der Magiekoloss (Set-Piece, Band 5-6;
-  umgesetzt in `/worktree/tempest-phase-115-ramiris-labyrinth`).
-  Befund: greenfield; das Labyrinth (99) und Skript-Bosse/Adds (109) sind geplant,
-  aber Ramiris (Labyrinth-Meisterin) und der vom Nutzer gewuenschte Magiekoloss-
-  Kampf fehlen. Bauen: Ramiris als Labyrinth-Rahmen (NPC/Story) + einen skript-
-  getriebenen **Magiekoloss**-Waechterboss (reuse 109 Bossphasen/Adds + 94 Felder);
-  das Labyrinth liefert die beherrschbaren Grossgeister, die 113/114 aufloesen.
-  Setzt 99 (Etagen-Abstieg) + 109 (Skript-Bosse) voraus bzw. baut sie mit. WICHTIG:
-  Hard-Termination-Guards fuer Sims/Tests (kein Soft-Lock durch Adds/Phasen).
-  Akzeptanz 2026-07-08: erster Ramiris-Labyrinthfluegel mit generiertem 4:1-Banner
-  und Magiekoloss-Cutout, Quest-/Gateway-/Boss-Trigger deterministisch und
-  terminierend. Checks: `git diff --check`, `bun run typecheck`, `bun run test`
-  (505 Tests inkl. Balance-Harness), `bun run build`, `bun run test:e2e --
-  --project=desktop-chromium -g "Ramiris-Labyrinth"`.
-
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.

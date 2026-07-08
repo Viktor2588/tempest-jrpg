@@ -541,6 +541,14 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_115:
+    - Added the first Ramiris Labyrinth wing as a Band 5/6 set-piece after Shizu's children: `ramiris-labyrinth` map, academy/labyrinth Ramiris NPCs, `ramiris-labyrinth` quest, gateway, and deterministic `magic-colossus` trigger.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.png` and `src/assets/sprites/enemy-magic-colossus.png`; wired preload, region banner, enemy art, and focused browser smoke.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (505 tests), `bun run build`, and focused desktop Chromium smoke `Ramiris-Labyrinth`.
+  phase_95:
+    - Added a repeatable Tempest Colosseum side activity: `tempest-colosseum` map, Tempest gateway, Arena-Vorstand NPC/dialog, `tempest-arena` quest, and Bronze/Silber/Gold trigger waves using the existing battle/encounter flow.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-tempest-colosseum.png` and `src/assets/backgrounds/battle-tempest-colosseum.png`; wired preload, battle arena mapping, region banner mapping, and focused browser smoke.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (506 tests), `bun run build`, and focused desktop Chromium smoke `Kolosseum`.
   phase_114:
     - Added a small Nation R&D layer without a save-schema change: `src/data/research.ts` defines Geist-core stabilization and Geist-Infusion projects; `src/systems/research.ts` consumes inventory plus Magicules and persists completion through existing save flags.
     - Wired the first open research project into the Codex Einrichtungen view, reusing the existing facilities screen and persistence path instead of adding a fifth facility that would violate the one-role/one-facility invariant.
