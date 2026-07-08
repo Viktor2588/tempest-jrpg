@@ -821,7 +821,7 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   await page.keyboard.press('m');
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex
-  await clickGamePoint(page, 840, 140); // Einrichtungen
+  await clickGamePoint(page, 692, 140); // Einrichtungen
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 810, 448); // Forschen
