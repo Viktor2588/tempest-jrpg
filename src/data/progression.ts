@@ -49,6 +49,11 @@ export interface RelationshipLevelDefinition {
   readonly partnerPassiveBonus?: Partial<StatBlock>;
   readonly combatBonus?: RelationshipCombatBonus;
   readonly skillIds?: readonly string[];
+  // Phase 98 — Bande: eine erreichte Bindungsstufe verleiht dem Hauptcharakter
+  // (`characterId`) eine passive Bond-Perk (Phase-69-Engine). Bewusst nur an der
+  // hoechsten Stufe verankert — eine tiefe Bindung formt spuerbar, wie das Paar
+  // kaempft (kanonischer Payoff der Beziehungsinvestition).
+  readonly perk?: TalentPerk;
 }
 
 export interface RelationshipSceneDefinition {
@@ -272,7 +277,8 @@ export const RELATIONSHIPS = [
           startingTeamMeter: 50,
           teamAttack: true,
           openingStatusId: 'attack-up'
-        }
+        },
+        perk: { kind: 'counter', percent: 10, scale: 1.2 }
       }
     ],
     scenes: [
@@ -316,7 +322,8 @@ export const RELATIONSHIPS = [
         requiredPoints: 120,
         title: 'Tempest-Stimme',
         passiveBonus: { maxHp: 10, maxMp: 6, spirit: 3 },
-        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'defense-up' }
+        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'defense-up' },
+        perk: { kind: 'max-hp', percent: 8 }
       }
     ],
     scenes: [
@@ -356,7 +363,8 @@ export const RELATIONSHIPS = [
         title: 'Direwolf-Sprint',
         passiveBonus: { attack: 4, agility: 5 },
         skillIds: ['direwolf-rush'],
-        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }
+        combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' },
+        perk: { kind: 'dodge', percent: 10 }
       }
     ],
     scenes: [
@@ -399,7 +407,8 @@ export const RELATIONSHIPS = [
         requiredPoints: 130,
         title: 'Schreinbindung',
         passiveBonus: { maxMp: 12, magic: 3, spirit: 4 },
-        skillIds: ['sacred-weave']
+        skillIds: ['sacred-weave'],
+        perk: { kind: 'buff-power', percent: 100 }
       }
     ],
     scenes: [
@@ -420,7 +429,7 @@ export const RELATIONSHIPS = [
     levels: [
       { level: 1, requiredPoints: 30, title: 'Mangafreund', passiveBonus: { maxMp: 6, magic: 2 }, combatBonus: { startingTeamMeter: 25 } },
       { level: 2, requiredPoints: 80, title: 'Sturm-Resonanz', passiveBonus: { maxMp: 12, magic: 4 }, combatBonus: { startingTeamMeter: 40 } },
-      { level: 3, requiredPoints: 150, title: 'Verda-Bund', passiveBonus: { maxMp: 18, magic: 6, spirit: 3 }, combatBonus: { startingTeamMeter: 55, openingStatusId: 'magic-up' } }
+      { level: 3, requiredPoints: 150, title: 'Verda-Bund', passiveBonus: { maxMp: 18, magic: 6, spirit: 3 }, combatBonus: { startingTeamMeter: 55, openingStatusId: 'magic-up' }, perk: { kind: 'damage-dealt', element: 'wind', percent: 12 } }
     ],
     scenes: [
       { id: 'veldora-manga-night', requiredLevel: 1, title: 'Manga im Magenraum', summary: 'Rimuru teilt Geschichten mit dem versiegelten Sturmdrachen und festigt ihre Freundschaft.', flagId: 'bond-veldora-1' },
@@ -436,7 +445,7 @@ export const RELATIONSHIPS = [
     levels: [
       { level: 1, requiredPoints: 25, title: 'Treueschwur', passiveBonus: { attack: 1, defense: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 20 } },
       { level: 2, requiredPoints: 70, title: 'Generalsband', passiveBonus: { attack: 2, magic: 2 }, partnerPassiveBonus: { attack: 2, magic: 2 }, combatBonus: { startingTeamMeter: 35, teamAttack: true } },
-      { level: 3, requiredPoints: 130, title: 'Schwarzflammen-Pakt', passiveBonus: { attack: 3, magic: 3, maxHp: 8 }, partnerPassiveBonus: { attack: 4, magic: 3 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'attack-up' } }
+      { level: 3, requiredPoints: 130, title: 'Schwarzflammen-Pakt', passiveBonus: { attack: 3, magic: 3, maxHp: 8 }, partnerPassiveBonus: { attack: 4, magic: 3 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'attack-up' }, perk: { kind: 'damage-dealt', element: 'fire', percent: 12 } }
     ],
     scenes: [
       { id: 'benimaru-oath', requiredLevel: 1, title: 'Schwur des Generals', summary: 'Benimaru gelobt Rimuru als erster der Oger ewige Gefolgschaft.', flagId: 'bond-benimaru-1' },
@@ -452,7 +461,7 @@ export const RELATIONSHIPS = [
     levels: [
       { level: 1, requiredPoints: 25, title: 'Leibwächterin', passiveBonus: { maxHp: 8, defense: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 20 } },
       { level: 2, requiredPoints: 70, title: 'Unerschütterlich', passiveBonus: { maxHp: 14, defense: 2 }, partnerPassiveBonus: { attack: 3, maxHp: 10 }, combatBonus: { startingTeamMeter: 35, teamAttack: true } },
-      { level: 3, requiredPoints: 130, title: 'Sturmwächterin', passiveBonus: { maxHp: 22, defense: 3, attack: 2 }, partnerPassiveBonus: { attack: 5, maxHp: 16 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'defense-up' } }
+      { level: 3, requiredPoints: 130, title: 'Sturmwächterin', passiveBonus: { maxHp: 22, defense: 3, attack: 2 }, partnerPassiveBonus: { attack: 5, maxHp: 16 }, combatBonus: { startingTeamMeter: 50, teamAttack: true, openingStatusId: 'defense-up' }, perk: { kind: 'damage-taken', category: 'physical', percent: 12 } }
     ],
     scenes: [
       { id: 'shion-devotion', requiredLevel: 1, title: 'Grenzenlose Hingabe', summary: 'Shion stellt sich kompromisslos vor Rimuru und stählt ihren Körper.', flagId: 'bond-shion-1' },
@@ -468,7 +477,7 @@ export const RELATIONSHIPS = [
     levels: [
       { level: 1, requiredPoints: 40, title: 'Neugieriger Demonlord', passiveBonus: { attack: 2 }, combatBonus: { startingTeamMeter: 20 } },
       { level: 2, requiredPoints: 100, title: 'Honigfreundschaft', passiveBonus: { attack: 4, agility: 2 }, combatBonus: { startingTeamMeter: 40 } },
-      { level: 3, requiredPoints: 180, title: 'Drachenfaust-Bund', passiveBonus: { attack: 6, agility: 3, maxHp: 10 }, combatBonus: { startingTeamMeter: 60, openingStatusId: 'attack-up' } }
+      { level: 3, requiredPoints: 180, title: 'Drachenfaust-Bund', passiveBonus: { attack: 6, agility: 3, maxHp: 10 }, combatBonus: { startingTeamMeter: 60, openingStatusId: 'attack-up' }, perk: { kind: 'damage-dealt', category: 'physical', percent: 10 } }
     ],
     scenes: [
       { id: 'milim-honey', requiredLevel: 1, title: 'Honig besiegt den Demonlord', summary: 'Rimuru gewinnt Milims Freundschaft mit einem Glas Honig statt einer Schlacht.', flagId: 'bond-milim-1' },

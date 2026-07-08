@@ -64,7 +64,7 @@ import {
 import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
-import { committedBranch, describeNodePerks } from '../systems/talentPerk';
+import { committedBranch, describeNodePerks, describePerk } from '../systems/talentPerk';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 type QuestStatusFilter = 'active' | 'completed';
@@ -572,7 +572,13 @@ export class MenuScene extends Phaser.Scene {
     relationships.slice(bindPage.start, bindPage.start + bindPage.visible).forEach((relationship, index) => {
       const level = getRelationshipLevelNumber(this.save.progression, relationship.id);
       const pointsValue = this.save.progression.relationshipPoints[relationship.id] ?? 0;
-      this.layer.add(this.add.text(bindCol.left, bindCol.top + index * bindCol.rowHeight, `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte`, {
+      // Phase 98 — Bond-Perk sichtbar machen: die an der erreichten Stufe verankerte
+      // Perk wird nur beim Hauptcharakter der Beziehung angezeigt (dort wirkt sie).
+      const bondPerk = relationship.characterId === characterId
+        ? relationship.levels.find((entry) => entry.perk !== undefined && entry.level <= level)?.perk
+        : undefined;
+      const perkLine = bondPerk ? `\n★ ${describePerk(bondPerk)}` : '';
+      this.layer.add(this.add.text(bindCol.left, bindCol.top + index * bindCol.rowHeight, `${relationship.partnerName} · Stufe ${level}\n${pointsValue} Bindungspunkte${perkLine}`, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', lineSpacing: 3
       }));
     });

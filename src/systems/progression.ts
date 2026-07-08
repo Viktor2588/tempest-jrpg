@@ -838,7 +838,8 @@ export function createProgressionBattleParty(
       perks: [
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
         ...awakenedPerksForMember(member.characterId, state),
-        ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds)
+        ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds),
+        ...bondPerksForCharacter(member.characterId, state)
       ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
@@ -856,6 +857,22 @@ function awakenedPerksForMember(
   state: ProgressionState
 ): readonly TalentPerk[] {
   return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
+}
+
+// Phase 98 — Bande: alle Bond-Perks der erreichten Bindungsstufen, in denen dieser
+// Charakter der Hauptcharakter (`characterId`) ist. Eine tiefe Bindung (hoechste
+// Stufe) formt spuerbar, wie das Paar kaempft — der Kampf-Payoff der Investition.
+export function bondPerksForCharacter(
+  characterId: string,
+  state: ProgressionState
+): readonly TalentPerk[] {
+  return (RELATIONSHIPS as readonly RelationshipDefinition[]).flatMap((relationship) => {
+    if (relationship.characterId !== characterId) return [];
+    const level = getRelationshipLevelNumber(state, relationship.id);
+    return relationship.levels
+      .filter((entry) => entry.level <= level && entry.perk !== undefined)
+      .map((entry) => entry.perk as TalentPerk);
+  });
 }
 
 export function applyBattleProgressionRewards(
