@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 119 — Tastatur-Dialog-Navigation (in Bearbeitung, Worktree: /worktree/tempest-phase-119-dialog-keyboard)
 
 ## Integrationswarteschlange
 
