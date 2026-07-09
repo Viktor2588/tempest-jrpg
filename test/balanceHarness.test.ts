@@ -146,6 +146,17 @@ describe('Balance-Harness Report', () => {
     expect(routeResists).toEqual(new Set(['magical', 'physical']));
   });
 
+  it('Phase 88d — der rally-cry-Support-Check liegt auf einer eigenen Pflichtplatzierung', () => {
+    // Nicht auf dem Border-/Alliance-Paar: der Ork-Soldat im Ork-Vorhutkampf zwingt
+    // Kontrolle/Fokus, ohne zusätzliche Gegner oder XP in die kritischen Grenzkämpfe zu legen.
+    const orcSoldier = (ENEMIES as readonly EnemyDefinition[]).find((enemy) => enemy.id === 'orc-soldier');
+    expect(orcSoldier?.skillIds).toContain('rally-cry');
+
+    const orcVanguard = ENCOUNTERS.find((candidate) => candidate.id === 'orc-vanguard');
+    expect(orcVanguard?.enemyIds).toContain('orc-soldier');
+    expect(STORY_ENCOUNTER_IDS).toContain('orc-vanguard');
+  });
+
   it('Phase 83 — Ressourcen-Bogen: MP sinkt über die Story-Route (Attrition, kein Gratis-Voll-Restore)', () => {
     const report = runBalanceHarnessReport(SEEDS);
     const mpBefore = report.storyRoute.map((encounter) => encounter.averagePartyMpFractionBefore);

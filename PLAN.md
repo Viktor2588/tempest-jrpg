@@ -77,7 +77,11 @@ erzwungen) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
 perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
 ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
-- [ ] Phase 88d (Rest) — der `rally-cry`-Support-Check bleibt noch off-route.
+- [x] Phase 88d (Rest) — der `rally-cry`-Support-Check liegt jetzt im Pflichtkampf
+  `orc-vanguard` auf dem Ork-Soldaten (`rally-cry`) und ist damit ON-ROUTE.
+  Abnahme: `git diff --check`, `bun run test -- test/balanceHarness.test.ts test/battle.test.ts`,
+  `bun run typecheck`, `bun run test`, `bun run build`; kein E2E-Smoke noetig,
+  da nur Kampf-Daten/Testabdeckung geaendert wurden.
   Erledigt: der Physisch-Resistenz-Zweig (`resistsCategory: 'physical'`, Sumpfschrecken)
   liegt jetzt ON-ROUTE im Pflichtkampf `border-rift-vanguard` (ersetzt den Lanzenträger,
   zwingt magischen Schaden) — Gegenstück zum Magie-Resistenz-Echo (88c). Alle Story-
