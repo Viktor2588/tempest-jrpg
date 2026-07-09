@@ -255,6 +255,10 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
+
+## Bug-Translation Phases (aus Bugs-Liste übersetzt)
+
+- [~] Phase 113 — Milim Kampf Fix & Belohnung (in Bearbeitung, Worktree: /worktree/tempest-phase-113-milim-fight). Der Kampf mit Milim in Tempest stört technisch und vergibt keine Belohnung bei Sieg. Akzeptanz: Stabiler Kampf, korrekte Belohnung (Items/XP/Skill), Balance-Harness je Rimuru-Spec grün, Battle-Smoke.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
