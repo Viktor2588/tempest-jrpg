@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [~] Phase 119 — Tastatur-Dialog-Navigation (in Bearbeitung, Worktree: /worktree/tempest-phase-119-dialog-keyboard)
+- [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
 
 ## Integrationswarteschlange
 
