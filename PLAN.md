@@ -117,10 +117,9 @@ Phase 93b ist gemergt: die Kueche setzt bei der Tempest-Rast einen einmaligen
 
 ### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
 
-- [~] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
+- [ ] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
   Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
   (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
-  (in Bearbeitung in `/worktree/tempest-phase-97-formation`)
 
 ### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
 
