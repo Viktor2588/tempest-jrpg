@@ -695,6 +695,11 @@ completed_milestones:
     - the ramp introduces at most two new combat verbs per step: `training-clearing` teaches analyze/break, `direwolf-pack-leader` teaches CT/reaction, `whispering-grove-ambush` teaches status/devour, `shrine-approach` teaches telegraph, and `geld-disaster-boss` teaches signature/fusion
     - UI copy change is deliberately narrow: `training-clearing` gained the first battle overlay, Direwolf copy names CT/reaction, and Grove copy names the Devour setup window; no data rewards, save migration, assets, or battle rules changed
     - tests guard both the presence of tutorial overlays and the exact staged verb order; `git diff --check`, typecheck, full unit suite, production build, and `e2e/game.smoke.spec.ts` passed
+  phase_86:
+    - Out-of-combat depth, smallest useful slice: no new exploration system; reused the existing map discovery layer to make a story consequence visible on the overworld
+    - after `story.direwolf.pact`, `tempest-start` shows `Rangas Rudelspur` at a free walkable tile near Tempest; it is a one-time discovery (`discovery.tempest-start.ranga-pack-trail`) rewarding `healing-herb`
+    - regression test covers hidden-before-pact, visible-after-pact, one-time collection hiding, real item reward, and walkable placement through the existing discovery integrity loop
+    - `git diff --check`, typecheck, full unit suite, production build, and full desktop/mobile `e2e/game.smoke.spec.ts` (54 passed) verified the visible Overworld change
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes

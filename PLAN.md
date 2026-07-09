@@ -73,20 +73,11 @@ notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
 Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
 Rallyer), 88c (Magie-Resistenz ON-ROUTE), 88d (Physisch-Resistenz +
-`rally-cry`-Support-Check ON-ROUTE) und 89 (gestaffelte Kampf-Teaching-Curve)
-sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster: perfekt 0.25× /
-rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist ebenfalls gemergt —
-aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
-- [x] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
-  oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
-  Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung
-  (Karten-Events jenseits von Kaempfen, sichtbar veraenderte Welt nach Bossen,
-  Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
-  ist — aber der naechste Schritt, sobald die Kampfschleife traegt. Erledigt:
-  Nach Rangas Pakt erscheint im Startgebiet `Rangas Rudelspur` als einmalige
-  Fundstelle/Weltfolge ueber das vorhandene Discovery-System. Abnahme:
-  `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`,
-  `bun run test:e2e -- e2e/game.smoke.spec.ts` (54 passed).
+`rally-cry`-Support-Check ON-ROUTE), 89 (gestaffelte Kampf-Teaching-Curve) und
+86 (erste Out-of-Combat-Weltfolge per Post-Pakt-Fundstelle) sind gemergt.
+Phase 85 (Reaktion als erspieltes Timing-Fenster: perfekt 0.25× / rechtzeitig
+0.5× / verpasst voll, mit Tutorial-Beat) ist ebenfalls gemergt — aktive
+Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
 ## Erweiterungs-Roadmap (Nutzer 2026-07-06: umfangreichere Spielmechanik)
 
