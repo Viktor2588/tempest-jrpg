@@ -152,6 +152,7 @@ Lizenzzeile.
 | `music/title-theme.ogg` | Titel-Motiv (Music Jingles `jingles_PIZZI07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/field-theme.ogg` | Oberwelt-Motiv (Music Jingles `jingles_NES00.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/battle-theme.ogg` | Kampf-Motiv (Music Jingles `jingles_STEEL07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `ui/dialog-keyboard-hint.webp` | UI HUD: Dialog Tastatur-Navigation Hint, keyboard + choice indicator (WebP) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG dialog keyboard navigation hint for Phase 119 accessibility | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.
