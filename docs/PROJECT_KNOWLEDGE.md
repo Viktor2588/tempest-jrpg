@@ -541,6 +541,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_110:
+    - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
+    - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
+    - Added project-generated battle background `src/assets/backgrounds/battle-tempest-invasion.png` with ASSETS provenance, battle arena/preload wiring, headless invasion tests, sceneScript coverage, and focused desktop Chromium smoke `Tempest-Invasion-Save`.
+    - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (556 tests), `bun run build`, and `bun run test:e2e -- --project=desktop-chromium -g "Tempest-Invasion-Save"`.
   phase_115:
     - Added the first Ramiris Labyrinth wing as a Band 5/6 set-piece after Shizu's children: `ramiris-labyrinth` map, academy/labyrinth Ramiris NPCs, `ramiris-labyrinth` quest, gateway, and deterministic `magic-colossus` trigger.
     - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.png` and `src/assets/sprites/enemy-magic-colossus.png`; wired preload, region banner, enemy art, and focused browser smoke.
