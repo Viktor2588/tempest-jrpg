@@ -16,7 +16,7 @@ import {
   unequipItem,
   useItem
 } from '../systems/menu';
-import { activateReserveMember } from '../systems/partyFormation';
+import { activateReserveMember, moveActiveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
   canAwakenTempest,
@@ -240,6 +240,11 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '19px',
       color: '#e9c56c'
     }).setOrigin(0.5, 0));
+    if (this.textures.exists('ui-formation-rows')) {
+      this.layer.add(this.add.image(active.left - 82, 208, 'ui-formation-rows')
+        .setDisplaySize(132, 74)
+        .setAlpha(0.62));
+    }
     this.layer.add(this.add.text(active.left, MENU_PARTY_LAYOUT.headingY, 'Aktive Gruppe · maximal 3', {
       fontFamily: 'sans-serif',
       fontSize: '13px',
@@ -273,6 +278,28 @@ export class MenuScene extends Phaser.Scene {
         fontSize: '12px',
         color: '#9fb2cc'
       }));
+      const memberRow = summary.member.formationRow ?? 'front';
+      const rowLabel = memberRow === 'front' ? 'Front' : 'Hinten';
+      this.layer.add(this.add.text(active.left + active.width - 18, y - 31, rowLabel, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: memberRow === 'front' ? '#ffd27a' : '#8fe7ff'
+      }).setOrigin(1, 0));
+      this.button(active.left + active.width - 158, y + 28, 70, 'Front', () => {
+        this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          'front'
+        )));
+      }, 0x243447);
+      this.button(active.left + active.width - 82, y + 28, 70, 'Hinten', () => {
+        this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          'back'
+        )));
+      }, 0x243447);
     });
 
     this.layer.add(this.add.text(reserve.left, MENU_PARTY_LAYOUT.headingY, 'Reserve', {
