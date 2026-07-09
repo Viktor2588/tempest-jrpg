@@ -152,6 +152,7 @@ Lizenzzeile.
 | `music/title-theme.ogg` | Titel-Motiv (Music Jingles `jingles_PIZZI07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/field-theme.ogg` | Oberwelt-Motiv (Music Jingles `jingles_NES00.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/battle-theme.ogg` | Kampf-Motiv (Music Jingles `jingles_STEEL07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `ui/story-event-order.webp` | UI HUD: Story Event Order / Timeline Banner (WebP alpha) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG story sequence correction banner for Phase 115 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.
