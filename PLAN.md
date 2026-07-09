@@ -216,7 +216,7 @@ liefern die Grundlage fuers Gating in 112/104.
 
 ## Bug-Translation Phases (aus Bugs-Liste übersetzt)
 
-- [~] Phase 119 — Tastatur-Dialog-Navigation (in Bearbeitung, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
+- [x] Phase 119 — Tastatur-Dialog-Navigation (in main integriert). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
