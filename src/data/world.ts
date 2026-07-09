@@ -732,6 +732,33 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 220, itemIds: ['magisteel', 'spirit-ember'] }
+  },
+  {
+    id: 'tempest-invasion',
+    main: true,
+    title: 'Tempest verteidigen',
+    description: 'Eine menschliche Strafkolonne rückt auf Tempest vor. Rigurd verteilt die Offiziere, Rimuru hält die Palisade und schlägt die Kommandowelle zurück.',
+    steps: [
+      {
+        id: 'council',
+        title: 'Den Verteidigungsrat alarmieren',
+        description: 'Sprich nach Gelds Fall mit Rigurd in Tempest und ordne die Offiziersposten.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'vanguard',
+        title: 'Die Vorhut an der Palisade brechen',
+        description: 'Stell die erste Menschenwelle am südöstlichen Wall.',
+        locationId: 'battlefield-front'
+      },
+      {
+        id: 'command',
+        title: 'Den Kommandotrupp zurückwerfen',
+        description: 'Schlage den Sammelruf der Strafkolonne zurück und sichere Tempests Routen.',
+        locationId: 'battlefield-heart'
+      }
+    ],
+    reward: { gold: 160, itemIds: ['magisteel'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -1723,6 +1750,14 @@ export const LORE_ENTRIES = [
     unlockFlag: 'faction.kijin.sworn'
   },
   {
+    id: 'tempest-invasion',
+    title: 'Tempests erste Verteidigung',
+    lockedTitle: 'Rauch an der Palisade',
+    category: 'history',
+    body: 'Nach Gelds Fall marschiert eine menschliche Strafkolonne auf Tempest. Rigurd verteilt die benannten Offiziere auf die Abschnitte, Rimuru hält die Palisade und macht aus einer Belagerung den Beweis, dass Tempest seine Wege selbst schützen kann.',
+    unlockFlag: 'story.tempest-invasion.repulsed'
+  },
+  {
     id: 'dwargon',
     title: 'Dwargon, das Bewaffnete Königreich',
     lockedTitle: 'Gerüchte aus den Bergen',
@@ -2345,6 +2380,21 @@ export const DIALOGS = [
             ]
           },
           {
+            id: 'muster-invasion',
+            label: 'Verteidigung aufstellen',
+            nextNodeId: 'invasion-mustered',
+            requirements: [
+              { flag: 'story.geld.devoured' },
+              { questStatus: { questId: 'tempest-invasion', status: 'inactive' } },
+              { notFlag: 'story.tempest-invasion.repulsed' }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'tempest-invasion' },
+              { type: 'complete-quest-step', questId: 'tempest-invasion', stepId: 'council' },
+              { type: 'set-flag', flag: 'story.tempest-invasion.active', value: true }
+            ]
+          },
+          {
             id: 'state',
             label: 'Was ist Tempest?',
             nextNodeId: 'state',
@@ -2420,6 +2470,12 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Shuna hält das Ritual, Gobta die Menschenroute und Ranga die Rückzugsspur. Das Bündnis steht. Brich die Linie der alten Ordnung und führe alle zum Bindungsherz.',
         choices: [{ id: 'end', label: 'Zum Bündnismarsch' }]
+      },
+      {
+        id: 'invasion-mustered',
+        speaker: 'Rigurd',
+        text: 'Sturmzahn hält die Wache, Seidenschwinge meldet jeden Flankenlauf, die Heiler bleiben hinter dem Wall. Wenn die zweite Welle fällt, sind unsere Wege sicherer als zuvor.',
+        choices: [{ id: 'end', label: 'Zur Palisade' }]
       },
       {
         id: 'end-freedom',
@@ -4748,6 +4804,44 @@ export const ENCOUNTERS = [
       { type: 'add-gold', amount: 220 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 },
       { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+    ]
+  },
+  {
+    id: 'tempest-invasion-vanguard',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 9, y: 7 },
+    enemyIds: ['human-lancer', 'human-deserter'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.tempest-invasion.active' },
+      { notFlag: 'story.tempest-invasion.vanguard-cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.tempest-invasion.vanguard-cleared', value: true },
+      { type: 'complete-quest-step', questId: 'tempest-invasion', stepId: 'vanguard' },
+      { type: 'add-gold', amount: 60 }
+    ]
+  },
+  {
+    id: 'tempest-invasion-command',
+    mapId: 'jura-battlefield',
+    kind: 'trigger',
+    position: { x: 15, y: 6 },
+    enemyIds: ['human-lancer', 'human-deserter', 'human-lancer'],
+    chance: 1,
+    requirements: [
+      { flag: 'story.tempest-invasion.vanguard-cleared' },
+      { notFlag: 'story.tempest-invasion.repulsed' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'story.tempest-invasion.repulsed', value: true },
+      { type: 'set-flag', flag: 'story.tempest-invasion.active', value: false },
+      { type: 'complete-quest-step', questId: 'tempest-invasion', stepId: 'command' },
+      { type: 'complete-quest', questId: 'tempest-invasion' },
+      { type: 'adjust-reputation', factionId: 'blumund', amount: 10 },
+      { type: 'add-gold', amount: 160 },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
   },
   // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale

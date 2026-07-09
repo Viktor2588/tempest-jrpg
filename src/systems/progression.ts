@@ -159,7 +159,7 @@ const skillTreeNodeById = new Map<string, SkillTreeNodeDefinition>(
   SKILL_TREES.flatMap((tree) => tree.nodes.map((node) => [node.id, node] as const))
 );
 export const AWAKENING_MAGICULE_COST = 160;
-export const AWAKENING_REQUIRED_FLAG = 'story.geld.devoured';
+export const AWAKENING_REQUIRED_FLAG = 'story.tempest-invasion.repulsed';
 export const AWAKENING_SCENE_FLAG = 'story.harvest-festival.awakened';
 const AWAKENED_RIMURU_PERKS: readonly TalentPerk[] = [
   { kind: 'max-hp', percent: 10 },

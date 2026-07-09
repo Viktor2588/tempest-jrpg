@@ -236,7 +236,7 @@ Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
   Spawn/Phasenwechsel deterministisch + terminierend headless getestet, Auto-Battle
   kommt mit Adds klar, Balance-Harness je Rimuru-Spec gruen, HUD zeigt neue
   Combatants, Battle-Smoke.
-- [ ] Phase 110 — Tempest-Invasion & Verteidigung (die fehlende Bedrohungsschicht;
+- [x] Phase 110 — Tempest-Invasion & Verteidigung (abgeschlossen in `/worktree/tempest-phase-110-tempest-invasion`) (die fehlende Bedrohungsschicht;
   Ausloeser fuer 104). Befund: Die Nation wird nie angegriffen (s. o.). Bauen: ein
   story-gegateter Invasions-/Verteidigungs-Arc — eine rivalisierende (menschliche)
   Armee greift Tempest an; der Spieler verteidigt in einer Encounter-Sequenz, in
@@ -247,7 +247,9 @@ Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
   Nation-Bau; wer angreift/hilft, kann an der Diplomatie-Reputation (100) haengen.
   Akzeptanz: Invasions-Gate + Verteidigungs-Sequenz + Ausgangsfolgen (Produktions-/
   Roster-Effekt) headless getestet, Save-Migration, Balance-Sim der Wellen, Szene
-  ueber den sceneScript-Interpreter (62) + Smoke.
+  ueber den sceneScript-Interpreter (62) + Smoke. Abnahme 2026-07-09:
+  `git diff --check`; `bun run typecheck`; `bun run test`;
+  `bun run build`; `bun run test:e2e -- --project=desktop-chromium -g "Tempest-Invasion-Save"`.
 
 ## Fuenfte Welle: Skill-Raenge, Praedator-Perversion & Shizus Kinder (IDEEN.md, 2026-07-07)
 

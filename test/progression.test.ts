@@ -250,7 +250,7 @@ describe('progression system', () => {
   });
 
   it('vollzieht das Erntefest einmalig, verbraucht Magicules und verstärkt Offiziere', () => {
-    const flags = { 'story.geld.devoured': true };
+    const flags = { 'story.tempest-invasion.repulsed': true };
     const state = createProgressionState({
       magicules: AWAKENING_MAGICULE_COST + 5,
       promotedResidentIds: ['sturmzahn', 'hainspore']
