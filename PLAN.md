@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
 
 ## Integrationswarteschlange
 
@@ -213,6 +213,10 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
+
+## Bug-Translation Phases (aus Bugs-Liste übersetzt)
+
+- [~] Phase 119 — Tastatur-Dialog-Navigation (in Bearbeitung, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.

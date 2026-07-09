@@ -23,6 +23,7 @@ export class DialogueScene extends Phaser.Scene {
   private bodyText?: Phaser.GameObjects.Text;
   private fullText = '';
   private revealEvent?: Phaser.Time.TimerEvent;
+  private selectedIndex = 0;  // Phase 119: keyboard nav selection
 
   constructor() {
     super('Dialogue');
@@ -41,7 +42,39 @@ export class DialogueScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ESC', () => this.close());
     // Tippen/Klicken vervollständigt den laufenden Schreibmaschineneffekt sofort.
     this.input.on('pointerdown', () => this.completeReveal());
+    // Phase 119: Tastatur-Navigation (Pfeile, Leertaste/Enter)
+    this.setupKeyboardNavigation();
     this.refresh();
+  }
+
+  // Phase 119: setup arrow keys + space/enter for choice selection (default "weiter")
+  private setupKeyboardNavigation(): void {
+    const kb = this.input.keyboard;
+    if (!kb) return;
+    kb.on('keydown-LEFT', () => this.moveSelection(-1));
+    kb.on('keydown-RIGHT', () => this.moveSelection(1));
+    kb.on('keydown-UP', () => this.moveSelection(-2));
+    kb.on('keydown-DOWN', () => this.moveSelection(2));
+    kb.on('keydown-SPACE', () => this.chooseSelected());
+    kb.on('keydown-ENTER', () => this.chooseSelected());
+    // ensure initial selection points to "weiter" if present
+    this.selectedIndex = 0;
+  }
+
+  private moveSelection(delta: number): void {
+    const n = this.view.choices.length || 1;
+    this.selectedIndex = (this.selectedIndex + delta + n) % n;
+    this.refresh();
+  }
+
+  private chooseSelected(): void {
+    if (this.view.choices.length === 0) {
+      this.close();
+      return;
+    }
+    const clamped = Math.max(0, Math.min(this.selectedIndex, this.view.choices.length - 1));
+    const choice = this.view.choices[clamped];
+    if (choice) this.choose(choice.id);
   }
 
   // Schreibmaschineneffekt sofort beenden (zeigt den ganzen Text).
@@ -55,6 +88,11 @@ export class DialogueScene extends Phaser.Scene {
 
   private refresh(): void {
     this.layer.removeAll(true);
+    if (this.view.choices.length > 0) {
+      this.selectedIndex = Math.min(this.selectedIndex, this.view.choices.length - 1);
+    } else {
+      this.selectedIndex = 0;
+    }
     const settings = loadSettings(window.localStorage);
     const hc = settings.highContrast;
     this.panel(70, 230, GAME_WIDTH - 140, 265);
@@ -94,13 +132,25 @@ export class DialogueScene extends Phaser.Scene {
 
     // 2-Spalten-Raster: bis zu vier gefilterte Optionen bleiben sichtbar und klickbar
     // (die frühere horizontale Reihe lief bei 3–4 Optionen aus dem Bild).
+    // Phase 119: highlight selected for keyboard nav (default to "weiter" first if present)
+    const nChoices = this.view.choices.length;
+    if (nChoices > 0) {
+      // ensure selected is valid
+      if (this.selectedIndex >= nChoices) this.selectedIndex = 0;
+      // prefer "weiter" as initial if present on first render with choices
+      if (this.selectedIndex === 0 && nChoices > 1) {
+        const weiterIdx = this.view.choices.findIndex(c => /weiter/i.test(c.label));
+        if (weiterIdx >= 0) this.selectedIndex = weiterIdx;
+      }
+    }
     this.view.choices.forEach((choice, index) => {
       const col = index % 2;
       const row = Math.floor(index / 2);
-      this.button(94 + col * 410, 398 + row * 48, 384, choice.label, () => this.choose(choice.id));
+      const isSelected = index === this.selectedIndex;
+      this.button(94 + col * 410, 398 + row * 48, 384, choice.label, () => this.choose(choice.id), isSelected);
     });
     if (this.view.choices.length === 0) {
-      this.button(94, 398, 384, 'Weiter', () => this.close());
+      this.button(94, 398, 384, 'Weiter', () => this.close(), true);
     }
   }
 
@@ -211,9 +261,12 @@ export class DialogueScene extends Phaser.Scene {
     this.layer.add(addUiPanel(this, x, y, width, height, { originY: 0, alpha: 0.96 }));
   }
 
-  private button(x: number, y: number, width: number, label: string, callback: () => void): void {
+  private button(x: number, y: number, width: number, label: string, callback: () => void, isSelected = false): void {
+    // Phase 119: visual for keyboard selected (brighter border / hover fill)
     this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
-      idleAlpha: 0.98
+      idleAlpha: isSelected ? 1.0 : 0.98,
+      hoverFill: isSelected ? 0x3a6a9a : undefined,
+      fill: isSelected ? 0x274062 : undefined
     }));
   }
 

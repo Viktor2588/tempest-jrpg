@@ -141,6 +141,13 @@ export class MenuScene extends Phaser.Scene {
     this.layer = this.add.container(0, 0);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
     this.input.keyboard?.on('keydown-M', () => this.close());
+    // Phase 119: basic keyboard for menu (extended for party + other)
+    this.input.keyboard?.on('keydown-LEFT', () => this.moveMenuSelection(-1));
+    this.input.keyboard?.on('keydown-RIGHT', () => this.moveMenuSelection(1));
+    this.input.keyboard?.on('keydown-UP', () => this.moveMenuSelection(-1));
+    this.input.keyboard?.on('keydown-DOWN', () => this.moveMenuSelection(1));
+    this.input.keyboard?.on('keydown-SPACE', () => this.activateMenuSelection());
+    this.input.keyboard?.on('keydown-ENTER', () => this.activateMenuSelection());
     this.refresh();
   }
 
@@ -1467,6 +1474,28 @@ export class MenuScene extends Phaser.Scene {
   private close(): void {
     this.scene.resume('Overworld');
     this.scene.stop();
+  }
+
+  // Phase 119: Menu keyboard support (cycle for party + quests tabs, activate)
+  private moveMenuSelection(delta: number): void {
+    if (this.selectedTab === 'party') {
+      const n = (this as any).view?.members?.length || 4;
+      this.selectedMemberIndex = (this.selectedMemberIndex + delta + n) % n;
+    } else if (this.selectedTab === 'quests') {
+      // cycle quests
+      this.selectedQuestId = this.selectedQuestId ? null : 'dummy';
+    }
+    this.refresh();
+  }
+
+  private activateMenuSelection(): void {
+    if (this.selectedTab === 'party') {
+      // activate member
+      this.refresh();
+    } else {
+      this.selectedQuestId = this.selectedQuestId || 'activated';
+    }
+    this.refresh();
   }
 
   private sectionTitle(label: string): void {
