@@ -104,17 +104,6 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 Phase 93b ist gemergt: die Kueche setzt bei der Tempest-Rast einen einmaligen
 `defense-up`-Opening-Status fuer den naechsten Kampf und verbraucht ihn danach.
 
-### Kampf-Ausbau: Elementarfelder
-
-- [ ] Phase 94 — Schlachtfeld-Zustand (Elementarfelder). Ein Feld-/Terrain-Zustand
-  auf dem `BattleState`: ein Skill laedt das Feld elementar auf -> verstaerkt das
-  passende Element, loest Reaktionen mit Status/anderen Elementen aus
-  (brennend+Wind=Ausbreitung, Wasserfeld+Schatten=..., verzahnt mit der 21-Paar-
-  Fusionstabelle). Element-Wahl wird Board-Control statt nur Schwaeche-Treffer.
-  Rein logisch auf dem vorhandenen Element/Fusion/Status-Motor. Akzeptanz:
-  Feld-Erzeugung/-Reaktion/-Abklingen headless getestet, HUD-Anzeige des Feldes,
-  Balance-Harness fuer jede Rimuru-Spec gruen.
-
 ### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
 
 Die drei JRPG-Pfeiler, die noch ganz fehlen: Figuren-Bindung, Endgame/Replay,

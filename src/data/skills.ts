@@ -184,5 +184,11 @@ export const SKILLS = [
   // Phase 108 — Skill-Fusion: verschmolzene Fertigkeiten. Der Große Weiser bündelt
   // gelernte Skills zu einem stärkeren; jeder Output steht über seinen Eingaben.
   { id: 'hydro-lash', name: 'Hydra-Schneide', description: 'Der Große Weiser bündelt Schleimschlag und Wasserstrahl zu einer geformten Wasserklinge, die härter und präziser trifft.', element: 'water', target: 'single-enemy', costMp: 7, power: 40, tags: ['magical'], tier: 'extra-skill', heavy: true },
-  { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true }
+  { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true },
+  // Phase 94 — Elementarfelder: laden das Schlachtfeld elementar auf (Board-Control).
+  // Reiner Aufbau (kein Schaden) → verstärkt danach gleichelementige Treffer und öffnet
+  // Fusions-Reaktionen (z. B. Glutfeld + Windtreffer = Feuersturm). Keine Auto-Nutzung.
+  { id: 'ember-field', name: 'Glutfeld', description: 'Benimaru entfacht den Boden zu einem Flammenfeld — Feuertreffer lodern stärker, ein Windschlag entfacht einen Feuersturm.', element: 'fire', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  { id: 'gale-field', name: 'Sturmfeld', description: 'Ranga peitscht Sturmböen über das Feld — Windtreffer schneiden schärfer, Fusionen mit anderen Elementen entfesseln sich.', element: 'wind', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  { id: 'tide-field', name: 'Gezeitenfeld', description: 'Souei flutet das Schlachtfeld mit Wasser — Wassertreffer branden stärker, Fusionen wie Dampf oder Sturmflut werden möglich.', element: 'water', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true }
 ] as const satisfies readonly SkillDefinition[];

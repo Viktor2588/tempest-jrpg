@@ -1,6 +1,7 @@
 import type { ElementType, SkillDefinition, StatusEffectId } from '../data';
 import { SIGNATURES, SKILLS, type SignatureTarget } from '../data';
 import type {
+  BattleField,
   BattleRewards,
   BattleState,
   BattleStatus,
@@ -72,6 +73,8 @@ export interface BattleView {
   readonly round: number;
   // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten.
   readonly devouredSourceIds: readonly string[];
+  // Phase 94 — Elementarfeld: aktiver Feld-Zustand (null = neutral) für die HUD-Anzeige.
+  readonly field: BattleField | null;
 }
 
 export function renderView(state: BattleState): BattleView {
@@ -98,7 +101,8 @@ export function renderView(state: BattleState): BattleView {
     inventory: [...state.inventory],
     turn: state.turns,
     round: state.round,
-    devouredSourceIds: [...state.devouredSourceIds]
+    devouredSourceIds: [...state.devouredSourceIds],
+    field: state.field ? { element: state.field.element, turns: state.field.turns } : null
   };
 }
 

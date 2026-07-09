@@ -26,6 +26,7 @@ import {
 import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
+import { elementLabel } from '../systems/battlePresentation';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
@@ -512,6 +513,16 @@ export class BattleScene extends Phaser.Scene {
       fontSize: '11px',
       color: '#f7e5b5'
     }).setOrigin(1, 0.5));
+
+    // Phase 94 — Elementarfeld-Anzeige: nur sichtbar, solange ein Feld geladen ist.
+    if (view.field) {
+      this.layer.add(this.add.text(
+        GAME_WIDTH - 15,
+        46,
+        `Feld: ${elementLabel(view.field.element)} (${view.field.turns})`,
+        { fontFamily: 'sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#7fd4ff' }
+      ).setOrigin(1, 0.5));
+    }
 
     this.layer.add(this.add.rectangle(GAME_WIDTH / 2, 248, 300, 34, 0x091521, 0.86)
       .setStrokeStyle(1, 0x6b91b2, 0.75));

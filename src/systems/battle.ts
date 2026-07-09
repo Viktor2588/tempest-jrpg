@@ -8,6 +8,7 @@ import {
   SIGNATURES,
   SKILLS,
   type CharacterDefinition,
+  type ElementFusionDefinition,
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
@@ -42,6 +43,14 @@ export type BattleStatus = 'active' | 'won' | 'lost' | 'fled';
 
 export interface StatusInstance {
   readonly id: StatusEffectId;
+  turns: number;
+}
+
+// Phase 94 — Elementarfeld: der elementare Zustand des Schlachtfelds. Ein Feld
+// verstärkt gleichelementige Treffer, öffnet Fusions-Reaktionen und klingt pro
+// Runde ab. Nur ein Feld gleichzeitig (einfachste tragfähige Lösung).
+export interface BattleField {
+  readonly element: ElementType;
   turns: number;
 }
 
@@ -182,6 +191,8 @@ export interface BattleState {
   // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten
   // (für die Rekrutierung nach dem Sieg). Nur erfolgreiche Verschlinger-Finisher.
   devouredSourceIds: string[];
+  // Phase 94 — Elementarfeld: der aktive Feld-Zustand (null = neutrales Feld).
+  field: BattleField | null;
 }
 
 export type BattleAction =
@@ -272,6 +283,12 @@ const CATEGORY_RESIST_MULTIPLIER = 0.55;
 // Phase 88b — Kategorie-Reflektor: Anteil des zurückgeworfenen Kategorie-Schadens (breiter
 // als ein Element-Reflektor, daher milder pro Treffer).
 const CATEGORY_REFLECT_FRACTION = 0.3;
+// Phase 94 — Elementarfeld: Dauer (Runden) eines frisch geladenen Feldes, Schadensbonus
+// für gleichelementige Treffer und der Zusatzdruck einer Fusions-Reaktion. Bewusst klein
+// gehalten (Board-Control, kein Alles-Overkill).
+const FIELD_DURATION_ROUNDS = 3;
+const FIELD_MATCH_AMPLIFY = 1.25;
+const FIELD_REACTION_BREAK_PRESSURE = 2;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -444,7 +461,8 @@ export function startBattle(options: StartBattleOptions): BattleState {
     rng,
     log: ['Ein Kampf beginnt!'],
     rewards: { experience: 0, gold: 0, items: [] },
-    devouredSourceIds: []
+    devouredSourceIds: [],
+    field: null
   };
 
   advanceToNextActor(state);
@@ -829,6 +847,8 @@ function resolveSkill(
   if (skill.element !== 'neutral') {
     actor.resonanceElement = skill.element;
   }
+  // Phase 94 — Board-Control: die Fähigkeit lädt (bei chargesField) das Feld auf.
+  chargeField(state, actor, skill);
 
   if (isHealingSkill(skill)) {
     for (const target of targets) {
@@ -853,6 +873,13 @@ function resolveSkill(
     return { ok: true };
   }
 
+  // Phase 94 — Feld-Zustand bei Cast-Beginn: bestimmt Verstärkung + Reaktion für ALLE
+  // Ziele dieses Skills (die Reaktion breitet sich über die Ziele aus und verbraucht das
+  // Feld danach einmalig).
+  const castField = state.field;
+  const fieldAmplify = fieldMatchMultiplier(castField, skill.element);
+  const reaction = fieldReaction(castField, skill.element);
+
   let momentumGranted = false;
   for (const target of targets) {
     const usesPhysicalScaling = skill.tags.includes('physical') && !skill.tags.includes('magical');
@@ -860,6 +887,7 @@ function resolveSkill(
     const mitigation = usesPhysicalScaling ? effectiveStat(target, 'defense') : effectiveStat(target, 'spirit');
     const rawDamage = (skill.power + offense * 1.35 - mitigation * 0.55)
       * elementMultiplier(skill.element, target)
+      * fieldAmplify
       * variance(state.rng);
     const damage = applyDamage(state, actor, target, rawDamage, true, {
       category: usesPhysicalScaling ? 'physical' : 'magical',
@@ -869,6 +897,9 @@ function resolveSkill(
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
     applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
+    if (reaction && !target.dead) {
+      triggerFieldReaction(state, target, reaction);
+    }
     if (!momentumGranted && damage > 0 && target.weaknesses.includes(skill.element)) {
       grantMomentum(state, actor, 'Schwächentreffer');
       momentumGranted = true;
@@ -876,6 +907,10 @@ function resolveSkill(
     applySkillStatus(state, actor, target, skill);
     applyCtDelta(target, skill.ctDelta);
     checkDeath(state, target);
+  }
+  // Die Fusions-Reaktion verbraucht das Feld (Board-Control wird eingelöst).
+  if (reaction && state.field === castField) {
+    state.field = null;
   }
 
   // Perk skill-chain: nach diesem Skill mit Chance einen Folge-Skill ohne Zugkosten.
@@ -1453,6 +1488,8 @@ function advanceToNextActor(state: BattleState): void {
       combatant.ct += effectiveStat(combatant, 'agility');
     }
     state.round += 1;
+    // Phase 94 — das Elementarfeld klingt pro Runde ab.
+    tickField(state);
   }
 
   resolveByTurnCap(state);
@@ -2065,6 +2102,65 @@ function getSkill(id: string): SkillDefinition | undefined {
 
 function livingCombatants(state: BattleState, side?: Side): Combatant[] {
   return state.combatants.filter((combatant) => !combatant.dead && (!side || combatant.side === side));
+}
+
+// Phase 94 — Elementarfeld (Board-Control).
+const FIELD_ELEMENT_LABEL: Readonly<Record<ElementType, string>> = {
+  neutral: 'Neutral', water: 'Wasser', wind: 'Wind', fire: 'Feuer',
+  earth: 'Erde', shadow: 'Schatten', holy: 'Heilig'
+};
+
+// Lädt das Schlachtfeld auf das Element der Fähigkeit auf (nur mit chargesField-Flag).
+function chargeField(state: BattleState, actor: Combatant, skill: SkillDefinition): void {
+  if (!skill.chargesField || skill.element === 'neutral') {
+    return;
+  }
+  state.field = { element: skill.element, turns: FIELD_DURATION_ROUNDS };
+  pushLog(state, `${actor.name} lädt das Schlachtfeld mit ${FIELD_ELEMENT_LABEL[skill.element]} auf.`);
+}
+
+// Gleichelementiger Treffer auf dem Feld schlägt verstärkt zu.
+function fieldMatchMultiplier(field: BattleField | null, element: ElementType): number {
+  return field && element !== 'neutral' && field.element === element ? FIELD_MATCH_AMPLIFY : 1;
+}
+
+// Trifft ein anderes Element auf ein geladenes Feld und bilden beide ein Fusions-Paar,
+// entsteht eine Reaktion (z. B. Glutfeld + Wind = Feuersturm). Gleiches Element = keine
+// Reaktion (das ist der Verstärkungs-Fall).
+function fieldReaction(
+  field: BattleField | null,
+  element: ElementType
+): ElementFusionDefinition | null {
+  if (!field || element === 'neutral' || field.element === element) {
+    return null;
+  }
+  return resolveElementFusion(field.element, element);
+}
+
+// Eine Fusions-Reaktion entlädt sich auf ein Ziel: Zusatz-Break-Druck + der Status
+// der Fusion (verzahnt mit der 21-Paar-Fusionstabelle).
+function triggerFieldReaction(
+  state: BattleState,
+  target: Combatant,
+  fusion: ElementFusionDefinition
+): void {
+  pushLog(state, `Feldreaktion: ${fusion.name} entlädt sich auf ${target.name}!`);
+  applyBreakPressure(state, target, fusion.damageElement, FIELD_REACTION_BREAK_PRESSURE);
+  if (fusion.statusEffect) {
+    applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
+  }
+}
+
+// Runden-Abklingen des Feldes.
+function tickField(state: BattleState): void {
+  if (!state.field) {
+    return;
+  }
+  state.field.turns -= 1;
+  if (state.field.turns <= 0) {
+    state.field = null;
+    pushLog(state, 'Das Elementarfeld verweht.');
+  }
 }
 
 function elementMultiplier(element: ElementType, target: Combatant): number {

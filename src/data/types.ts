@@ -88,6 +88,10 @@ export interface SkillDefinition {
   // (auch ohne Analyse) und schlägt gegen ein ungedecktes Ziel (kein Block/Guard)
   // deutlich härter zu — der Spieler soll den Telegraph lesen und kontern.
   readonly heavy?: boolean;
+  // Phase 94 — Elementarfeld: die Fähigkeit lädt das Schlachtfeld auf ihr Element auf.
+  // Ein aktives Feld verstärkt gleichelementige Treffer und löst mit Fusions-Partner-
+  // Elementen eine Reaktion aus (systems/battle wertet es aus, s. resolveElementFusion).
+  readonly chargesField?: boolean;
 }
 
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';

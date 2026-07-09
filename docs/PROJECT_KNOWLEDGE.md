@@ -1047,6 +1047,21 @@ test/release.test.ts
 - Battle-Regel: Gegner priorisieren lebende Frontziele; Hinterreihe wird erst angegriffen, wenn keine Front mehr steht. Keine Schadenszahlen geaendert, damit die Balance-Harness stabil bleibt.
 - Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build` und gezieltem Desktop-Chromium-Smoke fuer Title/Menu/Battle.
 
+### Phase 94 - Schlachtfeld-Zustand (Elementarfelder)
+
+- Scope: `BattleState.field` (`BattleField = { element, turns }`, ein Feld gleichzeitig).
+  Eine `chargesField`-Fähigkeit lädt das Feld auf ihr Element; gleichelementige Treffer
+  werden verstärkt (×1.25), ein Fusions-Partner-Element (`resolveElementFusion`) löst eine
+  Reaktion aus (Zusatz-Break-Druck + Fusions-Status, verbraucht das Feld), das Feld klingt
+  pro Runde ab (`FIELD_DURATION_ROUNDS = 3`).
+- Daten: neue Feld-Skills `ember-field` (Feuer/Benimaru), `gale-field` (Wind/Ranga),
+  `tide-field` (Wasser/Souei) — reine Aufbau-Skills (power 0, target self), daher NICHT
+  auto-gewählt → Balance-Harness bleibt unverändert grün.
+- HUD: `renderView().field` liefert Element+Runden; `BattleScene` zeigt „Feld: <Element> (n)"
+  unter der Team-Leiste, solange ein Feld geladen ist.
+- Validiert mit `bun run typecheck`, `bun run test` (inkl. `test/elementalField.test.ts` +
+  Balance-Harness), `bun run build` und einem Battle-Render-Smoke (desktop-chromium).
+
 ## 14. Change Checklist
 
 Before editing:
