@@ -4,6 +4,7 @@ import {
   buildFacilityOverview,
   facilityLevelForStage,
   facilityOutputAmount,
+  KITCHEN_REST_BUFF_FLAG,
   runProductionCycle
 } from '../src/systems/facilities';
 import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
@@ -260,5 +261,11 @@ describe('Phase 93c — Produktion an der Tempest-Rast (restore-party)', () => {
     const rested = applyEffects(createWorldState(wounded), [{ type: 'restore-party' }]);
     expect(rested.productionCycles).toBe(1);
     expect(rested.party?.every((member) => member.currentHp > 1)).toBe(true);
+  });
+
+  it('setzt bei besetzter Kueche einen Buff fuer den naechsten Kampf', () => {
+    const save = saveWithResidents(CAMP_FLAGS);
+    const rested = applyEffects(createWorldState(save), [{ type: 'restore-party' }]);
+    expect(rested.flags[KITCHEN_REST_BUFF_FLAG]).toBe(true);
   });
 });

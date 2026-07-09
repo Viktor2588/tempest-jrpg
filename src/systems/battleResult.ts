@@ -1,5 +1,6 @@
 import type { BattleView } from './battle';
 import { tallyDefeatedEnemies } from './bounties';
+import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
 import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules } from './progression';
 import { recruitResidentsFromDevour } from './residents';
@@ -92,6 +93,12 @@ export function applyBattleResultToSave(
     ? normalizeInventoryStacks([...battle.inventory, ...battle.rewards.items])
     : normalizeInventoryStacks(battle.inventory);
 
+  const flags = {
+    ...save.flags,
+    ...(learnedDevourSkill ? { 'codex.predator-devour': true } : {}),
+    [KITCHEN_REST_BUFF_FLAG]: false
+  };
+
   let nextSave: SaveGameV2 = {
     ...save,
     party: {
@@ -100,9 +107,7 @@ export function applyBattleResultToSave(
       gold: save.party.gold + (won ? battle.rewards.gold : 0)
     },
     inventory: { stacks: inventory },
-    flags: learnedDevourSkill
-      ? { ...save.flags, 'codex.predator-devour': true }
-      : save.flags,
+    flags,
     progression
   };
 

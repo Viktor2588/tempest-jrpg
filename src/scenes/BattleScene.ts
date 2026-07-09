@@ -80,7 +80,8 @@ export class BattleScene extends Phaser.Scene {
     this.state = startBattle({
       party: createProgressionBattleParty(
         this.save.party.active,
-        this.save.progression
+        this.save.progression,
+        this.save.flags
       ),
       // Phase 67: Gegner skalieren nach oben mit dem Partylevel (Anti-Overgrind).
       enemies: createScaledEnemyBattleUnits(

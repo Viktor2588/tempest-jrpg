@@ -15,6 +15,7 @@ const residentById = new Map<string, ResidentDefinition>(
 );
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const INVASION_DEFENSE_FLAG = 'story.tempest-invasion.repulsed';
+export const KITCHEN_REST_BUFF_FLAG = 'facility.kitchen.rest-buff.ready';
 
 // Produktionsstaerke je Wachstumsstufe: die Wildnis (noch keine Nation) produziert
 // nichts, jede Ausbaustufe hebt den Multiplikator um eins. Bewusst linear, damit die

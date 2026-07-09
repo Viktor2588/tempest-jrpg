@@ -11,6 +11,7 @@ import {
   calculateBattleMagicules,
   summarizeBattleLevelUps
 } from '../src/systems/battleResult';
+import { KITCHEN_REST_BUFF_FLAG } from '../src/systems/facilities';
 import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
 
 describe('battle result: dauerhafte Skill-Aneignung', () => {
@@ -69,6 +70,26 @@ describe('battle result: Magicules', () => {
     expect(round.progression.magicules).toBe(77);
     expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.magicules)
       .toBe(0);
+  });
+});
+
+describe('battle result: Facility-Buffs', () => {
+  it('verbraucht den Kuechen-Rastbuff nach dem naechsten Kampf', () => {
+    const save = createNewSave({
+      seed: 4,
+      now: '2026-07-09T09:00:00.000Z'
+    });
+    const flagged = { ...save, flags: { ...save.flags, [KITCHEN_REST_BUFF_FLAG]: true } };
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(flagged.party.active),
+      enemyIds: ['forest-slime'],
+      inventory: flagged.inventory.stacks,
+      seed: 4
+    });
+    battle.status = 'fled';
+
+    expect(applyBattleResultToSave(flagged, renderView(battle)).flags[KITCHEN_REST_BUFF_FLAG])
+      .toBe(false);
   });
 });
 

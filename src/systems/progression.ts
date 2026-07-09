@@ -26,6 +26,7 @@ import {
   type TalentPerk
 } from '../data';
 import { battleLoadoutSkillIds, createHeroBattleUnit, type BattleUnitInput } from './battle';
+import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { committedBranch, talentPerksForNodes } from './talentPerk';
 import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
@@ -790,15 +791,19 @@ export function getCombatSynergyPartnerIds(
 
 export function getOpeningStatusIds(
   characterId: string,
-  state: ProgressionState
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
 ): readonly StatusEffectId[] {
-  return uniqueStrings(RELATIONSHIPS.flatMap((relationship) => {
-    if (relationship.characterId !== characterId && relationship.partnerId !== characterId) {
-      return [];
-    }
-    const statusId = getRelationshipLevel(state, relationship.id)?.combatBonus?.openingStatusId;
-    return statusId ? [statusId] : [];
-  })) as StatusEffectId[];
+  return uniqueStrings([
+    ...(flags[KITCHEN_REST_BUFF_FLAG] ? ['defense-up' as const] : []),
+    ...RELATIONSHIPS.flatMap((relationship) => {
+      if (relationship.characterId !== characterId && relationship.partnerId !== characterId) {
+        return [];
+      }
+      const statusId = getRelationshipLevel(state, relationship.id)?.combatBonus?.openingStatusId;
+      return statusId ? [statusId] : [];
+    })
+  ]) as StatusEffectId[];
 }
 
 export function calculateStartingTeamMeter(
@@ -818,7 +823,8 @@ export function calculateStartingTeamMeter(
 
 export function createProgressionBattleParty(
   members: readonly PartyMemberState[],
-  state: ProgressionState
+  state: ProgressionState,
+  flags: Readonly<Record<string, boolean>> = {}
 ): BattleUnitInput[] {
   return members.flatMap((member): BattleUnitInput[] => {
     const hero = heroById.get(member.characterId);
@@ -833,7 +839,7 @@ export function createProgressionBattleParty(
       skillIds: battleLoadoutSkillIds({ ...member, learnedSkillIds: getProgressionCoreSkillIds(member, state) }),
       synergyPartnerIds: getCombatSynergyPartnerIds(member.characterId, state),
       formName: progressionBattleFormName(member.characterId, state),
-      openingStatusIds: getOpeningStatusIds(member.characterId, state),
+      openingStatusIds: getOpeningStatusIds(member.characterId, state, flags),
       // Phase 70: Perks aus den freigeschalteten Spec-Knoten fließen in den Kampf ein.
       perks: [
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),

@@ -101,14 +101,17 @@ bietet sich ein Folge-Inkrement zu 93 an (siehe unten).
 
 ### Nation-Arc: Folge-Inkremente zu Phase 93 (optional, kleiner Zuschnitt)
 
-- [ ] Phase 93b — Facility-Effekte jenseits reiner Ressourcen. Die aktuelle
+- [x] Phase 93b — Facility-Effekte jenseits reiner Ressourcen. Die aktuelle
   Produktion (Phase 93) liefert bewusst nur Material/Gold ins Inventar. Die im
   urspruenglichen Plan skizzierten Zusatz-Effekte fehlen noch: Kueche ->
   temporaerer Rast-Buff (Cooking, wirkt in den naechsten Kaempfen),
   Trainingshalle -> Reserve-XP/Catch-up statt mana-drop, Wache ->
   Encounter-Kontrolle (Rate/Vermeidung) statt reinem Gold. Braucht Verzahnung mit
-  dem Rast-/Encounter-Fluss (nicht nur dem Menue-Knopf). Akzeptanz: Effekte
-  headless getestet, Balance-Sim, Save-Migration, Smoke.
+  dem Rast-/Encounter-Fluss (nicht nur dem Menue-Knopf). Erledigt: die Kueche
+  setzt bei der Tempest-Rast einen einmaligen `defense-up`-Opening-Status fuer den
+  naechsten Kampf und verbraucht ihn danach. Abnahme: `git diff --check`,
+  `bun run typecheck`, `bun run test`, `bun run build`,
+  `bun run test:e2e -- e2e/game.smoke.spec.ts` (54 passed).
 
 ### Kampf-Ausbau: Elementarfelder
 
