@@ -77,11 +77,13 @@ Rallyer), 88c (Magie-Resistenz ON-ROUTE) und 88d (Physisch-Resistenz +
 perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
 ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
-- [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
+- [x] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
-  Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen
-  Encounter nacheinander eingefuehrt werden statt gedumpt. Phase 85 leistet das
-  fuer Reaktionen — hier das Gesamtkonzept.
+  Spieler. Erledigt: `BATTLE_TEACHING_STEPS` staffelt die fruehen Verben ueber
+  Training, Direwolf, Hain, Echo und Geld; `training-clearing` hat jetzt den
+  ersten Battle-Hinweis fuer Analyse/Break. Abnahme: `git diff --check`,
+  `bun run typecheck`, `bun run test`, `bun run build`,
+  `bun run test:e2e -- e2e/game.smoke.spec.ts` (Playwright status passed).
 - [ ] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
   oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
   Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung

@@ -6,14 +6,50 @@ export interface BattleTutorialView {
   readonly tips: readonly string[];
 }
 
+export type BattleTeachingVerb =
+  | 'analyze'
+  | 'break'
+  | 'ct'
+  | 'reaction'
+  | 'status'
+  | 'devour'
+  | 'telegraph'
+  | 'signature'
+  | 'fusion';
+
+export interface BattleTeachingStep {
+  readonly encounterId: string;
+  readonly verbs: readonly BattleTeachingVerb[];
+}
+
+export const BATTLE_TEACHING_STEPS = [
+  { encounterId: 'training-clearing', verbs: ['analyze', 'break'] },
+  { encounterId: 'direwolf-pack-leader', verbs: ['ct', 'reaction'] },
+  { encounterId: 'whispering-grove-ambush', verbs: ['status', 'devour'] },
+  { encounterId: 'shrine-approach', verbs: ['telegraph'] },
+  { encounterId: 'geld-disaster-boss', verbs: ['signature', 'fusion'] }
+] as const satisfies readonly BattleTeachingStep[];
+
 const TUTORIALS: Readonly<Record<string, BattleTutorialView>> = {
+  'training-clearing': {
+    id: 'training-basics',
+    flag: 'tutorial.battle.training.seen',
+    title: 'Kampf-Tipp: Analyse und Break',
+    body: 'Der erste Trainingskampf fuehrt nur die Basis ein: Gegner lesen, Schwächen treffen und Break-Druck aufbauen.',
+    tips: [
+      'Analyse deckt Schwächen und Kampfhinweise im HUD auf.',
+      'Treffer auf Schwächen füllen die Break-Leiste schneller.',
+      'Ein gebrochener Gegner nimmt mehr Schaden und wird sicherer kontrollierbar.'
+    ]
+  },
   'direwolf-pack-leader': {
     id: 'direwolf-boss',
     flag: 'tutorial.battle.direwolf.seen',
     title: 'Boss-Tipp: Rudeldruck',
-    body: 'Der Direwolf-Anführer ist der erste Kampf, in dem reines Angreifen unnötig riskant wird.',
+    body: 'Der Direwolf-Anführer ist der erste Kampf, in dem CT-Leiste, Verteidigung und Reaktion wichtiger werden als reines Angreifen.',
     tips: [
-      'Verteidigen dämpft gefährliche Züge.',
+      'Lies die CT-Reihenfolge, bevor du einen schnellen Gegner offen lässt.',
+      'Verteidigen und Reaktion dämpfen gefährliche Züge.',
       'Schwächen und Status bauen Break-Druck auf.',
       'Eine volle Teamleiste öffnet den Gruppenangriff.'
     ]
@@ -25,7 +61,7 @@ const TUTORIALS: Readonly<Record<string, BattleTutorialView>> = {
     body: 'Im Flüsterhain kontrollieren Status-Effekte das Tempo des Kampfes.',
     tips: [
       'Elementare Schwächen erzeugen sichere Schadensfenster.',
-      'Buffs und Debuffs zählen stärker als blindes Angreifen.',
+      'Gift, Debuffs und Break bereiten ein berechenbares Devour-Fenster vor.',
       'Gobta und Ranga füllen gemeinsam die Teamleiste.'
     ]
   },
