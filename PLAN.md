@@ -196,7 +196,7 @@ narrative Ausloeser fuer das Erwachen (104).
 Hinweis: Der Plan ist inzwischen ausfuehrungs-, nicht planungsgebunden (20+ offene
 Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
 
-- [~] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
+- [ ] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
   Inszenierung). Befund: Bosse haben phase2SkillIds + Archetyp-Flags, aber
   mid-fight Combatant-Spawning fehlt (Phase 82 „splitter/summoner deferred"), und
   echte skript-getriebene Bossphasen fehlen. Bauen: (a) eine Add-/Beschwoerungs-
