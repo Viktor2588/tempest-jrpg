@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 116 — Charibdis Arc + Beastien-Krieger (in Bearbeitung, Worktree: /worktree/tempest-phase-116-charibdis-arc)
 
 ## Integrationswarteschlange
 
