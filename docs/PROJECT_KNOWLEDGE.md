@@ -676,7 +676,7 @@ completed_milestones:
     - support-check: new rally-cry skill (single-ally attack-up) makes an enemy a rallyer that keeps buffing its allies' attack — the party must control it (silence/CT-delay/focus) rather than out-sustain it. Applied to human-deserter (off-route, replacing its self-only battle-cry)
     - autoBattle scoreSkillTarget now avoids both reflected and resisted categories via one wrongCategoryPenalty (resisted: power*element*0.45; reflected: power*element*0.5 + 5), so the AI/harness bring the counter damage type
     - legibility via the battle log only, no scene/render/asset change → E2E not required
-    - still open (Phase 88c): place the category mechanics on-route once the fixed harness party reliably carries both damage types plus control
+    - follow-ups 88c/88d placed the category and rallyer mechanics on-route once the fixed harness party reliably carried both damage types plus control
     - typecheck, 433 unit tests (4 new: reflector bounces only its own category, rallyer buffs an ally, a silenced rallyer buffs no one, AI avoids the reflected category), balance harness green for all three Rimuru specs, and production build verified
   phase_88c:
     - closes the "no corridor risk" gap from Phase 88/88b: the category-resistance mechanic now sits on the MANDATORY story route, not just in off-route side-quests/optional triggers — a player can no longer clear the main path without ever engaging the damage-category system
@@ -685,6 +685,11 @@ completed_milestones:
     - regression guard: new balanceHarness test asserts at least one mandatory STORY_ENCOUNTER carries a resists/reflects-category enemy and that marsh-frontier-clash specifically contains stray-echo, so a future edit cannot silently revert the on-route risk
     - deliberately scoped small (keep complexity low): only the magical-resist (→ forces physical) is placed on-route this increment; placing the physical-resist/reflect (→ forces magical) and the rally-cry support-check on-route is deferred to Phase 88d, because each tanky/low-XP addition before the razor-thin Geld boss needs its own measured rebalance
     - typecheck, 473 unit tests (1 new on-route-category guard), balance harness green for all three Rimuru specs, and production build verified; battle log-only legibility (no scene/render/asset change) → E2E not required
+  phase_88d:
+    - closes the remaining on-route build-check gap from Phase 88c without adding encounters: `border-rift-vanguard` already carries `bog-terror` (resistsCategory 'physical') as the mandatory magical-damage answer, and `orc-vanguard` now turns its existing `orc-soldier` into the support-check by replacing `war-cry` with `rally-cry`
+    - deliberate balance scope: no new enemy slots, rewards, XP, route order, save fields, scenes, or assets; moving `rally-cry` onto the existing Ork-Soldat keeps the lesson mandatory while avoiding the Border/Alliance pair that previously pushed late-corridor carryover and level curves out of range
+    - regression guard: balanceHarness asserts that `orc-soldier` carries `rally-cry`, that `orc-vanguard` contains the soldier, and that `orc-vanguard` is a mandatory STORY_ENCOUNTER
+    - `git diff --check`, focused balance+battle tests, typecheck, full test suite, and production build verified; no E2E required because the change is combat data/test coverage only
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes

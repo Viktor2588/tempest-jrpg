@@ -72,26 +72,11 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
 Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
-Rallyer) und 88c (Magie-Resistenz jetzt ON-ROUTE, Korridor-Risiko harness-
-erzwungen) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
+Rallyer), 88c (Magie-Resistenz ON-ROUTE) und 88d (Physisch-Resistenz +
+`rally-cry`-Support-Check ON-ROUTE) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
 perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
 ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 
-- [x] Phase 88d (Rest) — der `rally-cry`-Support-Check liegt jetzt im Pflichtkampf
-  `orc-vanguard` auf dem Ork-Soldaten (`rally-cry`) und ist damit ON-ROUTE.
-  Abnahme: `git diff --check`, `bun run test -- test/balanceHarness.test.ts test/battle.test.ts`,
-  `bun run typecheck`, `bun run test`, `bun run build`; kein E2E-Smoke noetig,
-  da nur Kampf-Daten/Testabdeckung geaendert wurden.
-  Erledigt: der Physisch-Resistenz-Zweig (`resistsCategory: 'physical'`, Sumpfschrecken)
-  liegt jetzt ON-ROUTE im Pflichtkampf `border-rift-vanguard` (ersetzt den Lanzenträger,
-  zwingt magischen Schaden) — Gegenstück zum Magie-Resistenz-Echo (88c). Alle Story-
-  Korridore je Rimuru-Spec gruen, Regressions-Guard erweitert (beide Kategorien on-route).
-  Messbefund (wichtig für den Rest): ein zweiter On-Route-Kategorie-Gegner auf demselben
-  Border-/Alliance-Paar treibt den Sage-HP-Carryover in den späten masked-majin-Korridor
-  (>0.9) bzw. — als 3. Gegner — den XP-/Level-Bogen aus dem Ruder (training-clearing/geld
-  kippen). Der `rally-cry`-Support-Check (`reflectsCategory` bzw. Rufer, zwingt Kontrolle)
-  braucht daher eine EIGENE Platzierung mit eigener Nachbalance, nicht das Border-/
-  Alliance-Paar. Akzeptanz: alle Story-/Boss-Korridore je Spec gruen, Regressions-Guard.
 - [ ] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
   devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
   Spieler. Pruefen (und ggf. staffeln), ob die Verben ueber die fruehen
