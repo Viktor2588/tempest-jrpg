@@ -146,17 +146,6 @@ Reihenfolge = Abhaengigkeit: 102 ist Fundament fuer 103/104; 105 ist unabhaengig
 Zuschnitt bewusst klein halten (einfachste Loesung, die traegt) und jede
 kampfberuehrende Phase gegen die Balance-Harness je Rimuru-Spec gruen fahren.
 
-- [ ] Phase 105 (optional, kleiner Zuschnitt) — Mimikry als aktive Kampf-Form.
-  Befund: `mimic` ist nur ein Spec-Zweig mit Passiv-Perks (resonance/master);
-  die Predator-Mimikry aus dem Canon (eine verschlungene Form annehmen) fehlt als
-  Aktion. Bauen: eine Aktion/Signatur, die fuer einige Zuege Rimurus Loadout/
-  Element auf das eines **verschlungenen Gegners** umstellt (wiederverwendet die
-  8-Slot-Loadout + `devourSkillIds`) -> On-Demand-Wechsel von Schadenstyp/Element.
-  Macht den mimic-Strang zur aktiven Identitaet und ist die direkte Spieler-
-  Antwort auf die resistsCategory/reflectsCategory-Archetypen (88/88b/88c/88d).
-  Unabhaengig von 102-104. Akzeptanz: Form-Wechsel/-Ablauf headless getestet,
-  Balance-Harness je Rimuru-Spec gruen, HUD-Anzeige der aktiven Form.
-
 ## Vierte Welle: Skill-Fusion, Skript-Bosse & Tempest-Invasion (Nutzer 2026-07-07: umfangreich)
 
 Befund (Code-Abgleich, drei bestaetigte Luecken): (1) `fusion.ts`/`fusions.ts`

@@ -38,6 +38,9 @@ export interface CombatantView {
   readonly signatureCharge: number;
   readonly signatureChargeMax: number;
   readonly resonanceElement: ElementType | null;
+  // Phase 105 — Mimikry: aktives Form-Element (null = Grundform) + verbleibende eigene Züge.
+  readonly mimicElement: ElementType | null;
+  readonly mimicTurns: number;
   readonly statuses: readonly StatusEffectId[];
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
@@ -136,6 +139,8 @@ function renderCombatant(
     signatureCharge: combatant.signatureCharge,
     signatureChargeMax: combatant.signatureChargeMax,
     resonanceElement: combatant.resonanceElement,
+    mimicElement: combatant.mimicElement,
+    mimicTurns: combatant.mimicTurns,
     statuses: combatant.statuses.map((status) => status.id),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,

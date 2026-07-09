@@ -142,6 +142,11 @@ export interface Combatant {
   readonly reflectsCategory: DamageCategory | null;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
+  // Phase 105 — Mimikry als aktive Kampf-Form: nimmt für einige Züge das Element einer
+  // in diesem Kampf verschlungenen Gegner-Art an (On-Demand-Wechsel des Angriffs-Elements).
+  // null/0 = eigene Grundform.
+  mimicElement: ElementType | null;
+  mimicTurns: number;
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
   readonly synergyPartnerIds: readonly string[];
@@ -202,6 +207,8 @@ export type BattleAction =
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
   | { type: 'devour'; targetId: string }
+  // Phase 105 — Mimikry: nimmt on-demand das Element einer verschlungenen Gegner-Art an.
+  | { type: 'mimic'; element: ElementType }
   | { type: 'signature'; targetId?: string }
   | { type: 'guard' }
   // Phase 85 — optionales Reaktions-Timing: die UI liefert das im Timing-Fenster
@@ -289,6 +296,9 @@ const CATEGORY_REFLECT_FRACTION = 0.3;
 const FIELD_DURATION_ROUNDS = 3;
 const FIELD_MATCH_AMPLIFY = 1.25;
 const FIELD_REACTION_BREAK_PRESSURE = 2;
+// Phase 105 — Mimikry: wie viele eigene Züge eine angenommene Form hält, bevor Rimuru in
+// seine Grundform zurückfällt.
+const MIMIC_FORM_TURNS = 3;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -689,6 +699,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     resistsCategory: unit.resistsCategory ?? null,
     reflectsCategory: unit.reflectsCategory ?? null,
     mimicSkillIds: [],
+    mimicElement: null,
+    mimicTurns: 0,
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
@@ -779,6 +791,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
     case 'devour':
       return resolveDevour(state, actor, action.targetId);
 
+    case 'mimic':
+      return resolveMimicForm(state, actor, action.element);
+
     case 'signature':
       return resolveSignature(state, actor, action.targetId);
   }
@@ -810,8 +825,13 @@ function resolveAttack(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
 
-  const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8) * variance(state.rng);
-  const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: actor.element });
+  // Phase 105 — eine angenommene Mimik-Form kanalisiert ihr Element in den Grundangriff:
+  // erst dann wirkt die Element-Schwäche/-Resistenz auf den sonst elementneutralen Schlag.
+  const elementFactor = actor.mimicElement ? elementMultiplier(actor.mimicElement, target) : 1;
+  const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8)
+    * elementFactor
+    * variance(state.rng);
+  const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: attackElement(actor) });
   pushLog(state, `${actor.name} greift ${target.name} an: ${damage} Schaden.`);
   checkDeath(state, target);
   endTurn(state, actor);
@@ -1217,6 +1237,58 @@ function resolveBossDevourPressure(
   return { ok: true };
 }
 
+// Phase 105 — die Elemente der in diesem Kampf verschlungenen Gegner-Arten, die Rimuru als
+// Form annehmen kann (nicht-neutral, dedupliziert).
+export function availableMimicElements(state: BattleState): ElementType[] {
+  const elements: ElementType[] = [];
+  for (const sourceId of state.devouredSourceIds) {
+    const element = enemyById.get(sourceId)?.element;
+    if (element && element !== 'neutral' && !elements.includes(element)) {
+      elements.push(element);
+    }
+  }
+  return elements;
+}
+
+// Das wirksame Angriffs-Element eines Kämpfers: die angenommene Mimik-Form überschreibt die
+// Grundform (nur offensiv — Grundangriff/Resonanz).
+function attackElement(combatant: Combatant): ElementType {
+  return combatant.mimicElement ?? combatant.element;
+}
+
+// Phase 105 — Mimikry als aktive Kampf-Form: Rimuru nimmt on-demand das Element einer
+// verschlungenen Gegner-Art an. Gegated über den Verschlinger + eine tatsächlich in diesem
+// Kampf verschlungene Form (wiederverwendet devouredSourceIds).
+function resolveMimicForm(state: BattleState, actor: Combatant, element: ElementType): ActionResult {
+  if (!actor.skillIds.includes('predator')) {
+    return { ok: false, reason: 'Mimikry braucht den Verschlinger.' };
+  }
+  if (!availableMimicElements(state).includes(element)) {
+    return { ok: false, reason: 'Diese Form wurde noch nicht verschlungen.' };
+  }
+  if (attackElement(actor) === element) {
+    return { ok: false, reason: 'Diese Form ist bereits aktiv.' };
+  }
+
+  actor.mimicElement = element;
+  actor.mimicTurns = MIMIC_FORM_TURNS;
+  actor.resonanceElement = element;
+  pushLog(state, `${actor.name} nimmt die ${FIELD_ELEMENT_LABEL[element]}-Form an.`);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+function tickMimicForm(state: BattleState, actor: Combatant): void {
+  if (actor.mimicTurns <= 0) {
+    return;
+  }
+  actor.mimicTurns -= 1;
+  if (actor.mimicTurns <= 0) {
+    actor.mimicElement = null;
+    pushLog(state, `${actor.name} kehrt in die Grundform zurück.`);
+  }
+}
+
 function resolveSignature(
   state: BattleState,
   actor: Combatant,
@@ -1515,6 +1587,8 @@ function startTurn(state: BattleState, actor: Combatant): boolean {
     status.turns -= 1;
   }
   removeExpiredStatuses(actor);
+  // Phase 105 — die angenommene Mimik-Form klingt über die eigenen Züge ab.
+  tickMimicForm(state, actor);
 
   if (disabledBy && !actor.dead) {
     pushLog(state, `${actor.name} ist ${statusLabel(disabledBy)} und setzt aus.`);

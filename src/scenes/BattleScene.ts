@@ -5,6 +5,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import {
   act,
+  availableMimicElements,
   currentActor,
   enemyTurn,
   isPlayerTurn,
@@ -42,7 +43,7 @@ import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
 import { buildEnemyIntel, formatStatusSummary } from '../systems/battlePresentation';
 
-type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'target-enemy' | 'target-ally';
+type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'mimic-forms' | 'target-enemy' | 'target-ally';
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
@@ -535,6 +536,7 @@ export class BattleScene extends Phaser.Scene {
     this.drawEncounterTutorialHint(view.teamMeter);
 
     if (this.mode === 'menu') this.drawMenu();
+    else if (this.mode === 'mimic-forms') this.drawMimicFormList();
     else if (this.mode === 'skills') this.drawSkillList();
     else if (this.mode === 'items') this.drawItemList();
     else if (this.mode === 'team-partners') this.drawTeamPartnerList();
@@ -621,6 +623,15 @@ export class BattleScene extends Phaser.Scene {
         fontFamily: 'sans-serif',
         fontSize: '9px',
         color: '#f0cf72'
+      }).setOrigin(0.5).setAlpha(alpha));
+    }
+    // Phase 105 — aktive Mimik-Form (angenommenes Element) über der Einheit anzeigen.
+    if (unit.mimicElement) {
+      this.layer.add(this.add.text(x, y - 28, `⟳ ${elementLabel(unit.mimicElement)}-Form (${unit.mimicTurns})`, {
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        fontStyle: 'bold',
+        color: '#c39bff'
       }).setOrigin(0.5).setAlpha(alpha));
     }
     if (side === 'party') {
@@ -809,6 +820,19 @@ export class BattleScene extends Phaser.Scene {
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
 
+    // Phase 105 — Mimikry: nur anbieten, wenn Rimuru in diesem Kampf schon eine Form
+    // verschlungen hat (Verschlinger + verfügbare Elemente).
+    if (actor.skillIds.includes('predator') && availableMimicElements(this.state).length > 0) {
+      items.splice(3, 0, ['⟳ Mimik', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.mode = 'mimic-forms';
+        this.refresh();
+      }]);
+    }
+
     // Phase 81 — Deckung anbieten, sobald ein Gegner einen Zug telegraphiert
     // (v.a. Big-Hits): die Party blockt den vorhergesagten Treffer, statt ihn
     // ungedeckt zu fressen. Kostet den Zug — Tempo gegen Sicherheit.
@@ -904,6 +928,22 @@ export class BattleScene extends Phaser.Scene {
     });
     choices.push(['↩ Zurück', () => {
       this.pendingTeamPartnerId = null;
+      this.mode = 'menu';
+      this.refresh();
+    }]);
+    this.drawChoiceGrid(choices);
+  }
+
+  // Phase 105 — Mimikry: wähle das Element einer verschlungenen Form.
+  private drawMimicFormList(): void {
+    const actorView = renderView(this.state).party.find((candidate) => candidate.active);
+    const choices: Array<[string, () => void]> = availableMimicElements(this.state).map((element) => [
+      actorView?.mimicElement === element
+        ? `${elementLabel(element)} (aktiv)`
+        : `${elementLabel(element)}-Form`,
+      () => this.doAct({ type: 'mimic', element })
+    ]);
+    choices.push(['↩ Zurück', () => {
       this.mode = 'menu';
       this.refresh();
     }]);

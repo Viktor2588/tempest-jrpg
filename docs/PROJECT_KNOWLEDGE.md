@@ -1062,6 +1062,22 @@ test/release.test.ts
 - Validiert mit `bun run typecheck`, `bun run test` (inkl. `test/elementalField.test.ts` +
   Balance-Harness), `bun run build` und einem Battle-Render-Smoke (desktop-chromium).
 
+### Phase 105 - Mimikry als aktive Kampf-Form
+
+- Scope: neue Kampf-Aktion `{ type: 'mimic', element }`. Rimuru (Verschlinger) nimmt on-demand
+  das Element einer in diesem Kampf verschlungenen Gegner-Art an (`availableMimicElements` liest
+  `devouredSourceIds` → Enemy-Element). Die Form haelt `MIMIC_FORM_TURNS = 3` eigene Zuege und
+  klingt in `startTurn` ab; sie setzt `mimicElement`/`mimicTurns` + Resonanz.
+- Effekt: der sonst elementneutrale Grundangriff kanalisiert das Form-Element und wirkt damit
+  Schwaeche/Resistenz (`elementMultiplier` nur bei aktiver Form) — On-Demand-Schadenselement gegen
+  reflectsElement/Schwaechen. Basiselement/Defensive bleiben unveraendert.
+- Harness: Auto-Battle waehlt `mimic` nie → `mimicElement` bleibt in der Balance-Harness immer null,
+  Grundangriffe unveraendert → Korridore gruen.
+- UI/HUD: Kampfmenue zeigt „⟳ Mimik" (wenn Formen verfuegbar) → Element-Auswahl (`mimic-forms`);
+  die aktive Form steht ueber der Einheit. `renderView().party[].mimicElement/mimicTurns` headless.
+- Validiert mit `bun run typecheck`, `bun run test` (`test/mimicForm.test.ts` + Balance-Harness),
+  `bun run build` und Battle-Render-Smoke (desktop-chromium).
+
 ## 14. Change Checklist
 
 Before editing:
