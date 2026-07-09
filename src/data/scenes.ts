@@ -71,6 +71,21 @@ export const SCENE_SCRIPTS = [
     }
   },
   {
+    id: 'tempest-invasion-repelled',
+    steps: [
+      { kind: 'camera', to: { x: 15, y: 6 } },
+      { kind: 'text', line: 'Die letzte Menschenwelle zerfaellt am Rand des Schlachtfelds. Rauch zieht von Tempests Palisade fort.' },
+      { kind: 'face', actor: 'rigurd-established', dir: 'down' },
+      { kind: 'text', speaker: 'Rigurd', line: 'Die Wache haelt. Heute hat Tempest nicht nur gebaut — Tempest hat sich selbst verteidigt.' },
+      { kind: 'emote', actor: 'rimuru', emote: '…' },
+      { kind: 'text', speaker: 'Rimuru', line: 'Dann sichern wir die Wege. Niemand soll glauben, diese Stadt sei Beute.' }
+    ],
+    summary: {
+      title: 'Tempest verteidigt',
+      body: 'Die Strafkolonne ist zurueckgeschlagen; Tempests Wache sichert die Handelswege.'
+    }
+  },
+  {
     id: 'harvest-festival',
     steps: [
       { kind: 'text', line: 'Die gesammelten Magicules steigen wie ein stiller Sturm ueber Tempest auf.' },
@@ -99,6 +114,7 @@ const SCENE_TRIGGERS: readonly { readonly sceneId: SceneScriptId; readonly flag:
   { sceneId: 'direwolf-pact', flag: 'story.direwolf.pact' },
   { sceneId: 'tempest-naming', flag: 'story.tempest.named' },
   { sceneId: 'geld-victory', flag: 'story.geld.devoured' },
+  { sceneId: 'tempest-invasion-repelled', flag: 'story.tempest-invasion.repulsed' },
   { sceneId: 'harvest-festival', flag: 'story.harvest-festival.awakened' }
 ];
 

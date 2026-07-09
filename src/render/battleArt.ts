@@ -23,7 +23,8 @@ export type BattleArenaKind =
   | 'lizardman-marsh'
   | 'spirit-cave'
   | 'milim-arrival'
-  | 'tempest-colosseum';
+  | 'tempest-colosseum'
+  | 'tempest-invasion';
 
 export const BATTLE_ARENA_TEXTURES = {
   'tempest-grove': 'battle-bg-tempest-grove',
@@ -38,7 +39,8 @@ export const BATTLE_ARENA_TEXTURES = {
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
   'milim-arrival': 'battle-bg-milim-arrival',
-  'tempest-colosseum': 'battle-bg-tempest-colosseum'
+  'tempest-colosseum': 'battle-bg-tempest-colosseum',
+  'tempest-invasion': 'battle-bg-tempest-invasion'
 } as const satisfies Record<BattleArenaKind, string>;
 
 const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -76,7 +78,9 @@ const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'milim-spar': 'milim-arrival',
   'arena-bronze-wave': 'tempest-colosseum',
   'arena-silver-wave': 'tempest-colosseum',
-  'arena-gold-wave': 'tempest-colosseum'
+  'arena-gold-wave': 'tempest-colosseum',
+  'tempest-invasion-vanguard': 'tempest-invasion',
+  'tempest-invasion-command': 'tempest-invasion'
 };
 
 export function partyBattleTextureFor(sourceId: string): string | null {

@@ -139,6 +139,7 @@ import lizardmanMarshBattleUrl from '../assets/backgrounds/battle-lizardman-mars
 import spiritCaveBattleUrl from '../assets/backgrounds/battle-spirit-cave.webp';
 import milimArrivalBattleUrl from '../assets/backgrounds/battle-milim-arrival.webp';
 import tempestColosseumBattleUrl from '../assets/backgrounds/battle-tempest-colosseum.png';
+import tempestInvasionBattleUrl from '../assets/backgrounds/battle-tempest-invasion.png';
 import regionSealedCaveUrl from '../assets/ui/region-sealed-cave.webp';
 import regionGoblinVillageUrl from '../assets/ui/region-goblin-village.webp';
 import regionDirewolfDenUrl from '../assets/ui/region-direwolf-den.webp';
@@ -269,6 +270,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-cave'], spiritCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['milim-arrival'], milimArrivalBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-colosseum'], tempestColosseumBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['tempest-invasion'], tempestInvasionBattleUrl);
     this.load.image(REGION_BANNER_TEXTURES['sealed-cave'], regionSealedCaveUrl);
     this.load.image(REGION_BANNER_TEXTURES['goblin-village'], regionGoblinVillageUrl);
     this.load.image(REGION_BANNER_TEXTURES['direwolf-den'], regionDirewolfDenUrl);

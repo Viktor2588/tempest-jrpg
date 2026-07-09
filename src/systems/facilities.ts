@@ -14,6 +14,7 @@ const residentById = new Map<string, ResidentDefinition>(
   RESIDENTS.map((resident) => [resident.id, resident])
 );
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
+const INVASION_DEFENSE_FLAG = 'story.tempest-invasion.repulsed';
 
 // Produktionsstaerke je Wachstumsstufe: die Wildnis (noch keine Nation) produziert
 // nichts, jede Ausbaustufe hebt den Multiplikator um eins. Bewusst linear, damit die
@@ -123,19 +124,23 @@ export function buildFacilityOverview(
             ? `${resident.name} ★`
             : resident.name
       );
+    const baseAmount = facilityOutputAmount(
+      facility,
+      residentIds,
+      level,
+      promotedResidentIds,
+      awakenedResidentIds
+    );
+    const defendedRouteBonus = facility.id === 'watch' && baseAmount > 0 && flags[INVASION_DEFENSE_FLAG]
+      ? level * facility.output.perStaffPerLevel
+      : 0;
     return {
       facility,
       unlocked: level > 0,
       level,
       staff,
       outputLabel: outputLabel(facility),
-      amountPerCycle: facilityOutputAmount(
-        facility,
-        residentIds,
-        level,
-        promotedResidentIds,
-        awakenedResidentIds
-      )
+      amountPerCycle: baseAmount + defendedRouteBonus
     };
   });
   return {

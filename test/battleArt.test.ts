@@ -53,6 +53,8 @@ describe('Battle-Art-Zuordnung', () => {
       .toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
     expect(battleArenaForMap('tempest-start', 'arena-gold-wave').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
+    expect(battleArenaForMap('jura-battlefield', 'tempest-invasion-command').textureKey)
+      .toBe(BATTLE_ARENA_TEXTURES['tempest-invasion']);
     expect(battleArenaForMap('tempest-start', 'unknown').kind).toBe('tempest-grove');
   });
 
@@ -69,7 +71,8 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
       'battle-milim-arrival.webp',
-      'battle-tempest-colosseum.png'
+      'battle-tempest-colosseum.png',
+      'battle-tempest-invasion.png'
     ]) {
       expect(preloadSource).toContain(`../assets/backgrounds/${file}`);
     }

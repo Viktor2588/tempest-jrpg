@@ -78,7 +78,14 @@ describe('SCENE_SCRIPTS (die grossen Beats)', () => {
   });
 
   it('deckt die vorgesehenen Beats ab und liefert je eine Zusammenfassung', () => {
-    for (const id of ['cave-awakening', 'direwolf-pact', 'tempest-naming', 'geld-victory', 'harvest-festival']) {
+    for (const id of [
+      'cave-awakening',
+      'direwolf-pact',
+      'tempest-naming',
+      'geld-victory',
+      'tempest-invasion-repelled',
+      'harvest-festival'
+    ]) {
       const script = getSceneScript(id);
       expect(script, id).toBeDefined();
       expect(script!.steps.length).toBeGreaterThan(0);
@@ -94,6 +101,7 @@ describe('Szenen-Ausloeser (Flag-gegatet, einmalig, Story-Reihenfolge)', () => {
 
   it('liefert die dem Flag zugeordnete Szene und bei mehreren den juengsten Beat', () => {
     expect(getPendingScene({ 'story.direwolf.pact': true })?.id).toBe('direwolf-pact');
+    expect(getPendingScene({ 'story.tempest-invasion.repulsed': true })?.id).toBe('tempest-invasion-repelled');
     expect(getPendingScene({ 'story.harvest-festival.awakened': true })?.id).toBe('harvest-festival');
     // Mehrere ausgeloest (aelterer Save) → nur der juengste Beat, aeltere werden nicht nachgeholt.
     const both = getPendingScene({ 'story.storm-dragon.oath': true, 'story.tempest.named': true });
