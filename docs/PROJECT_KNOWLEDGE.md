@@ -690,6 +690,11 @@ completed_milestones:
     - deliberate balance scope: no new enemy slots, rewards, XP, route order, save fields, scenes, or assets; moving `rally-cry` onto the existing Ork-Soldat keeps the lesson mandatory while avoiding the Border/Alliance pair that previously pushed late-corridor carryover and level curves out of range
     - regression guard: balanceHarness asserts that `orc-soldier` carries `rally-cry`, that `orc-vanguard` contains the soldier, and that `orc-vanguard` is a mandatory STORY_ENCOUNTER
     - `git diff --check`, focused balance+battle tests, typecheck, full test suite, and production build verified; no E2E required because the change is combat data/test coverage only
+  phase_89:
+    - Teaching-curve audit for battle verbs: instead of adding a new tutorial system, `src/systems/battleTutorial.ts` now exposes `BATTLE_TEACHING_STEPS` as the single regression-checked order for the early verb ramp
+    - the ramp introduces at most two new combat verbs per step: `training-clearing` teaches analyze/break, `direwolf-pack-leader` teaches CT/reaction, `whispering-grove-ambush` teaches status/devour, `shrine-approach` teaches telegraph, and `geld-disaster-boss` teaches signature/fusion
+    - UI copy change is deliberately narrow: `training-clearing` gained the first battle overlay, Direwolf copy names CT/reaction, and Grove copy names the Devour setup window; no data rewards, save migration, assets, or battle rules changed
+    - tests guard both the presence of tutorial overlays and the exact staged verb order; `git diff --check`, typecheck, full unit suite, production build, and `e2e/game.smoke.spec.ts` passed
   phase_90:
     - multiple save slots + in-game delete/new-game (previously a single fixed localStorage key with no UI way to reset)
     - slot layer in save.ts: slot 1 = existing base key (an existing single save becomes slot 1 with no migration), slots 2/3 suffixed; active slot in its own key (`tempest-chronik.activeSlot`); loadSave/writeSave/autoSave/resetSave now default their key to activeSaveKey(storage), so every game scene reads/writes the active slot without changes

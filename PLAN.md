@@ -72,18 +72,11 @@ Ziel der Roadmap: die vorhandenen Systeme vom optionalen Schmuck zum
 notwendigen, belohnten Spiel machen. Reihenfolge = Prioritaet (oben zuerst).
 Fundament: Phase 80 (Eskalation), 87 (Normalgegner-Archetypen: Mender + Rudel-
 Raserei), 88 + 88b (build-relevante Kategorie-Resistenz/-Reflektor + Support-
-Rallyer), 88c (Magie-Resistenz ON-ROUTE) und 88d (Physisch-Resistenz +
-`rally-cry`-Support-Check ON-ROUTE) sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster:
-perfekt 0.25× / rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist
-ebenfalls gemergt — aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
-
-- [x] Phase 89 — Teaching-Curve der Kampf-Verben auditieren: analyze/break/
-  devour/CT/fusion/reaktion/signature/telegraph/status ist eine Wand fuer neue
-  Spieler. Erledigt: `BATTLE_TEACHING_STEPS` staffelt die fruehen Verben ueber
-  Training, Direwolf, Hain, Echo und Geld; `training-clearing` hat jetzt den
-  ersten Battle-Hinweis fuer Analyse/Break. Abnahme: `git diff --check`,
-  `bun run typecheck`, `bun run test`, `bun run build`,
-  `bun run test:e2e -- e2e/game.smoke.spec.ts` (Playwright status passed).
+Rallyer), 88c (Magie-Resistenz ON-ROUTE), 88d (Physisch-Resistenz +
+`rally-cry`-Support-Check ON-ROUTE) und 89 (gestaffelte Kampf-Teaching-Curve)
+sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster: perfekt 0.25× /
+rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist ebenfalls gemergt —
+aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
 - [ ] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
   oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
   Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung
