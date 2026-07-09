@@ -713,6 +713,11 @@ completed_milestones:
     - persistence: new ProgressionState.craftedRecipeIds (uniqueStrings, defaults []) so one-time recipes stay consumed; save migration is automatic — readProgressionState reads raw.craftedRecipeIds via readStringArray, old saves default to [] (nothing forged yet)
     - UI reuses the smith gating: the Ausrüstung tab (which already gates enchant on canEnchantEquipment/near a smith) gets a "Schmieden ▸ / ◂ Ausrüstung" toggle that swaps the equipment panels for a forge recipe list; craft updates inventory+gold and persists progression.craftedRecipeIds
     - typecheck, 444 unit tests (11 new: data integrity, consume+produce, flag gating, insufficient material/gold no-op, one-time vanishes / repeatable persists, forge-view affordability, save roundtrip + migration), production build, and the desktop menu e2e smoke verified
+  phase_93b:
+    - Facility effects beyond raw resources, smallest useful slice: the Kitchen now turns a Tempest rest into a one-fight battle buff instead of only producing healing herbs
+    - `restore-party` production sets `facility.kitchen.rest-buff.ready` only when the kitchen yields; `createProgressionBattleParty(..., flags)` maps that flag to a 3-turn `defense-up` opening status for the active party; `applyBattleResultToSave` consumes the flag after the next battle
+    - no new facility type, save field, scene overlay, or balance model was added; it reuses boolean save flags plus the existing opening-status path
+    - tests cover rest flag creation, opening-status application, and consumption after battle; `git diff --check`, typecheck, full unit suite, production build, and full desktop/mobile `e2e/game.smoke.spec.ts` (54 passed) verified it
   phase_92:
     - Bewohner (residents), first Nation-Arc layer: closes the dead loop "devoured enemy → nothing" — devouring a monster species now lets Rimuru name a survivor (Tensura naming = evolution + binding) and take them into Tempest as a resident with a role. Bestand only; no production yet (Phase 93 builds facilities on top)
     - data-driven ResidentDefinition (data/residents.ts, type in data/types.ts): seven residents, each coupling one devourable non-boss enemy species (originEnemyId) to a named resident with species + role (Wache/Späher/Handwerk/Heilung/Bau) + origin flavor; canon-first German wording, no copied dialog
