@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 118 — Boss- & Feind-Marker System + OrcDisaster-Gate (in Bearbeitung, Worktree: /worktree/tempest-phase-118-boss-markers)
 
 ## Integrationswarteschlange
 
