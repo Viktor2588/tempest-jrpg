@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 113 — Milim Kampf Fix & Belohnung (in Bearbeitung, Worktree: /worktree/tempest-phase-113-milim-fight)
 
 ## Integrationswarteschlange
 
