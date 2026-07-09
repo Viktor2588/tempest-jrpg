@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 117 — Gebietsübergangsmarker mit Beschreibung (in Bearbeitung, Worktree: /worktree/tempest-phase-117-area-markers)
 
 ## Integrationswarteschlange
 
