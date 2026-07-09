@@ -77,12 +77,16 @@ Rallyer), 88c (Magie-Resistenz ON-ROUTE), 88d (Physisch-Resistenz +
 sind gemergt. Phase 85 (Reaktion als erspieltes Timing-Fenster: perfekt 0.25× /
 rechtzeitig 0.5× / verpasst voll, mit Tutorial-Beat) ist ebenfalls gemergt —
 aktive Verteidigung ist jetzt ein sichtbarer Könnens-Moment.
-- [ ] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
+- [x] Phase 86 (Cluster) — Out-of-Combat-Tiefe (knuepft an die Story-Roadmap
   oben an): Story-Konsequenzen vertiefen (mehr Verzweigungen mit sichtbarer
   Welt-/Shop-/Kampf-Folge, Richtung Phase 64) + Weltreaktivitaet/Entdeckung
   (Karten-Events jenseits von Kaempfen, sichtbar veraenderte Welt nach Bossen,
   Richtung Phase 65). Niedriger als Kampf-Tiefe, weil Kampf ~80 % der Spielzeit
-  ist — aber der naechste Schritt, sobald die Kampfschleife traegt.
+  ist — aber der naechste Schritt, sobald die Kampfschleife traegt. Erledigt:
+  Nach Rangas Pakt erscheint im Startgebiet `Rangas Rudelspur` als einmalige
+  Fundstelle/Weltfolge ueber das vorhandene Discovery-System. Abnahme:
+  `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`,
+  `bun run test:e2e -- e2e/game.smoke.spec.ts` (54 passed).
 
 ## Erweiterungs-Roadmap (Nutzer 2026-07-06: umfangreichere Spielmechanik)
 

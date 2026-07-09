@@ -28,6 +28,17 @@ describe('Karten-Entdeckungen', () => {
     expect(healed?.rewardItemId).toBe('full-potion');
   });
 
+  it('zeigt Rangas Rudelspur erst nach dem Pakt als sichtbare Weltfolge', () => {
+    expect(getMapDiscoveryAt('tempest-start', 5, 5, {})).toBeNull();
+    const trail = getMapDiscoveryAt('tempest-start', 5, 5, { 'story.direwolf.pact': true });
+    expect(trail?.title).toBe('Rangas Rudelspur');
+    expect(trail?.rewardItemId).toBe('healing-herb');
+    expect(getMapDiscoveryAt('tempest-start', 5, 5, {
+      'story.direwolf.pact': true,
+      'discovery.tempest-start.ranga-pack-trail': true
+    })).toBeNull();
+  });
+
   it('platziert jede Fundstelle auf einer begehbaren Kachel und vergibt ein echtes Item', () => {
     const itemIds = new Set<string>(ITEMS.map((item) => item.id));
     for (const def of allMapDiscoveryDefinitions()) {

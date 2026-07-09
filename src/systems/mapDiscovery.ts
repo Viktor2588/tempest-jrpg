@@ -53,6 +53,19 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     rewardLabel: 'Magisches Erz'
   },
   {
+    // Weltveraenderung: nach Rangas Pakt hinterlaesst das Rudel sichtbare,
+    // freundliche Spuren am Tempest-Rand statt nur als Questflag zu existieren.
+    mapId: 'tempest-start',
+    x: 5,
+    y: 5,
+    requiresFlag: 'story.direwolf.pact',
+    flag: 'discovery.tempest-start.ranga-pack-trail',
+    title: 'Rangas Rudelspur',
+    body: 'Frische Pfotenabdrücke führen nicht mehr auf ein Jagdrevier, sondern um Tempest herum Wache.',
+    rewardItemId: 'healing-herb',
+    rewardLabel: 'Heilkraut'
+  },
+  {
     // Weltveraenderung: erst nach dem Sieg über das namenlose Echo (Siegelbruch)
     // ist der Hain im Geistmoor sichtbar geheilt und gibt seinen Segen frei.
     mapId: 'spirit-marsh',
