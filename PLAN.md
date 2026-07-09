@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 114 — Veldora-Höhle Revisit + Hypertrank-Sidequest (in Bearbeitung, Worktree: /worktree/tempest-phase-114-veldora-revisit)
 
 ## Integrationswarteschlange
 
