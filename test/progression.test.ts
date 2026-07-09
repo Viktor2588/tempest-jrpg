@@ -12,6 +12,7 @@ import {
   renderView,
   startBattle
 } from '../src/systems/battle';
+import { KITCHEN_REST_BUFF_FLAG } from '../src/systems/facilities';
 import { calculateMemberStats } from '../src/systems/menu';
 import { createPartyMember } from '../src/systems/party';
 import {
@@ -247,6 +248,18 @@ describe('progression system', () => {
     expect(withOfficer.perks).toContainEqual({ kind: 'max-hp', percent: 3 });
     expect(officerBattle.combatants.find((unit) => unit.side === 'party')!.maxHp)
       .toBeGreaterThan(baseBattle.combatants.find((unit) => unit.side === 'party')!.maxHp);
+  });
+
+  it('uebertraegt den Kuechen-Rastbuff als Opening-Status in den naechsten Kampf', () => {
+    const [rimuru] = createProgressionBattleParty(
+      [createPartyMember(hero('rimuru'))],
+      createProgressionState(),
+      { [KITCHEN_REST_BUFF_FLAG]: true }
+    );
+    const battle = startBattle({ party: [rimuru!], enemyIds: ['forest-slime'], seed: 1 });
+
+    expect(battle.combatants.find((unit) => unit.side === 'party')?.statuses.map((status) => status.id))
+      .toContain('defense-up');
   });
 
   it('vollzieht das Erntefest einmalig, verbraucht Magicules und verstärkt Offiziere', () => {

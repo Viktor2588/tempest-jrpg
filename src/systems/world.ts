@@ -1,7 +1,7 @@
 import { DIALOGS, ENCOUNTERS, LOCATIONS, LORE_ENTRIES, NPCS, QUESTS, SHOPS, type DialogChoiceDefinition, type QuestDefinition, type DialogDefinition, type DialogNodeDefinition, type EncounterDefinition, type LoreEntryDefinition, type NpcDefinition, type ShopDefinition, type WorldEffect, type WorldLocationDefinition, type WorldRequirement } from '../data/world';
 import { ENEMIES } from '../data/enemies';
 import { HEROES, ITEMS, SKILLS, type ItemDefinition } from '../data';
-import { runProductionCycle } from './facilities';
+import { KITCHEN_REST_BUFF_FLAG, runProductionCycle } from './facilities';
 import { adjustReputation } from './diplomacy';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
@@ -761,7 +761,10 @@ function applyTempestRestProduction(state: WorldState): WorldState {
     ...state,
     inventory: result.inventory,
     gold: result.gold,
-    productionCycles: (state.productionCycles ?? 0) + 1
+    productionCycles: (state.productionCycles ?? 0) + 1,
+    flags: result.yields.some((yielded) => yielded.facilityId === 'kitchen')
+      ? { ...state.flags, [KITCHEN_REST_BUFF_FLAG]: true }
+      : state.flags
   };
 }
 
