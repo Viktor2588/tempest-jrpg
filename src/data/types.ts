@@ -320,6 +320,11 @@ export interface EnemyDefinition {
   readonly reflectsCategory?: DamageCategory;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
+  // Phase 109 — Skript-Bosse & Adds: beim Wechsel in Phase 2 beschwört dieser Boss
+  // einmalig zusätzliche Combatants (`summonEnemyId` × `summonCount`) in den Kampf.
+  // Einmalig + endliche Zahl -> terminierend (kein Soft-Lock in Sims/Tests).
+  readonly summonEnemyId?: string;
+  readonly summonCount?: number;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
   readonly experienceReward: number;

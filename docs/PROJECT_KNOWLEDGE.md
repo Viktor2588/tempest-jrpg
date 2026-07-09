@@ -1078,6 +1078,22 @@ test/release.test.ts
 - Validiert mit `bun run typecheck`, `bun run test` (`test/mimicForm.test.ts` + Balance-Harness),
   `bun run build` und Battle-Render-Smoke (desktop-chromium).
 
+### Phase 109 - Skript-Bosse & Adds (mid-fight Beschwoerung)
+
+- Scope: neue Grundfaehigkeit — ein Boss beschwoert beim Wechsel in Phase 2 einmalig
+  zusaetzliche Combatants in den `BattleState`. Datengetrieben ueber
+  `EnemyDefinition.summonEnemyId`/`summonCount`; `spawnSummons` haengt in `updateEnemyPhase`
+  am bestehenden Phasen-Trigger.
+- Hard-Termination: `Combatant.summonsUsed` erlaubt genau eine Beschwoerung je Boss; endliche
+  Zahl -> keine Endlos-Spawns/Soft-Lock in Sims/Tests. Auto-Battle behandelt beliebige
+  Gegnerzahlen (zielt auf alle Lebenden), Siegbedingung schliesst Adds ein.
+- Content: `magic-colossus` (Ramiris-Labyrinth, ausserhalb der Balance-Harness-Story) beschwoert
+  2× `stray-echo` — thematisches Set-Piece ohne neue Assets. Harness/Story-Bosse bleiben
+  unberuehrt -> Korridore gruen.
+- HUD: die Adds erscheinen ueber `renderView().enemies` automatisch als weitere Gegner.
+- Validiert mit `bun run typecheck`, `bun run test` (`test/scriptBoss.test.ts`: Spawn/
+  Einmaligkeit/Termination + Balance-Harness), `bun run build` und Battle-Render-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

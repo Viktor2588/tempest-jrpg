@@ -88,6 +88,9 @@ export interface BattleUnitInput {
   readonly reflectsCategory?: DamageCategory;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
+  // Phase 109 — Skript-Bosse: einmalige Add-Beschwörung beim Phasenwechsel.
+  readonly summonEnemyId?: string;
+  readonly summonCount?: number;
   readonly synergyPartnerIds?: readonly string[];
   readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
@@ -149,6 +152,10 @@ export interface Combatant {
   mimicTurns: number;
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
+  // Phase 109 — Skript-Bosse: Add-Beschwörung beim Phasenwechsel (einmalig via summonsUsed).
+  readonly summonEnemyId: string | null;
+  readonly summonCount: number;
+  summonsUsed: boolean;
   readonly synergyPartnerIds: readonly string[];
   readonly signatureId: string | null;
   signatureCharge: number;
@@ -436,6 +443,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     reflectsCategory: enemy.reflectsCategory,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
+    summonEnemyId: enemy.summonEnemyId,
+    summonCount: enemy.summonCount,
     experienceReward: enemy.experienceReward,
     goldReward: enemy.goldReward,
     drops: enemy.drops
@@ -703,6 +712,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     mimicTurns: 0,
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
+    summonEnemyId: unit.summonEnemyId ?? null,
+    summonCount: Math.max(0, unit.summonCount ?? 0),
+    summonsUsed: false,
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     signatureId: signature?.id ?? null,
     signatureCharge: 0,
@@ -1925,7 +1937,30 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
       combatant.boss ? BATTLE_BALANCE.bossPhaseCtSurge : CT_THRESHOLD
     );
     pushLog(state, `${combatant.name} wechselt in Phase 2.`);
+    // Phase 109 — skript-getriebene Bossphase: beschwört beim Phasenwechsel einmalig Adds.
+    spawnSummons(state, combatant);
   }
+}
+
+// Phase 109 — Add-Beschwörung: fügt beim Phasenwechsel einmalig zusätzliche Gegner in den
+// BattleState ein. Hard-Termination: nur ein Mal je Boss (summonsUsed), endliche Zahl.
+function spawnSummons(state: BattleState, boss: Combatant): void {
+  if (boss.summonsUsed || !boss.summonEnemyId || boss.summonCount <= 0) {
+    return;
+  }
+  boss.summonsUsed = true;
+  const template = enemyById.get(boss.summonEnemyId);
+  if (!template) {
+    return;
+  }
+  const input = createEnemyBattleUnit(template);
+  for (let i = 0; i < boss.summonCount; i += 1) {
+    const summon = createCombatant(input, `e-summon-${state.combatants.length}-${template.id}`);
+    // Adds treten frisch geladen, aber nicht sofort am Zug an (charge normal auf).
+    summon.ct = 0;
+    state.combatants.push(summon);
+  }
+  pushLog(state, `${boss.name} beschwört ${boss.summonCount}× ${template.name}!`);
 }
 
 function scoreEnemySkillTarget(

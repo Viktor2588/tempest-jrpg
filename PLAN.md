@@ -168,20 +168,6 @@ narrative Ausloeser fuer das Erwachen (104).
 Hinweis: Der Plan ist inzwischen ausfuehrungs-, nicht planungsgebunden (20+ offene
 Phasen). Diese Welle ist bewusst auf 3 starke Pfeiler begrenzt statt breiter.
 
-- [ ] Phase 109 — Skript-Bosse & Adds (mid-fight Beschwoerung, mehrphasige
-  Inszenierung). Befund: Bosse haben phase2SkillIds + Archetyp-Flags, aber
-  mid-fight Combatant-Spawning fehlt (Phase 82 „splitter/summoner deferred"), und
-  echte skript-getriebene Bossphasen fehlen. Bauen: (a) eine Add-/Beschwoerungs-
-  Mechanik — ein Boss-Skill/Flag spawnt zur Laufzeit zusaetzliche Combatants in
-  den BattleState (die eine fehlende Grundfaehigkeit); (b) darauf skript-getriebene
-  Bossphasen (bei HP-Schwelle: Add-Welle / Musterwechsel / Umgebungseffekt),
-  datengetrieben. Reuse: BattleState/Combatant-Modell, escalation-/Archetyp-Muster.
-  Macht die Endbosse zu echten Set-Pieces. WICHTIG: Hard-Termination-Guards fuer
-  Sims/Tests erhalten (Spawns duerfen nicht endlos/kein Soft-Lock). Akzeptanz:
-  Spawn/Phasenwechsel deterministisch + terminierend headless getestet, Auto-Battle
-  kommt mit Adds klar, Balance-Harness je Rimuru-Spec gruen, HUD zeigt neue
-  Combatants, Battle-Smoke.
-
 ## Fuenfte Welle: Skill-Raenge, Praedator-Perversion & Shizus Kinder (IDEEN.md, 2026-07-07)
 
 Befund (Canon-Abgleich + Code, aus `IDEEN.md`): Der Skill-Layer ist flach —
