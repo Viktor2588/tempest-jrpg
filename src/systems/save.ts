@@ -154,6 +154,7 @@ function carryOverMember(member: PartyMemberState): PartyMemberState {
   const restored = createPartyMember(definition, {
     level: member.level,
     experience: member.experience,
+    formationRow: member.formationRow,
     learnedSkillIds: member.learnedSkillIds
   });
   return { ...restored, name: member.name, equipment: member.equipment };
@@ -409,6 +410,7 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
   const member = createPartyMember(definition, {
     level: safeNumber(raw.level, definition.initialLevel),
     experience: safeNumber(raw.experience, definition.initialExperience),
+    formationRow: safeFormationRow(raw.formationRow),
     learnedSkillIds: Array.isArray(raw.learnedSkillIds)
       ? raw.learnedSkillIds.filter((skillId): skillId is string => typeof skillId === 'string')
       : []
@@ -433,6 +435,10 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
 
 function normalizePartyMembers(members: readonly PartyMemberState[]): PartyMemberState[] {
   return readPartyMemberArray(members);
+}
+
+function safeFormationRow(value: unknown): PartyMemberState['formationRow'] {
+  return value === 'back' ? 'back' : 'front';
 }
 
 function readInventoryStacks(raw: unknown): InventoryStack[] {

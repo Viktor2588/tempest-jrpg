@@ -475,7 +475,7 @@ export class BattleScene extends Phaser.Scene {
     const view = renderView(this.state);
 
     view.enemies.forEach((enemy, index) => this.drawUnit(enemy, this.colX(index, view.enemies.length), 137, 'enemy'));
-    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), 345, 'party'));
+    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), this.partyRowY(member), 'party'));
 
     view.log.slice(0, 2).forEach((line, index) => {
       this.layer.add(this.add.text(16, 11 + index * 19, line, {
@@ -535,6 +535,10 @@ export class BattleScene extends Phaser.Scene {
     const span = Math.min(GAME_WIDTH - 120, count * 150);
     const start = (GAME_WIDTH - span) / 2 + span / (count * 2);
     return start + (index * span) / count;
+  }
+
+  private partyRowY(unit: CombatantView): number {
+    return unit.formationRow === 'front' ? 326 : 370;
   }
 
   private textureFor(unit: CombatantView, side: 'party' | 'enemy'): {
@@ -607,6 +611,14 @@ export class BattleScene extends Phaser.Scene {
         fontSize: '9px',
         color: '#f0cf72'
       }).setOrigin(0.5).setAlpha(alpha));
+    }
+    if (side === 'party') {
+      this.layer.add(this.add.text(x + width / 2 - 10, y - height / 2 + 10, unit.formationRow === 'front' ? 'FRONT' : 'HINTEN', {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: unit.formationRow === 'front' ? '#ffd27a' : '#8fe7ff'
+      }).setOrigin(1, 0.5).setAlpha(alpha));
     }
 
     this.layer.add(this.add.rectangle(x, y + 38, width - 14, 9, 0x0a0f18, 0.96).setOrigin(0.5));

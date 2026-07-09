@@ -1037,7 +1037,17 @@ index.html
 test/release.test.ts
 ```
 
-## 13. Change Checklist
+## 13. Phase Notes
+
+### Phase 97 - Formation/Reihen
+
+- Branch/Worktree: `phase-97-formation` in `/worktree/tempest-phase-97-formation`.
+- Scope: aktive Party-Mitglieder tragen optional `formationRow` (`front`/`back`); alte Saves normalisieren auf Front.
+- UI: Party-Menue setzt Front/Hinterreihe, laedt `ui/formation-rows.webp` und zeigt Row-Badges; Battle-HUD positioniert und beschriftet Party-Units nach Row.
+- Battle-Regel: Gegner priorisieren lebende Frontziele; Hinterreihe wird erst angegriffen, wenn keine Front mehr steht. Keine Schadenszahlen geaendert, damit die Balance-Harness stabil bleibt.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build` und gezieltem Desktop-Chromium-Smoke fuer Title/Menu/Battle.
+
+## 14. Change Checklist
 
 Before editing:
 

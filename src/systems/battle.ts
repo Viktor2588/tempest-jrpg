@@ -19,7 +19,7 @@ import {
   type StatusEffectId
 } from '../data';
 import { getItemCount, normalizeInventoryStacks, type InventoryStack } from './inventory';
-import type { PartyMemberState } from './party';
+import type { FormationRow, PartyMemberState } from './party';
 import { makeRng, type Rng } from './rng';
 import {
   analysisBonusLevels,
@@ -58,6 +58,7 @@ export interface BattleUnitInput {
   readonly name: string;
   readonly formName?: string;
   readonly side: Side;
+  readonly formationRow?: FormationRow;
   readonly level: number;
   readonly stats: StatBlock;
   readonly currentHp?: number;
@@ -93,6 +94,7 @@ export interface Combatant {
   readonly name: string;
   readonly formName: string | null;
   readonly side: Side;
+  readonly formationRow: FormationRow;
   readonly level: number;
   readonly baseStats: StatBlock;
   baseSkillIds: string[];
@@ -316,6 +318,7 @@ export function createBattlePartyFromMembers(
         level: member.level,
         currentHp: member.currentHp,
         currentMp: member.currentMp,
+        formationRow: member.formationRow ?? 'front',
         skillIds: battleLoadoutSkillIds(member),
         perks: perksByCharacterId[member.characterId]
       })
@@ -341,6 +344,7 @@ export function createHeroBattleUnit(
   overrides: Partial<Pick<
     BattleUnitInput,
     'currentHp'
+    | 'formationRow'
     | 'currentMp'
     | 'formName'
     | 'level'
@@ -359,6 +363,7 @@ export function createHeroBattleUnit(
     name: overrides.name ?? hero.name,
     formName: overrides.formName,
     side: 'party',
+    formationRow: overrides.formationRow,
     level,
     stats,
     currentHp: overrides.currentHp,
@@ -385,6 +390,7 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     sourceId: enemy.id,
     name: enemy.name,
     side: 'enemy',
+    formationRow: 'front',
     level: enemy.level,
     stats: enemy.stats,
     element: enemy.element,
@@ -414,7 +420,10 @@ export function startBattle(options: StartBattleOptions): BattleState {
   const party = options.party ?? createDefaultBattleParty();
   const enemies = options.enemies ?? createEnemyBattleUnits(options.enemyIds ?? ['forest-slime']);
   const combatants = [
-    ...party.map((unit, index) => createCombatant(unit, `p${index}-${unit.sourceId}`)),
+    ...party.map((unit, index) => createCombatant({
+      ...unit,
+      formationRow: unit.formationRow ?? 'front'
+    }, `p${index}-${unit.sourceId}`)),
     ...enemies.map((unit, index) => createCombatant(unit, `e${index}-${unit.sourceId}`))
   ];
 
@@ -605,7 +614,9 @@ function chooseEnemyAttackTarget(
   if (actor.phaseIndex >= 1) {
     return foes.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]!;
   }
-  return foes[Math.floor(state.rng() * foes.length)]!;
+  const frontLine = foes.filter((foe) => foe.formationRow === 'front');
+  const pool = frontLine.length > 0 ? frontLine : foes;
+  return pool[Math.floor(state.rng() * pool.length)]!;
 }
 
 function resolveEnemyAction(state: BattleState, actor: Combatant, action: BattleAction): ActionResult {
@@ -629,6 +640,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     name: unit.name,
     formName: unit.formName ?? null,
     side: unit.side,
+    formationRow: unit.formationRow ?? (unit.side === 'party' ? 'back' : 'front'),
     level: unit.level,
     baseStats: unit.stats,
     baseSkillIds,
@@ -1821,7 +1833,8 @@ function scoreEnemySkillTarget(
       : target.hp / target.maxHp;
     const breakPriority = hasStatus(target, 'guard-break') ? 2.2 : 0;
     const disabledPenalty = hasAnyControlStatus(target) && target.hp / target.maxHp > 0.35 ? -1.2 : 0;
-    score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty;
+    const rowPriority = target.side === 'party' && target.formationRow === 'front' ? 0.35 : 0;
+    score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty + rowPriority;
   }
 
   // Phase 87 — Mender: heilt am liebsten den am stärksten verwundeten Verbündeten;

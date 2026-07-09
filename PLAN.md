@@ -13,7 +13,9 @@ Status:
 
 ## Integrationswarteschlange
 
-- Keine offenen Integrationen.
+- [x] Phase 97 — Formation/Reihen abgeschlossen in `/worktree/tempest-phase-97-formation`.
+  Abnahme: `git diff --check`, `bun run typecheck`, `bun run test`,
+  `bun run build`, `bun run test:e2e -- --project=desktop-chromium -g "Title|Party-Menü|Band 2 → erster Flüsterhain-Kampf"`.
 
 ## Bugs
 - zu viele punkte Geometrien nach abschluss von quests.
@@ -117,9 +119,13 @@ Phase 93b ist gemergt: die Kueche setzt bei der Tempest-Rast einen einmaligen
 
 ### Contained Side-Options (wiederholbarer Content, kleiner Zuschnitt)
 
-- [ ] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
+- [x] Phase 97 — Formation/Reihen. Front-/Hinterreihe + Positionierung, damit die
   Party-Zusammenstellung mit den Gegner-Archetypen (Phase 87/88/88b) mehr zaehlt
   (z. B. Hinterreihe = weniger physischer Schaden, dafuer Reichweiten-Gating).
+  Umgesetzt: Party-Mitglieder speichern optional `formationRow`; alte Saves
+  normalisieren auf Front. Das Party-Menue setzt Front/Hinterreihe, Battle-HUD
+  zeigt die Reihe und Gegner priorisieren lebende Frontziele, bevor sie die
+  Hinterreihe angreifen.
 
 ### Zweite Welle: Figuren, Endgame, Aussenwelt (Nutzer 2026-07-06)
 

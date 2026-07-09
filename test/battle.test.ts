@@ -171,6 +171,52 @@ function phaseEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
   };
 }
 
+function rowProbeHero(sourceId: string, formationRow: 'front' | 'back'): BattleUnitInput {
+  return {
+    sourceId,
+    name: sourceId,
+    side: 'party',
+    formationRow,
+    level: 4,
+    stats: {
+      maxHp: 120,
+      maxMp: 0,
+      attack: 24,
+      defense: 10,
+      magic: 8,
+      spirit: 10,
+      agility: 12
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: []
+  };
+}
+
+function rowProbeEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
+  return {
+    sourceId: 'row-probe-enemy',
+    name: 'Reihenprüfer',
+    side: 'enemy',
+    level: 4,
+    stats: {
+      maxHp: 300,
+      maxMp: 0,
+      attack: 24,
+      defense: 10,
+      magic: 8,
+      spirit: 10,
+      agility: 30
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: [],
+    ...overrides
+  };
+}
+
 function autoPlayDepth(state: BattleState): { status: string; steps: number } {
   let guard = 0;
 
@@ -238,6 +284,33 @@ describe('battle engine', () => {
     expect(renderView(a).party).toEqual(renderView(b).party);
     expect(renderView(a).rewards).toEqual(renderView(b).rewards);
     expect(renderView(a).log).toEqual(renderView(b).log);
+  });
+
+  it('übernimmt Front- und Hinterreihe aus der Battle-Party', () => {
+    const state = startBattle({
+      party: [rowProbeHero('front-probe', 'front'), rowProbeHero('back-probe', 'back')],
+      enemies: [rowProbeEnemy()],
+      seed: 12
+    });
+
+    expect(renderView(state).party.map((member) => member.formationRow))
+      .toEqual(['front', 'back']);
+  });
+
+  it('priorisiert die Frontreihe als einfaches Gegnerziel', () => {
+    const state = startBattle({
+      party: [rowProbeHero('front-probe', 'front'), rowProbeHero('back-probe', 'back')],
+      enemies: [rowProbeEnemy()],
+      seed: 13
+    });
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = enemy.id;
+
+    enemyTurn(state);
+
+    const view = renderView(state);
+    expect(view.party.find((member) => member.sourceId === 'front-probe')!.hp).toBeLessThan(120);
+    expect(view.party.find((member) => member.sourceId === 'back-probe')!.hp).toBe(120);
   });
 
   it('wendet Schadensmultiplikatoren getrennt für Party und Gegner an', () => {

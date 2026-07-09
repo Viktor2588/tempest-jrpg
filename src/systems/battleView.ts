@@ -10,6 +10,7 @@ import type {
 } from './battle';
 import { calculateDevourSuccessChance, escalationBonus } from './battle';
 import type { InventoryStack } from './inventory';
+import type { FormationRow } from './party';
 import { devourChanceBonus } from './talentPerk';
 
 export interface CombatantView {
@@ -18,6 +19,7 @@ export interface CombatantView {
   readonly name: string;
   readonly formName: string | null;
   readonly side: Side;
+  readonly formationRow: FormationRow;
   readonly level: number;
   readonly hp: number;
   readonly maxHp: number;
@@ -112,6 +114,7 @@ function renderCombatant(
     name: combatant.name,
     formName: combatant.formName,
     side: combatant.side,
+    formationRow: combatant.formationRow,
     level: combatant.level,
     hp: combatant.hp,
     maxHp: combatant.maxHp,

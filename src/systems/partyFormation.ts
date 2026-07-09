@@ -1,6 +1,7 @@
-import type { PartyMemberState } from './party';
+import type { FormationRow, PartyMemberState } from './party';
 
 export const MAX_ACTIVE_PARTY_SIZE = 3;
+export type ActiveFormationDirection = FormationRow;
 
 export interface PartyFormationState {
   readonly active: readonly PartyMemberState[];
@@ -55,5 +56,33 @@ export function activateReserveMember(
     ok: true,
     state: { active, reserve },
     message: `${incoming.name} wechselt für ${outgoing.name} in die aktive Gruppe.`
+  };
+}
+
+export function moveActiveMember(
+  state: PartyFormationState,
+  characterId: string,
+  direction: ActiveFormationDirection
+): PartyFormationResult {
+  const activeIndex = state.active.findIndex((member) => member.characterId === characterId);
+  if (activeIndex < 0) {
+    return { ok: false, state, message: 'Figur ist nicht in der aktiven Gruppe.' };
+  }
+
+  const moving = state.active[activeIndex]!;
+  if ((moving.formationRow ?? 'front') === direction) {
+    return { ok: false, state, message: 'Diese Reihe ist bereits erreicht.' };
+  }
+
+  const active = state.active.map((member) =>
+    member.characterId === characterId ? { ...member, formationRow: direction } : member
+  );
+
+  return {
+    ok: true,
+    state: { active, reserve: state.reserve },
+    message: direction === 'front'
+      ? `${moving.name} rückt in die Front.`
+      : `${moving.name} geht in die Hinterreihe.`
   };
 }
