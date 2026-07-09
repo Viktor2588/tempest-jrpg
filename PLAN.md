@@ -255,6 +255,10 @@ liefern die Grundlage fuers Gating in 112/104.
   seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
   Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
   Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
+
+## Bug-Translation Phases (aus Bugs-Liste übersetzt)
+
+- [~] Phase 117 — Gebietsübergangsmarker mit Beschreibung (in Bearbeitung, Worktree: /worktree/tempest-phase-117-area-markers). Marker zeigen nicht an, in welches Gebiet man übergeht. Akzeptanz: HUD-Banner mit Gebietsname + kurzer Beschreibung, passend zu Region-Bannern.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
