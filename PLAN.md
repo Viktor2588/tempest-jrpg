@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine laufende Arbeit.
+- [~] Phase 115 — Story-Event-Reihenfolge Korrektur (in Bearbeitung, Worktree: /worktree/tempest-phase-115-story-order)
 
 ## Integrationswarteschlange
 
