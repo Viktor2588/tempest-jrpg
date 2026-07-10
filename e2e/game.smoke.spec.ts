@@ -1147,7 +1147,7 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await expectCanvasContent(page);
-  await clickGamePoint(page, 583, 140); // Umschalter „🍴 Verschlingen"
+  await clickGamePoint(page, 422, 140); // Umschalter „🍴 Verschlingen"
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
@@ -1181,11 +1181,11 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 564, 140); // Umschalter „🏛️ Bewohner"
+  await clickGamePoint(page, 520, 140); // Umschalter „🏛️ Bewohner"
   await page.waitForTimeout(250);
   await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
   await page.waitForTimeout(250);
-  await clickGamePoint(page, 692, 140); // Umschalter „🏭 Einrichtungen"
+  await clickGamePoint(page, 620, 140); // Umschalter „🏭 Einrichtungen"
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 450, 508); // „🏕️ Tempest-Rast halten"
@@ -1223,7 +1223,7 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 911, 140); // Umschalter „🤝 Politik"
+  await clickGamePoint(page, 804, 140); // Umschalter „🤝 Politik"
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
