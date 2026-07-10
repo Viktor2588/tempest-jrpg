@@ -225,4 +225,66 @@ liefern die Grundlage fuers Gating in 112/104.
 ## Bug-Translation Phases (aus Bugs-Liste übersetzt)
 
 - [x] Phase 119 — Tastatur-Dialog-Navigation (in main integriert). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
+## Sechste Welle: Wissen, Sammeln & Meisterschaft (Plan 2026-07-10)
+
+Befund (Code-Abgleich, keine offenen Phasen mehr — alle frueheren Wellen
+102–120 sind auf `main` implementiert und die 628 Unit-Tests + Balance-Harness
+sind gruen): Die reichen Kampf-Systeme (Analyse/Telegraph, Break, Devour, Steal,
+Elementarfelder, Kategorie-Resistenzen) sind gebaut und liegen teils on-route
+(Kampf-Tiefe-Roadmap 87–89), aber **ihre Belohnung endet mit dem Einzelkampf**:
+„Analysieren" (Grosser Weiser) deckt Schwaechen/Telegraph NUR fuer den laufenden
+Kampf auf — `analysisLevel` lebt in `BattleState` und wird nie persistiert. Es
+fehlt der klassische JRPG-**Wissens-/Sammelpfeiler**: Besiegt-Zaehler existieren
+(`defeatedEnemyCountsByEnemyId`, heute nur vom Kopfgeldbrett gelesen), werden dem
+Spieler aber nirgends als Gegner-Kompendium gezeigt; der Codex hat sechs Modi
+(Wissen/Verschlingen/Bewohner/Einrichtungen/Kopfgeld/Politik), aber **kein
+lebendiges Bestiarium**. Damit gibt es keinen Grund, Analyse jenseits des
+Pflichtmoments zu meistern, und keine dauerhafte Sammel-Schleife. Diese Welle
+schliesst genau diese Luecke — ausschliesslich mit vorhandenen Daten (Gegner,
+Schwaechen/Resistenzen, Analyse-Mechanik), OHNE neue Assets, mit bewusst
+niedriger Komplexitaet. Reihenfolge = Abhaengigkeit: 122 ist Fundament (persistiert
+das Wissen), 123 macht das Wissen im Kampf spuerbar, 124 ist ein optionaler
+Sammel-Anreiz. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording).
+
+- [ ] Phase 122 — Lebendiges Bestiarium (Codex-Modus „🐾 Bestiarium").
+  Neuer siebter Codex-Modus, der jeden je erlegten Gegner als Karte listet:
+  Name + Cutout (vorhandene Sprites), Besiegt-Zaehler (aus dem bereits
+  persistierten `defeatedEnemyCountsByEnemyId`) und — sobald der Gegner
+  mindestens EINMAL per „Analysieren" untersucht wurde — die aufgedeckten
+  Kampfdaten (Schwaechen, Resistenzen, Element-/Kategorie-Reflektoren,
+  Telegraph-Faehigkeit). Nicht analysierte, aber besiegte Gegner zeigen die
+  Kampfdaten als „???" (Anreiz, sie im Kampf zu studieren). Dafuer EIN neues
+  persistiertes Feld `analyzedEnemyIds` (Satz von Gegner-`sourceId`s), am
+  Kampfende getallyt — analog zu `tallyDefeatedEnemies` in `battleResult`,
+  gefuellt aus `battle.enemies` mit `analysisLevel > 0`. Save-Migration:
+  alte Staende starten mit leerem Satz (`readStringArray`, keine Bruchgefahr).
+  Belohnt die Analyse-Mechanik dauerhaft und schafft eine
+  Vervollstaendigungs-Schleife. Akzeptanz: Tally-/Reveal-Logik headless
+  (`test/bestiary.test.ts` — analysiert vs. nur besiegt vs. unbekannt),
+  Save-Roundtrip (`test/save.test.ts`), Codex-Modus rendert die Karten +
+  Vollstaendigkeits-Zaehler, Kampf→Menue-Smoke gruen, Balance-Harness unberuehrt
+  (rein additive Persistenz).
+
+- [ ] Phase 123 — Bestiarium-Wissen im Kampf (bekannte Gegner starten aufgedeckt).
+  Baut auf 122 auf: Beim Kampfstart bekommen Gegner, deren `sourceId` bereits in
+  `analyzedEnemyIds` steht, ihren `analysisLevel` auf 1 vorgesetzt (Schwaechen +
+  Telegraph sofort sichtbar), waehrend NEUE Arten und Bosse weiterhin frisch
+  analysiert werden muessen (Boss-/Existenz-Gating wie bei Devour/Steal
+  respektieren, damit Bosse spannend bleiben). Reduziert das repetitive
+  Analyse-Spam auf laengst studierten Trash-Mobs und belohnt vorheriges Studium
+  spuerbar, ohne die Boss-Entscheidungstiefe zu entwerten. Akzeptanz: Battle-Init
+  bootstrappt `analysisLevel` nur fuer bekannte Nicht-Boss-Gegner (headless),
+  Boss bleibt bei 0 (headless), Balance-Harness gruen (Story-Korridore
+  unveraendert — Analyse war dort schon optionaler Vorteil), Kampf-Smoke gruen.
+
+- [ ] Phase 124 — Sammel-Meisterschaft (optionaler Anreiz, kleiner Zuschnitt).
+  Damit die Sammel-Schleife nicht rein kosmetisch bleibt: eine einmalige,
+  deterministische Belohnung, wenn das Bestiarium einer Region vollstaendig
+  (alle regionstypischen Gegner analysiert) ist — z.B. ein Magicule-Fund ueber
+  das vorhandene `grantMagicules`/Discovery-Muster oder ein kleiner
+  Schmiedematerial-Bonus. Bewusst klein und optional; verzahnt Sammeln (122/123)
+  mit der Magicule-Oekonomie (102). Akzeptanz: Vollstaendigkeits-Erkennung +
+  einmalige Belohnung headless getestet, Save-Roundtrip, keine Balance-Beruehrung.
+
 ## UX- und Welt-Backlog
