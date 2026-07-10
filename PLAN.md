@@ -214,9 +214,3 @@ liefern die Grundlage fuers Gating in 112/104.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
-- [x] Phase 120 — Content-Breite: Region-Gegner-Assets & Encounter (abgeschlossen,
-  Worktree: /worktree/tempest-phase-120-content-assets). Zwei projektgenerierte
-  Battle-Cutouts (`enemy-blumund-bandit.webp`, `enemy-academy-wisp.webp`) mit
-  ASSETS.md-Provenienz, Gegnerdaten, Random-Encounter-Verdrahtung und Asset-Tests.
-  Abnahme: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`
-  und Desktop-Playwright-Smoke fuer `Föderations-Save|Shizu-Schwur-Save`.
