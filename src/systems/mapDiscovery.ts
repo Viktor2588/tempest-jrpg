@@ -120,6 +120,58 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Am Rand der Handelsstadt Blumund steckt eine von einem Karren gefallene Truhe voller Reisevorrat.',
     rewardItemId: 'healing-herb',
     rewardLabel: 'Heilkraut'
+  },
+  {
+    // Weltfolge: nach dem Fall der Ork-Katastrophe (Geld verschlungen) ruht das
+    // Schlachtfeld; die Ueberlebenden schichten ein Mahnmal, wo die Horde fiel.
+    mapId: 'jura-battlefield',
+    x: 12,
+    y: 7,
+    requiresFlag: 'story.geld.devoured',
+    flag: 'discovery.jura-battlefield.war-memorial',
+    title: 'Mahnmal der Orkschlacht',
+    body: 'Wo die Ork-Katastrophe zu Fall kam, haben die Ueberlebenden einen Steinhaufen errichtet. Ein Hauer der Horde ruht darauf.',
+    rewardItemId: 'orc-tusk',
+    rewardLabel: 'Ork-Hauer'
+  },
+  {
+    // Weltfolge: sobald die Kijin benannt sind, entzuenden sie im Goblindorf die
+    // erste richtige Esse — sichtbarer Wohlstand statt bloss eines Questflags.
+    mapId: 'goblin-village',
+    x: 9,
+    y: 7,
+    requiresFlag: 'story.kijin.named',
+    flag: 'discovery.goblin-village.first-forge',
+    title: 'Erste Kijin-Esse',
+    body: 'Seit die Kijin ihren Namen tragen, gluht im Dorf die erste ordentliche Schmiedeesse. Ein Brocken Roherz liegt bereit.',
+    rewardItemId: 'magic-ore',
+    rewardLabel: 'Magisches Erz'
+  },
+  {
+    // Weltfolge: nachdem der erste Geistkern eines Kindes stabilisiert wurde,
+    // beruhigt sich der Krankenfluegel der Freiheitsakademie sichtbar.
+    mapId: 'freedom-academy',
+    x: 12,
+    y: 7,
+    requiresFlag: 'story.children.first-core',
+    flag: 'discovery.freedom-academy.calm-ward',
+    title: 'Beruhigter Krankenfluegel',
+    body: 'Seit der erste Kern eines Kindes haelt, glimmt der Ward der Akademie ruhig. Ein Buendel Hipokte-Kraut wurde vergessen.',
+    rewardItemId: 'hipokte-herb',
+    rewardLabel: 'Hipokte-Kraut'
+  },
+  {
+    // Weltfolge: nach dem Pakt markiert das Rudel seinen alten Bau als
+    // Tempest-Aussenposten — aus dem Jagdrevier wird ein Wachtplatz.
+    mapId: 'direwolf-den',
+    x: 8,
+    y: 6,
+    requiresFlag: 'story.direwolf.pact',
+    flag: 'discovery.direwolf-den.pact-totem',
+    title: 'Pakt-Totem des Rudels',
+    body: 'Am alten Bau steht seit dem Pakt ein Totem: der Sturmwolf-Bau gehoert nun zu Tempest.',
+    rewardItemId: 'healing-herb',
+    rewardLabel: 'Heilkraut'
   }
 ] as const;
 

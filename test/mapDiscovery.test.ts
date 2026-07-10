@@ -50,6 +50,13 @@ describe('Karten-Entdeckungen', () => {
     })).toBeNull();
   });
 
+  it('zeigt das Orkschlacht-Mahnmal erst nach dem Sieg über die Ork-Katastrophe', () => {
+    expect(getMapDiscoveryAt('jura-battlefield', 12, 7, {})).toBeNull();
+    const memorial = getMapDiscoveryAt('jura-battlefield', 12, 7, { 'story.geld.devoured': true });
+    expect(memorial?.title).toBe('Mahnmal der Orkschlacht');
+    expect(memorial?.rewardItemId).toBe('orc-tusk');
+  });
+
   it('platziert jede Fundstelle auf einer begehbaren Kachel und vergibt ein echtes Item', () => {
     const itemIds = new Set<string>(ITEMS.map((item) => item.id));
     for (const def of allMapDiscoveryDefinitions()) {
