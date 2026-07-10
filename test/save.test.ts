@@ -177,6 +177,18 @@ describe('save.ts', () => {
     expect(loadSave(storage)).toBeNull();
   });
 
+  it('persistiert den Welt-Uhr-Schrittzähler (Phase 101) über Speichern/Laden', () => {
+    const storage = new MemoryStorage();
+    const save = { ...createNewSave({ seed: 5 }), clockStep: 37 };
+    autoSave(storage, save);
+    expect(loadSave(storage)?.clockStep).toBe(37);
+  });
+
+  it('setzt clockStep für neue Spielstände auf 0 und klemmt negative Werte', () => {
+    expect(createNewSave().clockStep).toBe(0);
+    expect(normalize({ ...createNewSave(), clockStep: -12 }).clockStep).toBe(0);
+  });
+
   it('trägt bei New Game+ Fortschritt mit, setzt aber die Story zurück und heilt die Party', () => {
     const base = createNewSave({ now: '2026-06-26T10:00:00.000Z', seed: 7 });
     const leveled = {

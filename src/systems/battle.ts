@@ -230,6 +230,9 @@ export interface StartBattleOptions {
   readonly inventory?: readonly InventoryStack[];
   readonly teamMeter?: number;
   readonly damageMultipliers?: Partial<BattleDamageMultipliers>;
+  // Phase 101 — Welt-Uhr: Eröffnungs-Elementarfeld (Zeit/Wetter des Encounters).
+  // null/neutral/undefiniert = neutrales Startfeld (unverändertes Verhalten).
+  readonly openingField?: ElementType | null;
   readonly seed: number;
 }
 
@@ -481,7 +484,12 @@ export function startBattle(options: StartBattleOptions): BattleState {
     log: ['Ein Kampf beginnt!'],
     rewards: { experience: 0, gold: 0, items: [] },
     devouredSourceIds: [],
-    field: null
+    // Phase 101 — Welt-Uhr: die Zeit/Wetter-Uhr kann den Kampf in einem geladenen
+    // Elementarfeld (Phase 94) eröffnen (Regen=Wasser, Nacht=Schatten).
+    field:
+      options.openingField && options.openingField !== 'neutral'
+        ? { element: options.openingField, turns: FIELD_DURATION_ROUNDS }
+        : null
   };
 
   advanceToNextActor(state);

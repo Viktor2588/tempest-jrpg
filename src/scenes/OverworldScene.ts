@@ -41,6 +41,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
+import { clockAt, clockHudLabel, openingFieldElement } from '../systems/worldClock';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
@@ -69,6 +70,8 @@ export class OverworldScene extends Phaser.Scene {
   private minimapOriginY = 0;
   private minimapCell = 4;
   private onboardingLayer?: Phaser.GameObjects.Container;
+  // Phase 101 — Welt-Uhr: HUD-Zeile mit Tageszeit + Wetter.
+  private clockHud?: Phaser.GameObjects.Text;
   // Zoom-Kompensation für fixe HUD-Elemente (0 bei DPR 1). Siehe hudZoomOffset.
   private hudOffset = { x: 0, y: 0 };
   // Cutscene-light: aktive Szene sperrt Bewegung/Interaktion; Akteur-Sprites
@@ -210,6 +213,12 @@ export class OverworldScene extends Phaser.Scene {
     this.add.text(menuX, menuY, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
+
+    // Phase 101 — Welt-Uhr: Tageszeit/Wetter-Anzeige unter dem Menüknopf.
+    this.clockHud = this.add.text(menuX, menuY + menuRect.height / 2 + 12, '', {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#bfe0ff'
+    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(11);
+    this.refreshClockHud();
 
     this.drawOnboardingHints();
     this.time.delayedCall(180, () => {
@@ -799,9 +808,20 @@ export class OverworldScene extends Phaser.Scene {
     }
   }
 
+  // Phase 101 — Welt-Uhr: HUD-Zeile aus dem aktuellen clockStep + Seed neu setzen.
+  private refreshClockHud(): void {
+    if (!this.clockHud) return;
+    this.clockHud.setText(clockHudLabel(clockAt(this.save.clockStep ?? 0, this.save.seed)));
+  }
+
   private resolveEncounterAtCurrentPosition(): void {
     this.stepCount += 1;
     this.save = loadSave(window.localStorage) ?? this.save;
+    // Phase 101 — Welt-Uhr: jeder Schritt lässt die Zeit voranschreiten. Persistiert,
+    // damit Tageszeit/Wetter über Speichern/Laden hinweg konsistent bleiben.
+    this.save = { ...this.save, clockStep: (this.save.clockStep ?? 0) + 1 };
+    autoSave(window.localStorage, this.save);
+    this.refreshClockHud();
     // Entdeckung auf der Kachel hat Vorrang vor einem Zufallskampf: als Modal
     // zeigen, Belohnung/Flag setzt die Discovery-Szene; danach neu zeichnen.
     if (getMapDiscoveryAt(this.mapId, this.pos.x, this.pos.y, this.save.flags)) {
@@ -819,9 +839,13 @@ export class OverworldScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
 
     if (result.state.encounter) {
+      // Phase 101 — Welt-Uhr: Zeit/Wetter des Encounters bestimmen das Eröffnungs-
+      // Elementarfeld (Regen=Wasser, Nacht=Schatten); tagsüber/klar bleibt es neutral.
+      const clock = clockAt(this.save.clockStep ?? 0, this.save.seed);
       battleWipe(this, 'Battle', {
         enemyIds: [...result.state.encounter.enemyIds],
-        encounterId: result.state.encounter.id
+        encounterId: result.state.encounter.id,
+        openingField: openingFieldElement(clock)
       });
     }
   }

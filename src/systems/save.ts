@@ -80,6 +80,10 @@ export interface SaveGameV3 {
   readonly updatedAt: string;
   readonly seed: number;
   readonly playtimeSeconds: number;
+  // Phase 101 — Welt-Uhr: fortlaufender Schrittzähler, aus dem systems/worldClock
+  // deterministisch Tageszeit + Wetter ableitet. Optional/rückwärtskompatibel
+  // (fehlt er in Altständen, startet die Uhr bei 0 = Morgen).
+  readonly clockStep: number;
   readonly location: SaveLocation;
   readonly party: {
     readonly active: readonly PartyMemberState[];
@@ -110,6 +114,7 @@ export function createNewSave(options: CreateSaveOptions = {}): SaveGameV3 {
     updatedAt: now,
     seed: options.seed ?? 1,
     playtimeSeconds: 0,
+    clockStep: 0,
     location: DEFAULT_LOCATION,
     party: {
       active: createInitialParty(),
@@ -174,6 +179,7 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
     updatedAt,
     seed: clampNonNegativeInteger(save.seed),
     playtimeSeconds: clampNonNegativeInteger(save.playtimeSeconds),
+    clockStep: clampNonNegativeInteger(save.clockStep),
     location: normalizeLocation(save.location),
     party: {
       active: fallbackParty.active,
@@ -316,6 +322,7 @@ function migrateV1(raw: Record<string, unknown>, now: string): SaveGameV3 {
       updatedAt: now,
       seed: safeNumber(raw.seed, 1),
       playtimeSeconds: safeNumber(raw.playtimeSeconds, 0),
+      clockStep: safeNumber(raw.clockStep, 0),
       location: {
         mapId: safeString(raw.mapId, DEFAULT_LOCATION.mapId),
         x: safeNumber(raw.x, DEFAULT_LOCATION.x),
@@ -351,6 +358,7 @@ function readCurrentSave(raw: Record<string, unknown>, now: string): SaveGameV3 
     updatedAt: safeString(raw.updatedAt, now),
     seed: safeNumber(raw.seed, 1),
     playtimeSeconds: safeNumber(raw.playtimeSeconds, 0),
+    clockStep: safeNumber(raw.clockStep, 0),
     location: isRecord(raw.location) ? readLocation(raw.location) : DEFAULT_LOCATION,
     party: {
       active: readPartyMemberArray(party.active),

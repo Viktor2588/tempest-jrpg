@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
-import type { ItemDefinition, SkillDefinition } from '../data';
+import type { ElementType, ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import {
@@ -74,12 +74,13 @@ export class BattleScene extends Phaser.Scene {
     super('Battle');
   }
 
-  create(data: { enemyIds?: string[]; encounterId?: string }): void {
+  create(data: { enemyIds?: string[]; encounterId?: string; openingField?: ElementType | null }): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;
     this.state = startBattle({
+      openingField: data?.openingField ?? null,
       party: createProgressionBattleParty(
         this.save.party.active,
         this.save.progression,
