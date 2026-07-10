@@ -11,6 +11,7 @@ import {
   isPlayerTurn,
   renderView,
   startBattle,
+  stealableSkillFrom,
   type BattleState,
   type CombatantView,
   type ReactionTiming
@@ -57,6 +58,8 @@ export class BattleScene extends Phaser.Scene {
   private pendingItemId: string | null = null;
   private pendingTeamPartnerId: string | null = null;
   private pendingSignature = false;
+  // Phase 112 — Praedator-Perversion: nächste Ziel-Wahl ist ein „Rauben".
+  private pendingPlunder = false;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
   private idleTweens: Phaser.Tweens.Tween[] = [];
@@ -320,6 +323,7 @@ export class BattleScene extends Phaser.Scene {
     this.pendingSkillId = null;
     this.pendingItemId = null;
     this.pendingSignature = false;
+    this.pendingPlunder = false;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
@@ -738,7 +742,9 @@ export class BattleScene extends Phaser.Scene {
     if (!unit.dead && (wantsEnemy || wantsAlly)) {
       box.setInteractive().setStrokeStyle(2, 0x68ff9a);
       box.on('pointerdown', () => {
-        if (this.pendingTeamPartnerId) {
+        if (this.pendingPlunder) {
+          this.doAct({ type: 'plunder', targetId: unit.id });
+        } else if (this.pendingTeamPartnerId) {
           this.doAct({
             type: 'team-attack',
             partnerId: this.pendingTeamPartnerId,
@@ -766,15 +772,18 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
+        this.pendingPlunder = false;
         this.refresh();
       }],
       ['✨ Skills', () => {
         this.pendingSignature = false;
+        this.pendingPlunder = false;
         this.mode = 'skills';
         this.refresh();
       }],
       ['🎒 Items', () => {
         this.pendingSignature = false;
+        this.pendingPlunder = false;
         this.mode = 'items';
         this.refresh();
       }],
@@ -795,6 +804,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
+        this.pendingPlunder = false;
         this.mode = 'team-partners';
         this.refresh();
       }]);
@@ -808,6 +818,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = true;
+        this.pendingPlunder = false;
         if (actorView.signatureTarget === 'self'
           || actorView.signatureTarget === 'all-allies'
           || actorView.signatureTarget === 'all-enemies') {
@@ -829,7 +840,26 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
+        this.pendingPlunder = false;
         this.mode = 'mimic-forms';
+        this.refresh();
+      }]);
+    }
+
+    // Phase 112 — Praedator-Perversion: „Rauben" anbieten, sobald die Shizu-Absorption
+    // (story.shizu.vow) freigeschaltet ist und ein analysierter, nicht-seelengebundener
+    // Gegner mit einer noch nicht bekannten, raubbaren Fertigkeit im Kampf steht.
+    if (actor.skillIds.includes('predator') && this.save.flags['story.shizu.vow']
+      && this.state.combatants.some((foe) =>
+        foe.side === 'enemy' && !foe.dead && !foe.boss && !foe.plundered
+        && foe.analysisLevel >= 1 && stealableSkillFrom(foe, actor.skillIds) !== null)) {
+      items.splice(3, 0, ['⊗ Rauben', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingPlunder = true;
+        this.mode = 'target-enemy';
         this.refresh();
       }]);
     }

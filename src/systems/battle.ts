@@ -152,6 +152,8 @@ export interface Combatant {
   mimicTurns: number;
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
+  // Phase 112 — Praedator-Perversion: wurde diesem Gegner bereits eine Fertigkeit geraubt?
+  plundered: boolean;
   // Phase 109 — Skript-Bosse: Add-Beschwörung beim Phasenwechsel (einmalig via summonsUsed).
   readonly summonEnemyId: string | null;
   readonly summonCount: number;
@@ -214,6 +216,10 @@ export type BattleAction =
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
   | { type: 'devour'; targetId: string }
+  // Phase 112 — Praedator-Perversion: raubt einem analysierten, nicht-seelengebundenen
+  // Gegner (kein Boss) EINE Fertigkeit, ohne ihn zu töten (temporär im Kampf, dauerhaft
+  // bei Sieg über die bestehende mimicSkillIds-Bankung).
+  | { type: 'plunder'; targetId: string }
   // Phase 105 — Mimikry: nimmt on-demand das Element einer verschlungenen Gegner-Art an.
   | { type: 'mimic'; element: ElementType }
   | { type: 'signature'; targetId?: string }
@@ -720,6 +726,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     mimicTurns: 0,
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
+    // Phase 112 — Praedator-Perversion: einmal beraubt, kann ein Ziel nicht erneut beraubt werden.
+    plundered: false,
     summonEnemyId: unit.summonEnemyId ?? null,
     summonCount: Math.max(0, unit.summonCount ?? 0),
     summonsUsed: false,
@@ -810,6 +818,9 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
 
     case 'devour':
       return resolveDevour(state, actor, action.targetId);
+
+    case 'plunder':
+      return resolvePlunder(state, actor, action.targetId);
 
     case 'mimic':
       return resolveMimicForm(state, actor, action.element);
@@ -1185,6 +1196,63 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
     pushLog(state, `${actor.name} verschlingt ${target.name}.`);
   }
   grantMomentum(state, actor, 'Verschlingen');
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+// Phase 112 — Praedator-Perversion: Ist eine Fertigkeit raubbar? Seelengebunden (und
+// damit nicht raubbar) sind Ultimate-Skills (an Existenz/Seele gebundene Gipfel-Kräfte).
+// Alles darunter (Fähigkeit/Extra/Unique) kann per Völlerei-Zweig gerissen werden.
+export function isStealableSkillId(skillId: string): boolean {
+  const skill = skillById.get(skillId);
+  return !!skill && skill.tier !== 'ultimate-skill';
+}
+
+// Wählt die erste raubbare Fertigkeit eines Ziels, die der Angreifer noch nicht kennt.
+// Bosse sind seelengebundene Existenzen → grundsätzlich nicht beraubbar.
+export function stealableSkillFrom(
+  target: Pick<Combatant, 'boss' | 'skillIds'>,
+  actorSkillIds: readonly string[]
+): string | null {
+  if (target.boss) {
+    return null;
+  }
+  const known = new Set(actorSkillIds);
+  return target.skillIds.find((skillId) => !known.has(skillId) && isStealableSkillId(skillId)) ?? null;
+}
+
+function resolvePlunder(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  if (!actor.skillIds.includes('predator')) {
+    return { ok: false, reason: 'Verschlinger nicht verfügbar.' };
+  }
+
+  const target = getCombatant(state, targetId);
+  if (!target || target.dead || target.side === actor.side) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+  if (target.boss) {
+    return { ok: false, reason: 'Seelengebunden — kann nicht beraubt werden.' };
+  }
+  if (target.analysisLevel < 1) {
+    return { ok: false, reason: 'Ziel muss zuerst analysiert werden.' };
+  }
+  if (target.plundered) {
+    return { ok: false, reason: 'Ziel wurde bereits beraubt.' };
+  }
+
+  const skillId = stealableSkillFrom(target, actor.skillIds);
+  if (!skillId) {
+    return { ok: false, reason: 'Keine raubbare Fertigkeit vorhanden.' };
+  }
+
+  target.plundered = true;
+  // In mimicSkillIds ablegen: temporär in diesem Kampf nutzbar, bei Sieg dauerhaft
+  // in learnedSkillIds gebankt (systems/battleResult) — analog zum Verschlinger-Imitat.
+  actor.mimicSkillIds = uniqueStrings([...actor.mimicSkillIds, skillId]);
+  actor.skillIds = uniqueStrings([...actor.skillIds, skillId]);
+  const stolenName = skillById.get(skillId)?.name ?? skillId;
+  pushLog(state, `${actor.name} reißt ${target.name} die Fertigkeit ${stolenName} heraus.`);
+  grantMomentum(state, actor, 'Rauben');
   endTurn(state, actor);
   return { ok: true };
 }
