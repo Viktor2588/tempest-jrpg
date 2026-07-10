@@ -240,6 +240,10 @@ export interface StartBattleOptions {
   // Phase 101 — Welt-Uhr: Eröffnungs-Elementarfeld (Zeit/Wetter des Encounters).
   // null/neutral/undefiniert = neutrales Startfeld (unverändertes Verhalten).
   readonly openingField?: ElementType | null;
+  // Phase 123 — Bestiarium-Wissen im Kampf: bereits studierte Gegner-Arten (`sourceId`s
+  // aus progression.analyzedEnemyIds). Nicht-Boss-Gegner dieser Arten starten mit
+  // aufgedeckten Schwächen (analysisLevel 1); Bosse/Neue müssen frisch analysiert werden.
+  readonly analyzedEnemyIds?: readonly string[];
   readonly seed: number;
 }
 
@@ -502,6 +506,25 @@ export function startBattle(options: StartBattleOptions): BattleState {
         ? { element: options.openingField, turns: FIELD_DURATION_ROUNDS }
         : null
   };
+
+  // Phase 123 — Bestiarium-Wissen im Kampf: schon studierte (analysierte) Gegner-Arten
+  // starten mit aufgedeckten Schwächen + Telegraph. Bosse (Existenzen) und noch nie
+  // studierte Arten bleiben unbekannt (analysisLevel 0) → die Boss-Entscheidungstiefe
+  // und der erste Analyse-Moment neuer Gegner bleiben erhalten.
+  const analyzedKnown = new Set(options.analyzedEnemyIds ?? []);
+  if (analyzedKnown.size > 0) {
+    for (const combatant of state.combatants) {
+      if (
+        combatant.side === 'enemy' &&
+        !combatant.boss &&
+        combatant.analysisLevel < 1 &&
+        analyzedKnown.has(combatant.sourceId)
+      ) {
+        combatant.analysisLevel = 1;
+        combatant.telegraphSkillId = predictTelegraph(state, combatant);
+      }
+    }
+  }
 
   advanceToNextActor(state);
   return state;

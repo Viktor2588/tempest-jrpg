@@ -104,6 +104,9 @@ export class BattleScene extends Phaser.Scene {
         enemy: enemyDamageMultiplier(settings)
       },
       flags: this.save.flags,
+      // Phase 123 — Bestiarium-Wissen im Kampf: bekannte (studierte) Gegner starten
+      // mit aufgedeckten Schwächen; Bosse/Neue müssen frisch analysiert werden.
+      analyzedEnemyIds: this.save.progression.analyzedEnemyIds,
       seed: (Date.now() & 0x7fffffff) || 1
     });
     this.resultAnnounced = false;
