@@ -65,7 +65,7 @@ import {
 import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
-import { committedBranch, describeNodePerks, describePerk } from '../systems/talentPerk';
+import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 type QuestStatusFilter = 'active' | 'completed';
@@ -738,7 +738,7 @@ export class MenuScene extends Phaser.Scene {
       const check = canUnlockSkillNode(summary.member, this.save.progression, node.id, {
         flags: this.save.flags
       });
-      const label = `${unlocked ? 'Aktiv' : check.ok ? `${node.cost} SP` : 'Gesperrt'} · ${node.name}`;
+      const label = `${unlocked ? 'Aktiv' : check.ok ? `${node.cost} SP` : `🔒 ${compactLockReason(check.message)}`} · ${node.name}`;
       content.add(addUiTextButton(this, position.x, position.y + layoutOptions.nodeHeight / 2, 196, label, () => {
         this.selectedTalentNodeId = node.id;
         this.refresh();

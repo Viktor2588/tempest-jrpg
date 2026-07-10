@@ -183,6 +183,21 @@ export function describePerk(perk: TalentPerk): string {
   }
 }
 
+// Kompakter Sperrgrund für die Knoten-Kachel im Talentbaum — macht aus dem
+// nichtssagenden „Gesperrt" einen konkreten Grund (Strang-Bindung, Level, Vorstufe …).
+// Nimmt die ausführliche canUnlockSkillNode-Meldung und kürzt sie auf ein Tag.
+export function compactLockReason(message: string): string {
+  if (message.includes('Spezialisierungsstrang')) return 'Anderer Strang';
+  if (message.startsWith('Level')) return message.replace(' erforderlich.', '');
+  if (message.includes('Vorgänger')) return 'Vorstufe';
+  if (message.includes('Skill-Punkte')) return 'SP fehlt';
+  if (message.includes('Entwicklung')) return 'Evolution';
+  if (message.includes('Bindung')) return 'Bindung';
+  if (message.includes('Region')) return 'Region';
+  if (message.includes('Story')) return 'Story';
+  return 'Gesperrt';
+}
+
 // Alle Perk-Beschreibungen eines Knotens (für die Vorschau).
 export function describeNodePerks(perks: readonly TalentPerk[] | undefined): string[] {
   return (perks ?? []).map(describePerk);
