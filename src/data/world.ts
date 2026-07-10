@@ -1881,6 +1881,59 @@ export const LORE_ENTRIES = [
 
 export const DIALOGS = [
   {
+    // Konsequente Entscheidung (kein reines Fortschritts-Gate): der Spieler waehlt
+    // Tempests erste Ausrichtung; die Wahl ist einmalig, schliesst die anderen aus
+    // und wird sichtbar am Ortsbild (drei sich ausschliessende Wahrzeichen-Fundstellen).
+    id: 'tempest-priority',
+    startNodeId: 'root',
+    nodes: [
+      {
+        id: 'root',
+        speaker: 'Rigurd',
+        text: 'Meister, Tempest traegt nun einen Namen — doch worauf legen wir zuerst unsere Kraft? Deine Entscheidung formt, was die Siedler als Erstes errichten.',
+        choices: [
+          {
+            id: 'defense',
+            label: 'Wehrhaftigkeit — ein Wachturm',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.defense', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          {
+            id: 'trade',
+            label: 'Wohlstand — ein Marktplatz',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.trade', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          {
+            id: 'knowledge',
+            label: 'Wissen — eine Schriftenhalle',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.knowledge', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          { id: 'later', label: 'Noch nicht entscheiden', requirements: [{ notFlag: 'tempest.priority.chosen' }] }
+        ]
+      },
+      {
+        id: 'chosen',
+        speaker: 'Rigurd',
+        text: 'Verstanden, Meister. Die Siedler beginnen sofort — man wird es bald am Ortsbild sehen.',
+        choices: [{ id: 'end', label: 'Gut.' }]
+      }
+    ]
+  },
+  {
     id: 'sealed-storm-dragon',
     startNodeId: 'start',
     nodes: [
@@ -3974,6 +4027,17 @@ export const DIALOGS = [
 ] as const satisfies readonly DialogDefinition[];
 
 export const NPCS = [
+  {
+    // Entscheidungspunkt nach der Benennung; verschwindet, sobald die Ausrichtung
+    // gewaehlt ist (tempest.priority.chosen).
+    id: 'tempest-council',
+    name: 'Ratsversammlung',
+    mapId: 'tempest-start',
+    position: { x: 6, y: 6 },
+    dialogId: 'tempest-priority',
+    color: 0xc9a24a,
+    requirements: [{ flag: 'story.tempest.named' }, { notFlag: 'tempest.priority.chosen' }]
+  },
   {
     id: 'sealed-storm-dragon',
     name: 'Veldora',

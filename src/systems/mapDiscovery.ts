@@ -186,6 +186,41 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Wo Veldora versiegelt war, gerinnt seit seinem Schwur ein Funke seiner Sturm-Magicule zu einem klaren Tropfen.',
     rewardItemId: 'mana-drop',
     rewardLabel: 'Manatropfen'
+  },
+  {
+    // Sichtbare Konsequenz der Ausrichtungs-Entscheidung (tempest-priority):
+    // je nach Wahl erscheint genau EIN Wahrzeichen am Ortsrand.
+    mapId: 'tempest-start',
+    x: 16,
+    y: 4,
+    requiresFlag: 'tempest.priority.defense',
+    flag: 'discovery.tempest-start.watchtower',
+    title: 'Tempests Wachturm',
+    body: 'Auf deinen Beschluss hin ragt am Rand von Tempest ein hoelzerner Wachturm — die Wache blickt weit ins Land.',
+    rewardItemId: 'healing-herb',
+    rewardLabel: 'Heilkraut'
+  },
+  {
+    mapId: 'tempest-start',
+    x: 18,
+    y: 10,
+    requiresFlag: 'tempest.priority.trade',
+    flag: 'discovery.tempest-start.market',
+    title: 'Tempests Marktplatz',
+    body: 'Auf deinen Beschluss hin summt ein erster Marktplatz — Haendler aus Blumund finden bereits den Weg.',
+    rewardItemId: 'mana-drop',
+    rewardLabel: 'Manatropfen'
+  },
+  {
+    mapId: 'tempest-start',
+    x: 14,
+    y: 11,
+    requiresFlag: 'tempest.priority.knowledge',
+    flag: 'discovery.tempest-start.library',
+    title: 'Tempests Schriftenhalle',
+    body: 'Auf deinen Beschluss hin steht eine schlichte Schriftenhalle — hier sammeln die Kijin ihr Wissen.',
+    rewardItemId: 'hipokte-herb',
+    rewardLabel: 'Hipokte-Kraut'
   }
 ] as const;
 
