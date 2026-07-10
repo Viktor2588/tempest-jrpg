@@ -75,6 +75,9 @@ export interface BattleUnitInput {
   readonly element: ElementType;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter (Nullifizierung/Absorption).
+  readonly nullifies?: readonly ElementType[];
+  readonly absorbs?: readonly ElementType[];
   readonly skillIds: readonly string[];
   readonly boss?: boolean;
   readonly phase2SkillIds?: readonly string[];
@@ -124,6 +127,10 @@ export interface Combatant {
   readonly element: ElementType;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter. Nicht readonly, damit Phase 126 (Mimikry) das
+  // Profil temporär überschreiben kann.
+  nullifies: readonly ElementType[];
+  absorbs: readonly ElementType[];
   skillIds: string[];
   readonly boss: boolean;
   readonly phase2SkillIds: readonly string[];
@@ -298,6 +305,11 @@ const HEAVY_UNBRACED_BONUS = 1.6;
 // Element-Reflektor wirft einen Bruchteil zurück.
 const ARMOR_UNBROKEN_MULTIPLIER = 0.65;
 const ELEMENT_REFLECT_FRACTION = 0.5;
+// Phase 125 — Absorption: das absorbierte Element heilt das Ziel um einen Bruchteil
+// des sonst zugefügten Schadens (gedeckelt auf max. LP). Bewusst < 1, damit ein
+// einzelner Treffer nicht voll zurückheilt (weniger swingy, kein Auto-Battle-Soft-Lock;
+// absorbierte Elemente sind ohnehin nie Schwächen, die die Gegner-KI/Auto anpeilt).
+const ELEMENT_ABSORB_FRACTION = 0.5;
 // Phase 87 — Rudel-Raserei hält praktisch den ganzen Kampf (attack-up, einmalig).
 const ENRAGE_TURNS = 99;
 // Phase 87 — Mender-Heilabsicht: skaliert mit den fehlenden LP des Verbündeten. Hoch genug,
@@ -445,6 +457,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     element: enemy.element,
     weaknesses: enemy.weaknesses,
     resistances: enemy.resistances,
+    nullifies: enemy.nullifies,
+    absorbs: enemy.absorbs,
     skillIds: enemy.skillIds,
     boss: enemy.boss,
     phase2SkillIds: enemy.phase2SkillIds,
@@ -735,6 +749,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     element: unit.element,
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
+    nullifies: unit.nullifies ?? [],
+    absorbs: unit.absorbs ?? [],
     skillIds: uniqueStrings([...baseSkillIds]),
     boss: unit.boss ?? false,
     phase2SkillIds: uniqueStrings(unit.phase2SkillIds ?? []),
@@ -1173,6 +1189,14 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
+  // Phase 125 — die Analyse deckt auch die obere Resistenz-Leiter auf, damit der
+  // Spieler weiß, welches Element NICHT zu spammen ist (absorbiert/immun).
+  if (target.absorbs.length > 0) {
+    pushLog(state, `${target.name} absorbiert ${target.absorbs.map((element) => FIELD_ELEMENT_LABEL[element]).join(', ')}.`);
+  }
+  if (target.nullifies.length > 0) {
+    pushLog(state, `${target.name} ist immun gegen ${target.nullifies.map((element) => FIELD_ELEMENT_LABEL[element]).join(', ')}.`);
+  }
   endTurn(state, actor);
   return { ok: true };
 }
@@ -1870,6 +1894,23 @@ function applyDamage(
     target.reaction = null;
     pushLog(state, `${target.name} weicht ${attacker.name} aus.`);
     return 0;
+  }
+
+  // Phase 125 — Resistenz-Leiter: Absorption > Nullifizierung. Beide brechen die
+  // normale Schadensberechnung ab (zwingt zum Element-Wechsel statt Schwäche-Spam).
+  if (rawDamage > 0 && context.element) {
+    if (target.absorbs.includes(context.element)) {
+      target.reaction = null;
+      const before = target.hp;
+      target.hp = Math.min(target.maxHp, target.hp + Math.max(1, Math.round(rawDamage * ELEMENT_ABSORB_FRACTION)));
+      pushLog(state, `${target.name} absorbiert ${FIELD_ELEMENT_LABEL[context.element]} und heilt ${target.hp - before} LP.`);
+      return 0;
+    }
+    if (target.nullifies.includes(context.element)) {
+      target.reaction = null;
+      pushLog(state, `${target.name} ist immun gegen ${FIELD_ELEMENT_LABEL[context.element]}.`);
+      return 0;
+    }
   }
 
   // Perk: ausgeteilter (+X %) und erlittener (-X %) Schaden nach Kategorie/Element.

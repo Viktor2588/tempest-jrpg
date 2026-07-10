@@ -102,9 +102,9 @@ const TUTORIALS: Readonly<Record<string, BattleTutorialView>> = {
     id: 'ifrit',
     flag: 'tutorial.battle.ifrit.seen',
     title: 'Boss-Tipp: Ifrit',
-    body: 'Ifrit widersteht Feuer und setzt die gesamte Gruppe unter magischen Flächendruck.',
+    body: 'Ifrit absorbiert Feuer (heilt sich daran!) und setzt die gesamte Gruppe unter magischen Flächendruck.',
     tips: [
-      'Wasser öffnet Break-Fenster.',
+      'Feuer heilt ihn — wechsle das Element. Wasser öffnet Break-Fenster.',
       'Der Inferno-Telegraph ist das Signal für Schutz und Heilung.',
       'Halte Signaturen und Teamfusion für die gebrochene Phase bereit.'
     ]

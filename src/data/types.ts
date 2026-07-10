@@ -329,6 +329,13 @@ export interface EnemyDefinition {
   readonly summonCount?: number;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter (Canon: Resistenz -> Nullifizierung -> Absorption):
+  // `nullifies` = Immunität (0 Schaden, „ist immun gegen …"); `absorbs` = das Element
+  // heilt das Ziel statt zu schaden. Reihenfolge der Stärke: Absorption > Nullifizierung
+  // > Resistenz/Schwäche. Bewusst nur auf thematischen, nicht-pflichtpfad-kritischen
+  // Zielen (zwingt zum Element-Wechsel statt Schwäche-Spam).
+  readonly nullifies?: readonly ElementType[];
+  readonly absorbs?: readonly ElementType[];
   readonly experienceReward: number;
   readonly goldReward: number;
   readonly drops: readonly EnemyDrop[];

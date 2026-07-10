@@ -1094,6 +1094,8 @@ export class MenuScene extends Phaser.Scene {
       ? `Schwäche ${entry.weaknesses.map(elementLabel).join('/')}`
       : 'Keine Elementschwäche');
     if (entry.resistances.length > 0) parts.push(`Resistenz ${entry.resistances.map(elementLabel).join('/')}`);
+    if (entry.absorbs.length > 0) parts.push(`Absorbiert ${entry.absorbs.map(elementLabel).join('/')}`);
+    if (entry.nullifies.length > 0) parts.push(`Immun ${entry.nullifies.map(elementLabel).join('/')}`);
     if (entry.reflectsElement) parts.push(`Reflektiert ${elementLabel(entry.reflectsElement)}`);
     if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
     if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);

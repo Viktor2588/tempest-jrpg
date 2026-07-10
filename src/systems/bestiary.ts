@@ -53,6 +53,9 @@ export interface BestiaryEntryView {
   readonly element: ElementType | null;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter (nur bei `analyzed` gefüllt).
+  readonly nullifies: readonly ElementType[];
+  readonly absorbs: readonly ElementType[];
   readonly reflectsElement: ElementType | null;
   readonly resistsCategory: DamageCategory | null;
   readonly reflectsCategory: DamageCategory | null;
@@ -105,6 +108,8 @@ export function buildBestiary(state: BestiaryProgressState): BestiaryView {
       element: isAnalyzed ? enemy.element : null,
       weaknesses: isAnalyzed ? enemy.weaknesses : [],
       resistances: isAnalyzed ? enemy.resistances : [],
+      nullifies: isAnalyzed ? enemy.nullifies ?? [] : [],
+      absorbs: isAnalyzed ? enemy.absorbs ?? [] : [],
       reflectsElement: isAnalyzed ? enemy.reflectsElement ?? null : null,
       resistsCategory: isAnalyzed ? enemy.resistsCategory ?? null : null,
       reflectsCategory: isAnalyzed ? enemy.reflectsCategory ?? null : null

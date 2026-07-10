@@ -300,9 +300,14 @@ function scoreSkillTarget(
   skill: SkillDefinition,
   enemy: BattleState['combatants'][number]
 ): number {
-  const element = enemy.weaknesses.includes(skill.element)
-    ? 1.85
-    : (enemy.resistances.includes(skill.element) || enemy.element === skill.element ? 0.45 : 1);
+  // Phase 125 — Resistenz-Leiter: absorbierte/immune Elemente bringen keinen Schaden
+  // (Absorption heilt sogar) → die KI (und der Harness) meiden sie und wechseln das Element.
+  const element = enemy.absorbs.includes(skill.element) || enemy.nullifies.includes(skill.element)
+    ? 0
+    : enemy.weaknesses.includes(skill.element)
+      ? 1.85
+      : (enemy.resistances.includes(skill.element) || enemy.element === skill.element ? 0.45 : 1);
+  const absorbPenalty = enemy.absorbs.includes(skill.element) ? skill.power * 0.6 + 8 : 0;
   const breakPressure = enemy.weaknesses.includes(skill.element)
     ? Math.max(0, enemy.breakGaugeMax - enemy.breakGauge + 1) * 6
     : 0;
@@ -324,7 +329,7 @@ function scoreSkillTarget(
   if (enemy.resistsCategory === skillCategory) wrongCategoryPenalty += skill.power * element * 0.45;
   if (enemy.reflectsCategory === skillCategory) wrongCategoryPenalty += skill.power * element * 0.5 + 5;
 
-  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure + menderPressure - wrongCategoryPenalty - skill.costMp * 1.5;
+  return skill.power * element + breakPressure + phasePressure + woundPressure + ctPressure + statusPressure + menderPressure - wrongCategoryPenalty - absorbPenalty - skill.costMp * 1.5;
 }
 
 function scoreStatusPressure(statusId: StatusEffectId, enemy: BattleState['combatants'][number]): number {
