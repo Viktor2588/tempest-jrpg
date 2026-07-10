@@ -650,10 +650,14 @@ export function analyzeOverworldBudget(
   const maxMapTiles = limits.mapTiles ?? 600;
   // Recalibriert 80 → 96 (2026-06-29): Der Jura-Wald-Hub verzweigt jetzt zu vier
   // gated Band-1/2-Inhaltsregionen (Dwargon, Schlachtfeld, Echsen-Sumpf, Glutgrotte).
+  // 96 → 98 (2026-07-10): der Ratsversammlung-NPC der Tempest-Ausrichtungs-Wahl
+  // (tempest-priority) auf tempest-start — transient (nur vor der Wahl sichtbar) und
+  // gegenseitig exklusiv mit seinem Ergebnis-Wahrzeichen (nur 1 von 3 je gerendert,
+  // Discoveries zählt die Formel ohnehin nicht mit).
   // Die Formel zählt auch flag-gated, gegenseitig exklusive Marker (Story-Gateways,
   // act-/kijin-gated Quests), die nie gleichzeitig gerendert werden — der real
   // gleichzeitig sichtbare Markersatz bleibt deutlich darunter.
-  const maxStaticWorldObjects = limits.staticWorldObjects ?? 96;
+  const maxStaticWorldObjects = limits.staticWorldObjects ?? 98;
   const maxHudInteractiveTargets = limits.hudInteractiveTargets ?? 10;
   const maxTouchControlTargets = limits.touchControlTargets ?? 6;
   const maxEstimatedDisplayObjects = limits.estimatedDisplayObjects ?? 700;
