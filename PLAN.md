@@ -110,15 +110,13 @@ Phase 93b ist gemergt: die Kueche setzt bei der Tempest-Rast einen einmaligen
 Die drei JRPG-Pfeiler, die noch ganz fehlen: Figuren-Bindung, Endgame/Replay,
 politische Aussenwelt. Empfehlung: 99 (Labyrinth) als naechster grosser Replay-Hebel.
 
-- [ ] Phase 99 — Das Labyrinth (Roguelike-Abstieg). Befund: greenfield; Battle-
-  Engine + Scaling (67) + Archetypen (87/88/88b) sind da, aber Content ist
-  einmalig-linear. Bauen: ein prozedural (deterministisch geseedet) aus
-  vorhandenen Encounter-/Map-Bausteinen zusammengesetzter Etagen-Abstieg mit
-  Run-Modifikatoren, eskalierender Tiefe und HP/MP-Carry ohne Zwischenrast
-  (Risk/Reward). Run-Loot = Material/seltene Rezept-Inputs -> speist die Schmiede
-  (91). On-theme (Ramiris' Dungeon), groesster Replay-/Endgame-Hebel. Akzeptanz:
-  deterministische Etagen-Generierung + Run-Abbruch/Belohnung headless getestet
-  (Seed-Reproduzierbarkeit), Balance-Sim fuer die Tiefenskalierung, Dungeon-Smoke.
+- [x] Phase 99 — Das Labyrinth (Roguelike-Abstieg) (abgeschlossen, direkt auf main).
+  Wiederholbarer Ramiris-Lauf: Ramiris-Dialog startet/bricht einen Lauf
+  (`labyrinth.run.active`), drei riskante Etagen (`labyrinth-floor-1..3`) ohne
+  Zwischenrast mit HP/MP-Carry, Loot speist die Schmiede. Deterministische
+  Run-Logik in `systems/labyrinth.ts`, nutzt das vorhandene
+  `region-ramiris-labyrinth.png`-Banner. Akzeptanz erfüllt: Etagen-/Run-Logik
+  headless getestet (test/labyrinth.test.ts), Labyrinth-Smoke grün.
   (Phase 101 — Welt-Uhr: abgeschlossen, siehe „Laufende Arbeit". Folge-Ausbau
   möglich: NPC-Verfuegbarkeit nach Tageszeit, wetterabhaengige Encounter-Tabellen.)
 
