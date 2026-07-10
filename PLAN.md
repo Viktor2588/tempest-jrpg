@@ -267,17 +267,18 @@ canon-first, deutsches Originalwording).
   (Codex-Modusleiste + Bestiarium-Render) gruen, Balance-Harness unberuehrt
   (rein additive Persistenz).
 
-- [ ] Phase 123 — Bestiarium-Wissen im Kampf (bekannte Gegner starten aufgedeckt).
-  Baut auf 122 auf: Beim Kampfstart bekommen Gegner, deren `sourceId` bereits in
-  `analyzedEnemyIds` steht, ihren `analysisLevel` auf 1 vorgesetzt (Schwaechen +
-  Telegraph sofort sichtbar), waehrend NEUE Arten und Bosse weiterhin frisch
-  analysiert werden muessen (Boss-/Existenz-Gating wie bei Devour/Steal
-  respektieren, damit Bosse spannend bleiben). Reduziert das repetitive
-  Analyse-Spam auf laengst studierten Trash-Mobs und belohnt vorheriges Studium
-  spuerbar, ohne die Boss-Entscheidungstiefe zu entwerten. Akzeptanz: Battle-Init
-  bootstrappt `analysisLevel` nur fuer bekannte Nicht-Boss-Gegner (headless),
-  Boss bleibt bei 0 (headless), Balance-Harness gruen (Story-Korridore
-  unveraendert — Analyse war dort schon optionaler Vorteil), Kampf-Smoke gruen.
+- [x] Phase 123 — Bestiarium-Wissen im Kampf (bekannte Gegner starten aufgedeckt)
+  (abgeschlossen, direkt auf main). Umgesetzt: `startBattle` nimmt optional
+  `analyzedEnemyIds` und setzt beim Kampfstart fuer jeden Gegner, dessen `sourceId`
+  bereits studiert ist UND der kein Boss ist, `analysisLevel` auf 1 (Schwaechen +
+  Telegraph sofort sichtbar); Bosse (Existenzen) und noch nie studierte Arten
+  bleiben bei 0. `BattleScene` reicht `progression.analyzedEnemyIds` durch.
+  Reduziert das repetitive Analyse-Spam auf laengst studiertem Trash und belohnt
+  vorheriges Studium, ohne die Boss-Entscheidungstiefe zu entwerten. Akzeptanz
+  erfuellt: Battle-Init bootstrappt nur bekannte Nicht-Boss-Gegner
+  (`test/bestiaryKnowledge.test.ts` — aufgedeckt vs. Boss bleibt 0 vs. kein
+  Vorwissen), typecheck ✓, 640 Unit-Tests ✓, build ✓, Battle-E2E-Smoke gruen,
+  Balance-Harness unberuehrt (Harness reicht kein Vorwissen durch → unveraendert).
 
 - [ ] Phase 124 — Sammel-Meisterschaft (optionaler Anreiz, kleiner Zuschnitt).
   Damit die Sammel-Schleife nicht rein kosmetisch bleibt: eine einmalige,
