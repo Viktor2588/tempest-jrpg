@@ -81,6 +81,27 @@ describe('chapter banner', () => {
     ]);
   });
 
+  it('führt Shuna bewusst als erste Band-2-Ratsstation', () => {
+    const base = createNewSave();
+    const councilOpen = {
+      ...base,
+      flags: { 'story.slime-prologue.completed': true },
+      quests: {
+        'binding-of-ancestors': {
+          status: 'active' as const,
+          completedStepIds: ['awakening']
+        }
+      }
+    };
+
+    expect(getChapterSummary(councilOpen).nextObjective)
+      .toBe('Sprich zuerst mit Shuna in Tempest und deute die Siegelspur.');
+    expect(getChapterSummary({
+      ...councilOpen,
+      flags: { ...councilOpen.flags, 'story.shuna.ready': true }
+    }).nextObjective).toBe('Hole Gobtas Grenzplan und Rangas Scoutbericht ein.');
+  });
+
   it('fasst den Band-2-Abschluss als Band-3-Hook mit Boss-Nachspiel und Belohnung zusammen', () => {
     const base = createNewSave();
     const save = {

@@ -242,7 +242,7 @@ export const QUESTS = [
       {
         id: 'gather-council',
         title: 'Rat versammeln',
-        description: 'Hole Shunas Siegeldeutung, Gobtas Späherplan und Rangas Scoutbericht ein.',
+        description: 'Beginne mit Shunas Siegeldeutung und sammle danach Gobtas Späherplan und Rangas Scoutbericht.',
         locationId: 'tempest-hollow'
       },
       {
