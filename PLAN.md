@@ -333,26 +333,25 @@ Job/Klassen-System; canon-first, deutsches Originalwording, keine kopierten
 Dialoge). Jede kampfberuehrende Phase (125/126) wird gegen die Balance-Harness
 je Rimuru-Spec gruen gefahren.
 
-- [ ] Phase 125 — Resistenz-Leiter: Nullifizierung & Absorption (Kampf-Tiefe +
-  Canon-Fundament). Zuschnitt: `EnemyDefinition` (und die Combatant-Sicht)
-  erhalten zwei optionale Felder `nullifies?: ElementType[]` und
-  `absorbs?: ElementType[]`. `elementMultiplier` (systems/battle.ts) wird um die
-  oberen Stufen ergaenzt — Absorption schlaegt Nullifizierung schlaegt
-  Schwaeche/Resistenz: absorbiertes Element **heilt** das Ziel (negativer
-  Schaden, gedeckelt auf Rest-HP; Log „… absorbiert …"), nullifiziertes Element
-  richtet **0** Schaden an (Log „… ist immun gegen …"). Wenige thematische
-  Traeger bekommen die Felder (z. B. Ifrit **absorbiert Feuer**, Magiekoloss
-  **nullifiziert Erde**, Maskierter Majin bereits `reflectsElement 'holy'` bleibt
-  wie gehabt). Das „Analysieren" (Grosser Weiser) deckt die neuen Stufen im
-  Telegraph auf; das Bestiarium (Phase 122) zeigt sie in der Detailzeile
-  (`buildBestiary` + `BestiaryEntryView` um `nullifies`/`absorbs` erweitern, nur
-  bei `analyzed`). Akzeptanz: Stufen-Prioritaet + Absorptions-Heilung +
-  Null-Immunitaet headless getestet (neue `test/elementResistanceLadder.test.ts`),
-  Bestiarium-/Telegraph-Aufdeckung getestet, Save-Roundtrip unberuehrt (Felder
-  liegen in statischen Gegnerdaten, nicht im Save), typecheck/Unit-Tests/build
-  gruen, Battle-E2E-Smoke gruen, **Balance-Harness je Rimuru-Spec gruen** (die
-  Traeger sind so gewaehlt, dass der Pflichtpfad nicht unpassierbar wird —
-  Absorption/Null nur auf optionalen bzw. mehrschwaechigen Zielen).
+- [x] Phase 125 — Resistenz-Leiter: Nullifizierung & Absorption (Kampf-Tiefe +
+  Canon-Fundament) (abgeschlossen, direkt auf main). Umgesetzt: `EnemyDefinition`
+  und die Combatant-Sicht tragen `nullifies?`/`absorbs?`. In `applyDamage`
+  (systems/battle.ts) schlaegt Absorption > Nullifizierung > Schwaeche/Resistenz:
+  absorbiertes Element **heilt** das Ziel (halber Schaden, gedeckelt auf maxHP,
+  Log „… absorbiert …"), nullifiziertes Element richtet **0** Schaden an (kein
+  Mindest-1, Log „… ist immun gegen …"). Traeger: Ifrit **absorbiert Feuer**,
+  Magiekoloss **nullifiziert Erde** (beide mit klaren Schwaechen → Pflichtpfad
+  passierbar). Die Auto-Battle-KI und der Harness meiden absorbierte/immune
+  Elemente (`scoreSkillTarget`: Faktor 0 + Absorptions-Strafe), sodass nie ein
+  Absorber geheilt wird. „Analysieren" (Grosser Weiser) deckt die Leiter im Log
+  auf; das Bestiarium (Phase 122) zeigt „Absorbiert/Immun" erst nach dem Studium
+  (`BestiaryEntryView` um `nullifies`/`absorbs` erweitert). Ifrit-Boss-Tutorial
+  angepasst. Akzeptanz erfuellt: Absorptions-Heilung/Deckelung + Null-Immunitaet
+  + Auto-Meidung + Bestiarium-Aufdeckung headless (`test/elementResistanceLadder.test.ts`,
+  8 Tests), Save-Roundtrip unberuehrt (Felder in statischen Gegnerdaten),
+  typecheck ✓, 658 Unit-Tests ✓, build ✓, Battle-E2E-Smoke gruen,
+  **Balance-Harness je Rimuru-Spec gruen** (Ifrit-Boss haelt den Korridor, die
+  KI wechselt das Element).
 
 - [ ] Phase 126 — Mimikry erbt die Resistenz-Leiter (verzahnt 105 + 125).
   Zuschnitt: Nimmt Rimuru per Mimikry (Phase 105) die Form einer verschlungenen
