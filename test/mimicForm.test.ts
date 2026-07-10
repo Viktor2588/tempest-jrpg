@@ -50,6 +50,24 @@ function battle(hero: BattleUnitInput, seed = 909): BattleState {
   return startBattle({ party: [hero], enemies: [fireWeakDummy()], seed });
 }
 
+// Phase 126 — ein Feuer-Gegner (auch sein Grundangriff trägt sein Element).
+function fireAttacker(): BattleUnitInput {
+  return {
+    sourceId: 'flamer',
+    name: 'Flammer',
+    side: 'enemy',
+    level: 10,
+    stats: { maxHp: 500, maxMp: 200, attack: 60, defense: 5, magic: 40, spirit: 5, agility: 40 },
+    element: 'fire',
+    weaknesses: [],
+    resistances: [],
+    skillIds: [],
+    experienceReward: 0,
+    goldReward: 0,
+    drops: []
+  };
+}
+
 function enemyDamageTaken(state: BattleState): number {
   return 99999 - renderView(state).enemies[0]!.hp;
 }
@@ -103,6 +121,54 @@ describe('Phase 105 — Mimikry', () => {
     const formedDamage = enemyDamageTaken(formed);
 
     expect(formedDamage).toBeGreaterThan(plainDamage);
+  });
+
+  it('erbt defensiv das Resistenz-Profil der Form (Ifrit → Feuer-Absorption)', () => {
+    const state = startBattle({ party: [rimuruLike()], enemies: [fireAttacker()], seed: 42 });
+    state.devouredSourceIds = ['ifrit'];
+    const rimuru = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const result = act(state, { type: 'mimic', element: 'fire' });
+    expect(result.ok).toBe(true);
+    // Ifrit absorbiert Feuer → die Form erbt genau das.
+    expect(rimuru.mimicAbsorbs).toContain('fire');
+    expect(rimuru.mimicNullifies).toEqual([]);
+  });
+
+  it('absorbiert in der Ifrit-Form gegnerisches Feuer statt Schaden zu nehmen', () => {
+    const state = startBattle({ party: [rimuruLike()], enemies: [fireAttacker()], seed: 42 });
+    state.devouredSourceIds = ['ifrit'];
+    const rimuru = state.combatants.find((combatant) => combatant.side === 'party')!;
+    rimuru.hp = 300;
+    act(state, { type: 'mimic', element: 'fire' });
+    const startHp = rimuru.hp;
+
+    // Bis der Gegner (Feuer) zuschlägt — die Form ist dabei noch aktiv.
+    let guard = 0;
+    let enemyActed = false;
+    while (!enemyActed && guard++ < 20) {
+      if (isPlayerTurn(state)) {
+        act(state, { type: 'guard' });
+      } else {
+        enemyTurn(state);
+        enemyActed = true;
+      }
+    }
+    expect(rimuru.mimicElement).toBe('fire'); // Form noch aktiv
+    expect(rimuru.hp).toBeGreaterThanOrEqual(startHp); // Feuer absorbiert (heilt/kein Schaden)
+  });
+
+  it('entzieht das geerbte Profil, sobald die Form endet', () => {
+    const state = startBattle({ party: [rimuruLike()], enemies: [fireAttacker()], seed: 42 });
+    state.devouredSourceIds = ['ifrit'];
+    const rimuru = state.combatants.find((combatant) => combatant.side === 'party')!;
+    act(state, { type: 'mimic', element: 'fire' });
+    let guard = 0;
+    while (rimuru.mimicElement !== null && guard++ < 2000) {
+      if (isPlayerTurn(state)) act(state, { type: 'guard' });
+      else enemyTurn(state);
+    }
+    expect(rimuru.mimicAbsorbs).toEqual([]);
+    expect(rimuru.mimicResistances).toEqual([]);
   });
 
   it('kehrt nach einigen eigenen Zügen in die Grundform zurück', () => {

@@ -159,6 +159,12 @@ export interface Combatant {
   // null/0 = eigene Grundform.
   mimicElement: ElementType | null;
   mimicTurns: number;
+  // Phase 126 — Mimikry erbt defensiv das Resistenz-Profil der angenommenen Form
+  // (temporär, wird beim Formende geleert). Getrennt von der Grundform, damit das
+  // eigene Profil erhalten bleibt.
+  mimicResistances: readonly ElementType[];
+  mimicNullifies: readonly ElementType[];
+  mimicAbsorbs: readonly ElementType[];
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
   readonly predatorStealSkillId: string | null;
@@ -768,6 +774,9 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     mimicSkillIds: [],
     mimicElement: null,
     mimicTurns: 0,
+    mimicResistances: [],
+    mimicNullifies: [],
+    mimicAbsorbs: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
     predatorStealSkillId: unit.predatorStealSkillId ?? null,
@@ -1416,9 +1425,33 @@ function resolveMimicForm(state: BattleState, actor: Combatant, element: Element
   actor.mimicElement = element;
   actor.mimicTurns = MIMIC_FORM_TURNS;
   actor.resonanceElement = element;
-  pushLog(state, `${actor.name} nimmt die ${FIELD_ELEMENT_LABEL[element]}-Form an.`);
+  // Phase 126 — die Form erbt defensiv das Resistenz-Profil ihrer Quell-Art (die
+  // in diesem Kampf verschlungene Gegner-Art mit diesem Element). Ein echter Grund,
+  // eine Form gezielt zu WÄHLEN — z. B. die Ifrit-Form gegen einen Feuer-Boss.
+  const source = mimicSourceEnemy(state, element);
+  actor.mimicResistances = source?.resistances ?? [];
+  actor.mimicNullifies = source?.nullifies ?? [];
+  actor.mimicAbsorbs = source?.absorbs ?? [];
+  const defenseNote = actor.mimicAbsorbs.length > 0
+    ? ` (absorbiert ${actor.mimicAbsorbs.map((el) => FIELD_ELEMENT_LABEL[el]).join('/')})`
+    : actor.mimicNullifies.length > 0
+      ? ` (immun gegen ${actor.mimicNullifies.map((el) => FIELD_ELEMENT_LABEL[el]).join('/')})`
+      : '';
+  pushLog(state, `${actor.name} nimmt die ${FIELD_ELEMENT_LABEL[element]}-Form an${defenseNote}.`);
   endTurn(state, actor);
   return { ok: true };
+}
+
+// Die verschlungene Gegner-Art, deren Element die angenommene Form traegt (erste
+// Übereinstimmung reicht — das Profil ist pro Element thematisch eindeutig).
+function mimicSourceEnemy(state: BattleState, element: ElementType): EnemyDefinition | undefined {
+  for (const sourceId of state.devouredSourceIds) {
+    const enemy = enemyById.get(sourceId);
+    if (enemy?.element === element) {
+      return enemy;
+    }
+  }
+  return undefined;
 }
 
 function tickMimicForm(state: BattleState, actor: Combatant): void {
@@ -1428,6 +1461,10 @@ function tickMimicForm(state: BattleState, actor: Combatant): void {
   actor.mimicTurns -= 1;
   if (actor.mimicTurns <= 0) {
     actor.mimicElement = null;
+    // Phase 126 — geerbtes Resistenz-Profil mit dem Formende entziehen.
+    actor.mimicResistances = [];
+    actor.mimicNullifies = [];
+    actor.mimicAbsorbs = [];
     pushLog(state, `${actor.name} kehrt in die Grundform zurück.`);
   }
 }
@@ -1899,14 +1936,15 @@ function applyDamage(
   // Phase 125 — Resistenz-Leiter: Absorption > Nullifizierung. Beide brechen die
   // normale Schadensberechnung ab (zwingt zum Element-Wechsel statt Schwäche-Spam).
   if (rawDamage > 0 && context.element) {
-    if (target.absorbs.includes(context.element)) {
+    // Phase 126 — geerbte (Mimikry-)Absorption/Immunität greift wie die eigene.
+    if (target.absorbs.includes(context.element) || target.mimicAbsorbs.includes(context.element)) {
       target.reaction = null;
       const before = target.hp;
       target.hp = Math.min(target.maxHp, target.hp + Math.max(1, Math.round(rawDamage * ELEMENT_ABSORB_FRACTION)));
       pushLog(state, `${target.name} absorbiert ${FIELD_ELEMENT_LABEL[context.element]} und heilt ${target.hp - before} LP.`);
       return 0;
     }
-    if (target.nullifies.includes(context.element)) {
+    if (target.nullifies.includes(context.element) || target.mimicNullifies.includes(context.element)) {
       target.reaction = null;
       pushLog(state, `${target.name} ist immun gegen ${FIELD_ELEMENT_LABEL[context.element]}.`);
       return 0;
@@ -2424,7 +2462,12 @@ function elementMultiplier(element: ElementType, target: Combatant): number {
   if (target.weaknesses.includes(element)) {
     return 1.75;
   }
-  if (target.resistances.includes(element) || target.element === element) {
+  // Phase 126 — auch geerbte (Mimikry-)Resistenzen mindern den Schaden.
+  if (
+    target.resistances.includes(element)
+    || target.mimicResistances.includes(element)
+    || target.element === element
+  ) {
     return 0.5;
   }
   return 1;
