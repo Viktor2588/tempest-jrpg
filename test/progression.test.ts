@@ -20,6 +20,7 @@ import {
   applyBattleProgressionRewards,
   awakenTempest,
   AWAKENING_MAGICULE_COST,
+  AWAKENING_SOUL_COST,
   calculateProgressionStats,
   calculateStartingTeamMeter,
   catchUpReserveMembers,
@@ -262,10 +263,11 @@ describe('progression system', () => {
       .toContain('defense-up');
   });
 
-  it('vollzieht das Erntefest einmalig, verbraucht Magicules und verstärkt Offiziere', () => {
+  it('vollzieht das Erntefest einmalig, verbraucht Magicules + Seelen und verstärkt Offiziere', () => {
     const flags = { 'story.tempest-invasion.repulsed': true };
     const state = createProgressionState({
       magicules: AWAKENING_MAGICULE_COST + 5,
+      souls: AWAKENING_SOUL_COST + 2,
       promotedResidentIds: ['sturmzahn', 'hainspore']
     });
 
@@ -274,6 +276,7 @@ describe('progression system', () => {
 
     expect(awakened.ok).toBe(true);
     expect(awakened.state.magicules).toBe(5);
+    expect(awakened.state.souls).toBe(2); // Seelen ebenfalls verbraucht
     expect(awakened.state.awakeningCompleted).toBe(true);
     expect(awakened.state.awakenedResidentIds).toEqual(['sturmzahn', 'hainspore']);
     expect(awakenTempest(awakened.state, flags).ok).toBe(false);
@@ -283,6 +286,20 @@ describe('progression system', () => {
     expect(unit.formName).toBe('Erwachter Schleim');
     expect(unit.perks).toContainEqual({ kind: 'max-hp', percent: 10 });
     expect(unit.perks).toContainEqual({ kind: 'damage-dealt', percent: 10 });
+  });
+
+  it('gated das Erntefest auch an den Seelen (Boss-Waehrung)', () => {
+    const flags = { 'story.tempest-invasion.repulsed': true };
+    // Magicules reichen, aber keine Seelen → gesperrt.
+    const noSouls = createProgressionState({
+      magicules: AWAKENING_MAGICULE_COST,
+      souls: AWAKENING_SOUL_COST - 1,
+      promotedResidentIds: ['sturmzahn']
+    });
+    const check = canAwakenTempest(noSouls, flags);
+    expect(check.ok).toBe(false);
+    expect(check.message).toContain('Seelen');
+    expect(awakenTempest(noSouls, flags).ok).toBe(false);
   });
 
   it('holt Reservefiguren über Kapitel-Baselines und Party-Abstand ohne Grinding auf', () => {

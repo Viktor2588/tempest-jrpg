@@ -490,6 +490,8 @@ function readProgressionState(raw: unknown): ProgressionState {
     productionCycles: readNonNegativeInteger(raw.productionCycles),
     // Phase 102 — Magicules: alte Stände starten ohne angesparten Pool.
     magicules: readNonNegativeInteger(raw.magicules),
+    // Phase 127 — Seelen: alte Stände starten ohne geerntete Seelen (0).
+    souls: readNonNegativeInteger(raw.souls),
     // Phase 103 — Offiziere: alte Stände haben noch keine befoerderten Bewohner.
     promotedResidentIds: readStringArray(raw.promotedResidentIds),
     // Phase 104 — Erntefest: alte Stände haben das einmalige Erwachen noch offen.

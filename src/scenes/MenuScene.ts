@@ -38,6 +38,7 @@ import {
   respecSkillNodes,
   awakenTempest,
   AWAKENING_MAGICULE_COST,
+  AWAKENING_SOUL_COST,
   AWAKENING_SCENE_FLAG,
   type ProgressionActionResult
 } from '../systems/progression';
@@ -182,7 +183,7 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '30px',
       color: '#e9c56c'
     }));
-    const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules`;
+    const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules · ${this.save.progression.souls} Seelen`;
     this.layer.add(this.add.text(24, 52, `${resources} · ${this.message}`, {
       fontFamily: 'sans-serif',
       fontSize: '13px',
@@ -1117,7 +1118,7 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(318, 172, roleSummary || 'Noch keine Bewohner benannt.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
     }));
-    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}`, () =>
+    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}✦ ${AWAKENING_SOUL_COST}魂`, () =>
       this.awakenTempest(), awakening.ok ? 0x3b3154 : 0x242b38);
 
     const PER_PAGE = 4;

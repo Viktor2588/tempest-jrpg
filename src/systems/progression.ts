@@ -64,6 +64,11 @@ export interface ProgressionState {
   // Phase 102 — Magicule-/Seelen-Oekonomie: Meta-Ressource fuer spaeteres Benennen,
   // Evolution und Erwachen. Diese Phase verdient/zeigt nur an; Ausgaben folgen.
   readonly magicules: number;
+  // Phase 127 — Seelen (魂): die kanonische Erwachens-Waehrung. Nur Boss-Siege ernten
+  // Seelen; das Erntefest (Phase 104) verlangt sie zusaetzlich zu den Magicules
+  // („Macht = Magicules (Ausbau) + Seelen (Erwachen)"). Trennt Boss-Kaempfe
+  // oekonomisch von normalen Kills.
+  readonly souls: number;
   // Phase 103 — benannte Offiziere: Bewohner, die mit Magicules befoerdert wurden.
   readonly promotedResidentIds: readonly string[];
   // Phase 104 — Erntefest: einmaliges Massen-Erwachen, das Offiziere dauerhaft
@@ -96,6 +101,7 @@ export interface CreateProgressionStateOptions {
   readonly residentIds?: readonly string[];
   readonly productionCycles?: number;
   readonly magicules?: number;
+  readonly souls?: number;
   readonly promotedResidentIds?: readonly string[];
   readonly awakeningCompleted?: boolean;
   readonly awakenedResidentIds?: readonly string[];
@@ -166,6 +172,10 @@ const skillTreeNodeById = new Map<string, SkillTreeNodeDefinition>(
   SKILL_TREES.flatMap((tree) => tree.nodes.map((node) => [node.id, node] as const))
 );
 export const AWAKENING_MAGICULE_COST = 160;
+// Phase 127 — das Erntefest verlangt zusaetzlich geerntete Seelen. Bewusst niedrig
+// gehalten (erreichbar ueber die Boss-Siege des Hauptpfads), aber spuerbar als
+// eigenes, canon-getrenntes Gate neben den Magicules.
+export const AWAKENING_SOUL_COST = 6;
 export const AWAKENING_REQUIRED_FLAG = 'story.tempest-invasion.repulsed';
 export const AWAKENING_SCENE_FLAG = 'story.harvest-festival.awakened';
 const AWAKENED_RIMURU_PERKS: readonly TalentPerk[] = [
@@ -189,6 +199,7 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     residentIds: uniqueStrings(options.residentIds ?? []),
     productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0),
     magicules: clampNonNegativeInteger(options.magicules ?? 0),
+    souls: clampNonNegativeInteger(options.souls ?? 0),
     promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? []),
     awakeningCompleted: options.awakeningCompleted === true,
     awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
@@ -450,6 +461,19 @@ export function grantMagicules(state: ProgressionState, amount: number): Progres
   };
 }
 
+// Phase 127 — Seelen ernten (nur aus Boss-Siegen; siehe battleResult).
+export function grantSouls(state: ProgressionState, amount: number): ProgressionActionResult {
+  const granted = clampNonNegativeInteger(amount);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      souls: state.souls + granted
+    },
+    message: `${granted} Seelen geerntet.`
+  };
+}
+
 export function canAwakenTempest(
   state: ProgressionState,
   flags: Readonly<Record<string, boolean>> = {}
@@ -466,6 +490,9 @@ export function canAwakenTempest(
   if (state.magicules < AWAKENING_MAGICULE_COST) {
     return { ok: false, state, message: `${AWAKENING_MAGICULE_COST} Magicules erforderlich.` };
   }
+  if (state.souls < AWAKENING_SOUL_COST) {
+    return { ok: false, state, message: `${AWAKENING_SOUL_COST} Seelen erforderlich (aus Boss-Siegen).` };
+  }
   return { ok: true, state, message: 'Das Erntefest kann beginnen.' };
 }
 
@@ -480,6 +507,7 @@ export function awakenTempest(
     state: {
       ...state,
       magicules: state.magicules - AWAKENING_MAGICULE_COST,
+      souls: state.souls - AWAKENING_SOUL_COST,
       awakeningCompleted: true,
       awakenedResidentIds: uniqueStrings(state.promotedResidentIds)
     },

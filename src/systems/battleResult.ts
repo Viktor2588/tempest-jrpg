@@ -4,7 +4,7 @@ import { collectHuntingGroundRewards } from './bestiaryMastery';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
-import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules } from './progression';
+import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules, grantSouls } from './progression';
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
 import { applyWorldState, completeEncounter, createWorldState } from './world';
@@ -22,6 +22,16 @@ export function calculateBattleMagicules(battle: BattleView): number {
   const devourMagicules = uniqueStrings(battle.devouredSourceIds).length * 12;
   const bossMagicules = battle.enemies.filter((enemy) => enemy.boss).length * 30;
   return enemyMagicules + devourMagicules + bossMagicules;
+}
+
+// Phase 127 — Seelen (魂): NUR Boss-Siege ernten Seelen (eine je erlegtem Boss).
+// Damit tragen Boss-Kaempfe eine eigene, sichtbare Oekonomie (Erwachens-Gate),
+// getrennt von den Magicules aus jedem Kill.
+export function calculateBattleSouls(battle: BattleView): number {
+  if (battle.status !== 'won') {
+    return 0;
+  }
+  return battle.enemies.filter((enemy) => enemy.boss && enemy.dead).length;
 }
 
 export function applyBattleResultToSave(
@@ -47,9 +57,9 @@ export function applyBattleResultToSave(
       };
   // Phase 92 — Bewohner: in diesem Kampf verschlungene Gegner-Arten als Bewohner
   // rekrutieren (per Naming). Idempotent; alte Bewohner bleiben erhalten.
-  const withMagicules = grantMagicules(
-    progressionResult.state,
-    calculateBattleMagicules(battle)
+  const withMagicules = grantSouls(
+    grantMagicules(progressionResult.state, calculateBattleMagicules(battle)).state,
+    calculateBattleSouls(battle)
   ).state;
   const recruited = won
     ? recruitResidentsFromDevour(withMagicules.residentIds, battle.devouredSourceIds)

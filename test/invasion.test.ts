@@ -7,6 +7,7 @@ import {
 import { buildFacilityOverview } from '../src/systems/facilities';
 import {
   AWAKENING_MAGICULE_COST,
+  AWAKENING_SOUL_COST,
   canAwakenTempest,
   createProgressionState
 } from '../src/systems/progression';
@@ -67,6 +68,7 @@ describe('Phase 110 — Tempest-Invasion', () => {
 
     const progression = createProgressionState({
       magicules: AWAKENING_MAGICULE_COST,
+      souls: AWAKENING_SOUL_COST, // Phase 127 — Seelen-Gate aus Boss-Siegen
       promotedResidentIds: ['sturmzahn']
     });
     expect(canAwakenTempest(progression, { 'story.geld.devoured': true }).ok).toBe(false);

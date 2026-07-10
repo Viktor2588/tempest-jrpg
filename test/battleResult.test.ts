@@ -9,6 +9,7 @@ import {
 import {
   applyBattleResultToSave,
   calculateBattleMagicules,
+  calculateBattleSouls,
   summarizeBattleLevelUps
 } from '../src/systems/battleResult';
 import { KITCHEN_REST_BUFF_FLAG } from '../src/systems/facilities';
@@ -97,6 +98,45 @@ describe('battle result: Magicules', () => {
     expect(round.progression.magicules).toBe(77);
     expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.magicules)
       .toBe(0);
+  });
+});
+
+describe('battle result: Seelen (Phase 127)', () => {
+  it('erntet Seelen nur aus erlegten Bossen, nicht aus Trash', () => {
+    const bossWin = {
+      status: 'won',
+      enemies: [{ boss: false, dead: true }, { boss: true, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(bossWin)).toBe(1);
+
+    const trashWin = {
+      status: 'won',
+      enemies: [{ boss: false, dead: true }, { boss: false, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(trashWin)).toBe(0);
+
+    const overlivedBoss = {
+      status: 'won',
+      enemies: [{ boss: true, dead: false }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(overlivedBoss)).toBe(0);
+
+    const lost = {
+      status: 'lost',
+      enemies: [{ boss: true, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(lost)).toBe(0);
+  });
+
+  it('bucht die geernteten Seelen in den Save und migriert alte Stände auf 0', () => {
+    const save = createNewSave();
+    expect(save.progression.souls).toBe(0);
+    const round = importSave(exportSave({
+      ...save,
+      progression: { ...save.progression, souls: 4 }
+    }));
+    expect(round.progression.souls).toBe(4);
+    expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.souls).toBe(0);
   });
 });
 
