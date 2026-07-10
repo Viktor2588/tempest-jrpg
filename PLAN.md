@@ -212,9 +212,3 @@ liefern die Grundlage fuers Gating in 112/104.
 
 - [x] Phase 119 — Tastatur-Dialog-Navigation (in main integriert). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
 ## UX- und Welt-Backlog
-
-- [x] Phase 121 — Shunas Einstiegstempo vor neuem Band-Content (abgeschlossen,
-  Worktree: /worktree/tempest-phase-121-shuna-tempo). Shuna bleibt bewusst
-  frueher Band-2-Ratsschritt direkt nach dem Prolog; Quest-/Kapitel-Fuehrung
-  nennen sie zuerst, danach Gobta/Ranga. Abnahme: `git diff --check`,
-  `bun run typecheck`, `bun run test`, `bun run build`.
