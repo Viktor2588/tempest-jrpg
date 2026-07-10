@@ -661,6 +661,7 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(loadedAssets.some((name) => name.includes('tile-blumund-wall'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-fuze'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-blumund-bandit'))).toBe(true);
   for (const file of [
     'tile-dwargon-floor',
     'tile-dwargon-wall',
@@ -713,6 +714,7 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   ));
   expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-academy-wisp'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

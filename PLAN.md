@@ -214,7 +214,9 @@ liefern die Grundlage fuers Gating in 112/104.
 ## UX- und Welt-Backlog
 
 - [ ] Shunas Einstiegstempo vor neuem Band-Content bewusst entscheiden.
-- [ ] Content-Breite fuer "Schwung": 25 Gegner/25 Encounter fuer 4 Baende ist
-  duenn, ebenso 3 Musik-Motive + 8 SFX. Mehr Region-Gegner (Vielfalt) und mehr
-  CC0-Musik/SFX pro Region heben das Feel spuerbar — durch den CC0-Zwang aber
-  begrenzt und niedrigerer Hebel als die Kampf-Tiefe-Roadmap.
+- [x] Phase 120 — Content-Breite: Region-Gegner-Assets & Encounter (abgeschlossen,
+  Worktree: /worktree/tempest-phase-120-content-assets). Zwei projektgenerierte
+  Battle-Cutouts (`enemy-blumund-bandit.webp`, `enemy-academy-wisp.webp`) mit
+  ASSETS.md-Provenienz, Gegnerdaten, Random-Encounter-Verdrahtung und Asset-Tests.
+  Abnahme: `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`
+  und Desktop-Playwright-Smoke fuer `Föderations-Save|Shizu-Schwur-Save`.

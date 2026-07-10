@@ -1039,6 +1039,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 120 - Content-Gegnerassets
+
+- Branch/Worktree: `phase-120-content-assets` in `/worktree/tempest-phase-120-content-assets`.
+- Scope: zwei repo-eigene, generierte Battle-Cutouts fuer Region-Gegner: `enemy-blumund-bandit.webp` und `enemy-academy-wisp.webp`; Provenienz in `ASSETS.md`.
+- Daten/Encounter: neue Gegner `blumund-bandit` und `academy-wisp`; Random-Encounter `blumund-road-ambush` in Blumund und `academy-spirit-flare` in der Freiheitsakademie.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build` und fokussiertem Desktop-Chromium-Smoke fuer die Blumund-/Akademie-Asset-Saves.
+
 ### Phase 112 - Praedator-Perversion
 
 - Branch/Worktree: `phase-112-praedator-perversion` in `/home/viktor/worktree/tempest-phase-112-praedator-perversion`; sauber auf main rekonstruiert, weil die Branch-Historie fremde Phase-Commits enthielt.

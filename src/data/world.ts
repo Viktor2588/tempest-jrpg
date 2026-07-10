@@ -4936,6 +4936,22 @@ export const ENCOUNTERS = [
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
   },
+  {
+    id: 'blumund-road-ambush',
+    mapId: 'blumund',
+    kind: 'random',
+    bounds: { x: 3, y: 3, width: 14, height: 9 },
+    enemyIds: ['blumund-bandit', 'human-deserter'],
+    chance: 0.1
+  },
+  {
+    id: 'academy-spirit-flare',
+    mapId: 'freedom-academy',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 8 },
+    enemyIds: ['academy-wisp', 'stray-echo'],
+    chance: 0.1
+  },
   // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale
   // Set-Piece-Trigger auf bestehenden Karten, hinter vorhandene Story-Flags
   // gegated; kein Pflichtpfad, daher nicht in den Balance-Korridoren.

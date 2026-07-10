@@ -3,6 +3,8 @@ import { ENEMIES } from '../src/data';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
+  ACADEMY_WISP_TEXTURE_KEY,
+  BLUMUND_BANDIT_TEXTURE_KEY,
   DIREWOLF_ALPHA_TEXTURE_KEY,
   DIREWOLF_PUP_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
@@ -77,6 +79,12 @@ describe('Gegner-Art-Mapping', () => {
     expect(enemyArtFor('mordrahn', '')).toMatchObject({
       textureKey: 'sprite-enemy-mordrahn'
     });
+    expect(enemyArtFor('blumund-bandit', '')).toMatchObject({
+      textureKey: BLUMUND_BANDIT_TEXTURE_KEY
+    });
+    expect(enemyArtFor('academy-wisp', '')).toMatchObject({
+      textureKey: ACADEMY_WISP_TEXTURE_KEY
+    });
   });
 
   it('verdrahtet Canon-Triggergegner mit dedizierten Cutouts statt Atlas-Frames', () => {
@@ -113,7 +121,9 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-direwolf-pup.webp',
       'enemy-nameless-echo.webp',
       'enemy-ogre-warrior.webp',
-      'enemy-magic-colossus.png'
+      'enemy-magic-colossus.png',
+      'enemy-blumund-bandit.webp',
+      'enemy-academy-wisp.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }
