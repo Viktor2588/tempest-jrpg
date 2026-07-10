@@ -17,7 +17,7 @@ Status:
 - Keine offenen Integrationen.
 
 ## Bugs
-- zu viele punkte Geometrien nach abschluss von quests.
+- zu viele punkte Geometrien nach abschluss von quests. (Untersucht 2026-07-10: Marker-Systeme korrekt — geräumte Encounter/eingesammelte Funde werden gefiltert, worldLayer wird pro Redraw geleert, Tile-Grid-Graphics einmalig gezeichnet. Kein reproduzierbarer Leak im Code; braucht Live-Browser-Repro / genauere Beschreibung.)
 
 ## Story-Roadmap (TODO: Story & Events fesselnder machen)
 
