@@ -12,6 +12,8 @@ import {
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
+  ACADEMY_WISP_TEXTURE_KEY,
+  BLUMUND_BANDIT_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
@@ -92,6 +94,8 @@ import enemyNamelessEchoUrl from '../assets/sprites/enemy-nameless-echo.webp';
 import enemyOgreWarriorUrl from '../assets/sprites/enemy-ogre-warrior.webp';
 import enemyMagicColossusUrl from '../assets/sprites/enemy-magic-colossus.png';
 import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
+import academyWispUrl from '../assets/sprites/enemy-academy-wisp.webp';
+import blumundBanditUrl from '../assets/sprites/enemy-blumund-bandit.webp';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
@@ -225,6 +229,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-ogre', enemyOgreWarriorUrl);
     this.load.image(OGRE_WARRIOR_TEXTURE_KEY, enemyOgreWarriorUrl);
     this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
+    this.load.image(ACADEMY_WISP_TEXTURE_KEY, academyWispUrl);
+    this.load.image(BLUMUND_BANDIT_TEXTURE_KEY, blumundBanditUrl);
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
@@ -396,6 +402,8 @@ export class PreloadScene extends Phaser.Scene {
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',
+      ACADEMY_WISP_TEXTURE_KEY,
+      BLUMUND_BANDIT_TEXTURE_KEY,
       ...Object.values(PARTY_BATTLE_ART),
       ...Object.values(BATTLE_ARENA_TEXTURES),
       ...Object.values(REGION_BANNER_TEXTURES),

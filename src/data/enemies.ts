@@ -189,6 +189,28 @@ export const ENEMIES = [
     drops: [{ itemId: 'healing-herb', chance: 0.3 }]
   },
   {
+    id: 'blumund-bandit',
+    name: 'Blumunder Wegelagerer',
+    level: 5,
+    element: 'neutral',
+    stats: {
+      maxHp: 86,
+      maxMp: 14,
+      attack: 31,
+      defense: 14,
+      magic: 12,
+      spirit: 13,
+      agility: 20
+    },
+    skillIds: ['goblin-feint', 'quick-step'],
+    devourable: false,
+    weaknesses: ['shadow', 'fire'],
+    resistances: [],
+    experienceReward: 150,
+    goldReward: 58,
+    drops: [{ itemId: 'traveler-cloak', chance: 0.08 }, { itemId: 'healing-herb', chance: 0.35 }]
+  },
+  {
     id: 'mordrahn-vanguard',
     name: 'Vorhut der alten Ordnung',
     level: 8,
@@ -287,6 +309,29 @@ export const ENEMIES = [
     experienceReward: 90,
     goldReward: 70,
     drops: [{ itemId: 'mana-drop', chance: 0.45 }]
+  },
+  {
+    id: 'academy-wisp',
+    name: 'Akademie-Irrlicht',
+    level: 12,
+    element: 'holy',
+    stats: {
+      maxHp: 126,
+      maxMp: 48,
+      attack: 14,
+      defense: 14,
+      magic: 42,
+      spirit: 28,
+      agility: 23
+    },
+    skillIds: ['spirit-bind', 'temporal-snare'],
+    devourable: true,
+    devourSkillId: 'spirit-bind',
+    weaknesses: ['shadow', 'earth'],
+    resistances: ['holy', 'water'],
+    experienceReward: 240,
+    goldReward: 92,
+    drops: [{ itemId: 'mana-drop', chance: 0.5 }, { itemId: 'magic-ore', chance: 0.12 }]
   },
   {
     id: 'human-deserter',
