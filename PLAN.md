@@ -10,6 +10,7 @@ Status:
 ## Laufende Arbeit
 
 - [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
+- [x] Phase 101 — Welt-Uhr (Zeit/Wetter) (abgeschlossen, direkt auf main). Reine, deterministische Uhr (`systems/worldClock`) aus persistiertem Schrittzähler (`clockStep`) + Welt-Seed: Tageszeit (Morgen/Tag/Abenddämmerung/Nacht) + tagesstabiles Wetter (Klar/Regen/Nebel). Kampf-Konsequenz: Zeit/Wetter des Encounters bestimmen das Eröffnungs-Elementarfeld (Phase 94) — Regen=Wasser, Nacht=Schatten. Overworld-HUD zeigt Tageszeit + Wetter. Akzeptanz erfüllt: Zyklus/Determinismus + Encounter-/Feld-Einfluss headless getestet (test/worldClock.test.ts), Save-Roundtrip (test/save.test.ts), Overworld→Battle-Smoke grün.
 
 ## Integrationswarteschlange
 
@@ -118,11 +119,8 @@ politische Aussenwelt. Empfehlung: 99 (Labyrinth) als naechster grosser Replay-H
   (91). On-theme (Ramiris' Dungeon), groesster Replay-/Endgame-Hebel. Akzeptanz:
   deterministische Etagen-Generierung + Run-Abbruch/Belohnung headless getestet
   (Seed-Reproduzierbarkeit), Balance-Sim fuer die Tiefenskalierung, Dungeon-Smoke.
-- [ ] Phase 101 — Welt-Uhr (Zeit/Wetter). Overworld-Tag/Nacht + Wetter-Zyklus,
-  der Encounter-Tabellen, NPC-Verfuegbarkeit und — verzahnt mit Phase 94 —
-  Elementarfelder/Reaktionen beeinflusst (Regen = Wasserfeld, Nacht = Schatten-
-  stark). Lebendige Welt + Erkundungs-Textur. Akzeptanz: deterministischer Zyklus
-  + Encounter-/Feld-Einfluss headless getestet, Overworld-Smoke.
+  (Phase 101 — Welt-Uhr: abgeschlossen, siehe „Laufende Arbeit". Folge-Ausbau
+  möglich: NPC-Verfuegbarkeit nach Tageszeit, wetterabhaengige Encounter-Tabellen.)
 
 ## Dritte Welle: Magicule-Oekonomie, benannte Offiziere & das Erwachen (Nutzer 2026-07-07: umfangreichere Spielmechanik)
 
