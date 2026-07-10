@@ -1011,6 +1011,12 @@ export class BattleScene extends Phaser.Scene {
 
   // Phase 105 — Mimikry: wähle das Element einer verschlungenen Form.
   private drawMimicFormList(): void {
+    // Phase 105 — dekorativer „Mimik"-Banner als Kopf der Form-Auswahl (ui-mimic-form-indicator).
+    // ponytail: rein dekorativ; die konkrete aktive Form/Restdauer steht als Textmarker über der Einheit.
+    if (this.textures.exists('ui-mimic-form-indicator')) {
+      this.layer.add(this.add.image(GAME_WIDTH / 2, 70, 'ui-mimic-form-indicator')
+        .setDisplaySize(224, 112).setDepth(45));
+    }
     const actorView = renderView(this.state).party.find((candidate) => candidate.active);
     const choices: Array<[string, () => void]> = availableMimicElements(this.state).map((element) => [
       actorView?.mimicElement === element

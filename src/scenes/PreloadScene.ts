@@ -162,6 +162,7 @@ import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
 import formationRowsUrl from '../assets/ui/formation-rows.webp';
+import mimicFormUrl from '../assets/ui/mimic-form-indicator.jpg';
 import praedatorStealUrl from '../assets/ui/praedator-steal-hud.jpg';
 
 // Lädt globale Assets mit Fortschrittsbalken.
@@ -297,6 +298,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
     this.load.image('ui-formation-rows', formationRowsUrl);
+    this.load.image('ui-mimic-form-indicator', mimicFormUrl);
     this.load.image('ui-praedator-steal-hud', praedatorStealUrl);
   }
 
