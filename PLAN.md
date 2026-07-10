@@ -299,4 +299,92 @@ canon-first, deutsches Originalwording).
   Bestiarium-Codex-E2E-Smoke gruen, Balance-Harness unberuehrt (Harness reicht
   kein Analyse-Wissen/keine Flags durch → unveraendert).
 
+## Siebte Welle: Die Resistenz-Leiter & die Seelen-Oekonomie (Canon-Vertiefung, Plan 2026-07-10)
+
+Befund (Code-Abgleich + `IDEE.md`-Kanon): Zwei kanonische Kern-Leitern aus der
+Recherche-Notiz sind im Spiel noch nicht als Mechanik abgebildet, obwohl der
+Motor alles Noetige bereits traegt:
+
+(1) **Die Resistenz-Nebenleiter** `Resistenz -> Nullifizierung (Immunitaet) ->
+Absorption` (IDEE.md §1) fehlt. `elementMultiplier` (systems/battle.ts) kennt
+heute nur drei Stufen — Schwaeche (1.75×), Resistenz/Eigen-Element (0.5×),
+neutral (1×). Es gibt kein **Nullifizieren (0×)** und keine **Absorption
+(Treffer heilt statt schadet)**. Dadurch ist die optimale Kampf-Antwort
+weiterhin „Element der Schwaeche spammen"; kein Gegner zwingt den Spieler, das
+Element zu WECHSELN oder auf Physisch auszuweichen. Genau die Entscheidungstiefe,
+die die Kampf-Tiefe-Roadmap sucht, liegt hier ungenutzt — die Datenfelder
+(`weaknesses`/`resistances`/`reflectsElement`/`resistsCategory`) sind da, die
+zwei oberen Resistenz-Stufen fehlen.
+
+(2) **Die Seelen-Waehrung** (IDEE.md §3, Merksatz „Macht = Magicules (Ausbau) +
+Seelen (Erwachen)") existiert nicht: das Erwachen/Erntefest (Phase 104) wird
+allein ueber `AWAKENING_MAGICULE_COST` (Magicules) gegatet. Damit tragen
+Magicules doppelt (Ausbau UND Erwachen), und Boss-Siege haben oekonomisch keine
+eigene Bedeutung — sie geben nur XP/Items/Magicules wie jeder Kill. Der Kanon
+trennt beides sauber: Namen/Ausbau kosten Magicules, das Erwachen erntet
+**Seelen** (Massen-Evolution nach grossen Siegen).
+
+Diese Welle schliesst genau diese zwei Luecken — ausschliesslich auf dem
+vorhandenen Motor, mit vorhandenen Daten, bewusst niedriger Komplexitaet und
+ohne neue Assets. Reihenfolge = Abhaengigkeit: 125 ist Fundament (Resistenz-
+Leiter im Kampf), 126 verzahnt sie mit der Mimikry (Phase 105), 127 ist
+unabhaengig (Seelen-Oekonomie). Non-Goals gelten weiter (kein Backend/PWA, kein
+Job/Klassen-System; canon-first, deutsches Originalwording, keine kopierten
+Dialoge). Jede kampfberuehrende Phase (125/126) wird gegen die Balance-Harness
+je Rimuru-Spec gruen gefahren.
+
+- [ ] Phase 125 — Resistenz-Leiter: Nullifizierung & Absorption (Kampf-Tiefe +
+  Canon-Fundament). Zuschnitt: `EnemyDefinition` (und die Combatant-Sicht)
+  erhalten zwei optionale Felder `nullifies?: ElementType[]` und
+  `absorbs?: ElementType[]`. `elementMultiplier` (systems/battle.ts) wird um die
+  oberen Stufen ergaenzt — Absorption schlaegt Nullifizierung schlaegt
+  Schwaeche/Resistenz: absorbiertes Element **heilt** das Ziel (negativer
+  Schaden, gedeckelt auf Rest-HP; Log „… absorbiert …"), nullifiziertes Element
+  richtet **0** Schaden an (Log „… ist immun gegen …"). Wenige thematische
+  Traeger bekommen die Felder (z. B. Ifrit **absorbiert Feuer**, Magiekoloss
+  **nullifiziert Erde**, Maskierter Majin bereits `reflectsElement 'holy'` bleibt
+  wie gehabt). Das „Analysieren" (Grosser Weiser) deckt die neuen Stufen im
+  Telegraph auf; das Bestiarium (Phase 122) zeigt sie in der Detailzeile
+  (`buildBestiary` + `BestiaryEntryView` um `nullifies`/`absorbs` erweitern, nur
+  bei `analyzed`). Akzeptanz: Stufen-Prioritaet + Absorptions-Heilung +
+  Null-Immunitaet headless getestet (neue `test/elementResistanceLadder.test.ts`),
+  Bestiarium-/Telegraph-Aufdeckung getestet, Save-Roundtrip unberuehrt (Felder
+  liegen in statischen Gegnerdaten, nicht im Save), typecheck/Unit-Tests/build
+  gruen, Battle-E2E-Smoke gruen, **Balance-Harness je Rimuru-Spec gruen** (die
+  Traeger sind so gewaehlt, dass der Pflichtpfad nicht unpassierbar wird —
+  Absorption/Null nur auf optionalen bzw. mehrschwaechigen Zielen).
+
+- [ ] Phase 126 — Mimikry erbt die Resistenz-Leiter (verzahnt 105 + 125).
+  Zuschnitt: Nimmt Rimuru per Mimikry (Phase 105) die Form einer verschlungenen
+  Gegner-Art an, erbt er defensiv deren Resistenz-Profil fuer die Dauer der Form
+  — inkl. der neuen Stufen aus 125 (Ifrit-Form absorbiert Feuer usw.). Heute
+  traegt `mimicElement` nur den OFFENSIVEN Elementfaktor des Grundangriffs
+  (systems/battle.ts:889); die Form gibt keinen Verteidigungsvorteil. Umsetzung:
+  beim Formwechsel die `resistances`/`nullifies`/`absorbs` der Quell-Art auf den
+  Combatant spiegeln (temporaer, beim Formende zuruecksetzen). Canon-treu
+  (Praedator/Mimikry uebernimmt die Eigenschaften des Verschlungenen) und ein
+  echter taktischer Grund, eine Form gezielt zu WAEHLEN (z. B. gegen einen
+  Feuer-Boss die Ifrit-Form). Akzeptanz: Form erbt/entzieht das Resistenz-Profil
+  headless getestet (Ausweitung `test/mimicForm.test.ts`), keine Persistenz-
+  Aenderung, typecheck/Unit-Tests/build gruen, Battle-E2E-Smoke gruen,
+  **Balance-Harness je Rimuru-Spec gruen** (Harness fuehrt keine Mimikry-Formen
+  aus → unveraendert; zusaetzlich ein gezielter Sim-Check, dass die geerbte
+  Absorption keinen Soft-Lock ermoeglicht).
+
+- [ ] Phase 127 — Seelen: die Erwachens-Waehrung (Endgame-Oekonomie, unabhaengig).
+  Zuschnitt: neues persistiertes, nicht-negatives Feld `progression.souls`
+  (Save-Migration ueber den bestehenden Zahlen-Reader, alte Staende = 0). Nur
+  **Boss-Siege** ernten Seelen (deterministisch, z. B. 1 Seele je besiegtem Boss
+  im Kampf — analog `calculateBattleMagicules`, aber ausschliesslich fuer
+  `enemy.boss`). Das Erntefest (Phase 104 / `canAwakenTempest`) verlangt zusaetzlich
+  zum Magicule-Preis eine Mindestzahl Seelen (`AWAKENING_SOUL_COST`); die
+  Erwachen-UI (MenuScene-Bewohner-Roster) zeigt Magicules **und** Seelen als
+  getrennte Gates. Damit tragen Boss-Kaempfe eine eigene, sichtbare Bedeutung und
+  die Canon-Trennung „Ausbau (Magicules) vs. Erwachen (Seelen)" ist erfuellt.
+  Bewusst klein: eine Zahl, ein Gate, ein HUD-Label. Akzeptanz:
+  Seelen-Ernte nur bei Bossen + Erwachen-Gate headless getestet (Ausweitung
+  `test/progression.test.ts`/`test/battleResult.test.ts`), Save-Roundtrip inkl.
+  Migration (`test/save.test.ts`), keine Kampf-Balance-Beruehrung (rein additive
+  Ressource + Gate), typecheck/Unit-Tests/build gruen.
+
 ## UX- und Welt-Backlog
