@@ -353,22 +353,23 @@ je Rimuru-Spec gruen gefahren.
   **Balance-Harness je Rimuru-Spec gruen** (Ifrit-Boss haelt den Korridor, die
   KI wechselt das Element).
 
-- [ ] Phase 126 — Mimikry erbt die Resistenz-Leiter (verzahnt 105 + 125).
-  Zuschnitt: Nimmt Rimuru per Mimikry (Phase 105) die Form einer verschlungenen
-  Gegner-Art an, erbt er defensiv deren Resistenz-Profil fuer die Dauer der Form
-  — inkl. der neuen Stufen aus 125 (Ifrit-Form absorbiert Feuer usw.). Heute
-  traegt `mimicElement` nur den OFFENSIVEN Elementfaktor des Grundangriffs
-  (systems/battle.ts:889); die Form gibt keinen Verteidigungsvorteil. Umsetzung:
-  beim Formwechsel die `resistances`/`nullifies`/`absorbs` der Quell-Art auf den
-  Combatant spiegeln (temporaer, beim Formende zuruecksetzen). Canon-treu
-  (Praedator/Mimikry uebernimmt die Eigenschaften des Verschlungenen) und ein
-  echter taktischer Grund, eine Form gezielt zu WAEHLEN (z. B. gegen einen
-  Feuer-Boss die Ifrit-Form). Akzeptanz: Form erbt/entzieht das Resistenz-Profil
-  headless getestet (Ausweitung `test/mimicForm.test.ts`), keine Persistenz-
-  Aenderung, typecheck/Unit-Tests/build gruen, Battle-E2E-Smoke gruen,
-  **Balance-Harness je Rimuru-Spec gruen** (Harness fuehrt keine Mimikry-Formen
-  aus → unveraendert; zusaetzlich ein gezielter Sim-Check, dass die geerbte
-  Absorption keinen Soft-Lock ermoeglicht).
+- [x] Phase 126 — Mimikry erbt die Resistenz-Leiter (verzahnt 105 + 125)
+  (abgeschlossen, direkt auf main). Umgesetzt: Nimmt Rimuru per Mimikry (Phase
+  105) eine Element-Form an, erbt er defensiv das Resistenz-Profil der
+  verschlungenen Quell-Art dieses Elements (`resistances`/`nullifies`/`absorbs`
+  aus Phase 125) fuer die Dauer der Form; die Ifrit-Form absorbiert damit Feuer.
+  Neue Combatant-Overlay-Felder `mimicResistances`/`mimicNullifies`/`mimicAbsorbs`
+  (getrennt vom Grundprofil), gesetzt in `resolveMimicForm` (Quell-Art =
+  verschlungene Gegner-Art mit passendem Element), geleert in `tickMimicForm`.
+  `elementMultiplier` und die `applyDamage`-Absorptions-/Immunitaetspruefung
+  beziehen die geerbten Profile mit ein; das Formwechsel-Log nennt die geerbte
+  Absorption/Immunitaet. Damit gibt es einen echten taktischen Grund, eine Form
+  gezielt zu WAEHLEN (z. B. Ifrit-Form gegen einen Feuer-Boss). Akzeptanz
+  erfuellt: Vererbung/Entzug + Feuer-Absorption in der Ifrit-Form headless
+  (`test/mimicForm.test.ts`, +3 Tests), keine Persistenz-Aenderung, typecheck ✓,
+  661 Unit-Tests ✓, build ✓, Battle-E2E-Smoke gruen, **Balance-Harness
+  unberuehrt** (Auto-Battle nutzt keine Mimik-Formen → Sims unveraendert; kein
+  Soft-Lock, da die Absorption nur defensiv und zeitlich begrenzt ist).
 
 - [ ] Phase 127 — Seelen: die Erwachens-Waehrung (Endgame-Oekonomie, unabhaengig).
   Zuschnitt: neues persistiertes, nicht-negatives Feld `progression.souls`
