@@ -247,23 +247,24 @@ das Wissen), 123 macht das Wissen im Kampf spuerbar, 124 ist ein optionaler
 Sammel-Anreiz. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
 canon-first, deutsches Originalwording).
 
-- [ ] Phase 122 — Lebendiges Bestiarium (Codex-Modus „🐾 Bestiarium").
-  Neuer siebter Codex-Modus, der jeden je erlegten Gegner als Karte listet:
-  Name + Cutout (vorhandene Sprites), Besiegt-Zaehler (aus dem bereits
-  persistierten `defeatedEnemyCountsByEnemyId`) und — sobald der Gegner
-  mindestens EINMAL per „Analysieren" untersucht wurde — die aufgedeckten
-  Kampfdaten (Schwaechen, Resistenzen, Element-/Kategorie-Reflektoren,
-  Telegraph-Faehigkeit). Nicht analysierte, aber besiegte Gegner zeigen die
-  Kampfdaten als „???" (Anreiz, sie im Kampf zu studieren). Dafuer EIN neues
-  persistiertes Feld `analyzedEnemyIds` (Satz von Gegner-`sourceId`s), am
-  Kampfende getallyt — analog zu `tallyDefeatedEnemies` in `battleResult`,
-  gefuellt aus `battle.enemies` mit `analysisLevel > 0`. Save-Migration:
-  alte Staende starten mit leerem Satz (`readStringArray`, keine Bruchgefahr).
-  Belohnt die Analyse-Mechanik dauerhaft und schafft eine
-  Vervollstaendigungs-Schleife. Akzeptanz: Tally-/Reveal-Logik headless
-  (`test/bestiary.test.ts` — analysiert vs. nur besiegt vs. unbekannt),
-  Save-Roundtrip (`test/save.test.ts`), Codex-Modus rendert die Karten +
-  Vollstaendigkeits-Zaehler, Kampf→Menue-Smoke gruen, Balance-Harness unberuehrt
+- [x] Phase 122 — Lebendiges Bestiarium (Codex-Modus „🐾 Bestiarium")
+  (abgeschlossen, direkt auf main). Umgesetzt: neuer siebter Codex-Modus, der
+  jede erlegte Gegner-Art als Karte listet — Name, Level/Boss-Tag,
+  Besiegt-Zaehler (aus dem bereits persistierten `defeatedEnemyCountsByEnemyId`)
+  und, sobald mindestens EINMAL per „Analysieren" (Grosser Weiser) studiert, die
+  aufgedeckten Kampfdaten (Schwaechen, Resistenzen, Element-/Kategorie-Reflektoren);
+  unstudierte, aber besiegte Arten zeigen „???" als Anreiz. Neues persistiertes
+  Feld `progression.analyzedEnemyIds`, am Kampfende im Sieg getallyt
+  (`tallyAnalyzedEnemies`, gefuellt aus `battle.enemies` mit `analysisLevel > 0`),
+  Save-Migration ueber `readStringArray` (alte Staende leer, keine Bruchgefahr).
+  Reine Logik in `systems/bestiary.ts` (`buildBestiary`, headless). Codex-Modusleiste
+  auf kompakte 7er-Reihe (11px, feste Breiten) umgestellt, damit alle Modi in eine
+  Zeile passen. Keine neuen Assets. Akzeptanz erfuellt: Tally-/Reveal-Logik headless
+  (`test/bestiary.test.ts`, 8 Tests — analysiert vs. nur besiegt vs. unbekannt,
+  Sortierung, 0-Zaehler/Unbekannte gefiltert), Kampf-Tally-Wiring
+  (`test/battleResult.test.ts` — studiert gebucht, unstudiert nicht), Save-Roundtrip
+  (`test/save.test.ts`), typecheck ✓, 637 Unit-Tests ✓, build ✓, Desktop-E2E
+  (Codex-Modusleiste + Bestiarium-Render) gruen, Balance-Harness unberuehrt
   (rein additive Persistenz).
 
 - [ ] Phase 123 — Bestiarium-Wissen im Kampf (bekannte Gegner starten aufgedeckt).
