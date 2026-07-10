@@ -57,6 +57,13 @@ describe('Karten-Entdeckungen', () => {
     expect(memorial?.rewardItemId).toBe('orc-tusk');
   });
 
+  it('zeigt Veldoras Nachhall in der versiegelten Höhle erst nach dem Schwur', () => {
+    expect(getMapDiscoveryAt('sealed-cave', 7, 6, {})).toBeNull();
+    const echo = getMapDiscoveryAt('sealed-cave', 7, 6, { 'story.storm-dragon.oath': true });
+    expect(echo?.title).toBe('Nachhall des Sturmdrachen');
+    expect(echo?.rewardItemId).toBe('mana-drop');
+  });
+
   it('platziert jede Fundstelle auf einer begehbaren Kachel und vergibt ein echtes Item', () => {
     const itemIds = new Set<string>(ITEMS.map((item) => item.id));
     for (const def of allMapDiscoveryDefinitions()) {

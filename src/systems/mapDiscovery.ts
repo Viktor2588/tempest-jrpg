@@ -172,6 +172,20 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Am alten Bau steht seit dem Pakt ein Totem: der Sturmwolf-Bau gehoert nun zu Tempest.',
     rewardItemId: 'healing-herb',
     rewardLabel: 'Heilkraut'
+  },
+  {
+    // Weltfolge: nachdem Veldora seinen Schwur geleistet hat, kristallisiert an
+    // seiner alten Siegelstelle ein Rest seiner Sturm-Magicule — die versiegelte
+    // Hoehle traegt seinen Nachhall sichtbar.
+    mapId: 'sealed-cave',
+    x: 7,
+    y: 6,
+    requiresFlag: 'story.storm-dragon.oath',
+    flag: 'discovery.sealed-cave.veldora-echo',
+    title: 'Nachhall des Sturmdrachen',
+    body: 'Wo Veldora versiegelt war, gerinnt seit seinem Schwur ein Funke seiner Sturm-Magicule zu einem klaren Tropfen.',
+    rewardItemId: 'mana-drop',
+    rewardLabel: 'Manatropfen'
   }
 ] as const;
 
