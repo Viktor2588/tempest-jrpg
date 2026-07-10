@@ -694,17 +694,24 @@ export class OverworldScene extends Phaser.Scene {
           0
         ).setOrigin(0, 0).setStrokeStyle(1, color, 0.22));
       }
-      // Phase 107 — ruhiger runder Punkt-Marker statt gefuelltem Kasten; das Ziel kraeftiger.
-      layer.add(this.add.circle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.26, color, isObjective ? 0.5 : 0.3)
-        .setStrokeStyle(2, color, isObjective ? 0.95 : 0.6));
+      // Punkt-Marker entstoeren: nur zeichnen, wenn er JETZT etwas bedeutet — ein
+      // Gateway (Regionswechsel), das aktuelle Ziel oder eine Ortschaft nahe am
+      // Spieler. Sonst bleibt der Boden frei von verstreuten Farbkreisen.
+      const isGateway = location.kind === 'gateway';
+      const nearPlayer = markerLabelVisible(this.pos, location.position, isObjective);
+      if (isGateway || isObjective || nearPlayer) {
+        layer.add(this.add.circle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.26, color, isObjective ? 0.5 : 0.3)
+          .setStrokeStyle(2, color, isObjective ? 0.95 : 0.6));
+      }
       // Gateways bekommen ein Reise-Symbol, damit klar ist, dass man hier die Region wechselt.
-      if (location.kind === 'gateway') {
+      if (isGateway) {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y), '⇄', {
           fontFamily: 'sans-serif', fontSize: '18px', color: '#cdeeff'
         }).setOrigin(0.5).setStroke('#0a1a24', 3));
       }
-      // Phase 107 — Dauer-Namenslabel nur nahe Spieler oder am Ziel (entstoert den Cluster).
-      if (markerLabelVisible(this.pos, location.position, isObjective)) {
+      // Ortsname nahe Spieler/am Ziel — Gateways (Reiseziele) IMMER, damit klar ist,
+      // wohin ein Übergang führt (vorher flackerten die Namen je nach Nähe).
+      if (isGateway || nearPlayer) {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 28, location.name, {
           fontFamily: 'sans-serif',
           fontSize: '10px',
