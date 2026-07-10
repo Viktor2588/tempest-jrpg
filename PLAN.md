@@ -371,20 +371,21 @@ je Rimuru-Spec gruen gefahren.
   unberuehrt** (Auto-Battle nutzt keine Mimik-Formen → Sims unveraendert; kein
   Soft-Lock, da die Absorption nur defensiv und zeitlich begrenzt ist).
 
-- [ ] Phase 127 — Seelen: die Erwachens-Waehrung (Endgame-Oekonomie, unabhaengig).
-  Zuschnitt: neues persistiertes, nicht-negatives Feld `progression.souls`
-  (Save-Migration ueber den bestehenden Zahlen-Reader, alte Staende = 0). Nur
-  **Boss-Siege** ernten Seelen (deterministisch, z. B. 1 Seele je besiegtem Boss
-  im Kampf — analog `calculateBattleMagicules`, aber ausschliesslich fuer
-  `enemy.boss`). Das Erntefest (Phase 104 / `canAwakenTempest`) verlangt zusaetzlich
-  zum Magicule-Preis eine Mindestzahl Seelen (`AWAKENING_SOUL_COST`); die
-  Erwachen-UI (MenuScene-Bewohner-Roster) zeigt Magicules **und** Seelen als
-  getrennte Gates. Damit tragen Boss-Kaempfe eine eigene, sichtbare Bedeutung und
-  die Canon-Trennung „Ausbau (Magicules) vs. Erwachen (Seelen)" ist erfuellt.
-  Bewusst klein: eine Zahl, ein Gate, ein HUD-Label. Akzeptanz:
-  Seelen-Ernte nur bei Bossen + Erwachen-Gate headless getestet (Ausweitung
-  `test/progression.test.ts`/`test/battleResult.test.ts`), Save-Roundtrip inkl.
-  Migration (`test/save.test.ts`), keine Kampf-Balance-Beruehrung (rein additive
-  Ressource + Gate), typecheck/Unit-Tests/build gruen.
+- [x] Phase 127 — Seelen: die Erwachens-Waehrung (Endgame-Oekonomie, unabhaengig)
+  (abgeschlossen, direkt auf main). Umgesetzt: neues persistiertes,
+  nicht-negatives Feld `progression.souls` (Save-Migration ueber
+  `readNonNegativeInteger`, alte Staende = 0). Nur **Boss-Siege** ernten Seelen
+  (eine je erlegtem Boss, `calculateBattleSouls` — analog `calculateBattleMagicules`,
+  aber ausschliesslich `enemy.boss && enemy.dead`). Das Erntefest
+  (`canAwakenTempest`/`awakenTempest`) verlangt zusaetzlich zum Magicule-Preis
+  `AWAKENING_SOUL_COST` (6) Seelen und verbraucht sie; die Ressourcenzeile und
+  der Erntefest-Button (MenuScene) zeigen Magicules **und** Seelen getrennt.
+  Damit tragen Boss-Kaempfe eine eigene Oekonomie und die Canon-Trennung „Ausbau
+  (Magicules) vs. Erwachen (Seelen)" ist erfuellt. Akzeptanz erfuellt:
+  Seelen-Ernte nur bei Bossen + Erwachen-Gate + Save-Roundtrip/Migration headless
+  (`test/progression.test.ts`, `test/battleResult.test.ts`, `test/save.test.ts`,
+  `test/invasion.test.ts` angepasst/ergaenzt), typecheck ✓, 664 Unit-Tests ✓,
+  build ✓, Menue-E2E-Smoke gruen, keine Kampf-Balance-Beruehrung (rein additive
+  Ressource + Gate).
 
 ## UX- und Welt-Backlog
