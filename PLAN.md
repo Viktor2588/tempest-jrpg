@@ -196,21 +196,20 @@ sind kanonisch eingestuft (`great-sage`/Praedator = Unique, Milims Drachenkraft 
 Ultimate) und die UI zeigt Rang-Glyphe + -Farbe; die Rang-Metadaten (`skillRank.ts`)
 liefern die Grundlage fuers Gating in 112/104.
 
-- [ ] Phase 112 — Praedator-Perversion: Skill-Raub & -Kombination (Unique Skill).
-  Canon-Check (Nutzerauftrag): die gewuenschte Faehigkeit ist kanonisch KEIN
-  eigener Skill „Degenerate", sondern der *Voellerei/Gluttony*-Zweig von Praedator
-  (rauben/zersetzen) + *Grosser Weiser* (kombinieren); ein Skill ist raubbar, wenn
-  er nicht an Existenz/Seele gebunden ist (Bosse/Ultimate-Traeger sind es -> nicht
-  raubbar). Bauen: (a) aktive „Rauben"-Praedator-Aktion — auf einem analysierten/
-  verschlingbaren Gegner wird EIN nicht-seelengebundener Skill in Rimurus Loadout
-  gezogen (temporaer im Kampf, dauerhaft bei Kill ueber `learnedSkillIds`); (b)
-  Skill-Fusion (108) vertiefen: gelernte Skills entlang der Rang-Leiter (111) zu
-  hoeherrangigen Skills verschmelzen. Story-gegated nach Shizu-Absorption (das
-  bestehende `shizu-vow`-Quest-Ende schaltet die Perversion frei). Reuse: devour/
-  analyze, `learnedSkillIds`, 108, 111. Balance: Ultimate-Ergebnisse spaet gaten,
-  seelengebundene Skills als nicht-raubbar markieren. Akzeptanz: Raub-/Fusions-
-  Regeln + Seelen-Gating headless getestet, Save-Migration, Balance-Harness je
-  Rimuru-Spec gruen (Korridore halten), HUD der aktiven/geraubten Form + Smoke.
+- [x] Phase 112 — Praedator-Perversion: Skill-Raub & -Kombination (Unique Skill)
+  (abgeschlossen, direkt auf main). Umgesetzt: aktive „Rauben"-Aktion (BattleAction
+  `plunder`) — auf einem analysierten, nicht-seelengebundenen Gegner (kein Boss) wird
+  EINE nicht-Ultimate-Fertigkeit in Rimurus Loadout gezogen, ohne ihn zu töten
+  (temporär im Kampf, dauerhaft bei Sieg über die bestehende `mimicSkillIds` ->
+  `learnedSkillIds`-Bankung). Seelen-Gating: Ultimate-Skills = seelengebunden (nicht
+  raubbar), Bosse als Existenzen ebenfalls nicht beraubbar (`isStealableSkillId`/
+  `stealableSkillFrom`). Story-gegated hinter der Shizu-Absorption (`story.shizu.vow`).
+  Teil (b) Skill-Fusion-Vertiefung ergibt sich durch Komposition: geraubte Skills
+  landen in `learnedSkillIds` und speisen die bestehende Skill-Fusion (Phase 108)
+  entlang der Rang-Leiter (Phase 111). Akzeptanz erfüllt: Raub-/Seelen-Regeln +
+  Analyse-/Boss-Gating headless getestet (test/predatorPlunder.test.ts), Kampf-
+  Integration (kein Kill, kein Doppel-Raub), gegatetes „⊗ Rauben"-HUD, Kampf-Smokes
+  grün, Balance-Harness unberührt (Rauben ist Spieler-optional).
 
 ## Bug-Translation Phases (aus Bugs-Liste übersetzt)
 
