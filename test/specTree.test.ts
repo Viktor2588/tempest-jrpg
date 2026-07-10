@@ -6,6 +6,7 @@ import {
   createProgressionBattleParty,
   createProgressionState,
   grantSkillPoints,
+  respecSkillNodes,
   unlockSkillNode
 } from '../src/systems/progression';
 import { committedBranch, talentPerksForNodes } from '../src/systems/talentPerk';
@@ -120,5 +121,33 @@ describe('Phase 70 — Struktur-Integrität der Spec-Bäume', () => {
         }
       }
     }
+  });
+});
+
+describe('Talente zurücksetzen (Respec)', () => {
+  it('erstattet investierte Punkte, leert Knoten und löst die Strang-Bindung', () => {
+    const benimaru = createPartyMember(hero('benimaru'), { level: 9 });
+    const start = grantSkillPoints(createProgressionState(), 'benimaru', 5).state;
+    const startPoints = start.skillPointsByCharacterId['benimaru'] ?? 0;
+
+    let s = unlockSkillNode(benimaru, start, 'benimaru-blade-focus').state;
+    s = unlockSkillNode(benimaru, s, 'benimaru-blade-counter').state;
+    expect((s.unlockedSkillNodeIdsByCharacterId['benimaru'] ?? []).length).toBe(2);
+    expect(s.skillPointsByCharacterId['benimaru']).toBeLessThan(startPoints);
+    expect(committedBranch(s.unlockedSkillNodeIdsByCharacterId['benimaru'] ?? [])).toBe('blade');
+
+    const reset = respecSkillNodes(benimaru, s);
+    expect(reset.ok).toBe(true);
+    // Punkte vollständig erstattet, Knoten geleert, Strang wieder frei wählbar.
+    expect(reset.state.skillPointsByCharacterId['benimaru']).toBe(startPoints);
+    expect(reset.state.unlockedSkillNodeIdsByCharacterId['benimaru']).toEqual([]);
+    expect(committedBranch(reset.state.unlockedSkillNodeIdsByCharacterId['benimaru'] ?? [])).toBeNull();
+    // Danach lässt sich ein anderer Strang wählen.
+    expect(canUnlockSkillNode(benimaru, reset.state, 'benimaru-flame-focus').ok).toBe(true);
+  });
+
+  it('lehnt Respec ohne freigeschaltete Knoten ab', () => {
+    const benimaru = createPartyMember(hero('benimaru'), { level: 9 });
+    expect(respecSkillNodes(benimaru, createProgressionState()).ok).toBe(false);
   });
 });

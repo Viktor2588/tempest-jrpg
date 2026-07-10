@@ -559,6 +559,38 @@ export function unlockSkillNode(
   };
 }
 
+// Talente zurücksetzen: erstattet alle in Knoten investierten Skill-Punkte und leert
+// die freigeschalteten Knoten (löst damit auch die Strang-Bindung). Erlaubt das
+// Umverteilen der Punkte, ohne die „Qual der Wahl" dauerhaft zu zementieren.
+export function respecSkillNodes(
+  member: PartyMemberState,
+  state: ProgressionState
+): ProgressionActionResult {
+  if (!heroById.has(member.characterId)) {
+    return { ok: false, state, message: 'Charakter nicht gefunden.' };
+  }
+  const unlocked = state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [];
+  if (unlocked.length === 0) {
+    return { ok: false, state, message: 'Keine Talente zum Zurücksetzen.' };
+  }
+  const refund = unlocked.reduce((sum, id) => sum + (skillTreeNodeById.get(id)?.cost ?? 0), 0);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      skillPointsByCharacterId: {
+        ...state.skillPointsByCharacterId,
+        [member.characterId]: (state.skillPointsByCharacterId[member.characterId] ?? 0) + refund
+      },
+      unlockedSkillNodeIdsByCharacterId: {
+        ...state.unlockedSkillNodeIdsByCharacterId,
+        [member.characterId]: []
+      }
+    },
+    message: `Talente zurückgesetzt · ${refund} Punkte erstattet.`
+  };
+}
+
 export function equipmentEnhancementKey(
   characterId: string,
   slot: EquipmentSlot,

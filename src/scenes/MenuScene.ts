@@ -35,6 +35,7 @@ import {
   fuseMemberSkill,
   renameMember,
   unlockSkillNode,
+  respecSkillNodes,
   awakenTempest,
   AWAKENING_MAGICULE_COST,
   AWAKENING_SCENE_FLAG,
@@ -669,6 +670,14 @@ export class MenuScene extends Phaser.Scene {
           }));
         }, check.ok ? 0x30506f : 0x2b3140);
       }
+    }
+
+    // Talente zurücksetzen (Respec): Punkte umverteilen statt dauerhaft festgelegt.
+    if (unlockedIds.length > 0) {
+      this.button(832, 152, 104, 'Zurücksetzen', () => {
+        if (!window.confirm('Alle Talente dieser Figur zurücksetzen? Die Skill-Punkte werden erstattet.')) return;
+        this.applyProgressionResult(respecSkillNodes(summary.member, this.save.progression));
+      }, 0x5a3040);
     }
 
     const layoutOptions = {
