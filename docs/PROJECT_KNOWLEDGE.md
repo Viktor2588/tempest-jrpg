@@ -1039,6 +1039,14 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 112 - Praedator-Perversion
+
+- Branch/Worktree: `phase-112-praedator-perversion` in `/home/viktor/worktree/tempest-phase-112-praedator-perversion`; sauber auf main rekonstruiert, weil die Branch-Historie fremde Phase-Commits enthielt.
+- Scope: Rimuru bekommt nach `story.shizu.vow` die aktive Kampfaktion `steal`. Sie verlangt Verschlinger + Großen Weisen, ein analysiertes verschlingbares Ziel und nutzt `predatorStealSkillId` oder `devourSkillId` statt beliebiger gegnerischer `skillIds`.
+- Soulbound-Regel: Bosse, Ultimate-Skills, Unique-Verb-Skills (`predator`, `great-sage`) und explizite `soulboundSkillIds` sind nicht raubbar. Geraubte Skills landen wie Verschlinger-Imitate in `mimicSkillIds` und können nach Sieg dauerhaft gebankt werden.
+- Daten/UI: neues Unique-Skill-Rezept `fuse-predator-perversion`, Skill `predator-perversion`, Rauben-HUD-Asset `ui-praedator-steal-hud`, Preload-Key `ui-praedator-steal-hud`.
+- Validierung: Typecheck, Unit-Tests, Build und Playwright-E2E sind Phase-Abnahmegates; Playwright nutzt wegen paralleler Server einen expliziten `PLAYWRIGHT_PORT`.
+
 ### Phase 97 - Formation/Reihen
 
 - Branch/Worktree: `phase-97-formation` in `/worktree/tempest-phase-97-formation`.

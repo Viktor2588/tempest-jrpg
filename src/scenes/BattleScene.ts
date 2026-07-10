@@ -59,7 +59,7 @@ export class BattleScene extends Phaser.Scene {
   private pendingTeamPartnerId: string | null = null;
   private pendingSignature = false;
   // Phase 112 — Praedator-Perversion: nächste Ziel-Wahl ist ein „Rauben".
-  private pendingPlunder = false;
+  private pendingSteal = false;
   // Unique-Verb (Großer Weiser/Verschlinger): nächste Ziel-Wahl löst Analyse/Verschlingen aus.
   private pendingVerb: 'analyze' | 'devour' | null = null;
   private layer!: Phaser.GameObjects.Container;
@@ -103,6 +103,7 @@ export class BattleScene extends Phaser.Scene {
         party: playerDamageMultiplier(settings),
         enemy: enemyDamageMultiplier(settings)
       },
+      flags: this.save.flags,
       seed: (Date.now() & 0x7fffffff) || 1
     });
     this.resultAnnounced = false;
@@ -325,7 +326,7 @@ export class BattleScene extends Phaser.Scene {
     this.pendingSkillId = null;
     this.pendingItemId = null;
     this.pendingSignature = false;
-    this.pendingPlunder = false;
+    this.pendingSteal = false;
     this.pendingVerb = null;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
@@ -747,8 +748,8 @@ export class BattleScene extends Phaser.Scene {
       box.on('pointerdown', () => {
         if (this.pendingVerb) {
           this.doAct({ type: this.pendingVerb, targetId: unit.id });
-        } else if (this.pendingPlunder) {
-          this.doAct({ type: 'plunder', targetId: unit.id });
+        } else if (this.pendingSteal) {
+          this.doAct({ type: 'steal', targetId: unit.id });
         } else if (this.pendingTeamPartnerId) {
           this.doAct({
             type: 'team-attack',
@@ -777,20 +778,20 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         this.refresh();
       }],
       ['✨ Skills', () => {
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         this.mode = 'skills';
         this.refresh();
       }],
       ['🎒 Items', () => {
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         this.mode = 'items';
         this.refresh();
@@ -812,7 +813,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         this.mode = 'team-partners';
         this.refresh();
@@ -827,7 +828,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = true;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         if (actorView.signatureTarget === 'self'
           || actorView.signatureTarget === 'all-allies'
@@ -852,7 +853,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = 'devour';
         this.mode = 'target-enemy';
         this.refresh();
@@ -864,7 +865,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = 'analyze';
         this.mode = 'target-enemy';
         this.refresh();
@@ -879,7 +880,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = false;
+        this.pendingSteal = false;
         this.pendingVerb = null;
         this.mode = 'mimic-forms';
         this.refresh();
@@ -891,14 +892,14 @@ export class BattleScene extends Phaser.Scene {
     // Gegner mit einer noch nicht bekannten, raubbaren Fertigkeit im Kampf steht.
     if (actor.skillIds.includes('predator') && this.save.flags['story.shizu.vow']
       && this.state.combatants.some((foe) =>
-        foe.side === 'enemy' && !foe.dead && !foe.boss && !foe.plundered
+        foe.side === 'enemy' && !foe.dead && !foe.boss
         && foe.analysisLevel >= 1 && stealableSkillFrom(foe, actor.skillIds) !== null)) {
       items.splice(3, 0, ['⊗ Rauben', () => {
         this.pendingSkillId = null;
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
-        this.pendingPlunder = true;
+        this.pendingSteal = true;
         this.pendingVerb = null;
         this.mode = 'target-enemy';
         this.refresh();

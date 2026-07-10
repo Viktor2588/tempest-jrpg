@@ -48,6 +48,6 @@ export default defineConfig({
     command: `node_modules/.bin/vite --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}/tempest-jrpg/`,
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000
+    timeout: 45_000
   }
 });

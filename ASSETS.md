@@ -155,6 +155,7 @@ Lizenzzeile.
 | `ui/formation-rows.webp` | UI HUD: Formation/Reihen-Positionierungs-Indikator, 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG party formation rows diagram for Phase 97 front/back row HUD | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/dialog-keyboard-hint.webp` | UI HUD: Dialog Tastatur-Navigation Hint, keyboard + choice indicator (WebP) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG dialog keyboard navigation hint for Phase 119 accessibility | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/predator-perversion-skillsteal.webp` | UI HUD: Praedator-Perversion Skill-Raub / Form-Anzeige, 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG predator skill steal / perversion active HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
+| `ui/praedator-steal-hud.jpg` | UI HUD: Praedator-Perversion Rauben-Status, 1280x720 | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG skill theft HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.

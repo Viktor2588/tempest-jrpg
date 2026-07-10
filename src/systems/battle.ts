@@ -88,6 +88,8 @@ export interface BattleUnitInput {
   readonly reflectsCategory?: DamageCategory;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
+  readonly predatorStealSkillId?: string;
+  readonly soulboundSkillIds?: readonly string[];
   // Phase 109 — Skript-Bosse: einmalige Add-Beschwörung beim Phasenwechsel.
   readonly summonEnemyId?: string;
   readonly summonCount?: number;
@@ -152,8 +154,8 @@ export interface Combatant {
   mimicTurns: number;
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
-  // Phase 112 — Praedator-Perversion: wurde diesem Gegner bereits eine Fertigkeit geraubt?
-  plundered: boolean;
+  readonly predatorStealSkillId: string | null;
+  readonly soulboundSkillIds: readonly string[];
   // Phase 109 — Skript-Bosse: Add-Beschwörung beim Phasenwechsel (einmalig via summonsUsed).
   readonly summonEnemyId: string | null;
   readonly summonCount: number;
@@ -200,6 +202,7 @@ export interface BattleState {
   turns: number;
   readonly seed: number;
   readonly rng: Rng;
+  readonly flags: Readonly<Record<string, boolean>>;
   log: string[];
   rewards: BattleRewards;
   // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten
@@ -216,10 +219,7 @@ export type BattleAction =
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
   | { type: 'devour'; targetId: string }
-  // Phase 112 — Praedator-Perversion: raubt einem analysierten, nicht-seelengebundenen
-  // Gegner (kein Boss) EINE Fertigkeit, ohne ihn zu töten (temporär im Kampf, dauerhaft
-  // bei Sieg über die bestehende mimicSkillIds-Bankung).
-  | { type: 'plunder'; targetId: string }
+  | { type: 'steal'; targetId: string }
   // Phase 105 — Mimikry: nimmt on-demand das Element einer verschlungenen Gegner-Art an.
   | { type: 'mimic'; element: ElementType }
   | { type: 'signature'; targetId?: string }
@@ -236,6 +236,7 @@ export interface StartBattleOptions {
   readonly inventory?: readonly InventoryStack[];
   readonly teamMeter?: number;
   readonly damageMultipliers?: Partial<BattleDamageMultipliers>;
+  readonly flags?: Readonly<Record<string, boolean>>;
   // Phase 101 — Welt-Uhr: Eröffnungs-Elementarfeld (Zeit/Wetter des Encounters).
   // null/neutral/undefiniert = neutrales Startfeld (unverändertes Verhalten).
   readonly openingField?: ElementType | null;
@@ -326,7 +327,8 @@ const RIMURU_CORE_LOADOUT_SKILLS = [
   'predator-aura',
   // Phase 108 — verschmolzene Skills bleiben im Loadout sichtbar.
   'hydro-lash',
-  'maelstrom-fang'
+  'maelstrom-fang',
+  'predator-perversion'
 ] as const;
 const DEBUFF_STATUSES: readonly StatusEffectId[] = [
   'poison', 'spirit-down', 'guard-break', 'stun', 'sleep', 'freeze',
@@ -452,6 +454,8 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     reflectsCategory: enemy.reflectsCategory,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
+    predatorStealSkillId: enemy.predatorStealSkillId,
+    soulboundSkillIds: enemy.soulboundSkillIds,
     summonEnemyId: enemy.summonEnemyId,
     summonCount: enemy.summonCount,
     experienceReward: enemy.experienceReward,
@@ -487,6 +491,7 @@ export function startBattle(options: StartBattleOptions): BattleState {
     turns: 0,
     seed: options.seed,
     rng,
+    flags: options.flags ?? {},
     log: ['Ein Kampf beginnt!'],
     rewards: { experience: 0, gold: 0, items: [] },
     devouredSourceIds: [],
@@ -726,8 +731,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     mimicTurns: 0,
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
-    // Phase 112 — Praedator-Perversion: einmal beraubt, kann ein Ziel nicht erneut beraubt werden.
-    plundered: false,
+    predatorStealSkillId: unit.predatorStealSkillId ?? null,
+    soulboundSkillIds: uniqueStrings(unit.soulboundSkillIds ?? []),
     summonEnemyId: unit.summonEnemyId ?? null,
     summonCount: Math.max(0, unit.summonCount ?? 0),
     summonsUsed: false,
@@ -819,8 +824,8 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
     case 'devour':
       return resolveDevour(state, actor, action.targetId);
 
-    case 'plunder':
-      return resolvePlunder(state, actor, action.targetId);
+    case 'steal':
+      return resolvePredatorSteal(state, actor, action.targetId);
 
     case 'mimic':
       return resolveMimicForm(state, actor, action.element);
@@ -1200,59 +1205,62 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   return { ok: true };
 }
 
-// Phase 112 — Praedator-Perversion: Ist eine Fertigkeit raubbar? Seelengebunden (und
-// damit nicht raubbar) sind Ultimate-Skills (an Existenz/Seele gebundene Gipfel-Kräfte).
-// Alles darunter (Fähigkeit/Extra/Unique) kann per Völlerei-Zweig gerissen werden.
+// Phase 112 — Praedator-Perversion: Ultimate- und Unique-Verb-Skills bleiben
+// seelengebunden; normale Skills/Extra-Skills können aus verschlingbaren Gegnern
+// herausgerissen werden.
 export function isStealableSkillId(skillId: string): boolean {
   const skill = skillById.get(skillId);
-  return !!skill && skill.tier !== 'ultimate-skill';
+  return !!skill && skill.tier !== 'ultimate-skill' && !UNIQUE_VERB_SKILL_IDS.has(skill.id);
 }
 
-// Wählt die erste raubbare Fertigkeit eines Ziels, die der Angreifer noch nicht kennt.
-// Bosse sind seelengebundene Existenzen → grundsätzlich nicht beraubbar.
+// Wählt die kanonische Raub-Fertigkeit eines verschlingbaren Ziels: expliziter
+// predatorStealSkillId, sonst der vorhandene devourSkillId.
 export function stealableSkillFrom(
-  target: Pick<Combatant, 'boss' | 'skillIds'>,
+  target: Pick<Combatant, 'boss' | 'devourable' | 'devourSkillId' | 'predatorStealSkillId' | 'soulboundSkillIds'>,
   actorSkillIds: readonly string[]
 ): string | null {
-  if (target.boss) {
+  const skillId = target.predatorStealSkillId ?? target.devourSkillId;
+  if (
+    target.boss
+    || !target.devourable
+    || !skillId
+    || target.soulboundSkillIds.includes(skillId)
+    || actorSkillIds.includes(skillId)
+    || !isStealableSkillId(skillId)
+  ) {
     return null;
   }
-  const known = new Set(actorSkillIds);
-  return target.skillIds.find((skillId) => !known.has(skillId) && isStealableSkillId(skillId)) ?? null;
+  return skillId;
 }
 
-function resolvePlunder(state: BattleState, actor: Combatant, targetId: string): ActionResult {
-  if (!actor.skillIds.includes('predator')) {
-    return { ok: false, reason: 'Verschlinger nicht verfügbar.' };
+function resolvePredatorSteal(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  if (!actor.skillIds.includes('predator') || !actor.skillIds.includes('great-sage')) {
+    return { ok: false, reason: 'Praedator-Perversion braucht Verschlinger und Großen Weisen.' };
+  }
+  if (state.flags['story.shizu.vow'] !== true) {
+    return { ok: false, reason: 'Shizus Schwur ist noch nicht erfüllt.' };
   }
 
   const target = getCombatant(state, targetId);
   if (!target || target.dead || target.side === actor.side) {
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
-  if (target.boss) {
-    return { ok: false, reason: 'Seelengebunden — kann nicht beraubt werden.' };
-  }
-  if (target.analysisLevel < 1) {
-    return { ok: false, reason: 'Ziel muss zuerst analysiert werden.' };
-  }
-  if (target.plundered) {
-    return { ok: false, reason: 'Ziel wurde bereits beraubt.' };
+  if (!target.devourable || target.analysisLevel < 1) {
+    return { ok: false, reason: 'Ziel muss analysiert und verschlingbar sein.' };
   }
 
   const skillId = stealableSkillFrom(target, actor.skillIds);
   if (!skillId) {
-    return { ok: false, reason: 'Keine raubbare Fertigkeit vorhanden.' };
+    return { ok: false, reason: 'Diese Fertigkeit ist seelengebunden oder bereits bekannt.' };
   }
 
-  target.plundered = true;
   // In mimicSkillIds ablegen: temporär in diesem Kampf nutzbar, bei Sieg dauerhaft
   // in learnedSkillIds gebankt (systems/battleResult) — analog zum Verschlinger-Imitat.
   actor.mimicSkillIds = uniqueStrings([...actor.mimicSkillIds, skillId]);
   actor.skillIds = uniqueStrings([...actor.skillIds, skillId]);
   const stolenName = skillById.get(skillId)?.name ?? skillId;
-  pushLog(state, `${actor.name} reißt ${target.name} die Fertigkeit ${stolenName} heraus.`);
-  grantMomentum(state, actor, 'Rauben');
+  pushLog(state, `${actor.name} raubt ${target.name} die Fertigkeit ${stolenName}.`);
+  grantMomentum(state, actor, 'Skill-Raub');
   endTurn(state, actor);
   return { ok: true };
 }

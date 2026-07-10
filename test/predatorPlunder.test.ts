@@ -40,6 +40,8 @@ function foe(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
     weaknesses: [],
     resistances: [],
     skillIds: ['venom-spit'],
+    devourable: true,
+    devourSkillId: 'venom-spit',
     experienceReward: 0,
     goldReward: 0,
     drops: [],
@@ -47,8 +49,12 @@ function foe(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
   };
 }
 
-function battle(hero: BattleUnitInput, enemy: BattleUnitInput = foe()): BattleState {
-  return startBattle({ party: [hero], enemies: [enemy], seed: 4242 });
+function battle(
+  hero: BattleUnitInput,
+  enemy: BattleUnitInput = foe(),
+  flags: Readonly<Record<string, boolean>> = { 'story.shizu.vow': true }
+): BattleState {
+  return startBattle({ party: [hero], enemies: [enemy], flags, seed: 4242 });
 }
 
 function enemyId(state: BattleState): string {
@@ -65,21 +71,45 @@ function markAnalyzed(state: BattleState): void {
 describe('Phase 112 — Raub-Regeln (rein)', () => {
   it('nicht-Ultimate-Fertigkeiten sind raubbar, Ultimate nicht', () => {
     expect(isStealableSkillId('venom-spit')).toBe(true); // tier: skill
-    expect(isStealableSkillId('great-sage')).toBe(true); // tier: unique-skill
+    expect(isStealableSkillId('great-sage')).toBe(false); // Unique-Verb, nicht raubbar
     expect(isStealableSkillId('drago-nova')).toBe(false); // tier: ultimate-skill
     expect(isStealableSkillId('gibt-es-nicht')).toBe(false);
   });
 
   it('wählt die erste unbekannte raubbare Fertigkeit', () => {
-    expect(stealableSkillFrom({ boss: false, skillIds: ['venom-spit'] }, [])).toBe('venom-spit');
+    expect(stealableSkillFrom({
+      boss: false,
+      devourable: true,
+      devourSkillId: 'venom-spit',
+      predatorStealSkillId: null,
+      soulboundSkillIds: []
+    }, [])).toBe('venom-spit');
     // Bereits bekannt → übersprungen.
-    expect(stealableSkillFrom({ boss: false, skillIds: ['venom-spit'] }, ['venom-spit'])).toBeNull();
+    expect(stealableSkillFrom({
+      boss: false,
+      devourable: true,
+      devourSkillId: 'venom-spit',
+      predatorStealSkillId: null,
+      soulboundSkillIds: []
+    }, ['venom-spit'])).toBeNull();
     // Nur Ultimate → nichts raubbar.
-    expect(stealableSkillFrom({ boss: false, skillIds: ['drago-nova'] }, [])).toBeNull();
+    expect(stealableSkillFrom({
+      boss: false,
+      devourable: true,
+      devourSkillId: 'drago-nova',
+      predatorStealSkillId: null,
+      soulboundSkillIds: []
+    }, [])).toBeNull();
   });
 
   it('von Bossen (seelengebunden) lässt sich nichts rauben', () => {
-    expect(stealableSkillFrom({ boss: true, skillIds: ['venom-spit'] }, [])).toBeNull();
+    expect(stealableSkillFrom({
+      boss: true,
+      devourable: true,
+      devourSkillId: 'venom-spit',
+      predatorStealSkillId: null,
+      soulboundSkillIds: []
+    }, [])).toBeNull();
   });
 });
 
@@ -89,7 +119,7 @@ describe('Phase 112 — Rauben im Kampf', () => {
     expect(isPlayerTurn(state)).toBe(true);
     markAnalyzed(state);
 
-    const result = act(state, { type: 'plunder', targetId: enemyId(state) });
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
     expect(result.ok).toBe(true);
 
     const actor = state.combatants.find((c) => c.sourceId === 'rimuru')!;
@@ -97,33 +127,46 @@ describe('Phase 112 — Rauben im Kampf', () => {
     expect(actor.mimicSkillIds).toContain('venom-spit'); // wird bei Sieg gebankt
     const enemy = state.combatants.find((c) => c.side === 'enemy')!;
     expect(enemy.dead).toBe(false);
-    expect(enemy.plundered).toBe(true);
   });
 
   it('lehnt Rauben ohne vorherige Analyse ab', () => {
     const state = battle(rimuru());
-    const result = act(state, { type: 'plunder', targetId: enemyId(state) });
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
     expect(result.ok).toBe(false);
   });
 
   it('lehnt Rauben ohne Verschlinger ab', () => {
     const state = battle(rimuru(['slime-strike']));
     markAnalyzed(state);
-    const result = act(state, { type: 'plunder', targetId: enemyId(state) });
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
+    expect(result.ok).toBe(false);
+  });
+
+  it('lehnt Rauben ohne Großen Weisen ab', () => {
+    const state = battle(rimuru(['predator', 'slime-strike']));
+    markAnalyzed(state);
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
+    expect(result.ok).toBe(false);
+  });
+
+  it('lehnt Rauben vor Shizus Schwur ab', () => {
+    const state = battle(rimuru(), foe(), {});
+    markAnalyzed(state);
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
     expect(result.ok).toBe(false);
   });
 
   it('lehnt Rauben von einem Boss ab', () => {
     const state = battle(rimuru(), foe({ boss: true }));
     markAnalyzed(state);
-    const result = act(state, { type: 'plunder', targetId: enemyId(state) });
+    const result = act(state, { type: 'steal', targetId: enemyId(state) });
     expect(result.ok).toBe(false);
   });
 
   it('lässt sich ein Ziel nicht zweimal berauben', () => {
     const state = battle(rimuru(), foe({ skillIds: ['venom-spit', 'battle-cry'] }));
     markAnalyzed(state);
-    expect(act(state, { type: 'plunder', targetId: enemyId(state) }).ok).toBe(true);
+    expect(act(state, { type: 'steal', targetId: enemyId(state) }).ok).toBe(true);
 
     // zurück zum Spielerzug bringen: der Gegner ist extrem langsam.
     let guard = 0;
@@ -132,7 +175,7 @@ describe('Phase 112 — Rauben im Kampf', () => {
       if (actor && actor.side === 'enemy') act(state, { type: 'guard' });
       else break;
     }
-    const second = act(state, { type: 'plunder', targetId: enemyId(state) });
+    const second = act(state, { type: 'steal', targetId: enemyId(state) });
     expect(second.ok).toBe(false);
   });
 });

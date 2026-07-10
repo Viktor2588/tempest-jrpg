@@ -194,8 +194,9 @@ liefern die Grundlage fuers Gating in 112/104.
 
 - [x] Phase 112 — Praedator-Perversion: Skill-Raub & -Kombination (Unique Skill)
   (abgeschlossen, direkt auf main). Umgesetzt: aktive „Rauben"-Aktion (BattleAction
-  `plunder`) — auf einem analysierten, nicht-seelengebundenen Gegner (kein Boss) wird
-  EINE nicht-Ultimate-Fertigkeit in Rimurus Loadout gezogen, ohne ihn zu töten
+  `steal`) — auf einem analysierten, verschlingbaren, nicht-seelengebundenen Gegner
+  (kein Boss) wird die definierte Raub-Fertigkeit (`predatorStealSkillId` oder
+  `devourSkillId`) in Rimurus Loadout gezogen, ohne ihn zu töten
   (temporär im Kampf, dauerhaft bei Sieg über die bestehende `mimicSkillIds` ->
   `learnedSkillIds`-Bankung). Seelen-Gating: Ultimate-Skills = seelengebunden (nicht
   raubbar), Bosse als Existenzen ebenfalls nicht beraubbar (`isStealableSkillId`/

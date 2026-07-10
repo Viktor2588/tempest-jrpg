@@ -185,6 +185,7 @@ export const SKILLS = [
   // gelernte Skills zu einem stärkeren; jeder Output steht über seinen Eingaben.
   { id: 'hydro-lash', name: 'Hydra-Schneide', description: 'Der Große Weiser bündelt Schleimschlag und Wasserstrahl zu einer geformten Wasserklinge, die härter und präziser trifft.', element: 'water', target: 'single-enemy', costMp: 7, power: 40, tags: ['magical'], tier: 'extra-skill', heavy: true },
   { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true },
+  { id: 'predator-perversion', name: 'Praedator-Perversion', description: 'Praedator zerlegt geraubte Fertigkeiten; der Große Weiser setzt sie zu einer schärferen Unique-Form zusammen.', element: 'shadow', target: 'single-enemy', costMp: 16, power: 58, tags: ['magical', 'debuff'], tier: 'unique-skill', heavy: true, statusEffect: { id: 'guard-break', chance: 0.75, turns: 2 } },
   // Phase 94 — Elementarfelder: laden das Schlachtfeld elementar auf (Board-Control).
   // Reiner Aufbau (kein Schaden) → verstärkt danach gleichelementige Treffer und öffnet
   // Fusions-Reaktionen (z. B. Glutfeld + Windtreffer = Feuersturm). Keine Auto-Nutzung.
