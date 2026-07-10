@@ -32,7 +32,7 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
-Umgesetzt (2026-07-10, Inkr. 1+2): Karten-Events sind nicht mehr nur Kampf-Trigger — jetzt 9 Fundstellen über das Discovery-Muster (systems/mapDiscovery), davon 6 sichtbare Weltfolgen an großen Beats (Tempest-Benennung, Ork-Katastrophe, Kijin-Benennung, Shizu-Kinder-Kern, Direwolf-Pakt) in vielen Regionen (Tempest, Jura-Schlachtfeld, Goblindorf, Freiheitsakademie, Direwolf-Bau) plus Erkundungsfunde (Dwargon/Geisterhochland/Blumund). Offen bleiben: grosse Beats als Szene statt Toast, konsequente Dialog-Entscheidungen.
+Umgesetzt (2026-07-10, Inkr. 1–3): Karten-Events sind nicht mehr nur Kampf-Trigger — 10 Fundstellen über das Discovery-Muster (systems/mapDiscovery) decken JEDE erkundbare Region ab (nur reine Kampf-Karten Labyrinth/Kolosseum bewusst ohne), davon 7 sichtbare Weltfolgen an großen Beats (Tempest-Benennung, Ork-Katastrophe, Kijin-Benennung, Shizu-Kinder-Kern, Direwolf-Pakt, Veldora-Schwur). Ergänzt die bereits vorhandene Wachstums-Tile-Umschaltung (overworldTileArt: wilderness→camp→village→city auf tempest-start). Der Befund „Welt reagiert nicht sichtbar"/„Events nur Kampf" ist damit adressiert. OFFEN (design-lastig, brauchen Nutzer-Richtung): grosse Beats als gespielte Szene statt Toast; Dialog-Entscheidungen mit sichtbarer Konsequenz vor dem Finale.
 
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
