@@ -115,7 +115,7 @@ export const TEMPEST_COLOSSEUM: TileMap = buildMap(22, 14, [
 ], { x: 2, y: 7 });
 
 // Band-5/6-Set-Piece: Ramiris' Labyrinth (24x14, verwinkelte Terrassen mit
-// freier Koloss-Kammer). Erstes kleines Labyrinth-Inkrement statt Roguelike-System.
+// freier Koloss-Kammer). Phase 99 nutzt dieselbe Karte fuer wiederholbare Runs.
 export const RAMIRIS_LABYRINTH: TileMap = buildMap(24, 14, [
   [4, 2, 2, 3], [8, 4, 3, 2], [14, 2, 2, 3], [18, 4, 2, 2],
   [5, 9, 3, 2], [11, 8, 2, 3], [17, 9, 3, 2], [20, 6, 2, 2]

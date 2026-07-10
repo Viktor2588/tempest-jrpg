@@ -816,7 +816,7 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
-  expect(loadedAssets.some((name) => name.includes('region-ramiris-labyrinth'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('labyrinth-entrance'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-magic-colossus'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);

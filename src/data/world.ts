@@ -3905,6 +3905,31 @@ export const DIALOGS = [
             nextNodeId: 'after',
             requirements: [{ flag: 'story.magic-colossus.defeated' }]
           },
+          {
+            id: 'start-run',
+            label: 'Labyrinthlauf starten',
+            nextNodeId: 'run-started',
+            requirements: [
+              { flag: 'story.magic-colossus.defeated' },
+              { notFlag: 'labyrinth.run.active' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'labyrinth.run.active', value: true },
+              { type: 'set-flag', flag: 'labyrinth.floor1.cleared', value: false },
+              { type: 'set-flag', flag: 'labyrinth.floor2.cleared', value: false },
+              { type: 'set-flag', flag: 'labyrinth.floor3.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-1.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-2.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-3.cleared', value: false }
+            ]
+          },
+          {
+            id: 'abort-run',
+            label: 'Lauf abbrechen',
+            nextNodeId: 'run-aborted',
+            requirements: [{ flag: 'labyrinth.run.active' }],
+            effects: [{ type: 'set-flag', flag: 'labyrinth.run.active', value: false }]
+          },
           { id: 'leave', label: 'Noch vorbereiten' }
         ]
       },
@@ -3919,6 +3944,18 @@ export const DIALOGS = [
         speaker: 'Ramiris',
         text: 'Ramiris klopft gegen einen Geistkristall. „Gut. Der Koloss ist gebrochen, nicht zerstört. Genau so kommt ihr später an die Großgeister, ohne die Kinder zu verbrennen.“',
         choices: [{ id: 'end', label: 'Daten sichern' }]
+      },
+      {
+        id: 'run-started',
+        speaker: 'Ramiris',
+        text: 'Ramiris klappt drei Türen nacheinander auf. „Keine Rast zwischen den Etagen. Was ihr an LP und MP verliert, tragt ihr weiter — dafür spuckt der Kern echtes Schmiedematerial aus.“',
+        choices: [{ id: 'end', label: 'In die erste Etage' }]
+      },
+      {
+        id: 'run-aborted',
+        speaker: 'Ramiris',
+        text: 'Der Türspalt faltet sich zu. „Abbrechen ist erlaubt. Prahlen erst, wenn ihr den Lauf auch beendet.“',
+        choices: [{ id: 'end', label: 'Zurück zur Akademie' }]
       }
     ]
   },
@@ -4802,6 +4839,61 @@ export const ENCOUNTERS = [
       { type: 'complete-quest-step', questId: 'ramiris-labyrinth', stepId: 'defeat-colossus' },
       { type: 'complete-quest', questId: 'ramiris-labyrinth' },
       { type: 'add-gold', amount: 220 },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 },
+      { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+    ]
+  },
+  {
+    id: 'labyrinth-floor-1',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 6, y: 6 },
+    enemyIds: ['spore-moth', 'lizardman-acolyte'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { notFlag: 'labyrinth.floor1.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor1.cleared', value: true },
+      { type: 'add-gold', amount: 35 },
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+    ]
+  },
+  {
+    id: 'labyrinth-floor-2',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 12, y: 7 },
+    enemyIds: ['ogre-warrior', 'orc-soldier'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { flag: 'labyrinth.floor1.cleared' },
+      { notFlag: 'labyrinth.floor2.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor2.cleared', value: true },
+      { type: 'add-gold', amount: 70 },
+      { type: 'add-item', itemId: 'magic-ore', quantity: 2 }
+    ]
+  },
+  {
+    id: 'labyrinth-floor-3',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 18, y: 6 },
+    enemyIds: ['orc-general', 'lizardman-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { flag: 'labyrinth.floor2.cleared' },
+      { notFlag: 'labyrinth.floor3.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor3.cleared', value: true },
+      { type: 'set-flag', flag: 'labyrinth.run.active', value: false },
+      { type: 'add-gold', amount: 120 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 },
       { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
     ]

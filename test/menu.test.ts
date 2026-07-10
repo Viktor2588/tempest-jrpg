@@ -12,6 +12,7 @@ import {
   useItem,
   type MenuGameState
 } from '../src/systems/menu';
+import menuSceneSource from '../src/scenes/MenuScene.ts?raw';
 
 function stateWithInventory(itemId: string): MenuGameState {
   return {
@@ -135,12 +136,9 @@ describe('menu system', () => {
   });
 
   it('Phase 119: keyboard nav in Menu (arrows cycle, space activate) - drives MenuScene selection', () => {
-    // drive shipped code: assert the methods are in the source file (real implementation)
-    const fs = require('fs');
-    const src = fs.readFileSync(require('path').join(__dirname, '../src/scenes/MenuScene.ts'), 'utf8');
-    expect(src).toContain('moveMenuSelection');
-    expect(src).toContain('activateMenuSelection');
-    expect(src).toContain('keydown-LEFT');  // keyboard setup
+    expect(menuSceneSource).toContain('moveMenuSelection');
+    expect(menuSceneSource).toContain('activateMenuSelection');
+    expect(menuSceneSource).toContain('keydown-LEFT');
   });
 
   it('erzwingt mindestens 44px Touch-Ziele für Menübuttons', () => {
