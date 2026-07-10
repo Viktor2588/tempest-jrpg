@@ -280,13 +280,23 @@ canon-first, deutsches Originalwording).
   Vorwissen), typecheck ✓, 640 Unit-Tests ✓, build ✓, Battle-E2E-Smoke gruen,
   Balance-Harness unberuehrt (Harness reicht kein Vorwissen durch → unveraendert).
 
-- [ ] Phase 124 — Sammel-Meisterschaft (optionaler Anreiz, kleiner Zuschnitt).
-  Damit die Sammel-Schleife nicht rein kosmetisch bleibt: eine einmalige,
-  deterministische Belohnung, wenn das Bestiarium einer Region vollstaendig
-  (alle regionstypischen Gegner analysiert) ist — z.B. ein Magicule-Fund ueber
-  das vorhandene `grantMagicules`/Discovery-Muster oder ein kleiner
-  Schmiedematerial-Bonus. Bewusst klein und optional; verzahnt Sammeln (122/123)
-  mit der Magicule-Oekonomie (102). Akzeptanz: Vollstaendigkeits-Erkennung +
-  einmalige Belohnung headless getestet, Save-Roundtrip, keine Balance-Beruehrung.
+- [x] Phase 124 — Sammel-Meisterschaft (optionaler Anreiz, kleiner Zuschnitt)
+  (abgeschlossen, direkt auf main). Umgesetzt: fuenf kuratierte Jagdgruende
+  (`systems/bestiaryMastery.ts` — Jura-Wildnis, Geistmoor, Jura-Schlachtfeld,
+  Blumund-Umland, Freiheitsakademie) buendeln je ihre regionstypischen
+  Nicht-Boss-Gegner. Sind alle Arten eines Jagdgrunds per „Analysieren"
+  (persistiertes `progression.analyzedEnemyIds` aus Phase 122) studiert, zahlt
+  der Kampf-Ergebnis-Pfad EINMALIG einen deterministischen Magicule-Fund ueber
+  `grantMagicules` aus; ein Flag (`bestiary.mastery.<id>`) verhindert
+  Doppelzahlung ueber Save-/Kampf-Grenzen. Der Sieg-Bildschirm zeigt
+  „🐾 Jagdgrund gemeistert: …", die Bestiarium-Codex-Fusszeile „Jagdgruende m/n".
+  Bewusst klein/optional; verzahnt Sammeln (122/123) mit der Magicule-Oekonomie
+  (102), rein additive Spieler-Belohnung ohne Kampf-Balance-Effekt. Akzeptanz
+  erfuellt: Vollstaendigkeits-Erkennung + einmalige Belohnung + Save-Roundtrip
+  headless (`test/bestiaryMastery.test.ts`, 10 Tests — Teilfortschritt/
+  Vollstaendigkeit, keine Doppelzahlung, Flag-Diff, Kampf-Integration,
+  Export/Import-Roundtrip), typecheck ✓, 650 Unit-Tests ✓, build ✓,
+  Bestiarium-Codex-E2E-Smoke gruen, Balance-Harness unberuehrt (Harness reicht
+  kein Analyse-Wissen/keine Flags durch → unveraendert).
 
 ## UX- und Welt-Backlog
