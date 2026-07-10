@@ -60,6 +60,8 @@ export class BattleScene extends Phaser.Scene {
   private pendingSignature = false;
   // Phase 112 — Praedator-Perversion: nächste Ziel-Wahl ist ein „Rauben".
   private pendingPlunder = false;
+  // Unique-Verb (Großer Weiser/Verschlinger): nächste Ziel-Wahl löst Analyse/Verschlingen aus.
+  private pendingVerb: 'analyze' | 'devour' | null = null;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
   private idleTweens: Phaser.Tweens.Tween[] = [];
@@ -324,6 +326,7 @@ export class BattleScene extends Phaser.Scene {
     this.pendingItemId = null;
     this.pendingSignature = false;
     this.pendingPlunder = false;
+    this.pendingVerb = null;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
@@ -742,7 +745,9 @@ export class BattleScene extends Phaser.Scene {
     if (!unit.dead && (wantsEnemy || wantsAlly)) {
       box.setInteractive().setStrokeStyle(2, 0x68ff9a);
       box.on('pointerdown', () => {
-        if (this.pendingPlunder) {
+        if (this.pendingVerb) {
+          this.doAct({ type: this.pendingVerb, targetId: unit.id });
+        } else if (this.pendingPlunder) {
           this.doAct({ type: 'plunder', targetId: unit.id });
         } else if (this.pendingTeamPartnerId) {
           this.doAct({
@@ -773,17 +778,20 @@ export class BattleScene extends Phaser.Scene {
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         this.refresh();
       }],
       ['✨ Skills', () => {
         this.pendingSignature = false;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         this.mode = 'skills';
         this.refresh();
       }],
       ['🎒 Items', () => {
         this.pendingSignature = false;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         this.mode = 'items';
         this.refresh();
       }],
@@ -805,6 +813,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         this.mode = 'team-partners';
         this.refresh();
       }]);
@@ -819,6 +828,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingTeamPartnerId = null;
         this.pendingSignature = true;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         if (actorView.signatureTarget === 'self'
           || actorView.signatureTarget === 'all-allies'
           || actorView.signatureTarget === 'all-enemies') {
@@ -832,6 +842,35 @@ export class BattleScene extends Phaser.Scene {
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
 
+    // Großer Weiser (Analysieren) und Verschlinger (Verschlingen) sind Unique-Verben,
+    // keine wirkbaren Skills — sie brauchen eigene Befehle statt eines toten Skill-Eintrags.
+    const livingEnemy = this.state.combatants.some((foe) => foe.side === 'enemy' && !foe.dead);
+    if (actor.skillIds.includes('predator')
+      && this.state.combatants.some((foe) => foe.side === 'enemy' && !foe.dead && foe.devourable)) {
+      items.splice(2, 0, ['🍴 Verschlingen', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingPlunder = false;
+        this.pendingVerb = 'devour';
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
+    if (actor.skillIds.includes('great-sage') && livingEnemy) {
+      items.splice(2, 0, ['🔍 Analysieren', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingPlunder = false;
+        this.pendingVerb = 'analyze';
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
+
     // Phase 105 — Mimikry: nur anbieten, wenn Rimuru in diesem Kampf schon eine Form
     // verschlungen hat (Verschlinger + verfügbare Elemente).
     if (actor.skillIds.includes('predator') && availableMimicElements(this.state).length > 0) {
@@ -841,6 +880,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
         this.pendingPlunder = false;
+        this.pendingVerb = null;
         this.mode = 'mimic-forms';
         this.refresh();
       }]);
@@ -859,6 +899,7 @@ export class BattleScene extends Phaser.Scene {
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
         this.pendingPlunder = true;
+        this.pendingVerb = null;
         this.mode = 'target-enemy';
         this.refresh();
       }]);
@@ -883,7 +924,9 @@ export class BattleScene extends Phaser.Scene {
 
   private drawSkillList(): void {
     const actor = currentActor(this.state)!;
+    // Unique-Verben (Großer Weiser/Verschlinger) haben eigene Befehle — nicht als tote Skills listen.
     const skills = actor.skillIds.flatMap((id) => {
+      if (id === 'great-sage' || id === 'predator') return [];
       const skill = skillById.get(id);
       return skill ? [skill] : [];
     });
