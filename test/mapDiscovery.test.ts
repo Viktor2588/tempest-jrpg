@@ -39,6 +39,17 @@ describe('Karten-Entdeckungen', () => {
     })).toBeNull();
   });
 
+  it('zeigt den ersten Namensstein erst nach der Tempest-Benennung als Weltfolge', () => {
+    expect(getMapDiscoveryAt('tempest-start', 12, 8, {})).toBeNull();
+    const stone = getMapDiscoveryAt('tempest-start', 12, 8, { 'story.tempest.named': true });
+    expect(stone?.title).toBe('Der erste Namensstein');
+    expect(stone?.rewardItemId).toBe('tempest-charm');
+    expect(getMapDiscoveryAt('tempest-start', 12, 8, {
+      'story.tempest.named': true,
+      'discovery.tempest-start.founding-stone': true
+    })).toBeNull();
+  });
+
   it('platziert jede Fundstelle auf einer begehbaren Kachel und vergibt ein echtes Item', () => {
     const itemIds = new Set<string>(ITEMS.map((item) => item.id));
     for (const def of allMapDiscoveryDefinitions()) {

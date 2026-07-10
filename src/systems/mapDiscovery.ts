@@ -77,6 +77,49 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Wo das Echo gebannt wurde, treibt der Hain wieder aus. Ein klarer Tautropfen bündelt seine Kraft.',
     rewardItemId: 'full-potion',
     rewardLabel: 'Vollheiltrank'
+  },
+  {
+    // Weltveraenderung: nachdem Rimuru dem Land einen Namen gab, markieren die
+    // Goblins die neue Nation sichtbar mit einem ersten Grenzstein.
+    mapId: 'tempest-start',
+    x: 12,
+    y: 8,
+    requiresFlag: 'story.tempest.named',
+    flag: 'discovery.tempest-start.founding-stone',
+    title: 'Der erste Namensstein',
+    body: 'Seit das Land einen Namen trägt, haben die Goblins hier einen Stein aufgerichtet — die erste Grenzmarke von Tempest.',
+    rewardItemId: 'tempest-charm',
+    rewardLabel: 'Tempest-Talisman'
+  },
+  {
+    mapId: 'dwargon',
+    x: 12,
+    y: 7,
+    flag: 'discovery.dwargon.forge-relic',
+    title: 'Vergessenes Schmiedestück',
+    body: 'In einer Nische der Zwergenfestung liegt ein halbfertiges Werkstück aus Magistahl, von einem Meister zurückgelassen.',
+    rewardItemId: 'magisteel',
+    rewardLabel: 'Magistahl'
+  },
+  {
+    mapId: 'spirit-highlands',
+    x: 11,
+    y: 8,
+    flag: 'discovery.spirit-highlands.wind-shrine',
+    title: 'Windgeist-Schrein',
+    body: 'Ein kleiner Schrein zwischen den Hochlandfelsen bündelt die Windgeister; ein Tropfen ihrer Mana bleibt zurück.',
+    rewardItemId: 'mana-drop',
+    rewardLabel: 'Manatropfen'
+  },
+  {
+    mapId: 'blumund',
+    x: 9,
+    y: 7,
+    flag: 'discovery.blumund.lost-cache',
+    title: 'Verlorene Händlertruhe',
+    body: 'Am Rand der Handelsstadt Blumund steckt eine von einem Karren gefallene Truhe voller Reisevorrat.',
+    rewardItemId: 'healing-herb',
+    rewardLabel: 'Heilkraut'
   }
 ] as const;
 
