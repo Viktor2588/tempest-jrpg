@@ -768,7 +768,7 @@ export const LOCATIONS = [
     name: 'Tempest-Hainstadt',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 3, y: 5 },
+    position: { x: 11, y: 8 },
     description: 'Eine junge Monsterstadt aus Palisaden, Werkbänken und improvisierten Versammlungsplätzen.',
     identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.',
     unlockFlag: 'story.tempest.named'
@@ -778,7 +778,7 @@ export const LOCATIONS = [
     name: 'Ratsplatz von Tempest',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 4, y: 5 },
+    position: { x: 8, y: 8 },
     description: 'Ein befestigter Feuerkreis, an dem Rigurd die ersten Aufgaben der jungen Stadt sammelt.',
     identity: 'Post-Prolog-Hubmarker: macht den Rat von Tempest als Zentrum der Band-2-Route sichtbar.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -788,7 +788,7 @@ export const LOCATIONS = [
     name: 'Namensstein',
     kind: 'shrine',
     mapId: 'tempest-start',
-    position: { x: 5, y: 6 },
+    position: { x: 13, y: 9 },
     description: 'Ein einfacher Stein mit dem neuen Stadtnamen — noch roh, aber für alle sichtbar.',
     identity: 'Post-Prolog-Hubmarker: zeigt, dass aus dem Notlager eine benannte Siedlung geworden ist.',
     unlockFlag: 'story.tempest.named'
@@ -798,7 +798,7 @@ export const LOCATIONS = [
     name: 'Tempest-Palisade',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 6, y: 5 },
+    position: { x: 14, y: 6 },
     description: 'Frisch gesetzte Holzpfähle und Wachtücher markieren den Übergang von Lager zu Stadt.',
     identity: 'Post-Prolog-Hubmarker: weniger Notlager, mehr sichtbare Siedlungsstruktur.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -808,7 +808,7 @@ export const LOCATIONS = [
     name: 'Tempest-Lager',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 7, y: 7 },
+    position: { x: 12, y: 11 },
     description: 'Ein geschützter Lagerkreis mit Wasser, Decken und genug Ruhe für kurze Absprachen.',
     identity: 'Ruhepunkt: Heilen, Speichern und kurze optionale Partygespräche zwischen den Hauptbeats.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -818,7 +818,7 @@ export const LOCATIONS = [
     name: 'Tafel des Rates',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 4, y: 6 },
+    position: { x: 7, y: 9 },
     description: 'Auf der ersten Ratstafel stehen Versorgung, Hainroute und Shunas Siegelzeichen nebeneinander.',
     identity: 'Band-2-Hubmarker: Der Rat verändert Tempest sichtbar von einer Ansammlung Hütten zu einer organisierten Stadt.',
     unlockFlag: 'story.council.ready'
@@ -828,7 +828,7 @@ export const LOCATIONS = [
     name: 'Siegelwacht',
     kind: 'shrine',
     mapId: 'tempest-start',
-    position: { x: 5, y: 7 },
+    position: { x: 14, y: 3 },
     description: 'Ein kleiner Schutzstein erinnert an das gebrochene Echo und markiert Tempests erste gemeinsam bestandene Krise.',
     identity: 'Band-2-Abschlussmarker: Das Ahnensiegel wird Teil von Tempests sichtbarer Geschichte.',
     unlockFlag: 'story.act1.completed'
@@ -838,7 +838,7 @@ export const LOCATIONS = [
     name: 'Kijin-Viertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 12, y: 6 },
+    position: { x: 17, y: 6 },
     description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
     identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
     unlockFlag: 'story.kijin.named'
@@ -849,7 +849,7 @@ export const LOCATIONS = [
     kind: 'city',
     mapId: 'tempest-start',
     // (15,5) liegt im Stadt-Layout selbst in einer Wand → Marker unerreichbar/verdeckt.
-    position: { x: 16, y: 6 },
+    position: { x: 20, y: 9 },
     description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
     identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
     unlockFlag: 'faction.dwargon.allied'
@@ -4033,7 +4033,7 @@ export const NPCS = [
     id: 'tempest-council',
     name: 'Ratsversammlung',
     mapId: 'tempest-start',
-    position: { x: 6, y: 6 },
+    position: { x: 3, y: 11 },
     dialogId: 'tempest-priority',
     color: 0xc9a24a,
     requirements: [{ flag: 'story.tempest.named' }, { notFlag: 'tempest.priority.chosen' }]
@@ -4068,7 +4068,7 @@ export const NPCS = [
     id: 'rigurd-tempest',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 2, y: 4 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [
@@ -4080,7 +4080,7 @@ export const NPCS = [
     id: 'rigurd-council',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 3, y: 6 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [
@@ -4092,7 +4092,7 @@ export const NPCS = [
     id: 'rigurd-established',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 4, y: 7 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [{ flag: 'story.act1.completed' }]
@@ -4101,7 +4101,7 @@ export const NPCS = [
     id: 'shuna',
     name: 'Shuna',
     mapId: 'tempest-start',
-    position: { x: 7, y: 3 },
+    position: { x: 11, y: 3 },
     dialogId: 'shuna-ritual',
     color: 0xf0b7ff,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4110,7 +4110,7 @@ export const NPCS = [
     id: 'gobta',
     name: 'Gobta',
     mapId: 'tempest-start',
-    position: { x: 8, y: 5 },
+    position: { x: 13, y: 7 },
     dialogId: 'gobta-border',
     color: 0x9ff0a4,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4128,7 +4128,7 @@ export const NPCS = [
     id: 'ranga-tempest',
     name: 'Ranga',
     mapId: 'tempest-start',
-    position: { x: 9, y: 5 },
+    position: { x: 4, y: 8 },
     dialogId: 'ranga-scout',
     color: 0x9fb6d6,
     requirements: [{ flag: 'story.direwolf.pact' }]
@@ -4178,7 +4178,7 @@ export const NPCS = [
     id: 'hakurou-camp',
     name: 'Hakurou',
     mapId: 'tempest-start',
-    position: { x: 6, y: 5 },
+    position: { x: 5, y: 4 },
     dialogId: 'kijin-naming',
     color: 0xd66c6c,
     // Die geflüchteten Oger erscheinen im Dorf, sobald das Slime-Prolog-Kapitel steht.
@@ -4188,7 +4188,7 @@ export const NPCS = [
     id: 'tempest-camp',
     name: 'Tempest-Lager',
     mapId: 'tempest-start',
-    position: { x: 7, y: 7 },
+    position: { x: 12, y: 10 },
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4197,7 +4197,7 @@ export const NPCS = [
     id: 'kurobe-tempest',
     name: 'Kurobe',
     mapId: 'tempest-start',
-    position: { x: 12, y: 6 },
+    position: { x: 18, y: 7 },
     dialogId: 'tempest-builders',
     color: 0x9d6c4a,
     requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
@@ -4206,7 +4206,7 @@ export const NPCS = [
     id: 'kaijin-tempest',
     name: 'Kaijin',
     mapId: 'tempest-start',
-    position: { x: 15, y: 6 },
+    position: { x: 19, y: 9 },
     dialogId: 'tempest-builders',
     color: 0xd2a679,
     service: 'smith',

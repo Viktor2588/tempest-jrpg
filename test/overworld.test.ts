@@ -76,7 +76,14 @@ describe('overworld grid', () => {
       'story.kijin.named': true,
       'faction.dwargon.allied': true
     })).toBe(TEMPEST_CITY);
-    expect(new Set([TEMPEST_CAMP, TEMPEST_VILLAGE, TEMPEST_CITY].map((map) => JSON.stringify(map.tiles))).size)
-      .toBe(3);
+    // Wachstum wird über Bodentexturen + verteilte Distrikt-POIs gezeigt, nicht über
+    // Hindernis-Wände: alle drei Stufen sind offene Flächen (nur Randmauer, kein Innenwerk).
+    for (const map of [TEMPEST_CAMP, TEMPEST_VILLAGE, TEMPEST_CITY]) {
+      const interiorWalls = map.tiles
+        .slice(1, map.tiles.length - 1)
+        .flatMap((row) => row.slice(1, row.length - 1))
+        .filter((tile) => tile === WALL);
+      expect(interiorWalls).toHaveLength(0);
+    }
   });
 });

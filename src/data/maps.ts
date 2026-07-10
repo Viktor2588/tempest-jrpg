@@ -24,22 +24,18 @@ function buildMap(width: number, height: number, blocks: readonly Block[], spawn
 }
 
 // Region 1: Tempest-Hain (Startgebiet, 24×16).
-export const JURA_FIELD: TileMap = buildMap(24, 16, [
-  [4, 2, 2, 3], [11, 3, 2, 3], [6, 9, 4, 2], [16, 8, 2, 4], [10, 11, 3, 2], [18, 3, 2, 2]
-], { x: 2, y: 2 });
+// Tempest-Heimatkarte: offenes Dorf statt Wandblöcke — Platz für verteilte Distrikte
+// (Zentrum=Goblin-Kern, Norden=Schrein, Westen=Wolfslauf, Osten=Kijin-Handwerk).
+export const JURA_FIELD: TileMap = buildMap(24, 16, [], { x: 2, y: 2 });
 
-export const TEMPEST_CAMP: TileMap = buildMap(24, 16, [
-  [4, 2, 2, 2], [11, 3, 2, 3], [6, 9, 3, 2], [16, 8, 2, 4], [11, 11, 2, 2], [18, 3, 2, 2]
-], { x: 2, y: 2 });
+// Tempest-Wachstumsstufen: offene Flächen (keine Hindernis-Wände) — die Siedlung
+// entsteht durch verteilte Distrikt-POIs + die stufenweisen Bodentexturen, nicht
+// durch fragmentierende Wandblöcke.
+export const TEMPEST_CAMP: TileMap = buildMap(24, 16, [], { x: 2, y: 2 });
 
-export const TEMPEST_VILLAGE: TileMap = buildMap(24, 16, [
-  [4, 2, 2, 3], [11, 2, 3, 3], [6, 9, 4, 2], [16, 8, 2, 4], [10, 11, 3, 2], [18, 3, 3, 2]
-], { x: 2, y: 2 });
+export const TEMPEST_VILLAGE: TileMap = buildMap(24, 16, [], { x: 2, y: 2 });
 
-export const TEMPEST_CITY: TileMap = buildMap(24, 16, [
-  [4, 2, 2, 3], [11, 2, 3, 3], [6, 9, 4, 2], [16, 8, 3, 4], [10, 11, 3, 2], [18, 3, 3, 3],
-  [14, 4, 2, 2]
-], { x: 2, y: 2 });
+export const TEMPEST_CITY: TileMap = buildMap(24, 16, [], { x: 2, y: 2 });
 
 // Prolog 1: Versiegelte Höhle (16×10, enger Kristallpfad mit zentraler Kammer).
 export const SEALED_CAVE: TileMap = buildMap(16, 10, [
