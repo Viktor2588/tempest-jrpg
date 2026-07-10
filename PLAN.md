@@ -18,7 +18,6 @@ Status:
 
 ## Bugs
 - zu viele punkte Geometrien nach abschluss von quests.
-- Rimururs Großer weiser & Verschlingen lässt sich nicht im kampf ausführen
 - Talentbäume sind nicht alle verfügbar. manche sind gesperrt aus unbekannt>
 - Talent punkte innerhalb einer Reihe können nicht anderweite vershoben wer>
 <signalisieren.
