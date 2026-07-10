@@ -32,6 +32,8 @@ das staerkste Event-Muster (RangaJourney-Entdeckungen: Inszenierung + Fund +
 Belohnung) existiert nur bei der Schnellreise. Canon-Regeln beachten:
 deutsches Originalwording, canon-first, keine kopierten Dialoge.
 
+Umgesetzt (2026-07-10, Inkr. 1): Karten-Events sind nicht mehr nur Kampf-Trigger — vier neue Fundstellen ueber das Discovery-Muster (systems/mapDiscovery), darunter eine sichtbare Weltfolge nach der Tempest-Benennung (erster Namensstein, story.tempest.named) sowie Erkundungsfunde in Dwargon/Geisterhochland/Blumund. Offen bleiben: grosse Beats als Szene statt Toast, sichtbare Regionsveraenderung insgesamt, konsequente Dialog-Entscheidungen.
+
 ## Balance-Roadmap (TODO.md: Kaempfe zu leicht, Grind-Gefuehl, kein Schwung)
 
 Befund (Headless-Sim, Auto-Battle, 5 Seeds, ohne Talente/Ausruestung):
