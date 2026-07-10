@@ -14,6 +14,8 @@ import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type 
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
+import { addUiPortraitFrame } from '../render/uiSkin';
 import {
   configureHiDpiScene,
   hudZoomOffset,
@@ -742,10 +744,24 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     for (const npc of getMapNpcs(this.mapId, world)) {
-      // Weicheres Token: dezenter dunkler Rand statt hartem Neon-Gelb (aufgeräumter auf dichten Karten).
-      const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.58, TILE * 0.58, npc.color, 0.92)
-        .setStrokeStyle(2, 0x15100a, 0.55);
-      layer.add(npcSprite);
+      const npcX = this.cx(npc.position.x);
+      const npcY = this.cy(npc.position.y);
+      // Porträt-Token für benannte Figuren (aus dem Porträt-Atlas, per Name gemappt);
+      // ersetzt die alten einfarbigen Quadrate. Ohne Porträt (z. B. „Ratsversammlung")
+      // bleibt ein dezentes Farb-Token als Fallback.
+      const portraitKind = portraitKindForSpeaker(npc.name);
+      const portraitTexture = portraitKind ? portraitKey(portraitKind) : null;
+      let npcSprite: Phaser.GameObjects.GameObject & { x: number; y: number };
+      if (portraitTexture && this.textures.exists(portraitTexture)) {
+        const size = TILE * 0.62;
+        layer.add(addUiPortraitFrame(this, npcX, npcY, size));
+        npcSprite = this.add.image(npcX, npcY, portraitTexture).setDisplaySize(size, size);
+        layer.add(npcSprite);
+      } else {
+        npcSprite = this.add.rectangle(npcX, npcY, TILE * 0.58, TILE * 0.58, npc.color, 0.92)
+          .setStrokeStyle(2, 0x15100a, 0.55);
+        layer.add(npcSprite);
+      }
       this.actorSprites.set(npc.id, npcSprite);
       // Name normalerweise über dem Marker; bei NPCs in den obersten Reihen nach
       // unten kippen, sonst wird der Name (und der Quest-Marker darüber) am oberen
