@@ -26,6 +26,7 @@ import {
   scalingKindForEncounter
 } from '../systems/enemyScaling';
 import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { elementLabel } from '../systems/battlePresentation';
@@ -70,6 +71,7 @@ export class BattleScene extends Phaser.Scene {
   private rewardsApplied = false;
   private levelUps: LevelUpSummary[] = [];
   private magiculeGain = 0;
+  private masteredGrounds: string[] = [];
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -1086,6 +1088,13 @@ export class BattleScene extends Phaser.Scene {
         const ups = this.levelUps.map((up) => `${up.name} Lv.${up.toLevel}`).join(' · ');
         lines.push({ text: `Stufenaufstieg: ${ups}`, size: 14, color: '#8dffc2' });
       }
+      if (this.masteredGrounds.length > 0) {
+        lines.push({
+          text: `🐾 Jagdgrund gemeistert: ${this.masteredGrounds.join(' · ')}`,
+          size: 14,
+          color: '#e9c56c'
+        });
+      }
     }
     if (pactMessage) {
       lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
@@ -1127,6 +1136,8 @@ export class BattleScene extends Phaser.Scene {
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;
+    // Phase 124 — neu gemeisterte Jagdgruende fuer die Sieg-Zusammenfassung.
+    this.masteredGrounds = newlyMasteredHuntingGrounds(before.flags, after.flags).map((ground) => ground.name);
     this.save = autoSave(window.localStorage, after);
   }
 

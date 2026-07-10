@@ -1,5 +1,6 @@
 import type { BattleView } from './battle';
 import { tallyAnalyzedEnemies } from './bestiary';
+import { collectHuntingGroundRewards } from './bestiaryMastery';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
@@ -100,11 +101,25 @@ export function applyBattleResultToSave(
     ? normalizeInventoryStacks([...battle.inventory, ...battle.rewards.items])
     : normalizeInventoryStacks(battle.inventory);
 
-  const flags = {
+  const baseFlags = {
     ...save.flags,
     ...(learnedDevourSkill ? { 'codex.predator-devour': true } : {}),
     [KITCHEN_REST_BUFF_FLAG]: false
   };
+
+  // Phase 124 — Sammel-Meisterschaft: neu vollstaendig studierte Jagdgruende
+  // einmalig mit einem Magicule-Fund belohnen (Flag verhindert Doppelzahlung).
+  // Verzahnt den Bestiarium-Sammelpfeiler (122/123) mit der Magicule-Oekonomie
+  // (102). Reine Spieler-Belohnung, kein Kampf-Balance-Effekt.
+  const masteryRewards = won
+    ? collectHuntingGroundRewards(progression.analyzedEnemyIds, baseFlags)
+    : [];
+  let masteredProgression = progression;
+  let flags = baseFlags;
+  for (const reward of masteryRewards) {
+    masteredProgression = grantMagicules(masteredProgression, reward.magicules).state;
+    flags = { ...flags, [reward.flag]: true };
+  }
 
   let nextSave: SaveGameV2 = {
     ...save,
@@ -115,7 +130,7 @@ export function applyBattleResultToSave(
     },
     inventory: { stacks: inventory },
     flags,
-    progression
+    progression: masteredProgression
   };
 
   if (won && options.encounterId) {

@@ -49,6 +49,7 @@ import { buildFacilityOverview, runProductionCycle } from '../systems/facilities
 import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
 import { buildBestiary } from '../systems/bestiary';
+import { summarizeHuntingGrounds } from '../systems/bestiaryMastery';
 import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
@@ -1078,8 +1079,10 @@ export class MenuScene extends Phaser.Scene {
       }));
     });
 
+    const grounds = summarizeHuntingGrounds(this.save.progression.analyzedEnemyIds, this.save.flags);
     this.codexFooter(pageCount,
-      `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`);
+      `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`
+      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`);
   }
 
   private bestiaryDetailLine(entry: ReturnType<typeof buildBestiary>['entries'][number]): string {
