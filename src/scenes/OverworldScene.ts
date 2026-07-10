@@ -742,8 +742,9 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     for (const npc of getMapNpcs(this.mapId, world)) {
-      const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
-        .setStrokeStyle(2, 0xfff1aa, 0.9);
+      // Weicheres Token: dezenter dunkler Rand statt hartem Neon-Gelb (aufgeräumter auf dichten Karten).
+      const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.58, TILE * 0.58, npc.color, 0.92)
+        .setStrokeStyle(2, 0x15100a, 0.55);
       layer.add(npcSprite);
       this.actorSprites.set(npc.id, npcSprite);
       // Name normalerweise über dem Marker; bei NPCs in den obersten Reihen nach
@@ -751,15 +752,20 @@ export class OverworldScene extends Phaser.Scene {
       // Kartenrand abgeschnitten (z. B. „König Gazel Dwargo" im Dwargon-Thronsaal).
       const flipDown = npc.position.y <= 1;
       const nameY = this.cy(npc.position.y) + (flipDown ? 34 : -34);
-      layer.add(this.add.text(this.cx(npc.position.x), nameY, npc.name, {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: '#e9eef7'
-      }).setOrigin(0.5));
+      // Namens-Label nur nahe am Spieler oder bei aktivem Quest-Marker zeigen —
+      // sonst überlappen auf dichten Karten (Tempest) ~10 NPC-Namen zu einem Brei.
+      const hasQuestMarker = npcHasQuestMarker(world, npc.id);
+      if (hasQuestMarker || markerLabelVisible(this.pos, npc.position, false)) {
+        layer.add(this.add.text(this.cx(npc.position.x), nameY, npc.name, {
+          fontFamily: 'sans-serif',
+          fontSize: '11px',
+          color: '#e9eef7'
+        }).setOrigin(0.5).setStroke('#0a0f1a', 3));
+      }
       // Quest-Marker: goldenes „!" bei NPCs, bei denen ein Gespräch JETZT die
       // Story voranbringt (unterscheidet sich vom pinken Encounter-„!" auf der Kachel).
       // Statisch gehalten, damit beim worldLayer-Neuzeichnen keine Tweens lecken.
-      if (npcHasQuestMarker(world, npc.id)) {
+      if (hasQuestMarker) {
         layer.add(this.add.text(this.cx(npc.position.x), nameY + (flipDown ? 18 : -18), '❗', {
           fontFamily: 'sans-serif',
           fontSize: '20px',
