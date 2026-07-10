@@ -1039,6 +1039,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 121 - Shunas Einstiegstempo
+
+- Branch/Worktree: `phase-121-shuna-tempo` in `/worktree/tempest-phase-121-shuna-tempo`.
+- Entscheidung: Shuna bleibt bewusst frueher Band-2-Ratsschritt direkt nach dem Prolog; kein neuer Band-Content davor.
+- Umsetzung: Band-2-Kapitelziel nennt zuerst Shunas Siegeldeutung, danach Gobtas Grenzplan und Rangas Scoutbericht; Questtext spiegelt diese Reihenfolge.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`; fokussiert `test/chapterBanner.test.ts`.
+
 ### Phase 120 - Content-Gegnerassets
 
 - Branch/Worktree: `phase-120-content-assets` in `/worktree/tempest-phase-120-content-assets`.
