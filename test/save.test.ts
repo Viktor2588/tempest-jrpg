@@ -65,7 +65,8 @@ describe('save.ts', () => {
         skillPointsByCharacterId: { rimuru: 2 },
         unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-predator-focus'] },
         awakeningCompleted: true,
-        awakenedResidentIds: ['sturmzahn']
+        awakenedResidentIds: ['sturmzahn'],
+        analyzedEnemyIds: ['forest-slime', 'spore-moth']
       }
     };
 
@@ -88,6 +89,8 @@ describe('save.ts', () => {
       .toEqual(['rimuru-predator-focus']);
     expect(loaded.progression.awakeningCompleted).toBe(true);
     expect(loaded.progression.awakenedResidentIds).toEqual(['sturmzahn']);
+    // Phase 122 — Lebendiges Bestiarium: Analyse-Wissen übersteht den Roundtrip.
+    expect(loaded.progression.analyzedEnemyIds).toEqual(['forest-slime', 'spore-moth']);
   });
 
   it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {

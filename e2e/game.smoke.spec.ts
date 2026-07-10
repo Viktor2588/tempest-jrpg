@@ -857,7 +857,7 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   await page.keyboard.press('m');
   await page.waitForTimeout(250);
   await clickGamePoint(page, 760, 94); // Codex
-  await clickGamePoint(page, 692, 140); // Einrichtungen
+  await clickGamePoint(page, 620, 155); // Einrichtungen (Codex-Modusleiste, Phase 122 neu angeordnet)
   await page.waitForTimeout(250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 810, 448); // Forschen
@@ -867,6 +867,11 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   expect(stored.flags['research.spirit-cores.stabilized']).toBe(true);
   expect(stored.progression.magicules).toBe(0);
   expect(stored.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'spirit-ember')).toBe(false);
+  await expectCanvasContent(page);
+
+  // Phase 122 — Lebendiges Bestiarium: der neue siebte Codex-Modus rendert fehlerfrei.
+  await clickGamePoint(page, 892, 155); // 🐾 Bestiarium
+  await page.waitForTimeout(250);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

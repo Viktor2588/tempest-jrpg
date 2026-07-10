@@ -48,6 +48,8 @@ import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_P
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
 import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
+import { buildBestiary } from '../systems/bestiary';
+import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
@@ -69,6 +71,21 @@ import { committedBranch, compactLockReason, describeNodePerks, describePerk } f
 
 type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
 type QuestStatusFilter = 'active' | 'completed';
+
+// Phase 122 — Bestiarium als siebter Codex-Modus. Kompakte Leiste (11px) mit fester
+// Breite je Knopf, damit alle sieben Modi in eine Reihe passen (Icon + volles Wort
+// bleiben erhalten). Reihenfolge = bestehende fünf + Bestiarium am Ende.
+type CodexMode = 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' | 'bestiary';
+
+const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: number }> = [
+  { id: 'lore', label: 'Wissen', width: 66 },
+  { id: 'devour', label: '🍴 Verschlingen', width: 106 },
+  { id: 'residents', label: '🏛️ Bewohner', width: 84 },
+  { id: 'facilities', label: '🏭 Einrichtungen', width: 116 },
+  { id: 'bounties', label: '🎯 Kopfgeld', width: 80 },
+  { id: 'diplomacy', label: '🤝 Politik', width: 74 },
+  { id: 'bestiary', label: '🐾 Bestiarium', width: 96 }
+];
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
   { id: 'party', label: 'Party' },
@@ -105,7 +122,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' = 'lore';
+  private codexMode: CodexMode = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -939,29 +956,32 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84/92/93/96/100 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
-    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie. Kompakt, damit alle sechs in eine Zeile passen.
-    this.button(300, 140, 70, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
-      () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(374, 140, 132, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
-      () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
-    this.button(510, 140, 108, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
-      () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
-    this.button(622, 140, 140, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
-      () => this.setCodexMode('facilities'), this.codexMode === 'facilities' ? 0x30506f : 0x1b2940);
-    this.button(766, 140, 96, `${this.codexMode === 'bounties' ? '● ' : ''}🎯 Kopfgeld`,
-      () => this.setCodexMode('bounties'), this.codexMode === 'bounties' ? 0x30506f : 0x1b2940);
-    this.button(866, 140, 90, `${this.codexMode === 'diplomacy' ? '● ' : ''}🤝 Politik`,
-      () => this.setCodexMode('diplomacy'), this.codexMode === 'diplomacy' ? 0x30506f : 0x1b2940);
+    // Phase 84/92/93/96/100/122 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
+    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie ↔ Bestiarium. Kompakt (11px, feste
+    // Breiten in CODEX_MODES), damit alle sieben Modi in eine Zeile passen.
+    let modeX = 300;
+    for (const mode of CODEX_MODES) {
+      const active = this.codexMode === mode.id;
+      this.layer.add(addUiTextButton(this, modeX, 140, mode.width,
+        `${active ? '● ' : ''}${mode.label}`, () => this.setCodexMode(mode.id), {
+          height: MENU_TOUCH_TARGET_PX,
+          fill: active ? 0x30506f : 0x1b2940,
+          idleAlpha: 0.96,
+          fontSize: '11px',
+          textOffsetX: 8
+        }));
+      modeX += mode.width + 3;
+    }
     if (this.codexMode === 'devour') this.drawDevourCompendium();
     else if (this.codexMode === 'residents') this.drawResidentRoster();
     else if (this.codexMode === 'facilities') this.drawFacilities();
     else if (this.codexMode === 'bounties') this.drawBountyBoard();
     else if (this.codexMode === 'diplomacy') this.drawDiplomacy();
+    else if (this.codexMode === 'bestiary') this.drawBestiary();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy'): void {
+  private setCodexMode(mode: CodexMode): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
@@ -1021,6 +1041,60 @@ export class MenuScene extends Phaser.Scene {
     });
 
     this.codexFooter(pageCount, `${learnedCount}/${entries.length} erbeutet`);
+  }
+
+  // Phase 122 — Lebendiges Bestiarium: erlegte Gegner-Arten mit Besiegt-Zähler.
+  // Studierte Arten (per „Analysieren" im Kampf) decken ihre Kampfdaten auf,
+  // nur-erlegte zeigen „???" als Anreiz zum Analysieren.
+  private drawBestiary(): void {
+    const bestiary = buildBestiary(this.save.progression);
+
+    if (bestiary.entries.length === 0) {
+      this.layer.add(this.add.text(318, 200,
+        'Noch keine Gegner erlegt — kämpfe und analysiere, um das Bestiarium zu füllen.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      this.codexFooter(1, `0 / ${bestiary.totalCount} Arten`);
+      return;
+    }
+
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(bestiary.entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const page = bestiary.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    page.forEach((entry, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      const marker = entry.analyzed ? '◆' : '○';
+      const bossTag = entry.boss ? ' · Boss' : '';
+      this.layer.add(this.add.text(318, y - 20,
+        `${marker} ${entry.name}  (Lv ${entry.level}${bossTag})   ⚔ ${entry.defeatedCount}×`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: entry.analyzed ? '#8dffc2' : '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y + 2, this.bestiaryDetailLine(entry), {
+        fontFamily: 'sans-serif', fontSize: '12px',
+        color: entry.analyzed ? '#cbd6e8' : '#7d8aa0', wordWrap: { width: 552 }
+      }));
+    });
+
+    this.codexFooter(pageCount,
+      `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`);
+  }
+
+  private bestiaryDetailLine(entry: ReturnType<typeof buildBestiary>['entries'][number]): string {
+    if (!entry.analyzed) {
+      return 'Kampfdaten unbekannt — im Kampf „Analysieren", um Schwächen aufzudecken.';
+    }
+    const parts: string[] = [];
+    parts.push(entry.weaknesses.length > 0
+      ? `Schwäche ${entry.weaknesses.map(elementLabel).join('/')}`
+      : 'Keine Elementschwäche');
+    if (entry.resistances.length > 0) parts.push(`Resistenz ${entry.resistances.map(elementLabel).join('/')}`);
+    if (entry.reflectsElement) parts.push(`Reflektiert ${elementLabel(entry.reflectsElement)}`);
+    if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
+    if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
+    return parts.join('  ·  ');
   }
 
   // Phase 92 — Bewohner-Roster: benannte, in Tempest aufgenommene Gegner-Arten.

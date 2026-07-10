@@ -45,6 +45,33 @@ describe('battle result: dauerhafte Skill-Aneignung', () => {
     expect(result.progression.magicules).toBe(13);
     expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
     expect(repeated.flags['codex.predator-devour']).toBe(true);
+    // Phase 122 — der im Sieg analysierte Gegner landet dauerhaft im Bestiarium.
+    expect(result.progression.analyzedEnemyIds).toContain('spore-moth');
+  });
+});
+
+describe('battle result: Bestiarium-Analyse-Tally (Phase 122)', () => {
+  it('bucht nur studierte Arten ins Analyse-Wissen, erlegte immer in die Zähler', () => {
+    const save = createNewSave({ seed: 7, now: '2026-07-10T10:00:00.000Z' });
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(save.party.active),
+      enemyIds: ['forest-slime'],
+      inventory: save.inventory.stacks,
+      seed: 7
+    });
+    const rimuru = battle.combatants.find((combatant) => combatant.side === 'party')!;
+    const foe = battle.combatants.find((combatant) => combatant.side === 'enemy')!;
+    battle.activeId = rimuru.id;
+    rimuru.ct = 100;
+    foe.hp = 1;
+    // Bewusst NICHT analysiert (analysisLevel bleibt 0): normaler Angriff besiegt den Gegner.
+    expect(act(battle, { type: 'attack', targetId: foe.id }).ok).toBe(true);
+    expect(battle.status).toBe('won');
+
+    const result = applyBattleResultToSave(save, renderView(battle));
+    // Erlegt → Besiegt-Zähler; nicht studiert → kein Bestiarium-Analyse-Eintrag.
+    expect(result.progression.defeatedEnemyCountsByEnemyId['forest-slime']).toBe(1);
+    expect(result.progression.analyzedEnemyIds).not.toContain('forest-slime');
   });
 });
 

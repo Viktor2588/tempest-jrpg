@@ -501,7 +501,10 @@ function readProgressionState(raw: unknown): ProgressionState {
     claimedBountyCountsByBountyId: readNumberRecord(raw.claimedBountyCountsByBountyId),
     // Phase 100 — Diplomatie: alte Stände ohne Reputationskarte starten neutral
     // (createProgressionState normalisiert auf {}).
-    factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId)
+    factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId),
+    // Phase 122 — Lebendiges Bestiarium: alte Stände ohne dieses Feld starten mit
+    // leerem Analyse-Wissen (nichts studiert), Codex zeigt Kampfdaten als „???".
+    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds)
   });
 }
 

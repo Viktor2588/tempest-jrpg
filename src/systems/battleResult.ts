@@ -1,4 +1,5 @@
 import type { BattleView } from './battle';
+import { tallyAnalyzedEnemies } from './bestiary';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
@@ -64,6 +65,12 @@ export function applyBattleResultToSave(
         defeatedEnemyCountsByEnemyId: tallyDefeatedEnemies(
           progressionBase.defeatedEnemyCountsByEnemyId,
           battle.enemies.filter((enemy) => enemy.dead).map((enemy) => enemy.sourceId)
+        ),
+        // Phase 122 — Lebendiges Bestiarium: im Sieg studierte Arten (analysisLevel > 0)
+        // dauerhaft ins Analyse-Wissen buchen (deckt Kampfdaten im Codex auf).
+        analyzedEnemyIds: tallyAnalyzedEnemies(
+          progressionBase.analyzedEnemyIds,
+          battle.enemies.filter((enemy) => enemy.analysisLevel > 0).map((enemy) => enemy.sourceId)
         )
       }
     : progressionBase;

@@ -78,6 +78,11 @@ export interface ProgressionState {
   // Phase 100 — Diplomatie: graduelle Reputation je Faktion (factionId -> Punkte),
   // bewegt über den Welt-Effekt `adjust-reputation`. Schwellen setzen Story-Flags.
   readonly factionReputationByFactionId: Readonly<Record<string, number>>;
+  // Phase 122 — Lebendiges Bestiarium: Gegner-Arten (`sourceId`), die mindestens
+  // einmal per „Analysieren" untersucht wurden. Persistiert das Kampfwissen ueber
+  // den Einzelkampf hinaus (Schwaechen/Telegraph im Codex) und liefert die
+  // Grundlage fuers Kampf-Bootstrapping (Phase 123).
+  readonly analyzedEnemyIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -97,6 +102,7 @@ export interface CreateProgressionStateOptions {
   readonly defeatedEnemyCountsByEnemyId?: Readonly<Record<string, number>>;
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
+  readonly analyzedEnemyIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -188,7 +194,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
-    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {})
+    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
+    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? [])
   };
 }
 
