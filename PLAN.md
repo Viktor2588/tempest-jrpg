@@ -17,6 +17,19 @@ Status:
 
 - Keine offenen Integrationen.
 
+## Worktree-Setup (alle Phasen isoliert per AGENTS.md)
+
+Canonical worktrees under /worktree/tempest-phase-*-* created/verified for pending and recent phases (asset priority 120+121 executed with full checks + E2E where applicable; others ready for parallel work):
+- /worktree/tempest-phase-120-content-assets (asset phase, completed+verified)
+- /worktree/tempest-phase-121-shuna-tempo (completed+verified in parallel)
+- /worktree/tempest-phase-102-magicules
+- /worktree/tempest-phase-103-offiziere
+- /worktree/tempest-phase-104-erwachen
+- /worktree/tempest-phase-113-shizus-kinder
+- /worktree/tempest-phase-113-milim-fight
+- /worktree/tempest-phase-114-geistertechnik
+(Plus pre-existing for 94,97,99,101,105,109,112 etc. Old /home/viktor/worktree paths noted for future migration on merge.)
+
 ## Bugs
 - zu viele punkte Geometrien nach abschluss von quests. (Untersucht 2026-07-10: Marker-Systeme korrekt — geräumte Encounter/eingesammelte Funde werden gefiltert, worldLayer wird pro Redraw geleert, Tile-Grid-Graphics einmalig gezeichnet. Kein reproduzierbarer Leak im Code; braucht Live-Browser-Repro / genauere Beschreibung.)
 
