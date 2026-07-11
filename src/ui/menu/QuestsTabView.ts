@@ -12,22 +12,29 @@ export class QuestsTabView implements IMenuTabView {
 
   private page = 0;
   private status: QuestStatusFilter = 'active';
+  private filter = '';
 
   constructor(private readonly scene: MenuScene) {}
 
   onActivated(): void {
-    // reset pagination when switching to tab (as before)
     this.page = 0;
+    this.status = 'active';
+    this.filter = '';
+    (this.scene as any).questPage = 0;
+    (this.scene as any).questStatus = 'active';
+    (this.scene as any).questFilter = '';
   }
 
-  // Public for MenuScene bridge if needed (selectedQuest etc remains on scene for now)
   getPage(): number { return this.page; }
-  setPage(p: number) { this.page = p; }
+  setPage(p: number) { this.page = p; (this.scene as any).questPage = p; }
   getStatus(): QuestStatusFilter { return this.status; }
-  setStatus(s: QuestStatusFilter) { this.status = s; }
+  setStatus(s: QuestStatusFilter) { this.status = s; (this.scene as any).questStatus = s; }
+  getFilter(): string { return this.filter; }
+  setFilter(f: string) { this.filter = f; (this.scene as any).questFilter = f; }
+  clearFilter() { this.filter = ''; (this.scene as any).questFilter = ''; }
 
   draw(_view: MenuView): void {
-    // Delegate for incremental extraction (full draw+input move in follow-ups).
+    // Delegate for incremental extraction.
     (this.scene as any).drawQuestLog(_view);
   }
 }

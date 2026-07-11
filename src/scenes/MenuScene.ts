@@ -81,6 +81,12 @@ import {
 import type { IMenuTabView } from '../ui/menu/IMenuTabView';
 import { QuestsTabView } from '../ui/menu/QuestsTabView';
 import { BestiaryTabView } from '../ui/menu/BestiaryTabView';
+import { InventoryTabView } from '../ui/menu/InventoryTabView';
+import { EquipmentTabView } from '../ui/menu/EquipmentTabView';
+import { StatusTabView } from '../ui/menu/StatusTabView';
+import { GrowthTabView } from '../ui/menu/GrowthTabView';
+import { PartyTabView } from '../ui/menu/PartyTabView';
+import { TravelTabView } from '../ui/menu/TravelTabView';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -150,6 +156,8 @@ export class MenuScene extends Phaser.Scene {
     digitKeys.forEach((key, idx) => {
       if (idx < TABS.length) {
         this.input.keyboard?.on(`keydown-${key}`, () => {
+          const prev = this.tabViews.get(this.selectedTab);
+          if (prev?.onActivated) prev.onActivated();
           this.selectedTab = TABS[idx].id;
           this.message = TAB_DESCRIPTIONS[this.selectedTab];
           this.codexPage = 0;
@@ -159,6 +167,9 @@ export class MenuScene extends Phaser.Scene {
           this.selectedQuestId = null;
           this.selectedTalentNodeId = null;
           this.showForge = false;
+          this.initTabViewsIfNeeded();
+          const next = this.tabViews.get(this.selectedTab);
+          if (next?.onActivated) next.onActivated();
           this.refresh();
         });
       }
@@ -168,63 +179,16 @@ export class MenuScene extends Phaser.Scene {
 
   private initTabViewsIfNeeded() {
     if (this.tabViews.size > 0) return;
-    // Phase 141/143: Vollständige Modularisierung – Registry mit echten IMenuTabView Objekten.
-    // Jeder Tab ist jetzt ein Objekt mit draw(view). Nächster Schritt: eigene Klassen mit eigenem State.
-    this.tabViews.set('party', {
-      tab: 'party',
-      onActivated: () => {},
-      draw: (view: MenuView) => {
-        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
-        if (selected) this.drawParty(selected.character.name, view);
-      }
-    } as IMenuTabView);
-
-    this.tabViews.set('inventory', {
-      tab: 'inventory',
-      onActivated: () => { this.inventoryFilter = ''; },
-      draw: (view: MenuView) => {
-        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
-        if (selected) this.drawInventory(view, selected.member.characterId);
-      }
-    } as IMenuTabView);
-
-    this.tabViews.set('equipment', {
-      tab: 'equipment',
-      onActivated: () => {},
-      draw: (view: MenuView) => {
-        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
-        if (selected) this.drawEquipment(view, selected.member.characterId);
-      }
-    } as IMenuTabView);
-
-    this.tabViews.set('status', {
-      tab: 'status',
-      onActivated: () => {},
-      draw: (view: MenuView) => {
-        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
-        if (selected) this.drawStatus(view, selected.member.characterId);
-      }
-    } as IMenuTabView);
-
-    this.tabViews.set('growth', {
-      tab: 'growth',
-      onActivated: () => {},
-      draw: (view: MenuView) => {
-        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
-        if (selected) this.drawGrowth(view, selected.member.characterId);
-      }
-    } as IMenuTabView);
-
-    // Phase 145: extracted Sub-Views (stateful classes)
+    // Phase 145: Vollständige Sub-View Extraktion – alle Tabs als echte Klassen (eigenen State, onActivated, draw).
+    // MenuScene ist jetzt hauptsächlich Orchestrator (Tabs, MemberList, Header, Dispatch).
+    this.tabViews.set('party', new PartyTabView(this));
+    this.tabViews.set('inventory', new InventoryTabView(this));
+    this.tabViews.set('equipment', new EquipmentTabView(this));
+    this.tabViews.set('status', new StatusTabView(this));
+    this.tabViews.set('growth', new GrowthTabView(this));
     this.tabViews.set('quests', new QuestsTabView(this));
-
     this.tabViews.set('codex', new BestiaryTabView(this));
-
-    this.tabViews.set('travel', {
-      tab: 'travel',
-      onActivated: () => {},
-      draw: (_view: MenuView) => { this.drawRangaTravel(); }
-    } as IMenuTabView);
+    this.tabViews.set('travel', new TravelTabView(this));
   }
 
   private refresh(): void {
@@ -252,6 +216,8 @@ export class MenuScene extends Phaser.Scene {
       const fill = isActive ? 0x30506f : 0x1b2940;
       this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
         playSfxProcedural('menu');
+        const prev = this.tabViews.get(this.selectedTab);
+        if (prev?.onActivated) prev.onActivated();
         this.selectedTab = tab.id;
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
@@ -261,6 +227,9 @@ export class MenuScene extends Phaser.Scene {
         this.selectedQuestId = null;
         this.selectedTalentNodeId = null;
         this.showForge = false;
+        this.initTabViewsIfNeeded();
+        const next = this.tabViews.get(this.selectedTab);
+        if (next?.onActivated) next.onActivated();
         this.refresh();
       }, fill, TAB_DESCRIPTIONS[tab.id]);
 
@@ -359,13 +328,20 @@ export class MenuScene extends Phaser.Scene {
       const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true, draggable: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
       hit.on('drag', (pointer: Phaser.Input.Pointer) => {
-        // Simple visual drag feedback (move the panel temporarily)
+        // Phase 145 DnD polish: live visual feedback + reserve drop zone highlight
         hit.x = pointer.x;
         hit.y = pointer.y;
+        // Quick cue: if over reserve zone, make the dragged hit more prominent
+        const r = MENU_PARTY_LAYOUT.reserve;
+        const overReserve = pointer.x > r.left - 20 && pointer.x < r.left + r.width + 20;
+        hit.setAlpha(overReserve ? 0.6 : 1);
+        hit.setStrokeStyle(overReserve ? 3 : 0, 0x68ff9a);
       });
       hit.on('dragend', (pointer: Phaser.Input.Pointer) => {
         hit.x = active.left + active.width / 2;
         hit.y = y;
+        hit.setAlpha(1);
+        hit.setStrokeStyle(0);
         // Determine drop target - check reserve area first (right side)
         const reserve = MENU_PARTY_LAYOUT.reserve;
         if (pointer.x > reserve.left - 20 && pointer.x < reserve.left + reserve.width + 20) {
@@ -457,21 +433,25 @@ export class MenuScene extends Phaser.Scene {
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
     // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
+    const invView = this.tabViews.get('inventory') as any;
+    const curInvF = invView?.getFilter ? invView.getFilter() : this.inventoryFilter;
     this.button(760, 150, 80, 'Filter', () => {
-      const q = window.prompt('Filter (Name enthält):', this.inventoryFilter);
-      this.inventoryFilter = (q ?? '').toLowerCase().trim();
+      const q = window.prompt('Filter (Name enthält):', curInvF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (invView?.setFilter) invView.setFilter(nf); else this.inventoryFilter = nf;
       this.refresh();
     });
-    if (this.inventoryFilter) {
+    if (curInvF) {
       this.button(848, 150, 44, '✕', () => {
-        this.inventoryFilter = '';
+        if (invView?.clearFilter) invView.clearFilter(); else this.inventoryFilter = '';
         this.refresh();
       });
     }
 
     let filteredInventory = view.inventory;
-    if (this.inventoryFilter) {
-      filteredInventory = view.inventory.filter(e => e.item.name.toLowerCase().includes(this.inventoryFilter));
+    const invF = invView?.getFilter ? invView.getFilter() : this.inventoryFilter;
+    if (invF) {
+      filteredInventory = view.inventory.filter(e => e.item.name.toLowerCase().includes(invF));
     }
 
     const invCol = MENU_LIST_COLUMNS.inventoryItems;
@@ -922,24 +902,30 @@ export class MenuScene extends Phaser.Scene {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const quests = allQuests.filter((q) => q.status !== 'inactive');
 
-    // Phase 142: Filter für Quests
+    // Phase 142/145: Filter für Quests (owned by QuestsTabView)
+    const questView = this.tabViews.get('quests') as any;
+    const currentQuestFilter = questView?.getFilter ? questView.getFilter() : this.questFilter;
     this.button(760, 150, 80, 'Filter', () => {
-      const q = window.prompt('Filter Quests (Name/Beschreibung):', this.questFilter);
-      this.questFilter = (q ?? '').toLowerCase().trim();
+      const q = window.prompt('Filter Quests (Name/Beschreibung):', currentQuestFilter);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (questView?.setFilter) questView.setFilter(nf);
+      else this.questFilter = nf;
       this.refresh();
     });
-    if (this.questFilter) {
+    if (currentQuestFilter) {
       this.button(848, 150, 44, '✕', () => {
-        this.questFilter = '';
+        if (questView?.clearFilter) questView.clearFilter();
+        else this.questFilter = '';
         this.refresh();
       });
     }
 
     let filteredQuests = quests;
-    if (this.questFilter) {
+    const qf = questView?.getFilter ? questView.getFilter() : this.questFilter;
+    if (qf) {
       filteredQuests = quests.filter(q => 
-        q.title.toLowerCase().includes(this.questFilter) || 
-        (q.description || '').toLowerCase().includes(this.questFilter)
+        q.title.toLowerCase().includes(qf) || 
+        (q.description || '').toLowerCase().includes(qf)
       );
     }
 
@@ -957,14 +943,14 @@ export class MenuScene extends Phaser.Scene {
     // Filter-Tabs auf eigener Zeile UNTER dem Titel: bei y=126 überlappten sie
     // sonst oben die Haupt-Tab-Reihe (y=94) und unten die erste Quest-Karte.
     this.button(24, 170, 120, `Aktiv (${activeCount})`, () => {
-      this.questStatus = 'active';
-      this.questPage = 0;
+      if (questView?.setStatus) { questView.setStatus('active'); questView.setPage(0); }
+      else { this.questStatus = 'active'; this.questPage = 0; }
       this.selectedQuestId = null;
       this.refresh();
     }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
     this.button(152, 170, 140, `Erledigt (${doneCount})`, () => {
-      this.questStatus = 'completed';
-      this.questPage = 0;
+      if (questView?.setStatus) { questView.setStatus('completed'); questView.setPage(0); }
+      else { this.questStatus = 'completed'; this.questPage = 0; }
       this.selectedQuestId = null;
       this.refresh();
     }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
@@ -1128,8 +1114,9 @@ export class MenuScene extends Phaser.Scene {
     let unlocked = all.filter((entry) => entry.unlocked);
 
     // Phase 142: Filter for Codex lore
-    if (this.codexFilter) {
-      const f = this.codexFilter.toLowerCase();
+    const cf = codexV?.getCodexFilter ? codexV.getCodexFilter() : this.codexFilter;
+    if (cf) {
+      const f = cf.toLowerCase();
       unlocked = unlocked.filter(e => e.title.toLowerCase().includes(f) || (e.body || '').toLowerCase().includes(f));
     }
 
@@ -1142,14 +1129,17 @@ export class MenuScene extends Phaser.Scene {
     }
 
     // Filter UI for Codex
+    const codexV = this.tabViews.get('codex') as any;
+    const curCodF = codexV?.getCodexFilter ? codexV.getCodexFilter() : this.codexFilter;
     this.button(760, 150, 80, 'Filter', () => {
-      const q = window.prompt('Filter Codex (Titel/Beschreibung):', this.codexFilter);
-      this.codexFilter = (q ?? '').toLowerCase().trim();
+      const q = window.prompt('Filter Codex (Titel/Beschreibung):', curCodF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (codexV?.setCodexFilter) codexV.setCodexFilter(nf); else this.codexFilter = nf;
       this.refresh();
     });
-    if (this.codexFilter) {
+    if (curCodF) {
       this.button(848, 150, 44, '✕', () => {
-        this.codexFilter = '';
+        if (codexV?.setCodexFilter) codexV.setCodexFilter(''); else this.codexFilter = '';
         this.refresh();
       });
     }
@@ -1203,21 +1193,25 @@ export class MenuScene extends Phaser.Scene {
     const bestiary = buildBestiary(this.save.progression);
 
     // Phase 142: Filter UI für Bestiarium
+    const bestView = this.tabViews.get('codex') as any;
+    const curBestF = bestView?.getBestiaryFilter ? bestView.getBestiaryFilter() : this.bestiaryFilter;
     this.button(760, 150, 80, 'Filter', () => {
-      const q = window.prompt('Filter Bestiarium (Name):', this.bestiaryFilter);
-      this.bestiaryFilter = (q ?? '').toLowerCase().trim();
+      const q = window.prompt('Filter Bestiarium (Name):', curBestF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (bestView?.setBestiaryFilter) bestView.setBestiaryFilter(nf); else this.bestiaryFilter = nf;
       this.refresh();
     });
-    if (this.bestiaryFilter) {
+    if (curBestF) {
       this.button(848, 150, 44, '✕', () => {
-        this.bestiaryFilter = '';
+        if (bestView?.setBestiaryFilter) bestView.setBestiaryFilter(''); else this.bestiaryFilter = '';
         this.refresh();
       });
     }
 
     let entries = bestiary.entries;
-    if (this.bestiaryFilter) {
-      entries = entries.filter(e => e.name.toLowerCase().includes(this.bestiaryFilter));
+    const bf = bestView?.getBestiaryFilter ? bestView.getBestiaryFilter() : this.bestiaryFilter;
+    if (bf) {
+      entries = entries.filter(e => e.name.toLowerCase().includes(bf));
     }
 
     if (entries.length === 0) {
