@@ -4381,7 +4381,7 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
+    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
     itemRequirements: [
       {
         itemId: 'tempest-charm',
@@ -4389,6 +4389,10 @@ export const SHOPS = [
       },
       {
         itemId: 'hipokte-herb',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'revival-elixir',
         requirements: [{ flag: 'story.council.ready' }]
       },
       {
@@ -4424,7 +4428,7 @@ export const SHOPS = [
     name: 'Moorhändlerin',
     mapId: 'spirit-marsh',
     position: { x: 3, y: 5 },
-    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm', 'hipokte-herb', 'full-potion'],
+    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm', 'hipokte-herb', 'full-potion', 'revival-elixir'],
     buyMultiplier: 1.15,
     sellMultiplier: 0.5,
     buyMultiplierByFlag: [

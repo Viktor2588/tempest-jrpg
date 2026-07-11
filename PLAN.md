@@ -418,16 +418,18 @@ offensive Aktivierung; 131 (Bindungs-Paritaet) ist unabhaengig und rein additiv.
 kampfberuehrende Phase (129/130) wird gegen die Balance-Harness je Rimuru-Spec gruen
 gefahren.
 
-- [ ] Phase 128 — Wiederbelebung: das erste Revive-Item (Ueberlebens-Vorsorge,
-  reine Daten). Ein neues stapelbares Verbrauchs-Item (`effect: { kind: 'revive',
-  amount: N }`) belebt im Kampf einen kampfunfaehigen Verbuendeten mit Teil-LP wieder
-  — der Motor behandelt `revive` bereits vollstaendig (`battle.ts:resolveItem`
-  Case `'revive'`), es fehlte nur die Item-Definition. Kanonisch als hochwertiges
-  Tempest-/Hipokte-Elixier gerahmt, im passenden Shop kaeuflich (neuer Gold-Abfluss
-  im Spaetspiel). Zero-Engine, zero-Balance-Risiko (rein additive Spieler-Option, die
-  Auto-Battle-Harness nutzt keine Revive-Items → Sims unveraendert). Akzeptanz:
-  Item-Definition + Kampf-Revive-Integration (kein Revive auf Lebende, Teil-LP-Deckel)
-  + Shop-Verfuegbarkeit + Save-Roundtrip headless, typecheck/Tests/build gruen.
+- [x] Phase 128 — Wiederbelebung: das erste Revive-Item (abgeschlossen, direkt auf
+  main). Umgesetzt: neues stapelbares Verbrauchs-Item `revival-elixir`
+  („Wiederbelebungselixier", `effect: { kind: 'revive', amount: 80 }`, Preis 320) in
+  `data/items.ts`; belebt im Kampf einen kampfunfaehigen Verbuendeten mit 80 LP wieder
+  ueber den bereits vollstaendig vorhandenen `revive`-Case in `battle.ts:resolveItem`
+  (kein Motor-Eingriff). Kaeuflich in „Tempest-Vorrat" (gegated hinter
+  `story.council.ready`) und bei der „Moorhaendlerin" (neuer Spaetspiel-Gold-Abfluss).
+  Zero-Balance-Risiko (rein additive Spieler-Option; Auto-Battle-Harness nutzt keine
+  Revive-Items → Sims unveraendert). Akzeptanz erfuellt: Kampf-Revive-Integration
+  headless (`test/battle.test.ts` — kein Revive auf Lebende + keine Verbrauch,
+  Teil-LP-Deckel 80, Verbrauch bei Erfolg), Shop-/Item-Datenvalidierung
+  (`test/qa.test.ts` gruen), typecheck ✓, 665 Unit-Tests ✓, build ✓.
 
 - [ ] Phase 129 — Gegner-Kontrolle erwacht + Reinigung (Kampf-Tiefe, Daten + kleiner
   Motor-Zusatz). Ausgewaehlte Gegner/Bosse erhalten **telegraphierte** Hart-CC-Skills

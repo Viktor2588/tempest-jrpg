@@ -105,6 +105,10 @@ export const ITEMS = [
   // — Band 1 & 2: Verbrauch & Material —
   { id: 'hipokte-herb', name: 'Hipokte-Kraut', description: 'Heilkraut aus der versiegelten Höhle; Grundlage für stärkere Tränke.', category: 'consumable', price: 30, stackable: true, effect: { kind: 'heal-hp', amount: 80 } },
   { id: 'full-potion', name: 'Vollheiltrank', description: 'Tempests Spitzenheilung aus destilliertem Hipokte-Kraut — stellt alle LP wieder her.', category: 'consumable', price: 220, stackable: true, effect: { kind: 'heal-hp', amount: 999 } },
+  // Phase 128 — Wiederbelebung: Tempests Spitzen-Elixier aus Hipokte-Essenz weckt einen
+  // kampfunfaehigen Verbuendeten wieder (Teil-LP). Nutzt den bereits vollstaendig
+  // behandelten `revive`-Item-Effekt (battle.ts:resolveItem); teurer Gold-Abfluss.
+  { id: 'revival-elixir', name: 'Wiederbelebungselixier', description: 'Hochkonzentrierte Hipokte-Essenz. Weckt einen kampfunfähigen Verbündeten mit 80 LP wieder.', category: 'consumable', price: 320, stackable: true, effect: { kind: 'revive', amount: 80 } },
   { id: 'magic-ore', name: 'Magisches Erz', description: 'Magicule-getränktes Roherz; Rohstoff für Magisteel und Magiewerkzeuge.', category: 'key', price: 45, stackable: true },
   { id: 'magisteel', name: 'Magisteel', description: 'Aus magischem Erz und Magicules veredelt; überlegener Schmiedewerkstoff.', category: 'key', price: 140, stackable: true },
   { id: 'geld-core', name: 'Geld-Kern', description: 'Verdichteter Kern des Orc-Disasters — Beweis und Evolutionsmaterial.', category: 'key', price: 0, stackable: false },

@@ -488,6 +488,37 @@ describe('battle engine', () => {
     expect(getItemCount(afterView.inventory, 'healing-herb')).toBe(before - 1);
   });
 
+  it('Phase 128 — Wiederbelebungselixier weckt einen kampfunfähigen Verbündeten', () => {
+    const [rimuru] = createDefaultBattleParty();
+    const state = startBattle({
+      party: [
+        { ...rimuru!, stats: { ...rimuru!.stats, agility: 99 } },
+        { ...createHeroBattleUnit(GOBTA), stats: { ...createHeroBattleUnit(GOBTA).stats, agility: 1 } }
+      ],
+      enemyIds: ['forest-slime'],
+      inventory: [{ itemId: 'revival-elixir', quantity: 2 }],
+      seed: 11
+    });
+    const partyUnits = state.combatants.filter((combatant) => combatant.side === 'party');
+    const reviver = partyUnits[0]!;
+    const fallen = partyUnits[1]!;
+    fallen.dead = true;
+    fallen.hp = 0;
+    state.activeId = reviver.id;
+
+    // Wiederbelebung auf einen Lebenden schlägt fehl und verbraucht nichts.
+    const onLiving = act(state, { type: 'item', itemId: 'revival-elixir', targetId: reviver.id });
+    expect(onLiving.ok).toBe(false);
+    expect(getItemCount(renderView(state).inventory, 'revival-elixir')).toBe(2);
+
+    state.activeId = reviver.id;
+    const revived = act(state, { type: 'item', itemId: 'revival-elixir', targetId: fallen.id });
+    expect(revived.ok).toBe(true);
+    expect(fallen.dead).toBe(false);
+    expect(fallen.hp).toBe(80);
+    expect(getItemCount(renderView(state).inventory, 'revival-elixir')).toBe(1);
+  });
+
   it('Giftstatus kann angewendet werden', () => {
     let poisoned = false;
 
