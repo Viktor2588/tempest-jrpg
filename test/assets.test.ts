@@ -30,13 +30,14 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
-  it('nutzt echte CC0-SFX-Dateien (plus prozedurale Game-Feel-Schicht, Phase 144)', () => {
-    // Basis-SFX bleiben echte CC0-Dateien (ASSETS.md). Phase 144 ergaenzt eine
-    // prozedurale WebAudio-Schicht (playSfxProcedural) fuer Game-Feel-Sounds ohne
-    // eigene Datei (Krit/Break/Verschlingen ...) — kein externes Asset, daher
-    // policy-konform; die fruehere createOscillator-Sperre entfaellt bewusst.
+  it('nutzt in sfx.ts echte CC0-SFX-Dateien; die prozedurale Schicht liegt separat', () => {
+    // Basis-SFX = echte CC0-Dateien (ASSETS.md). Die prozedurale Game-Feel-Schicht
+    // (Phase 144, createOscillator) lebt bewusst in sfxProcedural.ts, damit reine
+    // Logik-Module (systems/battle.ts) keine .ogg-Imports in Nicht-Vite-Transformer
+    // (Playwright-E2E) ziehen. sfx.ts bleibt dadurch policy-rein.
     expect(sfxSource).toContain('../assets/audio/ui-select.ogg');
     expect(sfxSource).toContain('../assets/audio/result-victory.ogg');
+    expect(sfxSource).not.toContain('createOscillator');
   });
 
   it('bindet echte CC0-Musik-Motive für Titel, Oberwelt und Kampf ein', () => {

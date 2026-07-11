@@ -31,7 +31,8 @@ import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/s
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { elementLabel } from '../systems/battlePresentation';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
-import { playSfx, playSfxProcedural, resumeAudio } from '../audio/sfx';
+import { playSfx, resumeAudio } from '../audio/sfx';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';

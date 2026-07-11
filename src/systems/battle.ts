@@ -38,7 +38,7 @@ import {
 } from './talentPerk';
 import { scaleStats } from './stats';
 import { resolveElementFusion } from './fusion';
-import { playSfxProcedural } from '../audio/sfx';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 
 export type Side = 'party' | 'enemy';
 export type BattleStatus = 'active' | 'won' | 'lost' | 'fled';

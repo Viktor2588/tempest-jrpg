@@ -55,7 +55,7 @@ import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
-import { playSfxProcedural } from '../audio/sfx';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 import {
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
