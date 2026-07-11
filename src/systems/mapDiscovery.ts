@@ -221,6 +221,67 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Auf deinen Beschluss hin steht eine schlichte Schriftenhalle — hier sammeln die Kijin ihr Wissen.',
     rewardItemId: 'hipokte-herb',
     rewardLabel: 'Hipokte-Kraut'
+  },
+  // Phase 153 — duenne Regionen aufwerten: zusaetzliche Fundstellen mit an das neue
+  // Loot (Magicule-Kerne, Schmiedematerial) gekoppelten Belohnungen. Keine neuen Karten;
+  // Kern-Funde erst nach der Ratsversammlung (`story.council.ready`), damit die
+  // Magicule-Oekonomie nicht zu frueh anspringt.
+  {
+    // Geistmoor-Hochland: die Windgeister verdichten einen tragbaren Magicule-Kern.
+    mapId: 'spirit-highlands',
+    x: 17,
+    y: 8,
+    requiresFlag: 'story.council.ready',
+    flag: 'discovery.spirit-highlands.wind-core',
+    title: 'Verdichteter Windgeist-Kern',
+    body: 'Höher am Grat haben die Windgeister ein Bündel Magicules zu einem klaren, tragbaren Kern verwoben.',
+    rewardItemId: 'lesser-magicule-core',
+    rewardLabel: 'Geringer Magicule-Kern'
+  },
+  {
+    // Freiheitsakademie: die instabile Geist-Magitech hinterlässt veredeltes Gerät.
+    mapId: 'freedom-academy',
+    x: 13,
+    y: 8,
+    flag: 'discovery.freedom-academy.leftover-apparatus',
+    title: 'Zurückgelassenes Magitech-Gerät',
+    body: 'In einer Nische der Akademie steckt ein Stück veredelter Magistahl aus Vestas aufgegebenen Geist-Apparaturen.',
+    rewardItemId: 'magisteel',
+    rewardLabel: 'Magistahl'
+  },
+  {
+    // Echsenmoor: das magicule-getränkte Moor legt Roherz frei.
+    mapId: 'lizardman-marsh',
+    x: 15,
+    y: 8,
+    flag: 'discovery.lizardman-marsh.soaked-ore',
+    title: 'Moorgetränktes Roherz',
+    body: 'Wo das Wasser zurückweicht, blinkt magicule-durchtränktes Roherz zwischen den Wurzeln der Echsenmenschen.',
+    rewardItemId: 'magic-ore',
+    rewardLabel: 'Magisches Erz'
+  },
+  {
+    // Glutmulde: die Restglut bindet einen feuer-affinen Magicule-Kern.
+    mapId: 'ember-hollow',
+    x: 16,
+    y: 6,
+    requiresFlag: 'story.council.ready',
+    flag: 'discovery.ember-hollow.ember-core',
+    title: 'Glutgebundener Magicule-Kern',
+    body: 'Tief in der Mulde hat die nachglimmende Hitze einen feuerdurchzogenen Magicule-Kern zusammengeschmolzen.',
+    rewardItemId: 'ember-magicule-core',
+    rewardLabel: 'Glut-Magicule-Kern'
+  },
+  {
+    // Blumund: die Handelsstadt hält immer einen Vorrat der besten Heilkräuter.
+    mapId: 'blumund',
+    x: 13,
+    y: 8,
+    flag: 'discovery.blumund.apothecary-stash',
+    title: 'Blumunder Apotheken-Vorrat',
+    body: 'Hinter einem Marktstand Blumunds lagert ein gut gehütetes Bündel destillierter Hipokte-Kräuter.',
+    rewardItemId: 'hipokte-herb',
+    rewardLabel: 'Hipokte-Kraut'
   }
 ] as const;
 

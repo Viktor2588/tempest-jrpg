@@ -632,12 +632,19 @@ darauf; 152–154 sind Content auf dem neuen System.
   Prioritaet. Balance-safe (off-route / im Regions-Korridor). Akzeptanz: Item-/Set-/
   Rezept-Daten, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
-- [ ] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten).
-  Regionen mit duennem Encounter-/Event-Bestand (`PROGRESSION_REGIONS`) bekommen
-  Fundstellen (`mapDiscovery`), kleine Weltfolgen/NPC-Beats und Encounter-Vielfalt
-  (Phase-146-Archetypen) — KEINE neuen leeren Maps. Belohnungen koppeln ans neue Gear/
-  Loot. Akzeptanz: Fundstellen-/Encounter-Einbau headless, typecheck ✓, Unit-Tests ✓,
-  build ✓, **Balance-Harness gruen**.
+- [~] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten).
+  Teil-Umsetzung (direkt auf main): fuenf neue, an das Loot gekoppelte Fundstellen
+  (`mapDiscovery`) auf duennen Regionen (bislang je nur 1 Fund) — spirit-highlands
+  (Windgeist → `lesser-magicule-core`), ember-hollow (Restglut → `ember-magicule-core`;
+  beide Kern-Funde gated hinter `story.council.ready`, damit die Magicule-Oekonomie nicht
+  zu frueh anspringt), freedom-academy (→ `magisteel`), lizardman-marsh (→ `magic-ore`),
+  blumund (→ `hipokte-herb`). Alle Fundstellen auf verifiziert begehbaren Kacheln
+  (Daten-Integritaetstest deckt Begehbarkeit + echtes Belohnungsitem ab), canon-konforme
+  Kurzlore, einmalig/flag-gegatet. Akzeptanz (Fundstellen-Teil) erfuellt: Gating/Belohnungen
+  headless (`test/mapDiscovery.test.ts`), typecheck ✓, 716 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (nicht kampfberuehrend). OFFEN: die Encounter-Vielfalt
+  (Phase-146-Archetypen) haengt an Phase 146 (Asset-/Gegner-Arbeit) — nachziehen, sobald 146
+  gemergt ist.
 
 - [ ] Phase 154 — Neue Nebenquests, an Loot gekoppelt.
   Optionale Quests (Jagd/Sammel/Story-Splitter) ueber das bestehende `QuestDefinition`-
