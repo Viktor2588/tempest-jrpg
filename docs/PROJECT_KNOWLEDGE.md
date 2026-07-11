@@ -621,6 +621,14 @@ completed_milestones:
     - Structure is now ready for dedicated Sub-View classes in src/ui/menu/ (e.g. PartyTabView etc.).
     - Worktree: /home/viktor/worktree/tempest-phase-143-menu-modularisierung ; merged cleanly.
     - Validation: `bun run typecheck`, `bun run test` (688 tests), `bun run build`.
+  phase_137:
+    - Weichkontrolle sichtbar: HUD status summary zeigt Turns für soft controls (z.B. Stumm(2) · Blind(3)).
+    - Präzisere Logs: Status-Apply-Logs enthalten "(X Runden)" für Blind/Silence/Weaken.
+    - Bestiarium: casterHint für magielastige Gegner (hoher magic > attack+5), angezeigt in Name und Detail-Line.
+    - Battle Intel: casterText in EnemyIntel (null für jetzt, da additiv via Bestiarium).
+    - Additiv, keine Balance-Änderung. Akzeptanz erfüllt.
+    - Worktree: /home/viktor/worktree/tempest-phase-137-weichkontrolle-sichtbar ; merged cleanly.
+    - Validation: typecheck, relevant tests, build.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
