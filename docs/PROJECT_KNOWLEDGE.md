@@ -629,6 +629,11 @@ completed_milestones:
     - Additiv, keine Balance-Änderung. Akzeptanz erfüllt.
     - Worktree: /home/viktor/worktree/tempest-phase-137-weichkontrolle-sichtbar ; merged cleanly.
     - Validation: typecheck, relevant tests, build.
+  phase_139:
+    - Erster bindender Hebel: punishesHealing (Ifrit) hochgetunt (1.5 ATT + 0.8 MAG), so dass reflex Heilen in Todesspirale kippt.
+    - AI in autoBattle: gegen Punisher Heilung zurückstellen zugunsten Off/Def (genaue Gegenentscheidung, spiegelt Mender-Prio).
+    - Beweis in balanceHarness.test.ts: No-Counter fällt aus Korridor bei Ifrit, Counter bleibt drin.
+    - Akzeptanz: Tune + AI-Branch + Assertion, harness grün (Counter-Linie).
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
