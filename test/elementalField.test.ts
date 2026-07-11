@@ -100,7 +100,7 @@ describe('Phase 94 — Elementarfeld', () => {
     const enemyId = renderView(state).enemies[0]!.id;
     act(state, { type: 'skill', skillId: 'storm-gust', targetId: enemyId });
     const enemyView = renderView(state).enemies[0]!;
-    expect(enemyView.statuses).toContain('weaken');
+    expect(enemyView.statuses.map((s) => s.id)).toContain('weaken');
     // Die Reaktion verbraucht das Feld.
     expect(state.field).toBeNull();
   });
@@ -114,7 +114,7 @@ describe('Phase 94 — Elementarfeld', () => {
     const enemyId = renderView(state).enemies[0]!.id;
     act(state, { type: 'skill', skillId: 'water-jet', targetId: enemyId });
     // Kein Fusions-Status (Reaktion) — gleiches Element verstärkt nur.
-    expect(renderView(state).enemies[0]!.statuses).not.toContain('weaken');
+    expect(renderView(state).enemies[0]!.statuses.map((s) => s.id)).not.toContain('weaken');
     // Falls das Feld noch steht, ist es unverändert Wasser (nicht durch eine Reaktion ersetzt).
     if (state.field) {
       expect(state.field.element).toBe('water');
