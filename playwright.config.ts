@@ -7,7 +7,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Parallel workers:
+  // - Locally: let Playwright decide (uses available cores).
+  // - CI: allow a small number (GitHub ubuntu-latest has ~2 vCPU). 2 workers gives
+  //   good speedup on the smoke specs × projects without overloading the runner.
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: `http://127.0.0.1:${port}/tempest-jrpg/`,
