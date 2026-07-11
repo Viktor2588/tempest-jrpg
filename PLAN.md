@@ -9,9 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 120 — Content-Gegnerassets (abgeschlossen, Worktree: /worktree/tempest-phase-120-content-assets). Zwei repo-eigene generierte Battle-Cutouts (enemy-academy-wisp.webp, enemy-blumund-bandit.webp). Neue Gegner + Encounters in Blumund/Freiheitsakademie. In Worktree: typecheck ✓, 624 unit tests ✓, build ✓ (new sprites in dist/assets), E2E desktop smoke for Blumund+Academy asset saves ✓. Asset priority followed.
-- [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
-- [x] Phase 101 — Welt-Uhr (Zeit/Wetter) (abgeschlossen, direkt auf main). Reine, deterministische Uhr (`systems/worldClock`) aus persistiertem Schrittzähler (`clockStep`) + Welt-Seed: Tageszeit (Morgen/Tag/Abenddämmerung/Nacht) + tagesstabiles Wetter (Klar/Regen/Nebel). Kampf-Konsequenz: Zeit/Wetter des Encounters bestimmen das Eröffnungs-Elementarfeld (Phase 94) — Regen=Wasser, Nacht=Schatten. Overworld-HUD zeigt Tageszeit + Wetter. Akzeptanz erfüllt: Zyklus/Determinismus + Encounter-/Feld-Einfluss headless getestet (test/worldClock.test.ts), Save-Roundtrip (test/save.test.ts), Overworld→Battle-Smoke grün.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
@@ -19,16 +17,7 @@ Status:
 
 ## Worktree-Setup (alle Phasen isoliert per AGENTS.md)
 
-Canonical worktrees under /worktree/tempest-phase-*-* created/verified for pending and recent phases (asset priority 120+121 executed with full checks + E2E where applicable; others ready for parallel work):
-- /worktree/tempest-phase-120-content-assets (asset phase, completed+verified)
-- /worktree/tempest-phase-121-shuna-tempo (completed+verified in parallel)
-- /worktree/tempest-phase-102-magicules
-- /worktree/tempest-phase-103-offiziere
-- /worktree/tempest-phase-104-erwachen
-- /worktree/tempest-phase-113-shizus-kinder
-- /worktree/tempest-phase-113-milim-fight
-- /worktree/tempest-phase-114-geistertechnik
-(Plus pre-existing for 94,97,99,101,105,109,112 etc. Old /home/viktor/worktree paths noted for future migration on merge.)
+Worktrees werden strikt pro Phase unter `/worktree/tempest-phase-<nr>-<kurzname>` angelegt und nach erfolgreichem Merge + Aufräumen entfernt. Siehe AGENTS.md.
 
 ## Bugs
 - zu viele punkte Geometrien nach abschluss von quests. (Untersucht 2026-07-10: Marker-Systeme korrekt — geräumte Encounter/eingesammelte Funde werden gefiltert, worldLayer wird pro Redraw geleert, Tile-Grid-Graphics einmalig gezeichnet. Kein reproduzierbarer Leak im Code; braucht Live-Browser-Repro / genauere Beschreibung.)
@@ -525,153 +514,5 @@ kampfberuehrende Phase wird gegen die Balance-Harness je Rimuru-Spec gruen
 gefahren; **alle CC-Traeger bleiben Nicht-Harness-Gegner** und die Widerstands-Perks
 liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bleibt
 unberuehrt.
-
-- [x] Phase 132 — Widerstands-Schicht: Status-Widerstand als Perk (Fundament)
-  (abgeschlossen, direkt auf main). Umgesetzt: neue `TalentPerk`-Art `status-resist`
-  (`{ kind: 'status-resist'; percent; statuses? }`, `data/types.ts`) — eine Chance,
-  einen **negativen** Status abzuwehren (ohne `statuses` = alle Negativ-Status, mit
-  `statuses` = nur die genannten). Motor-Hook `resistsNegativeStatus` (`systems/battle.ts`)
-  greift an ALLEN vier Negativ-Status-Zufuegungs-Stellen (`applySkillStatus`,
-  Team-/Fusions-Status, Signatur-`status`-Effekt, Feldreaktion): nur wenn der Status
-  in `DEBUFF_STATUSES` liegt UND das Ziel eine passende `statusResistChance` traegt,
-  wird per `state.rng()` gewuerfelt und bei Erfolg negiert (Log „… widersteht …"). Buffs
-  (nicht in `DEBUFF_STATUSES`, z.B. `attack-up`) passieren ungehindert. Helfer
-  `statusResistChance(perks, statusId)` in `systems/talentPerk.ts` (staerkster passender
-  Perk, gedeckelt auf 1) + `describePerk`-Fall. Traeger: Shunas Schutz-Strang-Knoten
-  `shuna-ward-veil` („Segensschleier", 30 %) — bewusst ein Nicht-Harness-Knoten.
-  Akzeptanz erfuellt: Helfer + Motor-Verhalten (voller Widerstand wehrt Gegner-Schlaf
-  ueber 120 Seeds ab, gefilterter Widerstand laesst Schlaf durch, Buffs passieren,
-  Knoten-Traeger) headless (`test/statusResist.test.ts`, 8 Tests), typecheck ✓,
-  679 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (Perk nicht
-  auf Harness-Knoten → Sims unveraendert).
-
-- [x] Phase 133 — Freeze & Charm erwachen (der letzte tote Hart-CC) (abgeschlossen,
-  direkt auf main). Umgesetzt: zwei neue telegraphierte Gegner-CC-Skills
-  (`data/skills.ts`) aktivieren die letzten beiden ungenutzten Hart-CC-Status —
-  `frost-flask`→`freeze` (Deserteur-Söldner `human-deserter`, zerschlaegt einen
-  erbeuteten Alchemie-Frost-Kolben) und `dominating-gaze`→`charm` (Ork-Lord `orc-lord`,
-  Gelds Fluch beugt den Willen). Bewusst maessvolle Chance (0.4) und **kurze** Dauer
-  (2 Runden); `freeze` bricht bei Schaden (`wakeOnDamage`), `charm` gibt nur eine
-  Aussetz-Chance (0.5, `computeDisabled`). **Beide Traeger sind verifiziert
-  Nicht-Harness-Gegner** (nicht in den 13 Story-Encounter-Gegnern) → Balance-Korridor
-  unberuehrt. Damit haben die Widerstands-Schicht (132) und die Reinigung (129) die
-  vollstaendige Bedrohung, gegen die sie spielen. Akzeptanz erfuellt: Skill-Daten +
-  Status-Zufuegung headless (`test/statusControl.test.ts` — Deserteur friert die Party
-  ein, Ork-Lord bezaubert, korrekte Status-Ids), typecheck ✓, 682 Unit-Tests ✓,
-  build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (CC nur off-route).
-
-- [x] Phase 134 — Isolation: Rimurus Gift-Neutralisierung (canon, nutzt 132)
-  (abgeschlossen, direkt auf main). Umgesetzt: neuer Praedator-Strang-Knoten
-  `rimuru-predator-isolation` („Isolation", `data/progression.ts`, Seitenzweig ab
-  `rimuru-fluid-core`, requiredLevel 3) traegt einen auf **`poison`** begrenzten
-  `status-resist`-Perk (Phase 132) mit voller Chance (100 %) — Rimurus Schleimleib
-  kapselt Gift kanonisch ab (IDEE.md §1 „Isolation, neutralisiert Gift/Gefahr"). Eine
-  erspielte Praedator-Unterfaehigkeit, kein Geschenk; schuetzt NUR vor Gift, andere
-  Zustaende bleiben ungeschuetzt. **Balance-sicher by design:** der Knoten steht NICHT
-  in `RIMURU_SPEC_PRIORITIES` (`test/qaGates.ts`), also schaltet ihn die Harness nie frei
-  → die Harness-Party bleibt gift-anfaellig, Sims unveraendert. Rein additiv, keine
-  Persistenz-Aenderung. Akzeptanz erfuellt: Knoten-Traeger + Gift-Immunitaet /
-  ungeschuetztes Nicht-Gift + Motor (Rimuru mit Isolation widersteht spore-moth-Gift,
-  ohne nimmt es) headless (`test/statusResist.test.ts` ergaenzt), typecheck ✓,
-  684 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
-
-- [x] Phase 135 — Schutz-Talisman: Widerstands-Ausruestung (optional, kleiner
-  Zuschnitt) (abgeschlossen, direkt auf main). Umgesetzt: neues optionales Feld
-  `perks?` auf `ItemDefinition` (`data/types.ts`) — ein ausgeruestetes Teil kann dem
-  Traeger passive Kampf-`TalentPerk`s verleihen. Helfer `equipmentPerksForMember`
-  (`systems/progression.ts`) liest die Perks aller ausgeruesteten Teile aus
-  `member.equipment` und mischt sie als fuenfte Quelle in die Combatant-Perk-Montage
-  von `createProgressionBattleParty` (neben Knoten-/Erwachen-/Offiziers-/Bond-Perks).
-  Neues Accessoire `ward-talisman` („Schutztalisman", 340 Gold, `data/items.ts`,
-  `statBonus` spirit/maxHP + `perks: [status-resist 35 %]`), kaeuflich im „Tempest-Vorrat".
-  Ausruestungs-Gegenspiel zur Kontroll-Schicht + neuer Gold-Abfluss. Akzeptanz erfuellt:
-  ausgeruesteter Talisman gewaehrt den Resist-Perk / kein Perk ohne Ausruestung / der
-  Perk landet ueber die Party-Montage in der Combatant-Perk-Liste headless
-  (`test/progression.test.ts`), Item-/Shop-Datenvalidierung (`test/qa.test.ts` gruen),
-  typecheck ✓, 685 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests) unberuehrt**
-  (Harness ruestet keine Accessoires → Sims unveraendert).
-
-Damit ist die **Neunte Welle** (Phasen 132–135) vollstaendig auf `main`: die
-Kontroll-Oekonomie der Achten Welle ist mit praeventivem Widerstand (Perk + Ausruestung),
-Rimurus kanonischer Isolation und den letzten zwei aktivierten Hart-CC-Status geschlossen.
-
-## Zehnte Welle: Die feine Kontrolle — Spieler-Zugriff auf die Weich-Debuff-Schicht (verifizierte tote Maschinerie, Plan 2026-07-11)
-
-Befund (Code-Abgleich auf `main`, 685 Unit-Tests + Balance-Harness gruen): Die
-Achte/Neunte Welle haben die **Hart**-Kontroll-Schicht (stun/sleep/freeze/paralyze/
-petrify/confuse/charm) fuer Gegner UND Spieler (Phase 130) sowie den praeventiven
-Widerstand (Phase 132–135) gebaut. Die **weiche** Kontroll-Schicht bleibt jedoch
-einseitig: die Motor-vollstaendig behandelten Status `silence` (keine Fähigkeiten
-nutzbar, `computeDisabled`), `blind` (physische Treffsicherheit/Schaden sinkt) und
-`weaken` (Angriff + Magie gesenkt, `effectiveStat`) werden von **11 Fusions-Eintraegen**
-(`data/fusions.ts`) genutzt — aber **kein einziger einzelner Spieler-Skill wendet sie
-gezielt an** (Nachweis: `silence`/`blind`/`weaken` kommen in `data/skills.ts` NIE als
-`statusEffect` vor). Der Spieler kann einen Zauber-Boss nur ueber eine aufwaendige
-Element-Fusion (Partner + Feld-Setup) zum Schweigen bringen, nie direkt. Das ist exakt
-die Asymmetrie, die Phase 130 fuer die Hart-CC geschlossen hat — hier fuer die weiche
-Schicht offen. Damit fehlt dem Spieler das taktische Gegenspiel gegen Caster-/Physisch-/
-Heavy-Hitter-Gegner, obwohl der Motor es traegt.
-
-Diese Welle **aktiviert die gebaute Weichkontroll-Schicht auf der Spieler-Seite mit
-reinen Datenergaenzungen** (niedrigste Komplexitaet, hoechste Sicherheit) — genau nach
-dem bereits balance-verifizierten Muster von Phase 130 (Skills an Nicht-Harness-
-Kapstein-Knoten). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
-canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge =
-Abhaengigkeit: 136 ist Fundament (die Skills selbst); 137 macht die Wirkung im Kampf/
-Bestiarium sichtbar; 138 gibt der Weichkontrolle einen erspielbaren Ziel-Gegner
-(off-route → balance-safe). Jede kampfberuehrende Phase wird gegen die Balance-Harness
-je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Prioritaet.**
-
-- [x] Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (Fundament)
-  (abgeschlossen, direkt auf main). Umgesetzt: drei neue Spieler-Skills
-  (`data/skills.ts`) aktivieren die weiche Kontroll-Schicht offensiv, je als **tiefe
-  Spec-Belohnung** an einem bestehenden Nicht-Harness-Kapstein-Knoten (requiredLevel 9,
-  Qual der Wahl, wie Phase 130): `banishing-seal`→`silence` (Shuna, `shuna-ward-circle`
-  — heiliges Siegel, blockt Fähigkeiten via `computeDisabled`), `blinding-dust`→`blind`
-  (Souei, `souei-assassin-execute` — Schattenstaub, senkt physische Treffsicherheit),
-  `enfeebling-grip`→`weaken` (Shion, `shion-crush-titan` — zermuerbt Angriff + Magie via
-  `effectiveStat`). Maessvolle Chance (0.6–0.7), kurze Dauer (2 Runden). **Balance-sicher
-  by design:** die Harness schaltet nur Gobta-/Rimuru-Knoten frei — diese drei Kapsteine
-  sind NICHT dabei, also erhaelt die Harness-Party die Skills nie. Akzeptanz erfuellt:
-  Skill-Daten + Knoten-Verdrahtung + Status-Zufuegung (Bannsiegel bringt Ziel zum
-  Schweigen) headless (`test/statusControl.test.ts`), typecheck ✓, 687 Unit-Tests ✓,
-  build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
-
-- [x] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium) (abgeschlossen, Worktree: /worktree/tempest-phase-137-weichkontrolle-feedback). Weiche Zustände zeigen ihre Wirkung im HUD bei Einzelstatus (`Stumm (Skills aus)`, `Blind (Phys -)`, `Schwach (ANG/MAG -)`), bleiben bei Mehrfachstatus kompakt und liefern in allen Anwendungswegen präzise Kampf-Logs. Analysierte magielastige Gegner werden als Zauberwirker mit Schweigen-Gegenspiel im Kampf und Bestiarium gekennzeichnet. Abnahme: typecheck ✓, 689 Unit-Tests inkl. Balance-Harness ✓, build ✓, Desktop-Codex-/Bestiarium-Smoke ✓.
-
-- [x] Phase 138 — Der Zauber-Riegel: ein off-route Caster-Gegner, den Schweigen kontert (abgeschlossen, Worktree: /worktree/tempest-phase-138-zauber-riegel). Das vorhandene Akademie-Irrlicht nutzt nun die telegraphierte schwere Phase-2-Überladung; sein Wind-up gibt der Party eine echte Antwort-Runde, in der Shunas Bannsiegel den Cast unterbindet. Shuna wird bei der kanonischen Kijin-Benennung rekrutiert und ist damit vor der Akademie erreichbar.
-  Ein bestehender Nicht-Harness-Gegner (z.B. der Labyrinth-nahe `magic-colossus` oder ein
-  Akademie-Gegner) erhaelt eine telegraphierte, gefaehrliche Phase-2-Magie, deren Druck
-  sich mit `silence` (Phase 136) spuerbar brechen laesst — macht die neue Weichkontrolle
-  erspielbar wertvoll statt optionaler Schmuck. **Off-route** → Balance-Korridor unberuehrt.
-  Akzeptanz erfüllt: Telegraph + tatsächliche Silence-Antwort im Kampfkern und Shuna-
-  Rekrutierung über den Dialog headless, typecheck ✓, 692 Unit-Tests inkl. Balance-Harness ✓,
-  build ✓, Desktop-Battle- und Freiheitsakademie-Asset-Smoke ✓. **Balance-Harness gruen**
-  (Traeger off-route).
-
-## Wurzel-Balance: taktische Hebel bindend machen (Befund 2026-07-11)
-
-Befund (Code-Verifikation auf `main`, 687 Tests gruen): Das Kernproblem der
-`TODO.md` („zu leicht / Grind / kein Schwung") ist KEIN Mechanik-Mangel — die
-Anti-Sustain-/Taktik-Hebel sind alle gebaut und teils on-route
-(`escalationPercentPerTurn` auf jedem Boss, `punishesHealing` auf Ifrit,
-`armoredUntilBreak`, Mender, Kategorie-Resistenz, Hart-/Weich-CC). Sie sind aber
-**nicht load-bearing**: der Balance-Harness laeuft auf `chooseAutoAction`
-(`systems/autoBattle.ts`), und dieser Agent **kennt `punishesHealing` nicht**
-(grep: 0 Treffer) — er heilt stur bei HP < Schwelle, auch gegen den Heiler-
-Bestrafer, und die Harness ist trotzdem gruen. Ifrit steht on-route
-(`ifrit-boss` in `STORY_ENCOUNTER_IDS`). Das beweist: der Hebel ist dekorativ —
-wer ihn ignoriert und stumpf weiter-sustained, gewinnt den Korridor trotzdem.
-Genau das ist „jeder Kampf hat dieselbe optimale Antwort": die Systeme sind nie
-NOTWENDIG, weil sie schwach genug getunt sind, dass Rote-Sustain-Exploit
-durchtraegt — und die „Harness-gruen"-Regel jeder Phase zementiert das, weil
-„gruen" = „gruen mit stumpfem Agenten". Non-Goals gelten weiter (kein Backend/
-PWA, kein Job/Klassen-System; canon-first). Muster dieser Welle: einen
-vorhandenen Hebel echt machen UND beweisen, dass die Rote-Linie ohne ihn den
-Korridor VERLIERT — danach billig auf die anderen Hebel ausrollbar, ohne je
-etwas Neues zu erfinden.
-
-- [x] Phase 139 — Der erste bindende Hebel: Heilbestrafung, die den Rote-Sustain-Pfad bricht (abgeschlossen).
-  Keine neue Mechanik. (1) `punishesHealing` (Ifrit) hochtunen (1.5x ATT + 0.8x MAG), reflex Heilen kippt in Todesspirale. (2) AI in autoBattle hält Heilung gegen Punisher zurück zugunsten Off/Def (Counter-Entscheidung). (3) Assertion im Harness-Test. Akzeptanz: Tune + AI-Branch + Assertion, typecheck ✓, Tests ✓, build ✓, **Balance-Harness gruen (Counter-Linie)**.
 
 ## UX- und Welt-Backlog

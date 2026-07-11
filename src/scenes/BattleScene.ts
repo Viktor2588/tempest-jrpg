@@ -31,7 +31,7 @@ import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/s
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { elementLabel } from '../systems/battlePresentation';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
-import { playSfx, resumeAudio } from '../audio/sfx';
+import { playSfx, playSfxProcedural, resumeAudio } from '../audio/sfx';
 import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
@@ -215,8 +215,8 @@ export class BattleScene extends Phaser.Scene {
       if (event.died && !reduced) this.poof(pos);
     }
     const dmg = totalDamage(events);
-    if (dmg > 0) playSfx('hit');
-    if (healed) playSfx('heal');
+    if (dmg > 0) playSfxProcedural('hit');
+    if (healed) playSfxProcedural('heal');
     if (!reduced && dmg > 0) {
       this.cameras.main.shake(Math.min(220, 70 + dmg * 4), Math.min(0.012, 0.003 + dmg * 0.0004));
     }
@@ -1057,7 +1057,7 @@ export class BattleScene extends Phaser.Scene {
     }
     if (!this.resultAnnounced) {
       this.resultAnnounced = true;
-      playSfx(won ? 'victory' : status === 'fled' ? 'cancel' : 'defeat');
+      playSfxProcedural(won ? 'victory' : status === 'fled' ? 'menu' : 'hit'); // fallback for defeat/fled
       if (won && this.encounterId === 'direwolf-pack-leader') {
         this.time.delayedCall(220, () => playSfx('magic'));
       }

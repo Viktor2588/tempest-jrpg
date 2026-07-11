@@ -634,6 +634,12 @@ completed_milestones:
     - AI in autoBattle: gegen Punisher Heilung zurückstellen zugunsten Off/Def (genaue Gegenentscheidung, spiegelt Mender-Prio).
     - Beweis in balanceHarness.test.ts: No-Counter fällt aus Korridor bei Ifrit, Counter bleibt drin.
     - Akzeptanz: Tune + AI-Branch + Assertion, harness grün (Counter-Linie).
+  phase_138:
+    - Der Zauber-Riegel (off-route Caster): Akademie-Irrlicht (und magic-colossus) erhält telegraphierte schwere Phase-2-Überladung (z.B. black-flame/arcane-overload).
+    - Echte Antwort-Runde durch Wind-up; Silence (Bannsiegel von Shuna) unterbricht den Cast.
+    - Shuna Rekrutierung vor Akademie verfügbar (kanonische Kijin-Benennung).
+    - Off-route (nicht im Harness-Korridor); macht Weichkontrolle (silence) erspielbar wertvoll.
+    - Akzeptanz: Telegraph + Silence-Gegenspiel im Kern, Shuna-Dialog, typecheck+Tests+Build+Smoke, Balance-Harness grün.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
