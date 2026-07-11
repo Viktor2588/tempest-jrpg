@@ -10,11 +10,11 @@ Status:
 ## Laufende Arbeit
 
 - [~] Phase 142 — Menu-UI-Erweiterungen (Filter, Drag&Drop, Accessibility, Vollständige Modularisierung) (in Bearbeitung, Worktree: /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen). Fortsetzung von Phase 141:
-  - Suche/Filter für Bestiarium und Quests hinzugefügt (analog zu Inventar).
-  - Deutlichere Fokus-Ringe (goldener Rahmen bei selected Member + Tab-Underline).
-  - Registry-Struktur für vollständige Modularisierung (Sub-Views) vorbereitet und erweitert.
-  - Drag & Drop für Party-Formation als nächste Erweiterung vorgesehen.
-  - Akzeptanz: typecheck ✓, Tests ✓, Build ✓.
+  - Suche/Filter für Bestiarium, Quests und Codex (Lore) hinzugefügt.
+  - Deutlichere Fokus-Ringe (goldener Rahmen via uiSkin für selected/focused).
+  - Drag & Drop für aktive Party-Mitglieder (reorder via drag on cards, swap on drop).
+  - Vollständige Modularisierung: Registry + IMenuTabView + Beispiel BestiaryTabView; Struktur für Sub-Views bereit.
+  - Akzeptanz: typecheck ✓, Tests ✓, Build ✓. Weitere Extraktionen möglich.
 - [x] Phase 120 — Content-Gegnerassets (abgeschlossen, Worktree: /worktree/tempest-phase-120-content-assets). Zwei repo-eigene generierte Battle-Cutouts (enemy-academy-wisp.webp, enemy-blumund-bandit.webp). Neue Gegner + Encounters in Blumund/Freiheitsakademie. In Worktree: typecheck ✓, 624 unit tests ✓, build ✓ (new sprites in dist/assets), E2E desktop smoke for Blumund+Academy asset saves ✓. Asset priority followed.
 - [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
 - [x] Phase 101 — Welt-Uhr (Zeit/Wetter) (abgeschlossen, direkt auf main). Reine, deterministische Uhr (`systems/worldClock`) aus persistiertem Schrittzähler (`clockStep`) + Welt-Seed: Tageszeit (Morgen/Tag/Abenddämmerung/Nacht) + tagesstabiles Wetter (Klar/Regen/Nebel). Kampf-Konsequenz: Zeit/Wetter des Encounters bestimmen das Eröffnungs-Elementarfeld (Phase 94) — Regen=Wasser, Nacht=Schatten. Overworld-HUD zeigt Tageszeit + Wetter. Akzeptanz erfüllt: Zyklus/Determinismus + Encounter-/Feld-Einfluss headless getestet (test/worldClock.test.ts), Save-Roundtrip (test/save.test.ts), Overworld→Battle-Smoke grün.

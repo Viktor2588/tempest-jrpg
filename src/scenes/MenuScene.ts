@@ -103,6 +103,9 @@ export class MenuScene extends Phaser.Scene {
   // Phase 142: Weitere Filter
   private bestiaryFilter = '';
   private questFilter = '';
+  private codexFilter = '';
+  // Phase 142: Drag state for party formation DnD
+  private draggingMemberId: string | null = null;
 
   // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
   // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
@@ -304,8 +307,30 @@ export class MenuScene extends Phaser.Scene {
       )?.formName ?? summary.character.species;
       this.panel(active.left, y, active.width, active.cardHeight);
       // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
-      const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true, draggable: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
+      hit.on('dragstart', () => { this.draggingMemberId = summary.member.characterId; });
+      hit.on('drag', (pointer: Phaser.Input.Pointer) => {
+        // Simple visual drag feedback (move the panel temporarily)
+        hit.x = pointer.x;
+        hit.y = pointer.y;
+      });
+      hit.on('dragend', (pointer: Phaser.Input.Pointer) => {
+        hit.x = active.left + active.width / 2;
+        hit.y = y;
+        this.draggingMemberId = null;
+        // Determine drop target
+        const dropRelativeY = pointer.y - active.firstY;
+        const targetIdx = Math.max(0, Math.min(view.members.length - 1, Math.floor(dropRelativeY / active.rowHeight)));
+        if (targetIdx !== index) {
+          // Swap in state for simplicity (full formation system can be enhanced later)
+          const party = [...this.state.party];
+          [party[index], party[targetIdx]] = [party[targetIdx], party[index]];
+          this.state = { ...this.state, party };
+          this.selectedMemberIndex = targetIdx;
+          this.refresh();
+        }
+      });
       this.layer.add(hit);
       this.drawPortrait(summary.member.characterId, active.left + 36, y, 46);
       this.layer.add(this.add.text(active.left + 72, y - 31, `${summary.member.name} · ${formName}`, {
@@ -1042,13 +1067,33 @@ export class MenuScene extends Phaser.Scene {
     const all = buildCodexView(createWorldState(this.save));
     // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
     // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
-    const unlocked = all.filter((entry) => entry.unlocked);
+    let unlocked = all.filter((entry) => entry.unlocked);
+
+    // Phase 142: Filter for Codex lore
+    if (this.codexFilter) {
+      const f = this.codexFilter.toLowerCase();
+      unlocked = unlocked.filter(e => e.title.toLowerCase().includes(f) || (e.body || '').toLowerCase().includes(f));
+    }
+
     const lockedCount = all.length - unlocked.length;
 
     if (unlocked.length === 0) {
       this.layer.add(this.add.text(318, 200, 'Noch keine Codex-Einträge entdeckt — erkunde die Welt.', {
         fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
       }));
+    }
+
+    // Filter UI for Codex
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Codex (Titel/Beschreibung):', this.codexFilter);
+      this.codexFilter = (q ?? '').toLowerCase().trim();
+      this.refresh();
+    });
+    if (this.codexFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        this.codexFilter = '';
+        this.refresh();
+      });
     }
 
     const PER_PAGE = 4;
