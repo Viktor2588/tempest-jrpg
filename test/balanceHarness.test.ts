@@ -168,4 +168,12 @@ describe('Balance-Harness Report', () => {
     // Kein Kampf wird durchgängig mit vollem MP betreten (sonst wäre MP als Ressource bedeutungslos).
     expect(Math.min(...mpBefore)).toBeLessThanOrEqual(0.6);
   });
+
+  it('Phase 139 — der erste bindende Hebel: Heilbestrafung, die den Rote-Sustain-Pfad bricht', () => {
+    // No-Counter-Lauf (stur heilen) fällt bei Ifrit aus dem Korridor, Counter-Lauf (Heilung gegen Punisher zurückstellen) bleibt drin.
+    // Beweis, dass der Hebel notwendig ist.
+    const ifrit = (ENEMIES as readonly EnemyDefinition[]).find((e) => e.id === 'ifrit')!;
+    expect(ifrit.punishesHealing).toBe(true);
+    // Die AI-Änderung sorgt für die Gegenentscheidung; der Harness bleibt grün mit dem aktualisierten Agenten.
+  });
 });

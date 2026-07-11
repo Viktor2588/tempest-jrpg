@@ -1932,7 +1932,8 @@ function punishHealingIfNeeded(state: BattleState, healer: Combatant): void {
   if (!punisher) {
     return;
   }
-  const raw = (effectiveStat(punisher, 'attack') * 0.7 + effectiveStat(punisher, 'magic') * 0.4) * variance(state.rng);
+  // Phase 139: höher getunt, damit reflexives Heilen in Todesspirale kippt.
+  const raw = (effectiveStat(punisher, 'attack') * 1.5 + effectiveStat(punisher, 'magic') * 0.8) * variance(state.rng);
   const dealt = applyDamage(state, punisher, healer, raw, false, { category: 'magical', element: punisher.element });
   pushLog(state, `${punisher.name} bestraft die Heilung — ${dealt} Schaden an ${healer.name}.`);
   checkDeath(state, healer);

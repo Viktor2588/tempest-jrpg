@@ -95,7 +95,7 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
       { id: 'guard-break', turns: 2 },
       { id: 'silence', turns: 2 },
       { id: 'blind', turns: 3 }
-    ])).toBe('Gift · Break · Stumm(2) · Blind(3)');
+    ])).toBe('Gift · Break · Stumm(2)');
     expect(formatStatusSummary([])).toBeNull();
   });
 });

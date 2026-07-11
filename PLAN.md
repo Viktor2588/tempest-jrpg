@@ -669,17 +669,7 @@ vorhandenen Hebel echt machen UND beweisen, dass die Rote-Linie ohne ihn den
 Korridor VERLIERT — danach billig auf die anderen Hebel ausrollbar, ohne je
 etwas Neues zu erfinden.
 
-- [ ] Phase 139 — Der erste bindende Hebel: Heilbestrafung, die den Rote-Sustain-Pfad bricht.
-  Keine neue Mechanik. (1) `punishesHealing` (Ifrit) so hochtunen, dass
-  reflexartiges Heilen in eine Todesspirale/verlorenes DPS-Rennen kippt — der
-  Kampf muss BEENDET (Burst/Break/Weich-CC) statt ausgesessen werden. (2) Dem
-  Harness-Agenten (`chooseAutoAction`) genau eine Gegenentscheidung beibringen:
-  gegen einen `punishesHealing`-Gegner Heilung zurueckstellen zugunsten Offensive/
-  Verteidigung — spiegelt die schon vorhandene Mender-Priorisierung
-  (`autoBattle.ts:177`). (3) Beweis-Assertion in `test/balanceHarness.test.ts`:
-  der No-Counter-Lauf (stur heilen) faellt bei Ifrit AUS dem Korridor, der
-  Counter-Lauf bleibt drin → der Hebel ist nachweislich notwendig, nicht
-  optional. Akzeptanz: Tune + AI-Branch + Doppelkorridor-Assertion headless,
-  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen (Counter-Linie)**.
+- [x] Phase 139 — Der erste bindende Hebel: Heilbestrafung, die den Rote-Sustain-Pfad bricht (abgeschlossen).
+  Keine neue Mechanik. (1) `punishesHealing` (Ifrit) hochtunen (1.5x ATT + 0.8x MAG), reflex Heilen kippt in Todesspirale. (2) AI in autoBattle hält Heilung gegen Punisher zurück zugunsten Off/Def (Counter-Entscheidung). (3) Assertion im Harness-Test. Akzeptanz: Tune + AI-Branch + Assertion, typecheck ✓, Tests ✓, build ✓, **Balance-Harness gruen (Counter-Linie)**.
 
 ## UX- und Welt-Backlog

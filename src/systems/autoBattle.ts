@@ -55,13 +55,15 @@ export function chooseAutoAction(state: BattleState): BattleAction | null {
   const allKnownSkills = skillsOf(actor.skillIds);
 
   // 1) Heilung, wenn ein Verbündeter unter der Schwelle liegt.
+  // Phase 139: Gegen punishesHealing-Gegner Heilung zurückstellen (Gegenentscheidung, spiegelt Mender-Prio).
   const heal = known.find((s) => s.tags.includes('heal'));
   const lowAlly = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-  if (heal && lowAlly && lowAlly.hp / lowAlly.maxHp < HEAL_THRESHOLD) {
+  const hasPunisher = enemies.some((e: any) => e.punishesHealing);
+  if (heal && lowAlly && lowAlly.hp / lowAlly.maxHp < HEAL_THRESHOLD && !hasPunisher) {
     return { type: 'skill', skillId: heal.id, targetId: lowAlly.id };
   }
   const healItem = consumableItem(state, 'heal-hp');
-  if (healItem && lowAlly && lowAlly.hp / lowAlly.maxHp < HEAL_THRESHOLD) {
+  if (healItem && lowAlly && lowAlly.hp / lowAlly.maxHp < HEAL_THRESHOLD && !hasPunisher) {
     return { type: 'item', itemId: healItem.id, targetId: lowAlly.id };
   }
 
