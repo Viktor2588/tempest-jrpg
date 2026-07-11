@@ -79,6 +79,8 @@ import {
   TAB_DESCRIPTIONS
 } from '../ui/menu/MenuTypes';
 import type { IMenuTabView } from '../ui/menu/IMenuTabView';
+import { QuestsTabView } from '../ui/menu/QuestsTabView';
+import { BestiaryTabView } from '../ui/menu/BestiaryTabView';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -213,17 +215,10 @@ export class MenuScene extends Phaser.Scene {
       }
     } as IMenuTabView);
 
-    this.tabViews.set('quests', {
-      tab: 'quests',
-      onActivated: () => {},
-      draw: (view: MenuView) => { this.drawQuestLog(view); }
-    } as IMenuTabView);
+    // Phase 145: extracted Sub-Views (stateful classes)
+    this.tabViews.set('quests', new QuestsTabView(this));
 
-    this.tabViews.set('codex', {
-      tab: 'codex',
-      onActivated: () => {},
-      draw: (_view: MenuView) => { this.drawCodex(); }
-    } as IMenuTabView);
+    this.tabViews.set('codex', new BestiaryTabView(this));
 
     this.tabViews.set('travel', {
       tab: 'travel',

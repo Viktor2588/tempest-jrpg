@@ -516,3 +516,5 @@ liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bl
 unberuehrt.
 
 ## UX- und Welt-Backlog
+
+- [~] Phase 145 — MenuScene vollständige Sub-View-Extraktion + DnD/Reserve/Fokus-Polish (Worktree: /worktree/tempest-phase-145-menu-subviews). Die ad-hoc Objekte in der tabViews-Registry werden zu dedizierten Klassen (PartyTabView, InventoryTabView, ... ) unter src/ui/menu/ extrahiert, die von BaseMenuTabView erben und eigenen State (Filter, Pages, DnD-Tracking) kapseln. Bestehende Filter, Drag&Drop (incl. Reserve-Swap), Fokus-Rings und BestiaryTabView werden übernommen/verbessert. MenuScene wird schlanker (Dispatch + Shared UI nur). Akzeptanz: typecheck, Tests, Build, Menu-E2E-Smoke.
