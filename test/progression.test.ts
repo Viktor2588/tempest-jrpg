@@ -31,6 +31,7 @@ import {
   createProgressionBattleParty,
   discoverRegion,
   enchantEquipment,
+  equipmentPerksForMember,
   evolveMember,
   getProgressionRelationships,
   getProgressionSkillIds,
@@ -226,6 +227,23 @@ describe('progression system', () => {
     expect(enchanted.ok).toBe(true);
     expect(enchanted.gold).toBe(440);
     expect(calculateProgressionStats(gobta, enchanted.state).attack).toBeGreaterThan(setAttack);
+  });
+
+  it('Phase 135 — ein ausgerüsteter Schutztalisman verleiht dem Kämpfer einen status-resist-Perk', () => {
+    const member = createPartyMember(hero('gobta'), { level: 6 });
+    // Ohne Talisman keine Ausrüstungs-Perks aus dem Zubehör-Slot.
+    const withoutTalisman = { ...member, equipment: { ...member.equipment, accessory: null } };
+    expect(equipmentPerksForMember(withoutTalisman).some((perk) => perk.kind === 'status-resist')).toBe(false);
+
+    const withTalisman = { ...member, equipment: { ...member.equipment, accessory: 'ward-talisman' } };
+    const perks = equipmentPerksForMember(withTalisman);
+    const resist = perks.find((perk) => perk.kind === 'status-resist');
+    expect(resist).toBeTruthy();
+    expect(resist!.kind === 'status-resist' && resist!.percent).toBeGreaterThan(0);
+
+    // Der Perk landet über die Party-Montage in der Combatant-Perk-Liste.
+    const unit = createProgressionBattleParty([withTalisman], createProgressionState())[0]!;
+    expect((unit.perks ?? []).some((perk) => perk.kind === 'status-resist')).toBe(true);
   });
 
   it('übersetzt Party-Bindungen in Startbuff, Team-Leiste und ausführbaren Team-Angriff', () => {

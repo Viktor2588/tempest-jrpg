@@ -131,5 +131,7 @@ export const ITEMS = [
   // — Phase 91: an der Schmiede aus Geistglut gefertigt (einzigartig) —
   { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 6, spirit: 3, maxMp: 6 } },
   // — Phase 114: Geist-Infusion nach Vestas Forschung —
-  { id: 'spirit-core-ward', name: 'Geistkern-Talisman', description: 'Ein infundierter Schutzanker für instabile Geist-Kerne.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxMp: 10, magic: 3, spirit: 5 } }
+  { id: 'spirit-core-ward', name: 'Geistkern-Talisman', description: 'Ein infundierter Schutzanker für instabile Geist-Kerne.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxMp: 10, magic: 3, spirit: 5 } },
+  // — Phase 135: Ausruestungs-Gegenspiel zur Kontroll-Schicht (status-resist als Perk) —
+  { id: 'ward-talisman', name: 'Schutztalisman', description: 'Ein geweihtes Tempest-Amulett, das den Geist gegen Kontrolle und Fäulnis abschirmt — schädliche Zustände greifen seltener.', category: 'accessory', price: 340, stackable: false, equipmentSlot: 'accessory', statBonus: { spirit: 4, maxHp: 8 }, perks: [{ kind: 'status-resist', percent: 35 }] }
 ] as const satisfies readonly ItemDefinition[];

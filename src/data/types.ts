@@ -124,6 +124,10 @@ export interface ItemDefinition {
     readonly statBonusPerLevel: Partial<StatBlock>;
   };
   readonly statBonus?: Partial<StatBlock>;
+  // Phase 135 — Ausruestungs-Perks: passive Kampf-Effekte (TalentPerk), die ein
+  // ausgeruestetes Teil dem Traeger verleiht (z.B. ein Schutztalisman → status-resist).
+  // Werden beim Kampfstart in die Combatant-Perks gemischt (systems/progression).
+  readonly perks?: readonly TalentPerk[];
   readonly effect?: ItemEffect;
 }
 

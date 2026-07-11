@@ -575,15 +575,24 @@ unberuehrt.
   ohne nimmt es) headless (`test/statusResist.test.ts` ergaenzt), typecheck ✓,
   684 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
 
-- [ ] Phase 135 — Schutz-Talisman: Widerstands-Ausruestung (optional, kleiner
-  Zuschnitt). Ein neues Accessoire, das im Kampf einen `status-resist`-Perk gewaehrt
-  (kaeuflich/kraftbar), als Ausruestungs-Gegenspiel zur Kontroll-Schicht und neuer
-  Gold-Abfluss. Umsetzung mit niedrigster Komplexitaet: optionales `perks?` auf
-  Accessoire-`ItemDefinition`s, die beim Kampfstart in die Combatant-Perks des
-  Traegers gemischt werden (Erweiterung der Party→Combatant-Perk-Montage in
-  `BattleScene`/`startBattle`). Akzeptanz: ausgeruesteter Talisman gewaehrt Resistenz
-  im Kampf / kein Effekt ohne Ausruestung, Item-/Shop-Datenvalidierung (`qa.test.ts`),
-  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness unberuehrt** (Harness
-  ruestet keine Accessoires → Sims unveraendert).
+- [x] Phase 135 — Schutz-Talisman: Widerstands-Ausruestung (optional, kleiner
+  Zuschnitt) (abgeschlossen, direkt auf main). Umgesetzt: neues optionales Feld
+  `perks?` auf `ItemDefinition` (`data/types.ts`) — ein ausgeruestetes Teil kann dem
+  Traeger passive Kampf-`TalentPerk`s verleihen. Helfer `equipmentPerksForMember`
+  (`systems/progression.ts`) liest die Perks aller ausgeruesteten Teile aus
+  `member.equipment` und mischt sie als fuenfte Quelle in die Combatant-Perk-Montage
+  von `createProgressionBattleParty` (neben Knoten-/Erwachen-/Offiziers-/Bond-Perks).
+  Neues Accessoire `ward-talisman` („Schutztalisman", 340 Gold, `data/items.ts`,
+  `statBonus` spirit/maxHP + `perks: [status-resist 35 %]`), kaeuflich im „Tempest-Vorrat".
+  Ausruestungs-Gegenspiel zur Kontroll-Schicht + neuer Gold-Abfluss. Akzeptanz erfuellt:
+  ausgeruesteter Talisman gewaehrt den Resist-Perk / kein Perk ohne Ausruestung / der
+  Perk landet ueber die Party-Montage in der Combatant-Perk-Liste headless
+  (`test/progression.test.ts`), Item-/Shop-Datenvalidierung (`test/qa.test.ts` gruen),
+  typecheck ✓, 685 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests) unberuehrt**
+  (Harness ruestet keine Accessoires → Sims unveraendert).
+
+Damit ist die **Neunte Welle** (Phasen 132–135) vollstaendig auf `main`: die
+Kontroll-Oekonomie der Achten Welle ist mit praeventivem Widerstand (Perk + Ausruestung),
+Rimurus kanonischer Isolation und den letzten zwei aktivierten Hart-CC-Status geschlossen.
 
 ## UX- und Welt-Backlog

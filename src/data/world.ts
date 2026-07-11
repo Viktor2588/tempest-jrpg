@@ -4381,7 +4381,7 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
     itemRequirements: [
       {
         itemId: 'tempest-charm',

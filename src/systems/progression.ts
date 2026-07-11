@@ -912,7 +912,8 @@ export function createProgressionBattleParty(
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
         ...awakenedPerksForMember(member.characterId, state),
         ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds),
-        ...bondPerksForCharacter(member.characterId, state)
+        ...bondPerksForCharacter(member.characterId, state),
+        ...equipmentPerksForMember(member)
       ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
@@ -930,6 +931,16 @@ function awakenedPerksForMember(
   state: ProgressionState
 ): readonly TalentPerk[] {
   return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
+}
+
+// Phase 135 — Ausruestungs-Perks: sammelt die TalentPerks aller ausgeruesteten Teile
+// (z.B. der Schutztalisman → status-resist). Rein aus `member.equipment` gelesen, damit
+// die Auto-Battle-Harness (ohne Ausruestung) unberuehrt bleibt.
+export function equipmentPerksForMember(member: PartyMemberState): readonly TalentPerk[] {
+  return (Object.values(member.equipment) as readonly (string | undefined)[]).flatMap((itemId) => {
+    const item = itemId ? itemById.get(itemId) : undefined;
+    return item?.perks ?? [];
+  });
 }
 
 // Phase 98 — Bande: alle Bond-Perks der erreichten Bindungsstufen, in denen dieser
