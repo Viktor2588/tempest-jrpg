@@ -515,6 +515,46 @@ gefahren; **alle CC-Traeger bleiben Nicht-Harness-Gegner** und die Widerstands-P
 liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bleibt
 unberuehrt.
 
+## Zehnte Welle: Content & Endgame-Skalierung (Nutzer 2026-07-11)
+
+Befund (Code): (1) Gegner-Vielfalt ist mit ~28 Arten schlank — Encounter-Pools
+wiederholen sich. (2) `systems/labyrinth.ts` (`createLabyrinthRun`) baut Floors aus
+einem FESTEN Pool OHNE Party-Skalierung → nach den ersten Leveln trivial, obwohl
+`systems/enemyScaling.ts` die Skalierung fertig hat: `createScaledEnemyBattleUnits(
+enemyIds, partyLevel, kind)` + `effectiveEnemyLevel` (mit `Math.max(base, …)` → nie
+unter Basis) + `experienceFalloffMultiplier` (kein Overgrind-Farmen). (3) Verschlingen
+ist einmalig: verpasst man den Devour eines Bosses (Basis-Chance 0.1, +0.45 nach Break),
+ist die Art weg — obwohl `defeatedEnemyCountsByEnemyId` (besiegt) und `devouredSourceIds`
+(verschlungen) „besiegt, aber nicht verschlungen" exakt berechenbar machen. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfolge:
+147 ist Fundament (Skalierung), 148 baut darauf; 146 ist unabhaengig.
+
+- [ ] Phase 146 — Content-Vielfalt: neue Gegner-Archetypen fuer duenne Encounter-Pools.
+  Eine Handvoll neuer Normalgegner-Arten aus dem VORHANDENEN Motor (Element/Schwaeche/
+  Resistenz/Mender/CC/`escalationPercentPerTurn` — keine neue Mechanik), verteilt auf
+  Regionen mit duennem Pool und die Labyrinth-Pools. Repo-eigene generierte CC0-Cutouts
+  nach Asset-Prioritaet (Muster Phase 120). Balance-sicher: on-route im Regions-Korridor
+  gegen die Harness, sonst off-route; Harness-Prioritaet unberuehrt. Akzeptanz: Enemy-Defs
+  + Encounter/Labyrinth-Einbau, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+
+- [ ] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt).
+  Der Labyrinth-Encounter-Aufbau nutzt `createScaledEnemyBattleUnits(pool, partyLevel, kind)`
+  statt roher Basis-Level → jeder Lauf matcht das AKTUELLE Party-Level (nie unter Basis via
+  `effectiveEnemyLevel`). Optional-klein: Floor-Tiefe gibt einen kleinen Level-Lead
+  (Floor 1<2<3), damit tiefer = haerter. Party-Level headless aus der aktiven Gruppe;
+  XP-Falloff greift automatisch → Overgrind bringt nichts. Akzeptanz: deterministische
+  Skalierung headless (`test/labyrinth`), typecheck ✓, Unit-Tests ✓, build ✓. Labyrinth ist
+  off-route → Balance-Korridor unberuehrt.
+
+- [ ] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen.
+  Ramiris' Labyrinth beschwoert auf einem Floor ein SKALIERTES Echo eines Bosses, den der
+  Spieler BESIEGT, aber NICHT verschlungen hat (Menge = `defeatedEnemyCountsByEnemyId` minus
+  `devouredSourceIds`, nur `devourable`-Bosse). Skalierung via Phase 147 → auf Party-Level,
+  damit erneut fair verschlingbar (Break → +0.45 Devour-Chance). Gibt die verpasste
+  Devour-Belohnung (Skill/Magicules/Resident) ein zweites Mal — kanonisch (Ramiris beschwoert
+  Echos/Geister). Kein neues Venue, kein neues System. Akzeptanz: Echo-Auswahl + skalierter
+  Kampf + Devour-Pfad headless, typecheck ✓, Unit-Tests ✓, build ✓, off-route → Korridor unberuehrt.
+
 ## UX- und Welt-Backlog
 
 
