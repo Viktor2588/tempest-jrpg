@@ -592,12 +592,20 @@ darauf; 152–154 sind Content auf dem neuen System.
   706 Unit-Tests ✓, build ✓. Reines Fundament (keine neuen Items, keine Stat-Skalierung
   bestehender Teile) → Balance-Korridor unberührt.
 
-- [ ] Phase 150 — Kern-Slot (Magicule-Kern).
-  Vierter Slot `'core'` (EquipmentSlot erweitern; Party-`equipment`, `startingEquipment`,
-  Save-Migration, Menue). Kern-Items an die Magicule-/Seelen-Oekonomie gebunden (Element-/
-  Skill-Bonus, ggf. Magicule-Kosten zum Einsetzen). Kleine Start-Auswahl an Kernen.
-  Balance-safe: Boni massvoll, Traeger nicht auf Harness-Knoten. Akzeptanz: Slot-Wiring
-  + Save-Roundtrip + Kern-Boni headless, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 150 — Kern-Slot (Magicule-Kern) (abgeschlossen, direkt auf main). Umgesetzt:
+  vierter Slot `'core'` (`EquipmentSlot` + `ItemCategory` erweitert, `EQUIPMENT_SLOTS`),
+  generisch über die bestehende Slot-Iteration verdrahtet (Stat-Bonus, Perks, Ausrüsten/
+  Ablegen, Set-Erkennung laufen unverändert über alle Slots). `createPartyMember` und die
+  Save-Normalisierung (`save.ts`) tragen `core` (Altstände ohne Feld → `null`, keine
+  Bruchgefahr). Das Ausruestungs-Menue zeigt vier Slots (engere Panel-Abstände 190/+84,
+  Höhe 76, Set-Zeile auf y=508) mit Slot-Label „Kern". Drei neue Kern-Items
+  (`lesser-magicule-core` selten, `ember-magicule-core` episch, `soul-forged-core` legendär
+  mit Signatur-Perk `status-resist`) mit massvollen Boni, thematisch an die Magicule-/
+  Seelen-Oekonomie gebunden, im „Tempest-Vorrat" (gated hinter `story.council.ready`)
+  kaufbar. Akzeptanz erfuellt: Slot-Wiring + Kern-Bonus + legendärer Perk + Kern-Daten +
+  Save-Roundtrip/Migration headless (`test/coreSlot.test.ts`, 5 Tests), typecheck ✓,
+  711 Unit-Tests ✓, build ✓, **Balance-Harness gruen** (Sim nutzt keine Ausruestung →
+  Korridore unverändert).
 
 - [ ] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (Labyrinth).
   Statt freier Zufalls-Rolls hat JEDE Raritaet einen festen, kuratierten Affix-Pool

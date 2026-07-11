@@ -22,7 +22,7 @@ import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
 
 export const MENU_TOUCH_TARGET_PX = 44;
-export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory'];
+export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory', 'core'];
 
 export interface MenuGameState {
   readonly party: readonly PartyMemberState[];
@@ -308,7 +308,8 @@ function categoryRank(item: ItemDefinition): number {
   if (item.category === 'weapon') return 1;
   if (item.category === 'armor') return 2;
   if (item.category === 'accessory') return 3;
-  return 4;
+  if (item.category === 'core') return 4;
+  return 5;
 }
 
 function requireCharacter(characterId: string): CharacterDefinition {

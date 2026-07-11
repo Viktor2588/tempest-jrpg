@@ -4382,10 +4382,22 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core'],
     itemRequirements: [
       {
         itemId: 'tempest-charm',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'lesser-magicule-core',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'ember-magicule-core',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'soul-forged-core',
         requirements: [{ flag: 'story.council.ready' }]
       },
       {

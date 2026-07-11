@@ -450,7 +450,9 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
         ? {
             weapon: safeNullableString(raw.equipment.weapon),
             armor: safeNullableString(raw.equipment.armor),
-            accessory: safeNullableString(raw.equipment.accessory)
+            accessory: safeNullableString(raw.equipment.accessory),
+            // Phase 150 — Kern-Slot: alte Stände ohne `core` → null (keine Bruchgefahr).
+            core: safeNullableString(raw.equipment.core)
           }
         : member.equipment
     }

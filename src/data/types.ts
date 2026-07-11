@@ -46,7 +46,9 @@ export type StatusEffectId =
   | 'charm' // Chance, gebannt auszusetzen
   | 'weaken'; // Angriff und Magie gesenkt
 
-export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
+// Phase 150 — vierter Slot 'core' (Magicule-Kern): an die Magicule-/Seelen-Oekonomie
+// gebundene Kerne mit massvollen Boni; generisch über EQUIPMENT_SLOTS verdrahtet.
+export type EquipmentSlot = 'weapon' | 'armor' | 'accessory' | 'core';
 
 // Phase 149 — Raritaet/Tier-Fundament (D3-artig): gewoehnlich < selten < episch <
 // legendaer < legendaer-set. `legendaer` = einzigartig mit genau EINEM Signatur-Perk;
@@ -103,7 +105,7 @@ export interface SkillDefinition {
   readonly chargesField?: boolean;
 }
 
-export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';
+export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'core' | 'key';
 
 export interface ItemEffect {
   // Phase 129 — 'cure-status': entfernt negative/Hart-CC-Status vom Ziel (Gegenmittel

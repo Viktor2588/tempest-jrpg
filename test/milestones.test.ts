@@ -22,7 +22,7 @@ describe('Story-Meilensteine', () => {
           currentHp: 99,
           currentMp: 12,
           learnedSkillIds: ['goblin-feint'],
-          equipment: { weapon: null, armor: null, accessory: null }
+          equipment: { weapon: null, armor: null, accessory: null, core: null }
         }]
       }
     };

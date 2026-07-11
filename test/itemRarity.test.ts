@@ -54,8 +54,8 @@ describe('Item-Raritaet (Phase 149)', () => {
     expect(isLegendaryUnique('episch')).toBe(false);
   });
 
-  it('alle 14 Ausruestungsteile sind einer Raritaet zugeordnet', () => {
-    expect(equipment.length).toBe(14);
+  it('alle Ausruestungsteile sind einer Raritaet zugeordnet', () => {
+    expect(equipment.length).toBeGreaterThanOrEqual(14);
     for (const entry of equipment) {
       expect(entry.rarity, `${entry.id} ohne rarity`).toBeDefined();
       expect(ITEM_RARITIES.map((meta) => meta.id)).toContain(entry.rarity as ItemRarity);

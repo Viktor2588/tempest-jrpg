@@ -514,8 +514,10 @@ export class MenuScene extends Phaser.Scene {
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
       // Basis 150 → 204: das erste Panel (Höhe 92, zentriert) ragte sonst mit
       // Oberkante 104 in Haupt-Tab-Reihe (bis 116) und Titel (124).
-      const y = 204 + index * 100;
-      this.panel(300, y, 290, 92);
+      // Phase 150 — vier Slots (inkl. Kern) in die Spalte packen: engere Abstände,
+      // etwas flachere Panels, damit alle vier zwischen Tab-Reihe und Set-Zeile passen.
+      const y = 190 + index * 84;
+      this.panel(300, y, 290, 76);
       this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
@@ -560,7 +562,7 @@ export class MenuScene extends Phaser.Scene {
     const sets = getActiveEquipmentSetTiers(summary.member);
     this.layer.add(this.add.text(
       300,
-      484,
+      508,
       sets.map(({ set, pieces }) => `${set.name}: ${pieces}/${set.itemIds.length} Teile`).join(' · ')
         || 'Kein Ausrüstungsset aktiv.',
       {
@@ -1867,6 +1869,7 @@ export class MenuScene extends Phaser.Scene {
 function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'weapon') return 'Waffe';
   if (slot === 'armor') return 'Rüstung';
+  if (slot === 'core') return 'Kern';
   return 'Accessoire';
 }
 
