@@ -477,4 +477,104 @@ gefahren.
   (`test/progression.test.ts`), Datenvalidierung (`test/qa.test.ts`), typecheck ✓,
   670 Unit-Tests ✓, build ✓.
 
+## Neunte Welle: Die Widerstands-Schicht antwortet (verifizierte tote Maschinerie, Plan 2026-07-11)
+
+Befund (Code-Abgleich auf `main`, 671 Unit-Tests + Balance-Harness gruen): Die
+Achte Welle hat die Hart-Kontroll-Schicht der Gegner geweckt (Phase 129/130) und
+ihr mit dem `cure-status`-Item (Phase 129, `purifying-water`) ein **reaktives**
+Gegenmittel gegeben. Es fehlt aber die zweite Haelfte jeder guten CC-Oekonomie —
+**praeventiver Widerstand** — und zwei kanonische Bausteine liegen weiter als
+tote, getestete Maschinerie:
+
+(1) **Es gibt nirgends Status-Widerstand oder -Immunitaet.** `applySkillStatus`
+(`systems/battle.ts:1722`) und `applyStatus` (`:2364`) fuegen negative Status
+**bedingungslos** zu; der Motor kennt zwar die vollstaendige Negativ-Liste
+(`DEBUFF_STATUSES`, `:371`) und die heilbare Liste (`CURABLE_STATUSES`, Phase 129),
+aber **keinen Wurf, der einen Status abwehrt**, keine Immunitaet, kein
+Ausruestungs-/Spec-Schutz. Das `TalentPerk`-System (`types.ts`, passive Procs auf
+Combatants) traegt neun Perk-Arten — aber **keine defensive Status-Art**. Damit ist
+die einzige Antwort auf die erwachte Kontroll-Schicht die reaktive Reinigung; es
+gibt keinen Grund, in Zaehigkeit gegen Kontrolle zu investieren.
+
+(2) **`freeze` und `charm` sind vollstaendig gebauter, aber ungenutzter
+Hart-CC.** Beide Status werden im Motor komplett behandelt — `freeze` in
+`HARD_SKIP_STATUSES`, `freeze`+`charm` in `WAKE_ON_DAMAGE_STATUSES`, beide in
+`computeDisabled`/`statusLabel`/`removeExpiredStatuses` und in der KI-Bewertung
+(`autoBattle.ts`) — aber **keine Fertigkeit, Signatur oder Fusion wendet sie je an**
+(Nachweis: die Ids kommen ausserhalb `types.ts` nur im Motor vor). Die Achte Welle
+hat fuenf der sieben Hart-CC-Status verdrahtet (`sleep/confuse/petrify/paralyze/stun`)
+und diese zwei bewusst offen gelassen — sie sind der letzte tote Rest der
+Kontroll-Schicht.
+
+(3) **Rimurus kanonische Praedator-Unterfaehigkeit „Isolation" fehlt.** Canon
+(IDEE.md §1: „Isolation (Isolate, neutralisiert Gift/Gefahr)") gibt der Slime-Natur
+Gift-/Status-Neutralisierung — im Spiel hat Rimuru dafuer nichts, obwohl der
+Praedator-Zweig (Phase 111/112) alle anderen Unterfaehigkeiten traegt.
+
+Diese Welle **aktiviert gebaute, bereits getestete Maschinerie mit fast reinen
+Datenergaenzungen plus einem kleinen, klar umrissenen Motor-Hook** (der
+Widerstands-Wurf) und schliesst die CC-Oekonomie der Achten Welle: erst die
+Widerstands-Schicht (Fundament), dann die letzten zwei toten Hart-CC als neue
+Bedrohung (damit es etwas zu widerstehen gibt), dann Rimurus Isolation als
+kanonische Immunitaet, schliesslich ein optionaler Ausruestungs-Schutz. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit: 132 ist
+Fundament (Widerstands-Perk + Motor-Hook); 133 gibt der Schicht ihre Bedrohung;
+134 ist die kanonische Anwendung von 132; 135 ist unabhaengig/optional. Jede
+kampfberuehrende Phase wird gegen die Balance-Harness je Rimuru-Spec gruen
+gefahren; **alle CC-Traeger bleiben Nicht-Harness-Gegner** und die Widerstands-Perks
+liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bleibt
+unberuehrt.
+
+- [ ] Phase 132 — Widerstands-Schicht: Status-Widerstand als Perk (Fundament).
+  Neue `TalentPerk`-Art `status-resist` (`{ kind: 'status-resist'; percent: number;
+  statuses?: readonly StatusEffectId[] }`): eine Chance, einen **negativen** Status
+  abzuwehren, wenn er zugefuegt wuerde (ohne `statuses` = alle Negativ-Status, mit
+  `statuses` = nur die genannten). Motor-Hook: in `applySkillStatus` (und im
+  Fusions-/Reaktions-Status-Pfad) vor `applyStatus` pruefen, ob der Status in
+  `DEBUFF_STATUSES` liegt UND das Ziel eine passende `status-resist`-Chance traegt →
+  `state.rng()`-Wurf, bei Erfolg negieren + Log „… widersteht …". Helfer
+  `statusResistChance(perks, statusId)` in `systems/talentPerk.ts` (analog
+  `dodgeChance`/`counterProc`). Traeger: je ein defensiver Spec-Knoten bei den
+  Tank-/Nahkaempfer-Zweigen (bewusst NICHT die Harness-Prioritaetsknoten). Akzeptanz:
+  Widerstands-Wurf negiert Negativ-Status / laesst Buffs & nicht-abgedeckte Status
+  durch / kein Effekt ohne Perk (`test/statusResist.test.ts`), Perk-Helfer headless,
+  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness je Spec gruen** (Perk nicht
+  auf Harness-Knoten → Sims unveraendert).
+
+- [ ] Phase 133 — Freeze & Charm erwachen (der letzte tote Hart-CC).
+  Zwei neue telegraphierte Gegner-CC-Skills (`data/skills.ts`), die die letzten
+  ungenutzten Hart-CC-Status aktivieren — `frost-lock`→`freeze` (Eis-/Wasser-Gegner)
+  und `beguiling-gaze`→`charm` (Masken-Majin/Verfuehrer-Typ). Bewusst maessvolle
+  Chance (0.35–0.5) und **kurze** Dauer (1–2 Runden); `freeze` bricht bei Schaden
+  (`wakeOnDamage`), `charm` gibt nur eine Aussetz-Chance (0.5). **Beide Traeger sind
+  Nicht-Harness-Gegner** (off-route) → Balance-Korridor unberuehrt. Damit hat die
+  Widerstands-Schicht (132) und die Reinigung (129) endlich die vollstaendige
+  Bedrohung, gegen die sie spielt. Akzeptanz: Status-Zufuegung (Freeze/Charm setzen
+  aus, Freeze bricht bei Schaden), Skill-Daten headless (`test/statusControl.test.ts`
+  ergaenzt), typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen** (CC nur
+  off-route).
+
+- [ ] Phase 134 — Isolation: Rimurus Gift-Neutralisierung (canon, nutzt 132).
+  Rimurus Praedator-Natur (IDEE.md §1 „Isolation") erhaelt eine passive
+  Gift-/Status-Neutralisierung als `status-resist`-Perk (Phase 132) mit hoher/voller
+  Chance, canonisch auf **`poison`** (und optional die weiteren Status-DoT) begrenzt.
+  Ausgeliefert ueber einen frühen Praedator-Spec-Knoten (oder Story-Flag der
+  Praedator-Linie), damit es eine erspielte Unterfaehigkeit bleibt, kein Geschenk.
+  Rein additiv, keine Persistenz-Aenderung. Akzeptanz: Rimuru widersteht Gift bei
+  aktivem Isolation-Perk / nimmt Gift ohne ihn (`test/statusResist.test.ts` ergaenzt),
+  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen** (Praedator-Knoten
+  ausserhalb der Harness-Prioritaet bzw. defensiv-only → Sims unveraendert).
+
+- [ ] Phase 135 — Schutz-Talisman: Widerstands-Ausruestung (optional, kleiner
+  Zuschnitt). Ein neues Accessoire, das im Kampf einen `status-resist`-Perk gewaehrt
+  (kaeuflich/kraftbar), als Ausruestungs-Gegenspiel zur Kontroll-Schicht und neuer
+  Gold-Abfluss. Umsetzung mit niedrigster Komplexitaet: optionales `perks?` auf
+  Accessoire-`ItemDefinition`s, die beim Kampfstart in die Combatant-Perks des
+  Traegers gemischt werden (Erweiterung der Party→Combatant-Perk-Montage in
+  `BattleScene`/`startBattle`). Akzeptanz: ausgeruesteter Talisman gewaehrt Resistenz
+  im Kampf / kein Effekt ohne Ausruestung, Item-/Shop-Datenvalidierung (`qa.test.ts`),
+  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness unberuehrt** (Harness
+  ruestet keine Accessoires → Sims unveraendert).
+
 ## UX- und Welt-Backlog
