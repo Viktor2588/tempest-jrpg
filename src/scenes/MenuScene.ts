@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { SKILL_TIER_META, skillTierBadge } from '../data';
+import { rarityColor, rarityLabel, rarityOf } from '../systems/itemRarity';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
@@ -519,8 +520,14 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
       this.layer.add(this.add.text(318, y - 20, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
-        fontFamily: 'sans-serif', fontSize: '13px', color: '#e9eef7'
+        // Phase 149 — Raritaet farbig: der Item-Name trägt seine Raritaets-Farbe.
+        fontFamily: 'sans-serif', fontSize: '13px', color: item ? rarityColor(rarityOf(item)) : '#e9eef7'
       }));
+      if (item && rarityOf(item) !== 'gewoehnlich') {
+        this.layer.add(this.add.text(318, y - 4, rarityLabel(rarityOf(item)), {
+          fontFamily: 'sans-serif', fontSize: '9px', color: rarityColor(rarityOf(item))
+        }));
+      }
       if (item) {
         // Aktionen in einer Zeile unten im Panel — überlappen den Item-Namen nicht mehr.
         this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));

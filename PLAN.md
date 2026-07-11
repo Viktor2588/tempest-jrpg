@@ -576,13 +576,21 @@ neuen leeren Karten. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen
 System; canon-first). Reihenfolge = Abhaengigkeit: 149 Fundament; 150/151 bauen
 darauf; 152–154 sind Content auf dem neuen System.
 
-- [ ] Phase 149 — Raritaet/Tier-Fundament (legendaer-einzigartig vs. legendaer-Set).
-  Neues Feld `rarity` auf `ItemDefinition` (gewoehnlich|selten|episch|legendaer|
-  legendaer-set). Raritaet skaliert `statBonus`/Enchant-Cap; `legendaer` = einzigartig
-  mit genau einem Signatur-`perk` (D3-Legendary), `legendaer-set` speist die bestehenden
-  `EQUIPMENT_SETS`-Tier-Boni. Bestehende 14 Teile retrofitten; Menue/Tooltip zeigt
-  Raritaet farbig. Reines Fundament (keine neuen Items). Akzeptanz: Raritaet-Daten +
-  Stat-/Perk-Auswertung + Menue-Farbe headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 149 — Raritaet/Tier-Fundament (legendaer-einzigartig vs. legendaer-Set)
+  (abgeschlossen, direkt auf main). Umgesetzt: neuer Typ `ItemRarity`
+  (gewoehnlich|selten|episch|legendaer|legendaer-set) + optionales Feld `rarity` auf
+  `ItemDefinition`; reine Regeln/Metadaten in `systems/itemRarity.ts` (Farbe/Label fürs
+  Menue, `rarityStatMultiplier`/`rarityEnchantCap` als vorwärtsgerichtete Loot-Budgets für
+  151/152, `isLegendaryUnique`, `legendaryHasSignaturePerk`). Die 14 bestehenden
+  Ausruestungsteile sind retrofittet (Klassifizierung, KEINE Stat-Änderung → Balance
+  unberührt): Starter-Set `gewoehnlich`, Kijin-/Dwargon-Set `legendaer-set` (speist die
+  `EQUIPMENT_SETS`-Tier-Boni), ork-cleaver `selten`, famine-charm/ember-signet/
+  spirit-core-ward `episch`, ward-talisman `legendaer` (genau ein Signatur-Perk). Das
+  Ausruestungs-Menue färbt den Item-Namen nach Raritaet und zeigt das Raritaets-Label.
+  Akzeptanz erfuellt: Leiter/Farben/Budgets, Default-Fallback, Signatur-Perk-Regel für ALLE
+  Items, Set-Zuordnung headless (`test/itemRarity.test.ts`, 7 Tests), typecheck ✓,
+  706 Unit-Tests ✓, build ✓. Reines Fundament (keine neuen Items, keine Stat-Skalierung
+  bestehender Teile) → Balance-Korridor unberührt.
 
 - [ ] Phase 150 — Kern-Slot (Magicule-Kern).
   Vierter Slot `'core'` (EquipmentSlot erweitern; Party-`equipment`, `startingEquipment`,
