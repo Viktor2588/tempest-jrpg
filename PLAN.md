@@ -595,4 +595,61 @@ Damit ist die **Neunte Welle** (Phasen 132–135) vollstaendig auf `main`: die
 Kontroll-Oekonomie der Achten Welle ist mit praeventivem Widerstand (Perk + Ausruestung),
 Rimurus kanonischer Isolation und den letzten zwei aktivierten Hart-CC-Status geschlossen.
 
+## Zehnte Welle: Die feine Kontrolle — Spieler-Zugriff auf die Weich-Debuff-Schicht (verifizierte tote Maschinerie, Plan 2026-07-11)
+
+Befund (Code-Abgleich auf `main`, 685 Unit-Tests + Balance-Harness gruen): Die
+Achte/Neunte Welle haben die **Hart**-Kontroll-Schicht (stun/sleep/freeze/paralyze/
+petrify/confuse/charm) fuer Gegner UND Spieler (Phase 130) sowie den praeventiven
+Widerstand (Phase 132–135) gebaut. Die **weiche** Kontroll-Schicht bleibt jedoch
+einseitig: die Motor-vollstaendig behandelten Status `silence` (keine Fähigkeiten
+nutzbar, `computeDisabled`), `blind` (physische Treffsicherheit/Schaden sinkt) und
+`weaken` (Angriff + Magie gesenkt, `effectiveStat`) werden von **11 Fusions-Eintraegen**
+(`data/fusions.ts`) genutzt — aber **kein einziger einzelner Spieler-Skill wendet sie
+gezielt an** (Nachweis: `silence`/`blind`/`weaken` kommen in `data/skills.ts` NIE als
+`statusEffect` vor). Der Spieler kann einen Zauber-Boss nur ueber eine aufwaendige
+Element-Fusion (Partner + Feld-Setup) zum Schweigen bringen, nie direkt. Das ist exakt
+die Asymmetrie, die Phase 130 fuer die Hart-CC geschlossen hat — hier fuer die weiche
+Schicht offen. Damit fehlt dem Spieler das taktische Gegenspiel gegen Caster-/Physisch-/
+Heavy-Hitter-Gegner, obwohl der Motor es traegt.
+
+Diese Welle **aktiviert die gebaute Weichkontroll-Schicht auf der Spieler-Seite mit
+reinen Datenergaenzungen** (niedrigste Komplexitaet, hoechste Sicherheit) — genau nach
+dem bereits balance-verifizierten Muster von Phase 130 (Skills an Nicht-Harness-
+Kapstein-Knoten). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge =
+Abhaengigkeit: 136 ist Fundament (die Skills selbst); 137 macht die Wirkung im Kampf/
+Bestiarium sichtbar; 138 gibt der Weichkontrolle einen erspielbaren Ziel-Gegner
+(off-route → balance-safe). Jede kampfberuehrende Phase wird gegen die Balance-Harness
+je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Prioritaet.**
+
+- [ ] Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (Fundament).
+  Drei neue Spieler-Skills (`data/skills.ts`) aktivieren die weiche Kontroll-Schicht
+  offensiv, je als **tiefe Spec-Belohnung** an einem bestehenden Nicht-Harness-
+  Kapstein-Knoten (requiredLevel 9, Qual der Wahl, wie Phase 130): `banishing-seal`→
+  `silence` (Shuna, `shuna-ward-circle` — heiliges Siegel gegen Caster), `blinding-dust`→
+  `blind` (Souei, `souei-assassin-execute` — Schattenstaub), `enfeebling-grip`→`weaken`
+  (Shion, `shion-crush-titan` — zermuerbender Titanengriff). Bewusst maessvolle Chance
+  (0.6–0.7) und kurze Dauer (2 Runden). **Balance-sicher by design:** die Harness
+  schaltet nur Gobta-/Rimuru-Knoten frei — diese drei Kapsteine sind NICHT dabei, also
+  erhaelt die Harness-Party die Skills nie. Akzeptanz: Skill-Daten + Knoten-Verdrahtung +
+  Status-Zufuegung/Wirkung headless (silence blockt Fähigkeiten, weaken senkt Werte),
+  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness (je Spec) gruen**.
+
+- [ ] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium).
+  Die weichen Status bekommen klare Rueckmeldung: praezisere Kampf-Logs/HUD-Marker fuer
+  `silence`/`blind`/`weaken` (analog zu den Hart-CC-Markern) und — als Anreiz, sie
+  gezielt einzusetzen — nennt die „Analysieren"-Aufdeckung / das Bestiarium (Phase 122)
+  bei magielastigen Gegnern deren Caster-Charakter (hoher `magic`-Anteil), damit der
+  Spieler weiss, wann Schweigen lohnt. Rein additiv (Anzeige/Wissen), keine Kampf-
+  Balance-Beruehrung. Akzeptanz: Log-/Marker-/Bestiarium-Erweiterung headless, typecheck ✓,
+  Unit-Tests ✓, build ✓, Balance-Harness unberuehrt.
+
+- [ ] Phase 138 — Der Zauber-Riegel: ein off-route Caster-Gegner, den Schweigen kontert.
+  Ein bestehender Nicht-Harness-Gegner (z.B. der Labyrinth-nahe `magic-colossus` oder ein
+  Akademie-Gegner) erhaelt eine telegraphierte, gefaehrliche Phase-2-Magie, deren Druck
+  sich mit `silence` (Phase 136) spuerbar brechen laesst — macht die neue Weichkontrolle
+  erspielbar wertvoll statt optionaler Schmuck. **Off-route** → Balance-Korridor unberuehrt.
+  Akzeptanz: Telegraph + Silence-Gegenspiel headless, typecheck ✓, Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (Traeger off-route).
+
 ## UX- und Welt-Backlog
