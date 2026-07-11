@@ -598,6 +598,15 @@ completed_milestones:
     - Measured: full 687 unit tests now ~39s (was ~56s); typecheck/build/E2E structure green.
     - Worktree: /home/viktor/worktree/tempest-phase-140-test-infra (branch phase-140-test-infra); merged cleanly.
     - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`, `bun run test:e2e --project=desktop-chromium`.
+  phase_141:
+    - Menu & UI improvements + large refactor of the monolithic MenuScene (~1650 lines).
+    - Tab navigation: active tab underline + direct number key shortcuts (1-8), numbered tab labels.
+    - Tooltips: simple hover tooltip system (initially on tabs, extensible).
+    - List UX: filter button + text filter for inventory (applied live).
+    - Polish: subtle hover scale in uiSkin, improved active tab visuals.
+    - Big refactor: extracted MenuTypes.ts, IMenuTabView interface, BaseMenuTabView; introduced tabViews registry in MenuScene. Dispatch now via registry instead of long if/else. Structure ready for full extraction into src/ui/menu/*TabView.ts classes.
+    - Worktree: /home/viktor/worktree/tempest-phase-141-menu-ui (branch phase-141-menu-ui); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
