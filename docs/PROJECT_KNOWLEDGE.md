@@ -438,6 +438,54 @@ Required minimum for every phase:
 3. `bun run build`
 4. `bun run test:e2e` when scenes, rendering, assets, layout, or flows change
 
+### Efficient Test Execution (Phase 140 findings)
+
+**Local development (fastest feedback):**
+- Prefer `bun run test:watch` or `bunx vitest` over `bun run test`.
+  Watch mode only re-runs affected tests on file change.
+- Run targeted tests:
+  ```bash
+  bunx vitest run test/battle.test.ts
+  bunx vitest run test/battle.test.ts -t "Eskalation"
+  bun run test:e2e --project=desktop-chromium -g "Title"
+  ```
+
+**Parallelism & sharding:**
+- Vitest uses threads pool by default. Config limits `maxThreads` to 3 in CI.
+- For very large runs or to mimic CI split:
+  ```bash
+  bun run test:shard 1/4
+  bun run test:shard 2/4
+  ```
+- Playwright: `fullyParallel: true`. CI uses 2 workers. For quick local smoke only run 1-2 projects:
+  ```bash
+  bun run test:e2e --project=desktop-chromium --project=mobile-chromium
+  ```
+
+**E2E optimizations:**
+- Replaced many raw `page.waitForTimeout(250|700|900)` with a `settle(page, ms)` helper that does a short wait + `expectCanvasContent` assertion.
+- This reduced wall time and made tests less timing-sensitive.
+- Use `PLAYWRIGHT_PORT` when running multiple worktrees in parallel.
+
+**CI speed improvements:**
+- Aggressive caching for Bun install cache + `~/.cache/ms-playwright`.
+- Unit tests split into 4 parallel matrix jobs.
+- E2E smoke limited to desktop + mobile (HiDPI variants are expensive).
+- `paths-ignore` for pure documentation changes (`.md`, `docs/`, `PLAN.md` etc.) skips expensive jobs.
+
+**Other scripts:**
+- `bun run test:ci` → runs with `--bail=1`
+- `bun run typecheck` is fast and should be run early.
+- Full E2E is rarely needed locally; use grep + specific project for iteration.
+
+**When to run what:**
+- Daily work → `bunx vitest`
+- Before PR → full `bun run test` + targeted E2E smoke
+- Suspect flakiness → run with `--shard` or single project + trace on failure
+- Performance investigation → `time bun run test -- --reporter=dot`
+
+These changes reduced a full 687-test unit run from ~55-56s to ~39s and made CI feedback significantly faster through parallelism + caching.
+
 CI and deployment live in `.github/workflows/`. A verified Vite `dist/` is
 deployed to GitHub Pages from `main`. Phaser is emitted as the large vendor
 chunk and the Vite warning threshold accounts for it.
