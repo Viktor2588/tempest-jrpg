@@ -459,13 +459,18 @@ gefahren.
   (Bosse bleiben im Korridor, keine Trivialisierung). Akzeptanz: Skill-CC-Zufuegung +
   KI-Nutzung headless, Balance-Harness gruen, Battle-E2E-Smoke gruen.
 
-- [ ] Phase 131 — Bindungs-Paritaet: Hakurou & Souei (rein additive Daten). Neue
-  `RELATIONSHIPS`-Eintraege fuer die beiden bislang bindungslosen Kijin (z. B.
-  Hakurou↔Benimaru als Meister/Schueler, Souei↔Souka/Schatten-Spaehernetz), im Stil der
-  bestehenden Paare (Bindungs-Stufen, Szenen-Flags, ggf. Team-Attacken-Partner). Damit
-  erhalten alle neun Party-Mitglieder die volle Bindungs-Achse (Stat-Boni,
-  Bindungsszenen). Rein additiv, keine Balance-Beruehrung. Akzeptanz: neue Beziehungen
-  liefern Boni/Szenen headless (`test/progression`-Erweiterung), Save-Roundtrip,
-  typecheck/Tests/build gruen.
+- [x] Phase 131 — Bindungs-Paritaet: Hakurou & Souei (abgeschlossen, direkt auf main).
+  Umgesetzt: zwei neue `RELATIONSHIPS`-Eintraege (`data/progression.ts`) fuer die beiden
+  bislang bindungslosen Kijin — `hakurou-benimaru` (Meister/Schueler) und `souei-shion`
+  (Rimurus Klingen), beide Party↔Party und damit ueber den bestehenden Punkt-Pfad
+  (beide aktiv im Kampf) sammelbar, im Stil der uebrigen Paare (drei Stufen mit
+  Stat-Boni, Team-Attacke ab Stufe 2, Opening-Status `haste` + Perk ab Stufe 3 —
+  Hakurou `counter` 8 %, Souei `dodge` 6 %; je zwei Bindungsszenen mit Flags). Damit
+  haben alle neun Party-Mitglieder die volle Bindungs-Achse. Rein additiv; die Perks
+  liegen auf der hoechsten Stufe (in der Harness-Route nicht erreicht) und die
+  Stufe-1-Boni sind modest → **Balance-Harness (beide Tests, je Spec) gruen**. Akzeptanz
+  erfuellt: eigene Bindung fuer Hakurou/Souei + Stufen-Boni headless
+  (`test/progression.test.ts`), Datenvalidierung (`test/qa.test.ts`), typecheck ✓,
+  670 Unit-Tests ✓, build ✓.
 
 ## UX- und Welt-Backlog

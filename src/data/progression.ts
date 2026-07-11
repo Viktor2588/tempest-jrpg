@@ -483,6 +483,42 @@ export const RELATIONSHIPS = [
       { id: 'milim-honey', requiredLevel: 1, title: 'Honig besiegt den Demonlord', summary: 'Rimuru gewinnt Milims Freundschaft mit einem Glas Honig statt einer Schlacht.', flagId: 'bond-milim-1' },
       { id: 'milim-dragon-fist', requiredLevel: 3, title: 'Bund der Drachenfaust', summary: 'Milims Vertrauen verleiht Rimurus Sturm einen Hauch von Drachenzerstörung.' }
     ]
+  },
+  // Phase 131 — Bindungs-Paritaet: Hakurou und Souei hatten bisher keine eigene
+  // Beziehung und damit keine Bindungs-Achse. Beide Bande sind Party↔Party (Kijin),
+  // sammeln also wie die uebrigen Punkte, wenn beide aktiv kaempfen. Bewusst modeste
+  // Boni (kanonischer Meister/Schueler bzw. Klingen-Brueder-Bund).
+  {
+    id: 'hakurou-benimaru',
+    characterId: 'hakurou',
+    partnerId: 'benimaru',
+    partnerName: 'Benimaru',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Meister und Schüler', passiveBonus: { agility: 1, attack: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 15 } },
+      { level: 2, requiredPoints: 70, title: 'Schwertform vollendet', passiveBonus: { agility: 2, attack: 2 }, partnerPassiveBonus: { attack: 2, agility: 1 }, combatBonus: { startingTeamMeter: 30, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Erbe des Schwertheiligen', passiveBonus: { agility: 3, attack: 3, maxHp: 6 }, partnerPassiveBonus: { attack: 3, agility: 2 }, combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }, perk: { kind: 'counter', percent: 8 } }
+    ],
+    scenes: [
+      { id: 'hakurou-benimaru-drill', requiredLevel: 1, title: 'Der harte Drill', summary: 'Der alte Schwertmeister schleift Benimarus Grundformen, bis der General strauchelt und doch nicht aufgibt.', flagId: 'bond-hakurou-1' },
+      { id: 'hakurou-benimaru-heir', requiredLevel: 3, title: 'Das anvertraute Erbe', summary: 'Hakurou erkennt in Benimaru den würdigen Erben seiner Schwertkunst — beide Klingen führen wie eine.' }
+    ]
+  },
+  {
+    id: 'souei-shion',
+    characterId: 'souei',
+    partnerId: 'shion',
+    partnerName: 'Shion',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Rimurus Klingen', passiveBonus: { agility: 1, attack: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 15 } },
+      { level: 2, requiredPoints: 70, title: 'Schatten und Schild', passiveBonus: { agility: 2, attack: 1, maxHp: 4 }, partnerPassiveBonus: { attack: 2, defense: 1 }, combatBonus: { startingTeamMeter: 30, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Lautlose Wacht', passiveBonus: { agility: 3, attack: 2, maxHp: 8 }, partnerPassiveBonus: { attack: 3, defense: 2 }, combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }, perk: { kind: 'dodge', percent: 6 } }
+    ],
+    scenes: [
+      { id: 'souei-shion-watch', requiredLevel: 1, title: 'Geteilte Wacht', summary: 'Der lautlose Späher und die unbeugsame Leibwache stimmen ihre Wachen ab — keine Bedrohung erreicht Rimuru unbemerkt.', flagId: 'bond-souei-1' },
+      { id: 'souei-shion-silent', requiredLevel: 3, title: 'Schatten deckt Schild', summary: 'Soueis Fäden und Shions Wille verweben sich zu einem Schutz, den kein Feind durchbricht.' }
+    ]
   }
 ] as const satisfies readonly RelationshipDefinition[];
 

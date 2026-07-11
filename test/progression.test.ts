@@ -32,6 +32,7 @@ import {
   discoverRegion,
   enchantEquipment,
   evolveMember,
+  getProgressionRelationships,
   getProgressionSkillIds,
   getRelationshipLevelNumber,
   grantRelationshipPoints,
@@ -148,6 +149,29 @@ describe('progression system', () => {
     expect(bondedStats.attack).toBeGreaterThan(baseStats.attack);
     expect(bondedStats.agility).toBeGreaterThan(baseStats.agility);
     expect(skillIds).toContain('direwolf-rush');
+  });
+
+  it('Phase 131 — Hakurou und Souei besitzen jetzt eine eigene Bindungs-Achse', () => {
+    // Beide Kijin waren bisher aus RELATIONSHIPS ausgeschlossen (keine Boni/Szenen).
+    for (const characterId of ['hakurou', 'souei']) {
+      const owned = getProgressionRelationships(characterId).filter(
+        (relationship) => relationship.characterId === characterId
+      );
+      expect(owned.length, `${characterId} ohne eigene Bindung`).toBeGreaterThan(0);
+    }
+
+    const hakurou = createPartyMember(hero('hakurou'), { level: 8 });
+    const baseState = createProgressionState();
+    const bondedState = grantRelationshipPoints(baseState, 'hakurou-benimaru', 130).state;
+    const baseStats = calculateProgressionStats(hakurou, baseState);
+    const bondedStats = calculateProgressionStats(hakurou, bondedState);
+
+    expect(getRelationshipLevelNumber(bondedState, 'hakurou-benimaru')).toBe(3);
+    expect(bondedStats.agility).toBeGreaterThan(baseStats.agility);
+    expect(bondedStats.attack).toBeGreaterThan(baseStats.attack);
+
+    const soueiBond = grantRelationshipPoints(baseState, 'souei-shion', 25).state;
+    expect(getRelationshipLevelNumber(soueiBond, 'souei-shion')).toBe(1);
   });
 
   it('führt Namensgebung, Entwicklung und Skill-Baum als zusammenhängenden Pfad aus', () => {
