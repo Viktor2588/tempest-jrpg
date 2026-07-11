@@ -13,6 +13,7 @@ export interface UiTextButtonOptions {
   readonly textColor?: string;
   readonly textOffsetX?: number;
   readonly skinKind?: UiSkinKind;
+  readonly focused?: boolean; // Phase 142: for accessibility focus rings
 }
 
 export function addUiPanel(
@@ -98,6 +99,14 @@ export function addUiTextButton(
   });
   background.on('pointerdown', callback);
   container.add([background, text]);
+
+  if (options.focused) {
+    const ring = scene.add.rectangle(0, 0, width + 6, height + 6, 0x000000, 0)
+      .setStrokeStyle(2, 0xe9c56c)
+      .setOrigin(0, 0.5);
+    container.add(ring);
+  }
+
   return container;
 }
 

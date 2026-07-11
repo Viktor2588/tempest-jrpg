@@ -264,7 +264,7 @@ export class MenuScene extends Phaser.Scene {
       this.button(24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
         this.selectedMemberIndex = index;
         this.refresh();
-      }, this.selectedMemberIndex === index ? 0x30506f : 0x162238);
+      }, this.selectedMemberIndex === index ? 0x30506f : 0x162238, undefined, this.selectedMemberIndex === index);
       this.layer.add(this.add.text(34, y + 30, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
@@ -1700,14 +1700,16 @@ export class MenuScene extends Phaser.Scene {
     label: string,
     callback: () => void,
     color = 0x1b2940,
-    tooltip?: string
+    tooltip?: string,
+    focused = false
   ): void {
     const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
       fill: color,
       idleAlpha: 0.96,
       fontSize: '13px',
-      textOffsetX: 10
+      textOffsetX: 10,
+      focused
     });
     this.layer.add(btn);
 
