@@ -622,18 +622,20 @@ Bestiarium sichtbar; 138 gibt der Weichkontrolle einen erspielbaren Ziel-Gegner
 (off-route → balance-safe). Jede kampfberuehrende Phase wird gegen die Balance-Harness
 je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Prioritaet.**
 
-- [ ] Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (Fundament).
-  Drei neue Spieler-Skills (`data/skills.ts`) aktivieren die weiche Kontroll-Schicht
-  offensiv, je als **tiefe Spec-Belohnung** an einem bestehenden Nicht-Harness-
-  Kapstein-Knoten (requiredLevel 9, Qual der Wahl, wie Phase 130): `banishing-seal`→
-  `silence` (Shuna, `shuna-ward-circle` — heiliges Siegel gegen Caster), `blinding-dust`→
-  `blind` (Souei, `souei-assassin-execute` — Schattenstaub), `enfeebling-grip`→`weaken`
-  (Shion, `shion-crush-titan` — zermuerbender Titanengriff). Bewusst maessvolle Chance
-  (0.6–0.7) und kurze Dauer (2 Runden). **Balance-sicher by design:** die Harness
-  schaltet nur Gobta-/Rimuru-Knoten frei — diese drei Kapsteine sind NICHT dabei, also
-  erhaelt die Harness-Party die Skills nie. Akzeptanz: Skill-Daten + Knoten-Verdrahtung +
-  Status-Zufuegung/Wirkung headless (silence blockt Fähigkeiten, weaken senkt Werte),
-  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness (je Spec) gruen**.
+- [x] Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (Fundament)
+  (abgeschlossen, direkt auf main). Umgesetzt: drei neue Spieler-Skills
+  (`data/skills.ts`) aktivieren die weiche Kontroll-Schicht offensiv, je als **tiefe
+  Spec-Belohnung** an einem bestehenden Nicht-Harness-Kapstein-Knoten (requiredLevel 9,
+  Qual der Wahl, wie Phase 130): `banishing-seal`→`silence` (Shuna, `shuna-ward-circle`
+  — heiliges Siegel, blockt Fähigkeiten via `computeDisabled`), `blinding-dust`→`blind`
+  (Souei, `souei-assassin-execute` — Schattenstaub, senkt physische Treffsicherheit),
+  `enfeebling-grip`→`weaken` (Shion, `shion-crush-titan` — zermuerbt Angriff + Magie via
+  `effectiveStat`). Maessvolle Chance (0.6–0.7), kurze Dauer (2 Runden). **Balance-sicher
+  by design:** die Harness schaltet nur Gobta-/Rimuru-Knoten frei — diese drei Kapsteine
+  sind NICHT dabei, also erhaelt die Harness-Party die Skills nie. Akzeptanz erfuellt:
+  Skill-Daten + Knoten-Verdrahtung + Status-Zufuegung (Bannsiegel bringt Ziel zum
+  Schweigen) headless (`test/statusControl.test.ts`), typecheck ✓, 687 Unit-Tests ✓,
+  build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
 
 - [ ] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium).
   Die weichen Status bekommen klare Rueckmeldung: praezisere Kampf-Logs/HUD-Marker fuer

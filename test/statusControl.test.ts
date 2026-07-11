@@ -143,6 +143,42 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
     expect(charmed).toBe(true);
   });
 
+  it('Phase 136 — die drei Spieler-Weichkontroll-Skills tragen silence/blind/weaken und hängen an Nicht-Harness-Kapsteinen', () => {
+    const softCc: Record<string, { statusId: string; nodeId: string; treeId: string }> = {
+      'banishing-seal': { statusId: 'silence', nodeId: 'shuna-ward-circle', treeId: 'shuna-weaving-tree' },
+      'blinding-dust': { statusId: 'blind', nodeId: 'souei-assassin-execute', treeId: 'souei-tree' },
+      'enfeebling-grip': { statusId: 'weaken', nodeId: 'shion-crush-titan', treeId: 'shion-tree' }
+    };
+    for (const [skillId, info] of Object.entries(softCc)) {
+      const skill = (SKILLS as readonly SkillDefinition[]).find((candidate) => candidate.id === skillId);
+      expect(skill, `${skillId} fehlt`).toBeTruthy();
+      expect(skill!.statusEffect?.id).toBe(info.statusId);
+      expect(skill!.target).toBe('single-enemy');
+
+      const tree = SKILL_TREES.find((candidate) => candidate.id === info.treeId)!;
+      const node = tree.nodes.find((candidate) => candidate.id === info.nodeId) as { skillId?: string };
+      expect(node.skillId).toBe(skillId);
+    }
+  });
+
+  it('Phase 136 — Bannsiegel bringt ein Ziel zum Schweigen (silence landet)', () => {
+    let silenced = false;
+    for (let seed = 1; seed <= 60 && !silenced; seed += 1) {
+      const state = startBattle({
+        party: [createHeroBattleUnit(RIMURU, { skillIds: ['banishing-seal'], perks: [] })],
+        enemyIds: ['forest-slime'],
+        seed
+      });
+      const caster = state.combatants.find((combatant) => combatant.side === 'party')!;
+      const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+      state.activeId = caster.id;
+      const result = act(state, { type: 'skill', skillId: 'banishing-seal', targetId: enemy.id });
+      expect(result.ok).toBe(true);
+      silenced = enemy.statuses.some((status) => status.id === 'silence');
+    }
+    expect(silenced).toBe(true);
+  });
+
   it('ein CC-Gegner (Akademie-Irrlicht) kann die Party einschläfern', () => {
     let slept = false;
     for (let seed = 1; seed <= 120 && !slept; seed += 1) {

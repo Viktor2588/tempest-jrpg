@@ -211,5 +211,12 @@ export const SKILLS = [
   // Traeger sind Nicht-Harness-Gegner (human-deserter, orc-lord) → Balance-Korridor
   // unberuehrt. freeze bricht bei Schaden (wakeOnDamage); charm gibt nur eine Aussetz-Chance.
   { id: 'frost-flask', name: 'Frostkolben', description: 'Der Deserteur zerschellt einen erbeuteten Alchemie-Kolben — beißender Frost lässt das Ziel erstarren.', element: 'water', target: 'single-enemy', costMp: 8, power: 18, tags: ['magical', 'debuff'], tier: 'skill', statusEffect: { id: 'freeze', chance: 0.4, turns: 2 } },
-  { id: 'dominating-gaze', name: 'Beherrschender Blick', description: 'Der Ork-Lord fängt den Blick des Ziels — Gelds Fluch beugt für einen Moment dessen Willen.', element: 'shadow', target: 'single-enemy', costMp: 12, power: 14, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'charm', chance: 0.4, turns: 2 } }
+  { id: 'dominating-gaze', name: 'Beherrschender Blick', description: 'Der Ork-Lord fängt den Blick des Ziels — Gelds Fluch beugt für einen Moment dessen Willen.', element: 'shadow', target: 'single-enemy', costMp: 12, power: 14, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'charm', chance: 0.4, turns: 2 } },
+  // Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (silence/blind/weaken)
+  // aktivieren die bislang nur auf Fusionen genutzte weiche Kontroll-Schicht offensiv. Als
+  // TIEFE Spec-Belohnung an Nicht-Harness-Kapstein-Knoten (requiredLevel 9) → Balance-Korridor
+  // unberuehrt (die Harness schaltet nur Gobta-/Rimuru-Knoten frei).
+  { id: 'banishing-seal', name: 'Bannsiegel', description: 'Shuna verschließt mit einem heiligen Siegel den Zauberfluss des Ziels — für kurze Zeit keine Fähigkeiten.', element: 'holy', target: 'single-enemy', costMp: 12, power: 16, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'silence', chance: 0.6, turns: 2 } },
+  { id: 'blinding-dust', name: 'Blendstaub', description: 'Souei schleudert feinen Schattenstaub in die Augen des Ziels und trübt dessen Treffsicherheit.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 20, tags: ['physical', 'debuff'], tier: 'skill', statusEffect: { id: 'blind', chance: 0.6, turns: 2 } },
+  { id: 'enfeebling-grip', name: 'Zermürbender Griff', description: 'Shions Titanengriff presst die Kraft aus den Gliedern des Ziels — Angriff und Magie sinken.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 26, tags: ['physical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'weaken', chance: 0.7, turns: 2 } }
 ] as const satisfies readonly SkillDefinition[];
