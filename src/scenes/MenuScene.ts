@@ -104,8 +104,6 @@ export class MenuScene extends Phaser.Scene {
   private bestiaryFilter = '';
   private questFilter = '';
   private codexFilter = '';
-  // Phase 142: Drag state for party formation DnD
-  private draggingMemberId: string | null = null;
 
   // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
   // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
@@ -309,7 +307,6 @@ export class MenuScene extends Phaser.Scene {
       // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
       const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true, draggable: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
-      hit.on('dragstart', () => { this.draggingMemberId = summary.member.characterId; });
       hit.on('drag', (pointer: Phaser.Input.Pointer) => {
         // Simple visual drag feedback (move the panel temporarily)
         hit.x = pointer.x;
@@ -318,7 +315,6 @@ export class MenuScene extends Phaser.Scene {
       hit.on('dragend', (pointer: Phaser.Input.Pointer) => {
         hit.x = active.left + active.width / 2;
         hit.y = y;
-        this.draggingMemberId = null;
         // Determine drop target
         const dropRelativeY = pointer.y - active.firstY;
         const targetIdx = Math.max(0, Math.min(view.members.length - 1, Math.floor(dropRelativeY / active.rowHeight)));
