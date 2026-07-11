@@ -88,8 +88,14 @@ export function addUiTextButton(
     color: options.textColor ?? '#e9eef7'
   }).setOrigin(0, 0.5);
 
-  background.on('pointerover', () => background.setFillStyle(hoverFill, 1));
-  background.on('pointerout', () => background.setFillStyle(idleFill, idleAlpha));
+  background.on('pointerover', () => {
+    background.setFillStyle(hoverFill, 1);
+    container.setScale(1.02);
+  });
+  background.on('pointerout', () => {
+    background.setFillStyle(idleFill, idleAlpha);
+    container.setScale(1);
+  });
   background.on('pointerdown', callback);
   container.add([background, text]);
   return container;

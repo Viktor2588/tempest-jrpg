@@ -90,14 +90,14 @@ const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: number }
 ];
 
 const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
-  { id: 'party', label: 'Party' },
-  { id: 'inventory', label: 'Inventar' },
-  { id: 'equipment', label: 'Ausrüstung' },
-  { id: 'status', label: 'Status' },
-  { id: 'growth', label: 'Talente' },
-  { id: 'quests', label: 'Quests' },
-  { id: 'codex', label: 'Codex' },
-  { id: 'travel', label: 'Ranga' }
+  { id: 'party', label: '1 Party' },
+  { id: 'inventory', label: '2 Inventar' },
+  { id: 'equipment', label: '3 Ausrüstung' },
+  { id: 'status', label: '4 Status' },
+  { id: 'growth', label: '5 Talente' },
+  { id: 'quests', label: '6 Quests' },
+  { id: 'codex', label: '7 Codex' },
+  { id: 'travel', label: '8 Ranga' }
 ];
 
 // Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
@@ -136,6 +136,10 @@ export class MenuScene extends Phaser.Scene {
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
+  // Phase 141: Einfaches Tooltip-System
+  private tooltip?: Phaser.GameObjects.Container;
+  // Phase 141: Einfacher Filter für Listen (z.B. Inventar)
+  private inventoryFilter = '';
 
   constructor() {
     super('Menu');
@@ -168,6 +172,25 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-DOWN', () => this.moveMenuSelection(1));
     this.input.keyboard?.on('keydown-SPACE', () => this.activateMenuSelection());
     this.input.keyboard?.on('keydown-ENTER', () => this.activateMenuSelection());
+
+    // Phase 141: Direkte Tastenkürzel für Tabs (1-8)
+    const digitKeys = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+    digitKeys.forEach((key, idx) => {
+      if (idx < TABS.length) {
+        this.input.keyboard?.on(`keydown-${key}`, () => {
+          this.selectedTab = TABS[idx].id;
+          this.message = TAB_DESCRIPTIONS[this.selectedTab];
+          this.codexPage = 0;
+          this.listPages = {};
+          this.questPage = 0;
+          this.questStatus = 'active';
+          this.selectedQuestId = null;
+          this.selectedTalentNodeId = null;
+          this.showForge = false;
+          this.refresh();
+        });
+      }
+    });
     this.refresh();
   }
 
@@ -192,10 +215,10 @@ export class MenuScene extends Phaser.Scene {
     this.button(GAME_WIDTH - 126, 34, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     TABS.forEach((tab, index) => {
+      const isActive = this.selectedTab === tab.id;
+      const fill = isActive ? 0x30506f : 0x1b2940;
       this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
         this.selectedTab = tab.id;
-        // Beim Tabwechsel die Kurzbeschreibung in die Meldungszeile setzen, damit klar
-        // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
         this.listPages = {};
@@ -205,7 +228,16 @@ export class MenuScene extends Phaser.Scene {
         this.selectedTalentNodeId = null;
         this.showForge = false;
         this.refresh();
-      }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
+      }, fill, TAB_DESCRIPTIONS[tab.id]);
+
+      // Bessere aktive Tab-Hervorhebung: kleiner Unterstrich für visuelle Klarheit
+      if (isActive) {
+        const x = menuTabButtonX(index, TABS.length);
+        const w = MENU_TAB_ROW.buttonWidth;
+        const underline = this.add.rectangle(x + w/2, MENU_TAB_ROW.y + 24, w - 8, 3, 0xe9c56c)
+          .setOrigin(0.5, 0.5);
+        this.layer.add(underline);
+      }
     });
 
     // Party-Auswahlleiste nur auf Figur-bezogenen Tabs — sonst verschwendet sie Platz
@@ -359,14 +391,26 @@ export class MenuScene extends Phaser.Scene {
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
     // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
-    this.button(760, 150, 120, 'Sortiert', () => {
-      this.message = 'Inventar ist automatisch sortiert.';
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter (Name enthält):', this.inventoryFilter);
+      this.inventoryFilter = (q ?? '').toLowerCase().trim();
       this.refresh();
     });
+    if (this.inventoryFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        this.inventoryFilter = '';
+        this.refresh();
+      });
+    }
+
+    let filteredInventory = view.inventory;
+    if (this.inventoryFilter) {
+      filteredInventory = view.inventory.filter(e => e.item.name.toLowerCase().includes(this.inventoryFilter));
+    }
 
     const invCol = MENU_LIST_COLUMNS.inventoryItems;
-    const inv = this.menuListPage(view.inventory.length, invCol);
-    view.inventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
+    const inv = this.menuListPage(filteredInventory.length, invCol);
+    filteredInventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
       const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
       this.button(300, y, 260, label, () => {
@@ -1633,15 +1677,47 @@ export class MenuScene extends Phaser.Scene {
     width: number,
     label: string,
     callback: () => void,
-    color = 0x1b2940
+    color = 0x1b2940,
+    tooltip?: string
   ): void {
-    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+    const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
       fill: color,
       idleAlpha: 0.96,
       fontSize: '13px',
       textOffsetX: 10
-    }));
+    });
+    this.layer.add(btn);
+
+    if (tooltip) {
+      const bg = btn.list[0] as Phaser.GameObjects.Rectangle; // background
+      bg.on('pointerover', () => this.showTooltip(x + width / 2, y - 30, tooltip));
+      bg.on('pointerout', () => this.hideTooltip());
+    }
+  }
+
+  private showTooltip(x: number, y: number, text: string): void {
+    this.hideTooltip();
+    const container = this.add.container(x, y);
+    const bg = this.add.rectangle(0, 0, 220, 28, 0x0a0f1a, 0.95)
+      .setStrokeStyle(1, 0x3a506f)
+      .setOrigin(0.5, 1);
+    const label = this.add.text(0, -4, text, {
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+      color: '#e9eef7',
+      align: 'center'
+    }).setOrigin(0.5, 1);
+    container.add([bg, label]);
+    this.layer.add(container);
+    this.tooltip = container;
+  }
+
+  private hideTooltip(): void {
+    if (this.tooltip) {
+      this.tooltip.destroy();
+      this.tooltip = undefined;
+    }
   }
 
   private drawPortrait(characterId: string, x: number, y: number, size: number): void {
