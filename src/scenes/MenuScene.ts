@@ -77,6 +77,7 @@ import {
   CHARACTER_TABS,
   TAB_DESCRIPTIONS
 } from '../ui/menu/MenuTypes';
+import type { IMenuTabView } from '../ui/menu/IMenuTabView';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -107,7 +108,7 @@ export class MenuScene extends Phaser.Scene {
 
   // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
   // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
-  private tabViews: Map<MenuTab, (view?: any, selected?: any) => void> = new Map();
+  private tabViews: Map<MenuTab, IMenuTabView> = new Map();
 
   constructor() {
     super('Menu');
@@ -164,16 +165,70 @@ export class MenuScene extends Phaser.Scene {
 
   private initTabViewsIfNeeded() {
     if (this.tabViews.size > 0) return;
-    // Phase 141 Großes Refactor: Registry statt riesigem if/else in refresh().
-    // Ermöglicht schrittweise Extraktion in eigene Klassen (siehe src/ui/menu/).
-    this.tabViews.set('party', (v: any, s: any) => this.drawParty(s?.character?.name, v));
-    this.tabViews.set('inventory', (v: any, s: any) => this.drawInventory(v, s?.member?.characterId));
-    this.tabViews.set('equipment', (v: any, s: any) => this.drawEquipment(v, s?.member?.characterId));
-    this.tabViews.set('status', (v: any, s: any) => this.drawStatus(v, s?.member?.characterId));
-    this.tabViews.set('growth', (v: any, s: any) => this.drawGrowth(v, s?.member?.characterId));
-    this.tabViews.set('quests', (_v: any, _s: any) => this.drawQuestLog());
-    this.tabViews.set('codex', (_v: any, _s: any) => this.drawCodex());
-    this.tabViews.set('travel', (_v: any, _s: any) => this.drawRangaTravel());
+    // Phase 141/143: Vollständige Modularisierung – Registry mit echten IMenuTabView Objekten.
+    // Jeder Tab ist jetzt ein Objekt mit draw(view). Nächster Schritt: eigene Klassen mit eigenem State.
+    this.tabViews.set('party', {
+      tab: 'party',
+      onActivated: () => {},
+      draw: (view: MenuView) => {
+        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
+        if (selected) this.drawParty(selected.character.name, view);
+      }
+    } as IMenuTabView);
+
+    this.tabViews.set('inventory', {
+      tab: 'inventory',
+      onActivated: () => { this.inventoryFilter = ''; },
+      draw: (view: MenuView) => {
+        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
+        if (selected) this.drawInventory(view, selected.member.characterId);
+      }
+    } as IMenuTabView);
+
+    this.tabViews.set('equipment', {
+      tab: 'equipment',
+      onActivated: () => {},
+      draw: (view: MenuView) => {
+        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
+        if (selected) this.drawEquipment(view, selected.member.characterId);
+      }
+    } as IMenuTabView);
+
+    this.tabViews.set('status', {
+      tab: 'status',
+      onActivated: () => {},
+      draw: (view: MenuView) => {
+        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
+        if (selected) this.drawStatus(view, selected.member.characterId);
+      }
+    } as IMenuTabView);
+
+    this.tabViews.set('growth', {
+      tab: 'growth',
+      onActivated: () => {},
+      draw: (view: MenuView) => {
+        const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
+        if (selected) this.drawGrowth(view, selected.member.characterId);
+      }
+    } as IMenuTabView);
+
+    this.tabViews.set('quests', {
+      tab: 'quests',
+      onActivated: () => {},
+      draw: (view: MenuView) => { this.drawQuestLog(view); }
+    } as IMenuTabView);
+
+    this.tabViews.set('codex', {
+      tab: 'codex',
+      onActivated: () => {},
+      draw: (_view: MenuView) => { this.drawCodex(); }
+    } as IMenuTabView);
+
+    this.tabViews.set('travel', {
+      tab: 'travel',
+      onActivated: () => {},
+      draw: (_view: MenuView) => { this.drawRangaTravel(); }
+    } as IMenuTabView);
   }
 
   private refresh(): void {
@@ -237,11 +292,10 @@ export class MenuScene extends Phaser.Scene {
 
     this.initTabViewsIfNeeded();
 
-    // Phase 141 Groß-Refactor: Registry-Dispatch statt monolithischem if/else.
-    // Das ist der zentrale Punkt des Refactors der monolithischen MenuScene.
-    const drawer = this.tabViews.get(this.selectedTab);
-    if (drawer) {
-      drawer(view, selected);
+    // Phase 141/143 Groß-Refactor: Registry-Dispatch über IMenuTabView.
+    const tabView = this.tabViews.get(this.selectedTab);
+    if (tabView) {
+      tabView.draw(view);
     } else {
       this.drawParty(selected.character.name, view);
     }
