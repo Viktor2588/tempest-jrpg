@@ -555,6 +555,65 @@ gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfo
   Echos/Geister). Kein neues Venue, kein neues System. Akzeptanz: Echo-Auswahl + skalierter
   Kampf + Devour-Pfad headless, typecheck ✓, Unit-Tests ✓, build ✓, off-route → Korridor unberuehrt.
 
+## Elfte Welle: Ausruestungs-Overhaul, Loot & Content-Aufwertung (Nutzer 2026-07-11)
+
+Befund (Code + Nutzer-Vorgabe): Das Ausruestungssystem hat schon Slots (weapon/
+armor/accessory), `statBonus`, Verzauberung (`enchantment`/`enchantEquipment`),
+Set-Boni (`EQUIPMENT_SETS` mit `tiers`), Perks (Phase 135) und Crafting (Schmiede)
+— aber KEINE Raritaet/Tier-Stufen, keinen Kern-Slot, kein Random-Roll-Loot und nur
+14 Ausruestungsteile. Regionen (184 Bezuege) und Quests sind zahlreich, teils aber
+duenn bestueckt. Nutzer-Vorgabe: Raritaet wie Diablo 3 — legendaer-EINZIGARTIG (mit
+Signatur-Perk) vs. legendaer-SET; Kern-Slots (an die Magicule-/Seelen-Oekonomie
+gebunden); Random-Roll-Loot (v.a. Labyrinth); mehr Gear/Sets. Content-Fokus: Items/
+Ausruestung, duenne Regionen aufwerten, neue an Loot gekoppelte Nebenquests — KEINE
+neuen leeren Karten. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-
+System; canon-first). Reihenfolge = Abhaengigkeit: 149 Fundament; 150/151 bauen
+darauf; 152–154 sind Content auf dem neuen System.
+
+- [ ] Phase 149 — Raritaet/Tier-Fundament (legendaer-einzigartig vs. legendaer-Set).
+  Neues Feld `rarity` auf `ItemDefinition` (gewoehnlich|selten|episch|legendaer|
+  legendaer-set). Raritaet skaliert `statBonus`/Enchant-Cap; `legendaer` = einzigartig
+  mit genau einem Signatur-`perk` (D3-Legendary), `legendaer-set` speist die bestehenden
+  `EQUIPMENT_SETS`-Tier-Boni. Bestehende 14 Teile retrofitten; Menue/Tooltip zeigt
+  Raritaet farbig. Reines Fundament (keine neuen Items). Akzeptanz: Raritaet-Daten +
+  Stat-/Perk-Auswertung + Menue-Farbe headless, typecheck ✓, Unit-Tests ✓, build ✓.
+
+- [ ] Phase 150 — Kern-Slot (Magicule-Kern).
+  Vierter Slot `'core'` (EquipmentSlot erweitern; Party-`equipment`, `startingEquipment`,
+  Save-Migration, Menue). Kern-Items an die Magicule-/Seelen-Oekonomie gebunden (Element-/
+  Skill-Bonus, ggf. Magicule-Kosten zum Einsetzen). Kleine Start-Auswahl an Kernen.
+  Balance-safe: Boni massvoll, Traeger nicht auf Harness-Knoten. Akzeptanz: Slot-Wiring
+  + Save-Roundtrip + Kern-Boni headless, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+
+- [ ] Phase 151 — Random-Roll-Loot im Labyrinth (Affix-Instanzen).
+  Groesster Umbau: `InventoryStack` ist heute rein by-id/stapelbar — Random-Roll braucht
+  eine leichte NICHT-stapelbare Ausruestungs-INSTANZ mit gerollten Affixen (Affixe =
+  wiederverwendete `TalentPerk`/`statBonus`-Bausteine). Labyrinth-Drops (verzahnt mit
+  Wave-10-Skalierung 147/148) rollen Raritaet + Affixe DETERMINISTISCH aus dem Run-Seed.
+  Inventar/Menue/Ausruesten kommen mit Instanzen klar. Off-route → Korridor unberuehrt.
+  Akzeptanz: Instanz-Modell + deterministischer Roll + Ausruesten headless, typecheck ✓,
+  Unit-Tests ✓, build ✓.
+
+- [ ] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System).
+  ~15–20 neue Ausruestungsteile ueber die Raritaeten (inkl. ein paar legendaer-einzigartig
+  + ein/zwei neue `legendaer-set`-Sets), plus Crafting-Rezepte (Schmiede) und Kern-Items.
+  Verteilt auf Regionen/Labyrinth/Crafting. Repo-eigene generierte Icons nach Asset-
+  Prioritaet. Balance-safe (off-route / im Regions-Korridor). Akzeptanz: Item-/Set-/
+  Rezept-Daten, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+
+- [ ] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten).
+  Regionen mit duennem Encounter-/Event-Bestand (`PROGRESSION_REGIONS`) bekommen
+  Fundstellen (`mapDiscovery`), kleine Weltfolgen/NPC-Beats und Encounter-Vielfalt
+  (Phase-146-Archetypen) — KEINE neuen leeren Maps. Belohnungen koppeln ans neue Gear/
+  Loot. Akzeptanz: Fundstellen-/Encounter-Einbau headless, typecheck ✓, Unit-Tests ✓,
+  build ✓, **Balance-Harness gruen**.
+
+- [ ] Phase 154 — Neue Nebenquests, an Loot gekoppelt.
+  Optionale Quests (Jagd/Sammel/Story-Splitter) ueber das bestehende `QuestDefinition`-
+  System, deren Belohnungen gezielt das neue Gear/legendaere Loot/Kerne geben — ein
+  erspielbarer Weg zum Loot jenseits von Drops. Akzeptanz: Quest-Daten + Belohnungspfad
+  headless, typecheck ✓, Unit-Tests ✓, build ✓.
+
 ## UX- und Welt-Backlog
 
 
