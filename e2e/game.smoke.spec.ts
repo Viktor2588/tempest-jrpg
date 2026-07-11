@@ -833,6 +833,11 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
 });
 
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
+  // Belt-and-suspenders: settle() screenshotet nicht mehr (systemischer Fix),
+  // aber dieser menu-schwere Pfad behaelt viele explizite expectCanvasContent()-
+  // Screenshots; auf headless Software-GL bleibt der ReadPixels-Readback teuer.
+  // 60s Budget haelt den Testgruen, ohne gruene Laeufe zu bremsen.
+  test.setTimeout(60_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
