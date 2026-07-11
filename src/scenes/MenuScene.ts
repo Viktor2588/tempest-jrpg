@@ -265,6 +265,10 @@ export class MenuScene extends Phaser.Scene {
     } else {
       this.drawParty(selected.character.name, view);
     }
+
+    // Phase 145 delegation: keep direct references so TS sees the methods as used
+    // (actual calls happen via (scene as any) from the TabView classes)
+    if (false) { void this.drawQuestLog; void this.drawCodex; void this.drawRangaTravel; void this.drawInventory; void this.drawEquipment; void this.drawStatus; void this.drawGrowth; }
   }
 
   private drawMemberList(view: MenuView): void {
@@ -1108,6 +1112,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawLoreEntries(): void {
+    const codexV = this.tabViews.get('codex') as any;
     const all = buildCodexView(createWorldState(this.save));
     // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
     // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
@@ -1129,7 +1134,6 @@ export class MenuScene extends Phaser.Scene {
     }
 
     // Filter UI for Codex
-    const codexV = this.tabViews.get('codex') as any;
     const curCodF = codexV?.getCodexFilter ? codexV.getCodexFilter() : this.codexFilter;
     this.button(760, 150, 80, 'Filter', () => {
       const q = window.prompt('Filter Codex (Titel/Beschreibung):', curCodF);
