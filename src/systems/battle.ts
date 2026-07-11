@@ -32,6 +32,7 @@ import {
   dodgeChance,
   maxHpMultiplier,
   skillChainFor,
+  statusResistChance,
   type DamageCategory,
   type TalentPerk
 } from './talentPerk';
@@ -1194,7 +1195,7 @@ function resolveTeamAttack(
     fusion?.damageElement ?? 'neutral',
     fusion?.breakPressure ?? 2
   );
-  if (fusion?.statusEffect && target.hp > 0) {
+  if (fusion?.statusEffect && target.hp > 0 && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
     pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)}.`);
   }
@@ -1566,6 +1567,7 @@ function resolveSignature(
       case 'status':
         for (const target of effectTargets) {
           if (target.dead) continue;
+          if (resistsNegativeStatus(state, target, effect.statusId)) continue;
           applyStatus(target, effect.statusId, effect.turns);
           pushLog(state, `${target.name}: ${statusLabel(effect.statusId)}.`);
         }
@@ -1724,6 +1726,9 @@ function applySkillStatus(state: BattleState, actor: Combatant, target: Combatan
     return;
   }
   if (state.rng() > skill.statusEffect.chance) {
+    return;
+  }
+  if (resistsNegativeStatus(state, target, skill.statusEffect.id)) {
     return;
   }
 
@@ -2370,6 +2375,20 @@ function applyStatus(target: Combatant, statusId: StatusEffectId, turns: number)
   target.statuses.push({ id: statusId, turns });
 }
 
+// Phase 132 — Widerstands-Schicht: prueft, ob ein NEGATIVER Status per status-resist-Perk
+// abgewehrt wird. Buffs (nicht in DEBUFF_STATUSES) und Ziele ohne passenden Perk passieren
+// ungehindert. Gibt true zurueck (+ Log), wenn der Status abgewehrt wurde.
+function resistsNegativeStatus(state: BattleState, target: Combatant, statusId: StatusEffectId): boolean {
+  if (!DEBUFF_STATUSES.includes(statusId)) return false;
+  const chance = statusResistChance(target.perks, statusId);
+  if (chance <= 0) return false;
+  if (state.rng() < chance) {
+    pushLog(state, `${target.name} widersteht ${statusLabel(statusId)}.`);
+    return true;
+  }
+  return false;
+}
+
 function statusLabel(statusId: StatusEffectId): string {
   switch (statusId) {
     case 'poison':
@@ -2475,7 +2494,7 @@ function triggerFieldReaction(
 ): void {
   pushLog(state, `Feldreaktion: ${fusion.name} entlädt sich auf ${target.name}!`);
   applyBreakPressure(state, target, fusion.damageElement, FIELD_REACTION_BREAK_PRESSURE);
-  if (fusion.statusEffect) {
+  if (fusion.statusEffect && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
   }
 }

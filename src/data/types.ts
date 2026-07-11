@@ -20,7 +20,11 @@ export type TalentPerk =
   | { readonly kind: 'skill-chain'; readonly triggerSkillId: string; readonly followUpSkillId: string; readonly percent: number }
   | { readonly kind: 'buff-power'; readonly percent: number }
   | { readonly kind: 'devour-chance'; readonly percent: number }
-  | { readonly kind: 'analysis-power'; readonly levels: number };
+  | { readonly kind: 'analysis-power'; readonly levels: number }
+  // Phase 132 — Widerstands-Schicht: Chance, einen negativen Status abzuwehren, wenn er
+  // zugefuegt wuerde. Ohne `statuses` gilt der Widerstand fuer alle Negativ-Status,
+  // mit `statuses` nur fuer die genannten (z.B. Rimurus Isolation → nur 'poison').
+  | { readonly kind: 'status-resist'; readonly percent: number; readonly statuses?: readonly StatusEffectId[] };
 
 export type StatusEffectId =
   | 'poison'

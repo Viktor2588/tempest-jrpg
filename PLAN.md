@@ -526,20 +526,23 @@ gefahren; **alle CC-Traeger bleiben Nicht-Harness-Gegner** und die Widerstands-P
 liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bleibt
 unberuehrt.
 
-- [ ] Phase 132 — Widerstands-Schicht: Status-Widerstand als Perk (Fundament).
-  Neue `TalentPerk`-Art `status-resist` (`{ kind: 'status-resist'; percent: number;
-  statuses?: readonly StatusEffectId[] }`): eine Chance, einen **negativen** Status
-  abzuwehren, wenn er zugefuegt wuerde (ohne `statuses` = alle Negativ-Status, mit
-  `statuses` = nur die genannten). Motor-Hook: in `applySkillStatus` (und im
-  Fusions-/Reaktions-Status-Pfad) vor `applyStatus` pruefen, ob der Status in
-  `DEBUFF_STATUSES` liegt UND das Ziel eine passende `status-resist`-Chance traegt →
-  `state.rng()`-Wurf, bei Erfolg negieren + Log „… widersteht …". Helfer
-  `statusResistChance(perks, statusId)` in `systems/talentPerk.ts` (analog
-  `dodgeChance`/`counterProc`). Traeger: je ein defensiver Spec-Knoten bei den
-  Tank-/Nahkaempfer-Zweigen (bewusst NICHT die Harness-Prioritaetsknoten). Akzeptanz:
-  Widerstands-Wurf negiert Negativ-Status / laesst Buffs & nicht-abgedeckte Status
-  durch / kein Effekt ohne Perk (`test/statusResist.test.ts`), Perk-Helfer headless,
-  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness je Spec gruen** (Perk nicht
+- [x] Phase 132 — Widerstands-Schicht: Status-Widerstand als Perk (Fundament)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue `TalentPerk`-Art `status-resist`
+  (`{ kind: 'status-resist'; percent; statuses? }`, `data/types.ts`) — eine Chance,
+  einen **negativen** Status abzuwehren (ohne `statuses` = alle Negativ-Status, mit
+  `statuses` = nur die genannten). Motor-Hook `resistsNegativeStatus` (`systems/battle.ts`)
+  greift an ALLEN vier Negativ-Status-Zufuegungs-Stellen (`applySkillStatus`,
+  Team-/Fusions-Status, Signatur-`status`-Effekt, Feldreaktion): nur wenn der Status
+  in `DEBUFF_STATUSES` liegt UND das Ziel eine passende `statusResistChance` traegt,
+  wird per `state.rng()` gewuerfelt und bei Erfolg negiert (Log „… widersteht …"). Buffs
+  (nicht in `DEBUFF_STATUSES`, z.B. `attack-up`) passieren ungehindert. Helfer
+  `statusResistChance(perks, statusId)` in `systems/talentPerk.ts` (staerkster passender
+  Perk, gedeckelt auf 1) + `describePerk`-Fall. Traeger: Shunas Schutz-Strang-Knoten
+  `shuna-ward-veil` („Segensschleier", 30 %) — bewusst ein Nicht-Harness-Knoten.
+  Akzeptanz erfuellt: Helfer + Motor-Verhalten (voller Widerstand wehrt Gegner-Schlaf
+  ueber 120 Seeds ab, gefilterter Widerstand laesst Schlaf durch, Buffs passieren,
+  Knoten-Traeger) headless (`test/statusResist.test.ts`, 8 Tests), typecheck ✓,
+  679 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (Perk nicht
   auf Harness-Knoten → Sims unveraendert).
 
 - [ ] Phase 133 — Freeze & Charm erwachen (der letzte tote Hart-CC).

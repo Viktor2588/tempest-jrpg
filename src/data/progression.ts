@@ -701,7 +701,7 @@ export const SKILL_TREES = [
       // Strang 1 — Schutz (Verteidigung: Schadensresistenz + max-LP)
       { id: 'shuna-ward-focus', name: 'Schutzfokus', description: 'Strang Schutz: lehrt das Barrieregebet.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'ward', skillId: 'barrier-prayer', perks: [{ kind: 'damage-taken', percent: 12 }], statBonus: { spirit: 2 } },
       { id: 'shuna-ward-body', name: 'Schutzgewebe', description: 'Verwebt Zähigkeit ins Gewand.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }] },
-      { id: 'shuna-ward-veil', name: 'Segensschleier', description: 'Mindert erlittenen Schaden weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'damage-taken', percent: 12 }] },
+      { id: 'shuna-ward-veil', name: 'Segensschleier', description: 'Mindert erlittenen Schaden und wehrt oft schädliche Zustände ab.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'damage-taken', percent: 12 }, { kind: 'status-resist', percent: 30 }] },
       { id: 'shuna-ward-circle', name: 'Sakralkreis', description: 'Vollendung des Schutz-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-ward-body'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }, { kind: 'damage-taken', percent: 10 }], statBonus: { spirit: 3 } },
       // Strang 2 — Weberin (Support: Buff-Dauer + Heil-Kette)
       { id: 'shuna-weave-focus', name: 'Weber-Fokus', description: 'Strang Weberin: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 4, spirit: 1 } },
