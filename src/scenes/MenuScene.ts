@@ -55,6 +55,7 @@ import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
+import { playSfxProcedural } from '../audio/sfx';
 import {
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
@@ -255,6 +256,7 @@ export class MenuScene extends Phaser.Scene {
       const isActive = this.selectedTab === tab.id;
       const fill = isActive ? 0x30506f : 0x1b2940;
       this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
+        playSfxProcedural('menu');
         this.selectedTab = tab.id;
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
@@ -1274,6 +1276,7 @@ export class MenuScene extends Phaser.Scene {
     if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
     if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
     if (entry.casterHint) parts.push(entry.casterHint);
+    if (entry.magicFocused) parts.push('Zauberwirker - Schweigen kontert');
     return parts.join('  ·  ');
   }
 

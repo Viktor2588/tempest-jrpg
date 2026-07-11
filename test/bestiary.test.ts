@@ -65,6 +65,20 @@ describe('buildBestiary', () => {
     expect(slime.analyzed).toBe(true);
   });
 
+  it('markiert studierte Magie-lastige Gegner als Zauberwirker', () => {
+    const studied = buildBestiary({
+      defeatedEnemyCountsByEnemyId: { 'academy-wisp': 1 },
+      analyzedEnemyIds: ['academy-wisp']
+    }).entries[0]!;
+    const unstudied = buildBestiary({
+      defeatedEnemyCountsByEnemyId: { 'academy-wisp': 1 },
+      analyzedEnemyIds: []
+    }).entries[0]!;
+
+    expect(studied.magicFocused).toBe(true);
+    expect(unstudied.magicFocused).toBe(false);
+  });
+
   it('ignoriert Zähler von 0 und unbekannte Ids', () => {
     const bestiary = buildBestiary({
       defeatedEnemyCountsByEnemyId: { 'forest-slime': 0, 'does-not-exist': 4 },

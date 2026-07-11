@@ -723,6 +723,16 @@ describe('Story-Rekrutierung (recruit-character)', () => {
     expect(recruited.party.reserve.map((member) => member.characterId))
       .toEqual(['shuna', 'benimaru']);
   });
+
+  it('rekrutiert Shuna bei der Kijin-Benennung vor dem Akademieweg', () => {
+    const named = chooseDialogOption(postPrologueWorld(), 'kijin-naming', 'start', 'name-them');
+
+    expect(named.ok).toBe(true);
+    expect(named.state.world.roster).toContain('shuna');
+    expect(named.state.world.flags['story.kijin.named']).toBe(true);
+    expect(getMapLocations('blumund', named.state.world).map((location) => location.id))
+      .not.toContain('gate-to-freedom-academy');
+  });
 });
 
 describe('Canon-Benennung (Band 1)', () => {

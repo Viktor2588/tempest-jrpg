@@ -1730,7 +1730,7 @@ export const LORE_ENTRIES = [
     title: 'Die Namensgebung der Oger',
     lockedTitle: 'Geflüchtete Krieger',
     category: 'history',
-    body: 'Sechs Oger überlebten den Untergang ihres Dorfes. Als Rimuru ihnen Namen gab, loderte die Magie auf und hob sie zu Kijin empor — Benimaru, Shion, Hakurou, Kurobe und Souei. Ein Name ist kein Wort, sondern ein Anteil an Macht; wer ihn schenkt, bindet Schicksale aneinander.',
+    body: 'Sechs Oger überlebten den Untergang ihres Dorfes. Als Rimuru ihnen Namen gab, loderte die Magie auf und hob sie zu Kijin empor — Benimaru, Shion, Hakurou, Shuna, Kurobe und Souei. Ein Name ist kein Wort, sondern ein Anteil an Macht; wer ihn schenkt, bindet Schicksale aneinander.',
     unlockFlag: 'story.kijin.named'
   },
   {
@@ -3159,7 +3159,7 @@ export const DIALOGS = [
         choices: [
           {
             id: 'name-them',
-            label: 'Die Oger benennen (Benimaru, Shion, Hakurou, Kurobe, Souei)',
+            label: 'Die Oger benennen (Benimaru, Shion, Hakurou, Shuna, Kurobe, Souei)',
             nextNodeId: 'named',
             requirements: [
               { flag: 'story.slime-prologue.completed' },
@@ -3169,6 +3169,7 @@ export const DIALOGS = [
               { type: 'recruit-character', characterId: 'benimaru' },
               { type: 'recruit-character', characterId: 'shion' },
               { type: 'recruit-character', characterId: 'hakurou' },
+              { type: 'recruit-character', characterId: 'shuna' },
               // Kurobe wird benannt, bleibt aber Schmied — kein Kampfroster-Beitritt.
               { type: 'recruit-character', characterId: 'souei' },
               { type: 'set-flag', flag: 'story.kijin.named', value: true },
@@ -3181,7 +3182,7 @@ export const DIALOGS = [
       {
         id: 'named',
         speaker: 'Hakurou',
-        text: 'Mit jedem Namen lodert die Magie auf — die Oger steigen zu Kijin auf. Benimaru, Shion, Hakurou, Kurobe und Souei knien nieder und schwören Tempest ewige Gefolgschaft.',
+        text: 'Mit jedem Namen lodert die Magie auf — die Oger steigen zu Kijin auf. Benimaru, Shion, Hakurou, Shuna, Kurobe und Souei knien nieder und schwören Tempest ewige Gefolgschaft.',
         choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
       }
     ]

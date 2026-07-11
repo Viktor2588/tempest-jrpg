@@ -38,6 +38,7 @@ import {
 } from './talentPerk';
 import { scaleStats } from './stats';
 import { resolveElementFusion } from './fusion';
+import { playSfxProcedural } from '../audio/sfx';
 
 export type Side = 'party' | 'enemy';
 export type BattleStatus = 'active' | 'won' | 'lost' | 'fled';
@@ -935,6 +936,7 @@ function resolveAttack(state: BattleState, actor: Combatant, targetId: string): 
     * variance(state.rng);
   const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: attackElement(actor) });
   pushLog(state, `${actor.name} greift ${target.name} an: ${damage} Schaden.`);
+  playSfxProcedural('hit');
   checkDeath(state, target);
   endTurn(state, actor);
   return { ok: true };
@@ -977,6 +979,7 @@ function resolveSkill(
       const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 0.6));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
+      playSfxProcedural('heal');
       applySkillStatus(state, actor, target, skill);
       applyCtDelta(target, skill.ctDelta);
     }
@@ -1233,6 +1236,9 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
+  if (target.magic >= target.attack) {
+    pushLog(state, `${target.name} ist ein Zauberwirker - Bannsiegel unterbindet Fähigkeiten.`);
+  }
   // Phase 125 — die Analyse deckt auch die obere Resistenz-Leiter auf, damit der
   // Spieler weiß, welches Element NICHT zu spammen ist (absorbiert/immun).
   if (target.absorbs.length > 0) {
@@ -1291,6 +1297,7 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   } else {
     pushLog(state, `${actor.name} verschlingt ${target.name}.`);
   }
+  playSfxProcedural('devour');
   grantMomentum(state, actor, 'Verschlingen');
   endTurn(state, actor);
   return { ok: true };
@@ -1569,7 +1576,7 @@ function resolveSignature(
           if (target.dead) continue;
           if (resistsNegativeStatus(state, target, effect.statusId)) continue;
           applyStatus(target, effect.statusId, effect.turns);
-          pushLog(state, `${target.name}: ${statusLabel(effect.statusId)}.`);
+          pushAppliedStatus(state, target, effect.statusId);
         }
         break;
 
@@ -1771,7 +1778,6 @@ function advanceToNextActor(state: BattleState): void {
         }
         continue;
       }
-      updateEnemyPhase(state, actor);
       state.activeId = actor.id;
       return;
     }
@@ -1790,7 +1796,17 @@ function advanceToNextActor(state: BattleState): void {
 // Liefert true, wenn der Kämpfer diesen Zug wegen eines Aussetz-Status verliert.
 function startTurn(state: BattleState, actor: Combatant): boolean {
   actor.guarding = false;
-  updateEnemyPhase(state, actor);
+  const phaseChanged = updateEnemyPhase(state, actor);
+  const phaseSkill = actor.telegraphSkillId ? getSkill(actor.telegraphSkillId) : undefined;
+  if (phaseChanged && !actor.boss && phaseSkill?.heavy) {
+    // Der Wisp braucht einen Wind-up-Zug: Danach kann die Party den frischen
+    // Telegraph lesen und z. B. mit Bannsiegel antworten.
+    actor.ct = CT_THRESHOLD;
+    for (const ally of livingCombatants(state, 'party')) {
+      ally.ct = Math.max(ally.ct, CT_THRESHOLD);
+    }
+    return true;
+  }
 
   // Aussetz-Status VOR dem Abklingen prüfen, damit z. B. eine 1-Zug-Betäubung genau einmal greift.
   const disabledBy = computeDisabled(state, actor);
@@ -2135,6 +2151,7 @@ function applyBreakPressure(
 
   target.breakGauge = target.breakGaugeMax;
   applyStatus(target, 'guard-break', 2);
+  playSfxProcedural('break');
   target.ct = 0;
   state.teamMeter = clamp(state.teamMeter + TEAM_METER_BREAK_GAIN, 0, TEAM_METER_MAX);
   pushLog(state, `${target.name} ist gebrochen! Team-Leiste ${state.teamMeter}/${TEAM_METER_MAX}.`);
@@ -2152,9 +2169,9 @@ function grantMomentum(state: BattleState, actor: Combatant, reason: string): vo
   }
 }
 
-function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
+function updateEnemyPhase(state: BattleState, combatant: Combatant): boolean {
   if (combatant.side !== 'enemy' || combatant.dead || combatant.phaseIndex >= 1) {
-    return;
+    return false;
   }
   if (combatant.hp / combatant.maxHp <= combatant.phaseThreshold) {
     combatant.phaseIndex = 1;
@@ -2164,9 +2181,12 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
       combatant.boss ? BATTLE_BALANCE.bossPhaseCtSurge : CT_THRESHOLD
     );
     pushLog(state, `${combatant.name} wechselt in Phase 2.`);
+    refreshEnemyTelegraph(state, combatant);
     // Phase 109 — skript-getriebene Bossphase: beschwört beim Phasenwechsel einmalig Adds.
     spawnSummons(state, combatant);
+    return true;
   }
+  return false;
 }
 
 // Phase 109 — Add-Beschwörung: fügt beim Phasenwechsel einmalig zusätzliche Gegner in den
@@ -2427,6 +2447,24 @@ function statusLabel(statusId: StatusEffectId): string {
       return 'bezaubert';
     case 'weaken':
       return 'geschwächt';
+  }
+}
+
+function pushAppliedStatus(state: BattleState, target: Combatant, statusId: StatusEffectId): void {
+  const feedback = statusFeedback(statusId);
+  pushLog(state, `${target.name}: ${statusLabel(statusId)}${feedback ? ` (${feedback})` : ''}.`);
+}
+
+function statusFeedback(statusId: StatusEffectId): string | null {
+  switch (statusId) {
+    case 'silence':
+      return 'Fähigkeiten gesperrt';
+    case 'blind':
+      return 'physischer Angriff gesenkt';
+    case 'weaken':
+      return 'Angriff und Magie gesenkt';
+    default:
+      return null;
   }
 }
 

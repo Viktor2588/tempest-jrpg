@@ -218,5 +218,8 @@ export const SKILLS = [
   // unberuehrt (die Harness schaltet nur Gobta-/Rimuru-Knoten frei).
   { id: 'banishing-seal', name: 'Bannsiegel', description: 'Shuna verschließt mit einem heiligen Siegel den Zauberfluss des Ziels — für kurze Zeit keine Fähigkeiten.', element: 'holy', target: 'single-enemy', costMp: 12, power: 16, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'silence', chance: 0.6, turns: 2 } },
   { id: 'blinding-dust', name: 'Blendstaub', description: 'Souei schleudert feinen Schattenstaub in die Augen des Ziels und trübt dessen Treffsicherheit.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 20, tags: ['physical', 'debuff'], tier: 'skill', statusEffect: { id: 'blind', chance: 0.6, turns: 2 } },
-  { id: 'enfeebling-grip', name: 'Zermürbender Griff', description: 'Shions Titanengriff presst die Kraft aus den Gliedern des Ziels — Angriff und Magie sinken.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 26, tags: ['physical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'weaken', chance: 0.7, turns: 2 } }
+  { id: 'enfeebling-grip', name: 'Zermürbender Griff', description: 'Shions Titanengriff presst die Kraft aus den Gliedern des Ziels — Angriff und Magie sinken.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 26, tags: ['physical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'weaken', chance: 0.7, turns: 2 } },
+  // Phase 138 — optionaler Akademie-Caster: Phase 2 wird als schwerer Flächenzauber
+  // angekündigt; Bannsiegel lässt das Irrlicht stattdessen nur physisch angreifen.
+  { id: 'arcane-overload', name: 'Arkane Überladung', description: 'Das Irrlicht überlädt seine freien Geistersplitter und entlädt sie über die ganze Gruppe.', element: 'holy', target: 'all-enemies', costMp: 18, power: 50, tags: ['magical', 'debuff'], tier: 'extra-skill', heavy: true, ctDelta: -75 }
 ] as const satisfies readonly SkillDefinition[];

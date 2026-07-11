@@ -325,6 +325,7 @@ export const ENEMIES = [
       agility: 23
     },
     skillIds: ['spirit-bind', 'temporal-snare', 'slumber-glow'],
+    phase2SkillIds: ['arcane-overload'],
     devourable: true,
     devourSkillId: 'spirit-bind',
     weaknesses: ['shadow', 'earth'],

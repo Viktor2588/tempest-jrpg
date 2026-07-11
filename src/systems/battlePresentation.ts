@@ -34,6 +34,12 @@ const STATUS_LABELS: Readonly<Record<StatusEffectId, string>> = {
 
 const SOFT_CONTROLS: readonly StatusEffectId[] = ['blind', 'silence', 'weaken'];
 
+const STATUS_DETAIL_LABELS: Readonly<Partial<Record<StatusEffectId, string>>> = {
+  blind: 'Blind (Phys -)',
+  silence: 'Stumm (Skills aus)',
+  weaken: 'Schwach (ANG/MAG -)'
+};
+
 export interface EnemyIntelPresentation {
   readonly breakText: string;
   readonly weaknessText: string;
@@ -48,7 +54,11 @@ export function elementLabel(element: ElementType): string {
 
 export function formatStatusSummary(statuses: ReadonlyArray<{ readonly id: StatusEffectId; readonly turns: number }>): string | null {
   if (statuses.length === 0) return null;
-  return statuses.slice(0, 3).map((s) => {
+  const visible = statuses.slice(0, 3);
+  return visible.map((s) => {
+    if (visible.length === 1 && STATUS_DETAIL_LABELS[s.id]) {
+      return STATUS_DETAIL_LABELS[s.id];
+    }
     const label = STATUS_LABELS[s.id];
     return SOFT_CONTROLS.includes(s.id) ? `${label}(${s.turns})` : label;
   }).join(' · ');
