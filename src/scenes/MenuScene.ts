@@ -369,11 +369,22 @@ export class MenuScene extends Phaser.Scene {
       hit.on('dragend', (pointer: Phaser.Input.Pointer) => {
         hit.x = active.left + active.width / 2;
         hit.y = y;
-        // Determine drop target
+        // Determine drop target - check reserve area first (right side)
+        const reserve = MENU_PARTY_LAYOUT.reserve;
+        if (pointer.x > reserve.left - 20 && pointer.x < reserve.left + reserve.width + 20) {
+          // Move active to reserve
+          const formation = activateReserveMember(
+            { active: this.state.party, reserve: this.state.reserve ?? [] },
+            summary.member.characterId,
+            view.members[this.selectedMemberIndex]?.member.characterId
+          );
+          this.applyResult(applyPartyFormationToMenuState(this.state, formation));
+          return;
+        }
+        // Reorder within active
         const dropRelativeY = pointer.y - active.firstY;
         const targetIdx = Math.max(0, Math.min(view.members.length - 1, Math.floor(dropRelativeY / active.rowHeight)));
         if (targetIdx !== index) {
-          // Swap in state for simplicity (full formation system can be enhanced later)
           const party = [...this.state.party];
           [party[index], party[targetIdx]] = [party[targetIdx], party[index]];
           this.state = { ...this.state, party };
