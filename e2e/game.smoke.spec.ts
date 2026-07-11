@@ -163,7 +163,7 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
       updatedAt: '2026-06-28T00:00:00.000Z',
       seed: 12,
       playtimeSeconds: 0,
-      location: { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+      location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
       party: {
         active: [
           { characterId: 'rimuru' },
@@ -294,7 +294,7 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 3, y: 7, facing: 'up' },
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     inventory: { stacks: [{ itemId: 'wolf-fang-token', quantity: 1 }, { itemId: 'ancestor-seal-fragment', quantity: 1 }] },
     flags: {
       'story.intro.seen': true,
@@ -1014,7 +1014,7 @@ function bandTwoBrowserSave(overrides: {
     updatedAt: '2026-06-28T00:00:00.000Z',
     seed: 22,
     playtimeSeconds: 0,
-    location: overrides.location ?? { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+    location: overrides.location ?? { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     party: overrides.party ?? {
       active: [
         { characterId: 'rimuru' },
@@ -1049,7 +1049,7 @@ function bandTwoBrowserSave(overrides: {
 
 function bandFourDecisionBrowserSave(): Record<string, unknown> {
   return bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 4, y: 8, facing: 'up' },
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     flags: {
       'story.act1.completed': true,
       'story.act2.completed': true,
