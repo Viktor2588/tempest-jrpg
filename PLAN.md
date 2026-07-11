@@ -560,16 +560,20 @@ unberuehrt.
   ein, Ork-Lord bezaubert, korrekte Status-Ids), typecheck ✓, 682 Unit-Tests ✓,
   build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (CC nur off-route).
 
-- [ ] Phase 134 — Isolation: Rimurus Gift-Neutralisierung (canon, nutzt 132).
-  Rimurus Praedator-Natur (IDEE.md §1 „Isolation") erhaelt eine passive
-  Gift-/Status-Neutralisierung als `status-resist`-Perk (Phase 132) mit hoher/voller
-  Chance, canonisch auf **`poison`** (und optional die weiteren Status-DoT) begrenzt.
-  Ausgeliefert ueber einen frühen Praedator-Spec-Knoten (oder Story-Flag der
-  Praedator-Linie), damit es eine erspielte Unterfaehigkeit bleibt, kein Geschenk.
-  Rein additiv, keine Persistenz-Aenderung. Akzeptanz: Rimuru widersteht Gift bei
-  aktivem Isolation-Perk / nimmt Gift ohne ihn (`test/statusResist.test.ts` ergaenzt),
-  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen** (Praedator-Knoten
-  ausserhalb der Harness-Prioritaet bzw. defensiv-only → Sims unveraendert).
+- [x] Phase 134 — Isolation: Rimurus Gift-Neutralisierung (canon, nutzt 132)
+  (abgeschlossen, direkt auf main). Umgesetzt: neuer Praedator-Strang-Knoten
+  `rimuru-predator-isolation` („Isolation", `data/progression.ts`, Seitenzweig ab
+  `rimuru-fluid-core`, requiredLevel 3) traegt einen auf **`poison`** begrenzten
+  `status-resist`-Perk (Phase 132) mit voller Chance (100 %) — Rimurus Schleimleib
+  kapselt Gift kanonisch ab (IDEE.md §1 „Isolation, neutralisiert Gift/Gefahr"). Eine
+  erspielte Praedator-Unterfaehigkeit, kein Geschenk; schuetzt NUR vor Gift, andere
+  Zustaende bleiben ungeschuetzt. **Balance-sicher by design:** der Knoten steht NICHT
+  in `RIMURU_SPEC_PRIORITIES` (`test/qaGates.ts`), also schaltet ihn die Harness nie frei
+  → die Harness-Party bleibt gift-anfaellig, Sims unveraendert. Rein additiv, keine
+  Persistenz-Aenderung. Akzeptanz erfuellt: Knoten-Traeger + Gift-Immunitaet /
+  ungeschuetztes Nicht-Gift + Motor (Rimuru mit Isolation widersteht spore-moth-Gift,
+  ohne nimmt es) headless (`test/statusResist.test.ts` ergaenzt), typecheck ✓,
+  684 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
 
 - [ ] Phase 135 — Schutz-Talisman: Widerstands-Ausruestung (optional, kleiner
   Zuschnitt). Ein neues Accessoire, das im Kampf einen `status-resist`-Perk gewaehrt

@@ -560,6 +560,21 @@ export const SKILL_TREES = [
         perks: [{ kind: 'devour-chance', percent: 15 }]
       },
       {
+        // Phase 134 — Isolation (canon Praedator-Unterfaehigkeit, IDEE.md §1): der
+        // Schleimleib kapselt Gift ab und neutralisiert es. Seitenzweig ab dem
+        // Verschlinger-Fundament; bewusst NICHT in der Balance-Harness-Prioritätsliste
+        // (RIMURU_SPEC_PRIORITIES) → die Harness schaltet den Knoten nie frei, Sims unberührt.
+        id: 'rimuru-predator-isolation',
+        name: 'Isolation',
+        description: 'Praedator-Unterfaehigkeit: Rimurus Schleimleib kapselt Gift und Fäulnis ab und neutralisiert sie vollständig.',
+        cost: 1,
+        requiredLevel: 3,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        branch: 'predator',
+        perks: [{ kind: 'status-resist', percent: 100, statuses: ['poison'] }],
+        statBonus: { spirit: 2 }
+      },
+      {
         id: 'rimuru-predator-devour',
         name: 'Verschlinger-Archiv',
         description: 'Stabilisiert verschlungene Essenzen, damit Rimuru absorbierte Skills kontrolliert ins Kampf-Loadout nimmt.',

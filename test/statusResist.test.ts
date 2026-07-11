@@ -111,3 +111,39 @@ describe('Phase 132 — Spec-Knoten-Träger', () => {
     expect(resist!.kind === 'status-resist' && resist!.percent).toBeGreaterThan(0);
   });
 });
+
+// Phase 134 — Isolation: Rimurus kanonische Praedator-Gift-Neutralisierung.
+describe('Phase 134 — Isolation (Rimurus Gift-Neutralisierung)', () => {
+  const ISOLATION_PERK: TalentPerk = { kind: 'status-resist', percent: 100, statuses: ['poison'] };
+
+  it('der Isolation-Knoten trägt eine auf Gift begrenzte volle Immunität', () => {
+    const tree = SKILL_TREES.find((candidate) => candidate.nodes.some((node) => node.id === 'rimuru-predator-isolation'))!;
+    const node = tree.nodes.find((candidate) => candidate.id === 'rimuru-predator-isolation')!;
+    const resist = (node.perks ?? []).find((perk) => perk.kind === 'status-resist');
+    expect(resist).toBeTruthy();
+    expect(resist!.kind === 'status-resist' && resist!.statuses).toEqual(['poison']);
+    expect(statusResistChance(node.perks ?? [], 'poison')).toBe(1);
+    // Isolation schützt NUR vor Gift — andere Zustände (z.B. Betäubung) bleiben ungeschützt.
+    expect(statusResistChance(node.perks ?? [], 'stun')).toBe(0);
+  });
+
+  it('Rimuru mit Isolation widersteht Gift, ohne Isolation nicht', () => {
+    const poisonReached = (perks: TalentPerk[]): boolean => {
+      for (let seed = 1; seed <= 60; seed += 1) {
+        const state = startBattle({
+          party: [createHeroBattleUnit(RIMURU, { perks })],
+          enemyIds: ['spore-moth'],
+          seed
+        });
+        const moth = state.combatants.find((combatant) => combatant.sourceId === 'spore-moth')!;
+        const rimuru = state.combatants.find((combatant) => combatant.side === 'party')!;
+        state.activeId = moth.id;
+        enemyTurn(state);
+        if (rimuru.statuses.some((status) => status.id === 'poison')) return true;
+      }
+      return false;
+    };
+    expect(poisonReached([ISOLATION_PERK])).toBe(false);
+    expect(poisonReached([])).toBe(true);
+  });
+});
