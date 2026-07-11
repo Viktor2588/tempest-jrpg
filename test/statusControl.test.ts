@@ -93,6 +93,56 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
     }
   });
 
+  it('Phase 133 — die neuen Skills aktivieren die letzten toten Hart-CC (freeze/charm)', () => {
+    const expected: Record<string, { statusId: string; carrier: string }> = {
+      'frost-flask': { statusId: 'freeze', carrier: 'human-deserter' },
+      'dominating-gaze': { statusId: 'charm', carrier: 'orc-lord' }
+    };
+    for (const [skillId, info] of Object.entries(expected)) {
+      const skill = (SKILLS as readonly SkillDefinition[]).find((candidate) => candidate.id === skillId);
+      expect(skill, `${skillId} fehlt`).toBeTruthy();
+      expect(skill!.statusEffect?.id).toBe(info.statusId);
+      expect(skill!.statusEffect!.chance).toBeGreaterThan(0);
+      expect(skill!.target).toBe('single-enemy');
+    }
+  });
+
+  it('Phase 133 — der Deserteur-Söldner kann die Party einfrieren, Schaden bricht das Eis', () => {
+    let frozen = false;
+    for (let seed = 1; seed <= 160 && !frozen; seed += 1) {
+      const state = startBattle({
+        party: [createHeroBattleUnit(RIMURU), createHeroBattleUnit(GOBTA)],
+        enemyIds: ['human-deserter'],
+        seed
+      });
+      const deserter = state.combatants.find((combatant) => combatant.sourceId === 'human-deserter')!;
+      state.activeId = deserter.id;
+      enemyTurn(state);
+      frozen = state.combatants.some(
+        (combatant) => combatant.side === 'party' && combatant.statuses.some((status) => status.id === 'freeze')
+      );
+    }
+    expect(frozen).toBe(true);
+  });
+
+  it('Phase 133 — der Ork-Lord kann ein Party-Mitglied bezaubern', () => {
+    let charmed = false;
+    for (let seed = 1; seed <= 160 && !charmed; seed += 1) {
+      const state = startBattle({
+        party: [createHeroBattleUnit(RIMURU), createHeroBattleUnit(GOBTA)],
+        enemyIds: ['orc-lord'],
+        seed
+      });
+      const lord = state.combatants.find((combatant) => combatant.sourceId === 'orc-lord')!;
+      state.activeId = lord.id;
+      enemyTurn(state);
+      charmed = state.combatants.some(
+        (combatant) => combatant.side === 'party' && combatant.statuses.some((status) => status.id === 'charm')
+      );
+    }
+    expect(charmed).toBe(true);
+  });
+
   it('ein CC-Gegner (Akademie-Irrlicht) kann die Party einschläfern', () => {
     let slept = false;
     for (let seed = 1; seed <= 120 && !slept; seed += 1) {

@@ -545,18 +545,20 @@ unberuehrt.
   679 Unit-Tests ✓, build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (Perk nicht
   auf Harness-Knoten → Sims unveraendert).
 
-- [ ] Phase 133 — Freeze & Charm erwachen (der letzte tote Hart-CC).
-  Zwei neue telegraphierte Gegner-CC-Skills (`data/skills.ts`), die die letzten
-  ungenutzten Hart-CC-Status aktivieren — `frost-lock`→`freeze` (Eis-/Wasser-Gegner)
-  und `beguiling-gaze`→`charm` (Masken-Majin/Verfuehrer-Typ). Bewusst maessvolle
-  Chance (0.35–0.5) und **kurze** Dauer (1–2 Runden); `freeze` bricht bei Schaden
-  (`wakeOnDamage`), `charm` gibt nur eine Aussetz-Chance (0.5). **Beide Traeger sind
-  Nicht-Harness-Gegner** (off-route) → Balance-Korridor unberuehrt. Damit hat die
-  Widerstands-Schicht (132) und die Reinigung (129) endlich die vollstaendige
-  Bedrohung, gegen die sie spielt. Akzeptanz: Status-Zufuegung (Freeze/Charm setzen
-  aus, Freeze bricht bei Schaden), Skill-Daten headless (`test/statusControl.test.ts`
-  ergaenzt), typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen** (CC nur
-  off-route).
+- [x] Phase 133 — Freeze & Charm erwachen (der letzte tote Hart-CC) (abgeschlossen,
+  direkt auf main). Umgesetzt: zwei neue telegraphierte Gegner-CC-Skills
+  (`data/skills.ts`) aktivieren die letzten beiden ungenutzten Hart-CC-Status —
+  `frost-flask`→`freeze` (Deserteur-Söldner `human-deserter`, zerschlaegt einen
+  erbeuteten Alchemie-Frost-Kolben) und `dominating-gaze`→`charm` (Ork-Lord `orc-lord`,
+  Gelds Fluch beugt den Willen). Bewusst maessvolle Chance (0.4) und **kurze** Dauer
+  (2 Runden); `freeze` bricht bei Schaden (`wakeOnDamage`), `charm` gibt nur eine
+  Aussetz-Chance (0.5, `computeDisabled`). **Beide Traeger sind verifiziert
+  Nicht-Harness-Gegner** (nicht in den 13 Story-Encounter-Gegnern) → Balance-Korridor
+  unberuehrt. Damit haben die Widerstands-Schicht (132) und die Reinigung (129) die
+  vollstaendige Bedrohung, gegen die sie spielen. Akzeptanz erfuellt: Skill-Daten +
+  Status-Zufuegung headless (`test/statusControl.test.ts` — Deserteur friert die Party
+  ein, Ork-Lord bezaubert, korrekte Status-Ids), typecheck ✓, 682 Unit-Tests ✓,
+  build ✓, **Balance-Harness (6 Tests, je Spec) gruen** (CC nur off-route).
 
 - [ ] Phase 134 — Isolation: Rimurus Gift-Neutralisierung (canon, nutzt 132).
   Rimurus Praedator-Natur (IDEE.md §1 „Isolation") erhaelt eine passive

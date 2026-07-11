@@ -206,5 +206,10 @@ export const SKILLS = [
   // unberuehrt). Bewusst kurze Dauer/maessvolle Chance; der Spieler erspielt Kontrolle
   // durch Spezialisierungs-Commitment (Qual der Wahl), statt sie geschenkt zu bekommen.
   { id: 'iai-stillness', name: 'Iai — Reglosigkeit', description: 'Hakurous vollendeter Blitzzug trifft einen Nerv und lässt das Ziel erstarren.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 30, tags: ['physical', 'debuff'], tier: 'extra-skill', heavy: true, statusEffect: { id: 'stun', chance: 0.45, turns: 1 } },
-  { id: 'shadow-bind', name: 'Schattenfessel', description: 'Souei wirft Stahlfäden aus dem Schatten, die die Glieder des Ziels verschnüren.', element: 'shadow', target: 'single-enemy', costMp: 11, power: 24, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'paralyze', chance: 0.55, turns: 2 } }
+  { id: 'shadow-bind', name: 'Schattenfessel', description: 'Souei wirft Stahlfäden aus dem Schatten, die die Glieder des Ziels verschnüren.', element: 'shadow', target: 'single-enemy', costMp: 11, power: 24, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'paralyze', chance: 0.55, turns: 2 } },
+  // Phase 133 — Freeze & Charm erwachen: die letzten beiden toten Hart-CC-Status. Beide
+  // Traeger sind Nicht-Harness-Gegner (human-deserter, orc-lord) → Balance-Korridor
+  // unberuehrt. freeze bricht bei Schaden (wakeOnDamage); charm gibt nur eine Aussetz-Chance.
+  { id: 'frost-flask', name: 'Frostkolben', description: 'Der Deserteur zerschellt einen erbeuteten Alchemie-Kolben — beißender Frost lässt das Ziel erstarren.', element: 'water', target: 'single-enemy', costMp: 8, power: 18, tags: ['magical', 'debuff'], tier: 'skill', statusEffect: { id: 'freeze', chance: 0.4, turns: 2 } },
+  { id: 'dominating-gaze', name: 'Beherrschender Blick', description: 'Der Ork-Lord fängt den Blick des Ziels — Gelds Fluch beugt für einen Moment dessen Willen.', element: 'shadow', target: 'single-enemy', costMp: 12, power: 14, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'charm', chance: 0.4, turns: 2 } }
 ] as const satisfies readonly SkillDefinition[];
