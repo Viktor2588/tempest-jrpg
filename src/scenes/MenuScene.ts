@@ -100,6 +100,9 @@ export class MenuScene extends Phaser.Scene {
   private tooltip?: Phaser.GameObjects.Container;
   // Phase 141: Einfacher Filter für Listen (z.B. Inventar)
   private inventoryFilter = '';
+  // Phase 142: Weitere Filter
+  private bestiaryFilter = '';
+  private questFilter = '';
 
   // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
   // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
@@ -836,9 +839,30 @@ export class MenuScene extends Phaser.Scene {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const quests = allQuests.filter((q) => q.status !== 'inactive');
 
+    // Phase 142: Filter für Quests
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Quests (Name/Beschreibung):', this.questFilter);
+      this.questFilter = (q ?? '').toLowerCase().trim();
+      this.refresh();
+    });
+    if (this.questFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        this.questFilter = '';
+        this.refresh();
+      });
+    }
+
+    let filteredQuests = quests;
+    if (this.questFilter) {
+      filteredQuests = quests.filter(q => 
+        q.title.toLowerCase().includes(this.questFilter) || 
+        (q.description || '').toLowerCase().includes(this.questFilter)
+      );
+    }
+
     // Detail-Ansicht ersetzt die Liste komplett (eigener Titel + Zurück-Knopf) —
     // vor dem Listen-Header prüfen, sonst zeichneten beide Titel übereinander.
-    const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
+    const detail = this.selectedQuestId ? filteredQuests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
@@ -862,13 +886,13 @@ export class MenuScene extends Phaser.Scene {
       this.refresh();
     }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
 
-    const filtered = quests.filter((quest) => quest.status === this.questStatus);
+    const statusFiltered = filteredQuests.filter((quest) => quest.status === this.questStatus);
     let cursorY = 246;
     if (_view?.story && this.questStatus === 'active') {
       this.drawStorySummary(_view.story, 246);
       cursorY = 350;
     }
-    if (filtered.length === 0) {
+    if (statusFiltered.length === 0) {
       const message = this.questStatus === 'active'
         ? 'Keine aktiven Quests. Sprich mit den Bewohnern der Welt.'
         : 'Noch keine Quests abgeschlossen.';
@@ -881,9 +905,9 @@ export class MenuScene extends Phaser.Scene {
     }
 
     const pageSize = _view?.story && this.questStatus === 'active' ? 2 : 3;
-    const pageCount = Math.ceil(filtered.length / pageSize);
+    const pageCount = Math.ceil(statusFiltered.length / pageSize);
     this.questPage = Math.min(this.questPage, pageCount - 1);
-    const page = filtered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
+    const page = statusFiltered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
     page.forEach((quest) => {
       const y = cursorY;
       this.panel(24, y, 900, 92);
@@ -1075,7 +1099,25 @@ export class MenuScene extends Phaser.Scene {
   private drawBestiary(): void {
     const bestiary = buildBestiary(this.save.progression);
 
-    if (bestiary.entries.length === 0) {
+    // Phase 142: Filter UI für Bestiarium
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Bestiarium (Name):', this.bestiaryFilter);
+      this.bestiaryFilter = (q ?? '').toLowerCase().trim();
+      this.refresh();
+    });
+    if (this.bestiaryFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        this.bestiaryFilter = '';
+        this.refresh();
+      });
+    }
+
+    let entries = bestiary.entries;
+    if (this.bestiaryFilter) {
+      entries = entries.filter(e => e.name.toLowerCase().includes(this.bestiaryFilter));
+    }
+
+    if (entries.length === 0) {
       this.layer.add(this.add.text(318, 200,
         'Noch keine Gegner erlegt — kämpfe und analysiere, um das Bestiarium zu füllen.', {
         fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
@@ -1085,9 +1127,9 @@ export class MenuScene extends Phaser.Scene {
     }
 
     const PER_PAGE = 4;
-    const pageCount = Math.max(1, Math.ceil(bestiary.entries.length / PER_PAGE));
+    const pageCount = Math.max(1, Math.ceil(entries.length / PER_PAGE));
     this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
-    const page = bestiary.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+    const page = entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
 
     page.forEach((entry, index) => {
       const y = 194 + index * 80;
