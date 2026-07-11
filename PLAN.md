@@ -552,14 +552,21 @@ gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfo
   699 Unit-Tests ✓, build ✓. Labyrinth ist off-route → Balance-Korridor unberuehrt (Harness
   reicht keine Labyrinth-Encounter durch).
 
-- [ ] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen.
-  Ramiris' Labyrinth beschwoert auf einem Floor ein SKALIERTES Echo eines Bosses, den der
-  Spieler BESIEGT, aber NICHT verschlungen hat (Menge = `defeatedEnemyCountsByEnemyId` minus
-  `devouredSourceIds`, nur `devourable`-Bosse). Skalierung via Phase 147 → auf Party-Level,
-  damit erneut fair verschlingbar (Break → +0.45 Devour-Chance). Gibt die verpasste
-  Devour-Belohnung (Skill/Magicules/Resident) ein zweites Mal — kanonisch (Ramiris beschwoert
-  Echos/Geister). Kein neues Venue, kein neues System. Akzeptanz: Echo-Auswahl + skalierter
-  Kampf + Devour-Pfad headless, typecheck ✓, Unit-Tests ✓, build ✓, off-route → Korridor unberuehrt.
+- [x] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen
+  (abgeschlossen, direkt auf main). Umgesetzt: neues persistiertes Feld
+  `progression.devouredSourceIds` (Save-Migration via `readStringArray`, alte Stände leer),
+  am Kampfende im Sieg als Union von `battle.devouredSourceIds` gebucht (`battleResult`).
+  `systems/labyrinth.ts` wählt daraus deterministisch ein Echo: `eligibleBossEchoIds`/
+  `selectLabyrinthBossEcho` liefern verschlingbare Bosse mit `defeatedEnemyCountsByEnemyId>0`,
+  die NICHT in `devouredSourceIds` stehen (wertvollstes zuerst — höchstes Basislevel).
+  `createLabyrinthBossEchoUnit` baut das Echo party-relativ skaliert (Phase 147) und
+  verschlingbar (trägt `boss`/`devourable`/`devourSkillId` → Break gibt erneut +Devour-Chance,
+  Sieg bucht es in `devouredSourceIds` → verschwindet). `BattleScene` hängt auf der tiefsten
+  Etage (`labyrinth-floor-3`) das Echo an die Gegner an — NUR wenn eins existiert, sonst
+  unverändert; keine neue Map, kein neues Venue. Akzeptanz erfuellt: Echo-Auswahl (Ein-/
+  Ausschluss, Determinismus), skalierte verschlingbare Einheit, Persistenz-Roundtrip/Migration
+  headless (`test/labyrinthEcho.test.ts`, 4 Tests), typecheck ✓, 715 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (Labyrinth off-route → Korridor unberührt).
 
 ## Elfte Welle: Ausruestungs-Overhaul, Loot & Content-Aufwertung (Nutzer 2026-07-11)
 

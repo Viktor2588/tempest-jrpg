@@ -25,7 +25,12 @@ import {
   createScaledEnemyBattleUnits,
   scalingKindForEncounter
 } from '../systems/enemyScaling';
-import { createScaledLabyrinthFloorUnits, labyrinthEncounterDepth } from '../systems/labyrinth';
+import {
+  createLabyrinthBossEchoUnit,
+  createScaledLabyrinthFloorUnits,
+  labyrinthEncounterDepth,
+  selectLabyrinthBossEcho
+} from '../systems/labyrinth';
 import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
@@ -138,7 +143,17 @@ export class BattleScene extends Phaser.Scene {
     const partyLevel = averagePartyLevel(this.save.party.active.map((member) => member.level));
     const depth = labyrinthEncounterDepth(this.encounterId);
     if (depth !== null) {
-      return createScaledLabyrinthFloorUnits(ids, partyLevel, depth);
+      const floor = createScaledLabyrinthFloorUnits(ids, partyLevel, depth);
+      // Phase 148 — die tiefste Etage beschwört ein skaliertes Echo eines besiegten,
+      // aber nicht verschlungenen Bosses (erneut verschlingbar). Nur wenn eins existiert.
+      if (depth >= 3) {
+        const echoId = selectLabyrinthBossEcho(this.save.progression);
+        const echo = echoId ? createLabyrinthBossEchoUnit(echoId, partyLevel, depth) : null;
+        if (echo) {
+          return [...floor, echo];
+        }
+      }
+      return floor;
     }
     return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
   }

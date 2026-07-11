@@ -8,7 +8,6 @@ import { equipmentPerksForMember } from '../src/systems/progression';
 import { createNewSave, exportSave, importSave } from '../src/systems/save';
 
 const hero = (id: string): CharacterDefinition => HEROES.find((entry) => entry.id === id)!;
-const core = (id: string): ItemDefinition => (ITEMS as unknown as readonly ItemDefinition[]).find((entry) => entry.id === id)!;
 
 describe('Kern-Slot (Phase 150)', () => {
   it('EQUIPMENT_SLOTS enthält den Kern-Slot und neue Mitglieder haben ihn (leer)', () => {

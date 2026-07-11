@@ -118,6 +118,44 @@ export function createScaledLabyrinthFloorUnits(
   });
 }
 
+// Phase 148 — Boss-Echos: Ramiris beschwört ein skaliertes Echo eines Bosses, den der
+// Spieler BESIEGT, aber NICHT verschlungen hat — die verpasste Devour-Belohnung wird
+// so ein zweites Mal greifbar (kanonisch: Ramiris beschwört Geister/Echos).
+export interface LabyrinthEchoProgress {
+  readonly defeatedEnemyCountsByEnemyId: Readonly<Record<string, number>>;
+  readonly devouredSourceIds: readonly string[];
+}
+
+// Verschlingbare Bosse, die besiegt, aber noch nicht verschlungen wurden (stabile Reihenfolge).
+export function eligibleBossEchoIds(progress: LabyrinthEchoProgress): string[] {
+  const devoured = new Set(progress.devouredSourceIds);
+  return [...enemyById.values()]
+    .filter((enemy) =>
+      enemy.boss === true
+      && enemy.devourable === true
+      && (progress.defeatedEnemyCountsByEnemyId[enemy.id] ?? 0) > 0
+      && !devoured.has(enemy.id))
+    .map((enemy) => enemy.id);
+}
+
+// Wählt deterministisch das „wertvollste" Echo (höchstes Basislevel, dann Id).
+export function selectLabyrinthBossEcho(progress: LabyrinthEchoProgress): string | null {
+  const candidates = eligibleBossEchoIds(progress)
+    .map((id) => enemyById.get(id)!)
+    .sort((a, b) => (b.level - a.level) || a.id.localeCompare(b.id));
+  return candidates[0]?.id ?? null;
+}
+
+// Skaliertes, verschlingbares Echo als Kampfeinheit (Party-relativ via Phase 147);
+// per Break gibt es erneut +Devour-Chance auf die ursprüngliche Belohnung.
+export function createLabyrinthBossEchoUnit(
+  enemyId: string,
+  partyLevel: number,
+  depth = 3
+): BattleUnitInput | null {
+  return createScaledLabyrinthFloorUnits([enemyId], partyLevel, depth)[0] ?? null;
+}
+
 function rewardForDepth(depth: number): LabyrinthReward {
   if (depth >= 3) {
     return { gold: 120, items: [{ itemId: 'magisteel', quantity: 1 }, { itemId: 'spirit-ember', quantity: 1 }] };

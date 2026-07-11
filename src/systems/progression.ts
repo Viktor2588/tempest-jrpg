@@ -88,6 +88,10 @@ export interface ProgressionState {
   // den Einzelkampf hinaus (Schwaechen/Telegraph im Codex) und liefert die
   // Grundlage fuers Kampf-Bootstrapping (Phase 123).
   readonly analyzedEnemyIds: readonly string[];
+  // Phase 148 — Boss-Echos: Quell-Ids (`sourceId`) der Bosse, die per Verschlingen
+  // bereits geerntet wurden. „Besiegt, aber nicht verschlungen" = defeated-Zaehler > 0
+  // UND nicht in dieser Menge → Grundlage für die Labyrinth-Echo-Auswahl.
+  readonly devouredSourceIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -109,6 +113,7 @@ export interface CreateProgressionStateOptions {
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
   readonly analyzedEnemyIds?: readonly string[];
+  readonly devouredSourceIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -206,7 +211,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
     factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
-    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? [])
+    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? []),
+    devouredSourceIds: uniqueStrings(options.devouredSourceIds ?? [])
   };
 }
 

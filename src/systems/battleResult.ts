@@ -82,7 +82,10 @@ export function applyBattleResultToSave(
         analyzedEnemyIds: tallyAnalyzedEnemies(
           progressionBase.analyzedEnemyIds,
           battle.enemies.filter((enemy) => enemy.analysisLevel > 0).map((enemy) => enemy.sourceId)
-        )
+        ),
+        // Phase 148 — Boss-Echos: verschlungene Quell-Ids dauerhaft merken, damit das
+        // Labyrinth nur „besiegt, aber nicht verschlungen"-Bosse als Echo beschwört.
+        devouredSourceIds: uniqueStrings([...progressionBase.devouredSourceIds, ...battle.devouredSourceIds])
       }
     : progressionBase;
   const active = progressionResult.active.map((member) => {
