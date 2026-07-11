@@ -1,5 +1,9 @@
 import type { BattleView } from './battle';
-import { tallyAnalyzedEnemies } from './bestiary';
+import {
+  collectBestiaryRegionMasteries,
+  tallyAnalyzedEnemies,
+  tallyClaimedBestiaryRegions
+} from './bestiary';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
@@ -59,7 +63,7 @@ export function applyBattleResultToSave(
       : withMagicules;
   // Phase 96 — Kopfgeldbrett: erlegte Gegner-Arten dieses Siegs in die Zaehler
   // einbuchen (Grundlage fuer den Auftrags-Fortschritt).
-  const progression = won
+  const progressionAfterBestiary = won
     ? {
         ...progressionBase,
         defeatedEnemyCountsByEnemyId: tallyDefeatedEnemies(
@@ -74,6 +78,19 @@ export function applyBattleResultToSave(
         )
       }
     : progressionBase;
+  const bestiaryMasteries = won ? collectBestiaryRegionMasteries(progressionAfterBestiary) : [];
+  const progression = bestiaryMasteries.length > 0
+    ? {
+        ...grantMagicules(
+          progressionAfterBestiary,
+          bestiaryMasteries.reduce((sum, mastery) => sum + mastery.magicules, 0)
+        ).state,
+        claimedBestiaryRegionIds: tallyClaimedBestiaryRegions(
+          progressionAfterBestiary.claimedBestiaryRegionIds,
+          bestiaryMasteries
+        )
+      }
+    : progressionAfterBestiary;
   const active = progressionResult.active.map((member) => {
     if (battle.status === 'lost') {
       return member;

@@ -11,6 +11,7 @@ import {
   calculateBattleMagicules,
   summarizeBattleLevelUps
 } from '../src/systems/battleResult';
+import { BESTIARY_REGION_MASTERY_MAGICULES } from '../src/systems/bestiary';
 import { KITCHEN_REST_BUFF_FLAG } from '../src/systems/facilities';
 import { createNewSave, exportSave, importSave, migrate } from '../src/systems/save';
 
@@ -72,6 +73,40 @@ describe('battle result: Bestiarium-Analyse-Tally (Phase 122)', () => {
     // Erlegt → Besiegt-Zähler; nicht studiert → kein Bestiarium-Analyse-Eintrag.
     expect(result.progression.defeatedEnemyCountsByEnemyId['forest-slime']).toBe(1);
     expect(result.progression.analyzedEnemyIds).not.toContain('forest-slime');
+  });
+});
+
+describe('battle result: Bestiarium-Meisterschaft (Phase 124)', () => {
+  it('vergibt den Regionsbonus genau beim letzten analysierten Gegner', () => {
+    const save = createNewSave({ seed: 8, now: '2026-07-11T10:00:00.000Z' });
+    const prepared = {
+      ...save,
+      progression: {
+        ...save.progression,
+        magicules: 5,
+        discoveredRegionIds: ['tempest-grove'],
+        analyzedEnemyIds: ['forest-slime', 'direwolf-pup', 'direwolf-alpha', 'spore-moth']
+      }
+    };
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(prepared.party.active),
+      enemyIds: ['orc-scout'],
+      inventory: prepared.inventory.stacks,
+      seed: 8
+    });
+    const rimuru = battle.combatants.find((combatant) => combatant.side === 'party')!;
+    const foe = battle.combatants.find((combatant) => combatant.side === 'enemy')!;
+    battle.activeId = rimuru.id;
+    rimuru.ct = 100;
+    foe.hp = 1;
+    foe.analysisLevel = 1;
+
+    expect(act(battle, { type: 'attack', targetId: foe.id }).ok).toBe(true);
+
+    const result = applyBattleResultToSave(prepared, renderView(battle));
+    expect(result.progression.analyzedEnemyIds).toContain('orc-scout');
+    expect(result.progression.claimedBestiaryRegionIds).toEqual(['tempest-grove']);
+    expect(result.progression.magicules).toBe(5 + 1 + BESTIARY_REGION_MASTERY_MAGICULES);
   });
 });
 

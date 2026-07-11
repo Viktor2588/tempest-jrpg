@@ -83,6 +83,9 @@ export interface ProgressionState {
   // den Einzelkampf hinaus (Schwaechen/Telegraph im Codex) und liefert die
   // Grundlage fuers Kampf-Bootstrapping (Phase 123).
   readonly analyzedEnemyIds: readonly string[];
+  // Phase 124 — Sammel-Meisterschaft: einmalig vergütete Regionen, deren
+  // regionstypische Gegner vollstaendig analysiert wurden.
+  readonly claimedBestiaryRegionIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -103,6 +106,7 @@ export interface CreateProgressionStateOptions {
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
   readonly analyzedEnemyIds?: readonly string[];
+  readonly claimedBestiaryRegionIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -195,7 +199,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
     factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
-    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? [])
+    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? []),
+    claimedBestiaryRegionIds: uniqueStrings(options.claimedBestiaryRegionIds ?? [])
   };
 }
 

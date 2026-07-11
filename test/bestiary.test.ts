@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildBestiary, isEnemyAnalyzed, tallyAnalyzedEnemies } from '../src/systems/bestiary';
+import {
+  BESTIARY_REGION_MASTERY_MAGICULES,
+  buildBestiary,
+  collectBestiaryRegionMasteries,
+  isEnemyAnalyzed,
+  tallyAnalyzedEnemies,
+  tallyClaimedBestiaryRegions
+} from '../src/systems/bestiary';
 import { createProgressionState } from '../src/systems/progression';
 
 describe('tallyAnalyzedEnemies', () => {
@@ -79,5 +86,53 @@ describe('buildBestiary', () => {
     expect(bestiary.entries).toEqual([]);
     expect(bestiary.encounteredCount).toBe(0);
     expect(bestiary.totalCount).toBeGreaterThan(0);
+  });
+});
+
+describe('Bestiarium-Meisterschaft', () => {
+  const tempestGroveEnemies = [
+    'forest-slime',
+    'direwolf-pup',
+    'direwolf-alpha',
+    'spore-moth',
+    'orc-scout'
+  ];
+
+  it('erkennt vollstaendig analysierte Regionen und markiert sie einmalig', () => {
+    const masteries = collectBestiaryRegionMasteries({
+      discoveredRegionIds: ['tempest-grove'],
+      analyzedEnemyIds: tempestGroveEnemies,
+      claimedBestiaryRegionIds: []
+    });
+
+    expect(masteries).toEqual([
+      {
+        regionId: 'tempest-grove',
+        name: 'Tempest-Hain',
+        magicules: BESTIARY_REGION_MASTERY_MAGICULES
+      }
+    ]);
+    expect(tallyClaimedBestiaryRegions([], masteries)).toEqual(['tempest-grove']);
+  });
+
+  it('vergibt keine Belohnung bei fehlender Art oder bereits abgeholter Region', () => {
+    expect(collectBestiaryRegionMasteries({
+      discoveredRegionIds: ['tempest-grove'],
+      analyzedEnemyIds: tempestGroveEnemies.slice(0, -1),
+      claimedBestiaryRegionIds: []
+    })).toEqual([]);
+    expect(collectBestiaryRegionMasteries({
+      discoveredRegionIds: ['tempest-grove'],
+      analyzedEnemyIds: tempestGroveEnemies,
+      claimedBestiaryRegionIds: ['tempest-grove']
+    })).toEqual([]);
+  });
+
+  it('ignoriert noch nicht entdeckte Regionen', () => {
+    expect(collectBestiaryRegionMasteries({
+      discoveredRegionIds: [],
+      analyzedEnemyIds: tempestGroveEnemies,
+      claimedBestiaryRegionIds: []
+    })).toEqual([]);
   });
 });

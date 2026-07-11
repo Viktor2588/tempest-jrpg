@@ -504,7 +504,10 @@ function readProgressionState(raw: unknown): ProgressionState {
     factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId),
     // Phase 122 — Lebendiges Bestiarium: alte Stände ohne dieses Feld starten mit
     // leerem Analyse-Wissen (nichts studiert), Codex zeigt Kampfdaten als „???".
-    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds)
+    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds),
+    // Phase 124 — Sammel-Meisterschaft: alte Stände haben noch keine Regionsboni
+    // abgeholt; ein spaeterer Sieg kann vorhandenes Analyse-Wissen vergüten.
+    claimedBestiaryRegionIds: readStringArray(raw.claimedBestiaryRegionIds)
   });
 }
 

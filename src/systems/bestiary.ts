@@ -1,4 +1,4 @@
-import { ENEMIES } from '../data';
+import { ENEMIES, PROGRESSION_REGIONS } from '../data';
 import type { DamageCategory, ElementType, EnemyDefinition } from '../data';
 
 // Phase 122 — Lebendiges Bestiarium: reine Regeln ueber die persistierten Felder
@@ -11,6 +11,7 @@ import type { DamageCategory, ElementType, EnemyDefinition } from '../data';
 const enemyById = new Map<string, EnemyDefinition>(
   (ENEMIES as readonly EnemyDefinition[]).map((enemy) => [enemy.id, enemy])
 );
+export const BESTIARY_REGION_MASTERY_MAGICULES = 20;
 
 // Merkt sich neu analysierte Gegner-Arten (Set-Semantik, stabile Reihenfolge:
 // bestehende zuerst, dann neu hinzukommende). Gibt bei Nulländerung die
@@ -73,6 +74,18 @@ export interface BestiaryProgressState {
   readonly analyzedEnemyIds: readonly string[];
 }
 
+export interface BestiaryMasteryProgressState {
+  readonly discoveredRegionIds: readonly string[];
+  readonly analyzedEnemyIds: readonly string[];
+  readonly claimedBestiaryRegionIds: readonly string[];
+}
+
+export interface BestiaryRegionMastery {
+  readonly regionId: string;
+  readonly name: string;
+  readonly magicules: number;
+}
+
 // Baut das Bestiarium aus den persistierten Zaehlern. Es erscheinen nur Arten, denen
 // der Spieler begegnet ist (kein Boss-Spoiler); studierte Arten decken ihre Kampfdaten
 // auf, nur-erlegte zeigen „???" (Anreiz zum Analysieren). Sortierung: Level, dann Name.
@@ -119,4 +132,34 @@ export function buildBestiary(state: BestiaryProgressState): BestiaryView {
     analyzedCount: entries.filter((entry) => entry.analyzed).length,
     totalCount: enemyById.size
   };
+}
+
+export function collectBestiaryRegionMasteries(
+  state: BestiaryMasteryProgressState
+): readonly BestiaryRegionMastery[] {
+  const analyzed = new Set(state.analyzedEnemyIds);
+  const claimed = new Set(state.claimedBestiaryRegionIds);
+  const discovered = new Set(state.discoveredRegionIds);
+  return PROGRESSION_REGIONS
+    .filter((region) =>
+      discovered.has(region.id) &&
+      !claimed.has(region.id) &&
+      region.enemyIds.length > 0 &&
+      region.enemyIds.every((enemyId) => analyzed.has(enemyId))
+    )
+    .map((region) => ({
+      regionId: region.id,
+      name: region.name,
+      magicules: BESTIARY_REGION_MASTERY_MAGICULES
+    }));
+}
+
+export function tallyClaimedBestiaryRegions(
+  claimedRegionIds: readonly string[],
+  masteries: readonly BestiaryRegionMastery[]
+): readonly string[] {
+  if (masteries.length === 0) {
+    return claimedRegionIds;
+  }
+  return tallyAnalyzedEnemies(claimedRegionIds, masteries.map((mastery) => mastery.regionId));
 }
