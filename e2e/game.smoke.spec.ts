@@ -832,6 +832,13 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
 });
 
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
+  // Dieser Pfad verifiziert den Canvas nach vielen Menü-Schritten per settle() —
+  // jeder Aufruf macht ein page.screenshot (Pixel-Blank-Check). Auf headless
+  // Software-GL ist der ReadPixels-Readback teuer, sodass der Lauf über das
+  // 30s-Default hinausläuft und in CI (mobile-chromium) flaky timeoutet. Wie der
+  // erste Test der Datei bekommt er ein großzügiges Budget — grüne Läufe bremst
+  // das nicht, es deckelt nur den Fehlerfall.
+  test.setTimeout(90_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
