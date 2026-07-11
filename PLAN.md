@@ -516,3 +516,5 @@ liegen NICHT auf den von der Harness freigeschalteten Knoten → der Korridor bl
 unberuehrt.
 
 ## UX- und Welt-Backlog
+
+- [~] Phase 145 — MenuScene vollständige Sub-View-Extraktion + DnD/Reserve/Fokus-Polish (Worktree: /worktree/tempest-phase-145-menu-subviews). Alle Tabs jetzt echte Klassen (PartyTabView, InventoryTabView, EquipmentTabView, StatusTabView, GrowthTabView, QuestsTabView, BestiaryTabView, TravelTabView). Eigener State für Filter + Pages + onActivated resets. Tab-Switching ruft onActivated. DnD-Polish (live alpha/stroke highlight auf Reserve-Dropzone). Filter-Buttons & Pagination gehen über View-Methoden. MenuScene als schlanker Orchestrator. Akzeptanz: typecheck ✓, build ✓, relevante Tests ✓.

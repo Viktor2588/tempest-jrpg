@@ -7,21 +7,28 @@ import { MenuScene } from '../../scenes/MenuScene'; // for helpers, in real woul
  * Example Sub-View for Bestiary tab as part of full MenuScene modularization (Phase 142).
  */
 export class BestiaryTabView implements IMenuTabView {
-  readonly tab: MenuTab = 'codex'; // sub mode handled inside for now
+  readonly tab: MenuTab = 'codex'; // sub mode + bestiary handled inside
 
-  private filter = '';
+  private bestiaryFilter = '';
+  private codexFilter = '';
 
   constructor(private readonly scene: MenuScene) {}
 
   onActivated(): void {
-    this.filter = '';
+    this.bestiaryFilter = '';
+    this.codexFilter = '';
+    (this.scene as any).bestiaryFilter = '';
+    (this.scene as any).codexFilter = '';
   }
+
+  getBestiaryFilter(): string { return this.bestiaryFilter; }
+  setBestiaryFilter(f: string) { this.bestiaryFilter = f; (this.scene as any).bestiaryFilter = f; }
+
+  getCodexFilter(): string { return this.codexFilter; }
+  setCodexFilter(f: string) { this.codexFilter = f; (this.scene as any).codexFilter = f; }
 
   draw(_view: MenuView): void {
-    // For simplicity, delegate to the original drawBestiary logic in scene for this demo.
-    // In full refactor, move all drawing here.
-    (this.scene as any).drawBestiaryWithFilter(this.filter); // temporary bridge
+    // Delegate (full move of drawCodex/drawBestiary in follow-up steps).
+    (this.scene as any).drawCodex();
   }
-
-  // Additional methods for filter etc.
 }
