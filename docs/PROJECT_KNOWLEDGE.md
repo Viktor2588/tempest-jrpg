@@ -541,6 +541,15 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_140:
+    - Test infrastructure overhaul for faster feedback: Vitest Thread-Pool with CI limits + 4-way sharding on GitHub Actions; Playwright workers=2 + only desktop+mobile for smoke; full Bun + Playwright browser caching in CI.
+    - Path-based skipping (docs/md changes skip E2E).
+    - E2E speed/reliability: new `settle()` helper replacing most raw `waitForTimeout`; timeouts reduced significantly while keeping `expectCanvasContent` assertions.
+    - Test file hygiene: extracted `test/battleHelpers.ts`; smaller main test files for better collection/parallelism.
+    - Convenience: `test:shard`, `test:watch`, `test:ci --bail`, updated README + scripts.
+    - Measured: full 687 unit tests now ~39s (was ~56s); typecheck/build/E2E structure green.
+    - Worktree: /home/viktor/worktree/tempest-phase-140-test-infra (branch phase-140-test-infra); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`, `bun run test:e2e --project=desktop-chromium`.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
