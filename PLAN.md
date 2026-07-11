@@ -280,17 +280,4 @@ canon-first, deutsches Originalwording).
   Vorwissen), typecheck ✓, 640 Unit-Tests ✓, build ✓, Battle-E2E-Smoke gruen,
   Balance-Harness unberuehrt (Harness reicht kein Vorwissen durch → unveraendert).
 
-- [x] Phase 124 — Sammel-Meisterschaft (abgeschlossen, Worktree: `/worktree/tempest-phase-124-sammel-meisterschaft`).
-  Damit die Sammel-Schleife nicht rein kosmetisch bleibt: eine einmalige,
-  deterministische Belohnung, wenn das Bestiarium einer Region vollstaendig
-  (alle regionstypischen Gegner analysiert) ist — z.B. ein Magicule-Fund ueber
-  das vorhandene `grantMagicules`/Discovery-Muster oder ein kleiner
-  Schmiedematerial-Bonus. Bewusst klein und optional; verzahnt Sammeln (122/123)
-  mit der Magicule-Oekonomie (102). Umgesetzt: entdeckte Regionen zahlen einmalig
-  20 Magicules aus, sobald alle regionstypischen Gegner analysiert sind; der Claim
-  wird in `progression.claimedBestiaryRegionIds` persistiert. Akzeptanz erfuellt:
-  Vollstaendigkeits-Erkennung + einmalige Kampfbelohnung headless getestet,
-  Save-Roundtrip, `git diff --check` ✓, typecheck ✓, 644 Unit-Tests ✓, build ✓.
-  Kein Browser-Smoke noetig, da keine Rendering-/Assetflaeche beruehrt wurde.
-
 ## UX- und Welt-Backlog

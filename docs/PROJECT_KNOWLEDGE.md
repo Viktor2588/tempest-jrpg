@@ -1116,6 +1116,18 @@ test/release.test.ts
 - Validiert mit `bun run typecheck`, `bun run test` (`test/scriptBoss.test.ts`: Spawn/
   Einmaligkeit/Termination + Balance-Harness), `bun run build` und Battle-Render-Smoke.
 
+### Phase 124 - Sammel-Meisterschaft
+
+- Branch/Worktree: `phase-124-sammel-meisterschaft` in `/worktree/tempest-phase-124-sammel-meisterschaft`.
+- Scope: entdeckte `PROGRESSION_REGIONS` zahlen einmalig 20 Magicules aus, sobald alle
+  regionstypischen Gegner in `progression.analyzedEnemyIds` studiert sind. Der Claim
+  wird in `progression.claimedBestiaryRegionIds` persistiert.
+- Kampf-Wiring: `applyBattleResultToSave` prueft den Bonus direkt nach Besiegt-/Analyse-
+  Tally und addiert ihn ueber `grantMagicules`; nicht entdeckte oder bereits geclaimte
+  Regionen bleiben gesperrt, damit geteilte Gegner keine fremden Regionsboni ausloesen.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test` (644 Tests) und
+  `bun run build`. Kein Browser-Smoke noetig, da keine Rendering-/Assetflaeche beruehrt wurde.
+
 ## 14. Change Checklist
 
 Before editing:
