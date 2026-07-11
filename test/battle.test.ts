@@ -18,103 +18,12 @@ import {
   type BattleUnitInput
 } from '../src/systems/battle';
 import { createPartyMember } from '../src/systems/party';
+import { GOBTA, autoPlay, weakParty, fastTank, lootEnemy } from './battleHelpers';
 
-// Seit dem story-gesteuerten Party-Aufbau startet ein Spiel nur mit Rimuru. Für Tests, die
-// eine Mehr-Personen-Party brauchen, Gobta explizit ergänzen.
-const GOBTA = HEROES.find((hero) => hero.id === 'gobta')!;
+// autoPlay, weakParty, fastTank, lootEnemy, GOBTA now imported from ./battleHelpers.ts
+// (file split to improve Vitest collection/parallel performance)
 
-function autoPlay(state: BattleState): { status: string; steps: number } {
-  let guard = 0;
-
-  while (state.status === 'active' && guard++ < 5000) {
-    if (isPlayerTurn(state)) {
-      const actor = currentActor(state)!;
-      const enemy = renderView(state).enemies.find((candidate) => !candidate.dead);
-      if (!enemy) break;
-
-      const affordableSkill = actor.skillIds
-        .find((skillId) => skillId === 'storm-gust' && actor.mp >= 7)
-        ?? actor.skillIds.find((skillId) => skillId === 'water-blade' && actor.mp >= 4);
-
-      if (affordableSkill) {
-        act(state, { type: 'skill', skillId: affordableSkill, targetId: enemy.id });
-      } else {
-        act(state, { type: 'attack', targetId: enemy.id });
-      }
-    } else {
-      enemyTurn(state);
-    }
-  }
-
-  return { status: state.status, steps: guard };
-}
-
-function weakParty(): BattleUnitInput[] {
-  return [
-    {
-      sourceId: 'test-weakling',
-      name: 'Testling',
-      side: 'party',
-      level: 1,
-      stats: {
-        maxHp: 18,
-        maxMp: 0,
-        attack: 3,
-        defense: 2,
-        magic: 1,
-        spirit: 2,
-        agility: 4
-      },
-      element: 'neutral',
-      weaknesses: ['shadow'],
-      resistances: [],
-      skillIds: []
-    }
-  ];
-}
-
-function fastTank(): BattleUnitInput[] {
-  const [rimuru] = createDefaultBattleParty();
-  return [
-    {
-      ...rimuru!,
-      stats: {
-        ...rimuru!.stats,
-        maxHp: 160,
-        defense: 10,
-        spirit: 10,
-        agility: 99
-      }
-    }
-  ];
-}
-
-function lootEnemy(): BattleUnitInput[] {
-  return [
-    {
-      sourceId: 'loot-slime',
-      name: 'Beuteschleim',
-      side: 'enemy',
-      level: 1,
-      stats: {
-        maxHp: 20,
-        maxMp: 0,
-        attack: 1,
-        defense: 1,
-        magic: 1,
-        spirit: 1,
-        agility: 1
-      },
-      element: 'water',
-      weaknesses: ['wind'],
-      resistances: [],
-      skillIds: [],
-      experienceReward: 10,
-      goldReward: 5,
-      drops: [{ itemId: 'healing-herb', chance: 1 }]
-    }
-  ];
-}
+// weakParty, fastTank, lootEnemy now come from ./battleHelpers (see file split for faster parallel collection)
 
 function depthHero(
   sourceId: string,
