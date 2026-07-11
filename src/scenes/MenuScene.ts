@@ -70,53 +70,13 @@ import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
-
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
-type QuestStatusFilter = 'active' | 'completed';
-
-// Phase 122 — Bestiarium als siebter Codex-Modus. Kompakte Leiste (11px) mit fester
-// Breite je Knopf, damit alle sieben Modi in eine Reihe passen (Icon + volles Wort
-// bleiben erhalten). Reihenfolge = bestehende fünf + Bestiarium am Ende.
-type CodexMode = 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' | 'bestiary';
-
-const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: number }> = [
-  { id: 'lore', label: 'Wissen', width: 66 },
-  { id: 'devour', label: '🍴 Verschlingen', width: 106 },
-  { id: 'residents', label: '🏛️ Bewohner', width: 84 },
-  { id: 'facilities', label: '🏭 Einrichtungen', width: 116 },
-  { id: 'bounties', label: '🎯 Kopfgeld', width: 80 },
-  { id: 'diplomacy', label: '🤝 Politik', width: 74 },
-  { id: 'bestiary', label: '🐾 Bestiarium', width: 96 }
-];
-
-const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
-  { id: 'party', label: '1 Party' },
-  { id: 'inventory', label: '2 Inventar' },
-  { id: 'equipment', label: '3 Ausrüstung' },
-  { id: 'status', label: '4 Status' },
-  { id: 'growth', label: '5 Talente' },
-  { id: 'quests', label: '6 Quests' },
-  { id: 'codex', label: '7 Codex' },
-  { id: 'travel', label: '8 Ranga' }
-];
-
-// Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
-// als Auswahl-Seitenleiste gebraucht. Der Party-Tab hat seine eigene (klickbare)
-// Aktiv-Gruppen-Übersicht, sonst stünde die Liste doppelt; Quests/Codex/Reise
-// nutzen die volle Breite.
-const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['inventory', 'equipment', 'status', 'growth']);
-
-// Kurzbeschreibung pro Tab — erklärt, was der Menüpunkt macht.
-const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
-  party: 'Überblick über deine aktive Gruppe.',
-  inventory: 'Gegenstände ansehen und an einer Figur benutzen.',
-  equipment: 'Waffe, Rüstung und Accessoire anlegen oder ablegen.',
-  status: 'Werte, Skills, Namensgebung, Entwicklung und Bindungen der Figur.',
-  growth: 'Talentbaum: Knoten mit Skillpunkten freischalten.',
-  quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
-  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
-  travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
-};
+import type { MenuTab, CodexMode, QuestStatusFilter } from '../ui/menu/MenuTypes';
+import {
+  CODEX_MODES,
+  TABS,
+  CHARACTER_TABS,
+  TAB_DESCRIPTIONS
+} from '../ui/menu/MenuTypes';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -140,6 +100,10 @@ export class MenuScene extends Phaser.Scene {
   private tooltip?: Phaser.GameObjects.Container;
   // Phase 141: Einfacher Filter für Listen (z.B. Inventar)
   private inventoryFilter = '';
+
+  // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
+  // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
+  private tabViews: Map<MenuTab, (view?: any, selected?: any) => void> = new Map();
 
   constructor() {
     super('Menu');
@@ -192,6 +156,20 @@ export class MenuScene extends Phaser.Scene {
       }
     });
     this.refresh();
+  }
+
+  private initTabViewsIfNeeded() {
+    if (this.tabViews.size > 0) return;
+    // Phase 141 Großes Refactor: Registry statt riesigem if/else in refresh().
+    // Ermöglicht schrittweise Extraktion in eigene Klassen (siehe src/ui/menu/).
+    this.tabViews.set('party', (v: any, s: any) => this.drawParty(s?.character?.name, v));
+    this.tabViews.set('inventory', (v: any, s: any) => this.drawInventory(v, s?.member?.characterId));
+    this.tabViews.set('equipment', (v: any, s: any) => this.drawEquipment(v, s?.member?.characterId));
+    this.tabViews.set('status', (v: any, s: any) => this.drawStatus(v, s?.member?.characterId));
+    this.tabViews.set('growth', (v: any, s: any) => this.drawGrowth(v, s?.member?.characterId));
+    this.tabViews.set('quests', (_v: any, _s: any) => this.drawQuestLog());
+    this.tabViews.set('codex', (_v: any, _s: any) => this.drawCodex());
+    this.tabViews.set('travel', (_v: any, _s: any) => this.drawRangaTravel());
   }
 
   private refresh(): void {
@@ -253,14 +231,16 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    if (this.selectedTab === 'party') this.drawParty(selected.character.name, view);
-    else if (this.selectedTab === 'inventory') this.drawInventory(view, selected.member.characterId);
-    else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
-    else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
-    else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else if (this.selectedTab === 'quests') this.drawQuestLog(view);
-    else if (this.selectedTab === 'codex') this.drawCodex();
-    else this.drawRangaTravel();
+    this.initTabViewsIfNeeded();
+
+    // Phase 141 Groß-Refactor: Registry-Dispatch statt monolithischem if/else.
+    // Das ist der zentrale Punkt des Refactors der monolithischen MenuScene.
+    const drawer = this.tabViews.get(this.selectedTab);
+    if (drawer) {
+      drawer(view, selected);
+    } else {
+      this.drawParty(selected.character.name, view);
+    }
   }
 
   private drawMemberList(view: MenuView): void {
@@ -852,7 +832,7 @@ export class MenuScene extends Phaser.Scene {
     return node.requiredFlag ? 'Benötigt: Story-Fortschritt' : null;
   }
 
-  private drawQuestLog(view: MenuView): void {
+  private drawQuestLog(_view?: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const quests = allQuests.filter((q) => q.status !== 'inactive');
 
@@ -884,8 +864,8 @@ export class MenuScene extends Phaser.Scene {
 
     const filtered = quests.filter((quest) => quest.status === this.questStatus);
     let cursorY = 246;
-    if (view.story && this.questStatus === 'active') {
-      this.drawStorySummary(view.story, 246);
+    if (_view?.story && this.questStatus === 'active') {
+      this.drawStorySummary(_view.story, 246);
       cursorY = 350;
     }
     if (filtered.length === 0) {
@@ -900,7 +880,7 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    const pageSize = view.story && this.questStatus === 'active' ? 2 : 3;
+    const pageSize = _view?.story && this.questStatus === 'active' ? 2 : 3;
     const pageCount = Math.ceil(filtered.length / pageSize);
     this.questPage = Math.min(this.questPage, pageCount - 1);
     const page = filtered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
