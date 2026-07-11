@@ -20,6 +20,7 @@ Status:
 ## Worktree-Setup (alle Phasen isoliert per AGENTS.md)
 
 Canonical worktrees under /worktree/tempest-phase-*-* created/verified for pending and recent phases (asset priority 120+121 executed with full checks + E2E where applicable; others ready for parallel work):
+- /home/viktor/worktree/tempest-phase-137-weichkontrolle-sichtbar (Weichkontrolle sichtbar, in Bearbeitung)
 - /worktree/tempest-phase-120-content-assets (asset phase, completed+verified)
 - /worktree/tempest-phase-121-shuna-tempo (completed+verified in parallel)
 - /worktree/tempest-phase-102-magicules
@@ -637,7 +638,12 @@ je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Pri
   Schweigen) headless (`test/statusControl.test.ts`), typecheck ✓, 687 Unit-Tests ✓,
   build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
 
-- [ ] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium).
+- [x] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium) (abgeschlossen, Worktree: /home/viktor/worktree/tempest-phase-137-weichkontrolle-sichtbar).
+  - HUD: formatStatusSummary zeigt Turns für soft controls (Blind(2) etc).
+  - Logs: status apply logs include "(X Runden)" for precision.
+  - Bestiarium: casterHint für high-magic enemies (z.B. Ifrit), angezeigt im Namen + Detail.
+  - Intel/Battle: caster in intel (null for now, bestiary covers).
+  - Akzeptanz erfüllt (additiv, no balance change).
   Die weichen Status bekommen klare Rueckmeldung: praezisere Kampf-Logs/HUD-Marker fuer
   `silence`/`blind`/`weaken` (analog zu den Hart-CC-Markern) und — als Anreiz, sie
   gezielt einzusetzen — nennt die „Analysieren"-Aufdeckung / das Bestiarium (Phase 122)

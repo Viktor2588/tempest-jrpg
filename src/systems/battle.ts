@@ -1197,7 +1197,7 @@ function resolveTeamAttack(
   );
   if (fusion?.statusEffect && target.hp > 0 && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
-    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)}.`);
+    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)} (${fusion.statusEffect.turns} Runden).`);
   }
   pushLog(
     state,
@@ -1734,8 +1734,9 @@ function applySkillStatus(state: BattleState, actor: Combatant, target: Combatan
 
   // Perk buff-power: von dieser Figur gewirkte Buffs auf Verbündete halten länger.
   const bonusTurns = target.side === actor.side ? buffBonusTurns(actor.perks) : 0;
-  applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns + bonusTurns);
-  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)}.`);
+  const turns = skill.statusEffect.turns + bonusTurns;
+  applyStatus(target, skill.statusEffect.id, turns);
+  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)} (${turns} Runden).`);
 }
 
 function advanceToNextActor(state: BattleState): void {
@@ -2496,6 +2497,7 @@ function triggerFieldReaction(
   applyBreakPressure(state, target, fusion.damageElement, FIELD_REACTION_BREAK_PRESSURE);
   if (fusion.statusEffect && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
+    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)} (${fusion.statusEffect.turns} Runden).`);
   }
 }
 

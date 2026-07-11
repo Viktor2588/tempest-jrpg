@@ -32,20 +32,26 @@ const STATUS_LABELS: Readonly<Record<StatusEffectId, string>> = {
   weaken: 'Schwach'
 };
 
+const SOFT_CONTROLS: readonly StatusEffectId[] = ['blind', 'silence', 'weaken'];
+
 export interface EnemyIntelPresentation {
   readonly breakText: string;
   readonly weaknessText: string;
   readonly telegraphText: string | null;
   readonly devourText: string | null;
+  readonly casterText: string | null;
 }
 
 export function elementLabel(element: ElementType): string {
   return ELEMENT_LABELS[element];
 }
 
-export function formatStatusSummary(statuses: readonly StatusEffectId[]): string | null {
+export function formatStatusSummary(statuses: ReadonlyArray<{ readonly id: StatusEffectId; readonly turns: number }>): string | null {
   if (statuses.length === 0) return null;
-  return statuses.slice(0, 3).map((status) => STATUS_LABELS[status]).join(' · ');
+  return statuses.slice(0, 3).map((s) => {
+    const label = STATUS_LABELS[s.id];
+    return SOFT_CONTROLS.includes(s.id) ? `${label}(${s.turns})` : label;
+  }).join(' · ');
 }
 
 export function buildEnemyIntel(unit: CombatantView): EnemyIntelPresentation {
@@ -67,6 +73,10 @@ export function buildEnemyIntel(unit: CombatantView): EnemyIntelPresentation {
     breakText: `BRK ${unit.breakGauge}/${unit.breakGaugeMax}`,
     weaknessText,
     telegraphText,
-    devourText
+    devourText,
+    casterText: unit.casterHint ?? null
   };
 }
+
+// Phase 137: if caster, could append to intel, but for now bestiary covers the "Aufdeckung"
+

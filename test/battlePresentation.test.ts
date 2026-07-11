@@ -90,8 +90,12 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
   });
 
   it('fasst alle relevanten Statussymbole kompakt für das HUD zusammen', () => {
-    expect(formatStatusSummary(['poison', 'guard-break', 'silence', 'blind']))
-      .toBe('Gift · Break · Stumm');
+    expect(formatStatusSummary([
+      { id: 'poison', turns: 3 },
+      { id: 'guard-break', turns: 2 },
+      { id: 'silence', turns: 2 },
+      { id: 'blind', turns: 3 }
+    ])).toBe('Gift · Break · Stumm(2) · Blind(3)');
     expect(formatStatusSummary([])).toBeNull();
   });
 });

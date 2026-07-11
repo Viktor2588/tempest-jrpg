@@ -41,7 +41,7 @@ export interface CombatantView {
   // Phase 105 — Mimikry: aktives Form-Element (null = Grundform) + verbleibende eigene Züge.
   readonly mimicElement: ElementType | null;
   readonly mimicTurns: number;
-  readonly statuses: readonly StatusEffectId[];
+  readonly statuses: ReadonlyArray<{ readonly id: StatusEffectId; readonly turns: number }>;
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
   readonly breakGaugeMax: number;
@@ -52,6 +52,7 @@ export interface CombatantView {
   readonly analysisLevel: number;
   readonly revealedWeaknesses: readonly ElementType[];
   readonly revealedResistances: readonly ElementType[];
+  readonly casterHint: string | null;
   readonly telegraphSkillId: string | null;
   readonly telegraphSkillName: string | null;
   // Phase 81 — der telegraphierte Zug ist ein Big-Hit (grosser Treffer → kontern!).
@@ -141,7 +142,7 @@ function renderCombatant(
     resonanceElement: combatant.resonanceElement,
     mimicElement: combatant.mimicElement,
     mimicTurns: combatant.mimicTurns,
-    statuses: combatant.statuses.map((status) => status.id),
+    statuses: combatant.statuses.map((status) => ({ id: status.id, turns: status.turns })),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,
     breakGaugeMax: combatant.breakGaugeMax,
@@ -149,6 +150,9 @@ function renderCombatant(
     escalationBonusPercent: Math.round(escalationBonus(combatant) * 100),
     analysisLevel: combatant.analysisLevel,
     revealedWeaknesses: combatant.analysisLevel >= 1 ? [...combatant.weaknesses] : [],
+    // Phase 137: Caster note for intel when analyzed
+    casterHint: null, // would be set from enemy if high magic, for demo null; real would come from enemy def
+
     revealedResistances: combatant.analysisLevel >= 2 ? [...combatant.resistances] : [],
     telegraphSkillId: combatant.telegraphSkillId,
     telegraphSkillName: SKILLS.find((skill) => skill.id === combatant.telegraphSkillId)?.name ?? null,

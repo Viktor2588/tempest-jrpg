@@ -1242,8 +1242,9 @@ export class MenuScene extends Phaser.Scene {
       this.panel(300, y, 590, 62);
       const marker = entry.analyzed ? '◆' : '○';
       const bossTag = entry.boss ? ' · Boss' : '';
+      const casterTag = entry.casterHint ? ` · ${entry.casterHint}` : '';
       this.layer.add(this.add.text(318, y - 20,
-        `${marker} ${entry.name}  (Lv ${entry.level}${bossTag})   ⚔ ${entry.defeatedCount}×`, {
+        `${marker} ${entry.name}  (Lv ${entry.level}${bossTag}${casterTag})   ⚔ ${entry.defeatedCount}×`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.analyzed ? '#8dffc2' : '#e9c56c'
       }));
       this.layer.add(this.add.text(318, y + 2, this.bestiaryDetailLine(entry), {
@@ -1272,6 +1273,7 @@ export class MenuScene extends Phaser.Scene {
     if (entry.reflectsElement) parts.push(`Reflektiert ${elementLabel(entry.reflectsElement)}`);
     if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
     if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
+    if (entry.casterHint) parts.push(entry.casterHint);
     return parts.join('  ·  ');
   }
 

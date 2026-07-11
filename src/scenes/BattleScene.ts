@@ -683,7 +683,9 @@ export class BattleScene extends Phaser.Scene {
 
     if (side === 'enemy') {
       const intel = buildEnemyIntel(unit);
-      this.layer.add(this.add.text(x, y + 63, `${intel.breakText} · ${intel.weaknessText}`, {
+      let weaknessLine = `${intel.breakText} · ${intel.weaknessText}`;
+      if (intel.casterText) weaknessLine += ` · ${intel.casterText}`;
+      this.layer.add(this.add.text(x, y + 63, weaknessLine, {
         fontFamily: 'sans-serif',
         fontSize: '8px',
         fontStyle: 'bold',
