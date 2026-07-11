@@ -741,7 +741,7 @@ export class BattleScene extends Phaser.Scene {
       }).setOrigin(0.5, 0));
     }
 
-    if (unit.statuses.includes('poison')) {
+    if (unit.statuses.some((s) => s.id === 'poison')) {
       this.layer.add(this.add.text(x + width / 2 - 8, y - height / 2 + 10, '☠', {
         fontSize: '12px',
         color: '#b06bff'

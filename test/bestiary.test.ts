@@ -75,8 +75,9 @@ describe('buildBestiary', () => {
       analyzedEnemyIds: []
     }).entries[0]!;
 
-    expect(studied.magicFocused).toBe(true);
-    expect(unstudied.magicFocused).toBe(false);
+    expect(!!studied.casterHint).toBe(true);
+    expect(studied.casterHint).toBe('Caster (hohe Magie)');
+    expect(unstudied.casterHint).toBe(null);
   });
 
   it('ignoriert Zähler von 0 und unbekannte Ids', () => {

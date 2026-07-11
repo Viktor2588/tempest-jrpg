@@ -269,7 +269,7 @@ describe('progression system', () => {
     const target = view.enemies[0]!;
 
     expect(calculateStartingTeamMeter(party, bonded)).toBe(50);
-    expect(view.party.every((member) => member.statuses.includes('attack-up'))).toBe(true);
+    expect(view.party.every((member) => member.statuses.some((s) => s.id === 'attack-up'))).toBe(true);
     expect(actor.synergyPartnerIds).toContain(partner.sourceId);
     expect(act(state, {
       type: 'team-attack',

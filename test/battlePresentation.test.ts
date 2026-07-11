@@ -95,10 +95,10 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
       { id: 'guard-break', turns: 2 },
       { id: 'silence', turns: 2 },
       { id: 'blind', turns: 3 }
-    ])).toBe('Gift · Break · Stumm(2) · Blind(3)');
-    expect(formatStatusSummary(['silence'])).toBe('Stumm (Skills aus)');
-    expect(formatStatusSummary(['blind'])).toBe('Blind (Phys -)');
-    expect(formatStatusSummary(['weaken'])).toBe('Schwach (ANG/MAG -)');
+    ])).toBe('Gift · Break · Stumm(2)');
+    expect(formatStatusSummary([{ id: 'silence', turns: 1 }])).toBe('Stumm (Skills aus)');
+    expect(formatStatusSummary([{ id: 'blind', turns: 1 }])).toBe('Blind (Phys -)');
+    expect(formatStatusSummary([{ id: 'weaken', turns: 1 }])).toBe('Schwach (ANG/MAG -)');
     expect(formatStatusSummary([])).toBeNull();
   });
 

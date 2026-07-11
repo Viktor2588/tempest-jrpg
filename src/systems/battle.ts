@@ -1743,7 +1743,9 @@ function applySkillStatus(state: BattleState, actor: Combatant, target: Combatan
   const bonusTurns = target.side === actor.side ? buffBonusTurns(actor.perks) : 0;
   const turns = skill.statusEffect.turns + bonusTurns;
   applyStatus(target, skill.statusEffect.id, turns);
-  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)} (${turns} Runden).`);
+  const label = statusLabel(skill.statusEffect.id);
+  const feedback = statusFeedback(skill.statusEffect.id);
+  pushLog(state, `${target.name}: ${label}${feedback ? ` (${feedback})` : ''} (${turns} Runden).`);
 }
 
 function advanceToNextActor(state: BattleState): void {

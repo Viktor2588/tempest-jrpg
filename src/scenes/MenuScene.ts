@@ -1271,7 +1271,6 @@ export class MenuScene extends Phaser.Scene {
     if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
     if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
     if (entry.casterHint) parts.push(entry.casterHint);
-    if (entry.magicFocused) parts.push('Zauberwirker - Schweigen kontert');
     return parts.join('  ·  ');
   }
 

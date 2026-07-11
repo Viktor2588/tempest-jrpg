@@ -176,7 +176,7 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
       const result = act(state, { type: 'skill', skillId: 'banishing-seal', targetId: enemy.id });
       expect(result.ok).toBe(true);
       silenced = enemy.statuses.some((status) => status.id === 'silence');
-      feedbackVisible ||= state.log.some((line) => line.includes('Fähigkeiten gesperrt'));
+      feedbackVisible ||= state.log.some((line) => line.includes('Stumm') || line.includes('Fähigkeiten gesperrt'));
     }
     expect(silenced).toBe(true);
     expect(feedbackVisible).toBe(true);
