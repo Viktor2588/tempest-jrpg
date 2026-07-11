@@ -621,6 +621,14 @@ completed_milestones:
     - Structure is now ready for dedicated Sub-View classes in src/ui/menu/ (e.g. PartyTabView etc.).
     - Worktree: /home/viktor/worktree/tempest-phase-143-menu-modularisierung ; merged cleanly.
     - Validation: `bun run typecheck`, `bun run test` (688 tests), `bun run build`.
+  phase_145:
+    - MenuScene Sub-View extraction completed: all tabs (party/inventory/equipment/status/growth/quests/codex/travel) are now dedicated *TabView classes owning their state (filters, pages, status).
+    - onActivated called on tab switch for proper resets.
+    - DnD polish: live visual feedback (alpha + stroke) when dragging over reserve drop zone.
+    - Filter buttons/pagination route through view methods.
+    - MenuScene reduced to orchestrator (header, tab row, shared member list on CHARACTER_TABS, dispatch).
+    - Worktree: /worktree/tempest-phase-145-menu-subviews ; merged cleanly.
+    - Validation: typecheck ✓, build ✓, relevant tests ✓.
   phase_137:
     - Weichkontrolle sichtbar: HUD status summary zeigt Turns für soft controls (z.B. Stumm(2) · Blind(3)).
     - Präzisere Logs: Status-Apply-Logs enthalten "(X Runden)" für Blind/Silence/Weaken.
