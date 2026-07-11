@@ -537,14 +537,20 @@ gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfo
   gegen die Harness, sonst off-route; Harness-Prioritaet unberuehrt. Akzeptanz: Enemy-Defs
   + Encounter/Labyrinth-Einbau, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
-- [ ] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt).
-  Der Labyrinth-Encounter-Aufbau nutzt `createScaledEnemyBattleUnits(pool, partyLevel, kind)`
-  statt roher Basis-Level → jeder Lauf matcht das AKTUELLE Party-Level (nie unter Basis via
-  `effectiveEnemyLevel`). Optional-klein: Floor-Tiefe gibt einen kleinen Level-Lead
-  (Floor 1<2<3), damit tiefer = haerter. Party-Level headless aus der aktiven Gruppe;
-  XP-Falloff greift automatisch → Overgrind bringt nichts. Akzeptanz: deterministische
-  Skalierung headless (`test/labyrinth`), typecheck ✓, Unit-Tests ✓, build ✓. Labyrinth ist
-  off-route → Balance-Korridor unberuehrt.
+- [x] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt)
+  (abgeschlossen, direkt auf main). Umgesetzt: `systems/labyrinth.ts` traegt jetzt
+  `createScaledLabyrinthFloorUnits(enemyIds, partyLevel, depth)` — anders als reguläre
+  Trigger-Encounter (gedeckelt auf Basis + 6) verfolgt das Labyrinth das VOLLE Party-Level
+  plus einen Tiefen-Lead (`labyrinthFloorLevelLead`: Floor 1<2<3, +0/+1/+2), nie unter Basis
+  (`labyrinthFloorEnemyLevel` mit `Math.max(base, …)`), damit ein Lauf auch nach vielen
+  Leveln fordernd bleibt. Der XP-Falloff (`experienceFalloffMultiplier`) greift weiter →
+  Overgrind bringt nichts. `BattleScene.buildEncounterEnemies` erkennt die drei
+  Labyrinth-Etagen per `labyrinthEncounterDepth('labyrinth-floor-1..3')` und nutzt den
+  neuen Pfad; alle uebrigen Encounter behalten die reguläre Skalierung (Phase 67). Akzeptanz
+  erfuellt: Encounter→Tiefe-Mapping, Tiefen-Lead, party-relative + deterministische
+  Skalierung mit Basis-Floor headless (`test/labyrinth.test.ts`, +4 Tests), typecheck ✓,
+  699 Unit-Tests ✓, build ✓. Labyrinth ist off-route → Balance-Korridor unberuehrt (Harness
+  reicht keine Labyrinth-Encounter durch).
 
 - [ ] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen.
   Ramiris' Labyrinth beschwoert auf einem Floor ein SKALIERTES Echo eines Bosses, den der

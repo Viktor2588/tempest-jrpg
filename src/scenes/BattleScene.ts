@@ -25,6 +25,7 @@ import {
   createScaledEnemyBattleUnits,
   scalingKindForEncounter
 } from '../systems/enemyScaling';
+import { createScaledLabyrinthFloorUnits, labyrinthEncounterDepth } from '../systems/labyrinth';
 import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
@@ -95,11 +96,8 @@ export class BattleScene extends Phaser.Scene {
         this.save.flags
       ),
       // Phase 67: Gegner skalieren nach oben mit dem Partylevel (Anti-Overgrind).
-      enemies: createScaledEnemyBattleUnits(
-        data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
-        averagePartyLevel(this.save.party.active.map((member) => member.level)),
-        scalingKindForEncounter(this.encounterId)
-      ),
+      // Phase 147: Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead (tiefer = härter).
+      enemies: this.buildEncounterEnemies(data?.enemyIds),
       inventory: this.save.inventory.stacks,
       teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
       damageMultipliers: {
@@ -131,6 +129,18 @@ export class BattleScene extends Phaser.Scene {
     this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
     this.showEncounterTutorial();
+  }
+
+  // Phase 147 — Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead; alle
+  // übrigen Encounter behalten die reguläre Party-relative Skalierung (Phase 67).
+  private buildEncounterEnemies(enemyIds: string[] | undefined) {
+    const ids = enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'];
+    const partyLevel = averagePartyLevel(this.save.party.active.map((member) => member.level));
+    const depth = labyrinthEncounterDepth(this.encounterId);
+    if (depth !== null) {
+      return createScaledLabyrinthFloorUnits(ids, partyLevel, depth);
+    }
+    return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
   }
 
   private showEncounterTutorial(): void {
