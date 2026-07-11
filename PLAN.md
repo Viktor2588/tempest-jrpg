@@ -585,14 +585,16 @@ darauf; 152–154 sind Content auf dem neuen System.
   Balance-safe: Boni massvoll, Traeger nicht auf Harness-Knoten. Akzeptanz: Slot-Wiring
   + Save-Roundtrip + Kern-Boni headless, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
-- [ ] Phase 151 — Random-Roll-Loot im Labyrinth (Affix-Instanzen).
-  Groesster Umbau: `InventoryStack` ist heute rein by-id/stapelbar — Random-Roll braucht
-  eine leichte NICHT-stapelbare Ausruestungs-INSTANZ mit gerollten Affixen (Affixe =
-  wiederverwendete `TalentPerk`/`statBonus`-Bausteine). Labyrinth-Drops (verzahnt mit
-  Wave-10-Skalierung 147/148) rollen Raritaet + Affixe DETERMINISTISCH aus dem Run-Seed.
-  Inventar/Menue/Ausruesten kommen mit Instanzen klar. Off-route → Korridor unberuehrt.
-  Akzeptanz: Instanz-Modell + deterministischer Roll + Ausruesten headless, typecheck ✓,
-  Unit-Tests ✓, build ✓.
+- [ ] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (Labyrinth).
+  Statt freier Zufalls-Rolls hat JEDE Raritaet einen festen, kuratierten Affix-Pool
+  (Affixe = wiederverwendete `TalentPerk`/`statBonus`-Bausteine, endlicher Katalog).
+  Ein Labyrinth-Drop waehlt daraus DETERMINISTISCH aus dem Run-Seed die zur Raritaet
+  passende Zahl Affixe (z.B. selten 1, episch 2, legendaer 2 + Signatur-Perk). Eine
+  leichte NICHT-stapelbare Ausruestungs-Instanz speichert nur Basis-Item-Id + gewaehlte
+  Affix-Ids — KEIN freies Stat-Rollen, daher kleiner, kuratierter Umbau statt offenem
+  Roll-System. Inventar/Menue/Ausruesten kommen mit diesen Instanzen klar. Verzahnt mit
+  Wave-10-Skalierung 147/148; off-route → Korridor unberuehrt. Akzeptanz: Affix-Pools +
+  deterministische Auswahl + Instanz-Ausruesten headless, typecheck ✓, Unit-Tests ✓, build ✓.
 
 - [ ] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System).
   ~15–20 neue Ausruestungsteile ueber die Raritaeten (inkl. ein paar legendaer-einzigartig
