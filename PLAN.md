@@ -9,13 +9,6 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 142 — Menu-UI-Erweiterungen (Filter, Drag&Drop, Accessibility, Vollständige Modularisierung) (abgeschlossen, Worktree: /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen). Fortsetzung von Phase 141:
-  - Suche/Filter für Bestiarium, Quests und Codex (Lore) hinzugefügt (mit UI Buttons).
-  - Deutlichere Fokus-Ringe (goldener Rahmen via uiSkin für selected/focused + Tab Underline).
-  - Drag & Drop für aktive Party-Mitglieder (reorder via drag on cards, swap on drop; visual feedback).
-  - Vollständige Modularisierung: Registry + IMenuTabView + Base + Beispiel BestiaryTabView; Types ausgelagert; Dispatch über Registry. Struktur für alle Sub-Views bereit.
-  - Akzeptanz: typecheck ✓, 687 Tests ✓, Build ✓. E2E Menu-Smokes strukturell kompatibel.
-  - Worktree ready for merge to main.
 - [x] Phase 120 — Content-Gegnerassets (abgeschlossen, Worktree: /worktree/tempest-phase-120-content-assets). Zwei repo-eigene generierte Battle-Cutouts (enemy-academy-wisp.webp, enemy-blumund-bandit.webp). Neue Gegner + Encounters in Blumund/Freiheitsakademie. In Worktree: typecheck ✓, 624 unit tests ✓, build ✓ (new sprites in dist/assets), E2E desktop smoke for Blumund+Academy asset saves ✓. Asset priority followed.
 - [x] Phase 119 — Tastatur-Dialog-Navigation (abgeschlossen, Worktree: /worktree/tempest-phase-119-dialog-keyboard). Volle Tastatur-Navigation implementiert (Pfeile, Leertaste/Enter, default "weiter"). Akzeptanz erfüllt in DialogueScene.
 - [x] Phase 101 — Welt-Uhr (Zeit/Wetter) (abgeschlossen, direkt auf main). Reine, deterministische Uhr (`systems/worldClock`) aus persistiertem Schrittzähler (`clockStep`) + Welt-Seed: Tageszeit (Morgen/Tag/Abenddämmerung/Nacht) + tagesstabiles Wetter (Klar/Regen/Nebel). Kampf-Konsequenz: Zeit/Wetter des Encounters bestimmen das Eröffnungs-Elementarfeld (Phase 94) — Regen=Wasser, Nacht=Schatten. Overworld-HUD zeigt Tageszeit + Wetter. Akzeptanz erfüllt: Zyklus/Determinismus + Encounter-/Feld-Einfluss headless getestet (test/worldClock.test.ts), Save-Roundtrip (test/save.test.ts), Overworld→Battle-Smoke grün.
@@ -27,7 +20,6 @@ Status:
 ## Worktree-Setup (alle Phasen isoliert per AGENTS.md)
 
 Canonical worktrees under /worktree/tempest-phase-*-* created/verified for pending and recent phases (asset priority 120+121 executed with full checks + E2E where applicable; others ready for parallel work):
-- /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen (Menu-UI-Erweiterungen, in Bearbeitung)
 - /worktree/tempest-phase-120-content-assets (asset phase, completed+verified)
 - /worktree/tempest-phase-121-shuna-tempo (completed+verified in parallel)
 - /worktree/tempest-phase-102-magicules

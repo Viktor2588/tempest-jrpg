@@ -607,6 +607,13 @@ completed_milestones:
     - Big refactor: extracted MenuTypes.ts, IMenuTabView interface, BaseMenuTabView; introduced tabViews registry in MenuScene. Dispatch now via registry instead of long if/else. Structure ready for full extraction into src/ui/menu/*TabView.ts classes.
     - Worktree: /home/viktor/worktree/tempest-phase-141-menu-ui (branch phase-141-menu-ui); merged cleanly.
     - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
+  phase_142:
+    - Follow-up: Search/Filter extended to Bestiary, Quests, and Codex (Lore entries).
+    - Drag & Drop for active Party members (reorder within front line via drag-and-drop on cards; basic visual feedback and swap).
+    - Accessibility: Clearer focus rings (gold border in uiSkin for focused/selected elements, consistent with tabs).
+    - Complete modularization foundation: Enhanced IMenuTabView + registry; added BestiaryTabView as concrete Sub-View example. All draw tab logic now routable via registry for easy extraction of remaining tabs.
+    - Worktree: /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen (branch phase-142-menu-ui-erweiterungen); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
