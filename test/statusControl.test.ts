@@ -163,6 +163,7 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
 
   it('Phase 136 — Bannsiegel bringt ein Ziel zum Schweigen (silence landet)', () => {
     let silenced = false;
+    let feedbackVisible = false;
     for (let seed = 1; seed <= 60 && !silenced; seed += 1) {
       const state = startBattle({
         party: [createHeroBattleUnit(RIMURU, { skillIds: ['banishing-seal'], perks: [] })],
@@ -175,8 +176,24 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
       const result = act(state, { type: 'skill', skillId: 'banishing-seal', targetId: enemy.id });
       expect(result.ok).toBe(true);
       silenced = enemy.statuses.some((status) => status.id === 'silence');
+      feedbackVisible ||= state.log.some((line) => line.includes('Fähigkeiten gesperrt'));
     }
     expect(silenced).toBe(true);
+    expect(feedbackVisible).toBe(true);
+  });
+
+  it('Phase 137 — Analysieren kennzeichnet Magie-lastige Gegner als Zauberwirker', () => {
+    const state = startBattle({
+      party: [createHeroBattleUnit(RIMURU)],
+      enemyIds: ['academy-wisp'],
+      seed: 137
+    });
+    const rimuru = state.combatants.find((combatant) => combatant.side === 'party')!;
+    const wisp = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = rimuru.id;
+
+    expect(act(state, { type: 'analyze', targetId: wisp.id }).ok).toBe(true);
+    expect(state.log.some((line) => line.includes('Zauberwirker') && line.includes('Bannsiegel'))).toBe(true);
   });
 
   it('ein CC-Gegner (Akademie-Irrlicht) kann die Party einschläfern', () => {

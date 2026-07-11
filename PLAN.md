@@ -637,7 +637,7 @@ je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Pri
   Schweigen) headless (`test/statusControl.test.ts`), typecheck ✓, 687 Unit-Tests ✓,
   build ✓, **Balance-Harness (6 Tests, je Spec) gruen**.
 
-- [ ] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium).
+- [x] Phase 137 — Weichkontrolle sichtbar machen (Kampf-Feedback + Bestiarium) (abgeschlossen, Worktree: /worktree/tempest-phase-137-weichkontrolle-feedback). Weiche Zustände zeigen ihre Wirkung im HUD bei Einzelstatus (`Stumm (Skills aus)`, `Blind (Phys -)`, `Schwach (ANG/MAG -)`), bleiben bei Mehrfachstatus kompakt und liefern in allen Anwendungswegen präzise Kampf-Logs. Analysierte magielastige Gegner werden als Zauberwirker mit Schweigen-Gegenspiel im Kampf und Bestiarium gekennzeichnet. Abnahme: typecheck ✓, 689 Unit-Tests inkl. Balance-Harness ✓, build ✓, Desktop-Codex-/Bestiarium-Smoke ✓.
   Die weichen Status bekommen klare Rueckmeldung: praezisere Kampf-Logs/HUD-Marker fuer
   `silence`/`blind`/`weaken` (analog zu den Hart-CC-Markern) und — als Anreiz, sie
   gezielt einzusetzen — nennt die „Analysieren"-Aufdeckung / das Bestiarium (Phase 122)

@@ -1100,6 +1100,7 @@ export class MenuScene extends Phaser.Scene {
     if (entry.reflectsElement) parts.push(`Reflektiert ${elementLabel(entry.reflectsElement)}`);
     if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
     if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
+    if (entry.magicFocused) parts.push('Zauberwirker - Schweigen kontert');
     return parts.join('  ·  ');
   }
 

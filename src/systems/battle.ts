@@ -1197,7 +1197,7 @@ function resolveTeamAttack(
   );
   if (fusion?.statusEffect && target.hp > 0 && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
-    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)}.`);
+    pushAppliedStatus(state, target, fusion.statusEffect.id);
   }
   pushLog(
     state,
@@ -1233,6 +1233,9 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
+  if (target.magic >= target.attack) {
+    pushLog(state, `${target.name} ist ein Zauberwirker - Bannsiegel unterbindet Fähigkeiten.`);
+  }
   // Phase 125 — die Analyse deckt auch die obere Resistenz-Leiter auf, damit der
   // Spieler weiß, welches Element NICHT zu spammen ist (absorbiert/immun).
   if (target.absorbs.length > 0) {
@@ -1569,7 +1572,7 @@ function resolveSignature(
           if (target.dead) continue;
           if (resistsNegativeStatus(state, target, effect.statusId)) continue;
           applyStatus(target, effect.statusId, effect.turns);
-          pushLog(state, `${target.name}: ${statusLabel(effect.statusId)}.`);
+          pushAppliedStatus(state, target, effect.statusId);
         }
         break;
 
@@ -1735,7 +1738,7 @@ function applySkillStatus(state: BattleState, actor: Combatant, target: Combatan
   // Perk buff-power: von dieser Figur gewirkte Buffs auf Verbündete halten länger.
   const bonusTurns = target.side === actor.side ? buffBonusTurns(actor.perks) : 0;
   applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns + bonusTurns);
-  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)}.`);
+  pushAppliedStatus(state, target, skill.statusEffect.id);
 }
 
 function advanceToNextActor(state: BattleState): void {
@@ -2428,6 +2431,24 @@ function statusLabel(statusId: StatusEffectId): string {
   }
 }
 
+function pushAppliedStatus(state: BattleState, target: Combatant, statusId: StatusEffectId): void {
+  const feedback = statusFeedback(statusId);
+  pushLog(state, `${target.name}: ${statusLabel(statusId)}${feedback ? ` (${feedback})` : ''}.`);
+}
+
+function statusFeedback(statusId: StatusEffectId): string | null {
+  switch (statusId) {
+    case 'silence':
+      return 'Fähigkeiten gesperrt';
+    case 'blind':
+      return 'physischer Angriff gesenkt';
+    case 'weaken':
+      return 'Angriff und Magie gesenkt';
+    default:
+      return null;
+  }
+}
+
 function hasSynergyLink(a: Combatant, b: Combatant): boolean {
   return a.synergyPartnerIds.includes(b.sourceId) || b.synergyPartnerIds.includes(a.sourceId);
 }
@@ -2496,6 +2517,7 @@ function triggerFieldReaction(
   applyBreakPressure(state, target, fusion.damageElement, FIELD_REACTION_BREAK_PRESSURE);
   if (fusion.statusEffect && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
+    pushAppliedStatus(state, target, fusion.statusEffect.id);
   }
 }
 

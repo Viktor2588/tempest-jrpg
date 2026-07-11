@@ -32,6 +32,12 @@ const STATUS_LABELS: Readonly<Record<StatusEffectId, string>> = {
   weaken: 'Schwach'
 };
 
+const STATUS_DETAIL_LABELS: Readonly<Partial<Record<StatusEffectId, string>>> = {
+  blind: 'Blind (Phys -)',
+  silence: 'Stumm (Skills aus)',
+  weaken: 'Schwach (ANG/MAG -)'
+};
+
 export interface EnemyIntelPresentation {
   readonly breakText: string;
   readonly weaknessText: string;
@@ -45,7 +51,10 @@ export function elementLabel(element: ElementType): string {
 
 export function formatStatusSummary(statuses: readonly StatusEffectId[]): string | null {
   if (statuses.length === 0) return null;
-  return statuses.slice(0, 3).map((status) => STATUS_LABELS[status]).join(' · ');
+  const visible = statuses.slice(0, 3);
+  return visible.map((status) => (
+    visible.length === 1 ? STATUS_DETAIL_LABELS[status] ?? STATUS_LABELS[status] : STATUS_LABELS[status]
+  )).join(' · ');
 }
 
 export function buildEnemyIntel(unit: CombatantView): EnemyIntelPresentation {

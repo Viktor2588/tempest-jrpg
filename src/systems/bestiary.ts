@@ -59,6 +59,7 @@ export interface BestiaryEntryView {
   readonly reflectsElement: ElementType | null;
   readonly resistsCategory: DamageCategory | null;
   readonly reflectsCategory: DamageCategory | null;
+  readonly magicFocused: boolean;
 }
 
 export interface BestiaryView {
@@ -112,7 +113,8 @@ export function buildBestiary(state: BestiaryProgressState): BestiaryView {
       absorbs: isAnalyzed ? enemy.absorbs ?? [] : [],
       reflectsElement: isAnalyzed ? enemy.reflectsElement ?? null : null,
       resistsCategory: isAnalyzed ? enemy.resistsCategory ?? null : null,
-      reflectsCategory: isAnalyzed ? enemy.reflectsCategory ?? null : null
+      reflectsCategory: isAnalyzed ? enemy.reflectsCategory ?? null : null,
+      magicFocused: isAnalyzed && enemy.stats.magic >= enemy.stats.attack
     });
   }
 
