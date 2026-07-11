@@ -654,4 +654,39 @@ je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Pri
   Akzeptanz: Telegraph + Silence-Gegenspiel headless, typecheck ✓, Unit-Tests ✓, build ✓,
   **Balance-Harness gruen** (Traeger off-route).
 
+## Wurzel-Balance: taktische Hebel bindend machen (Befund 2026-07-11)
+
+Befund (Code-Verifikation auf `main`, 687 Tests gruen): Das Kernproblem der
+`TODO.md` („zu leicht / Grind / kein Schwung") ist KEIN Mechanik-Mangel — die
+Anti-Sustain-/Taktik-Hebel sind alle gebaut und teils on-route
+(`escalationPercentPerTurn` auf jedem Boss, `punishesHealing` auf Ifrit,
+`armoredUntilBreak`, Mender, Kategorie-Resistenz, Hart-/Weich-CC). Sie sind aber
+**nicht load-bearing**: der Balance-Harness laeuft auf `chooseAutoAction`
+(`systems/autoBattle.ts`), und dieser Agent **kennt `punishesHealing` nicht**
+(grep: 0 Treffer) — er heilt stur bei HP < Schwelle, auch gegen den Heiler-
+Bestrafer, und die Harness ist trotzdem gruen. Ifrit steht on-route
+(`ifrit-boss` in `STORY_ENCOUNTER_IDS`). Das beweist: der Hebel ist dekorativ —
+wer ihn ignoriert und stumpf weiter-sustained, gewinnt den Korridor trotzdem.
+Genau das ist „jeder Kampf hat dieselbe optimale Antwort": die Systeme sind nie
+NOTWENDIG, weil sie schwach genug getunt sind, dass Rote-Sustain-Exploit
+durchtraegt — und die „Harness-gruen"-Regel jeder Phase zementiert das, weil
+„gruen" = „gruen mit stumpfem Agenten". Non-Goals gelten weiter (kein Backend/
+PWA, kein Job/Klassen-System; canon-first). Muster dieser Welle: einen
+vorhandenen Hebel echt machen UND beweisen, dass die Rote-Linie ohne ihn den
+Korridor VERLIERT — danach billig auf die anderen Hebel ausrollbar, ohne je
+etwas Neues zu erfinden.
+
+- [ ] Phase 139 — Der erste bindende Hebel: Heilbestrafung, die den Rote-Sustain-Pfad bricht.
+  Keine neue Mechanik. (1) `punishesHealing` (Ifrit) so hochtunen, dass
+  reflexartiges Heilen in eine Todesspirale/verlorenes DPS-Rennen kippt — der
+  Kampf muss BEENDET (Burst/Break/Weich-CC) statt ausgesessen werden. (2) Dem
+  Harness-Agenten (`chooseAutoAction`) genau eine Gegenentscheidung beibringen:
+  gegen einen `punishesHealing`-Gegner Heilung zurueckstellen zugunsten Offensive/
+  Verteidigung — spiegelt die schon vorhandene Mender-Priorisierung
+  (`autoBattle.ts:177`). (3) Beweis-Assertion in `test/balanceHarness.test.ts`:
+  der No-Counter-Lauf (stur heilen) faellt bei Ifrit AUS dem Korridor, der
+  Counter-Lauf bleibt drin → der Hebel ist nachweislich notwendig, nicht
+  optional. Akzeptanz: Tune + AI-Branch + Doppelkorridor-Assertion headless,
+  typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen (Counter-Linie)**.
+
 ## UX- und Welt-Backlog
