@@ -614,6 +614,13 @@ completed_milestones:
     - Complete modularization foundation: Enhanced IMenuTabView + registry; added BestiaryTabView as concrete Sub-View example. All draw tab logic now routable via registry for easy extraction of remaining tabs.
     - Worktree: /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen (branch phase-142-menu-ui-erweiterungen); merged cleanly.
     - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
+  phase_143:
+    - Advanced the full modularization: tabViews registry now uses proper IMenuTabView objects (no more function lambdas). Dispatch is clean.
+    - Enhanced DnD: now supports moving from active to reserve area.
+    - All filters, focus rings, and DnD from previous list completed.
+    - Structure is now ready for dedicated Sub-View classes in src/ui/menu/ (e.g. PartyTabView etc.).
+    - Worktree: /home/viktor/worktree/tempest-phase-143-menu-modularisierung ; merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (688 tests), `bun run build`.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
