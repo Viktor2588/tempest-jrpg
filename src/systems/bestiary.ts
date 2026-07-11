@@ -59,6 +59,8 @@ export interface BestiaryEntryView {
   readonly reflectsElement: ElementType | null;
   readonly resistsCategory: DamageCategory | null;
   readonly reflectsCategory: DamageCategory | null;
+  // Phase 137: Caster-Hinweis für magielastige Gegner (in Bestiarium bei analyzed)
+  readonly casterHint: string | null;
 }
 
 export interface BestiaryView {
@@ -112,7 +114,8 @@ export function buildBestiary(state: BestiaryProgressState): BestiaryView {
       absorbs: isAnalyzed ? enemy.absorbs ?? [] : [],
       reflectsElement: isAnalyzed ? enemy.reflectsElement ?? null : null,
       resistsCategory: isAnalyzed ? enemy.resistsCategory ?? null : null,
-      reflectsCategory: isAnalyzed ? enemy.reflectsCategory ?? null : null
+      reflectsCategory: isAnalyzed ? enemy.reflectsCategory ?? null : null,
+      casterHint: isAnalyzed && enemy.stats.magic > enemy.stats.attack + 5 ? 'Caster (hohe Magie)' : null
     });
   }
 
