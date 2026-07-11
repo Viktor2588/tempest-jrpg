@@ -180,6 +180,20 @@ describe('save.ts', () => {
     expect(loadSave(storage)).toBeNull();
   });
 
+  it('crasht nicht an einem beschädigten Spielstand, sondern lädt als „kein Save" (null)', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(SAVE_STORAGE_KEY, '{ das ist kein gueltiges JSON');
+    expect(() => loadSave(storage)).not.toThrow();
+    expect(loadSave(storage)).toBeNull();
+
+    // Nicht unterstützte künftige Version → ebenfalls graceful null statt Wurf.
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify({ schemaVersion: 999 }));
+    expect(loadSave(storage)).toBeNull();
+
+    // Expliziter Import bleibt strikt (klare Fehlermeldung fürs UI).
+    expect(() => importSave('{ kaputt')).toThrow();
+  });
+
   it('persistiert den Welt-Uhr-Schrittzähler (Phase 101) über Speichern/Laden', () => {
     const storage = new MemoryStorage();
     const save = { ...createNewSave({ seed: 5 }), clockStep: 37 };

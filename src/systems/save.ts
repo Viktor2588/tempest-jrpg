@@ -255,10 +255,23 @@ export function importSave(json: string, now = new Date().toISOString()): SaveGa
   return migrate(JSON.parse(json) as unknown, now);
 }
 
+// Ein beschädigter/nicht unterstützter localStorage-Eintrag (unterbrochener Write,
+// Browser-Eviction, künftige Save-Version) darf das Booten NICHT crashen — sonst
+// haengt der Titelbildschirm und der Spieler kommt nicht mal zu „neues Spiel".
+// Auto-Load faellt still auf null zurueck; jeder Aufrufer behandelt null bereits
+// (?? createNewSave()). importSave bleibt strikt fuer explizite Importe.
+function tryImport(json: string): SaveGameV3 | null {
+  try {
+    return importSave(json);
+  } catch {
+    return null;
+  }
+}
+
 export function loadSave(storage: StorageLike, key = activeSaveKey(storage)): SaveGameV3 | null {
   const stored = storage.getItem(key);
   if (stored !== null) {
-    return importSave(stored);
+    return tryImport(stored);
   }
   if (key !== SAVE_STORAGE_KEY) {
     return null;
@@ -266,7 +279,10 @@ export function loadSave(storage: StorageLike, key = activeSaveKey(storage)): Sa
   for (const legacyKey of LEGACY_SAVE_STORAGE_KEYS) {
     const legacy = storage.getItem(legacyKey);
     if (legacy !== null) {
-      const migrated = importSave(legacy);
+      const migrated = tryImport(legacy);
+      if (migrated === null) {
+        continue;
+      }
       storage.setItem(SAVE_STORAGE_KEY, exportSave(migrated));
       return migrated;
     }
