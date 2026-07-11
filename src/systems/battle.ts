@@ -1773,7 +1773,6 @@ function advanceToNextActor(state: BattleState): void {
         }
         continue;
       }
-      updateEnemyPhase(state, actor);
       state.activeId = actor.id;
       return;
     }
@@ -1792,7 +1791,17 @@ function advanceToNextActor(state: BattleState): void {
 // Liefert true, wenn der Kämpfer diesen Zug wegen eines Aussetz-Status verliert.
 function startTurn(state: BattleState, actor: Combatant): boolean {
   actor.guarding = false;
-  updateEnemyPhase(state, actor);
+  const phaseChanged = updateEnemyPhase(state, actor);
+  const phaseSkill = actor.telegraphSkillId ? getSkill(actor.telegraphSkillId) : undefined;
+  if (phaseChanged && !actor.boss && phaseSkill?.heavy) {
+    // Der Wisp braucht einen Wind-up-Zug: Danach kann die Party den frischen
+    // Telegraph lesen und z. B. mit Bannsiegel antworten.
+    actor.ct = CT_THRESHOLD;
+    for (const ally of livingCombatants(state, 'party')) {
+      ally.ct = Math.max(ally.ct, CT_THRESHOLD);
+    }
+    return true;
+  }
 
   // Aussetz-Status VOR dem Abklingen prüfen, damit z. B. eine 1-Zug-Betäubung genau einmal greift.
   const disabledBy = computeDisabled(state, actor);
@@ -2153,9 +2162,9 @@ function grantMomentum(state: BattleState, actor: Combatant, reason: string): vo
   }
 }
 
-function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
+function updateEnemyPhase(state: BattleState, combatant: Combatant): boolean {
   if (combatant.side !== 'enemy' || combatant.dead || combatant.phaseIndex >= 1) {
-    return;
+    return false;
   }
   if (combatant.hp / combatant.maxHp <= combatant.phaseThreshold) {
     combatant.phaseIndex = 1;
@@ -2165,9 +2174,12 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
       combatant.boss ? BATTLE_BALANCE.bossPhaseCtSurge : CT_THRESHOLD
     );
     pushLog(state, `${combatant.name} wechselt in Phase 2.`);
+    refreshEnemyTelegraph(state, combatant);
     // Phase 109 — skript-getriebene Bossphase: beschwört beim Phasenwechsel einmalig Adds.
     spawnSummons(state, combatant);
+    return true;
   }
+  return false;
 }
 
 // Phase 109 — Add-Beschwörung: fügt beim Phasenwechsel einmalig zusätzliche Gegner in den

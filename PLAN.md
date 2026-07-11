@@ -646,12 +646,14 @@ je Rimuru-Spec gruen gefahren; **alle Traeger bleiben ausserhalb der Harness-Pri
   Balance-Beruehrung. Akzeptanz: Log-/Marker-/Bestiarium-Erweiterung headless, typecheck ✓,
   Unit-Tests ✓, build ✓, Balance-Harness unberuehrt.
 
-- [ ] Phase 138 — Der Zauber-Riegel: ein off-route Caster-Gegner, den Schweigen kontert.
+- [x] Phase 138 — Der Zauber-Riegel: ein off-route Caster-Gegner, den Schweigen kontert (abgeschlossen, Worktree: /worktree/tempest-phase-138-zauber-riegel). Das vorhandene Akademie-Irrlicht nutzt nun die telegraphierte schwere Phase-2-Überladung; sein Wind-up gibt der Party eine echte Antwort-Runde, in der Shunas Bannsiegel den Cast unterbindet. Shuna wird bei der kanonischen Kijin-Benennung rekrutiert und ist damit vor der Akademie erreichbar.
   Ein bestehender Nicht-Harness-Gegner (z.B. der Labyrinth-nahe `magic-colossus` oder ein
   Akademie-Gegner) erhaelt eine telegraphierte, gefaehrliche Phase-2-Magie, deren Druck
   sich mit `silence` (Phase 136) spuerbar brechen laesst — macht die neue Weichkontrolle
   erspielbar wertvoll statt optionaler Schmuck. **Off-route** → Balance-Korridor unberuehrt.
-  Akzeptanz: Telegraph + Silence-Gegenspiel headless, typecheck ✓, Unit-Tests ✓, build ✓,
-  **Balance-Harness gruen** (Traeger off-route).
+  Akzeptanz erfüllt: Telegraph + tatsächliche Silence-Antwort im Kampfkern und Shuna-
+  Rekrutierung über den Dialog headless, typecheck ✓, 692 Unit-Tests inkl. Balance-Harness ✓,
+  build ✓, Desktop-Battle- und Freiheitsakademie-Asset-Smoke ✓. **Balance-Harness gruen**
+  (Traeger off-route).
 
 ## UX- und Welt-Backlog

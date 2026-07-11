@@ -668,6 +668,74 @@ describe('battle engine', () => {
     expect(enemy.ct).toBeGreaterThanOrEqual(BATTLE_BALANCE.bossPhaseCtSurge);
   });
 
+  it('Phase 138 — das Akademie-Irrlicht gibt vor seiner Phase-2-Überladung eine Antwort-Runde', () => {
+    const state = startBattle({
+      party: [depthHero('shuna', 'Shuna', { skillIds: ['banishing-seal'] })],
+      enemyIds: ['academy-wisp'],
+      seed: 138
+    });
+    const shuna = state.combatants.find((combatant) => combatant.sourceId === 'shuna')!;
+    const wisp = state.combatants.find((combatant) => combatant.sourceId === 'academy-wisp')!;
+    wisp.hp = Math.floor(wisp.maxHp * 0.5);
+    wisp.ct = 101;
+    shuna.ct = 100;
+    state.activeId = shuna.id;
+
+    expect(act(state, { type: 'guard' }).ok).toBe(true);
+    expect(wisp.phaseIndex).toBe(1);
+    expect(wisp.telegraphSkillId).toBe('arcane-overload');
+    expect(renderView(state).enemies[0]!.telegraphHeavy).toBe(true);
+    expect(currentActor(state)?.id).toBe(shuna.id);
+
+    expect(act(state, { type: 'guard' }).ok).toBe(true);
+    expect(currentActor(state)?.id).toBe(wisp.id);
+    const mpBefore = wisp.mp;
+
+    expect(enemyTurn(state).ok).toBe(true);
+    expect(wisp.mp).toBe(mpBefore - 18);
+    expect(state.log[0]).toContain('Arkane Überladung');
+  });
+
+  it('Phase 138 — Shunas Bannsiegel unterbindet die telegraphierte Überladung', () => {
+    let countered = false;
+    for (let seed = 1; seed <= 60 && !countered; seed += 1) {
+      const state = startBattle({
+        party: [
+          depthHero('shuna', 'Shuna', { skillIds: ['banishing-seal'] }),
+          depthHero('rimuru', 'Rimuru', {
+            stats: { maxHp: 150, maxMp: 60, attack: 26, defense: 18, magic: 24, spirit: 18, agility: 4 }
+          })
+        ],
+        enemyIds: ['academy-wisp'],
+        seed
+      });
+      const shuna = state.combatants.find((combatant) => combatant.sourceId === 'shuna')!;
+      const rimuru = state.combatants.find((combatant) => combatant.sourceId === 'rimuru')!;
+      const wisp = state.combatants.find((combatant) => combatant.sourceId === 'academy-wisp')!;
+      wisp.hp = Math.floor(wisp.maxHp * 0.5);
+      wisp.ct = 101;
+      shuna.ct = 100;
+      state.activeId = shuna.id;
+
+      expect(act(state, { type: 'guard' }).ok).toBe(true);
+      expect(currentActor(state)?.id).toBe(shuna.id);
+      expect(act(state, { type: 'skill', skillId: 'banishing-seal', targetId: wisp.id }).ok).toBe(true);
+      if (!wisp.statuses.some((status) => status.id === 'silence')) continue;
+      expect(currentActor(state)?.id).toBe(rimuru.id);
+
+      expect(act(state, { type: 'guard' }).ok).toBe(true);
+      expect(currentActor(state)?.id).toBe(wisp.id);
+      const mpBefore = wisp.mp;
+
+      expect(enemyTurn(state).ok).toBe(true);
+      expect(wisp.mp).toBe(mpBefore);
+      expect(state.log[0]).not.toContain('Arkane Überladung');
+      countered = true;
+    }
+
+    expect(countered).toBe(true);
+  });
+
   it('terminiert deterministisch über Talent-Loadouts × Gegnerphasen × Seeds', () => {
     const loadouts = [
       {
