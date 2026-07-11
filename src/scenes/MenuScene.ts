@@ -70,53 +70,13 @@ import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
-
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
-type QuestStatusFilter = 'active' | 'completed';
-
-// Phase 122 — Bestiarium als siebter Codex-Modus. Kompakte Leiste (11px) mit fester
-// Breite je Knopf, damit alle sieben Modi in eine Reihe passen (Icon + volles Wort
-// bleiben erhalten). Reihenfolge = bestehende fünf + Bestiarium am Ende.
-type CodexMode = 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' | 'bestiary';
-
-const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: number }> = [
-  { id: 'lore', label: 'Wissen', width: 66 },
-  { id: 'devour', label: '🍴 Verschlingen', width: 106 },
-  { id: 'residents', label: '🏛️ Bewohner', width: 84 },
-  { id: 'facilities', label: '🏭 Einrichtungen', width: 116 },
-  { id: 'bounties', label: '🎯 Kopfgeld', width: 80 },
-  { id: 'diplomacy', label: '🤝 Politik', width: 74 },
-  { id: 'bestiary', label: '🐾 Bestiarium', width: 96 }
-];
-
-const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
-  { id: 'party', label: 'Party' },
-  { id: 'inventory', label: 'Inventar' },
-  { id: 'equipment', label: 'Ausrüstung' },
-  { id: 'status', label: 'Status' },
-  { id: 'growth', label: 'Talente' },
-  { id: 'quests', label: 'Quests' },
-  { id: 'codex', label: 'Codex' },
-  { id: 'travel', label: 'Ranga' }
-];
-
-// Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
-// als Auswahl-Seitenleiste gebraucht. Der Party-Tab hat seine eigene (klickbare)
-// Aktiv-Gruppen-Übersicht, sonst stünde die Liste doppelt; Quests/Codex/Reise
-// nutzen die volle Breite.
-const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['inventory', 'equipment', 'status', 'growth']);
-
-// Kurzbeschreibung pro Tab — erklärt, was der Menüpunkt macht.
-const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
-  party: 'Überblick über deine aktive Gruppe.',
-  inventory: 'Gegenstände ansehen und an einer Figur benutzen.',
-  equipment: 'Waffe, Rüstung und Accessoire anlegen oder ablegen.',
-  status: 'Werte, Skills, Namensgebung, Entwicklung und Bindungen der Figur.',
-  growth: 'Talentbaum: Knoten mit Skillpunkten freischalten.',
-  quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
-  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
-  travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
-};
+import type { MenuTab, CodexMode, QuestStatusFilter } from '../ui/menu/MenuTypes';
+import {
+  CODEX_MODES,
+  TABS,
+  CHARACTER_TABS,
+  TAB_DESCRIPTIONS
+} from '../ui/menu/MenuTypes';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -136,6 +96,14 @@ export class MenuScene extends Phaser.Scene {
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
+  // Phase 141: Einfaches Tooltip-System
+  private tooltip?: Phaser.GameObjects.Container;
+  // Phase 141: Einfacher Filter für Listen (z.B. Inventar)
+  private inventoryFilter = '';
+
+  // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
+  // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
+  private tabViews: Map<MenuTab, (view?: any, selected?: any) => void> = new Map();
 
   constructor() {
     super('Menu');
@@ -168,7 +136,40 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-DOWN', () => this.moveMenuSelection(1));
     this.input.keyboard?.on('keydown-SPACE', () => this.activateMenuSelection());
     this.input.keyboard?.on('keydown-ENTER', () => this.activateMenuSelection());
+
+    // Phase 141: Direkte Tastenkürzel für Tabs (1-8)
+    const digitKeys = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+    digitKeys.forEach((key, idx) => {
+      if (idx < TABS.length) {
+        this.input.keyboard?.on(`keydown-${key}`, () => {
+          this.selectedTab = TABS[idx].id;
+          this.message = TAB_DESCRIPTIONS[this.selectedTab];
+          this.codexPage = 0;
+          this.listPages = {};
+          this.questPage = 0;
+          this.questStatus = 'active';
+          this.selectedQuestId = null;
+          this.selectedTalentNodeId = null;
+          this.showForge = false;
+          this.refresh();
+        });
+      }
+    });
     this.refresh();
+  }
+
+  private initTabViewsIfNeeded() {
+    if (this.tabViews.size > 0) return;
+    // Phase 141 Großes Refactor: Registry statt riesigem if/else in refresh().
+    // Ermöglicht schrittweise Extraktion in eigene Klassen (siehe src/ui/menu/).
+    this.tabViews.set('party', (v: any, s: any) => this.drawParty(s?.character?.name, v));
+    this.tabViews.set('inventory', (v: any, s: any) => this.drawInventory(v, s?.member?.characterId));
+    this.tabViews.set('equipment', (v: any, s: any) => this.drawEquipment(v, s?.member?.characterId));
+    this.tabViews.set('status', (v: any, s: any) => this.drawStatus(v, s?.member?.characterId));
+    this.tabViews.set('growth', (v: any, s: any) => this.drawGrowth(v, s?.member?.characterId));
+    this.tabViews.set('quests', (_v: any, _s: any) => this.drawQuestLog());
+    this.tabViews.set('codex', (_v: any, _s: any) => this.drawCodex());
+    this.tabViews.set('travel', (_v: any, _s: any) => this.drawRangaTravel());
   }
 
   private refresh(): void {
@@ -192,10 +193,10 @@ export class MenuScene extends Phaser.Scene {
     this.button(GAME_WIDTH - 126, 34, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     TABS.forEach((tab, index) => {
+      const isActive = this.selectedTab === tab.id;
+      const fill = isActive ? 0x30506f : 0x1b2940;
       this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
         this.selectedTab = tab.id;
-        // Beim Tabwechsel die Kurzbeschreibung in die Meldungszeile setzen, damit klar
-        // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
         this.listPages = {};
@@ -205,7 +206,16 @@ export class MenuScene extends Phaser.Scene {
         this.selectedTalentNodeId = null;
         this.showForge = false;
         this.refresh();
-      }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
+      }, fill, TAB_DESCRIPTIONS[tab.id]);
+
+      // Bessere aktive Tab-Hervorhebung: kleiner Unterstrich für visuelle Klarheit
+      if (isActive) {
+        const x = menuTabButtonX(index, TABS.length);
+        const w = MENU_TAB_ROW.buttonWidth;
+        const underline = this.add.rectangle(x + w/2, MENU_TAB_ROW.y + 24, w - 8, 3, 0xe9c56c)
+          .setOrigin(0.5, 0.5);
+        this.layer.add(underline);
+      }
     });
 
     // Party-Auswahlleiste nur auf Figur-bezogenen Tabs — sonst verschwendet sie Platz
@@ -221,14 +231,16 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    if (this.selectedTab === 'party') this.drawParty(selected.character.name, view);
-    else if (this.selectedTab === 'inventory') this.drawInventory(view, selected.member.characterId);
-    else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
-    else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
-    else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else if (this.selectedTab === 'quests') this.drawQuestLog(view);
-    else if (this.selectedTab === 'codex') this.drawCodex();
-    else this.drawRangaTravel();
+    this.initTabViewsIfNeeded();
+
+    // Phase 141 Groß-Refactor: Registry-Dispatch statt monolithischem if/else.
+    // Das ist der zentrale Punkt des Refactors der monolithischen MenuScene.
+    const drawer = this.tabViews.get(this.selectedTab);
+    if (drawer) {
+      drawer(view, selected);
+    } else {
+      this.drawParty(selected.character.name, view);
+    }
   }
 
   private drawMemberList(view: MenuView): void {
@@ -359,14 +371,26 @@ export class MenuScene extends Phaser.Scene {
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
     // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
-    this.button(760, 150, 120, 'Sortiert', () => {
-      this.message = 'Inventar ist automatisch sortiert.';
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter (Name enthält):', this.inventoryFilter);
+      this.inventoryFilter = (q ?? '').toLowerCase().trim();
       this.refresh();
     });
+    if (this.inventoryFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        this.inventoryFilter = '';
+        this.refresh();
+      });
+    }
+
+    let filteredInventory = view.inventory;
+    if (this.inventoryFilter) {
+      filteredInventory = view.inventory.filter(e => e.item.name.toLowerCase().includes(this.inventoryFilter));
+    }
 
     const invCol = MENU_LIST_COLUMNS.inventoryItems;
-    const inv = this.menuListPage(view.inventory.length, invCol);
-    view.inventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
+    const inv = this.menuListPage(filteredInventory.length, invCol);
+    filteredInventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
       const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
       this.button(300, y, 260, label, () => {
@@ -808,7 +832,7 @@ export class MenuScene extends Phaser.Scene {
     return node.requiredFlag ? 'Benötigt: Story-Fortschritt' : null;
   }
 
-  private drawQuestLog(view: MenuView): void {
+  private drawQuestLog(_view?: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const quests = allQuests.filter((q) => q.status !== 'inactive');
 
@@ -840,8 +864,8 @@ export class MenuScene extends Phaser.Scene {
 
     const filtered = quests.filter((quest) => quest.status === this.questStatus);
     let cursorY = 246;
-    if (view.story && this.questStatus === 'active') {
-      this.drawStorySummary(view.story, 246);
+    if (_view?.story && this.questStatus === 'active') {
+      this.drawStorySummary(_view.story, 246);
       cursorY = 350;
     }
     if (filtered.length === 0) {
@@ -856,7 +880,7 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    const pageSize = view.story && this.questStatus === 'active' ? 2 : 3;
+    const pageSize = _view?.story && this.questStatus === 'active' ? 2 : 3;
     const pageCount = Math.ceil(filtered.length / pageSize);
     this.questPage = Math.min(this.questPage, pageCount - 1);
     const page = filtered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
@@ -1633,15 +1657,47 @@ export class MenuScene extends Phaser.Scene {
     width: number,
     label: string,
     callback: () => void,
-    color = 0x1b2940
+    color = 0x1b2940,
+    tooltip?: string
   ): void {
-    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+    const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
       fill: color,
       idleAlpha: 0.96,
       fontSize: '13px',
       textOffsetX: 10
-    }));
+    });
+    this.layer.add(btn);
+
+    if (tooltip) {
+      const bg = btn.list[0] as Phaser.GameObjects.Rectangle; // background
+      bg.on('pointerover', () => this.showTooltip(x + width / 2, y - 30, tooltip));
+      bg.on('pointerout', () => this.hideTooltip());
+    }
+  }
+
+  private showTooltip(x: number, y: number, text: string): void {
+    this.hideTooltip();
+    const container = this.add.container(x, y);
+    const bg = this.add.rectangle(0, 0, 220, 28, 0x0a0f1a, 0.95)
+      .setStrokeStyle(1, 0x3a506f)
+      .setOrigin(0.5, 1);
+    const label = this.add.text(0, -4, text, {
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+      color: '#e9eef7',
+      align: 'center'
+    }).setOrigin(0.5, 1);
+    container.add([bg, label]);
+    this.layer.add(container);
+    this.tooltip = container;
+  }
+
+  private hideTooltip(): void {
+    if (this.tooltip) {
+      this.tooltip.destroy();
+      this.tooltip = undefined;
+    }
   }
 
   private drawPortrait(characterId: string, x: number, y: number, size: number): void {
