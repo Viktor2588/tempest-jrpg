@@ -109,6 +109,9 @@ export const ITEMS = [
   // kampfunfaehigen Verbuendeten wieder (Teil-LP). Nutzt den bereits vollstaendig
   // behandelten `revive`-Item-Effekt (battle.ts:resolveItem); teurer Gold-Abfluss.
   { id: 'revival-elixir', name: 'Wiederbelebungselixier', description: 'Hochkonzentrierte Hipokte-Essenz. Weckt einen kampfunfähigen Verbündeten mit 80 LP wieder.', category: 'consumable', price: 320, stackable: true, effect: { kind: 'revive', amount: 80 } },
+  // Phase 129 — Reinigung: Gegenmittel zur erwachten Kontroll-Schicht. Entfernt negative
+  // Status (Betäubung, Schlaf, Versteinerung, Lähmung, Gift …) von einem Verbündeten.
+  { id: 'purifying-water', name: 'Läuterungswasser', description: 'Von Tempests Geistern geweihtes Wasser. Befreit einen Verbündeten von negativen Statusleiden.', category: 'consumable', price: 60, stackable: true, effect: { kind: 'cure-status' } },
   { id: 'magic-ore', name: 'Magisches Erz', description: 'Magicule-getränktes Roherz; Rohstoff für Magisteel und Magiewerkzeuge.', category: 'key', price: 45, stackable: true },
   { id: 'magisteel', name: 'Magisteel', description: 'Aus magischem Erz und Magicules veredelt; überlegener Schmiedewerkstoff.', category: 'key', price: 140, stackable: true },
   { id: 'geld-core', name: 'Geld-Kern', description: 'Verdichteter Kern des Orc-Disasters — Beweis und Evolutionsmaterial.', category: 'key', price: 0, stackable: false },

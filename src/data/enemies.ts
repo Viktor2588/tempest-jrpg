@@ -202,7 +202,7 @@ export const ENEMIES = [
       spirit: 13,
       agility: 20
     },
-    skillIds: ['goblin-feint', 'quick-step'],
+    skillIds: ['goblin-feint', 'quick-step', 'blinding-feint'],
     devourable: false,
     weaknesses: ['shadow', 'fire'],
     resistances: [],
@@ -324,7 +324,7 @@ export const ENEMIES = [
       spirit: 28,
       agility: 23
     },
-    skillIds: ['spirit-bind', 'temporal-snare'],
+    skillIds: ['spirit-bind', 'temporal-snare', 'slumber-glow'],
     devourable: true,
     devourSkillId: 'spirit-bind',
     weaknesses: ['shadow', 'earth'],
@@ -370,7 +370,7 @@ export const ENEMIES = [
       spirit: 20,
       agility: 28
     },
-    skillIds: ['direwolf-rush', 'goblin-feint', 'quick-step'],
+    skillIds: ['direwolf-rush', 'goblin-feint', 'quick-step', 'paralytic-howl'],
     phase2SkillIds: ['calamity-roar', 'war-cry'],
     escalationPercentPerTurn: 12,
     devourable: true,
@@ -388,10 +388,10 @@ export const ENEMIES = [
   { id: 'orc-lord', name: 'Ork-Lord', level: 13, element: 'shadow', stats: { maxHp: 250, maxMp: 30, attack: 45, defense: 22, magic: 24, spirit: 16, agility: 14 }, skillIds: ['famished-bite', 'orc-cleave', 'iron-guard'], devourable: true, devourSkillId: 'famished-bite', weaknesses: ['holy'], resistances: ['earth', 'shadow'], experienceReward: 260, goldReward: 140, drops: [{ itemId: 'full-potion', chance: 0.4 }, { itemId: 'famine-charm', chance: 0.25 }] },
   { id: 'orc-disaster', name: 'Orc-Disaster „Geld"', level: 16, boss: true, element: 'shadow', stats: { maxHp: 920, maxMp: 60, attack: 108, defense: 34, magic: 80, spirit: 24, agility: 22 }, skillIds: ['famished-bite', 'calamity-roar', 'ogre-smash', 'umbral-burst'], phase2SkillIds: ['war-cry', 'black-flame', 'spirit-bind'], escalationPercentPerTurn: 12, devourable: true, devourSkillId: 'calamity-roar', weaknesses: ['holy'], resistances: ['earth', 'shadow', 'neutral'], experienceReward: 1300, goldReward: 320, drops: [{ itemId: 'geld-core', chance: 1 }] },
   { id: 'ifrit', name: 'Ifrit, Flammengeist', level: 14, boss: true, element: 'fire', stats: { maxHp: 560, maxMp: 80, attack: 33, defense: 18, magic: 46, spirit: 26, agility: 22 }, skillIds: ['ifrit-inferno', 'black-flame'], phase2SkillIds: ['spirit-bind', 'temporal-snare'], escalationPercentPerTurn: 12, punishesHealing: true, devourable: true, devourSkillId: 'ifrit-inferno', weaknesses: ['water'], resistances: [], absorbs: ['fire'], experienceReward: 520, goldReward: 160, drops: [{ itemId: 'spirit-ember', chance: 1 }] },
-  { id: 'ogre-warrior', name: 'Oger-Krieger', level: 9, element: 'fire', stats: { maxHp: 130, maxMp: 18, attack: 31, defense: 18, magic: 18, spirit: 12, agility: 14 }, skillIds: ['ogre-smash', 'black-flame'], reflectsCategory: 'physical', devourable: true, devourSkillId: 'ogre-smash', weaknesses: ['water'], resistances: [], experienceReward: 95, goldReward: 40, drops: [{ itemId: 'magic-ore', chance: 0.3 }] },
+  { id: 'ogre-warrior', name: 'Oger-Krieger', level: 9, element: 'fire', stats: { maxHp: 130, maxMp: 18, attack: 31, defense: 18, magic: 18, spirit: 12, agility: 14 }, skillIds: ['ogre-smash', 'black-flame', 'crushing-blow'], reflectsCategory: 'physical', devourable: true, devourSkillId: 'ogre-smash', weaknesses: ['water'], resistances: [], experienceReward: 95, goldReward: 40, drops: [{ itemId: 'magic-ore', chance: 0.3 }] },
   { id: 'masked-majin', name: 'Maskierter Majin', level: 12, boss: true, element: 'shadow', stats: { maxHp: 700, maxMp: 48, attack: 74, defense: 18, magic: 96, spirit: 22, agility: 26 }, skillIds: ['black-flame', 'spirit-bind', 'umbral-burst'], phase2SkillIds: ['calamity-roar', 'temporal-snare'], escalationPercentPerTurn: 12, reflectsElement: 'holy', devourable: true, devourSkillId: 'black-flame', weaknesses: ['holy'], resistances: ['shadow'], experienceReward: 320, goldReward: 120, drops: [{ itemId: 'magic-ore', chance: 0.25 }] },
   { id: 'lizardman-warrior', name: 'Echsenkrieger', level: 6, element: 'water', stats: { maxHp: 78, maxMp: 14, attack: 20, defense: 13, magic: 11, spirit: 10, agility: 12 }, skillIds: ['spear-charge', 'tide-lance'], devourable: true, devourSkillId: 'tide-lance', weaknesses: ['wind'], resistances: ['water'], experienceReward: 130, goldReward: 16, drops: [{ itemId: 'healing-herb', chance: 0.3 }] },
   { id: 'gabiru', name: 'Gabiru', level: 11, boss: true, element: 'wind', stats: { maxHp: 450, maxMp: 28, attack: 104, defense: 18, magic: 64, spirit: 14, agility: 30 }, skillIds: ['spear-charge', 'storm-gust', 'tide-lance'], phase2SkillIds: ['calamity-roar', 'iron-guard'], armoredUntilBreak: true, devourable: true, devourSkillId: 'spear-charge', weaknesses: ['shadow'], resistances: ['wind', 'water'], experienceReward: 420, goldReward: 70, drops: [{ itemId: 'wolf-fang-token', chance: 0.5 }] },
-  { id: 'magic-colossus', name: 'Magiekoloss', level: 18, boss: true, element: 'earth', stats: { maxHp: 780, maxMp: 80, attack: 82, defense: 38, magic: 54, spirit: 34, agility: 16 }, skillIds: ['ogre-smash', 'iron-guard', 'spirit-bind'], phase2SkillIds: ['temporal-snare', 'calamity-roar'], escalationPercentPerTurn: 10, armoredUntilBreak: true, devourable: true, devourSkillId: 'iron-guard', summonEnemyId: 'stray-echo', summonCount: 2, weaknesses: ['wind', 'water'], resistances: ['neutral'], nullifies: ['earth'], experienceReward: 760, goldReward: 220, drops: [{ itemId: 'magisteel', chance: 1 }, { itemId: 'spirit-ember', chance: 0.6 }] },
+  { id: 'magic-colossus', name: 'Magiekoloss', level: 18, boss: true, element: 'earth', stats: { maxHp: 780, maxMp: 80, attack: 82, defense: 38, magic: 54, spirit: 34, agility: 16 }, skillIds: ['ogre-smash', 'iron-guard', 'spirit-bind'], phase2SkillIds: ['temporal-snare', 'calamity-roar', 'petrifying-gaze'], escalationPercentPerTurn: 10, armoredUntilBreak: true, devourable: true, devourSkillId: 'iron-guard', summonEnemyId: 'stray-echo', summonCount: 2, weaknesses: ['wind', 'water'], resistances: ['neutral'], nullifies: ['earth'], experienceReward: 760, goldReward: 220, drops: [{ itemId: 'magisteel', chance: 1 }, { itemId: 'spirit-ember', chance: 0.6 }] },
   { id: 'milim', name: 'Milim Nava', level: 20, boss: true, element: 'fire', stats: { maxHp: 999, maxMp: 200, attack: 60, defense: 50, magic: 70, spirit: 50, agility: 60 }, skillIds: ['drago-nova', 'ogre-smash', 'black-flame'], phase2SkillIds: ['calamity-roar', 'temporal-snare'], escalationPercentPerTurn: 12, devourable: false, weaknesses: ['holy'], resistances: ['fire', 'earth', 'shadow', 'neutral'], experienceReward: 0, goldReward: 0, drops: [] }
 ] as const satisfies readonly EnemyDefinition[];

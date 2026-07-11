@@ -431,18 +431,23 @@ gefahren.
   Teil-LP-Deckel 80, Verbrauch bei Erfolg), Shop-/Item-Datenvalidierung
   (`test/qa.test.ts` gruen), typecheck ✓, 665 Unit-Tests ✓, build ✓.
 
-- [ ] Phase 129 — Gegner-Kontrolle erwacht + Reinigung (Kampf-Tiefe, Daten + kleiner
-  Motor-Zusatz). Ausgewaehlte Gegner/Bosse erhalten **telegraphierte** Hart-CC-Skills
-  (z. B. ein Schlaflied → `sleep`, ein versteinernder Blick → `petrify`, ein Eishauch
-  → `freeze`, ein laehmender Stoss → `paralyze`) mit **maessvoller Chance/Dauer** und
-  bewusster Dosierung (nur einzelne Traeger, self-limiting: `sleep`/`freeze` brechen bei
-  Schaden ueber `wakeOnDamage`), sodass Kaempfe Anpassung verlangen statt Schwaeche-Spam.
-  Als Gegenspiel ein neuer `cure-status`-Item-Effekt (kleiner Motor-Zusatz in
-  `types.ts` + `resolveItem`), der negative/Hart-CC-Status von einem Ziel entfernt, plus
-  ein passendes Reinigungs-Item. Balance-Harness je Rimuru-Spec gruen (Bosse halten den
-  Korridor, kein Party-Wipe durch Dauer-Lock, kein Soft-Lock). Akzeptanz:
-  Status-Zufuegung + Cure-Entfernung + KI-Verhalten headless, Balance-Harness gruen,
-  Battle-E2E-Smoke gruen.
+- [x] Phase 129 — Gegner-Kontrolle erwacht + Reinigung (abgeschlossen, direkt auf
+  main). Umgesetzt: fuenf neue telegraphierte Hart-CC-Gegner-Skills (`data/skills.ts`)
+  aktivieren die gebaute, aber ungenutzte Kontroll-Schicht — `slumber-glow`→`sleep`
+  (Akademie-Irrlicht), `blinding-feint`→`confuse` (Blumund-Bandit),
+  `paralytic-howl`→`paralyze` (Alt-Direwolf), `crushing-blow`→`stun` (Oger-Krieger),
+  `petrifying-gaze`→`petrify` (Magiekoloss, in `phase2SkillIds` → per Break
+  telegraphiert). Bewusst maessvolle Chance (0.35–0.5) und **kurze** Dauer (1–2 Runden);
+  `sleep` bricht bei Schaden (`wakeOnDamage`), `stun`/`petrify` nur 1 Runde. **Alle
+  Traeger sind Nicht-Harness-Gegner** — der Balance-Korridor bleibt unberuehrt (bog-terror
+  bewusst ausgespart, da ON-ROUTE). Als Gegenspiel neuer `cure-status`-Item-Effekt
+  (`types.ts` + `battle.ts:resolveItem`, `CURABLE_STATUSES` entfernt negative Status,
+  laesst Buffs stehen) plus das Item `purifying-water` („Läuterungswasser", 60 Gold,
+  in fuenf Shops). Akzeptanz erfuellt: Status-Zufuegung (Irrlicht schlaefert Party ein),
+  Cure-Entfernung (negativ raus, Buff bleibt, kein Verbrauch ohne Wirkung), Skill-Daten
+  headless (`test/statusControl.test.ts`, 4 Tests), typecheck ✓, 669 Unit-Tests ✓,
+  build ✓, **Balance-Harness gruen** (CC nur auf Nicht-Harness-Gegnern → Sims/Korridore
+  unveraendert).
 
 - [ ] Phase 130 — Spieler-Kontrolle: gezielte CC-Fertigkeiten (offensive Aktivierung,
   reine Daten). Wenige, kanonisch motivierte Party-Skills/Signaturen erhalten einen

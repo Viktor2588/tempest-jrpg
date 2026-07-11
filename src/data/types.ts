@@ -97,7 +97,9 @@ export interface SkillDefinition {
 export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';
 
 export interface ItemEffect {
-  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill';
+  // Phase 129 — 'cure-status': entfernt negative/Hart-CC-Status vom Ziel (Gegenmittel
+  // zur erwachten Kontroll-Schicht). Behandelt in battle.ts:resolveItem.
+  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill' | 'cure-status';
   readonly amount?: number;
   readonly skillId?: string;
 }

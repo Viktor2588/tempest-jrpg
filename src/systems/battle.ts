@@ -295,6 +295,23 @@ const CT_MAX = CT_THRESHOLD * 3;
 // Aussetz-Status, die einen Zug hart überspringen (Schlaf/Eis enden zusätzlich bei Schaden).
 const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satisfies readonly StatusEffectId[];
 const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
+// Phase 129 — heilbare (negative) Status, die ein Reinigungs-Item ('cure-status') entfernt.
+// Positive Buffs (attack-up/defense-up/magic-up/haste) bleiben erhalten.
+const CURABLE_STATUSES: readonly StatusEffectId[] = [
+  'poison',
+  'spirit-down',
+  'guard-break',
+  'stun',
+  'sleep',
+  'freeze',
+  'paralyze',
+  'petrify',
+  'blind',
+  'silence',
+  'confuse',
+  'charm',
+  'weaken'
+];
 // Phase 41 — Verschlinger + Momentum
 const MOMENTUM_CT_SURGE = 35;
 // Phase 80 — Anti-Aussitzen: Gnadenfrist (Runden ohne Eskalation) + Deckel des
@@ -1110,6 +1127,23 @@ function resolveItem(
       target.hp = Math.max(1, Math.min(target.maxHp, amount));
       pushLog(state, `${actor.name} belebt ${target.name} wieder.`);
       break;
+
+    case 'cure-status': {
+      if (target.dead) {
+        return { ok: false, reason: 'Ziel ist kampfunfähig.' };
+      }
+      const before = target.statuses.length;
+      for (let index = target.statuses.length - 1; index >= 0; index -= 1) {
+        if (CURABLE_STATUSES.includes(target.statuses[index]!.id)) {
+          target.statuses.splice(index, 1);
+        }
+      }
+      if (target.statuses.length === before) {
+        return { ok: false, reason: 'Kein heilbarer Status vorhanden.' };
+      }
+      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} wird von Statusleiden befreit.`);
+      break;
+    }
 
     case 'grant-skill':
       return { ok: false, reason: 'Skill-Items sind im Kampf noch nicht nutzbar.' };
