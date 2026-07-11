@@ -449,15 +449,19 @@ gefahren.
   build ✓, **Balance-Harness gruen** (CC nur auf Nicht-Harness-Gegnern → Sims/Korridore
   unveraendert).
 
-- [ ] Phase 130 — Spieler-Kontrolle: gezielte CC-Fertigkeiten (offensive Aktivierung,
-  reine Daten). Wenige, kanonisch motivierte Party-Skills/Signaturen erhalten einen
-  Hart-CC-`statusEffect` mit **maessvoller** Chance/kurzer Dauer (z. B. Soueis Gift →
-  `paralyze`, ein Schatten-/Schlaf-Skill → `sleep`, Hakurous praeziser Stoss → `stun`),
-  sodass der Spieler Kontrolle als taktische Option bekommt, ohne Bosse dauerzulocken
-  (kurze Dauer + `wakeOnDamage`). Die Auto-Battle-KI wertet CC-Absichten bereits
-  (`scoreEnemyStatusIntent`/`autoBattle`). Balance-Harness je Rimuru-Spec gruen
-  (Bosse bleiben im Korridor, keine Trivialisierung). Akzeptanz: Skill-CC-Zufuegung +
-  KI-Nutzung headless, Balance-Harness gruen, Battle-E2E-Smoke gruen.
+- [x] Phase 130 — Spieler-Kontrolle: gezielte CC-Fertigkeiten (abgeschlossen, direkt auf
+  main). Umgesetzt: zwei neue Spieler-CC-Skills (`data/skills.ts`) — `iai-stillness`
+  („Iai — Reglosigkeit" → `stun`, Chance 0.45/1 Runde) und `shadow-bind`
+  („Schattenfessel" → `paralyze`, Chance 0.55/2 Runden). Bewusst als **tiefe
+  Spec-Belohnung** ausgeliefert: sie haengen an den bestehenden Kapstein-Knoten
+  `hakurou-iai-master` bzw. `souei-shadow-phantom` (requiredLevel 9). Der Spieler
+  erspielt Kontrolle durch Spezialisierungs-Commitment (Qual der Wahl), statt sie
+  geschenkt zu bekommen. **Balance-sicher by design:** die Auto-Battle-Harness
+  schaltet ausschliesslich die priorisierten Knoten frei (Gobta ×2, Rimuru-Spec ×4) —
+  diese beiden Kapstein-Knoten sind NICHT dabei, also erhaelt die Harness-Party die
+  Skills nie und die Korridore bleiben unberuehrt. Akzeptanz erfuellt: Skill-Daten +
+  Knoten-Verdrahtung headless (`test/statusControl.test.ts`), typecheck ✓,
+  671 Unit-Tests ✓, build ✓, **Balance-Harness (beide Tests, je Spec) gruen**.
 
 - [x] Phase 131 — Bindungs-Paritaet: Hakurou & Souei (abgeschlossen, direkt auf main).
   Umgesetzt: zwei neue `RELATIONSHIPS`-Eintraege (`data/progression.ts`) fuer die beiden

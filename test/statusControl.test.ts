@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HEROES } from '../src/data';
+import { HEROES, SKILL_TREES } from '../src/data';
 import { SKILLS } from '../src/data/skills';
 import type { SkillDefinition } from '../src/data/types';
 import { getItemCount } from '../src/systems/inventory';
@@ -74,6 +74,23 @@ describe('Phase 129 — Kontroll-Status & Reinigung', () => {
     const result = act(state, { type: 'item', itemId: 'purifying-water', targetId: partyUnits[1]!.id });
     expect(result.ok).toBe(false);
     expect(getItemCount(renderView(state).inventory, 'purifying-water')).toBe(1);
+  });
+
+  it('Phase 130 — Hakurou/Souei-Kapstein-Knoten verleihen Spieler-CC-Fertigkeiten', () => {
+    const playerCc: Record<string, { statusId: string; nodeId: string; treeId: string }> = {
+      'iai-stillness': { statusId: 'stun', nodeId: 'hakurou-iai-master', treeId: 'hakurou-tree' },
+      'shadow-bind': { statusId: 'paralyze', nodeId: 'souei-shadow-phantom', treeId: 'souei-tree' }
+    };
+    for (const [skillId, info] of Object.entries(playerCc)) {
+      const skill = (SKILLS as readonly SkillDefinition[]).find((candidate) => candidate.id === skillId);
+      expect(skill, `${skillId} fehlt`).toBeTruthy();
+      expect(skill!.statusEffect?.id).toBe(info.statusId);
+      expect(skill!.target).toBe('single-enemy');
+
+      const tree = SKILL_TREES.find((candidate) => candidate.id === info.treeId)!;
+      const node = tree.nodes.find((candidate) => candidate.id === info.nodeId) as { skillId?: string };
+      expect(node.skillId).toBe(skillId);
+    }
   });
 
   it('ein CC-Gegner (Akademie-Irrlicht) kann die Party einschläfern', () => {
