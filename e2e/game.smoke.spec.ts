@@ -7,12 +7,13 @@ const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
 
 /**
- * Wait a bit for game loop + assert that the canvas has visible rendered content.
- * Replaces raw waitForTimeout in many places for faster + more reliable stabilization.
+ * Wait a bit for the game loop to advance. Intentionally does NOT screenshot —
+ * per-step canvas pixel checks (page.screenshot) drove the smoke suite into CI
+ * timeouts via software-GL ReadPixels stalls (~65 settle() calls). Render is
+ * still verified at key points via explicit expectCanvasContent().
  */
 async function settle(page: Page, ms = 150): Promise<void> {
   await page.waitForTimeout(ms);
-  await expectCanvasContent(page);
 }
 
 test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', async ({ page }) => {
@@ -832,13 +833,6 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
 });
 
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
-  // Dieser Pfad verifiziert den Canvas nach vielen Menü-Schritten per settle() —
-  // jeder Aufruf macht ein page.screenshot (Pixel-Blank-Check). Auf headless
-  // Software-GL ist der ReadPixels-Readback teuer, sodass der Lauf über das
-  // 30s-Default hinausläuft und in CI (mobile-chromium) flaky timeoutet. Wie der
-  // erste Test der Datei bekommt er ein großzügiges Budget — grüne Läufe bremst
-  // das nicht, es deckelt nur den Fehlerfall.
-  test.setTimeout(90_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
