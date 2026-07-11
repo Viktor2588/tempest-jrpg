@@ -388,4 +388,77 @@ je Rimuru-Spec gruen gefahren.
   build ✓, Menue-E2E-Smoke gruen, keine Kampf-Balance-Beruehrung (rein additive
   Ressource + Gate).
 
+## Achte Welle: Die Kontroll-Schicht erwacht (verifizierte tote Maschinerie, Plan 2026-07-11)
+
+Befund (Code-Abgleich auf `main`, 664 Unit-Tests + Balance-Harness gruen): Die
+Kampf-Engine traegt eine **vollstaendige, bereits getestete Hart-Kontroll-Schicht**
+(`stun/sleep/freeze/paralyze/petrify/confuse/charm`, `types.ts:34-43`; Handling in
+`battle.ts` ueber `HARD_SKIP_STATUSES`, `computeDisabled`, `wakeOnDamage`; KI-Bewertung
+in `autoBattle.ts`) — aber **keine einzige Fertigkeit, Signatur, Fusion oder Opening
+wendet diese Status je an** (Nachweis: die sieben Ids kommen ausserhalb von `types.ts`
+nur im Motor `battle.ts`/`autoBattle.ts` vor, nie in `src/data/skills.ts` o.ae.). Die
+gesamte Kontroll-Schicht ist toter Motor. Ebenso ist der `revive`-Item-Effekt
+(`types.ts:88`, in `battle.ts:resolveItem` vollstaendig behandelt) definiert, aber
+**kein Item nutzt ihn** — ein mitten im Kampf gefallener Verbuendeter ist
+unwiederbringlich, obwohl der Motor Wiederbelebung kann. Und zwei volle
+Party-Mitglieder (**Hakurou, Souei**) fehlen ganz in `RELATIONSHIPS`
+(`data/progression.ts`) — sie erhalten null Bindungsboni, -szenen und Team-Attacken,
+waehrend die anderen sieben eine volle Bindungs-Achse haben.
+
+Diese Welle **aktiviert gebaute, bereits getestete Maschinerie mit fast reinen
+Datenergaenzungen** (niedrigste Komplexitaet, hoechste Sicherheit) und adressiert
+direkt das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht / Grind / kein Schwung`):
+telegraphierte Gegner-Kontrolle zwingt zu Reihenfolge, Reaktion und Vorsorge statt
+Schwaeche-Spam; Wiederbelebung/Reinigung geben die noetige Gegenspiel-Option und einen
+neuen Gold-Abfluss. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge =
+Abhaengigkeit: 128 (Wiederbelebung) ist Fundament/Vorsorge; 129 (Gegner-Kontrolle +
+Reinigung) baut die Bedrohung samt Gegenmittel; 130 (Spieler-Kontrolle) ist die
+offensive Aktivierung; 131 (Bindungs-Paritaet) ist unabhaengig und rein additiv. Jede
+kampfberuehrende Phase (129/130) wird gegen die Balance-Harness je Rimuru-Spec gruen
+gefahren.
+
+- [ ] Phase 128 — Wiederbelebung: das erste Revive-Item (Ueberlebens-Vorsorge,
+  reine Daten). Ein neues stapelbares Verbrauchs-Item (`effect: { kind: 'revive',
+  amount: N }`) belebt im Kampf einen kampfunfaehigen Verbuendeten mit Teil-LP wieder
+  — der Motor behandelt `revive` bereits vollstaendig (`battle.ts:resolveItem`
+  Case `'revive'`), es fehlte nur die Item-Definition. Kanonisch als hochwertiges
+  Tempest-/Hipokte-Elixier gerahmt, im passenden Shop kaeuflich (neuer Gold-Abfluss
+  im Spaetspiel). Zero-Engine, zero-Balance-Risiko (rein additive Spieler-Option, die
+  Auto-Battle-Harness nutzt keine Revive-Items → Sims unveraendert). Akzeptanz:
+  Item-Definition + Kampf-Revive-Integration (kein Revive auf Lebende, Teil-LP-Deckel)
+  + Shop-Verfuegbarkeit + Save-Roundtrip headless, typecheck/Tests/build gruen.
+
+- [ ] Phase 129 — Gegner-Kontrolle erwacht + Reinigung (Kampf-Tiefe, Daten + kleiner
+  Motor-Zusatz). Ausgewaehlte Gegner/Bosse erhalten **telegraphierte** Hart-CC-Skills
+  (z. B. ein Schlaflied → `sleep`, ein versteinernder Blick → `petrify`, ein Eishauch
+  → `freeze`, ein laehmender Stoss → `paralyze`) mit **maessvoller Chance/Dauer** und
+  bewusster Dosierung (nur einzelne Traeger, self-limiting: `sleep`/`freeze` brechen bei
+  Schaden ueber `wakeOnDamage`), sodass Kaempfe Anpassung verlangen statt Schwaeche-Spam.
+  Als Gegenspiel ein neuer `cure-status`-Item-Effekt (kleiner Motor-Zusatz in
+  `types.ts` + `resolveItem`), der negative/Hart-CC-Status von einem Ziel entfernt, plus
+  ein passendes Reinigungs-Item. Balance-Harness je Rimuru-Spec gruen (Bosse halten den
+  Korridor, kein Party-Wipe durch Dauer-Lock, kein Soft-Lock). Akzeptanz:
+  Status-Zufuegung + Cure-Entfernung + KI-Verhalten headless, Balance-Harness gruen,
+  Battle-E2E-Smoke gruen.
+
+- [ ] Phase 130 — Spieler-Kontrolle: gezielte CC-Fertigkeiten (offensive Aktivierung,
+  reine Daten). Wenige, kanonisch motivierte Party-Skills/Signaturen erhalten einen
+  Hart-CC-`statusEffect` mit **maessvoller** Chance/kurzer Dauer (z. B. Soueis Gift →
+  `paralyze`, ein Schatten-/Schlaf-Skill → `sleep`, Hakurous praeziser Stoss → `stun`),
+  sodass der Spieler Kontrolle als taktische Option bekommt, ohne Bosse dauerzulocken
+  (kurze Dauer + `wakeOnDamage`). Die Auto-Battle-KI wertet CC-Absichten bereits
+  (`scoreEnemyStatusIntent`/`autoBattle`). Balance-Harness je Rimuru-Spec gruen
+  (Bosse bleiben im Korridor, keine Trivialisierung). Akzeptanz: Skill-CC-Zufuegung +
+  KI-Nutzung headless, Balance-Harness gruen, Battle-E2E-Smoke gruen.
+
+- [ ] Phase 131 — Bindungs-Paritaet: Hakurou & Souei (rein additive Daten). Neue
+  `RELATIONSHIPS`-Eintraege fuer die beiden bislang bindungslosen Kijin (z. B.
+  Hakurou↔Benimaru als Meister/Schueler, Souei↔Souka/Schatten-Spaehernetz), im Stil der
+  bestehenden Paare (Bindungs-Stufen, Szenen-Flags, ggf. Team-Attacken-Partner). Damit
+  erhalten alle neun Party-Mitglieder die volle Bindungs-Achse (Stat-Boni,
+  Bindungsszenen). Rein additiv, keine Balance-Beruehrung. Akzeptanz: neue Beziehungen
+  liefern Boni/Szenen headless (`test/progression`-Erweiterung), Save-Roundtrip,
+  typecheck/Tests/build gruen.
+
 ## UX- und Welt-Backlog
