@@ -71,8 +71,8 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
       'battle-milim-arrival.webp',
-      'battle-tempest-colosseum.png',
-      'battle-tempest-invasion.png'
+      'battle-tempest-colosseum.webp',
+      'battle-tempest-invasion.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/backgrounds/${file}`);
     }

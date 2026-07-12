@@ -116,7 +116,7 @@ politische Aussenwelt. Empfehlung: 99 (Labyrinth) als naechster grosser Replay-H
   (`labyrinth.run.active`), drei riskante Etagen (`labyrinth-floor-1..3`) ohne
   Zwischenrast mit HP/MP-Carry, Loot speist die Schmiede. Deterministische
   Run-Logik in `systems/labyrinth.ts`, nutzt das vorhandene
-  `region-ramiris-labyrinth.png`-Banner. Akzeptanz erfüllt: Etagen-/Run-Logik
+  `region-ramiris-labyrinth.webp`-Banner. Akzeptanz erfüllt: Etagen-/Run-Logik
   headless getestet (test/labyrinth.test.ts), Labyrinth-Smoke grün.
   (Phase 101 — Welt-Uhr: abgeschlossen, siehe „Laufende Arbeit". Folge-Ausbau
   möglich: NPC-Verfuegbarkeit nach Tageszeit, wetterabhaengige Encounter-Tabellen.)
@@ -849,3 +849,12 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
+
+- [x] Phase 165 — Sieben uebergrosse PNG-Assets als WebP ausliefern
+  (abgeschlossen in `/worktree/tempest-phase-165-webp-assets`). Die sieben noch
+  unkomprimierten, global vorgeladenen Rasterassets sind bei gleicher Aufloesung als
+  WebP verdrahtet; Alpha des Magiekoloss-Cutouts bleibt erhalten. Asset-Gesamtgroesse:
+  18.541.022 -> 2.410.884 Bytes (-87 %). Keine Art-/Layout-/Balance-Aenderung.
+  Akzeptanz erfuellt: Provenienz/Imports/Format-Regressionstest, `git diff --check` ✓,
+  typecheck ✓, 766 Unit-Tests inklusive Balance-Harness ✓, build ✓, vier fokussierte
+  Desktop-Chromium-Smokes (Akademie, Kolosseum, Invasion, Labyrinth) ✓.

@@ -40,7 +40,7 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(portraitSource).toContain("case 'gildenmeister fuze':");
     expect(portraitSource).toContain("return 'fuze';");
     expect(preloadSource).toContain('../assets/sprites/portrait-shizu.webp');
-    expect(preloadSource).toContain('../assets/sprites/portrait-shizu-children.png');
+    expect(preloadSource).toContain('../assets/sprites/portrait-shizu-children.webp');
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 
