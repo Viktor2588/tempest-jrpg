@@ -849,3 +849,9 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
+
+- [x] Phase 161 — Eigene Cutouts fuer die restlichen Phase-146-Archetypen. (abgeschlossen in `/worktree/tempest-phase-161-archetypen-cutouts`; drei generierte RGBA-Cutouts samt Provenienz und Art-/Preload-Wiring; typecheck, 764 Unit-Tests inkl. Balance-Harness, build und fokussierter Desktop-Chromium-Asset-Smoke gruen)
+  `marsh-thornback`, `blumund-brigand` und `academy-revenant` ersetzen ihre geteilten
+  Bestandstexturen durch repo-eigene generierte RGBA-Cutouts. Keine neue Mechanik und
+  keine Balance-Aenderung. Akzeptanz: Asset-Provenienz, Preload-/Art-Wiring, fokussierter
+  Asset-Test und Desktop-Browser-Smoke, typecheck, Unit-Tests und build gruen.

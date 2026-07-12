@@ -22,6 +22,9 @@ export const BLUMUND_BANDIT_TEXTURE_KEY = 'sprite-enemy-blumund-bandit';
 export const ACADEMY_WISP_TEXTURE_KEY = 'sprite-enemy-academy-wisp';
 export const MARSH_HEXER_TEXTURE_KEY = 'sprite-enemy-marsh-hexer';
 export const STORM_SHARD_TEXTURE_KEY = 'sprite-enemy-storm-shard';
+export const MARSH_THORNBACK_TEXTURE_KEY = 'sprite-enemy-marsh-thornback';
+export const BLUMUND_BRIGAND_TEXTURE_KEY = 'sprite-enemy-blumund-brigand';
+export const ACADEMY_REVENANT_TEXTURE_KEY = 'sprite-enemy-academy-revenant';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -87,14 +90,12 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
   'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
   'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss'),
-  // Phase 146 — neue Normalgegner-Archetypen. Bis dedizierte Cutouts erzeugt sind,
-  // teilen sie thematisch passende, bereits vorhandene Regions-Texturen (Provenienz
-  // in ASSETS.md dokumentiert).
-  'marsh-thornback': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
+  // Phase 146/161 — neue Normalgegner-Archetypen mit eigenen Regions-Cutouts.
+  'marsh-thornback': generatedTexture(MARSH_THORNBACK_TEXTURE_KEY, 'enemy-lizard'),
   'bog-warden': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),
   'highland-galecaller': generatedTexture(STORM_SHARD_TEXTURE_KEY, 'enemy-boss'),
-  'blumund-brigand': generatedTexture(BLUMUND_BANDIT_TEXTURE_KEY, 'enemy-ogre'),
-  'academy-revenant': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss')
+  'blumund-brigand': generatedTexture(BLUMUND_BRIGAND_TEXTURE_KEY, 'enemy-ogre'),
+  'academy-revenant': generatedTexture(ACADEMY_REVENANT_TEXTURE_KEY, 'enemy-boss')
 };
 
 export function enemyArtFor(sourceId: string, name: string): EnemyArtSpec {
