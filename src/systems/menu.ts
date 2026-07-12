@@ -169,6 +169,33 @@ export function getMemberSkillDefinitions(member: PartyMemberState): SkillDefini
   });
 }
 
+// Phase 158 — Ausruestungs-Vergleich: Stat-Delta eines Kandidaten-Items gegen das aktuell
+// im selben Slot getragene Teil (leerer Slot → voller Kandidaten-Bonus). Nur geaenderte
+// Stats, stabile Reihenfolge. Rein/funktional, headless testbar; loest Loot-Instanzen mit auf.
+export interface EquipmentStatDelta {
+  readonly stat: keyof StatBlock;
+  readonly delta: number;
+}
+
+const DELTA_STAT_ORDER: readonly (keyof StatBlock)[] = [
+  'maxHp', 'maxMp', 'attack', 'defense', 'magic', 'spirit', 'agility'
+];
+
+export function equipmentStatDelta(member: PartyMemberState, itemId: string): EquipmentStatDelta[] {
+  const candidate = resolveItem(itemId);
+  if (!candidate?.equipmentSlot) return [];
+  const currentId = member.equipment[candidate.equipmentSlot];
+  const current = currentId ? resolveItem(currentId) : undefined;
+  const candidateBonus = candidate.statBonus ?? {};
+  const currentBonus = current?.statBonus ?? {};
+  const deltas: EquipmentStatDelta[] = [];
+  for (const stat of DELTA_STAT_ORDER) {
+    const delta = (candidateBonus[stat] ?? 0) - (currentBonus[stat] ?? 0);
+    if (delta !== 0) deltas.push({ stat, delta });
+  }
+  return deltas;
+}
+
 export function getEquipmentItems(member: PartyMemberState): Partial<Record<EquipmentSlot, ItemDefinition>> {
   const equipmentItems: Partial<Record<EquipmentSlot, ItemDefinition>> = {};
   for (const slot of EQUIPMENT_SLOTS) {

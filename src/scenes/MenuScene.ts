@@ -11,6 +11,7 @@ import {
   buildMenuView,
   EQUIPMENT_SLOTS,
   equipItem,
+  equipmentStatDelta,
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
@@ -597,8 +598,17 @@ export class MenuScene extends Phaser.Scene {
     const equippable = view.inventory.filter((entry) => entry.equipSlot);
     const usable = this.menuListPage(equippable.length, usableCol);
     equippable.slice(usable.start, usable.start + usable.visible).forEach((entry, index) => {
-      this.button(usableCol.left, usableCol.top + index * usableCol.rowHeight, 260, `${entry.item.name} ×${entry.quantity}`, () => {
+      const rowY = usableCol.top + index * usableCol.rowHeight;
+      this.button(usableCol.left, rowY, 260, `${entry.item.name} ×${entry.quantity}`, () => {
         this.applyResult(equipItem(this.state, characterId, entry.item.id));
+      });
+      // Phase 158 — Stat-Delta gegen das aktuell getragene Teil (▲ grün / ▼ rot).
+      const deltas = equipmentStatDelta(summary.member, entry.item.id).slice(0, 4);
+      deltas.forEach((d, di) => {
+        const up = d.delta > 0;
+        this.layer.add(this.add.text(usableCol.left + 2 + di * 62, rowY + 15, `${STAT_ABBR[d.stat]}${up ? '▲' : '▼'}${Math.abs(d.delta)}`, {
+          fontFamily: 'sans-serif', fontSize: '10px', color: up ? '#8dffc2' : '#ff8f9f'
+        }));
       });
     });
     this.drawListPager(usableCol, usable);
@@ -1890,6 +1900,12 @@ function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'core') return 'Kern';
   return 'Accessoire';
 }
+
+// Phase 158 — kompakte Stat-Kuerzel fuer die Ausruestungs-Delta-Anzeige.
+const STAT_ABBR: Readonly<Record<string, string>> = {
+  maxHp: 'LP', maxMp: 'MP', attack: 'Ang', defense: 'Ver',
+  magic: 'Mag', spirit: 'Gei', agility: 'Beh'
+};
 
 function travelStatusColor(status: RangaTravelStatus): number {
   if (status === 'available') return 0x1f3a2f;
