@@ -879,7 +879,9 @@ export class OverworldScene extends Phaser.Scene {
         // aus der Welt-Uhr (Nebel→Blind auf beide Seiten).
         openingStatuses: openingStatuses(clock),
         // Phase 173 — Welt-Uhr im Kampf lesbar: kompakte Zeit/Wetter-Zeile fuer das HUD.
-        clockLabel: clockHudLabel(clock)
+        clockLabel: clockHudLabel(clock),
+        // Phase 174 — Welt-Uhr: Uhr fuer die Erst-Sieg-Bedingungsbelohnung (Nacht/Nebel/Regen).
+        clock
       });
     }
   }
