@@ -818,16 +818,17 @@ System; canon-first, deutsches Originalwording, keine kopierten Dialoge). **Kein
 beruehrt den Kampf** (alles lebt im Menue/an der Schmiede) → die Balance-Harness ist strukturell
 unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
-- [ ] Phase 158 — Ausruestungs-Vergleich: Stat-Delta beim Ausruesten (reine View-Logik).
-  Eine neue reine Funktion in `systems/menu.ts` (z. B. `equipmentStatDelta(member, itemId)`)
-  liefert je Stat die Differenz zwischen dem Kandidaten-Item und dem aktuell im selben Slot
-  getragenen Teil (nutzt den bestehenden `resolveItem`/`calculateEquipmentBonus`-Pfad, damit
-  Loot-Instanzen korrekt aufgeloest werden). `MenuScene.drawEquipment` zeigt neben jedem
-  Ausruestbar-Eintrag die geaenderten Stats als kompakte ▲/▼-Liste (grün +, rot −, nur die
-  Stats, die sich aendern), sodass der Spieler Beute vor dem Ausruesten lesen kann. Rein
-  additive Anzeige; `equipItem` bleibt unveraendert; keine Save-/Balance-Beruehrung. Akzeptanz:
-  Delta-Berechnung (Kandidat vs. getragen, leerer Slot = voller Bonus, Instanz-Aufloesung)
-  headless, Menue-E2E-Smoke (Delta-Zeile rendert), typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 158 — Ausruestungs-Vergleich: Stat-Delta beim Ausruesten (abgeschlossen, direkt
+  auf main). Umgesetzt: neue reine Funktion `equipmentStatDelta(member, itemId)` in
+  `systems/menu.ts` liefert je Stat die Differenz zwischen Kandidaten-Item und dem aktuell im
+  selben Slot getragenen Teil (leerer Slot → voller Kandidaten-Bonus; ueber den bestehenden
+  `resolveItem`-Pfad werden Loot-Instanzen korrekt aufgeloest; nur geaenderte Stats, stabile
+  Reihenfolge). `MenuScene.drawEquipment` zeigt neben jedem Ausruestbar-Eintrag die geaenderten
+  Stats als kompakte ▲/▼-Liste (grün +, rot −, bis 4 Stats, Kuerzel via `STAT_ABBR`). Rein
+  additive Anzeige; `equipItem`/Save/Balance unberuehrt. Akzeptanz erfuellt: Delta-Berechnung
+  (leerer Slot = voller Bonus, Kandidat vs. getragen mit korrekten Vorzeichen, nicht-ausruestbar
+  → leer, Instanz-Aufloesung Basis+Affixe) headless (`test/equipDelta.test.ts`, 4 Tests),
+  typecheck ✓, 754 Unit-Tests ✓, build ✓.
 
 - [ ] Phase 159 — Loot zerlegen: Instanzen in Materialien (Salvage an der Schmiede).
   Eine neue reine Funktion in `systems/crafting.ts` (z. B. `salvageEquipment(context, itemId)`)
