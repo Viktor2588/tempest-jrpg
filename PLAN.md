@@ -849,12 +849,3 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
-
-- [x] Phase 163 — Milim-Kampf-Cutout (abgeschlossen in `/worktree/tempest-phase-163-milim-cutout`).
-  `milim` (Level-20-Boss, Phase 113) war der letzte Gegner ohne dedizierte Kampf-Textur und
-  fiel auf den generischen Kingdom-Atlas-Slime-Frame zurueck; jetzt repo-eigenes generiertes
-  512×512-RGBA-Cutout (xAI Imagine, gruener Chroma-Key lokal entfernt) + Art-/Preload-Wiring.
-  Keine Daten-/Balance-Aenderung. Akzeptanz erfuellt: Provenienz in ASSETS.md, Art-/Preload-
-  Wiring + Asset-Checks (`test/enemyArt.test.ts`), fokussierter Desktop-Smoke gruen,
-  typecheck ✓, 764 Unit-Tests ✓, build ✓.
-
