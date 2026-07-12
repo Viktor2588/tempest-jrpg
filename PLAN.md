@@ -646,11 +646,23 @@ darauf; 152–154 sind Content auf dem neuen System.
   (Phase-146-Archetypen) haengt an Phase 146 (Asset-/Gegner-Arbeit) — nachziehen, sobald 146
   gemergt ist.
 
-- [ ] Phase 154 — Neue Nebenquests, an Loot gekoppelt.
-  Optionale Quests (Jagd/Sammel/Story-Splitter) ueber das bestehende `QuestDefinition`-
-  System, deren Belohnungen gezielt das neue Gear/legendaere Loot/Kerne geben — ein
-  erspielbarer Weg zum Loot jenseits von Drops. Akzeptanz: Quest-Daten + Belohnungspfad
-  headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 154 — Neue Nebenquests, an Loot gekoppelt (abgeschlossen, direkt auf main).
+  Umgesetzt: drei optionale Jagd-Nebenquests ueber das bestehende `QuestDefinition`-/
+  Dialog-/Encounter-System, deren Belohnung gezielt die Welle-11-Ausruestung ausschuettet
+  (erspielbarer Weg zum Gear jenseits von Drops): `emberforge-hunt` (Glutgrotte, Oger-Krieger)
+  → `ember-magicule-core` (episch Kern) + `magic-ore`; `echomoor-blade-hunt` (Echsenmoor,
+  Echsenkrieger) → `orc-cleaver` (selten Waffe) + `magisteel`; `highland-ward-hunt`
+  (Schreingipfel, Mordrahn-Streuner) → `ward-talisman` (legendaer) + `spirit-ember`.
+  Accept/Report haengen im `rigurd-act1`-Dialog (verfuegbar ab `story.council.ready` bzw.
+  `story.act1.completed` fuer das legendaere Stueck); die Jagd laeuft ueber neue, per
+  `sidequest.<x>.started`/`notFlag: cleared` gegatete Trigger-Encounter auf verifiziert
+  begehbaren Kacheln der duennen Regionen (Welle 10/153), deren Sieg das `cleared`-Flag setzt
+  und den Jagd-Schritt abschliesst. **Off-route:** die Jagd-Encounter stehen in KEINER
+  Region-`encounterIds`-Liste → ambiente Regionsschwierigkeit + Balance-Harness unberuehrt.
+  Akzeptanz erfuellt: Gear-Belohnung (echtes Ausruestungs-Slot-Gear, nicht `gewoehnlich`) +
+  Flag-/Sieg-/Cleared-Wiring + Begehbarkeit + Off-route headless (`test/lootQuests.test.ts`,
+  5 Tests), Datenintegritaet gruen (`validateGameData`/`dataIntegrity`), typecheck ✓,
+  721 Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
 ## UX- und Welt-Backlog
 
