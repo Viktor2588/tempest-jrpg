@@ -154,6 +154,9 @@ import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.we
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
 import titleKeyartUrl from '../assets/backgrounds/title-keyart.webp';
+import endingFreedomUrl from '../assets/backgrounds/ending-freedom.webp';
+import endingOrderUrl from '../assets/backgrounds/ending-order.webp';
+import endingTrueUrl from '../assets/backgrounds/ending-true.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
@@ -301,6 +304,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
     this.load.image('bg-title-keyart', titleKeyartUrl);
+    this.load.image('bg-ending-freedom', endingFreedomUrl);
+    this.load.image('bg-ending-order', endingOrderUrl);
+    this.load.image('bg-ending-true', endingTrueUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
