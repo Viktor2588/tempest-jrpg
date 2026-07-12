@@ -33,7 +33,7 @@ import {
   rollLabyrinthFloorLoot,
   selectLabyrinthBossEcho
 } from '../systems/labyrinth';
-import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import { applyBattleResultToSave, rollBossLoot, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
@@ -83,6 +83,8 @@ export class BattleScene extends Phaser.Scene {
   private masteredGrounds: string[] = [];
   // Phase 155 — gerollte Labyrinth-Etagen-Beute (kodierte Instanz-Id) für die Sieg-Zeile.
   private labyrinthLoot: string | null = null;
+  // Phase 157 — gerolltes Boss-Endgame-Loot (kodierte Instanz-Id) für die Sieg-Zeile.
+  private bossLoot: string | null = null;
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -124,6 +126,7 @@ export class BattleScene extends Phaser.Scene {
     this.levelUps = [];
     this.magiculeGain = 0;
     this.labyrinthLoot = null;
+    this.bossLoot = null;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
     this.reacting = false;
@@ -1139,6 +1142,17 @@ export class BattleScene extends Phaser.Scene {
           color: '#ffd98a'
         });
       }
+      // Phase 157 — gerolltes Boss-Endgame-Loot sichtbar machen (Basis + Affixe).
+      if (this.bossLoot) {
+        const loot = resolveInstanceItem(this.bossLoot);
+        const affixes = instanceAffixLabels(this.bossLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
+        lines.push({
+          text: `★ Boss-Beute: ${loot?.name ?? this.bossLoot}${suffix}`,
+          size: 14,
+          color: '#ffcf6b'
+        });
+      }
     }
     if (pactMessage) {
       lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
@@ -1179,9 +1193,12 @@ export class BattleScene extends Phaser.Scene {
     // gerollte Ausruestungs-Instanz droppen; der Reward-Fluss bankt sie ins Inventar.
     const depth = status === 'won' ? labyrinthEncounterDepth(this.encounterId) : null;
     this.labyrinthLoot = depth !== null ? rollLabyrinthFloorLoot(this.state.seed, depth) : null;
+    // Phase 157 — Boss-Sieg rollt (deterministisch, gegatet) kern-lastiges Endgame-Loot.
+    this.bossLoot = status === 'won' ? rollBossLoot(view, this.state.seed) : null;
     const after = applyBattleResultToSave(before, view, {
       encounterId: status === 'won' ? this.encounterId : null,
-      labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined
+      labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined,
+      bossLoot: status === 'won' ? { seed: this.state.seed } : undefined
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;

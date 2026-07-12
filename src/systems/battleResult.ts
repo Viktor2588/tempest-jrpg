@@ -5,6 +5,8 @@ import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
 import { rollLabyrinthFloorLoot } from './labyrinth';
+import { rollLabyrinthLootItemId } from './lootAffix';
+import { makeRng } from './rng';
 import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules, grantSouls } from './progression';
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
@@ -17,6 +19,9 @@ export interface ApplyBattleResultOptions {
   // rollt der Reward-Fluss deterministisch (aus dem Kampf-Seed + Tiefe) eine
   // gerollte Ausruestungs-Instanz und bankt sie als nicht-stapelbares Inventar-Item.
   readonly labyrinthLoot?: { readonly seed: number; readonly depth: number };
+  // Phase 157 — Boss-Drops: bei einem Boss-Sieg rollt der Reward-Fluss deterministisch
+  // (aus dem Kampf-Seed) mit gegateter Chance ein kern-lastiges Endgame-Loot und bankt es.
+  readonly bossLoot?: { readonly seed: number };
 }
 
 export function calculateBattleMagicules(battle: BattleView): number {
@@ -37,6 +42,27 @@ export function calculateBattleSouls(battle: BattleView): number {
     return 0;
   }
   return battle.enemies.filter((enemy) => enemy.boss && enemy.dead).length;
+}
+
+// Phase 157 — Boss-Drops: grosse Boss-Siege geben mit gegateter, deterministischer
+// Chance (aus dem Kampf-Seed) ein gerolltes Endgame-Loot aus einem KERN-lastigen Tisch
+// hoher Raritaet — so bekommt der Kern-Slot (Phase 150) erspielbaren Roll-Nachschub und
+// Boss-Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/Magicules (102). Rein/
+// funktional (Seed rein → Ergebnis raus), analog `calculateBattleSouls`.
+const BOSS_LOOT_TABLE: readonly string[] = [
+  'soul-forged-core',   // legendaer Kern (Signatur-Perk)
+  'ember-magicule-core', // episch Kern
+  'resonant-core',       // episch Kern
+  'veldora-scale-ward'   // legendaer Accessoire (Kern-Alternative)
+];
+const BOSS_LOOT_CHANCE = 0.5;
+
+export function rollBossLoot(battle: BattleView, seed: number): string | null {
+  if (battle.status !== 'won') return null;
+  const bossKills = battle.enemies.filter((enemy) => enemy.boss && enemy.dead).length;
+  if (bossKills === 0) return null;
+  if (makeRng((seed ^ 0x0b055) >>> 0)() >= BOSS_LOOT_CHANCE) return null;
+  return rollLabyrinthLootItemId((seed ^ 0xb0551007) >>> 0, BOSS_LOOT_TABLE);
 }
 
 export function applyBattleResultToSave(
@@ -120,11 +146,16 @@ export function applyBattleResultToSave(
   const labyrinthLootId = won && options.labyrinthLoot
     ? rollLabyrinthFloorLoot(options.labyrinthLoot.seed, options.labyrinthLoot.depth)
     : null;
+  // Phase 157 — gerolltes Boss-Endgame-Loot (deterministisch, gegatete Chance) banken.
+  const bossLootId = won && options.bossLoot
+    ? rollBossLoot(battle, options.bossLoot.seed)
+    : null;
   const inventory = won
     ? normalizeInventoryStacks([
         ...battle.inventory,
         ...battle.rewards.items,
-        ...(labyrinthLootId ? [{ itemId: labyrinthLootId, quantity: 1 }] : [])
+        ...(labyrinthLootId ? [{ itemId: labyrinthLootId, quantity: 1 }] : []),
+        ...(bossLootId ? [{ itemId: bossLootId, quantity: 1 }] : [])
       ])
     : normalizeInventoryStacks(battle.inventory);
 
