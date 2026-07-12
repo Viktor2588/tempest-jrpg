@@ -850,7 +850,7 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
-test('Skill-Raub-Banner wird vom Browser geladen', async ({ page }) => {
+test('Skill-HUD-Banner werden vom Browser geladen', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -864,6 +864,7 @@ test('Skill-Raub-Banner wird vom Browser geladen', async ({ page }) => {
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   expect(loadedAssets.some((name) => name.includes('predator-perversion-skillsteal'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('mimic-form-indicator'))).toBe(true);
   expect(browserErrors).toEqual([]);
 });
 
