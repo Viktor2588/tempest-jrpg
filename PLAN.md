@@ -849,12 +849,3 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
-
-- [x] Phase 170 — Letztes grosses Nicht-WebP-HUD-Asset optimieren
-  (abgeschlossen in `/worktree/tempest-phase-170-mimik-webp`). Das genutzte
-  `mimic-form-indicator.jpg` ist bei gleicher Aufloesung als WebP verdrahtet:
-  209.448 -> 68.256 Bytes (-67 %). Der bestehende Texture-Key bleibt stabil; die
-  drei winzigen Pixel-Tiles bleiben PNG. Keine Art-/Layout-/Balance-Aenderung.
-  Akzeptanz erfuellt: Provenienz/Import/Format-Regressionstest, `git diff --check` ✓,
-  typecheck ✓, 769 Unit-Tests inklusive Balance-Harness ✓, build ✓, fokussierter
-  Desktop-Chromium-Smoke (beide Skill-HUD-Banner geladen, keine Browserfehler) ✓.
