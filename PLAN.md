@@ -744,15 +744,19 @@ Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gr
   (Labyrinth off-route → Auto-Battle-Harness reicht keine `labyrinthLoot`-Option durch →
   Korridor unberuehrt).
 
-- [ ] Phase 156 — Instanz-Anzeige im Menue (Raritaets-Farbe + Affix-Aufschluesselung).
-  Der Ausruestungs-/Inventar-View faerbt Instanz-Namen nach ihrer (Basis-)Raritaet
-  (`rarityColor`, Phase 149) und listet die gerollten Affix-Labels als Detailzeile;
-  `InventoryItemView`/`MemberSummary` reichen Raritaet + Affix-Labels durch (aus
-  `decodeInstanceId`/`affixById`), sodass ein gerolltes Stueck sichtbar als Loot lesbar wird
-  (Name farbig, „scharf · vital" darunter). Rein additive View-Daten; keine Balance-/
-  Save-Beruehrung. Akzeptanz: View-Daten (Raritaet + Affix-Labels an Instanzen, statische
-  Items unveraendert) headless, Menue-E2E-Smoke (Farbe + Affix-Zeile), typecheck ✓,
-  Unit-Tests ✓, build ✓.
+- [x] Phase 156 — Instanz-Anzeige im Menue (Raritaets-Farbe + Affix-Aufschluesselung)
+  (abgeschlossen, direkt auf main). Umgesetzt: `InventoryItemView` (`systems/menu.ts`) traegt
+  jetzt `rarity` (`rarityOf`) + `affixLabels` (neue Helferfunktion `instanceAffixLabels` in
+  `lootAffix.ts`, dekodiert die Instanz-Id → Affix-Labels; fuer statische Items leer). Der
+  Inventar-View faerbt Instanz-Namen nach ihrer Basis-Raritaet (`rarityColor`, Phase 149) und
+  listet die gerollten Affixe als eigene Detailzeile („✦ scharf · vital"); die Ausruestungs-
+  Slots zeigen die Affixe neben dem Raritaets-Label. `MenuScene.button` nimmt optional eine
+  Textfarbe durch. Der Instanz-Name bleibt der SAUBERE Basis-Name — das Affix-Suffix ist aus
+  `resolveInstanceDefinition` entfernt und wird ueberall explizit aufgeschluesselt (auch in der
+  BattleScene-Loot-Zeile aus Phase 155). `ItemRarity` aus `../data` re-exportiert. Rein additive
+  View-Daten; keine Balance-/Save-Beruehrung. Akzeptanz erfuellt: View-Daten (Raritaet +
+  Affix-Labels an Instanzen, sauberer Name, statische Items unveraendert) headless
+  (`test/instanceDisplay.test.ts`, 4 Tests), typecheck ✓, 746 Unit-Tests ✓, build ✓.
 
 - [ ] Phase 157 — Boss-Drops: gerolltes Kern-/Endgame-Loot.
   Grosse Boss-Siege (`enemy.boss && enemy.dead`) vergeben mit einer gegateten, deterministischen
