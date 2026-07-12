@@ -634,12 +634,19 @@ darauf; 152–154 sind Content auf dem neuen System.
   Wave-10-Skalierung 147/148; off-route → Korridor unberuehrt. Akzeptanz: Affix-Pools +
   deterministische Auswahl + Instanz-Ausruesten headless, typecheck ✓, Unit-Tests ✓, build ✓.
 
-- [ ] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System).
-  ~15–20 neue Ausruestungsteile ueber die Raritaeten (inkl. ein paar legendaer-einzigartig
-  + ein/zwei neue `legendaer-set`-Sets), plus Crafting-Rezepte (Schmiede) und Kern-Items.
-  Verteilt auf Regionen/Labyrinth/Crafting. Repo-eigene generierte Icons nach Asset-
-  Prioritaet. Balance-safe (off-route / im Regions-Korridor). Akzeptanz: Item-/Set-/
-  Rezept-Daten, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System) (abgeschlossen, direkt
+  auf main). Umgesetzt: neun neue Ausruestungsteile auf dem Raritaetssystem (149/150), rein
+  additiv (keine Stat-Aenderung bestehender Teile): ein neues Legendaer-Set „Sturmgeist-Ornat"
+  (`galewind-edge`/`stormweave-garb`/`zephyr-band` mit 2/3-Tier-Boni, in der Schmiede
+  wiederholbar gefertigt), zwei legendaer-einzigartige Stuecke mit genau EINEM Signatur-Perk
+  (`stormfang-blade` → devour-chance +15, `veldora-scale-ward` → max-hp +10 %, einmalige
+  Rezepte) und vier mittlere Raritaeten (`spirit-oak-staff`/selten, `warded-brigandine`/episch,
+  `swiftwind-boots`/selten, `resonant-core`/episch Kern) im „Tempest-Vorrat" kaufbar (gated
+  `story.council.ready`). Items rendern als Text (kein Icon-System) → **keine neuen Assets
+  noetig**. Balance-safe: die Auto-Battle-Harness nutzt keine Ausruestung → Korridore
+  unveraendert. Akzeptanz erfuellt: Gear-/Raritaet-/Signatur-Perk-/Set-/Erspielbarkeits-Test
+  headless (`test/gearContent152.test.ts`, 5 Tests), Datenintegritaet + Crafting + itemRarity
+  gruen, typecheck ✓, 731 Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
 - [x] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten)
   (abgeschlossen, direkt auf main — Encounter-Vielfalt via Phase 146 nachgezogen).
