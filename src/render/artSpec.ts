@@ -80,6 +80,7 @@ export type PortraitKind =
   | 'treyni'
   | 'milim'
   | 'ramiris'
+  | 'arena-steward'
   | 'souka'
   | 'mordrahn';
 
@@ -182,6 +183,7 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'treyni',
   'milim',
   'ramiris',
+  'arena-steward',
   'souka',
   'mordrahn'
 ] as const;
@@ -277,6 +279,8 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.hp, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'warrior' };
     case 'ramiris':
       return { size: 64, base: PALETTE.gold, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'mage' };
+    case 'arena-steward':
+      return { size: 64, base: PALETTE.grassDark, accent: PALETTE.gold, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
     case 'souka':
       return { size: 64, base: PALETTE.grassDark, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'mordrahn':

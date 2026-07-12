@@ -139,6 +139,7 @@ Lizenzzeile.
 | `sprites/portrait-treyni.webp` | Treyni-Dialogportrait, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: erwachsene Dryadenhüterin mit Blattgrün, Rankenornamenten und leuchtendem Jura-Waldhain | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/portrait-milim.webp` | Milim-Nava-Dialogportrait, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: klar erwachsene, nicht sexualisierte Dämonenlord-Verbündete mit pinkem Haar, Hörnern und hochgeschlossenem schwarz-goldenem Kampfjackett | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/portrait-ramiris.webp` | Ramiris-Dialog-/Weltportrait, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Stilreferenzen: projektgenerierte `portrait-milim.webp` und `portrait-treyni.webp`; Prompt-Zweck: nicht sexualisierte, alterslose Feenkönigin mit goldenem Zwillingszopf, Horn, vier Flügeln und schwarz-goldenem Gewand vor Ramiris-Labyrinth | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/portrait-arena-steward.webp` | Arena-Vorstand, Dialog-/Weltportrait, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Stilreferenzen: projektgenerierte `portrait-rigurd.webp`, `portrait-gazel.webp` und `region-tempest-colosseum.webp`; Prompt-Zweck: erwachsener Hobgoblin-Arenaverwalter in Leder-/Bronze-Amtstracht mit drei Rangmedaillons und Melderegister im Tempest-Kolosseum | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/portrait-souka.webp` | Souka-Dialogportrait, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: erwachsene Echsenmenschen-Gesandte mit türkisgrünen Schuppenakzenten, Schilf-/Muschelrüstung und Sumpfdorfkulisse | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `backgrounds/battle-tempest-grove.webp` | Kampfarena Tempest-Hain, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; lichte Waldlichtung mit freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `backgrounds/battle-whispering-grove.webp` | Kampfarena Fluesterhain, 1280×720 | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-30; Prompt-Zweck: mondheller alter Wald mit violetten Geisterstroemen, gebrochenem Bodensiegel und freier Kampfmitte | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
@@ -176,12 +177,11 @@ Lizenzzeile.
 
 ## Phase 146 — neue Gegner-Archetypen (Textur-Wiederverwendung)
 
-Die fünf neuen Normalgegner-Archetypen (`marsh-thornback`, `bog-warden`,
-`highland-galecaller`, `blumund-brigand`, `academy-revenant`, verdrahtet in
-`src/render/enemyArt.ts`) fügen **keine** neuen Bilddateien hinzu. Bis dedizierte
-CC0-Cutouts erzeugt sind, teilen sie thematisch passende, bereits im Repo vorhandene
-Regions-Texturen (Echsen-/Wisp-/Bandit-/Echo-Cutouts). Sobald eigene Cutouts erzeugt
-werden, ersetzen sie diese Zuordnungen und werden hier als eigene Zeilen dokumentiert.
+Die fünf Normalgegner-Archetypen aus Phase 146 besitzen inzwischen dedizierte
+repo-generierte Cutouts. `bog-warden` und `highland-galecaller` behalten aus
+Kompatibilitätsgründen die älteren technischen Dateinamen `enemy-marsh-hexer.webp`
+und `enemy-storm-shard.webp`; ihre Provenienzzeilen oben nennen den tatsächlichen
+Verwendungszweck.
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.

@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] Phase 172 — Arena-Vorstand-Porträt
+  - Worktree: `/worktree/tempest-phase-172-arena-vorstand`
+  - Ziel: Der wiederkehrende Arena-Vorstand erhält ein eigenes, repo-gebundenes
+    Dialog-/Weltporträt statt der bisherigen portraitlosen Darstellung.
+  - Abnahme: Asset-Provenienz, Portrait-Mapping/Preload, fokussierte Tests,
+    Typecheck, vollständige Tests, Build und Browser-Smoke.
+  - Erledigt: 512×512-WebP erzeugt und verdrahtet; `git diff --check`, 22
+    fokussierte Tests, Typecheck, 769 Tests, Build und Desktop-Chromium-Smoke
+    `Kolosseum-Save` auf Port 4186 grün.
 
 ## Integrationswarteschlange
 
