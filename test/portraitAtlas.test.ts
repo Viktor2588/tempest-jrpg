@@ -52,6 +52,7 @@ describe('Portrait-Atlas-Zuordnung', () => {
       ["case 'kaval, eren & gido':", 'blumund-adventurers'],
       ["case 'treyni':", 'treyni'],
       ["case 'milim nava':", 'milim'],
+      ["case 'ramiris':", 'ramiris'],
       ["case 'souka':", 'souka']
     ] as const) {
       expect(portraitSource).toContain(speakerCase);

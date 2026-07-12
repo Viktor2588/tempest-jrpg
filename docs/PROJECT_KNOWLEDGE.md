@@ -1310,6 +1310,16 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Test, `git diff --check`, Typecheck, 769 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 171 - Ramiris-Portrait
+
+- Asset: `sprites/portrait-ramiris.webp`, 512x512, 96 KB; per Built-in-Imagegen
+  aus den Projektstilreferenzen Milim/Treyni erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ramiris` ist ein echter `PortraitKind`, `portraitKindForSpeaker('Ramiris')`
+  liefert ihn; `PreloadScene` lädt das WebP unter dem bestehenden Portrait-Key. Damit
+  nutzen Dialog und Overworld-NPC automatisch das echte Bild statt ohne Portrait.
+- Validiert mit Mapping-/Asset-Tests, `git diff --check`, Typecheck, 769 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

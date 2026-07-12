@@ -97,6 +97,7 @@ describe('artSpec', () => {
       'blumund-adventurers',
       'treyni',
       'milim',
+      'ramiris',
       'souka',
       'mordrahn'
     ]);
