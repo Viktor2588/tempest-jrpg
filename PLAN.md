@@ -623,16 +623,25 @@ darauf; 152–154 sind Content auf dem neuen System.
   711 Unit-Tests ✓, build ✓, **Balance-Harness gruen** (Sim nutzt keine Ausruestung →
   Korridore unverändert).
 
-- [ ] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (Labyrinth).
-  Statt freier Zufalls-Rolls hat JEDE Raritaet einen festen, kuratierten Affix-Pool
-  (Affixe = wiederverwendete `TalentPerk`/`statBonus`-Bausteine, endlicher Katalog).
-  Ein Labyrinth-Drop waehlt daraus DETERMINISTISCH aus dem Run-Seed die zur Raritaet
-  passende Zahl Affixe (z.B. selten 1, episch 2, legendaer 2 + Signatur-Perk). Eine
-  leichte NICHT-stapelbare Ausruestungs-Instanz speichert nur Basis-Item-Id + gewaehlte
-  Affix-Ids — KEIN freies Stat-Rollen, daher kleiner, kuratierter Umbau statt offenem
-  Roll-System. Inventar/Menue/Ausruesten kommen mit diesen Instanzen klar. Verzahnt mit
-  Wave-10-Skalierung 147/148; off-route → Korridor unberuehrt. Akzeptanz: Affix-Pools +
-  deterministische Auswahl + Instanz-Ausruesten headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (abgeschlossen, direkt auf main).
+  Umgesetzt: kuratiertes, deterministisches Affix-System (`systems/lootAffix.ts`) statt freier
+  Zufalls-Rolls — endlicher Affix-Katalog (`statBonus`-/`TalentPerk`-Bausteine), je Raritaet
+  ein FESTER Pool + feste Anzahl (gewoehnlich 0, selten 1, episch 2, legendaer 2 inkl.
+  Perk-Pool). `rollEquipmentInstance(seed, baseId)` waehlt daraus DETERMINISTISCH und
+  wiederholungsfrei. Eine leichte, NICHT-stapelbare Ausruestungs-Instanz speichert nur
+  Basis-Item-Id + Affix-Ids, als String-Id kodiert (`loot|<baseId>|<affixe>`) → lebt OHNE
+  Save-Migration in `equipment[slot]`/Inventar (save filtert Ids nicht). `resolveInstanceDefinition`
+  synthetisiert Basis+Affix-`statBonus`/-Perks (Instanzen ohne Set-Bonus/Verzauberung). Ein
+  zentraler Resolver in `menu.ts` (Inventar/Ausruesten/Anzeige) + `progression.ts`
+  (`equipmentPerksForMember`) macht Instanzen ausruestbar — fuer bestehende Ids identisch zum
+  Direktzugriff (rein additiv). `rollLabyrinthLootItemId(seed, table)` liefert den
+  deterministischen Labyrinth-Drop aus dem Run-Seed. Instanz-Ausruesten laeuft end-to-end
+  headless (equipItem → Boni + Perks). Balance-sicher: die Auto-Battle-Harness nutzt keine
+  Ausruestung → Korridore unveraendert. OFFEN/FOLGE: die tatsaechliche Vergabe im Kampf-/
+  Etagen-Reward-Fluss (Phaser `BattleScene`) ist noch anzubinden (nicht headless verifizierbar).
+  Akzeptanz erfuellt: Affix-Pools + deterministische Auswahl + Instanz-Ausruesten headless
+  (`test/lootAffix.test.ts`, 6 Tests), typecheck ✓, 737 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen**.
 
 - [x] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System) (abgeschlossen, direkt
   auf main). Umgesetzt: neun neue Ausruestungsteile auf dem Raritaetssystem (149/150), rein
