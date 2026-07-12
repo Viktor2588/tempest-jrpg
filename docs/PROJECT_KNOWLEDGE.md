@@ -1146,12 +1146,29 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
-### Phase 172 - Arena-Vorstand-Porträt
+### Phase 175 - Arena-Vorstand-Porträt
 
-- Branch/Worktree: `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand`.
+- Branch/Worktree wurde vor dem parallelen Push der Welt-Uhr-Phasen als `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand` angelegt; die Archivnummer wurde danach kollisionsfrei auf 175 gesetzt.
 - Asset-only: Der wiederkehrende Arena-Vorstand nutzt im Kolosseum und in seinen Dialogen ein eigenes repo-generiertes 512×512-WebP-Porträt statt einer portraitlosen Darstellung; Daten und Balance bleiben unverändert.
 - Provenienz steht in `ASSETS.md`; Portrait-Mapping, Preload und der bestehende Kolosseum-Smoke prüfen das sichtbare Asset.
 - Validierung: `git diff --check`, 22 fokussierte Tests, `bun run typecheck`, 769 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 174 - Wetter-/Nacht-Funde
+
+- `weatherConditionRewards` vergibt je erstem Sieg bei Nacht, Nebel und Regen einmalig 8 Magicules und persistiert die drei Bedingungen über `worldclock.first.*`-Flags.
+- `BattleScene` reicht die Encounter-Uhr nur bei regulären Siegen weiter und zeigt neu verdiente Wetter-Funde im Ergebnis; ohne Uhr bleibt der Pfad unverändert.
+- Validierung: 779 Unit-Tests inklusive `test/weatherReward.test.ts`, Typecheck, Build, Balance-Harness und Flüsterhain-Browser-Smoke grün.
+
+### Phase 173 - Welt-Uhr im Kampf-HUD
+
+- Reguläre Encounter reichen `clockHudLabel(clock)` an `BattleScene`; die Zeit-/Wetterzeile erscheint rechts oben im HUD und bleibt für Demo-/Altpfade optional.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 773 Unit-Tests, Build und Battle-Browser-Smoke grün.
+
+### Phase 172 - Nebel-Eroeffnungsstatus
+
+- `openingStatuses(clock)` liefert bei Nebel symmetrisches `blind` für alle Kämpfer; `startBattle` wendet optionale Umweltstatus einmalig an und protokolliert sie.
+- Klar, Regen und Nacht ohne Nebel bleiben statusfrei; der bestehende Balance-Harness-Pfad ohne Uhr ist unverändert.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 773 Unit-Tests, Build und Balance-Harness grün.
 
 ### Phase 163 - Milim-Kampf-Cutout
 
