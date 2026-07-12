@@ -850,11 +850,3 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
-- [x] Phase 162 — Eigene Cutouts fuer vier kanonische Gegnervarianten (abgeschlossen in
-  `/worktree/tempest-phase-162-kanon-cutouts`). `mordrahn-vanguard`, `elder-direwolf`,
-  `orc-grunt` und `orc-lord` ersetzen fremde geteilte Texturen durch repo-eigene generierte
-  512×512-RGBA-Cutouts (xAI Imagine, Chroma-Key lokal entfernt); `stray-echo` bleibt als
-  echte Echo-Variante bewusst geteilt. Keine Daten-/Balance-Aenderung. Akzeptanz erfuellt:
-  Provenienz in ASSETS.md, Art-/Preload-Wiring + Asset-Checks (`test/enemyArt.test.ts`),
-  fokussierter Desktop-Smoke (Preload aller vier Cutouts) gruen, typecheck ✓,
-  764 Unit-Tests ✓, build ✓.
