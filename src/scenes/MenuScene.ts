@@ -46,7 +46,7 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
+import { buildForgeView, craftRecipe, salvageEquipment, salvageYieldLabel, type CraftContext } from '../systems/crafting';
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
@@ -105,6 +105,8 @@ export class MenuScene extends Phaser.Scene {
   private selectedTalentNodeId: string | null = null;
   // Phase 91 — Schmiede-Ansicht innerhalb des Ausrüstungs-Tabs (nur am Schmied).
   private showForge = false;
+  // Phase 159/160 — Loot-Werkbank (Zerlegen/Umschmieden) als Unteransicht der Schmiede.
+  private forgeBench = false;
   private specTreePanY = 0;
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
@@ -515,7 +517,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     if (this.showForge) {
-      this.drawForge();
+      this.drawForge(view);
       return;
     }
 
@@ -631,7 +633,19 @@ export class MenuScene extends Phaser.Scene {
     };
   }
 
-  private drawForge(): void {
+  private drawForge(view: MenuView): void {
+    // Phase 159/160 — Umschalter zwischen Rezepten und der Loot-Werkbank (Zerlegen/Umschmieden).
+    this.button(620, 124, 150, this.forgeBench ? '◂ Rezepte' : 'Werkbank ▸', () => {
+      this.forgeBench = !this.forgeBench;
+      this.message = this.forgeBench
+        ? 'Werkbank: Beute zerlegen oder umschmieden.'
+        : 'Die Esse glüht — wähle ein Rezept.';
+      this.refresh();
+    }, this.forgeBench ? 0x3a2743 : 0x1f3a2f);
+    if (this.forgeBench) {
+      this.drawWorkbench(view);
+      return;
+    }
     this.sectionTitle('Schmiede');
     const recipes = buildForgeView(this.forgeContext());
     if (recipes.length === 0) {
@@ -667,6 +681,42 @@ export class MenuScene extends Phaser.Scene {
         this.refresh();
       }, row.craftable ? 0x2f6f55 : 0x242b38);
     });
+  }
+
+  // Phase 159/160 — Loot-Werkbank: getragene/gehortete Beute zerlegen (→ Material) oder
+  // umschmieden (Affixe neu rollen). Nur Ausruestung aus dem Inventar (getragene Teile
+  // liegen nicht im Inventar → automatisch geschuetzt).
+  private drawWorkbench(view: MenuView): void {
+    this.sectionTitle('Loot-Werkbank · Beute zerlegen oder umschmieden');
+    const gear = view.inventory.filter((entry) => entry.equipSlot);
+    if (gear.length === 0) {
+      this.layer.add(this.add.text(300, 190, 'Keine ausrüstbare Beute im Inventar.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      return;
+    }
+    const col = MENU_LIST_COLUMNS.inventoryItems;
+    const page = this.menuListPage(gear.length, col);
+    gear.slice(page.start, page.start + page.visible).forEach((entry, index) => {
+      const y = col.top + index * col.rowHeight;
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : '#e9eef7';
+      this.layer.add(this.add.text(300, y - 12, `${entry.item.name} ×${entry.quantity}`, {
+        fontFamily: 'sans-serif', fontSize: '13px', color: nameColor
+      }));
+      this.layer.add(this.add.text(300, y + 6, `Zerlegen → ${salvageYieldLabel(entry.item.id)}`, {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
+      }));
+      this.button(620, y, 130, 'Zerlegen', () => {
+        const result = salvageEquipment(this.forgeContext(), entry.item.id);
+        this.message = result.message;
+        if (result.ok) {
+          this.state = { ...this.state, inventory: result.inventory };
+          this.persist();
+        }
+        this.refresh();
+      }, 0x5a3a2f);
+    });
+    this.drawListPager(col, page);
   }
 
   private drawStatus(view: MenuView, characterId: string): void {
