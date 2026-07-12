@@ -1269,6 +1269,13 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
   inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
 
+### Phase 167 - Titelbildschirm-Key-Art
+
+- Branch/Worktree: `phase-167-titel-keyart` in `/worktree/tempest-phase-167-titel-keyart`.
+- Asset-only: der Titelbildschirm (einzige Szene ohne Art-Layer) erhaelt ein repo-generiertes 1280×720-Key-Art (`backgrounds/title-keyart.webp`, 90 KB) hinter Titel/Menue mit 0.45-Abdunkelungs-Overlay; kanontreuer gesichtsloser Slime, Tempest-Stadt, Drachensilhouette im Sturmhimmel. Keine Daten-/Balance-Aenderung.
+- Provenienz steht in `ASSETS.md`; der E2E-Asset-Check deckt das Key-Art ab.
+- Validierung: `bun run typecheck`, 767 Unit-Tests inklusive Balance-Harness, `bun run build`, Desktop-Chromium-Smokes (Title-Flow + Asset-Preload).
+
 ### Phase 166 - Generierte Gegner-Cutouts als WebP
 
 - Scope: Die zehn verbleibenden generierten 512x512-Gegner-PNGs wurden bei gleicher
