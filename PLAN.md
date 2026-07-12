@@ -850,3 +850,9 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
+- [~] Phase 163 — Milim-Kampf-Cutout. (in Bearbeitung in `/worktree/tempest-phase-163-milim-cutout`)
+  `milim` (Level-20-Boss, Phase 113) ist der einzige Gegner ohne dedizierte Kampf-Textur und
+  faellt auf den generischen Kingdom-Atlas-Slime-Frame zurueck. Repo-eigenes generiertes
+  512×512-RGBA-Cutout + Art-/Preload-Wiring. Keine Daten-/Balance-Aenderung. Akzeptanz:
+  Provenienz, Art-/Preload-Wiring, Asset-Test, Desktop-Smoke, typecheck, Unit-Tests, build.
+
