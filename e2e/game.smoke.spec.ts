@@ -906,7 +906,7 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   await page.keyboard.press('m');
   await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex
-  await clickGamePoint(page, 620, 155); // Einrichtungen (Codex-Modusleiste, Phase 122 neu angeordnet)
+  await clickGamePoint(page, 347, 155); // Einrichtungen (Codex-Modusleiste, Phase 171 startet bei x=24)
   await settle(page, 100);
   await expectCanvasContent(page);
   await clickGamePoint(page, 810, 448); // Forschen
@@ -918,8 +918,13 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   expect(stored.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'spirit-ember')).toBe(false);
   await expectCanvasContent(page);
 
-  // Phase 122 — Lebendiges Bestiarium: der neue siebte Codex-Modus rendert fehlerfrei.
-  await clickGamePoint(page, 892, 155); // 🐾 Bestiarium
+  // Phase 122 — Lebendiges Bestiarium: der siebte Codex-Modus rendert fehlerfrei.
+  await clickGamePoint(page, 616, 155); // 🐾 Bestiarium
+  await settle(page, 100);
+  await expectCanvasContent(page);
+
+  // Phase 171 — Mechanik-Handbuch: der achte Codex-Modus rendert fehlerfrei.
+  await clickGamePoint(page, 713, 155); // 📖 Handbuch
   await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
@@ -1196,7 +1201,7 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await expectCanvasContent(page);
-  await clickGamePoint(page, 422, 140); // Umschalter „🍴 Verschlingen"
+  await clickGamePoint(page, 146, 140); // Umschalter „🍴 Verschlingen" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
@@ -1230,11 +1235,11 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 520, 140); // Umschalter „🏛️ Bewohner"
+  await clickGamePoint(page, 244, 140); // Umschalter „🏛️ Bewohner" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
   await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
   await settle(page, 100);
-  await clickGamePoint(page, 620, 140); // Umschalter „🏭 Einrichtungen"
+  await clickGamePoint(page, 347, 140); // Umschalter „🏭 Einrichtungen" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
   await expectCanvasContent(page);
   await clickGamePoint(page, 450, 508); // „🏕️ Tempest-Rast halten"
@@ -1272,7 +1277,7 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 804, 140); // Umschalter „🤝 Politik"
+  await clickGamePoint(page, 528, 140); // Umschalter „🤝 Politik" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);

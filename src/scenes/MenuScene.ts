@@ -53,6 +53,7 @@ import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_P
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
 import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
+import { buildHandbook } from '../systems/handbook';
 import { buildBestiary } from '../systems/bestiary';
 import { summarizeHuntingGrounds } from '../systems/bestiaryMastery';
 import { elementLabel } from '../systems/battlePresentation';
@@ -1181,10 +1182,11 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84/92/93/96/100/122 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
-    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie ↔ Bestiarium. Kompakt (11px, feste
-    // Breiten in CODEX_MODES), damit alle sieben Modi in eine Zeile passen.
-    let modeX = 300;
+    // Phase 84/92/93/96/100/122/171 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
+    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie ↔ Bestiarium ↔ Handbuch. Kompakt (11px,
+    // feste Breiten in CODEX_MODES); Start bei x=24 (links ist auf dem Codex-Tab
+    // frei), damit alle acht Modi in eine Zeile passen.
+    let modeX = 24;
     for (const mode of CODEX_MODES) {
       const active = this.codexMode === mode.id;
       this.layer.add(addUiTextButton(this, modeX, 140, mode.width,
@@ -1203,6 +1205,7 @@ export class MenuScene extends Phaser.Scene {
     else if (this.codexMode === 'bounties') this.drawBountyBoard();
     else if (this.codexMode === 'diplomacy') this.drawDiplomacy();
     else if (this.codexMode === 'bestiary') this.drawBestiary();
+    else if (this.codexMode === 'handbook') this.drawHandbook();
     else this.drawLoreEntries();
   }
 
@@ -1211,6 +1214,31 @@ export class MenuScene extends Phaser.Scene {
     this.codexMode = mode;
     this.codexPage = 0;
     this.refresh();
+  }
+
+  // Phase 171 — Mechanik-Handbuch: knappe Erklaerungen aller Systeme, story-gegatet.
+  private drawHandbook(): void {
+    const view = buildHandbook(this.save.flags);
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(view.entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const pageEntries = view.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    pageEntries.forEach((entry, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      this.layer.add(this.add.text(318, y - 20, `📖 ${entry.title}`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y + 2, entry.body, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      }));
+    });
+
+    this.codexFooter(
+      pageCount,
+      view.lockedCount > 0 ? `${view.lockedCount} weitere schalten sich mit der Geschichte frei` : null
+    );
   }
 
   private drawLoreEntries(): void {

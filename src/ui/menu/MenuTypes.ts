@@ -2,7 +2,7 @@ export type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' 
 
 export type QuestStatusFilter = 'active' | 'completed';
 
-export type CodexMode = 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' | 'bestiary';
+export type CodexMode = 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' | 'bestiary' | 'handbook';
 
 // Codex sub-modes (moved from MenuScene for cleaner separation)
 export const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: number }> = [
@@ -12,7 +12,8 @@ export const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: n
   { id: 'facilities', label: '🏭 Einrichtungen', width: 116 },
   { id: 'bounties', label: '🎯 Kopfgeld', width: 80 },
   { id: 'diplomacy', label: '🤝 Politik', width: 74 },
-  { id: 'bestiary', label: '🐾 Bestiarium', width: 96 }
+  { id: 'bestiary', label: '🐾 Bestiarium', width: 96 },
+  { id: 'handbook', label: '📖 Handbuch', width: 92 }
 ];
 
 export const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
@@ -35,6 +36,6 @@ export const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
   status: 'Werte, Skills, Namensgebung, Entwicklung und Bindungen der Figur.',
   growth: 'Talentbaum: Knoten mit Skillpunkten freischalten.',
   quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
-  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
+  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner — plus das Mechanik-Handbuch.',
   travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
 };

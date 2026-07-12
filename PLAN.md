@@ -850,13 +850,17 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
-- [~] Phase 171 — Mechanik-Handbuch im Codex (Nutzer 2026-07-12: „ingame Mechaniken sauber
-  erklaeren"). (in Bearbeitung in `/worktree/tempest-phase-171-handbuch`) Befund: die
-  Kampf-Teaching-Curve (Phase 89) erklaert nur die Kampf-Kernverben an fuenf Encountern;
-  die Meta-Systeme (Magicules/Seelen/Erwachen, Loot-Raritaeten/Affixe, Werkbank, Kern-Slot,
-  Skill-Raenge, Jagdgruende, Rauben, Mimikry, Formation, Labyrinth, Welt-Uhr) erklaert
-  NICHTS im Spiel. Umsetzung: achter Codex-Modus „📖 Handbuch" — datengetriebene, knappe
-  Mechanik-Eintraege (`systems/handbook.ts`), spoiler-sensible Eintraege story-gegatet
-  (verifizierte Flags: shizu.vow/council.ready/smithing.unlocked); Modusleiste startet bei
-  x=24, damit acht Modi passen. Akzeptanz: Gating + Datenvaliditaet headless, Codex-E2E um
-  Handbuch-Render erweitert, typecheck, Unit-Tests, build.
+- [x] Phase 171 — Mechanik-Handbuch im Codex (Nutzer 2026-07-12: „ingame Mechaniken sauber
+  erklaeren") (abgeschlossen in `/worktree/tempest-phase-171-handbuch`). Befund bestaetigt:
+  die Kampf-Teaching-Curve (Phase 89) erklaert nur die Kampf-Kernverben; die Meta-Systeme
+  erklaerte NICHTS im Spiel. Umgesetzt: achter Codex-Modus „📖 Handbuch" mit 18 knappen,
+  datengetriebenen Mechanik-Eintraegen (`systems/handbook.ts` — Analyse/Break, CT, Reaktion,
+  Resistenz-Leiter, Status/Reinigung, Verschlingen/Mimikry, Rauben, Skill-Raenge, Formation,
+  Magicules/Benennen, Seelen/Erntefest inkl. Ultimate Gift, Loot-Raritaeten/Affixe, Werkbank,
+  Kern-Slot, Bestiarium/Jagdgruende, Labyrinth, Welt-Uhr, Bindungen); spoiler-sensible
+  Eintraege story-gegatet (shizu.vow/council.ready/smithing.unlocked, verifizierte Flags),
+  Fusszeile nennt die Zahl noch gesperrter Eintraege. Codex-Modusleiste startet jetzt bei
+  x=24 (acht Modi in einer Zeile); alle E2E-Modusklick-Koordinaten nachgezogen. Akzeptanz
+  erfuellt: Gating/Datenvaliditaet/Flag-Tippfehler-Schutz headless (`test/handbook.test.ts`,
+  4 Tests), Codex-E2E um Handbuch-Render erweitert, volle E2E-Suite gruen, typecheck ✓,
+  773 Unit-Tests ✓, build ✓.
