@@ -920,17 +920,24 @@ gefahren.
   im echten Browser (Battle-Smoke „Title → Overworld → Menü → Battle" gegen die volle
   Chromium-Binary gruen), typecheck ✓, 773 Unit-Tests ✓, build ✓.
 
-- [ ] Phase 174 — Wechselnde Bedingungen belohnen (nicht-farmbare Wetter-/Nacht-Funde,
-  off-route). Umsetzung: reine Belohnungslogik `weatherConditionReward(clock, flags)` in
-  `systems/battleResult.ts` (analog `bestiaryMastery`): der ERSTE Sieg unter je einer
-  Bedingung (`erste Nacht-Schlacht`, `erster Sieg im Nebel`, `erster Sturmkampf` bei
-  Regen) zahlt EINMALIG einen kleinen deterministischen Magicule-Fund und setzt ein Flag
-  (`worldclock.first.<cond>`), das Doppelzahlung ueber Save-/Kampf-Grenzen verhindert
-  (nicht farmbar). `applyBattleResultToSave` nimmt optional `clock` und bucht bei Sieg;
-  `BattleScene` reicht die Uhr nur bei regulaerem Sieg durch, der Sieg-Bildschirm zeigt
-  den Fund. Off-route (Reward-Pfad, kein Kampf-Balance-Effekt; Harness reicht keine Uhr
-  durch). Akzeptanz: Erst-Sieg-Erkennung je Bedingung + Einmaligkeit/Flag-Diff +
-  Save-Roundtrip headless (`test/weatherReward.test.ts`), typecheck, alle Unit-Tests,
-  build, **Balance-Harness gruen**.
+- [x] Phase 174 — Wechselnde Bedingungen belohnen (nicht-farmbare Wetter-/Nacht-Funde,
+  off-route) (abgeschlossen, direkt auf main). Umgesetzt: reine Belohnungslogik
+  `weatherConditionRewards(clock, flags)` in `systems/battleResult.ts` (analog
+  `bestiaryMastery`): der ERSTE Sieg unter je einer Bedingung (`Erste Nachtschlacht`,
+  `Erster Sieg im Nebel`, `Erster Sturmkampf` bei Regen) zahlt EINMALIG 8 Magicules und
+  setzt ein Flag (`worldclock.first.<cond>`), das Doppelzahlung ueber Save-/Kampf-Grenzen
+  verhindert (nicht farmbar; mehrere Bedingungen koennen im selben Kampf zugleich zahlen,
+  z.B. Regennacht → Nacht + Regen). `ApplyBattleResultOptions` nimmt optional `clock`;
+  `applyBattleResultToSave` bucht die Funde in derselben Flag-/Magicule-Akkumulation wie
+  die Jagdgrund-Meisterschaft. `BattleScene` fuehrt die Encounter-Uhr (`battleClock`) mit
+  und reicht sie nur bei regulaerem Sieg durch; der Sieg-Bildschirm zeigt die neu
+  verdienten Funde („☾ …", `newlyRewardedWeatherConditions`, Flag-Diff). Off-route (die
+  Balance-Harness ruft `applyBattleResultToSave` ohne `clock` auf → keine Wetter-Funde →
+  Korridor unberuehrt). Akzeptanz erfuellt: Erst-Sieg-Erkennung je Bedingung +
+  Mehrfach-gleichzeitig + Einmaligkeit/Flag-Diff + Integration (Magicule-Bonus einmalig,
+  zweiter Sieg zahlt nur Basis) + Off-route-ohne-Uhr headless (`test/weatherReward.test.ts`,
+  6 Tests), typecheck ✓, 779 Unit-Tests ✓, build ✓, **Balance-Harness (beide Tests, je
+  Spec) gruen**, Sieg-Bildschirm im echten Browser fehlerfrei gerendert (Flüsterhain-
+  Kampf-Smoke gegen die volle Chromium-Binary gruen).
 
 ## UX- und Welt-Backlog
