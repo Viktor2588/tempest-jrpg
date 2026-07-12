@@ -142,16 +142,16 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-magic-colossus.webp',
       'enemy-blumund-bandit.webp',
       'enemy-academy-wisp.webp',
-      'enemy-marsh-hexer.png',
-      'enemy-storm-shard.png',
-      'enemy-marsh-thornback.png',
-      'enemy-blumund-brigand.png',
-      'enemy-academy-revenant.png',
-      'enemy-mordrahn-vanguard.png',
-      'enemy-elder-direwolf.png',
-      'enemy-orc-grunt.png',
-      'enemy-orc-lord.png',
-      'enemy-milim.png'
+      'enemy-marsh-hexer.webp',
+      'enemy-storm-shard.webp',
+      'enemy-marsh-thornback.webp',
+      'enemy-blumund-brigand.webp',
+      'enemy-academy-revenant.webp',
+      'enemy-mordrahn-vanguard.webp',
+      'enemy-elder-direwolf.webp',
+      'enemy-orc-grunt.webp',
+      'enemy-orc-lord.webp',
+      'enemy-milim.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

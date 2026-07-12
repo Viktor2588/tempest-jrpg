@@ -849,3 +849,12 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
+
+- [x] Phase 166 — Verbleibende generierte PNG-Cutouts als WebP ausliefern
+  (abgeschlossen in `/worktree/tempest-phase-166-webp-cutouts`). Zehn 512x512-RGBA-
+  Gegner-Cutouts sind bei gleicher Aufloesung und erhaltenem Alpha als WebP
+  verdrahtet: 2.166.404 -> 374.642 Bytes (-83 %). Nur die drei winzigen
+  16x16-CC0-Tiles bleiben PNG. Keine Art-/Layout-/Balance-Aenderung. Akzeptanz
+  erfuellt: Provenienz/Imports/Format-Regressionstest, `git diff --check` ✓,
+  typecheck ✓, 767 Unit-Tests inklusive Balance-Harness ✓, build ✓, fokussierter
+  Desktop-Chromium-Smoke (alle zehn Cutouts geladen, keine Browserfehler) ✓.
