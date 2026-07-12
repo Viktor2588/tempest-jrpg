@@ -5,6 +5,7 @@ import {
   type CharacterDefinition,
   type EquipmentSlot,
   type ItemDefinition,
+  type ItemRarity,
   type SkillDefinition,
   type StatBlock
 } from '../data';
@@ -20,7 +21,8 @@ import type { PartyFormationResult } from './partyFormation';
 import { getChapterSummary, type ChapterSummary } from './chapterBanner';
 import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
-import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
+import { instanceAffixLabels, isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
+import { rarityOf } from './itemRarity';
 
 export const MENU_TOUCH_TARGET_PX = 44;
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory', 'core'];
@@ -53,6 +55,10 @@ export interface InventoryItemView {
   readonly quantity: number;
   readonly usable: boolean;
   readonly equipSlot: EquipmentSlot | null;
+  // Phase 156 — Raritaet + gerollte Affix-Labels, damit der Renderer Instanzen sichtbar
+  // als Loot lesen kann (Name farbig, Affixe als Detailzeile). Statische Items: Affixe leer.
+  readonly rarity: ItemRarity;
+  readonly affixLabels: readonly string[];
 }
 
 export interface MenuView {
@@ -182,7 +188,9 @@ export function getSortedInventory(inventory: readonly InventoryStack[]): Invent
         item,
         quantity: stack.quantity,
         usable: item.category === 'consumable' && !!item.effect,
-        equipSlot: item.equipmentSlot ?? null
+        equipSlot: item.equipmentSlot ?? null,
+        rarity: rarityOf(item),
+        affixLabels: instanceAffixLabels(stack.itemId)
       }];
     })
     .sort((a, b) =>

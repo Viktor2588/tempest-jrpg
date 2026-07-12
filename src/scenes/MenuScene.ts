@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { SKILL_TIER_META, skillTierBadge } from '../data';
 import { rarityColor, rarityLabel, rarityOf } from '../systems/itemRarity';
+import { instanceAffixLabels } from '../systems/lootAffix';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
@@ -464,6 +465,8 @@ export class MenuScene extends Phaser.Scene {
     filteredInventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
       const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
+      // Phase 156 — Raritaets-Farbe am Item-Namen (nur ueber „gewoehnlich" faerben).
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : undefined;
       this.button(300, y, 260, label, () => {
         if (!entry.usable) {
           this.message = 'Dieses Item ist hier nicht nutzbar.';
@@ -472,13 +475,21 @@ export class MenuScene extends Phaser.Scene {
         }
         const result = useItem(this.state, entry.item.id, characterId);
         this.applyResult(result);
-      }, entry.usable ? 0x1f3a2f : 0x242b38);
+      }, entry.usable ? 0x1f3a2f : 0x242b38, undefined, false, nameColor);
       this.layer.add(this.add.text(576, y - 10, entry.item.description, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#9fb2cc',
         wordWrap: { width: 310 }
       }));
+      // Phase 156 — gerollte Affixe als raritaets-gefaerbte Detailzeile aufschluesseln.
+      if (entry.affixLabels.length > 0) {
+        this.layer.add(this.add.text(576, y + 12, `✦ ${entry.affixLabels.join(' · ')}`, {
+          fontFamily: 'sans-serif',
+          fontSize: '11px',
+          color: rarityColor(entry.rarity)
+        }));
+      }
     });
     this.drawListPager(invCol, inv);
   }
@@ -526,7 +537,12 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '13px', color: item ? rarityColor(rarityOf(item)) : '#e9eef7'
       }));
       if (item && rarityOf(item) !== 'gewoehnlich') {
-        this.layer.add(this.add.text(318, y - 4, rarityLabel(rarityOf(item)), {
+        // Phase 156 — bei einer gerollten Instanz die Affixe neben dem Raritaets-Label zeigen.
+        const affixes = item ? instanceAffixLabels(item.id) : [];
+        const rarityText = affixes.length > 0
+          ? `${rarityLabel(rarityOf(item))} · ${affixes.join(' · ')}`
+          : rarityLabel(rarityOf(item));
+        this.layer.add(this.add.text(318, y - 4, rarityText, {
           fontFamily: 'sans-serif', fontSize: '9px', color: rarityColor(rarityOf(item))
         }));
       }
@@ -1813,7 +1829,8 @@ export class MenuScene extends Phaser.Scene {
     callback: () => void,
     color = 0x1b2940,
     tooltip?: string,
-    focused = false
+    focused = false,
+    textColor?: string
   ): void {
     const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
@@ -1821,7 +1838,8 @@ export class MenuScene extends Phaser.Scene {
       idleAlpha: 0.96,
       fontSize: '13px',
       textOffsetX: 10,
-      focused
+      focused,
+      textColor
     });
     this.layer.add(btn);
 

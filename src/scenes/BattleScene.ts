@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
-import { resolveInstanceItem } from '../systems/lootAffix';
+import { instanceAffixLabels, resolveInstanceItem } from '../systems/lootAffix';
 import type { ElementType, ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
@@ -1131,8 +1131,10 @@ export class BattleScene extends Phaser.Scene {
       // Phase 155 — gerollte Labyrinth-Beute sichtbar machen (Basis + Affixe).
       if (this.labyrinthLoot) {
         const loot = resolveInstanceItem(this.labyrinthLoot);
+        const affixes = instanceAffixLabels(this.labyrinthLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
         lines.push({
-          text: `✦ Labyrinth-Fund: ${loot?.name ?? this.labyrinthLoot}`,
+          text: `✦ Labyrinth-Fund: ${loot?.name ?? this.labyrinthLoot}${suffix}`,
           size: 14,
           color: '#ffd98a'
         });

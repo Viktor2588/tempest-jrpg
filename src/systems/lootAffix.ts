@@ -40,6 +40,17 @@ export function affixById(id: string): AffixDefinition | undefined {
   return AFFIX_BY_ID.get(id);
 }
 
+// Phase 156 — die gerollten Affix-Labels einer Instanz-Id (fuer die Menue-Aufschluesselung).
+// Fuer statische Items / unbekannte Ids leer.
+export function instanceAffixLabels(id: string): string[] {
+  const instance = decodeInstanceId(id);
+  if (!instance) return [];
+  return instance.affixIds.flatMap((affixId) => {
+    const affix = AFFIX_BY_ID.get(affixId);
+    return affix ? [affix.label] : [];
+  });
+}
+
 const STAT_AFFIX_IDS = AFFIXES.filter((affix) => affix.statBonus).map((affix) => affix.id);
 const PERK_AFFIX_IDS = AFFIXES.filter((affix) => affix.perk).map((affix) => affix.id);
 
@@ -141,11 +152,12 @@ export function resolveInstanceDefinition(
     ...(base.perks ?? []),
     ...affixes.flatMap((affix) => (affix.perk ? [affix.perk] : []))
   ];
-  const affixSuffix = affixes.length > 0 ? ` (${affixes.map((a) => a.label).join(', ')})` : '';
+  // Phase 156 — die Affixe werden im Menue als eigene, raritaets-gefaerbte Detailzeile
+  // aufgeschluesselt (`instanceAffixLabels`); der Instanz-Name bleibt der Basis-Name.
   return {
     ...base,
     id: encodeInstanceId(instance),
-    name: `${base.name}${affixSuffix}`,
+    name: base.name,
     stackable: false,
     // Instanzen zaehlen nicht fuer Set-Boni und tragen keine eigene Verzauberung.
     equipmentSetId: undefined,
