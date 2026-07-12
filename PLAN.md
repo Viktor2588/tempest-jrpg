@@ -758,15 +758,22 @@ Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gr
   Affix-Labels an Instanzen, sauberer Name, statische Items unveraendert) headless
   (`test/instanceDisplay.test.ts`, 4 Tests), typecheck ✓, 746 Unit-Tests ✓, build ✓.
 
-- [ ] Phase 157 — Boss-Drops: gerolltes Kern-/Endgame-Loot.
-  Grosse Boss-Siege (`enemy.boss && enemy.dead`) vergeben mit einer gegateten, deterministischen
-  Chance (aus dem Kampf-Seed) eine gerollte Loot-Instanz aus einem kleinen Boss-Loot-Tisch,
-  der v. a. `core`-Basis-Items hoher Raritaet enthaelt — so bekommt der Kern-Slot (Phase 150)
-  erspielbaren Roll-Nachschub und Boss-Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/
-  Magicules (102). Reine Belohnungslogik (analog `calculateBattleSouls`); die Auto-Battle-
-  Harness reicht keinen Loot-Seed/kein Bank durch → Sims unveraendert. Akzeptanz: Boss-Only-
-  Gate + Determinismus + Kern-lastiger Tisch + Inventar-Bank headless, typecheck ✓,
-  Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 157 — Boss-Drops: gerolltes Kern-/Endgame-Loot (abgeschlossen, direkt auf main).
+  Umgesetzt: `rollBossLoot(battle, seed)` in `systems/battleResult.ts` (reine Belohnungslogik
+  analog `calculateBattleSouls`) — grosse Boss-Siege (`enemy.boss && enemy.dead`, nur bei
+  Sieg) vergeben mit gegateter, deterministischer Chance (0.5, aus dem Kampf-Seed) eine
+  gerollte Loot-Instanz aus einem kleinen, KERN-lastigen Boss-Tisch (`soul-forged-core`,
+  `ember-magicule-core`, `resonant-core`, `veldora-scale-ward` — ausschliesslich episch/
+  legendaer) ueber das generische `rollLabyrinthLootItemId` (Phase 151). `applyBattleResultToSave`
+  nimmt optional `bossLoot: { seed }`, rollt bei Boss-Sieg und bankt die Instanz;
+  `BattleScene` reicht den Kampf-Seed nur bei Sieg durch und zeigt „★ Boss-Beute: …" in der
+  Sieg-Zeile. So bekommt der Kern-Slot (Phase 150) erspielbaren Roll-Nachschub und Boss-
+  Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/Magicules (102). Akzeptanz erfuellt:
+  Boss-Only-Gate (kein Trash/Flucht/Niederlage/lebender Boss) + Determinismus + kern-lastiger
+  Tisch hoher Raritaet + gegatete Chance + Inventar-Bank (nur mit Option, nur bei Boss-Sieg)
+  headless (`test/bossLoot.test.ts`, 4 Tests), typecheck ✓, 750 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (bossLoot opt-in → Auto-Battle-Harness reicht keinen Loot-Seed
+  durch → Sims unveraendert).
 
 ## UX- und Welt-Backlog
 
