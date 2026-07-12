@@ -850,3 +850,10 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
+- [~] Phase 167 — Titelbildschirm-Key-Art. (in Bearbeitung in `/worktree/tempest-phase-167-titel-keyart`)
+  Der Titelbildschirm ist reiner Text auf Schwarz — als einzige Szene ohne Art-Layer.
+  Repo-eigenes generiertes 1280×720-Key-Art (WebP) als Hintergrund hinter Titel/Menue
+  mit Abdunkelungs-Overlay fuer Lesbarkeit; Muster der Battle-Backgrounds. Keine
+  Daten-/Balance-Aenderung. Akzeptanz: Provenienz, Preload-/Titel-Wiring, Desktop-Smoke,
+  typecheck, Unit-Tests, build.
+
