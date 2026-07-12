@@ -877,7 +877,9 @@ export class OverworldScene extends Phaser.Scene {
         openingField: openingFieldElement(clock),
         // Phase 171 — Nebel verhuellt das Schlachtfeld: symmetrischer Eroeffnungs-Status
         // aus der Welt-Uhr (Nebel→Blind auf beide Seiten).
-        openingStatuses: openingStatuses(clock)
+        openingStatuses: openingStatuses(clock),
+        // Phase 173 — Welt-Uhr im Kampf lesbar: kompakte Zeit/Wetter-Zeile fuer das HUD.
+        clockLabel: clockHudLabel(clock)
       });
     }
   }

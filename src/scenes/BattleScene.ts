@@ -88,6 +88,8 @@ export class BattleScene extends Phaser.Scene {
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
+  // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile aus dem Encounter (Phase 101).
+  private clockLabel: string | null = null;
   private reacting = false; // Phase 85 — Timing-Fenster aktiv, Menü blockiert
 
   constructor() {
@@ -99,11 +101,13 @@ export class BattleScene extends Phaser.Scene {
     encounterId?: string;
     openingField?: ElementType | null;
     openingStatuses?: readonly { readonly id: StatusEffectId; readonly turns: number }[];
+    clockLabel?: string | null;
   }): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;
+    this.clockLabel = data?.clockLabel ?? null;
     this.state = startBattle({
       openingField: data?.openingField ?? null,
       openingStatuses: data?.openingStatuses ?? [],
@@ -576,6 +580,17 @@ export class BattleScene extends Phaser.Scene {
         46,
         `Feld: ${elementLabel(view.field.element)} (${view.field.turns})`,
         { fontFamily: 'sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#7fd4ff' }
+      ).setOrigin(1, 0.5));
+    }
+
+    // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile macht die Kausalitaet
+    // (Nacht/Regen/Nebel → diese Eroeffnung) sichtbar. Unter dem Feld, sonst an dessen Platz.
+    if (this.clockLabel) {
+      this.layer.add(this.add.text(
+        GAME_WIDTH - 15,
+        view.field ? 61 : 46,
+        this.clockLabel,
+        { fontFamily: 'sans-serif', fontSize: '11px', color: '#b9c6d8' }
       ).setOrigin(1, 0.5));
     }
 
