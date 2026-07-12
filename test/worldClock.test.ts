@@ -5,6 +5,7 @@ import {
   clockHudLabel,
   dayAt,
   openingFieldElement,
+  openingStatuses,
   timeOfDayAt,
   weatherAt,
   type WorldClock
@@ -126,6 +127,53 @@ describe('Welt-Uhr: Feld-/Encounter-Einfluss', () => {
       seed: 1
     });
     expect(state.field).toBeNull();
+  });
+});
+
+describe('Welt-Uhr: Nebel-Eröffnung (Phase 171)', () => {
+  const clock = (partial: Partial<WorldClock>): WorldClock => ({
+    day: 0,
+    timeOfDay: 'day',
+    weather: 'clear',
+    ...partial
+  });
+
+  it('Nebel liefert ein symmetrisches Eröffnungs-Blind', () => {
+    const openings = openingStatuses(clock({ weather: 'fog' }));
+    expect(openings).toHaveLength(1);
+    expect(openings[0]).toEqual({ id: 'blind', turns: 2 });
+  });
+
+  it('klar/Regen liefern keinen Eröffnungs-Status', () => {
+    expect(openingStatuses(clock({ weather: 'clear' }))).toHaveLength(0);
+    expect(openingStatuses(clock({ weather: 'rain' }))).toHaveLength(0);
+    // Auch nachts ohne Nebel kein Eröffnungs-Status (Nacht färbt nur das Feld).
+    expect(openingStatuses(clock({ weather: 'clear', timeOfDay: 'night' }))).toHaveLength(0);
+  });
+
+  it('startBattle wendet den Nebel-Blind auf BEIDE Seiten an', () => {
+    const state = startBattle({
+      party: [dummy('party')],
+      enemies: [dummy('enemy')],
+      openingStatuses: openingStatuses(clock({ weather: 'fog' })),
+      seed: 1
+    });
+    for (const combatant of state.combatants) {
+      expect(combatant.statuses.some((status) => status.id === 'blind')).toBe(true);
+    }
+    expect(state.log.some((line) => line.includes('Schlachtfeld'))).toBe(true);
+  });
+
+  it('ohne Eröffnungs-Status bleibt niemand geblendet', () => {
+    const state = startBattle({
+      party: [dummy('party')],
+      enemies: [dummy('enemy')],
+      openingStatuses: openingStatuses(clock({ weather: 'clear' })),
+      seed: 1
+    });
+    for (const combatant of state.combatants) {
+      expect(combatant.statuses.some((status) => status.id === 'blind')).toBe(false);
+    }
   });
 });
 

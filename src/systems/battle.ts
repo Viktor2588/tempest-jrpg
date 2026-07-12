@@ -255,6 +255,10 @@ export interface StartBattleOptions {
   // Phase 101 — Welt-Uhr: Eröffnungs-Elementarfeld (Zeit/Wetter des Encounters).
   // null/neutral/undefiniert = neutrales Startfeld (unverändertes Verhalten).
   readonly openingField?: ElementType | null;
+  // Phase 171 — Welt-Uhr: symmetrische Eroeffnungs-Status (z.B. Nebel→Blind auf ALLE
+  // Kaempfer). Environmental/beidseitig — kein Widerstands-Wurf. Fehlt/leer =
+  // unveraendertes Verhalten. Die Balance-Harness reicht das nie durch → off-harness.
+  readonly openingStatuses?: readonly { readonly id: StatusEffectId; readonly turns: number }[];
   // Phase 123 — Bestiarium-Wissen im Kampf: bereits studierte Gegner-Arten (`sourceId`s
   // aus progression.analyzedEnemyIds). Nicht-Boss-Gegner dieser Arten starten mit
   // aufgedeckten Schwächen (analysisLevel 1); Bosse/Neue müssen frisch analysiert werden.
@@ -562,6 +566,19 @@ export function startBattle(options: StartBattleOptions): BattleState {
         combatant.analysisLevel = 1;
         combatant.telegraphSkillId = predictTelegraph(state, combatant);
       }
+    }
+  }
+
+  // Phase 171 — Welt-Uhr: symmetrische Eroeffnungs-Status (Nebel truebt beiden Seiten
+  // die Sicht). Environmental → direkt auf ALLE Kaempfer, ohne Widerstands-Wurf; genau
+  // eine Log-Zeile je Status, damit die Bedingung lesbar ist.
+  const openingStatuses = options.openingStatuses ?? [];
+  if (openingStatuses.length > 0) {
+    for (const opening of openingStatuses) {
+      for (const combatant of state.combatants) {
+        applyStatus(combatant, opening.id, opening.turns);
+      }
+      pushLog(state, `${statusLabel(opening.id)} liegt ueber dem Schlachtfeld — beide Seiten sind betroffen.`);
     }
   }
 
