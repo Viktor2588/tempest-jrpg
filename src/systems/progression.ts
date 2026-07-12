@@ -32,6 +32,7 @@ import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import { officerPerksForResidents } from './residents';
+import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
 import { buildSkillFusionView, canFuseSkill, fuseSkill, getSkillFusionRecipe, type SkillFusionView } from './skillFusion';
 import {
   addPartialStats,
@@ -944,7 +945,10 @@ function awakenedPerksForMember(
 // die Auto-Battle-Harness (ohne Ausruestung) unberuehrt bleibt.
 export function equipmentPerksForMember(member: PartyMemberState): readonly TalentPerk[] {
   return (Object.values(member.equipment) as readonly (string | undefined)[]).flatMap((itemId) => {
-    const item = itemId ? itemById.get(itemId) : undefined;
+    // Phase 151 — kodierte Loot-Instanzen liefern Basis- + Affix-Perks (synthetisiert).
+    const item = itemId
+      ? (isEquipmentInstanceId(itemId) ? resolveInstanceItem(itemId) : itemById.get(itemId))
+      : undefined;
     return item?.perks ?? [];
   });
 }

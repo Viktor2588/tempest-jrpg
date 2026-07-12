@@ -20,6 +20,7 @@ import type { PartyFormationResult } from './partyFormation';
 import { getChapterSummary, type ChapterSummary } from './chapterBanner';
 import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
+import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
 
 export const MENU_TOUCH_TARGET_PX = 44;
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory', 'core'];
@@ -65,6 +66,13 @@ export interface MenuView {
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
+
+// Phase 151 — Item-Resolver: statisches Item ODER (bei einer kodierten Loot-Instanz-Id)
+// die synthetisierte Instanz-Definition (Basis + Affixe). Fuer alle bestehenden Ids
+// verhaelt er sich identisch zum Direktzugriff.
+function resolveItem(id: string): ItemDefinition | undefined {
+  return isEquipmentInstanceId(id) ? resolveInstanceItem(id) : itemById.get(id);
+}
 
 export function buildMenuView(state: MenuGameState): MenuView {
   return {
@@ -142,7 +150,7 @@ export function calculateMemberBaseStats(member: PartyMemberState): StatBlock {
 export function calculateEquipmentBonus(member: PartyMemberState): Partial<StatBlock> {
   return EQUIPMENT_SLOTS.reduce<Partial<StatBlock>>((bonus, slot) => {
     const itemId = member.equipment[slot];
-    const item = itemId ? itemById.get(itemId) : undefined;
+    const item = itemId ? resolveItem(itemId) : undefined;
     return addPartialStats(bonus, item?.statBonus ?? {});
   }, {});
 }
@@ -159,7 +167,7 @@ export function getEquipmentItems(member: PartyMemberState): Partial<Record<Equi
   const equipmentItems: Partial<Record<EquipmentSlot, ItemDefinition>> = {};
   for (const slot of EQUIPMENT_SLOTS) {
     const itemId = member.equipment[slot];
-    const item = itemId ? itemById.get(itemId) : undefined;
+    const item = itemId ? resolveItem(itemId) : undefined;
     if (item) equipmentItems[slot] = item;
   }
   return equipmentItems;
@@ -168,7 +176,7 @@ export function getEquipmentItems(member: PartyMemberState): Partial<Record<Equi
 export function getSortedInventory(inventory: readonly InventoryStack[]): InventoryItemView[] {
   return normalizeInventoryStacks(inventory)
     .flatMap((stack): InventoryItemView[] => {
-      const item = itemById.get(stack.itemId);
+      const item = resolveItem(stack.itemId);
       if (!item) return [];
       return [{
         item,
@@ -188,7 +196,7 @@ export function equipItem(
   characterId: string,
   itemId: string
 ): MenuResult {
-  const item = itemById.get(itemId);
+  const item = resolveItem(itemId);
   if (!item?.equipmentSlot) {
     return { ok: false, state, message: 'Item ist nicht ausrüstbar.' };
   }
@@ -249,7 +257,7 @@ export function useItem(
   itemId: string,
   characterId: string
 ): MenuResult {
-  const item = itemById.get(itemId);
+  const item = resolveItem(itemId);
   if (!item?.effect || item.category !== 'consumable') {
     return { ok: false, state, message: 'Item ist nicht nutzbar.' };
   }
