@@ -1269,6 +1269,13 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
   inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
 
+### Phase 168 - Ende-Key-Arts
+
+- Branch/Worktree: `phase-168-ende-keyart` in `/worktree/tempest-phase-168-ende-keyart`.
+- Asset-only: die EndingScene erhaelt je Ende ein repo-generiertes 1280×720-Key-Art (`backgrounds/ending-{freedom,order,true}.webp`, je ~120 KB) mit 0.72-Abdunkelungs-Overlay; ohne Ende-Flag bleibt das alte Voll-Schwarz-Layout (Fallback). Keine Daten-/Balance-Aenderung.
+- Provenienz steht in `ASSETS.md`; der E2E-Asset-Check deckt alle drei Key-Arts ab.
+- Validierung: `bun run typecheck`, 767 Unit-Tests inklusive Balance-Harness, `bun run build`, Desktop-Chromium-Smoke (Asset-Preload).
+
 ### Phase 167 - Titelbildschirm-Key-Art
 
 - Branch/Worktree: `phase-167-titel-keyart` in `/worktree/tempest-phase-167-titel-keyart`.
