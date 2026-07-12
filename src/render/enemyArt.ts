@@ -29,6 +29,7 @@ export const MORDRAHN_VANGUARD_TEXTURE_KEY = 'sprite-enemy-mordrahn-vanguard';
 export const ELDER_DIREWOLF_TEXTURE_KEY = 'sprite-enemy-elder-direwolf';
 export const ORC_GRUNT_TEXTURE_KEY = 'sprite-enemy-orc-grunt';
 export const ORC_LORD_TEXTURE_KEY = 'sprite-enemy-orc-lord';
+export const MILIM_TEXTURE_KEY = 'sprite-enemy-milim';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -96,6 +97,9 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
   'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
   'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss'),
+  // Phase 163 — Milim war der letzte Gegner ohne dedizierte Kampf-Textur (fiel auf
+  // den Kingdom-Atlas-Slime-Frame zurueck).
+  milim: generatedTexture(MILIM_TEXTURE_KEY, 'enemy-boss'),
   // Phase 146/161 — neue Normalgegner-Archetypen mit eigenen Regions-Cutouts.
   'marsh-thornback': generatedTexture(MARSH_THORNBACK_TEXTURE_KEY, 'enemy-lizard'),
   'bog-warden': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),

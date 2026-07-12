@@ -23,6 +23,7 @@ import {
   ELDER_DIREWOLF_TEXTURE_KEY,
   ORC_GRUNT_TEXTURE_KEY,
   ORC_LORD_TEXTURE_KEY,
+  MILIM_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
@@ -114,6 +115,7 @@ import mordrahnVanguardUrl from '../assets/sprites/enemy-mordrahn-vanguard.png';
 import elderDirewolfUrl from '../assets/sprites/enemy-elder-direwolf.png';
 import orcGruntUrl from '../assets/sprites/enemy-orc-grunt.png';
 import orcLordUrl from '../assets/sprites/enemy-orc-lord.png';
+import enemyMilimUrl from '../assets/sprites/enemy-milim.png';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
@@ -259,6 +261,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(ELDER_DIREWOLF_TEXTURE_KEY, elderDirewolfUrl);
     this.load.image(ORC_GRUNT_TEXTURE_KEY, orcGruntUrl);
     this.load.image(ORC_LORD_TEXTURE_KEY, orcLordUrl);
+    this.load.image(MILIM_TEXTURE_KEY, enemyMilimUrl);
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);

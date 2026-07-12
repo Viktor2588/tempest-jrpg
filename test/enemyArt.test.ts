@@ -32,6 +32,7 @@ import {
   ELDER_DIREWOLF_TEXTURE_KEY,
   ORC_GRUNT_TEXTURE_KEY,
   ORC_LORD_TEXTURE_KEY,
+  MILIM_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
 
@@ -117,6 +118,7 @@ describe('Gegner-Art-Mapping', () => {
       ['academy-revenant', ACADEMY_REVENANT_TEXTURE_KEY],
       ['mordrahn-vanguard', MORDRAHN_VANGUARD_TEXTURE_KEY],
       ['elder-direwolf', ELDER_DIREWOLF_TEXTURE_KEY],
+      ['milim', MILIM_TEXTURE_KEY],
     ] as const) {
       const art = enemyArtFor(id, '');
       expect(art.textureKey).toBe(expectedTexture);
@@ -148,7 +150,8 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-mordrahn-vanguard.png',
       'enemy-elder-direwolf.png',
       'enemy-orc-grunt.png',
-      'enemy-orc-lord.png'
+      'enemy-orc-lord.png',
+      'enemy-milim.png'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

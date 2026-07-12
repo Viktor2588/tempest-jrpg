@@ -1146,6 +1146,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 163 - Milim-Kampf-Cutout
+
+- Branch/Worktree: `phase-163-milim-cutout` in `/worktree/tempest-phase-163-milim-cutout`.
+- Asset-only: `milim` war der letzte Gegner ohne dedizierte Kampf-Textur (Kingdom-Atlas-Slime-Fallback); jetzt eigenes repo-generiertes 512×512-RGBA-Cutout (xAI Imagine, Chroma-Key lokal entfernt). Daten und Balance unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken Milim ab. Damit haben ALLE 33 Gegner-Arten dedizierte Texturen.
+- Validierung: `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
 ### Phase 162 - Kanon-Varianten-Cutouts
 
 - Branch/Worktree: `phase-162-kanon-cutouts` in `/worktree/tempest-phase-162-kanon-cutouts`.
