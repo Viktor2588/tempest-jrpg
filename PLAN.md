@@ -848,20 +848,22 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   (`test/salvage.test.ts`, 5 Tests), typecheck ✓, 759 Unit-Tests ✓, build ✓, **Balance-Harness
   strukturell unberuehrt** (menue-/schmiede-only, nicht kampfberuehrend).
 
-- [ ] Phase 160 — Affix-Umschmieden: eine Loot-Instanz neu rollen (Schmiede).
-  Eine neue reine Funktion in `systems/lootAffix.ts` (z. B. `reforgeInstance(seed, itemId)`)
-  wuerfelt fuer eine kodierte `loot|…`-Instanz die Affixe DETERMINISTISCH neu (gleiche Basis-Id
-  + gleiche Raritaets-Regel → gleicher Pool/gleiche Anzahl ueber `rollEquipmentInstance`), gibt
-  also eine neue kodierte Instanz-Id zurueck (statische Items → unveraendert/null). An der
-  Schmiede als „Umschmieden"-Aktion je getragener/im Inventar liegender Instanz angeboten, gegen
-  Materialkosten (z. B. 1× `magisteel` + Raritaets-abhaengiges Gold), die die in 159
-  zurueckgewonnenen Materialien verbrauchen — so entsteht der Kreislauf Beute → zerlegen →
-  umschmieden. Der Seed kommt aus der Scene (analog Kampf-Seed, z. B. `Date.now()`), damit jeder
-  Umschmiede-Versuch ein neues, aber innerhalb des Aufrufs deterministisches Ergebnis liefert.
-  Nur Instanzen sind umschmiedbar (feste Teile tragen ihre kuratierten Affixe/Sets). Akzeptanz:
-  Neuwurf gleicher Basis/Raritaet + Pool-/Anzahl-Treue + Determinismus je Seed + statische Items
-  unberuehrt + Materialkosten/Inventar-Roundtrip headless, Schmiede-E2E-Smoke, typecheck ✓,
-  Unit-Tests ✓, build ✓, **Balance-Harness gruen** (menue-only, nicht kampfberuehrend).
+- [x] Phase 160 — Affix-Umschmieden: eine Loot-Instanz neu rollen (Schmiede) (abgeschlossen,
+  direkt auf main). Umgesetzt: neue reine Funktion `reforgeInstance(seed, itemId)` in
+  `systems/lootAffix.ts` wuerfelt fuer eine kodierte `loot|…`-Instanz die Affixe DETERMINISTISCH
+  neu (gleiche Basis-Id + gleiche Raritaets-Regel → gleicher Pool/gleiche Anzahl ueber
+  `rollEquipmentInstance`) und gibt die neue kodierte Instanz-Id zurueck (statische Items → null).
+  `reforgeCost`/`reforgeEquipment` in `systems/crafting.ts`: Umschmieden kostet 1× `magisteel` +
+  raritaets-abhaengiges Gold (40/80/140/220/200), verbraucht die in 159 zurueckgewonnenen
+  Materialien (Kreislauf Beute → zerlegen → umschmieden) und ersetzt die Instanz im Inventar; nur
+  echte Instanzen sind umschmiedbar (feste Teile tragen ihre kuratierten Affixe/Sets). Die
+  Werkbank-Unteransicht (Phase 159) zeigt je Instanz einen „Umschmieden · <gold>G"-Button (Seed
+  aus `Date.now()`, damit jeder Versuch neu, aber im Aufruf deterministisch ist; abgeblendet bei
+  fehlendem Material/Gold). Akzeptanz erfuellt: Neuwurf gleicher Basis/Raritaet + Anzahl-Treue +
+  Determinismus je Seed + Seed-Vielfalt + statische Items unberuehrt + Materialkosten/Inventar-
+  Roundtrip + Ablehnung bei fehlendem Material/Gold headless (`test/reforge.test.ts`, 5 Tests),
+  typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
+  schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
 
