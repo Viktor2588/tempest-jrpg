@@ -775,6 +775,91 @@ Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gr
   **Balance-Harness gruen** (bossLoot opt-in → Auto-Battle-Harness reicht keinen Loot-Seed
   durch → Sims unveraendert).
 
+## Dreizehnte Welle: Die Loot-Werkbank — Vergleichen, Zerlegen, Umschmieden (Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 750 Unit-Tests + Balance-Harness gruen): Die Elfte/
+Zwoelfte Welle haben das Loot-Fundament FERTIG gebaut UND angeschlossen — Raritaet/Kern/
+Affix-Instanzen (149–152), gerollte Drops aus Labyrinth-Etagen (155) und Boss-Siegen
+(157), sichtbar aufgeschluesselt im Menue (156). Damit fliesst jetzt ein stetiger Strom
+gerollter Ausruestungs-Instanzen zum Spieler — aber der Motor drumherum hat DREI
+verifizierte Luecken, die genau diesen neuen Strom unbrauchbar/undurchschaubar lassen:
+
+(1) **Ausruesten ist blind.** Die Ausruestbar-Liste (`MenuScene.drawEquipment`,
+`src/scenes/MenuScene.ts:591-604`) rendert je Kandidat nur „Name ×Menge" und ruft direkt
+`equipItem` (`src/systems/menu.ts:202-237`); es gibt NIRGENDS eine Stat-Delta-Vorschau
+(vorher/nachher) gegen das aktuell getragene Teil. Bei sonst gleichem Slot muss der Spieler
+zwei Items im Kopf verrechnen — genau die Entscheidung, die ein Loot-System lesbar machen
+muss, fehlt.
+
+(2) **Loot-Instanzen sind unverkaeuflich UND unentsorgbar — der Stapel waechst ohne
+Grenze.** `sellItem` (`src/systems/world.ts:580-598`) schlaegt eine Id nur im Sortiment des
+Ladens nach (`buildShopView` iteriert `shop.itemIds`, `:543-554`); eine `loot|…`-Instanz
+steht in keinem Sortiment → „Item kann hier nicht verkauft werden". Es gibt kein Salvage/
+Zerlegen (kein Reverse-Pfad in `crafting.ts`), kein Verwerfen (`removeInventoryItem`,
+`src/systems/inventory.ts:52-62`, wird nie spielerseitig aufgerufen), und keine Inventar-
+Obergrenze (`normalizeInventoryStacks` deckelt nie). Der Spieler kann Beute NUR loswerden,
+indem er sie traegt.
+
+(3) **Tote Materialien + nicht-verzauberbare Instanzen.** `hipokte-herb` („Grundlage fuer
+staerkere Traenke", `src/data/items.ts:109`), `healing-herb` (Kuechen-Output,
+`src/data/facilities.ts:25`) und `wolf-fang-token` werden von KEINEM Rezept/keiner Forschung
+verbraucht (Nachweis: nicht in `CRAFTING_RECIPES`/`research.ts`-Inputs) — totes Material.
+Gleichzeitig tragen Loot-Instanzen bewusst `enchantment: undefined` (`lootAffix.ts:164`),
+lassen sich also NICHT wie feste Teile verzaubern — ihre Affixe sind final gerollt und der
+Spieler hat keinen Hebel, ein „fast perfektes" Stueck zu verbessern.
+
+Diese Welle macht den frisch angeschlossenen Loot-Strom **beherrschbar und lohnend** — rein
+auf dem vorhandenen Motor, mit vorhandenen Daten, bewusst niedriger Komplexitaet und ohne
+neue Assets. Reihenfolge = Abhaengigkeit: 158 (Vergleich) ist unabhaengige reine View-Logik;
+159 (Zerlegen) schliesst den Entsorgungs-/Material-Kreis (Fundament fuer Materialrueckgewinn);
+160 (Umschmieden) gibt der Instanz-Beute den fehlenden Verbesserungs-Hebel und verbraucht die
+zurueckgewonnenen Materialien. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-
+System; canon-first, deutsches Originalwording, keine kopierten Dialoge). **Keine Phase
+beruehrt den Kampf** (alles lebt im Menue/an der Schmiede) → die Balance-Harness ist strukturell
+unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
+
+- [ ] Phase 158 — Ausruestungs-Vergleich: Stat-Delta beim Ausruesten (reine View-Logik).
+  Eine neue reine Funktion in `systems/menu.ts` (z. B. `equipmentStatDelta(member, itemId)`)
+  liefert je Stat die Differenz zwischen dem Kandidaten-Item und dem aktuell im selben Slot
+  getragenen Teil (nutzt den bestehenden `resolveItem`/`calculateEquipmentBonus`-Pfad, damit
+  Loot-Instanzen korrekt aufgeloest werden). `MenuScene.drawEquipment` zeigt neben jedem
+  Ausruestbar-Eintrag die geaenderten Stats als kompakte ▲/▼-Liste (grün +, rot −, nur die
+  Stats, die sich aendern), sodass der Spieler Beute vor dem Ausruesten lesen kann. Rein
+  additive Anzeige; `equipItem` bleibt unveraendert; keine Save-/Balance-Beruehrung. Akzeptanz:
+  Delta-Berechnung (Kandidat vs. getragen, leerer Slot = voller Bonus, Instanz-Aufloesung)
+  headless, Menue-E2E-Smoke (Delta-Zeile rendert), typecheck ✓, Unit-Tests ✓, build ✓.
+
+- [ ] Phase 159 — Loot zerlegen: Instanzen in Materialien (Salvage an der Schmiede).
+  Eine neue reine Funktion in `systems/crafting.ts` (z. B. `salvageEquipment(context, itemId)`)
+  zerlegt ein Ausruestungs-Item aus dem Inventar deterministisch in Materialien, gestaffelt nach
+  Raritaet (`rarityOf`): selten → 1× `magic-ore`, episch → 1× `magisteel`, legendaer/legendaer-
+  set → 1× `magisteel` + 1× `spirit-ember`; entfernt das Item (`removeInventoryItem`) und bankt
+  die Materialien (`addInventoryItem`). Nur ausruestbare, NICHT getragene Items sind zerlegbar
+  (Schutz vor versehentlichem Verlust getragener/Story-Teile — Startausruestung `gewoehnlich`
+  gibt nichts zurueck, verschwindet aber). An der bereits smith-gegateten Schmiede-Ansicht
+  (`MenuScene.drawForge`, `canEnchantEquipment`) als „Zerlegen"-Aktion je zerlegbarem
+  Inventar-Item angeboten, mit `CraftContext` aus `forgeContext()`. Schliesst die verifizierte
+  Luecke „Loot-Instanzen unverkaeuflich/unentsorgbar" UND speist die tote Material-Oekonomie
+  (magic-ore/magisteel/spirit-ember sind alle Rezept-Inputs). Akzeptanz: Raritaets-gestaffelter
+  Material-Ertrag + Entfernen/Banken + Getragen-/Nicht-Gear-Schutz + Inventar-Roundtrip
+  headless, Schmiede-E2E-Smoke (Zerlegen-Aktion), typecheck ✓, Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (menue-only, nicht kampfberuehrend).
+
+- [ ] Phase 160 — Affix-Umschmieden: eine Loot-Instanz neu rollen (Schmiede).
+  Eine neue reine Funktion in `systems/lootAffix.ts` (z. B. `reforgeInstance(seed, itemId)`)
+  wuerfelt fuer eine kodierte `loot|…`-Instanz die Affixe DETERMINISTISCH neu (gleiche Basis-Id
+  + gleiche Raritaets-Regel → gleicher Pool/gleiche Anzahl ueber `rollEquipmentInstance`), gibt
+  also eine neue kodierte Instanz-Id zurueck (statische Items → unveraendert/null). An der
+  Schmiede als „Umschmieden"-Aktion je getragener/im Inventar liegender Instanz angeboten, gegen
+  Materialkosten (z. B. 1× `magisteel` + Raritaets-abhaengiges Gold), die die in 159
+  zurueckgewonnenen Materialien verbrauchen — so entsteht der Kreislauf Beute → zerlegen →
+  umschmieden. Der Seed kommt aus der Scene (analog Kampf-Seed, z. B. `Date.now()`), damit jeder
+  Umschmiede-Versuch ein neues, aber innerhalb des Aufrufs deterministisches Ergebnis liefert.
+  Nur Instanzen sind umschmiedbar (feste Teile tragen ihre kuratierten Affixe/Sets). Akzeptanz:
+  Neuwurf gleicher Basis/Raritaet + Pool-/Anzahl-Treue + Determinismus je Seed + statische Items
+  unberuehrt + Materialkosten/Inventar-Roundtrip headless, Schmiede-E2E-Smoke, typecheck ✓,
+  Unit-Tests ✓, build ✓, **Balance-Harness gruen** (menue-only, nicht kampfberuehrend).
+
 ## UX- und Welt-Backlog
 
 
