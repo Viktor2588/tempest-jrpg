@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
+import { instanceAffixLabels, resolveInstanceItem } from '../systems/lootAffix';
 import type { ElementType, ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
@@ -25,7 +26,14 @@ import {
   createScaledEnemyBattleUnits,
   scalingKindForEncounter
 } from '../systems/enemyScaling';
-import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import {
+  createLabyrinthBossEchoUnit,
+  createScaledLabyrinthFloorUnits,
+  labyrinthEncounterDepth,
+  rollLabyrinthFloorLoot,
+  selectLabyrinthBossEcho
+} from '../systems/labyrinth';
+import { applyBattleResultToSave, rollBossLoot, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
@@ -73,6 +81,10 @@ export class BattleScene extends Phaser.Scene {
   private levelUps: LevelUpSummary[] = [];
   private magiculeGain = 0;
   private masteredGrounds: string[] = [];
+  // Phase 155 — gerollte Labyrinth-Etagen-Beute (kodierte Instanz-Id) für die Sieg-Zeile.
+  private labyrinthLoot: string | null = null;
+  // Phase 157 — gerolltes Boss-Endgame-Loot (kodierte Instanz-Id) für die Sieg-Zeile.
+  private bossLoot: string | null = null;
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -95,11 +107,8 @@ export class BattleScene extends Phaser.Scene {
         this.save.flags
       ),
       // Phase 67: Gegner skalieren nach oben mit dem Partylevel (Anti-Overgrind).
-      enemies: createScaledEnemyBattleUnits(
-        data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
-        averagePartyLevel(this.save.party.active.map((member) => member.level)),
-        scalingKindForEncounter(this.encounterId)
-      ),
+      // Phase 147: Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead (tiefer = härter).
+      enemies: this.buildEncounterEnemies(data?.enemyIds),
       inventory: this.save.inventory.stacks,
       teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
       damageMultipliers: {
@@ -116,6 +125,8 @@ export class BattleScene extends Phaser.Scene {
     this.rewardsApplied = false;
     this.levelUps = [];
     this.magiculeGain = 0;
+    this.labyrinthLoot = null;
+    this.bossLoot = null;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
     this.reacting = false;
@@ -131,6 +142,28 @@ export class BattleScene extends Phaser.Scene {
     this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
     this.showEncounterTutorial();
+  }
+
+  // Phase 147 — Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead; alle
+  // übrigen Encounter behalten die reguläre Party-relative Skalierung (Phase 67).
+  private buildEncounterEnemies(enemyIds: string[] | undefined) {
+    const ids = enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'];
+    const partyLevel = averagePartyLevel(this.save.party.active.map((member) => member.level));
+    const depth = labyrinthEncounterDepth(this.encounterId);
+    if (depth !== null) {
+      const floor = createScaledLabyrinthFloorUnits(ids, partyLevel, depth);
+      // Phase 148 — die tiefste Etage beschwört ein skaliertes Echo eines besiegten,
+      // aber nicht verschlungenen Bosses (erneut verschlingbar). Nur wenn eins existiert.
+      if (depth >= 3) {
+        const echoId = selectLabyrinthBossEcho(this.save.progression);
+        const echo = echoId ? createLabyrinthBossEchoUnit(echoId, partyLevel, depth) : null;
+        if (echo) {
+          return [...floor, echo];
+        }
+      }
+      return floor;
+    }
+    return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
   }
 
   private showEncounterTutorial(): void {
@@ -1098,6 +1131,28 @@ export class BattleScene extends Phaser.Scene {
           color: '#e9c56c'
         });
       }
+      // Phase 155 — gerollte Labyrinth-Beute sichtbar machen (Basis + Affixe).
+      if (this.labyrinthLoot) {
+        const loot = resolveInstanceItem(this.labyrinthLoot);
+        const affixes = instanceAffixLabels(this.labyrinthLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
+        lines.push({
+          text: `✦ Labyrinth-Fund: ${loot?.name ?? this.labyrinthLoot}${suffix}`,
+          size: 14,
+          color: '#ffd98a'
+        });
+      }
+      // Phase 157 — gerolltes Boss-Endgame-Loot sichtbar machen (Basis + Affixe).
+      if (this.bossLoot) {
+        const loot = resolveInstanceItem(this.bossLoot);
+        const affixes = instanceAffixLabels(this.bossLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
+        lines.push({
+          text: `★ Boss-Beute: ${loot?.name ?? this.bossLoot}${suffix}`,
+          size: 14,
+          color: '#ffcf6b'
+        });
+      }
     }
     if (pactMessage) {
       lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
@@ -1134,8 +1189,16 @@ export class BattleScene extends Phaser.Scene {
   private applyBattleResult(status: string): void {
     const view = renderView(this.state);
     const before = this.save;
+    // Phase 155 — auf Labyrinth-Etagen deterministisch (Kampf-Seed + Tiefe) eine
+    // gerollte Ausruestungs-Instanz droppen; der Reward-Fluss bankt sie ins Inventar.
+    const depth = status === 'won' ? labyrinthEncounterDepth(this.encounterId) : null;
+    this.labyrinthLoot = depth !== null ? rollLabyrinthFloorLoot(this.state.seed, depth) : null;
+    // Phase 157 — Boss-Sieg rollt (deterministisch, gegatet) kern-lastiges Endgame-Loot.
+    this.bossLoot = status === 'won' ? rollBossLoot(view, this.state.seed) : null;
     const after = applyBattleResultToSave(before, view, {
-      encounterId: status === 'won' ? this.encounterId : null
+      encounterId: status === 'won' ? this.encounterId : null,
+      labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined,
+      bossLoot: status === 'won' ? { seed: this.state.seed } : undefined
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;

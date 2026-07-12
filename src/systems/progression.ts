@@ -32,6 +32,7 @@ import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import { officerPerksForResidents } from './residents';
+import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
 import { buildSkillFusionView, canFuseSkill, fuseSkill, getSkillFusionRecipe, type SkillFusionView } from './skillFusion';
 import {
   addPartialStats,
@@ -88,6 +89,10 @@ export interface ProgressionState {
   // den Einzelkampf hinaus (Schwaechen/Telegraph im Codex) und liefert die
   // Grundlage fuers Kampf-Bootstrapping (Phase 123).
   readonly analyzedEnemyIds: readonly string[];
+  // Phase 148 — Boss-Echos: Quell-Ids (`sourceId`) der Bosse, die per Verschlingen
+  // bereits geerntet wurden. „Besiegt, aber nicht verschlungen" = defeated-Zaehler > 0
+  // UND nicht in dieser Menge → Grundlage für die Labyrinth-Echo-Auswahl.
+  readonly devouredSourceIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -109,6 +114,7 @@ export interface CreateProgressionStateOptions {
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
   readonly analyzedEnemyIds?: readonly string[];
+  readonly devouredSourceIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -206,7 +212,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
     factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
-    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? [])
+    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? []),
+    devouredSourceIds: uniqueStrings(options.devouredSourceIds ?? [])
   };
 }
 
@@ -938,7 +945,10 @@ function awakenedPerksForMember(
 // die Auto-Battle-Harness (ohne Ausruestung) unberuehrt bleibt.
 export function equipmentPerksForMember(member: PartyMemberState): readonly TalentPerk[] {
   return (Object.values(member.equipment) as readonly (string | undefined)[]).flatMap((itemId) => {
-    const item = itemId ? itemById.get(itemId) : undefined;
+    // Phase 151 — kodierte Loot-Instanzen liefern Basis- + Affix-Perks (synthetisiert).
+    const item = itemId
+      ? (isEquipmentInstanceId(itemId) ? resolveInstanceItem(itemId) : itemById.get(itemId))
+      : undefined;
     return item?.perks ?? [];
   });
 }

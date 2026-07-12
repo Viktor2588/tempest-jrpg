@@ -97,5 +97,78 @@ export const CRAFTING_RECIPES = [
     ],
     requiresFlag: 'research.spirit-infusion.unlocked',
     repeatable: false
+  },
+  // — Phase 152: Rezepte fuer das neue Sturmgeist-Set (wiederholbar) und zwei
+  //   legendaer-einzigartige Stuecke (einmalig). Gated ueber craft.smithing.unlocked. —
+  {
+    id: 'forge-galewind-edge',
+    name: 'Sturmwind-Schneide treiben',
+    description: 'Magisteel mit Windgeist-Mana zu einer leichten, schnellen Klinge treiben.',
+    outputItemId: 'galewind-edge',
+    outputQuantity: 1,
+    goldCost: 240,
+    inputs: [
+      { itemId: 'magisteel', quantity: 1 },
+      { itemId: 'mana-drop', quantity: 2 }
+    ],
+    requiresFlag: 'craft.smithing.unlocked',
+    repeatable: true
+  },
+  {
+    id: 'forge-stormweave-garb',
+    name: 'Sturmgewebe-Robe weben',
+    description: 'Verdichtete Windgeist-Fäden zu einer schützenden, leichten Robe weben.',
+    outputItemId: 'stormweave-garb',
+    outputQuantity: 1,
+    goldCost: 220,
+    inputs: [
+      { itemId: 'magic-ore', quantity: 2 },
+      { itemId: 'mana-drop', quantity: 2 }
+    ],
+    requiresFlag: 'craft.smithing.unlocked',
+    repeatable: true
+  },
+  {
+    id: 'forge-zephyr-band',
+    name: 'Zephyr-Reif fassen',
+    description: 'Einen Windgeist-Reif fassen, der Schritt und Geist zugleich trägt.',
+    outputItemId: 'zephyr-band',
+    outputQuantity: 1,
+    goldCost: 220,
+    inputs: [
+      { itemId: 'magisteel', quantity: 1 },
+      { itemId: 'mana-drop', quantity: 1 }
+    ],
+    requiresFlag: 'craft.smithing.unlocked',
+    repeatable: true
+  },
+  {
+    id: 'forge-stormfang-blade',
+    name: 'Sturmzahn-Klinge schmieden',
+    description: 'Eine räuberische Klinge schmieden, die dem Träger Raubtier-Instinkt verleiht.',
+    outputItemId: 'stormfang-blade',
+    outputQuantity: 1,
+    goldCost: 400,
+    inputs: [
+      { itemId: 'magisteel', quantity: 2 },
+      { itemId: 'orc-tusk', quantity: 2 },
+      { itemId: 'mana-drop', quantity: 2 }
+    ],
+    requiresFlag: 'craft.smithing.unlocked',
+    repeatable: false
+  },
+  {
+    id: 'forge-veldora-scale-ward',
+    name: 'Sturmschuppen-Ward fassen',
+    description: 'Einen Splitter Sturm-Magicule in einen Talisman fassen, der die Lebenskraft härtet.',
+    outputItemId: 'veldora-scale-ward',
+    outputQuantity: 1,
+    goldCost: 380,
+    inputs: [
+      { itemId: 'magisteel', quantity: 3 },
+      { itemId: 'mana-drop', quantity: 2 }
+    ],
+    requiresFlag: 'craft.smithing.unlocked',
+    repeatable: false
   }
 ] as const satisfies readonly CraftingRecipe[];

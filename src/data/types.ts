@@ -46,7 +46,14 @@ export type StatusEffectId =
   | 'charm' // Chance, gebannt auszusetzen
   | 'weaken'; // Angriff und Magie gesenkt
 
-export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
+// Phase 150 — vierter Slot 'core' (Magicule-Kern): an die Magicule-/Seelen-Oekonomie
+// gebundene Kerne mit massvollen Boni; generisch über EQUIPMENT_SLOTS verdrahtet.
+export type EquipmentSlot = 'weapon' | 'armor' | 'accessory' | 'core';
+
+// Phase 149 — Raritaet/Tier-Fundament (D3-artig): gewoehnlich < selten < episch <
+// legendaer < legendaer-set. `legendaer` = einzigartig mit genau EINEM Signatur-Perk;
+// `legendaer-set` gehoert zu einem `EQUIPMENT_SETS`-Set (speist die Tier-Boni).
+export type ItemRarity = 'gewoehnlich' | 'selten' | 'episch' | 'legendaer' | 'legendaer-set';
 
 export interface StatBlock {
   readonly maxHp: number;
@@ -98,7 +105,7 @@ export interface SkillDefinition {
   readonly chargesField?: boolean;
 }
 
-export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';
+export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'core' | 'key';
 
 export interface ItemEffect {
   // Phase 129 — 'cure-status': entfernt negative/Hart-CC-Status vom Ziel (Gegenmittel
@@ -118,6 +125,9 @@ export interface ItemDefinition {
   readonly startingQuantity?: number;
   readonly equipmentSlot?: EquipmentSlot;
   readonly equipmentSetId?: string;
+  // Phase 149 — Raritaet der Ausruestung (fehlt → gewoehnlich). Steuert Menue-Farbe
+  // und die kuratierten Loot-Budgets (Stat-Multiplikator/Enchant-Cap) in systems/itemRarity.
+  readonly rarity?: ItemRarity;
   readonly enchantment?: {
     readonly maxLevel: number;
     readonly goldCostPerLevel: number;

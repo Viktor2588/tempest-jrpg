@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createLabyrinthRun, collectLabyrinthReward } from '../src/systems/labyrinth';
+import {
+  createLabyrinthRun,
+  collectLabyrinthReward,
+  createScaledLabyrinthFloorUnits,
+  labyrinthEncounterDepth,
+  labyrinthFloorLevelLead
+} from '../src/systems/labyrinth';
 import { getItemCount } from '../src/systems/inventory';
 import { makeRng } from '../src/systems/rng';
 import {
@@ -70,5 +76,43 @@ describe('Ramiris-Labyrinth (Phase 99)', () => {
     const restarted = chooseDialogOption(state, 'ramiris-labyrinth', 'start', 'start-run');
     expect(restarted.ok, restarted.message).toBe(true);
     expect(visibleLabyrinthTriggers(restarted.state.world)).toEqual(['labyrinth-floor-1']);
+  });
+});
+
+describe('Labyrinth party-relative Skalierung (Phase 147)', () => {
+  it('ordnet die Encounter-Ids den Etagentiefen zu', () => {
+    expect(labyrinthEncounterDepth('labyrinth-floor-1')).toBe(1);
+    expect(labyrinthEncounterDepth('labyrinth-floor-2')).toBe(2);
+    expect(labyrinthEncounterDepth('labyrinth-floor-3')).toBe(3);
+    expect(labyrinthEncounterDepth('forest-slime-encounter')).toBeNull();
+    expect(labyrinthEncounterDepth(null)).toBeNull();
+    expect(labyrinthEncounterDepth(undefined)).toBeNull();
+  });
+
+  it('gibt tieferen Etagen einen kleinen Level-Vorsprung (Floor 1 < 2 < 3)', () => {
+    expect(labyrinthFloorLevelLead(1)).toBe(0);
+    expect(labyrinthFloorLevelLead(2)).toBe(1);
+    expect(labyrinthFloorLevelLead(3)).toBe(2);
+  });
+
+  it('skaliert Gegner party-relativ und deterministisch mit Tiefen-Lead', () => {
+    // spore-moth Basislevel 2 → bei Partylevel 10 skaliert die Etage nach oben.
+    const floor1 = createScaledLabyrinthFloorUnits(['spore-moth'], 10, 1);
+    const floor3 = createScaledLabyrinthFloorUnits(['spore-moth'], 10, 3);
+    expect(floor1).toHaveLength(1);
+    expect(floor3).toHaveLength(1);
+    // Tiefen-Lead: gleiche Art, tiefere Etage → höheres effektives Level.
+    expect(floor3[0]!.level).toBeGreaterThan(floor1[0]!.level);
+    // Party-relativ: höheres Partylevel → höheres Gegner-Level.
+    const lowParty = createScaledLabyrinthFloorUnits(['spore-moth'], 6, 1);
+    expect(floor1[0]!.level).toBeGreaterThan(lowParty[0]!.level);
+    // Determinismus: identische Eingaben → identisches Ergebnis.
+    expect(createScaledLabyrinthFloorUnits(['spore-moth'], 10, 3)).toEqual(floor3);
+  });
+
+  it('geht per effectiveEnemyLevel nie unter das Basislevel der Art', () => {
+    // orc-general Basislevel 10; Partylevel 1 → bleibt auf Basis (kein Absinken).
+    const units = createScaledLabyrinthFloorUnits(['orc-general'], 1, 1);
+    expect(units[0]!.level).toBeGreaterThanOrEqual(10);
   });
 });

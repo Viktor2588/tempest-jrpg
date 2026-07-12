@@ -53,7 +53,8 @@ export function createPartyMember(
     equipment: {
       weapon: definition.startingEquipment.weapon ?? null,
       armor: definition.startingEquipment.armor ?? null,
-      accessory: definition.startingEquipment.accessory ?? null
+      accessory: definition.startingEquipment.accessory ?? null,
+      core: definition.startingEquipment.core ?? null
     }
   };
 }

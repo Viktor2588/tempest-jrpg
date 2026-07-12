@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { SKILL_TIER_META, skillTierBadge } from '../data';
+import { rarityColor, rarityLabel, rarityOf } from '../systems/itemRarity';
+import { instanceAffixLabels } from '../systems/lootAffix';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
@@ -9,6 +11,7 @@ import {
   buildMenuView,
   EQUIPMENT_SLOTS,
   equipItem,
+  equipmentStatDelta,
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
@@ -43,7 +46,8 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
+import { buildForgeView, craftRecipe, reforgeCost, reforgeEquipment, salvageEquipment, salvageYieldLabel, type CraftContext } from '../systems/crafting';
+import { getItemCount } from '../systems/inventory';
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
@@ -102,6 +106,8 @@ export class MenuScene extends Phaser.Scene {
   private selectedTalentNodeId: string | null = null;
   // Phase 91 — Schmiede-Ansicht innerhalb des Ausrüstungs-Tabs (nur am Schmied).
   private showForge = false;
+  // Phase 159/160 — Loot-Werkbank (Zerlegen/Umschmieden) als Unteransicht der Schmiede.
+  private forgeBench = false;
   private specTreePanY = 0;
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
@@ -463,6 +469,8 @@ export class MenuScene extends Phaser.Scene {
     filteredInventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
       const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
+      // Phase 156 — Raritaets-Farbe am Item-Namen (nur ueber „gewoehnlich" faerben).
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : undefined;
       this.button(300, y, 260, label, () => {
         if (!entry.usable) {
           this.message = 'Dieses Item ist hier nicht nutzbar.';
@@ -471,13 +479,21 @@ export class MenuScene extends Phaser.Scene {
         }
         const result = useItem(this.state, entry.item.id, characterId);
         this.applyResult(result);
-      }, entry.usable ? 0x1f3a2f : 0x242b38);
+      }, entry.usable ? 0x1f3a2f : 0x242b38, undefined, false, nameColor);
       this.layer.add(this.add.text(576, y - 10, entry.item.description, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#9fb2cc',
         wordWrap: { width: 310 }
       }));
+      // Phase 156 — gerollte Affixe als raritaets-gefaerbte Detailzeile aufschluesseln.
+      if (entry.affixLabels.length > 0) {
+        this.layer.add(this.add.text(576, y + 12, `✦ ${entry.affixLabels.join(' · ')}`, {
+          fontFamily: 'sans-serif',
+          fontSize: '11px',
+          color: rarityColor(entry.rarity)
+        }));
+      }
     });
     this.drawListPager(invCol, inv);
   }
@@ -502,7 +518,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     if (this.showForge) {
-      this.drawForge();
+      this.drawForge(view);
       return;
     }
 
@@ -513,14 +529,27 @@ export class MenuScene extends Phaser.Scene {
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
       // Basis 150 → 204: das erste Panel (Höhe 92, zentriert) ragte sonst mit
       // Oberkante 104 in Haupt-Tab-Reihe (bis 116) und Titel (124).
-      const y = 204 + index * 100;
-      this.panel(300, y, 290, 92);
+      // Phase 150 — vier Slots (inkl. Kern) in die Spalte packen: engere Abstände,
+      // etwas flachere Panels, damit alle vier zwischen Tab-Reihe und Set-Zeile passen.
+      const y = 190 + index * 84;
+      this.panel(300, y, 290, 76);
       this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
       this.layer.add(this.add.text(318, y - 20, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
-        fontFamily: 'sans-serif', fontSize: '13px', color: '#e9eef7'
+        // Phase 149 — Raritaet farbig: der Item-Name trägt seine Raritaets-Farbe.
+        fontFamily: 'sans-serif', fontSize: '13px', color: item ? rarityColor(rarityOf(item)) : '#e9eef7'
       }));
+      if (item && rarityOf(item) !== 'gewoehnlich') {
+        // Phase 156 — bei einer gerollten Instanz die Affixe neben dem Raritaets-Label zeigen.
+        const affixes = item ? instanceAffixLabels(item.id) : [];
+        const rarityText = affixes.length > 0
+          ? `${rarityLabel(rarityOf(item))} · ${affixes.join(' · ')}`
+          : rarityLabel(rarityOf(item));
+        this.layer.add(this.add.text(318, y - 4, rarityText, {
+          fontFamily: 'sans-serif', fontSize: '9px', color: rarityColor(rarityOf(item))
+        }));
+      }
       if (item) {
         // Aktionen in einer Zeile unten im Panel — überlappen den Item-Namen nicht mehr.
         this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
@@ -553,7 +582,7 @@ export class MenuScene extends Phaser.Scene {
     const sets = getActiveEquipmentSetTiers(summary.member);
     this.layer.add(this.add.text(
       300,
-      484,
+      508,
       sets.map(({ set, pieces }) => `${set.name}: ${pieces}/${set.itemIds.length} Teile`).join(' · ')
         || 'Kein Ausrüstungsset aktiv.',
       {
@@ -572,8 +601,17 @@ export class MenuScene extends Phaser.Scene {
     const equippable = view.inventory.filter((entry) => entry.equipSlot);
     const usable = this.menuListPage(equippable.length, usableCol);
     equippable.slice(usable.start, usable.start + usable.visible).forEach((entry, index) => {
-      this.button(usableCol.left, usableCol.top + index * usableCol.rowHeight, 260, `${entry.item.name} ×${entry.quantity}`, () => {
+      const rowY = usableCol.top + index * usableCol.rowHeight;
+      this.button(usableCol.left, rowY, 260, `${entry.item.name} ×${entry.quantity}`, () => {
         this.applyResult(equipItem(this.state, characterId, entry.item.id));
+      });
+      // Phase 158 — Stat-Delta gegen das aktuell getragene Teil (▲ grün / ▼ rot).
+      const deltas = equipmentStatDelta(summary.member, entry.item.id).slice(0, 4);
+      deltas.forEach((d, di) => {
+        const up = d.delta > 0;
+        this.layer.add(this.add.text(usableCol.left + 2 + di * 62, rowY + 15, `${STAT_ABBR[d.stat]}${up ? '▲' : '▼'}${Math.abs(d.delta)}`, {
+          fontFamily: 'sans-serif', fontSize: '10px', color: up ? '#8dffc2' : '#ff8f9f'
+        }));
       });
     });
     this.drawListPager(usableCol, usable);
@@ -596,7 +634,19 @@ export class MenuScene extends Phaser.Scene {
     };
   }
 
-  private drawForge(): void {
+  private drawForge(view: MenuView): void {
+    // Phase 159/160 — Umschalter zwischen Rezepten und der Loot-Werkbank (Zerlegen/Umschmieden).
+    this.button(620, 124, 150, this.forgeBench ? '◂ Rezepte' : 'Werkbank ▸', () => {
+      this.forgeBench = !this.forgeBench;
+      this.message = this.forgeBench
+        ? 'Werkbank: Beute zerlegen oder umschmieden.'
+        : 'Die Esse glüht — wähle ein Rezept.';
+      this.refresh();
+    }, this.forgeBench ? 0x3a2743 : 0x1f3a2f);
+    if (this.forgeBench) {
+      this.drawWorkbench(view);
+      return;
+    }
     this.sectionTitle('Schmiede');
     const recipes = buildForgeView(this.forgeContext());
     if (recipes.length === 0) {
@@ -632,6 +682,58 @@ export class MenuScene extends Phaser.Scene {
         this.refresh();
       }, row.craftable ? 0x2f6f55 : 0x242b38);
     });
+  }
+
+  // Phase 159/160 — Loot-Werkbank: getragene/gehortete Beute zerlegen (→ Material) oder
+  // umschmieden (Affixe neu rollen). Nur Ausruestung aus dem Inventar (getragene Teile
+  // liegen nicht im Inventar → automatisch geschuetzt).
+  private drawWorkbench(view: MenuView): void {
+    this.sectionTitle('Loot-Werkbank · Beute zerlegen oder umschmieden');
+    const gear = view.inventory.filter((entry) => entry.equipSlot);
+    if (gear.length === 0) {
+      this.layer.add(this.add.text(300, 190, 'Keine ausrüstbare Beute im Inventar.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      return;
+    }
+    const col = MENU_LIST_COLUMNS.inventoryItems;
+    const page = this.menuListPage(gear.length, col);
+    gear.slice(page.start, page.start + page.visible).forEach((entry, index) => {
+      const y = col.top + index * col.rowHeight;
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : '#e9eef7';
+      this.layer.add(this.add.text(300, y - 12, `${entry.item.name} ×${entry.quantity}`, {
+        fontFamily: 'sans-serif', fontSize: '13px', color: nameColor
+      }));
+      this.layer.add(this.add.text(300, y + 6, `Zerlegen → ${salvageYieldLabel(entry.item.id)}`, {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
+      }));
+      this.button(600, y, 128, 'Zerlegen', () => {
+        const result = salvageEquipment(this.forgeContext(), entry.item.id);
+        this.message = result.message;
+        if (result.ok) {
+          this.state = { ...this.state, inventory: result.inventory };
+          this.persist();
+        }
+        this.refresh();
+      }, 0x5a3a2f);
+      // Phase 160 — Umschmieden: nur echte Loot-Instanzen tragen neu-rollbare Affixe.
+      const cost = reforgeCost(entry.item.id);
+      if (cost) {
+        const affordable = getItemCount(this.state.inventory, cost.materialId) >= cost.materialQty
+          && this.state.gold >= cost.gold;
+        this.button(738, y, 150, `Umschmieden · ${cost.gold}G`, () => {
+          const seed = (Date.now() & 0x7fffffff) || 1;
+          const result = reforgeEquipment(this.forgeContext(), seed, entry.item.id);
+          this.message = result.message;
+          if (result.ok) {
+            this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+            this.persist();
+          }
+          this.refresh();
+        }, affordable ? 0x2f4a6f : 0x242b38);
+      }
+    });
+    this.drawListPager(col, page);
   }
 
   private drawStatus(view: MenuView, characterId: string): void {
@@ -1804,7 +1906,8 @@ export class MenuScene extends Phaser.Scene {
     callback: () => void,
     color = 0x1b2940,
     tooltip?: string,
-    focused = false
+    focused = false,
+    textColor?: string
   ): void {
     const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
@@ -1812,7 +1915,8 @@ export class MenuScene extends Phaser.Scene {
       idleAlpha: 0.96,
       fontSize: '13px',
       textOffsetX: 10,
-      focused
+      focused,
+      textColor
     });
     this.layer.add(btn);
 
@@ -1860,8 +1964,15 @@ export class MenuScene extends Phaser.Scene {
 function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'weapon') return 'Waffe';
   if (slot === 'armor') return 'Rüstung';
+  if (slot === 'core') return 'Kern';
   return 'Accessoire';
 }
+
+// Phase 158 — kompakte Stat-Kuerzel fuer die Ausruestungs-Delta-Anzeige.
+const STAT_ABBR: Readonly<Record<string, string>> = {
+  maxHp: 'LP', maxMp: 'MP', attack: 'Ang', defense: 'Ver',
+  magic: 'Mag', spirit: 'Gei', agility: 'Beh'
+};
 
 function travelStatusColor(status: RangaTravelStatus): number {
   if (status === 'available') return 0x1f3a2f;

@@ -529,23 +529,36 @@ ist die Art weg — obwohl `defeatedEnemyCountsByEnemyId` (besiegt) und `devoure
 gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfolge:
 147 ist Fundament (Skalierung), 148 baut darauf; 146 ist unabhaengig.
 
-- [ ] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt).
-  Der Labyrinth-Encounter-Aufbau nutzt `createScaledEnemyBattleUnits(pool, partyLevel, kind)`
-  statt roher Basis-Level → jeder Lauf matcht das AKTUELLE Party-Level (nie unter Basis via
-  `effectiveEnemyLevel`). Optional-klein: Floor-Tiefe gibt einen kleinen Level-Lead
-  (Floor 1<2<3), damit tiefer = haerter. Party-Level headless aus der aktiven Gruppe;
-  XP-Falloff greift automatisch → Overgrind bringt nichts. Akzeptanz: deterministische
-  Skalierung headless (`test/labyrinth`), typecheck ✓, Unit-Tests ✓, build ✓. Labyrinth ist
-  off-route → Balance-Korridor unberuehrt.
+- [x] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt)
+  (abgeschlossen, direkt auf main). Umgesetzt: `systems/labyrinth.ts` traegt jetzt
+  `createScaledLabyrinthFloorUnits(enemyIds, partyLevel, depth)` — anders als reguläre
+  Trigger-Encounter (gedeckelt auf Basis + 6) verfolgt das Labyrinth das VOLLE Party-Level
+  plus einen Tiefen-Lead (`labyrinthFloorLevelLead`: Floor 1<2<3, +0/+1/+2), nie unter Basis
+  (`labyrinthFloorEnemyLevel` mit `Math.max(base, …)`), damit ein Lauf auch nach vielen
+  Leveln fordernd bleibt. Der XP-Falloff (`experienceFalloffMultiplier`) greift weiter →
+  Overgrind bringt nichts. `BattleScene.buildEncounterEnemies` erkennt die drei
+  Labyrinth-Etagen per `labyrinthEncounterDepth('labyrinth-floor-1..3')` und nutzt den
+  neuen Pfad; alle uebrigen Encounter behalten die reguläre Skalierung (Phase 67). Akzeptanz
+  erfuellt: Encounter→Tiefe-Mapping, Tiefen-Lead, party-relative + deterministische
+  Skalierung mit Basis-Floor headless (`test/labyrinth.test.ts`, +4 Tests), typecheck ✓,
+  699 Unit-Tests ✓, build ✓. Labyrinth ist off-route → Balance-Korridor unberuehrt (Harness
+  reicht keine Labyrinth-Encounter durch).
 
-- [ ] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen.
-  Ramiris' Labyrinth beschwoert auf einem Floor ein SKALIERTES Echo eines Bosses, den der
-  Spieler BESIEGT, aber NICHT verschlungen hat (Menge = `defeatedEnemyCountsByEnemyId` minus
-  `devouredSourceIds`, nur `devourable`-Bosse). Skalierung via Phase 147 → auf Party-Level,
-  damit erneut fair verschlingbar (Break → +0.45 Devour-Chance). Gibt die verpasste
-  Devour-Belohnung (Skill/Magicules/Resident) ein zweites Mal — kanonisch (Ramiris beschwoert
-  Echos/Geister). Kein neues Venue, kein neues System. Akzeptanz: Echo-Auswahl + skalierter
-  Kampf + Devour-Pfad headless, typecheck ✓, Unit-Tests ✓, build ✓, off-route → Korridor unberuehrt.
+- [x] Phase 148 — Boss-Echos: skalierte Revanche im Labyrinth zum Verschlingen
+  (abgeschlossen, direkt auf main). Umgesetzt: neues persistiertes Feld
+  `progression.devouredSourceIds` (Save-Migration via `readStringArray`, alte Stände leer),
+  am Kampfende im Sieg als Union von `battle.devouredSourceIds` gebucht (`battleResult`).
+  `systems/labyrinth.ts` wählt daraus deterministisch ein Echo: `eligibleBossEchoIds`/
+  `selectLabyrinthBossEcho` liefern verschlingbare Bosse mit `defeatedEnemyCountsByEnemyId>0`,
+  die NICHT in `devouredSourceIds` stehen (wertvollstes zuerst — höchstes Basislevel).
+  `createLabyrinthBossEchoUnit` baut das Echo party-relativ skaliert (Phase 147) und
+  verschlingbar (trägt `boss`/`devourable`/`devourSkillId` → Break gibt erneut +Devour-Chance,
+  Sieg bucht es in `devouredSourceIds` → verschwindet). `BattleScene` hängt auf der tiefsten
+  Etage (`labyrinth-floor-3`) das Echo an die Gegner an — NUR wenn eins existiert, sonst
+  unverändert; keine neue Map, kein neues Venue. Akzeptanz erfuellt: Echo-Auswahl (Ein-/
+  Ausschluss, Determinismus), skalierte verschlingbare Einheit, Persistenz-Roundtrip/Migration
+  headless (`test/labyrinthEcho.test.ts`, 4 Tests), typecheck ✓, 715 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (Labyrinth off-route → Korridor unberührt).
 
 ## Elfte Welle: Ausruestungs-Overhaul, Loot & Content-Aufwertung (Nutzer 2026-07-11)
 
@@ -562,50 +575,277 @@ neuen leeren Karten. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen
 System; canon-first). Reihenfolge = Abhaengigkeit: 149 Fundament; 150/151 bauen
 darauf; 152–154 sind Content auf dem neuen System.
 
-- [ ] Phase 149 — Raritaet/Tier-Fundament (legendaer-einzigartig vs. legendaer-Set).
-  Neues Feld `rarity` auf `ItemDefinition` (gewoehnlich|selten|episch|legendaer|
-  legendaer-set). Raritaet skaliert `statBonus`/Enchant-Cap; `legendaer` = einzigartig
-  mit genau einem Signatur-`perk` (D3-Legendary), `legendaer-set` speist die bestehenden
-  `EQUIPMENT_SETS`-Tier-Boni. Bestehende 14 Teile retrofitten; Menue/Tooltip zeigt
-  Raritaet farbig. Reines Fundament (keine neuen Items). Akzeptanz: Raritaet-Daten +
-  Stat-/Perk-Auswertung + Menue-Farbe headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 149 — Raritaet/Tier-Fundament (legendaer-einzigartig vs. legendaer-Set)
+  (abgeschlossen, direkt auf main). Umgesetzt: neuer Typ `ItemRarity`
+  (gewoehnlich|selten|episch|legendaer|legendaer-set) + optionales Feld `rarity` auf
+  `ItemDefinition`; reine Regeln/Metadaten in `systems/itemRarity.ts` (Farbe/Label fürs
+  Menue, `rarityStatMultiplier`/`rarityEnchantCap` als vorwärtsgerichtete Loot-Budgets für
+  151/152, `isLegendaryUnique`, `legendaryHasSignaturePerk`). Die 14 bestehenden
+  Ausruestungsteile sind retrofittet (Klassifizierung, KEINE Stat-Änderung → Balance
+  unberührt): Starter-Set `gewoehnlich`, Kijin-/Dwargon-Set `legendaer-set` (speist die
+  `EQUIPMENT_SETS`-Tier-Boni), ork-cleaver `selten`, famine-charm/ember-signet/
+  spirit-core-ward `episch`, ward-talisman `legendaer` (genau ein Signatur-Perk). Das
+  Ausruestungs-Menue färbt den Item-Namen nach Raritaet und zeigt das Raritaets-Label.
+  Akzeptanz erfuellt: Leiter/Farben/Budgets, Default-Fallback, Signatur-Perk-Regel für ALLE
+  Items, Set-Zuordnung headless (`test/itemRarity.test.ts`, 7 Tests), typecheck ✓,
+  706 Unit-Tests ✓, build ✓. Reines Fundament (keine neuen Items, keine Stat-Skalierung
+  bestehender Teile) → Balance-Korridor unberührt.
 
-- [ ] Phase 150 — Kern-Slot (Magicule-Kern).
-  Vierter Slot `'core'` (EquipmentSlot erweitern; Party-`equipment`, `startingEquipment`,
-  Save-Migration, Menue). Kern-Items an die Magicule-/Seelen-Oekonomie gebunden (Element-/
-  Skill-Bonus, ggf. Magicule-Kosten zum Einsetzen). Kleine Start-Auswahl an Kernen.
-  Balance-safe: Boni massvoll, Traeger nicht auf Harness-Knoten. Akzeptanz: Slot-Wiring
-  + Save-Roundtrip + Kern-Boni headless, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 150 — Kern-Slot (Magicule-Kern) (abgeschlossen, direkt auf main). Umgesetzt:
+  vierter Slot `'core'` (`EquipmentSlot` + `ItemCategory` erweitert, `EQUIPMENT_SLOTS`),
+  generisch über die bestehende Slot-Iteration verdrahtet (Stat-Bonus, Perks, Ausrüsten/
+  Ablegen, Set-Erkennung laufen unverändert über alle Slots). `createPartyMember` und die
+  Save-Normalisierung (`save.ts`) tragen `core` (Altstände ohne Feld → `null`, keine
+  Bruchgefahr). Das Ausruestungs-Menue zeigt vier Slots (engere Panel-Abstände 190/+84,
+  Höhe 76, Set-Zeile auf y=508) mit Slot-Label „Kern". Drei neue Kern-Items
+  (`lesser-magicule-core` selten, `ember-magicule-core` episch, `soul-forged-core` legendär
+  mit Signatur-Perk `status-resist`) mit massvollen Boni, thematisch an die Magicule-/
+  Seelen-Oekonomie gebunden, im „Tempest-Vorrat" (gated hinter `story.council.ready`)
+  kaufbar. Akzeptanz erfuellt: Slot-Wiring + Kern-Bonus + legendärer Perk + Kern-Daten +
+  Save-Roundtrip/Migration headless (`test/coreSlot.test.ts`, 5 Tests), typecheck ✓,
+  711 Unit-Tests ✓, build ✓, **Balance-Harness gruen** (Sim nutzt keine Ausruestung →
+  Korridore unverändert).
 
-- [ ] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (Labyrinth).
-  Statt freier Zufalls-Rolls hat JEDE Raritaet einen festen, kuratierten Affix-Pool
-  (Affixe = wiederverwendete `TalentPerk`/`statBonus`-Bausteine, endlicher Katalog).
-  Ein Labyrinth-Drop waehlt daraus DETERMINISTISCH aus dem Run-Seed die zur Raritaet
-  passende Zahl Affixe (z.B. selten 1, episch 2, legendaer 2 + Signatur-Perk). Eine
-  leichte NICHT-stapelbare Ausruestungs-Instanz speichert nur Basis-Item-Id + gewaehlte
-  Affix-Ids — KEIN freies Stat-Rollen, daher kleiner, kuratierter Umbau statt offenem
-  Roll-System. Inventar/Menue/Ausruesten kommen mit diesen Instanzen klar. Verzahnt mit
-  Wave-10-Skalierung 147/148; off-route → Korridor unberuehrt. Akzeptanz: Affix-Pools +
-  deterministische Auswahl + Instanz-Ausruesten headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 151 — Loot mit FESTEN Affix-Pools pro Raritaet (abgeschlossen, direkt auf main).
+  Umgesetzt: kuratiertes, deterministisches Affix-System (`systems/lootAffix.ts`) statt freier
+  Zufalls-Rolls — endlicher Affix-Katalog (`statBonus`-/`TalentPerk`-Bausteine), je Raritaet
+  ein FESTER Pool + feste Anzahl (gewoehnlich 0, selten 1, episch 2, legendaer 2 inkl.
+  Perk-Pool). `rollEquipmentInstance(seed, baseId)` waehlt daraus DETERMINISTISCH und
+  wiederholungsfrei. Eine leichte, NICHT-stapelbare Ausruestungs-Instanz speichert nur
+  Basis-Item-Id + Affix-Ids, als String-Id kodiert (`loot|<baseId>|<affixe>`) → lebt OHNE
+  Save-Migration in `equipment[slot]`/Inventar (save filtert Ids nicht). `resolveInstanceDefinition`
+  synthetisiert Basis+Affix-`statBonus`/-Perks (Instanzen ohne Set-Bonus/Verzauberung). Ein
+  zentraler Resolver in `menu.ts` (Inventar/Ausruesten/Anzeige) + `progression.ts`
+  (`equipmentPerksForMember`) macht Instanzen ausruestbar — fuer bestehende Ids identisch zum
+  Direktzugriff (rein additiv). `rollLabyrinthLootItemId(seed, table)` liefert den
+  deterministischen Labyrinth-Drop aus dem Run-Seed. Instanz-Ausruesten laeuft end-to-end
+  headless (equipItem → Boni + Perks). Balance-sicher: die Auto-Battle-Harness nutzt keine
+  Ausruestung → Korridore unveraendert. OFFEN/FOLGE: die tatsaechliche Vergabe im Kampf-/
+  Etagen-Reward-Fluss (Phaser `BattleScene`) ist noch anzubinden (nicht headless verifizierbar).
+  Akzeptanz erfuellt: Affix-Pools + deterministische Auswahl + Instanz-Ausruesten headless
+  (`test/lootAffix.test.ts`, 6 Tests), typecheck ✓, 737 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen**.
 
-- [ ] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System).
-  ~15–20 neue Ausruestungsteile ueber die Raritaeten (inkl. ein paar legendaer-einzigartig
-  + ein/zwei neue `legendaer-set`-Sets), plus Crafting-Rezepte (Schmiede) und Kern-Items.
-  Verteilt auf Regionen/Labyrinth/Crafting. Repo-eigene generierte Icons nach Asset-
-  Prioritaet. Balance-safe (off-route / im Regions-Korridor). Akzeptanz: Item-/Set-/
-  Rezept-Daten, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 152 — Mehr Gear & Sets (Content auf dem neuen System) (abgeschlossen, direkt
+  auf main). Umgesetzt: neun neue Ausruestungsteile auf dem Raritaetssystem (149/150), rein
+  additiv (keine Stat-Aenderung bestehender Teile): ein neues Legendaer-Set „Sturmgeist-Ornat"
+  (`galewind-edge`/`stormweave-garb`/`zephyr-band` mit 2/3-Tier-Boni, in der Schmiede
+  wiederholbar gefertigt), zwei legendaer-einzigartige Stuecke mit genau EINEM Signatur-Perk
+  (`stormfang-blade` → devour-chance +15, `veldora-scale-ward` → max-hp +10 %, einmalige
+  Rezepte) und vier mittlere Raritaeten (`spirit-oak-staff`/selten, `warded-brigandine`/episch,
+  `swiftwind-boots`/selten, `resonant-core`/episch Kern) im „Tempest-Vorrat" kaufbar (gated
+  `story.council.ready`). Items rendern als Text (kein Icon-System) → **keine neuen Assets
+  noetig**. Balance-safe: die Auto-Battle-Harness nutzt keine Ausruestung → Korridore
+  unveraendert. Akzeptanz erfuellt: Gear-/Raritaet-/Signatur-Perk-/Set-/Erspielbarkeits-Test
+  headless (`test/gearContent152.test.ts`, 5 Tests), Datenintegritaet + Crafting + itemRarity
+  gruen, typecheck ✓, 731 Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
-- [ ] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten).
-  Regionen mit duennem Encounter-/Event-Bestand (`PROGRESSION_REGIONS`) bekommen
-  Fundstellen (`mapDiscovery`), kleine Weltfolgen/NPC-Beats und Encounter-Vielfalt
-  (Phase-146-Archetypen) — KEINE neuen leeren Maps. Belohnungen koppeln ans neue Gear/
-  Loot. Akzeptanz: Fundstellen-/Encounter-Einbau headless, typecheck ✓, Unit-Tests ✓,
-  build ✓, **Balance-Harness gruen**.
+- [x] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten)
+  (abgeschlossen, direkt auf main — Encounter-Vielfalt via Phase 146 nachgezogen).
+  Teil-Umsetzung (direkt auf main): fuenf neue, an das Loot gekoppelte Fundstellen
+  (`mapDiscovery`) auf duennen Regionen (bislang je nur 1 Fund) — spirit-highlands
+  (Windgeist → `lesser-magicule-core`), ember-hollow (Restglut → `ember-magicule-core`;
+  beide Kern-Funde gated hinter `story.council.ready`, damit die Magicule-Oekonomie nicht
+  zu frueh anspringt), freedom-academy (→ `magisteel`), lizardman-marsh (→ `magic-ore`),
+  blumund (→ `hipokte-herb`). Alle Fundstellen auf verifiziert begehbaren Kacheln
+  (Daten-Integritaetstest deckt Begehbarkeit + echtes Belohnungsitem ab), canon-konforme
+  Kurzlore, einmalig/flag-gegatet. Akzeptanz (Fundstellen-Teil) erfuellt: Gating/Belohnungen
+  headless (`test/mapDiscovery.test.ts`), typecheck ✓, 716 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (nicht kampfberuehrend). NACHGEZOGEN: die Encounter-Vielfalt
+  ist mit Phase 146 geliefert — die neuen Archetypen besetzen jetzt zweite Zufalls-Encounter
+  auf genau diesen duennen Regionen (spirit-marsh/spirit-highlands/blumund/freedom-academy).
 
-- [ ] Phase 154 — Neue Nebenquests, an Loot gekoppelt.
-  Optionale Quests (Jagd/Sammel/Story-Splitter) ueber das bestehende `QuestDefinition`-
-  System, deren Belohnungen gezielt das neue Gear/legendaere Loot/Kerne geben — ein
-  erspielbarer Weg zum Loot jenseits von Drops. Akzeptanz: Quest-Daten + Belohnungspfad
-  headless, typecheck ✓, Unit-Tests ✓, build ✓.
+- [x] Phase 154 — Neue Nebenquests, an Loot gekoppelt (abgeschlossen, direkt auf main).
+  Umgesetzt: drei optionale Jagd-Nebenquests ueber das bestehende `QuestDefinition`-/
+  Dialog-/Encounter-System, deren Belohnung gezielt die Welle-11-Ausruestung ausschuettet
+  (erspielbarer Weg zum Gear jenseits von Drops): `emberforge-hunt` (Glutgrotte, Oger-Krieger)
+  → `ember-magicule-core` (episch Kern) + `magic-ore`; `echomoor-blade-hunt` (Echsenmoor,
+  Echsenkrieger) → `orc-cleaver` (selten Waffe) + `magisteel`; `highland-ward-hunt`
+  (Schreingipfel, Mordrahn-Streuner) → `ward-talisman` (legendaer) + `spirit-ember`.
+  Accept/Report haengen im `rigurd-act1`-Dialog (verfuegbar ab `story.council.ready` bzw.
+  `story.act1.completed` fuer das legendaere Stueck); die Jagd laeuft ueber neue, per
+  `sidequest.<x>.started`/`notFlag: cleared` gegatete Trigger-Encounter auf verifiziert
+  begehbaren Kacheln der duennen Regionen (Welle 10/153), deren Sieg das `cleared`-Flag setzt
+  und den Jagd-Schritt abschliesst. **Off-route:** die Jagd-Encounter stehen in KEINER
+  Region-`encounterIds`-Liste → ambiente Regionsschwierigkeit + Balance-Harness unberuehrt.
+  Akzeptanz erfuellt: Gear-Belohnung (echtes Ausruestungs-Slot-Gear, nicht `gewoehnlich`) +
+  Flag-/Sieg-/Cleared-Wiring + Begehbarkeit + Off-route headless (`test/lootQuests.test.ts`,
+  5 Tests), Datenintegritaet gruen (`validateGameData`/`dataIntegrity`), typecheck ✓,
+  721 Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+
+## Zwoelfte Welle: Die Loot-Schleife schliesst sich (Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 737 Unit-Tests + Balance-Harness gruen): Die Elfte
+Welle hat das Ausruestungs-Fundament vollstaendig gebaut — Raritaets-/Tier-System
+(149), Kern-Slot (150), das kuratierte Affix-/Instanz-Loot-System (151,
+`systems/lootAffix.ts`: feste Affix-Pools je Raritaet, deterministischer Roll, kodierte
+NICHT-stapelbare Instanzen, Instanz-Ausruesten via zentralem Resolver in
+`menu.ts`/`progression.ts`), neues Gear + ein neues Legendaer-Set (152) und
+loot-gekoppelte Nebenquests (154). Der zentrale, Diablo-artige Reiz — **zufaellig
+gerollte Ausruestung aus Labyrinth-Laeufen** — bleibt aber unerreichbar, weil DREI
+Enden noch offen sind:
+
+(1) **Keine gerollte Instanz erreicht je den Spieler.** `rollLabyrinthLootItemId`
+(Phase 151) ist rein gebaut und getestet, wird aber NIRGENDS aufgerufen — der
+Kampf-/Etagen-Reward-Fluss (`BattleScene.drawResult`/`battleResult`) vergibt nur die
+statischen `EnemyDrop`-Items und feste Encounter-`victoryEffects`. Das Affix-System ist
+damit toter, verifizierter Motor (wie die Kontroll-Schicht vor Welle 8).
+
+(2) **Instanzen sind im Menue nicht als Loot lesbar.** `getSortedInventory`/
+`getEquipmentItems` liefern die synthetisierte Instanz-Definition (Basis+Affixe), aber
+der MenuScene-Renderer faerbt den Namen nicht nach Raritaet (`rarityColor` existiert seit
+149, wird nur fuer statische Items genutzt) und zeigt die gerollten Affixe nicht auf — ein
+gerolltes „Sturmwind-Schneide (scharf, vital)" sieht aus wie ein gewoehnliches Item.
+
+(3) **Boss-Siege haben keine eigene Loot-Bedeutung.** Boss-Kills ernten Seelen (127) und
+Magicules (102), aber droppen — ausser den festen `EnemyDrop`-Kernen — kein gerolltes
+Endgame-Gear; der Kern-Slot (150) hat keinen erspielbaren Roll-Nachschub.
+
+Diese Welle **aktiviert das gebaute, getestete Affix-System und macht es sichtbar** —
+mit reiner, headless-testbarer Reward-/View-Logik plus duennem Phaser-Wiring. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording). Reihenfolge = Abhaengigkeit: 155 macht Drops real (Fundament), 156 macht
+sie lesbar, 157 verzahnt Boss-Loot mit der Kern-/Seelen-Oekonomie. Jede kampfberuehrende
+Phase bleibt **off-route** (Labyrinth/Boss-Drops sind Spieler-Belohnung, nicht Teil der
+Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gruen gefahren.
+
+- [x] Phase 155 — Labyrinth-Drops vergeben echte Loot-Instanzen (abgeschlossen, direkt auf
+  main). Umgesetzt: `systems/labyrinth.ts` traegt drei kuratierte Basis-Gear-Loot-Tische je
+  Tiefe (`LABYRINTH_LOOT_TABLES`; Tiefe 1 selten, 2 episch, 3 ausschliesslich legendaer) und
+  die reine Funktion `rollLabyrinthFloorLoot(seed, depth)` — sie wuerfelt aus dem Kampf-Seed
+  DETERMINISTISCH mit gedeckelter, tiefenabhaengiger Chance (0.15/0.25/0.4), und rollt bei
+  Erfolg ueber das bestehende `rollLabyrinthLootItemId` (Phase 151) eine kodierte,
+  nicht-stapelbare Ausruestungs-Instanz (sonst `null`; nur Tiefe 1..3 haben einen Tisch). Der
+  Reward-Fluss (`applyBattleResultToSave`) nimmt optional `labyrinthLoot: { seed, depth }`,
+  rollt bei Sieg und bankt die Instanz ueber die Inventar-Normalisierung. `BattleScene` leitet
+  die Tiefe aus `labyrinthEncounterDepth(encounterId)` ab, reicht Seed+Tiefe NUR auf
+  Labyrinth-Etagen durch und zeigt den Fund als „✦ Labyrinth-Fund: …" in der Sieg-Zeile
+  (Instanzname via `resolveInstanceItem`). Bewusst niedrige Chance/kuratierter Tisch (kein
+  offenes Farmen). Akzeptanz erfuellt: Loot-Tisch-Auswahl + Tiefe→Raritaet + Determinismus +
+  gedeckelte Chance + Inventar-Bank (nur Sieg) headless (`test/labyrinthLoot.test.ts`, 5 Tests),
+  `BattleScene`-Wiring, typecheck ✓, 742 Unit-Tests ✓, build ✓, **Balance-Harness gruen**
+  (Labyrinth off-route → Auto-Battle-Harness reicht keine `labyrinthLoot`-Option durch →
+  Korridor unberuehrt).
+
+- [x] Phase 156 — Instanz-Anzeige im Menue (Raritaets-Farbe + Affix-Aufschluesselung)
+  (abgeschlossen, direkt auf main). Umgesetzt: `InventoryItemView` (`systems/menu.ts`) traegt
+  jetzt `rarity` (`rarityOf`) + `affixLabels` (neue Helferfunktion `instanceAffixLabels` in
+  `lootAffix.ts`, dekodiert die Instanz-Id → Affix-Labels; fuer statische Items leer). Der
+  Inventar-View faerbt Instanz-Namen nach ihrer Basis-Raritaet (`rarityColor`, Phase 149) und
+  listet die gerollten Affixe als eigene Detailzeile („✦ scharf · vital"); die Ausruestungs-
+  Slots zeigen die Affixe neben dem Raritaets-Label. `MenuScene.button` nimmt optional eine
+  Textfarbe durch. Der Instanz-Name bleibt der SAUBERE Basis-Name — das Affix-Suffix ist aus
+  `resolveInstanceDefinition` entfernt und wird ueberall explizit aufgeschluesselt (auch in der
+  BattleScene-Loot-Zeile aus Phase 155). `ItemRarity` aus `../data` re-exportiert. Rein additive
+  View-Daten; keine Balance-/Save-Beruehrung. Akzeptanz erfuellt: View-Daten (Raritaet +
+  Affix-Labels an Instanzen, sauberer Name, statische Items unveraendert) headless
+  (`test/instanceDisplay.test.ts`, 4 Tests), typecheck ✓, 746 Unit-Tests ✓, build ✓.
+
+- [x] Phase 157 — Boss-Drops: gerolltes Kern-/Endgame-Loot (abgeschlossen, direkt auf main).
+  Umgesetzt: `rollBossLoot(battle, seed)` in `systems/battleResult.ts` (reine Belohnungslogik
+  analog `calculateBattleSouls`) — grosse Boss-Siege (`enemy.boss && enemy.dead`, nur bei
+  Sieg) vergeben mit gegateter, deterministischer Chance (0.5, aus dem Kampf-Seed) eine
+  gerollte Loot-Instanz aus einem kleinen, KERN-lastigen Boss-Tisch (`soul-forged-core`,
+  `ember-magicule-core`, `resonant-core`, `veldora-scale-ward` — ausschliesslich episch/
+  legendaer) ueber das generische `rollLabyrinthLootItemId` (Phase 151). `applyBattleResultToSave`
+  nimmt optional `bossLoot: { seed }`, rollt bei Boss-Sieg und bankt die Instanz;
+  `BattleScene` reicht den Kampf-Seed nur bei Sieg durch und zeigt „★ Boss-Beute: …" in der
+  Sieg-Zeile. So bekommt der Kern-Slot (Phase 150) erspielbaren Roll-Nachschub und Boss-
+  Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/Magicules (102). Akzeptanz erfuellt:
+  Boss-Only-Gate (kein Trash/Flucht/Niederlage/lebender Boss) + Determinismus + kern-lastiger
+  Tisch hoher Raritaet + gegatete Chance + Inventar-Bank (nur mit Option, nur bei Boss-Sieg)
+  headless (`test/bossLoot.test.ts`, 4 Tests), typecheck ✓, 750 Unit-Tests ✓, build ✓,
+  **Balance-Harness gruen** (bossLoot opt-in → Auto-Battle-Harness reicht keinen Loot-Seed
+  durch → Sims unveraendert).
+
+## Dreizehnte Welle: Die Loot-Werkbank — Vergleichen, Zerlegen, Umschmieden (Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 750 Unit-Tests + Balance-Harness gruen): Die Elfte/
+Zwoelfte Welle haben das Loot-Fundament FERTIG gebaut UND angeschlossen — Raritaet/Kern/
+Affix-Instanzen (149–152), gerollte Drops aus Labyrinth-Etagen (155) und Boss-Siegen
+(157), sichtbar aufgeschluesselt im Menue (156). Damit fliesst jetzt ein stetiger Strom
+gerollter Ausruestungs-Instanzen zum Spieler — aber der Motor drumherum hat DREI
+verifizierte Luecken, die genau diesen neuen Strom unbrauchbar/undurchschaubar lassen:
+
+(1) **Ausruesten ist blind.** Die Ausruestbar-Liste (`MenuScene.drawEquipment`,
+`src/scenes/MenuScene.ts:591-604`) rendert je Kandidat nur „Name ×Menge" und ruft direkt
+`equipItem` (`src/systems/menu.ts:202-237`); es gibt NIRGENDS eine Stat-Delta-Vorschau
+(vorher/nachher) gegen das aktuell getragene Teil. Bei sonst gleichem Slot muss der Spieler
+zwei Items im Kopf verrechnen — genau die Entscheidung, die ein Loot-System lesbar machen
+muss, fehlt.
+
+(2) **Loot-Instanzen sind unverkaeuflich UND unentsorgbar — der Stapel waechst ohne
+Grenze.** `sellItem` (`src/systems/world.ts:580-598`) schlaegt eine Id nur im Sortiment des
+Ladens nach (`buildShopView` iteriert `shop.itemIds`, `:543-554`); eine `loot|…`-Instanz
+steht in keinem Sortiment → „Item kann hier nicht verkauft werden". Es gibt kein Salvage/
+Zerlegen (kein Reverse-Pfad in `crafting.ts`), kein Verwerfen (`removeInventoryItem`,
+`src/systems/inventory.ts:52-62`, wird nie spielerseitig aufgerufen), und keine Inventar-
+Obergrenze (`normalizeInventoryStacks` deckelt nie). Der Spieler kann Beute NUR loswerden,
+indem er sie traegt.
+
+(3) **Tote Materialien + nicht-verzauberbare Instanzen.** `hipokte-herb` („Grundlage fuer
+staerkere Traenke", `src/data/items.ts:109`), `healing-herb` (Kuechen-Output,
+`src/data/facilities.ts:25`) und `wolf-fang-token` werden von KEINEM Rezept/keiner Forschung
+verbraucht (Nachweis: nicht in `CRAFTING_RECIPES`/`research.ts`-Inputs) — totes Material.
+Gleichzeitig tragen Loot-Instanzen bewusst `enchantment: undefined` (`lootAffix.ts:164`),
+lassen sich also NICHT wie feste Teile verzaubern — ihre Affixe sind final gerollt und der
+Spieler hat keinen Hebel, ein „fast perfektes" Stueck zu verbessern.
+
+Diese Welle macht den frisch angeschlossenen Loot-Strom **beherrschbar und lohnend** — rein
+auf dem vorhandenen Motor, mit vorhandenen Daten, bewusst niedriger Komplexitaet und ohne
+neue Assets. Reihenfolge = Abhaengigkeit: 158 (Vergleich) ist unabhaengige reine View-Logik;
+159 (Zerlegen) schliesst den Entsorgungs-/Material-Kreis (Fundament fuer Materialrueckgewinn);
+160 (Umschmieden) gibt der Instanz-Beute den fehlenden Verbesserungs-Hebel und verbraucht die
+zurueckgewonnenen Materialien. Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-
+System; canon-first, deutsches Originalwording, keine kopierten Dialoge). **Keine Phase
+beruehrt den Kampf** (alles lebt im Menue/an der Schmiede) → die Balance-Harness ist strukturell
+unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
+
+- [x] Phase 158 — Ausruestungs-Vergleich: Stat-Delta beim Ausruesten (abgeschlossen, direkt
+  auf main). Umgesetzt: neue reine Funktion `equipmentStatDelta(member, itemId)` in
+  `systems/menu.ts` liefert je Stat die Differenz zwischen Kandidaten-Item und dem aktuell im
+  selben Slot getragenen Teil (leerer Slot → voller Kandidaten-Bonus; ueber den bestehenden
+  `resolveItem`-Pfad werden Loot-Instanzen korrekt aufgeloest; nur geaenderte Stats, stabile
+  Reihenfolge). `MenuScene.drawEquipment` zeigt neben jedem Ausruestbar-Eintrag die geaenderten
+  Stats als kompakte ▲/▼-Liste (grün +, rot −, bis 4 Stats, Kuerzel via `STAT_ABBR`). Rein
+  additive Anzeige; `equipItem`/Save/Balance unberuehrt. Akzeptanz erfuellt: Delta-Berechnung
+  (leerer Slot = voller Bonus, Kandidat vs. getragen mit korrekten Vorzeichen, nicht-ausruestbar
+  → leer, Instanz-Aufloesung Basis+Affixe) headless (`test/equipDelta.test.ts`, 4 Tests),
+  typecheck ✓, 754 Unit-Tests ✓, build ✓.
+
+- [x] Phase 159 — Loot zerlegen: Instanzen in Materialien (Salvage an der Schmiede)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Funktion `salvageEquipment(context,
+  itemId)` in `systems/crafting.ts` zerlegt ein Ausruestungs-Item aus dem Inventar
+  deterministisch in Materialien, gestaffelt nach Raritaet (`rarityOf`, loest Loot-Instanzen
+  ueber `resolveInstanceItem` auf): selten → 1× `magic-ore`, episch → 1× `magisteel`, legendaer/
+  legendaer-set → 1× `magisteel` + 1× `spirit-ember`, `gewoehnlich` → nichts; entfernt das Item
+  (`removeInventoryItem`) und bankt die Materialien (`addInventoryItem`). `salvageYield`/
+  `salvageYieldLabel` liefern die Vorschau. Nur ausruestbare Items im Inventar sind zerlegbar
+  (getragene Teile liegen NICHT im Inventar → automatisch geschuetzt; Nicht-Gear/fehlend
+  abgelehnt). Neue smith-gegatete Schmiede-Unteransicht „Werkbank" (`forgeBench`-Umschalter in
+  `MenuScene.drawForge` → `drawWorkbench`) listet die zerlegbare Beute (raritaets-gefaerbt) mit
+  Ertrags-Vorschau und „Zerlegen"-Button, `CraftContext` aus `forgeContext()`. Schliesst die
+  verifizierte Luecke unverkaeuflicher/unentsorgbarer Loot-Instanzen UND speist die (teils toten)
+  Crafting-Materialien. Akzeptanz erfuellt: raritaets-gestaffelter Ertrag + Entfernen/Banken +
+  Instanz-Aufloesung + Nicht-Gear-/Fehlend-Schutz + Vorschau-Label headless
+  (`test/salvage.test.ts`, 5 Tests), typecheck ✓, 759 Unit-Tests ✓, build ✓, **Balance-Harness
+  strukturell unberuehrt** (menue-/schmiede-only, nicht kampfberuehrend).
+
+- [x] Phase 160 — Affix-Umschmieden: eine Loot-Instanz neu rollen (Schmiede) (abgeschlossen,
+  direkt auf main). Umgesetzt: neue reine Funktion `reforgeInstance(seed, itemId)` in
+  `systems/lootAffix.ts` wuerfelt fuer eine kodierte `loot|…`-Instanz die Affixe DETERMINISTISCH
+  neu (gleiche Basis-Id + gleiche Raritaets-Regel → gleicher Pool/gleiche Anzahl ueber
+  `rollEquipmentInstance`) und gibt die neue kodierte Instanz-Id zurueck (statische Items → null).
+  `reforgeCost`/`reforgeEquipment` in `systems/crafting.ts`: Umschmieden kostet 1× `magisteel` +
+  raritaets-abhaengiges Gold (40/80/140/220/200), verbraucht die in 159 zurueckgewonnenen
+  Materialien (Kreislauf Beute → zerlegen → umschmieden) und ersetzt die Instanz im Inventar; nur
+  echte Instanzen sind umschmiedbar (feste Teile tragen ihre kuratierten Affixe/Sets). Die
+  Werkbank-Unteransicht (Phase 159) zeigt je Instanz einen „Umschmieden · <gold>G"-Button (Seed
+  aus `Date.now()`, damit jeder Versuch neu, aber im Aufruf deterministisch ist; abgeblendet bei
+  fehlendem Material/Gold). Akzeptanz erfuellt: Neuwurf gleicher Basis/Raritaet + Anzahl-Treue +
+  Determinismus je Seed + Seed-Vielfalt + statische Items unberuehrt + Materialkosten/Inventar-
+  Roundtrip + Ablehnung bei fehlendem Material/Gold headless (`test/reforge.test.ts`, 5 Tests),
+  typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
+  schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog

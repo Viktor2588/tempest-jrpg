@@ -450,7 +450,9 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
         ? {
             weapon: safeNullableString(raw.equipment.weapon),
             armor: safeNullableString(raw.equipment.armor),
-            accessory: safeNullableString(raw.equipment.accessory)
+            accessory: safeNullableString(raw.equipment.accessory),
+            // Phase 150 — Kern-Slot: alte Stände ohne `core` → null (keine Bruchgefahr).
+            core: safeNullableString(raw.equipment.core)
           }
         : member.equipment
     }
@@ -522,7 +524,10 @@ function readProgressionState(raw: unknown): ProgressionState {
     factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId),
     // Phase 122 — Lebendiges Bestiarium: alte Stände ohne dieses Feld starten mit
     // leerem Analyse-Wissen (nichts studiert), Codex zeigt Kampfdaten als „???".
-    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds)
+    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds),
+    // Phase 148 — Boss-Echos: alte Stände ohne dieses Feld starten mit leerer
+    // Verschlingungs-Historie (nichts verschlungen → alle besiegten Bosse echo-fähig).
+    devouredSourceIds: readStringArray(raw.devouredSourceIds)
   });
 }
 

@@ -20,7 +20,6 @@ export const OGRE_WARRIOR_TEXTURE_KEY = 'sprite-enemy-ogre-warrior';
 export const MAGIC_COLOSSUS_TEXTURE_KEY = 'sprite-enemy-magic-colossus';
 export const BLUMUND_BANDIT_TEXTURE_KEY = 'sprite-enemy-blumund-bandit';
 export const ACADEMY_WISP_TEXTURE_KEY = 'sprite-enemy-academy-wisp';
-export const THORN_TREANT_TEXTURE_KEY = 'sprite-enemy-thorn-treant';
 export const MARSH_HEXER_TEXTURE_KEY = 'sprite-enemy-marsh-hexer';
 export const STORM_SHARD_TEXTURE_KEY = 'sprite-enemy-storm-shard';
 
@@ -76,9 +75,6 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'stray-echo': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
   'human-deserter': generatedTexture('sprite-enemy-human-deserter', 'enemy-ogre'),
   'academy-wisp': generatedTexture(ACADEMY_WISP_TEXTURE_KEY, 'enemy-boss'),
-  'thorn-treant': generatedTexture(THORN_TREANT_TEXTURE_KEY, 'enemy-ogre'),
-  'marsh-hexer': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),
-  'storm-shard': generatedTexture(STORM_SHARD_TEXTURE_KEY, 'enemy-boss'),
   'elder-direwolf': generatedTexture(DIREWOLF_ALPHA_TEXTURE_KEY, 'enemy-wolf'),
   'orc-grunt': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
   'orc-soldier': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
@@ -90,7 +86,15 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'masked-majin': generatedTexture(MASKED_MAJIN_TEXTURE_KEY, 'enemy-boss'),
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
   'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
-  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss')
+  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss'),
+  // Phase 146 — neue Normalgegner-Archetypen. Bis dedizierte Cutouts erzeugt sind,
+  // teilen sie thematisch passende, bereits vorhandene Regions-Texturen (Provenienz
+  // in ASSETS.md dokumentiert).
+  'marsh-thornback': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
+  'bog-warden': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),
+  'highland-galecaller': generatedTexture(STORM_SHARD_TEXTURE_KEY, 'enemy-boss'),
+  'blumund-brigand': generatedTexture(BLUMUND_BANDIT_TEXTURE_KEY, 'enemy-ogre'),
+  'academy-revenant': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss')
 };
 
 export function enemyArtFor(sourceId: string, name: string): EnemyArtSpec {

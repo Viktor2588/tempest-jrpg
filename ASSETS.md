@@ -95,9 +95,8 @@ Lizenzzeile.
 | `sprites/enemy-human-deserter.webp` | Deserteur-Söldner, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-mordrahn.webp` | Mordrahn-Boss, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; als WebP optimiert | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-blumund-bandit.webp` | Blumunder Wegelagerer, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-10; Prompt-Zweck: erwachsener Blumund-Strassenraeuber mit Lederreisezeug, Kurzschwert und Rundschild; Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-thorn-treant.png` | Dornen-Treant, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Prompt-Zweck: dornenbewehrter uralter Wald-Treant mit Bernsteinkern; magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-marsh-hexer.png` | Moor-Molchhexer, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Prompt-Zweck: gepanzerter amphibischer Moorhexer mit Fluchlaterne; grüner Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
-| `sprites/enemy-storm-shard.png` | Sturmscherbengeist, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Prompt-Zweck: schwebender Kristall-Sturmgeist mit cyanfarbenem Blitzkern; magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-marsh-hexer.png` | Moorwächter, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Prompt-Zweck: gepanzerter amphibischer Moorhexer mit Fluchlaterne; grüner Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
+| `sprites/enemy-storm-shard.png` | Hochland-Sturmrufer, transparenter Kampf-Cutout, 512×512 | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-12; Prompt-Zweck: schwebender Kristall-Sturmgeist mit cyanfarbenem Blitzkern; magentafarbener Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/enemy-academy-wisp.webp` | Akademie-Irrlicht, transparenter Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-07-10; Prompt-Zweck: instabiles magisches Irrlicht mit Akademie-Talismanfragmenten; Chroma-Key lokal entfernt | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/party-rimuru.webp` | Rimuru, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter adaptiver Schleimmagier, Dreiviertelperspektive, grüner Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
 | `sprites/party-gobta.webp` | Gobta, transparenter Party-Kampf-Cutout | OpenAI Bildgenerierung, Built-in-Modus, 2026-06-28; gemalter Goblin-Frontkämpfer, Dreiviertelperspektive, magentafarbener Chroma-Key | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes |
@@ -162,6 +161,15 @@ Lizenzzeile.
 | `ui/mimic-form-indicator.jpg` | UI HUD: Mimik-Aktiv-Form-Indikator (verschlungenes Element/Form), Auswahl-Banner für Phase 105 | xAI Imagine, 2026-07-10; Prompt-Zweck: pixel art JRPG UI HUD indicator for active Mimic form in Tempest JRPG showing devoured enemy form with elemental aura for Phase 105 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/predator-perversion-skillsteal.webp` | UI HUD: Praedator-Perversion Skill-Raub / Form-Anzeige, 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG predator skill steal / perversion active HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/praedator-steal-hud.jpg` | UI HUD: Praedator-Perversion Rauben-Status, 1280x720 | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG skill theft HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
+
+## Phase 146 — neue Gegner-Archetypen (Textur-Wiederverwendung)
+
+Die fünf neuen Normalgegner-Archetypen (`marsh-thornback`, `bog-warden`,
+`highland-galecaller`, `blumund-brigand`, `academy-revenant`, verdrahtet in
+`src/render/enemyArt.ts`) fügen **keine** neuen Bilddateien hinzu. Bis dedizierte
+CC0-Cutouts erzeugt sind, teilen sie thematisch passende, bereits im Repo vorhandene
+Regions-Texturen (Echsen-/Wisp-/Bandit-/Echo-Cutouts). Sobald eigene Cutouts erzeugt
+werden, ersetzen sie diese Zuordnungen und werden hier als eigene Zeilen dokumentiert.
 
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.

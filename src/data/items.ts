@@ -30,6 +30,7 @@ export const ITEMS = [
     stackable: false,
     equipmentSlot: 'weapon',
     equipmentSetId: 'tempest-initiate',
+    rarity: 'gewoehnlich',
     enchantment: {
       maxLevel: 3,
       goldCostPerLevel: 60,
@@ -46,6 +47,7 @@ export const ITEMS = [
     stackable: false,
     equipmentSlot: 'armor',
     equipmentSetId: 'tempest-initiate',
+    rarity: 'gewoehnlich',
     enchantment: {
       maxLevel: 3,
       goldCostPerLevel: 55,
@@ -62,6 +64,7 @@ export const ITEMS = [
     stackable: false,
     equipmentSlot: 'accessory',
     equipmentSetId: 'tempest-initiate',
+    rarity: 'gewoehnlich',
     enchantment: {
       maxLevel: 3,
       goldCostPerLevel: 70,
@@ -118,20 +121,41 @@ export const ITEMS = [
   { id: 'spirit-ember', name: 'Geistglut', description: 'Ifrits gebändigte Flamme; entzündet eine Feuer-Affinität.', category: 'key', price: 0, stackable: false },
   { id: 'orc-tusk', name: 'Ork-Hauer', description: 'Trophäe der Ork-Horde; bei Händlern begehrt.', category: 'key', price: 25, stackable: true },
   // — Kijin-Ausrüstung (Set: kijin-regalia) —
-  { id: 'kurobe-katana', name: 'Kurobes Katana', description: 'Von Meister Kurobe aus Magisteel geschmiedet — scharf wie ein Schwur.', category: 'weapon', price: 0, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'kijin-regalia', enchantment: { maxLevel: 5, goldCostPerLevel: 120, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 14, agility: 3 } },
-  { id: 'kijin-haori', name: 'Kijin-Haori', description: 'Von Shuna gewebte Kampfrobe der Kijin — leicht und widerstandsfähig.', category: 'armor', price: 260, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'kijin-regalia', statBonus: { defense: 8, spirit: 4, magic: 2 } },
-  { id: 'oni-mask', name: 'Oni-Maske', description: 'Eine Maske im Erbe Shizus — schärft den Geist im Kampf.', category: 'accessory', price: 300, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'kijin-regalia', statBonus: { magic: 4, spirit: 4, maxMp: 8 } },
+  { id: 'kurobe-katana', name: 'Kurobes Katana', description: 'Von Meister Kurobe aus Magisteel geschmiedet — scharf wie ein Schwur.', category: 'weapon', price: 0, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'kijin-regalia', rarity: 'legendaer-set', enchantment: { maxLevel: 5, goldCostPerLevel: 120, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 14, agility: 3 } },
+  { id: 'kijin-haori', name: 'Kijin-Haori', description: 'Von Shuna gewebte Kampfrobe der Kijin — leicht und widerstandsfähig.', category: 'armor', price: 260, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'kijin-regalia', rarity: 'legendaer-set', statBonus: { defense: 8, spirit: 4, magic: 2 } },
+  { id: 'oni-mask', name: 'Oni-Maske', description: 'Eine Maske im Erbe Shizus — schärft den Geist im Kampf.', category: 'accessory', price: 300, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'kijin-regalia', rarity: 'legendaer-set', statBonus: { magic: 4, spirit: 4, maxMp: 8 } },
   // — Dwargon-Ausrüstung (Set: dwargon-forged) —
-  { id: 'magisteel-blade', name: 'Magisteel-Klinge', description: 'Eine in Dwargon aus Magisteel geschmiedete Klinge.', category: 'weapon', price: 360, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'dwargon-forged', enchantment: { maxLevel: 5, goldCostPerLevel: 100, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 12 } },
-  { id: 'dwarf-plate', name: 'Zwergenplatte', description: 'Schwere, perfekt gefügte Magisteel-Rüstung.', category: 'armor', price: 320, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'dwargon-forged', statBonus: { defense: 12, maxHp: 10 } },
-  { id: 'forge-band', name: 'Schmiedereif', description: 'Ein zwergischer Ring, der Hieb und Deckung schärft.', category: 'accessory', price: 280, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'dwargon-forged', statBonus: { attack: 3, defense: 3 } },
+  { id: 'magisteel-blade', name: 'Magisteel-Klinge', description: 'Eine in Dwargon aus Magisteel geschmiedete Klinge.', category: 'weapon', price: 360, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'dwargon-forged', rarity: 'legendaer-set', enchantment: { maxLevel: 5, goldCostPerLevel: 100, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 12 } },
+  { id: 'dwarf-plate', name: 'Zwergenplatte', description: 'Schwere, perfekt gefügte Magisteel-Rüstung.', category: 'armor', price: 320, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'dwargon-forged', rarity: 'legendaer-set', statBonus: { defense: 12, maxHp: 10 } },
+  { id: 'forge-band', name: 'Schmiedereif', description: 'Ein zwergischer Ring, der Hieb und Deckung schärft.', category: 'accessory', price: 280, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'dwargon-forged', rarity: 'legendaer-set', statBonus: { attack: 3, defense: 3 } },
   // — Ork-Ausrüstung —
-  { id: 'orc-cleaver', name: 'Ork-Schlachtbeil', description: 'Grobes, schweres Beil — viel Wucht, wenig Finesse.', category: 'weapon', price: 150, stackable: false, equipmentSlot: 'weapon', enchantment: { maxLevel: 3, goldCostPerLevel: 70, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 11 } },
-  { id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxHp: 16, attack: 2 } },
+  { id: 'orc-cleaver', name: 'Ork-Schlachtbeil', description: 'Grobes, schweres Beil — viel Wucht, wenig Finesse.', category: 'weapon', price: 150, stackable: false, equipmentSlot: 'weapon', rarity: 'selten', enchantment: { maxLevel: 3, goldCostPerLevel: 70, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 11 } },
+  { id: 'famine-charm', name: 'Hungeramulett', description: 'Aus dem Geld-Kern gefertigt; nährt Zähigkeit aus dem Hunger.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', rarity: 'episch', statBonus: { maxHp: 16, attack: 2 } },
   // — Phase 91: an der Schmiede aus Geistglut gefertigt (einzigartig) —
-  { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { magic: 6, spirit: 3, maxMp: 6 } },
+  { id: 'ember-signet', name: 'Glut-Siegel', description: 'Aus Ifrits gebändigter Geistglut geschmiedet — trägt eine schlummernde Feuer-Affinität.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', rarity: 'episch', statBonus: { magic: 6, spirit: 3, maxMp: 6 } },
   // — Phase 114: Geist-Infusion nach Vestas Forschung —
-  { id: 'spirit-core-ward', name: 'Geistkern-Talisman', description: 'Ein infundierter Schutzanker für instabile Geist-Kerne.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', statBonus: { maxMp: 10, magic: 3, spirit: 5 } },
+  { id: 'spirit-core-ward', name: 'Geistkern-Talisman', description: 'Ein infundierter Schutzanker für instabile Geist-Kerne.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', rarity: 'episch', statBonus: { maxMp: 10, magic: 3, spirit: 5 } },
   // — Phase 135: Ausruestungs-Gegenspiel zur Kontroll-Schicht (status-resist als Perk) —
-  { id: 'ward-talisman', name: 'Schutztalisman', description: 'Ein geweihtes Tempest-Amulett, das den Geist gegen Kontrolle und Fäulnis abschirmt — schädliche Zustände greifen seltener.', category: 'accessory', price: 340, stackable: false, equipmentSlot: 'accessory', statBonus: { spirit: 4, maxHp: 8 }, perks: [{ kind: 'status-resist', percent: 35 }] }
+  // Phase 149: legendär-einzigartig (genau ein Signatur-Perk: status-resist).
+  { id: 'ward-talisman', name: 'Schutztalisman', description: 'Ein geweihtes Tempest-Amulett, das den Geist gegen Kontrolle und Fäulnis abschirmt — schädliche Zustände greifen seltener.', category: 'accessory', price: 340, stackable: false, equipmentSlot: 'accessory', rarity: 'legendaer', statBonus: { spirit: 4, maxHp: 8 }, perks: [{ kind: 'status-resist', percent: 35 }] },
+  // — Phase 150: Magicule-Kerne (Slot 'core') — an die Magicule-/Seelen-Oekonomie gebundene
+  //   Kerne mit massvollen Boni. Kleine Start-Auswahl; im Tempest-Vorrat verfügbar (gated). —
+  { id: 'lesser-magicule-core', name: 'Geringer Magicule-Kern', description: 'Ein verdichteter Magicule-Knoten, den Tempests Geister zu einem tragbaren Kern gebunden haben. Nährt Manafluss und Geist.', category: 'core', price: 200, stackable: false, equipmentSlot: 'core', rarity: 'selten', statBonus: { maxMp: 6, spirit: 2 } },
+  { id: 'ember-magicule-core', name: 'Glut-Magicule-Kern', description: 'Ein von Ifrits Restglut durchzogener Kern — verstärkt die magische Affinität seines Trägers.', category: 'core', price: 320, stackable: false, equipmentSlot: 'core', rarity: 'episch', statBonus: { magic: 6, maxMp: 4 } },
+  { id: 'soul-forged-core', name: 'Seelengeschmiedeter Kern', description: 'Aus geernteten Seelen und Magicules geschmiedet — ein Kern, der den Träger gegen Verfall und Kontrolle wappnet.', category: 'core', price: 480, stackable: false, equipmentSlot: 'core', rarity: 'legendaer', statBonus: { maxHp: 14, spirit: 3 }, perks: [{ kind: 'status-resist', percent: 20 }] },
+  // — Phase 152: Mehr Gear & Sets (Content auf dem Raritaets-System 149/150). Keine Stat-
+  //   Beruehrung bestehender Teile; Auto-Battle-Harness nutzt keine Ausruestung → Korridore
+  //   unveraendert. Verteilt ueber Schmiede-Rezepte (Set + Legendaer-einzigartig) und Shop (mittlere Raritaeten). —
+  // Legendaer-Set „Sturmgeist-Ornat" (Wind/Geist) — speist die EQUIPMENT_SETS-Tier-Boni, in der Schmiede gefertigt.
+  { id: 'galewind-edge', name: 'Sturmwind-Schneide', description: 'Eine leichte, sturmgehärtete Klinge der Hochland-Geister — schnell wie eine Bö.', category: 'weapon', price: 340, stackable: false, equipmentSlot: 'weapon', equipmentSetId: 'stormspirit-regalia', rarity: 'legendaer-set', enchantment: { maxLevel: 5, goldCostPerLevel: 110, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 12, agility: 4 } },
+  { id: 'stormweave-garb', name: 'Sturmgewebe-Robe', description: 'Aus verdichteten Windgeist-Fäden gewoben — schützt, ohne zu beschweren.', category: 'armor', price: 300, stackable: false, equipmentSlot: 'armor', equipmentSetId: 'stormspirit-regalia', rarity: 'legendaer-set', statBonus: { defense: 8, spirit: 4, maxMp: 6 } },
+  { id: 'zephyr-band', name: 'Zephyr-Reif', description: 'Ein Reif der Hochland-Windgeister; er trägt den Schritt und schärft den Geist.', category: 'accessory', price: 300, stackable: false, equipmentSlot: 'accessory', equipmentSetId: 'stormspirit-regalia', rarity: 'legendaer-set', statBonus: { agility: 4, spirit: 3, maxMp: 6 } },
+  // Legendaer-einzigartig (genau EIN Signatur-Perk).
+  { id: 'stormfang-blade', name: 'Sturmzahn-Klinge', description: 'Eine räuberische Klinge, die dem Träger ein Stück Raubtier-Instinkt verleiht — leichter zu verschlingen.', category: 'weapon', price: 0, stackable: false, equipmentSlot: 'weapon', rarity: 'legendaer', enchantment: { maxLevel: 6, goldCostPerLevel: 130, statBonusPerLevel: { attack: 2 } }, statBonus: { attack: 14, agility: 2 }, perks: [{ kind: 'devour-chance', percent: 15 }] },
+  { id: 'veldora-scale-ward', name: 'Sturmschuppen-Ward', description: 'Ein Splitter von Veldoras Schuppe, zu einem Talisman gefasst — härtet die Lebenskraft des Trägers.', category: 'accessory', price: 0, stackable: false, equipmentSlot: 'accessory', rarity: 'legendaer', statBonus: { spirit: 5, maxHp: 10 }, perks: [{ kind: 'max-hp', percent: 10 }] },
+  // Mittlere Raritaeten (selten/episch) — im Tempest-Vorrat kaufbar (gated).
+  { id: 'spirit-oak-staff', name: 'Geisteichen-Stab', description: 'Ein aus mana-getränktem Geisteichenholz geschnitzter Stab; bündelt die Magie seines Trägers.', category: 'weapon', price: 210, stackable: false, equipmentSlot: 'weapon', rarity: 'selten', enchantment: { maxLevel: 4, goldCostPerLevel: 80, statBonusPerLevel: { magic: 2 } }, statBonus: { magic: 9, maxMp: 6 } },
+  { id: 'warded-brigandine', name: 'Gebannte Brigantine', description: 'Eine mit Bannzeichen benähte Lederpanzerung — solide Deckung mit einem Hauch Geistschutz.', category: 'armor', price: 240, stackable: false, equipmentSlot: 'armor', rarity: 'episch', statBonus: { defense: 10, spirit: 3 } },
+  { id: 'swiftwind-boots', name: 'Windläufer-Stiefel', description: 'Leichte Stiefel, die den Schritt tragen wie eine Böe — mehr Tempo im Kampf.', category: 'accessory', price: 190, stackable: false, equipmentSlot: 'accessory', rarity: 'selten', statBonus: { agility: 6 } },
+  { id: 'resonant-core', name: 'Resonanz-Kern', description: 'Ein auf die Magicule-Frequenz seines Trägers gestimmter Kern; verstärkt Magie und Mana.', category: 'core', price: 300, stackable: false, equipmentSlot: 'core', rarity: 'episch', statBonus: { magic: 5, spirit: 3, maxMp: 4 } }
 ] as const satisfies readonly ItemDefinition[];

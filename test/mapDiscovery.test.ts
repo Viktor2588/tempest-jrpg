@@ -72,4 +72,27 @@ describe('Karten-Entdeckungen', () => {
       expect(itemIds.has(def.rewardItemId), def.rewardItemId).toBe(true);
     }
   });
+
+  // Phase 153 — duenne Regionen aufgewertet: neue, an das Loot gekoppelte Fundstellen.
+  it('wertet duenne Regionen mit loot-gekoppelten Fundstellen auf (Phase 153)', () => {
+    // Magistahl/Erz-Funde sind sofort sichtbar (ungegated).
+    expect(getMapDiscoveryAt('freedom-academy', 13, 8, {})?.rewardItemId).toBe('magisteel');
+    expect(getMapDiscoveryAt('lizardman-marsh', 15, 8, {})?.rewardItemId).toBe('magic-ore');
+    expect(getMapDiscoveryAt('blumund', 13, 8, {})?.rewardItemId).toBe('hipokte-herb');
+
+    // Magicule-Kern-Funde erscheinen erst nach der Ratsversammlung.
+    expect(getMapDiscoveryAt('spirit-highlands', 17, 8, {})).toBeNull();
+    const windCore = getMapDiscoveryAt('spirit-highlands', 17, 8, { 'story.council.ready': true });
+    expect(windCore?.rewardItemId).toBe('lesser-magicule-core');
+
+    expect(getMapDiscoveryAt('ember-hollow', 16, 6, {})).toBeNull();
+    const emberCore = getMapDiscoveryAt('ember-hollow', 16, 6, { 'story.council.ready': true });
+    expect(emberCore?.rewardItemId).toBe('ember-magicule-core');
+
+    // Einmalig: nach dem Einsammeln verschwunden.
+    expect(getMapDiscoveryAt('spirit-highlands', 17, 8, {
+      'story.council.ready': true,
+      'discovery.spirit-highlands.wind-core': true
+    })).toBeNull();
+  });
 });

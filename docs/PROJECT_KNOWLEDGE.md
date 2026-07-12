@@ -1148,11 +1148,9 @@ test/release.test.ts
 
 ### Phase 146 - Content-Vielfalt
 
-- Branch/Worktree: `phase-146-content-vielfalt` in `/worktree/tempest-phase-146-content-vielfalt`.
-- Drei neue Normalgegner aus vorhandenen Mechaniken: gepanzerter `thorn-treant`, heilender/CC-tragender `marsh-hexer` und magieresistenter `storm-shard`.
-- Einbau: optionale Whispering-Grove-, Spirit-Marsh- und Spirit-Highlands-Pools sowie je eine der ersten drei Labyrinth-Stufen; der Story-Trigger-Korridor bleibt unveraendert.
-- Assets: drei repo-eigene 512×512-Cutouts aus OpenAI Built-in-Imagegen, lokal vom Chroma-Key freigestellt und in `ASSETS.md` dokumentiert.
-- Validierung: `git diff --check`, `bun run typecheck`, 696 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke fuer das Laden aller drei Assets.
+- Canonicaler Parallelstand: fuenf neue Normalgegner aus vorhandenen Mechaniken in optionalen Regions- und Labyrinth-Pools; der Story-Trigger-Korridor bleibt unveraendert.
+- Asset-Ergaenzung: `bog-warden` und `highland-galecaller` nutzen zwei repo-eigene 512×512-Cutouts aus OpenAI Built-in-Imagegen, lokal vom Chroma-Key freigestellt und in `ASSETS.md` dokumentiert.
+- Validierung nach Parallel-Merge: `git diff --check`, Typecheck, Unit-Tests inklusive Balance-Harness, Build und fokussierter Desktop-Chromium-Asset-Smoke.
 
 ### Phase 121 - Shunas Einstiegstempo
 
