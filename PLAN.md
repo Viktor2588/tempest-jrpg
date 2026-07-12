@@ -875,15 +875,20 @@ unberuehrt) und ohne neue Assets (Tint statt neuer Grafik). Non-Goals gelten wei
 Reihenfolge: 175 (Tag/Nacht-Tint) ist reine Anzeige; 176 (zeit-/wettergebundener Fund)
 baut auf der vorhandenen `mapDiscovery`-Maschinerie auf.
 
-- [ ] Phase 175 — Tag/Nacht faerbt die Oberwelt (kosmetischer Tint, keine neuen Assets).
-  Umsetzung: eine reine Funktion `overworldTint(clock)` in `systems/worldClock.ts` liefert
-  je Tagesabschnitt/Wetter einen Tint-Farbwert + Alpha (Nacht: dunkelblau, Daemmerung:
-  warm, Nebel: entsaettigtes Grau, Tag/klar: kein Tint). `OverworldScene` legt beim
-  Zeichnen eine bildschirmfuellende, nicht-interaktive Tint-Ebene ueber die Kacheln (unter
-  dem HUD), abgeleitet aus `clockAt(clockStep, seed)`. Rein kosmetisch, keine Kampf-/Save-/
-  Balance-Beruehrung. Akzeptanz: Tint-Ableitung je Abschnitt/Wetter headless
-  (`test/worldClock.test.ts`), Oberwelt rendert mit Tint fehlerfrei (Overworld-E2E-Smoke),
-  typecheck, alle Unit-Tests, build gruen.
+- [x] Phase 175 — Tag/Nacht faerbt die Oberwelt (kosmetischer Tint, keine neuen Assets)
+  (abgeschlossen, direkt auf main). Umgesetzt: reine Funktion `overworldTint(clock)` in
+  `systems/worldClock.ts` liefert je Tagesabschnitt/Wetter einen Tint-Farbwert + Alpha
+  (Nebel: entsaettigtes Grau 0.30, Regen: kuehles Blaugrau 0.24, Nacht: dunkelblau 0.42,
+  Daemmerung: warm 0.24, Morgen: dezent 0.12, Tag/klar: `null` = kein Overlay; Wetter hat
+  Vorrang). `OverworldScene` legt eine bildschirmfuellende, nicht-interaktive Tint-Ebene
+  (Depth 5 — ueber den Kacheln, unter dem HUD ab Depth 10) an und aktualisiert sie in
+  `refreshClockHud` aus `clockAt(clockStep, seed)` (bei jedem Schritt + beim Szenenstart).
+  Rein kosmetisch, keine Kampf-/Save-/Balance-Beruehrung. Akzeptanz erfuellt: Tint-Ableitung
+  (Tag=null, Nacht>Daemmerung>Morgen im Alpha, Wetter-Vorrang, dezenter Alpha-Bereich)
+  headless (`test/worldClock.test.ts`, +3 Tests), typecheck ✓, 782 Unit-Tests ✓, build ✓,
+  Oberwelt rendert mit Tint fehlerfrei im echten Browser (Overworld-Smoke „Title →
+  Overworld → Menü → Battle" gegen die volle Chromium-Binary gruen), Balance-Harness
+  strukturell unberuehrt (off-combat).
 
 - [ ] Phase 176 — Zeit-/wettergebundener Fund (Erkundungs-Anreiz auf dem `mapDiscovery`-
   System). Umsetzung: `MapDiscoveryDefinition` traegt optional eine Uhr-Bedingung
