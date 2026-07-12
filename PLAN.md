@@ -850,3 +850,10 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
+- [x] Phase 164 — Sichtbares Skill-Raub-Banner statt ungenutztem HUD-Duplikat
+  (abgeschlossen in `/worktree/tempest-phase-164-rauben-banner`). Das vorhandene,
+  sprachneutrale `predator-perversion-skillsteal.webp` wird beim Rauben-Zielmodus
+  sichtbar; das nie gerenderte, textfehlerhafte JPG-Duplikat samt Provenienz entfällt.
+  Keine Kampf-/Balance-Aenderung. Akzeptanz erfüllt: Preload-/Battle-Wiring + Regressionstest,
+  `git diff --check` ✓, typecheck ✓, 765 Unit-Tests inklusive Balance-Harness ✓, build ✓,
+  fokussierter Desktop-Chromium-Smoke (Banner-Asset geladen, keine Browserfehler) ✓.

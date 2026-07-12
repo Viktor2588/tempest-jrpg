@@ -845,6 +845,23 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
+test('Skill-Raub-Banner wird vom Browser geladen', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('predator-perversion-skillsteal'))).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
   // Belt-and-suspenders: settle() screenshotet nicht mehr (systemischer Fix),
   // aber dieser menu-schwere Pfad behaelt viele explizite expectCanvasContent()-

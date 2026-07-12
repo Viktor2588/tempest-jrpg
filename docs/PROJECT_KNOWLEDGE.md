@@ -1243,6 +1243,15 @@ test/release.test.ts
 - Validiert mit `bun run typecheck`, `bun run test` (`test/scriptBoss.test.ts`: Spawn/
   Einmaligkeit/Termination + Balance-Harness), `bun run build` und Battle-Render-Smoke.
 
+### Phase 164 - Sichtbares Skill-Raub-Banner
+
+- Scope: Das vorhandene `ui/predator-perversion-skillsteal.webp` erscheint nur in der
+  Rauben-Zielwahl; das nie gerenderte, textfehlerhafte JPG-Duplikat wurde entfernt.
+- Wiring: `PreloadScene` lädt `ui-predator-steal`; `BattleScene` rendert es nur bei
+  `pendingSteal` im Gegner-Zielmodus. Kampfregeln und Balance bleiben unverändert.
+- Validiert mit `git diff --check`, Typecheck, 765 Unit-Tests inklusive Balance-Harness,
+  Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
