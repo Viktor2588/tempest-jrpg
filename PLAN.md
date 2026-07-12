@@ -850,10 +850,11 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
-- [~] Phase 167 — Titelbildschirm-Key-Art. (in Bearbeitung in `/worktree/tempest-phase-167-titel-keyart`)
-  Der Titelbildschirm ist reiner Text auf Schwarz — als einzige Szene ohne Art-Layer.
-  Repo-eigenes generiertes 1280×720-Key-Art (WebP) als Hintergrund hinter Titel/Menue
-  mit Abdunkelungs-Overlay fuer Lesbarkeit; Muster der Battle-Backgrounds. Keine
-  Daten-/Balance-Aenderung. Akzeptanz: Provenienz, Preload-/Titel-Wiring, Desktop-Smoke,
-  typecheck, Unit-Tests, build.
+- [x] Phase 167 — Titelbildschirm-Key-Art (abgeschlossen in `/worktree/tempest-phase-167-titel-keyart`).
+  Der Titelbildschirm war reiner Text auf Schwarz — als einzige Szene ohne Art-Layer.
+  Jetzt repo-eigenes generiertes 1280×720-Key-Art (WebP, 90 KB) hinter Titel/Menue mit
+  Abdunkelungs-Overlay (0.45) fuer Lesbarkeit; kanontreuer gesichtsloser Slime, Tempest-
+  Stadt, Drachensilhouette. Keine Daten-/Balance-Aenderung. Akzeptanz erfuellt:
+  Provenienz in ASSETS.md, Preload-/Titel-Wiring + E2E-Asset-Check, Desktop-Smokes
+  (Title-Flow + Asset-Preload) gruen, typecheck ✓, 767 Unit-Tests ✓, build ✓.
 

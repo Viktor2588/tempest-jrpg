@@ -20,6 +20,10 @@ export class TitleScene extends Phaser.Scene {
     fadeIn(this);
     playMusic('title');
 
+    // Key-Art hinter Titel/Menue; Abdunkelung haelt den Text lesbar.
+    this.add.image(cx, GAME_HEIGHT / 2, 'bg-title-keyart').setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.45);
+
     this.add.text(cx, 150, 'Tempest – Chronik', { fontFamily: 'serif', fontSize: '44px', color: '#e9c56c' }).setOrigin(0.5);
     this.add.text(cx, 196, 'Ein JRPG der Tempest-Welt', { fontFamily: 'sans-serif', fontSize: '18px', color: '#9fb2cc' }).setOrigin(0.5);
     const banner = getChapterBanner(loadSave(window.localStorage));

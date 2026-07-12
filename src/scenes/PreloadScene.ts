@@ -153,6 +153,7 @@ import soukaPortraitUrl from '../assets/sprites/portrait-souka.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
+import titleKeyartUrl from '../assets/backgrounds/title-keyart.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
@@ -299,6 +300,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
+    this.load.image('bg-title-keyart', titleKeyartUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
