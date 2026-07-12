@@ -4,6 +4,7 @@ import { collectHuntingGroundRewards } from './bestiaryMastery';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
+import { rollLabyrinthFloorLoot } from './labyrinth';
 import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules, grantSouls } from './progression';
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
@@ -12,6 +13,10 @@ import { applyWorldState, completeEncounter, createWorldState } from './world';
 export interface ApplyBattleResultOptions {
   readonly encounterId?: string | null;
   readonly chapterId?: string;
+  // Phase 155 — Labyrinth-Etagen-Loot: bei einem Sieg auf einer Labyrinth-Etage
+  // rollt der Reward-Fluss deterministisch (aus dem Kampf-Seed + Tiefe) eine
+  // gerollte Ausruestungs-Instanz und bankt sie als nicht-stapelbares Inventar-Item.
+  readonly labyrinthLoot?: { readonly seed: number; readonly depth: number };
 }
 
 export function calculateBattleMagicules(battle: BattleView): number {
@@ -110,8 +115,17 @@ export function applyBattleResultToSave(
     };
   });
 
+  // Phase 155 — gerollte Labyrinth-Etagen-Beute (deterministisch, gedeckelte Chance)
+  // als nicht-stapelbares Inventar-Item banken. Nur bei Sieg auf einer Labyrinth-Etage.
+  const labyrinthLootId = won && options.labyrinthLoot
+    ? rollLabyrinthFloorLoot(options.labyrinthLoot.seed, options.labyrinthLoot.depth)
+    : null;
   const inventory = won
-    ? normalizeInventoryStacks([...battle.inventory, ...battle.rewards.items])
+    ? normalizeInventoryStacks([
+        ...battle.inventory,
+        ...battle.rewards.items,
+        ...(labyrinthLootId ? [{ itemId: labyrinthLootId, quantity: 1 }] : [])
+      ])
     : normalizeInventoryStacks(battle.inventory);
 
   const baseFlags = {

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
+import { resolveInstanceItem } from '../systems/lootAffix';
 import type { ElementType, ItemDefinition, SkillDefinition } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
@@ -29,6 +30,7 @@ import {
   createLabyrinthBossEchoUnit,
   createScaledLabyrinthFloorUnits,
   labyrinthEncounterDepth,
+  rollLabyrinthFloorLoot,
   selectLabyrinthBossEcho
 } from '../systems/labyrinth';
 import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
@@ -79,6 +81,8 @@ export class BattleScene extends Phaser.Scene {
   private levelUps: LevelUpSummary[] = [];
   private magiculeGain = 0;
   private masteredGrounds: string[] = [];
+  // Phase 155 — gerollte Labyrinth-Etagen-Beute (kodierte Instanz-Id) für die Sieg-Zeile.
+  private labyrinthLoot: string | null = null;
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
@@ -119,6 +123,7 @@ export class BattleScene extends Phaser.Scene {
     this.rewardsApplied = false;
     this.levelUps = [];
     this.magiculeGain = 0;
+    this.labyrinthLoot = null;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
     this.reacting = false;
@@ -1123,6 +1128,15 @@ export class BattleScene extends Phaser.Scene {
           color: '#e9c56c'
         });
       }
+      // Phase 155 — gerollte Labyrinth-Beute sichtbar machen (Basis + Affixe).
+      if (this.labyrinthLoot) {
+        const loot = resolveInstanceItem(this.labyrinthLoot);
+        lines.push({
+          text: `✦ Labyrinth-Fund: ${loot?.name ?? this.labyrinthLoot}`,
+          size: 14,
+          color: '#ffd98a'
+        });
+      }
     }
     if (pactMessage) {
       lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
@@ -1159,8 +1173,13 @@ export class BattleScene extends Phaser.Scene {
   private applyBattleResult(status: string): void {
     const view = renderView(this.state);
     const before = this.save;
+    // Phase 155 — auf Labyrinth-Etagen deterministisch (Kampf-Seed + Tiefe) eine
+    // gerollte Ausruestungs-Instanz droppen; der Reward-Fluss bankt sie ins Inventar.
+    const depth = status === 'won' ? labyrinthEncounterDepth(this.encounterId) : null;
+    this.labyrinthLoot = depth !== null ? rollLabyrinthFloorLoot(this.state.seed, depth) : null;
     const after = applyBattleResultToSave(before, view, {
-      encounterId: status === 'won' ? this.encounterId : null
+      encounterId: status === 'won' ? this.encounterId : null,
+      labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;

@@ -1,9 +1,10 @@
-import { ENEMIES } from '../data';
-import type { EnemyDefinition } from '../data';
+import { ENEMIES, ITEMS } from '../data';
+import type { EnemyDefinition, ItemDefinition } from '../data';
 import { experienceFalloffMultiplier, scaleEnemyStatsToLevel } from './enemyScaling';
 import { createEnemyBattleUnit, type BattleUnitInput } from './battle';
 import { clampLevel } from './stats';
 import { addInventoryItem, type InventoryStack } from './inventory';
+import { rollLabyrinthLootItemId } from './lootAffix';
 import { makeRng } from './rng';
 
 export type LabyrinthModifier = 'crystal-fog' | 'hungry-corridor' | 'spirit-updraft';
@@ -157,6 +158,40 @@ export function createLabyrinthBossEchoUnit(
   depth = 3
 ): BattleUnitInput | null {
   return createScaledLabyrinthFloorUnits([enemyId], partyLevel, depth)[0] ?? null;
+}
+
+// Phase 155 — Labyrinth-Etagen-Loot: kuratierte Basis-Gear-Tische je Tiefe
+// (Raritaet steigt mit der Etage/dem Tiefen-Lead aus Phase 147). Ein Etagensieg
+// rollt daraus DETERMINISTISCH aus dem Kampf-Seed mit gedeckelter, tiefenabhaengiger
+// Chance eine gerollte Ausruestungs-Instanz (Phase 151) — bewusst niedrig, damit
+// kein offenes Farmen entsteht, aber tiefere (riskantere) Etagen oefter/besser loten.
+const LABYRINTH_LOOT_TABLES: Readonly<Record<number, readonly string[]>> = {
+  1: ['orc-cleaver', 'spirit-oak-staff', 'swiftwind-boots', 'lesser-magicule-core'],
+  2: ['warded-brigandine', 'famine-charm', 'ember-signet', 'resonant-core', 'ember-magicule-core'],
+  3: ['stormfang-blade', 'veldora-scale-ward', 'ward-talisman', 'soul-forged-core']
+};
+
+const LABYRINTH_LOOT_CHANCE: Readonly<Record<number, number>> = { 1: 0.15, 2: 0.25, 3: 0.4 };
+
+// Nur die drei realen Labyrinth-Etagen (1..3) haben einen Loot-Tisch; alles andere
+// lotet nicht (die Aufrufer leiten die Tiefe ohnehin aus `labyrinthEncounterDepth` ab).
+export function labyrinthLootTableForDepth(depth: number): readonly string[] {
+  return LABYRINTH_LOOT_TABLES[Math.floor(depth)] ?? [];
+}
+
+// Deterministischer Etagen-Loot-Drop: gedeckelte, mit der Tiefe steigende Chance;
+// bei Erfolg eine kodierte, gerollte Ausruestungs-Instanz aus dem Tiefen-Tisch,
+// sonst null. Rein/funktional (Seed rein → Ergebnis raus), headless testbar.
+export function rollLabyrinthFloorLoot(
+  seed: number,
+  depth: number,
+  itemDefinitions: readonly ItemDefinition[] = ITEMS
+): string | null {
+  const table = labyrinthLootTableForDepth(depth);
+  if (table.length === 0) return null;
+  const chance = LABYRINTH_LOOT_CHANCE[Math.floor(depth)] ?? 0;
+  if (makeRng((seed ^ 0x0155ade) >>> 0)() >= chance) return null;
+  return rollLabyrinthLootItemId((seed ^ 0x5eed155) >>> 0, table, itemDefinitions);
 }
 
 function rewardForDepth(depth: number): LabyrinthReward {
