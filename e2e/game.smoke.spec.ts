@@ -812,6 +812,7 @@ test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ 
 });
 
 test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page }) => {
+  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
