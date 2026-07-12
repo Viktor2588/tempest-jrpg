@@ -849,3 +849,10 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
+
+- [~] Phase 168 — Ende-Key-Arts (drei Enden). (in Bearbeitung in `/worktree/tempest-phase-168-ende-keyart`)
+  Die EndingScene (Hoehepunkt nach Akt 3) ist reiner Text auf Schwarz. Drei repo-eigene
+  generierte 1280×720-Key-Arts (WebP) je Ende (Freiheit/Ordnung/Geteilte Last) als
+  Hintergrund mit Abdunkelungs-Overlay; Muster von Phase 167. Keine Daten-/Balance-
+  Aenderung. Akzeptanz: Provenienz, Preload-/Ending-Wiring, Desktop-Smoke, typecheck,
+  Unit-Tests, build.
