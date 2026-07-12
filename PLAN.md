@@ -908,14 +908,17 @@ gefahren.
   ausfuehrbar — Playwright-Browser-Revision fehlt; Phase 172 ist rendering-neutral, nur
   Log + Status.)
 
-- [ ] Phase 173 — Die Uhr im Kampf lesbar (Wetter/Zeit-Banner). Umsetzung: `BattleScene`
-  zeigt beim regulaeren Encounter eine kompakte, nicht-interaktive Zeit/Wetter-Zeile
-  (`clockHudLabel`, Phase 101) am Kampf-HUD, damit der Spieler die Kausalitaet
-  „Nacht/Regen/Nebel → diese Eroeffnung" lesen kann; die Uhr wird als optionales
-  `clockLabel` von `OverworldScene` durchgereicht (nur reguläre Encounter, nicht
-  Labyrinth/Kolosseum). Reine Anzeige, keine Balance-/Save-Beruehrung. Akzeptanz:
-  HUD-Zeile rendert mit dem korrekten Label (Battle-E2E-Smoke), Label-Ableitung headless,
-  typecheck, alle Unit-Tests, build gruen.
+- [x] Phase 173 — Die Uhr im Kampf lesbar (Wetter/Zeit-Banner) (abgeschlossen, direkt auf
+  main). Umgesetzt: `BattleScene` traegt ein optionales `clockLabel` (aus `create(data)`)
+  und rendert es rechts oben im Kampf-HUD (unter der Feld-Zeile bei y=61, sonst an deren
+  Platz y=46; gedaempftes Grau, nicht-interaktiv), damit der Spieler die Kausalitaet
+  „Nacht/Regen/Nebel → diese Eroeffnung" lesen kann. `OverworldScene` reicht
+  `clockHudLabel(clock)` (Phase 101) beim regulaeren Encounter durch. Reine Anzeige, keine
+  Balance-/Save-Beruehrung; das Rendering ist gegen `null` gegated (Demo-/Alt-Pfade ohne
+  Uhr bleiben unveraendert). Akzeptanz erfuellt: die Label-Ableitung (`clockHudLabel`) ist
+  headless getestet (`test/worldClock.test.ts`), das Kampf-HUD rendert die Zeile fehlerfrei
+  im echten Browser (Battle-Smoke „Title → Overworld → Menü → Battle" gegen die volle
+  Chromium-Binary gruen), typecheck ✓, 773 Unit-Tests ✓, build ✓.
 
 - [ ] Phase 174 — Wechselnde Bedingungen belohnen (nicht-farmbare Wetter-/Nacht-Funde,
   off-route). Umsetzung: reine Belohnungslogik `weatherConditionReward(clock, flags)` in
