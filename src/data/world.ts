@@ -4594,8 +4594,13 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core', 'spirit-oak-staff', 'warded-brigandine', 'swiftwind-boots', 'resonant-core'],
     itemRequirements: [
+      // Phase 152 — mittlere Raritaeten erst nach der Ratsversammlung.
+      { itemId: 'spirit-oak-staff', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'warded-brigandine', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'swiftwind-boots', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'resonant-core', requirements: [{ flag: 'story.council.ready' }] },
       {
         itemId: 'tempest-charm',
         requirements: [{ flag: 'story.council.ready' }]

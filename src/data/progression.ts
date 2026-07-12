@@ -867,5 +867,15 @@ export const EQUIPMENT_SETS = [
       { pieces: 2, statBonus: { defense: 3, maxHp: 8 } },
       { pieces: 3, statBonus: { attack: 4, defense: 4, maxMp: 4 } }
     ]
+  },
+  // Phase 152 — neues Legendaer-Set „Sturmgeist-Ornat" (Wind/Geist), in der Schmiede gefertigt.
+  {
+    id: 'stormspirit-regalia',
+    name: 'Sturmgeist-Ornat',
+    itemIds: ['galewind-edge', 'stormweave-garb', 'zephyr-band'],
+    tiers: [
+      { pieces: 2, statBonus: { agility: 2, spirit: 2 } },
+      { pieces: 3, statBonus: { maxHp: 10, magic: 3, agility: 3 } }
+    ]
   }
 ] as const satisfies readonly EquipmentSetDefinition[];
