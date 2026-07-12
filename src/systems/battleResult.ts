@@ -11,6 +11,7 @@ import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicule
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
 import { applyWorldState, completeEncounter, createWorldState } from './world';
+import type { WorldClock } from './worldClock';
 
 export interface ApplyBattleResultOptions {
   readonly encounterId?: string | null;
@@ -22,6 +23,54 @@ export interface ApplyBattleResultOptions {
   // Phase 157 — Boss-Drops: bei einem Boss-Sieg rollt der Reward-Fluss deterministisch
   // (aus dem Kampf-Seed) mit gegateter Chance ein kern-lastiges Endgame-Loot und bankt es.
   readonly bossLoot?: { readonly seed: number };
+  // Phase 174 — Welt-Uhr: bei einem regulaeren Sieg belohnt der ERSTE Kampf unter je einer
+  // Bedingung (Nacht/Nebel/Regen) einmalig einen Magicule-Fund (nicht farmbar, Flag-gegatet).
+  readonly clock?: WorldClock;
+}
+
+// Phase 174 — Wechselnde Bedingungen belohnen: der ERSTE Sieg unter je einer Welt-Uhr-
+// Bedingung (Nacht / Nebel / Regen) zahlt EINMALIG einen kleinen Magicule-Fund und setzt
+// ein Flag, das Doppelzahlung ueber Save-/Kampf-Grenzen verhindert (nicht farmbar). Rein/
+// funktional; off-route (die Balance-Harness reicht keine Uhr durch → Korridor unberuehrt).
+export interface WeatherConditionReward {
+  readonly flag: string;
+  readonly magicules: number;
+  readonly label: string;
+}
+
+const WEATHER_CONDITION_MAGICULES = 8;
+
+export function weatherConditionRewards(
+  clock: WorldClock,
+  flags: Readonly<Record<string, boolean>>
+): WeatherConditionReward[] {
+  const rewards: WeatherConditionReward[] = [];
+  const consider = (flag: string, active: boolean, label: string): void => {
+    if (active && !flags[flag]) {
+      rewards.push({ flag, magicules: WEATHER_CONDITION_MAGICULES, label });
+    }
+  };
+  consider('worldclock.first.night', clock.timeOfDay === 'night', 'Erste Nachtschlacht');
+  consider('worldclock.first.fog', clock.weather === 'fog', 'Erster Sieg im Nebel');
+  consider('worldclock.first.rain', clock.weather === 'rain', 'Erster Sturmkampf');
+  return rewards;
+}
+
+const WEATHER_CONDITION_LABELS: readonly (readonly [string, string])[] = [
+  ['worldclock.first.night', 'Erste Nachtschlacht'],
+  ['worldclock.first.fog', 'Erster Sieg im Nebel'],
+  ['worldclock.first.rain', 'Erster Sturmkampf']
+];
+
+// Welche Bedingungs-Belohnungen (Phase 174) in diesem Kampf NEU verdient wurden — fuer
+// die Sieg-Zusammenfassung. Rein/funktional (Flag-Diff vorher→nachher).
+export function newlyRewardedWeatherConditions(
+  beforeFlags: Readonly<Record<string, boolean>>,
+  afterFlags: Readonly<Record<string, boolean>>
+): string[] {
+  return WEATHER_CONDITION_LABELS.filter(([flag]) => !beforeFlags[flag] && afterFlags[flag]).map(
+    ([, label]) => label
+  );
 }
 
 export function calculateBattleMagicules(battle: BattleView): number {
@@ -175,6 +224,14 @@ export function applyBattleResultToSave(
   let masteredProgression = progression;
   let flags = baseFlags;
   for (const reward of masteryRewards) {
+    masteredProgression = grantMagicules(masteredProgression, reward.magicules).state;
+    flags = { ...flags, [reward.flag]: true };
+  }
+
+  // Phase 174 — Welt-Uhr: erster Sieg unter je einer Bedingung (Nacht/Nebel/Regen) einmalig
+  // belohnen; die Flags verhindern Doppelzahlung (nicht farmbar). Off-route Spieler-Belohnung.
+  const weatherRewards = won && options.clock ? weatherConditionRewards(options.clock, flags) : [];
+  for (const reward of weatherRewards) {
     masteredProgression = grantMagicules(masteredProgression, reward.magicules).state;
     flags = { ...flags, [reward.flag]: true };
   }

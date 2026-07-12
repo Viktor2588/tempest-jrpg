@@ -43,7 +43,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
-import { clockAt, clockHudLabel, openingFieldElement } from '../systems/worldClock';
+import { clockAt, clockHudLabel, openingFieldElement, openingStatuses } from '../systems/worldClock';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
@@ -874,7 +874,14 @@ export class OverworldScene extends Phaser.Scene {
       battleWipe(this, 'Battle', {
         enemyIds: [...result.state.encounter.enemyIds],
         encounterId: result.state.encounter.id,
-        openingField: openingFieldElement(clock)
+        openingField: openingFieldElement(clock),
+        // Phase 171 — Nebel verhuellt das Schlachtfeld: symmetrischer Eroeffnungs-Status
+        // aus der Welt-Uhr (Nebel→Blind auf beide Seiten).
+        openingStatuses: openingStatuses(clock),
+        // Phase 173 — Welt-Uhr im Kampf lesbar: kompakte Zeit/Wetter-Zeile fuer das HUD.
+        clockLabel: clockHudLabel(clock),
+        // Phase 174 — Welt-Uhr: Uhr fuer die Erst-Sieg-Bedingungsbelohnung (Nacht/Nebel/Regen).
+        clock
       });
     }
   }

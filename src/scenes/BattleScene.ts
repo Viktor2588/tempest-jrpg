@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
 import { instanceAffixLabels, resolveInstanceItem } from '../systems/lootAffix';
-import type { ElementType, ItemDefinition, SkillDefinition } from '../data';
+import type { WorldClock } from '../systems/worldClock';
+import type { ElementType, ItemDefinition, SkillDefinition, StatusEffectId } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import {
@@ -33,7 +34,7 @@ import {
   rollLabyrinthFloorLoot,
   selectLabyrinthBossEcho
 } from '../systems/labyrinth';
-import { applyBattleResultToSave, rollBossLoot, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import { applyBattleResultToSave, newlyRewardedWeatherConditions, rollBossLoot, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
@@ -81,6 +82,8 @@ export class BattleScene extends Phaser.Scene {
   private levelUps: LevelUpSummary[] = [];
   private magiculeGain = 0;
   private masteredGrounds: string[] = [];
+  // Phase 174 — in diesem Kampf neu verdiente Welt-Uhr-Bedingungsfunde (Sieg-Zeile).
+  private weatherFinds: string[] = [];
   // Phase 155 — gerollte Labyrinth-Etagen-Beute (kodierte Instanz-Id) für die Sieg-Zeile.
   private labyrinthLoot: string | null = null;
   // Phase 157 — gerolltes Boss-Endgame-Loot (kodierte Instanz-Id) für die Sieg-Zeile.
@@ -88,19 +91,33 @@ export class BattleScene extends Phaser.Scene {
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
+  // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile aus dem Encounter (Phase 101).
+  private clockLabel: string | null = null;
+  // Phase 174 — Welt-Uhr: die Uhr des Encounters fuer die Erst-Sieg-Bedingungsbelohnung.
+  private battleClock: WorldClock | null = null;
   private reacting = false; // Phase 85 — Timing-Fenster aktiv, Menü blockiert
 
   constructor() {
     super('Battle');
   }
 
-  create(data: { enemyIds?: string[]; encounterId?: string; openingField?: ElementType | null }): void {
+  create(data: {
+    enemyIds?: string[];
+    encounterId?: string;
+    openingField?: ElementType | null;
+    openingStatuses?: readonly { readonly id: StatusEffectId; readonly turns: number }[];
+    clockLabel?: string | null;
+    clock?: WorldClock | null;
+  }): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;
+    this.clockLabel = data?.clockLabel ?? null;
+    this.battleClock = data?.clock ?? null;
     this.state = startBattle({
       openingField: data?.openingField ?? null,
+      openingStatuses: data?.openingStatuses ?? [],
       party: createProgressionBattleParty(
         this.save.party.active,
         this.save.progression,
@@ -570,6 +587,17 @@ export class BattleScene extends Phaser.Scene {
         46,
         `Feld: ${elementLabel(view.field.element)} (${view.field.turns})`,
         { fontFamily: 'sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#7fd4ff' }
+      ).setOrigin(1, 0.5));
+    }
+
+    // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile macht die Kausalitaet
+    // (Nacht/Regen/Nebel → diese Eroeffnung) sichtbar. Unter dem Feld, sonst an dessen Platz.
+    if (this.clockLabel) {
+      this.layer.add(this.add.text(
+        GAME_WIDTH - 15,
+        view.field ? 61 : 46,
+        this.clockLabel,
+        { fontFamily: 'sans-serif', fontSize: '11px', color: '#b9c6d8' }
       ).setOrigin(1, 0.5));
     }
 
@@ -1137,6 +1165,14 @@ export class BattleScene extends Phaser.Scene {
           color: '#e9c56c'
         });
       }
+      // Phase 174 — Welt-Uhr: neu verdiente Bedingungsfunde (Nacht/Nebel/Regen).
+      if (this.weatherFinds.length > 0) {
+        lines.push({
+          text: `☾ ${this.weatherFinds.join(' · ')}`,
+          size: 14,
+          color: '#9fd0ff'
+        });
+      }
       // Phase 155 — gerollte Labyrinth-Beute sichtbar machen (Basis + Affixe).
       if (this.labyrinthLoot) {
         const loot = resolveInstanceItem(this.labyrinthLoot);
@@ -1204,12 +1240,16 @@ export class BattleScene extends Phaser.Scene {
     const after = applyBattleResultToSave(before, view, {
       encounterId: status === 'won' ? this.encounterId : null,
       labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined,
-      bossLoot: status === 'won' ? { seed: this.state.seed } : undefined
+      bossLoot: status === 'won' ? { seed: this.state.seed } : undefined,
+      // Phase 174 — Welt-Uhr: Erst-Sieg-Bedingungsbelohnung (nur bei vorhandener Uhr).
+      clock: status === 'won' && this.battleClock ? this.battleClock : undefined
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;
     // Phase 124 — neu gemeisterte Jagdgruende fuer die Sieg-Zusammenfassung.
     this.masteredGrounds = newlyMasteredHuntingGrounds(before.flags, after.flags).map((ground) => ground.name);
+    // Phase 174 — neu verdiente Welt-Uhr-Bedingungsfunde (Nacht/Nebel/Regen).
+    this.weatherFinds = newlyRewardedWeatherConditions(before.flags, after.flags);
     this.save = autoSave(window.localStorage, after);
   }
 

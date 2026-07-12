@@ -1,4 +1,4 @@
-import type { ElementType } from '../data/types';
+import type { ElementType, StatusEffectId } from '../data/types';
 
 // Phase 101 — Welt-Uhr (Zeit/Wetter): eine rein deterministische Tag/Nacht- und
 // Wetter-Uhr, abgeleitet aus einem fortlaufenden Schrittzähler (`clockStep`) und
@@ -72,6 +72,21 @@ export function openingFieldElement(clock: WorldClock): ElementType | null {
   if (clock.weather === 'rain') return 'water';
   if (clock.timeOfDay === 'night') return 'shadow';
   return null;
+}
+
+// Phase 171 — Nebel verhuellt das Schlachtfeld: weckt den bis dahin toten `fog`-
+// Wetterzustand. Ein Eroeffnungs-Status wird beim Kampfstart SYMMETRISCH auf ALLE
+// Kaempfer (Party + Gegner) angewandt — Nebel truebt beiden Seiten die Sicht, im
+// Nebel trifft niemand sicher. Klar/Regen liefern keinen Eroeffnungs-Status (leer).
+// Reine Daten; die Anwendung liegt in systems/battle (startBattle).
+export interface OpeningStatus {
+  readonly id: StatusEffectId;
+  readonly turns: number;
+}
+
+export function openingStatuses(clock: WorldClock): readonly OpeningStatus[] {
+  if (clock.weather === 'fog') return [{ id: 'blind', turns: 2 }];
+  return [];
 }
 
 const TIME_LABELS: Readonly<Record<TimeOfDay, string>> = {
