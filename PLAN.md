@@ -690,6 +690,75 @@ darauf; 152–154 sind Content auf dem neuen System.
   5 Tests), Datenintegritaet gruen (`validateGameData`/`dataIntegrity`), typecheck ✓,
   721 Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
+## Zwoelfte Welle: Die Loot-Schleife schliesst sich (Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 737 Unit-Tests + Balance-Harness gruen): Die Elfte
+Welle hat das Ausruestungs-Fundament vollstaendig gebaut — Raritaets-/Tier-System
+(149), Kern-Slot (150), das kuratierte Affix-/Instanz-Loot-System (151,
+`systems/lootAffix.ts`: feste Affix-Pools je Raritaet, deterministischer Roll, kodierte
+NICHT-stapelbare Instanzen, Instanz-Ausruesten via zentralem Resolver in
+`menu.ts`/`progression.ts`), neues Gear + ein neues Legendaer-Set (152) und
+loot-gekoppelte Nebenquests (154). Der zentrale, Diablo-artige Reiz — **zufaellig
+gerollte Ausruestung aus Labyrinth-Laeufen** — bleibt aber unerreichbar, weil DREI
+Enden noch offen sind:
+
+(1) **Keine gerollte Instanz erreicht je den Spieler.** `rollLabyrinthLootItemId`
+(Phase 151) ist rein gebaut und getestet, wird aber NIRGENDS aufgerufen — der
+Kampf-/Etagen-Reward-Fluss (`BattleScene.drawResult`/`battleResult`) vergibt nur die
+statischen `EnemyDrop`-Items und feste Encounter-`victoryEffects`. Das Affix-System ist
+damit toter, verifizierter Motor (wie die Kontroll-Schicht vor Welle 8).
+
+(2) **Instanzen sind im Menue nicht als Loot lesbar.** `getSortedInventory`/
+`getEquipmentItems` liefern die synthetisierte Instanz-Definition (Basis+Affixe), aber
+der MenuScene-Renderer faerbt den Namen nicht nach Raritaet (`rarityColor` existiert seit
+149, wird nur fuer statische Items genutzt) und zeigt die gerollten Affixe nicht auf — ein
+gerolltes „Sturmwind-Schneide (scharf, vital)" sieht aus wie ein gewoehnliches Item.
+
+(3) **Boss-Siege haben keine eigene Loot-Bedeutung.** Boss-Kills ernten Seelen (127) und
+Magicules (102), aber droppen — ausser den festen `EnemyDrop`-Kernen — kein gerolltes
+Endgame-Gear; der Kern-Slot (150) hat keinen erspielbaren Roll-Nachschub.
+
+Diese Welle **aktiviert das gebaute, getestete Affix-System und macht es sichtbar** —
+mit reiner, headless-testbarer Reward-/View-Logik plus duennem Phaser-Wiring. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording). Reihenfolge = Abhaengigkeit: 155 macht Drops real (Fundament), 156 macht
+sie lesbar, 157 verzahnt Boss-Loot mit der Kern-/Seelen-Oekonomie. Jede kampfberuehrende
+Phase bleibt **off-route** (Labyrinth/Boss-Drops sind Spieler-Belohnung, nicht Teil der
+Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gruen gefahren.
+
+- [ ] Phase 155 — Labyrinth-Drops vergeben echte Loot-Instanzen.
+  Der Labyrinth-Etagen-Reward haengt deterministisch aus dem Run-/Kampf-Seed eine gerollte
+  Ausruestungs-Instanz an die Belohnung: eine neue reine Funktion (z. B. in `systems/labyrinth.ts`
+  oder `systems/battleResult.ts`) waehlt ueber `rollLabyrinthLootItemId` aus einem
+  kuratierten Basis-Gear-Loot-Tisch pro Tiefe (Raritaet steigt mit der Etage/Tiefen-Lead
+  aus Phase 147), und die kodierte Instanz-Id wird ueber `addInventoryItem` als
+  nicht-stapelbares Inventar-Item gebankt. `BattleScene` ruft den Roll nur auf den
+  Labyrinth-Etagen (`labyrinthEncounterDepth`) auf — sonst unveraendert. Bewusst niedrige
+  Chance/kuratierter Tisch (kein offenes Farmen). Akzeptanz: Loot-Tisch-Auswahl +
+  Tiefe→Raritaet + Determinismus + Inventar-Bank headless, `BattleScene`-Wiring,
+  Labyrinth-/Kampf-E2E-Smoke, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**
+  (Labyrinth off-route → Korridor unberuehrt).
+
+- [ ] Phase 156 — Instanz-Anzeige im Menue (Raritaets-Farbe + Affix-Aufschluesselung).
+  Der Ausruestungs-/Inventar-View faerbt Instanz-Namen nach ihrer (Basis-)Raritaet
+  (`rarityColor`, Phase 149) und listet die gerollten Affix-Labels als Detailzeile;
+  `InventoryItemView`/`MemberSummary` reichen Raritaet + Affix-Labels durch (aus
+  `decodeInstanceId`/`affixById`), sodass ein gerolltes Stueck sichtbar als Loot lesbar wird
+  (Name farbig, „scharf · vital" darunter). Rein additive View-Daten; keine Balance-/
+  Save-Beruehrung. Akzeptanz: View-Daten (Raritaet + Affix-Labels an Instanzen, statische
+  Items unveraendert) headless, Menue-E2E-Smoke (Farbe + Affix-Zeile), typecheck ✓,
+  Unit-Tests ✓, build ✓.
+
+- [ ] Phase 157 — Boss-Drops: gerolltes Kern-/Endgame-Loot.
+  Grosse Boss-Siege (`enemy.boss && enemy.dead`) vergeben mit einer gegateten, deterministischen
+  Chance (aus dem Kampf-Seed) eine gerollte Loot-Instanz aus einem kleinen Boss-Loot-Tisch,
+  der v. a. `core`-Basis-Items hoher Raritaet enthaelt — so bekommt der Kern-Slot (Phase 150)
+  erspielbaren Roll-Nachschub und Boss-Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/
+  Magicules (102). Reine Belohnungslogik (analog `calculateBattleSouls`); die Auto-Battle-
+  Harness reicht keinen Loot-Seed/kein Bank durch → Sims unveraendert. Akzeptanz: Boss-Only-
+  Gate + Determinismus + Kern-lastiger Tisch + Inventar-Bank headless, typecheck ✓,
+  Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+
 ## UX- und Welt-Backlog
 
 
