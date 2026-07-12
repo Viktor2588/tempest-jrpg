@@ -850,3 +850,15 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
+- [x] Phase 169 — Ultimate Gift: das Erwachen segnet die Gefaehrten (abgeschlossen in
+  `/worktree/tempest-phase-169-ultimate-gift`). Canon-Luecke aus IDEE.md §1 geschlossen:
+  das Erntefest buff'te nur Rimuru und die Bewohner-Offiziere — jetzt erhaelt jeder der
+  acht Party-Gefaehrten nach vollzogenem Erwachen EIN massvolles, canon-thematisches
+  Ultimate-Geschenk ueber den bestehenden `awakenedPerksForMember`-Pfad (reine
+  Datenergaenzung: Benimaru +8 % Feuer, Shuna +10 % Buff-Kraft, Shion +8 % Physisch,
+  Souei/Gobta +5 % Ausweichen, Hakurou +6 % Konter, Ranga +8 % Wind, Rigurd +8 % LP).
+  Balance-sicher by design: die Harness laeuft ohne `awakeningCompleted` → Korridore
+  unberuehrt. Akzeptanz erfuellt: Geschenke nur nach Erwachen + je Charakter + Rimuru-
+  Abgrenzung headless (`test/progression.test.ts`), typecheck ✓, 768 Unit-Tests inkl.
+  Balance-Harness ✓, build ✓.
+

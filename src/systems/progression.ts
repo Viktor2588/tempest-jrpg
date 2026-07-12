@@ -188,6 +188,19 @@ const AWAKENED_RIMURU_PERKS: readonly TalentPerk[] = [
   { kind: 'max-hp', percent: 10 },
   { kind: 'damage-dealt', percent: 10 }
 ];
+// Phase 169 — Ultimate Gift (IDEE.md §1): das Erntefest segnet auch die engsten
+// Gefolgsleute mit je EINEM abgeschwaechten, canon-thematischen Geschenk-Perk.
+// Massvoll gehalten; die Balance-Harness laeuft ohne Erwachen → Korridore unberuehrt.
+const ULTIMATE_GIFT_PERKS_BY_CHARACTER: Readonly<Record<string, readonly TalentPerk[]>> = {
+  benimaru: [{ kind: 'damage-dealt', percent: 8, element: 'fire' }],
+  shuna: [{ kind: 'buff-power', percent: 10 }],
+  shion: [{ kind: 'damage-dealt', percent: 8, category: 'physical' }],
+  souei: [{ kind: 'dodge', percent: 5 }],
+  hakurou: [{ kind: 'counter', percent: 6 }],
+  ranga: [{ kind: 'damage-dealt', percent: 8, element: 'wind' }],
+  gobta: [{ kind: 'dodge', percent: 5 }],
+  rigurd: [{ kind: 'max-hp', percent: 8 }]
+};
 
 export function createProgressionState(options: CreateProgressionStateOptions = {}): ProgressionState {
   return {
@@ -937,7 +950,9 @@ function awakenedPerksForMember(
   characterId: string,
   state: ProgressionState
 ): readonly TalentPerk[] {
-  return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
+  if (!state.awakeningCompleted) return [];
+  if (characterId === 'rimuru') return AWAKENED_RIMURU_PERKS;
+  return ULTIMATE_GIFT_PERKS_BY_CHARACTER[characterId] ?? [];
 }
 
 // Phase 135 — Ausruestungs-Perks: sammelt die TalentPerks aller ausgeruesteten Teile
