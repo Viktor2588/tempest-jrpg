@@ -64,6 +64,11 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
+  it('liefert das Mimik-HUD WebP-optimiert aus', () => {
+    expect(assetFiles).toContain('ui/mimic-form-indicator.webp');
+    expect(assetFiles).not.toContain('ui/mimic-form-indicator.jpg');
+  });
+
   it('nutzt in sfx.ts echte CC0-SFX-Dateien; die prozedurale Schicht liegt separat', () => {
     // Basis-SFX = echte CC0-Dateien (ASSETS.md). Die prozedurale Game-Feel-Schicht
     // (Phase 144, createOscillator) lebt bewusst in sfxProcedural.ts, damit reine

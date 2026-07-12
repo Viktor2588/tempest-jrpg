@@ -1300,6 +1300,16 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 767 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 170 - Mimik-HUD als WebP
+
+- Scope: Das letzte grosse Nicht-WebP-HUD-Asset `mimic-form-indicator` wurde bei
+  gleicher Aufloesung auf WebP umgestellt; der bestehende Phaser-Texture-Key bleibt
+  stabil. Die drei winzigen Pixel-Tiles bleiben PNG.
+- Wirkung: 209.448 -> 68.256 Bytes (-67 %), ohne Art-, Layout-, Gameplay- oder
+  Balance-Aenderung.
+- Validiert mit Format-/Wiring-Test, `git diff --check`, Typecheck, 769 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

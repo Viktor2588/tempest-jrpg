@@ -186,7 +186,7 @@ import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
 import formationRowsUrl from '../assets/ui/formation-rows.webp';
-import mimicFormUrl from '../assets/ui/mimic-form-indicator.jpg';
+import mimicFormUrl from '../assets/ui/mimic-form-indicator.webp';
 import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
