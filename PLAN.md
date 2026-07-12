@@ -20,7 +20,7 @@ Status:
 Worktrees werden strikt pro Phase unter `/worktree/tempest-phase-<nr>-<kurzname>` angelegt und nach erfolgreichem Merge + Aufräumen entfernt. Siehe AGENTS.md.
 
 ## Bugs
-- zu viele punkte Geometrien nach abschluss von quests. (Untersucht 2026-07-10: Marker-Systeme korrekt — geräumte Encounter/eingesammelte Funde werden gefiltert, worldLayer wird pro Redraw geleert, Tile-Grid-Graphics einmalig gezeichnet. Kein reproduzierbarer Leak im Code; braucht Live-Browser-Repro / genauere Beschreibung.)
+- ~~zu viele punkte Geometrien nach abschluss von quests~~ (GESCHLOSSEN 2026-07-12 nach Live-Browser-Repro: Band-2-Save mit zwei abgeschlossenen Quests geladen, 10 Redraw-Zyklen (Menue auf/zu + Schritte) erzwungen, Frames pixelverglichen — 0,28 % Differenz = reine Idle-Animation, KEINE Marker-Akkumulation. Die sichtbaren Punkte sind gelabelte, beabsichtigte Landmarken/Fundstellen/NPC-Quest-Marker; die Entstoer-Filter aus der Code-Analyse 2026-07-10 greifen. Falls es dem Nutzer um die DICHTE der Marker im Ratsplatz-Cluster geht statt um einen Leak: bitte neue, konkretere Beschreibung.)
 
 ## Story-Roadmap (TODO: Story & Events fesselnder machen)
 
