@@ -5,6 +5,8 @@
 // (z. B. nach einem Boss) erscheinen — so wird Erkundung belohnt und die Welt
 // reagiert sichtbar. Rein/funktional, Phaser-frei, headless testbar.
 
+import type { TimeOfDay, Weather, WorldClock } from './worldClock';
+
 export interface MapDiscovery {
   readonly flag: string;
   readonly title: string;
@@ -19,6 +21,11 @@ interface MapDiscoveryDefinition extends MapDiscovery {
   readonly y: number;
   // Erscheint erst, wenn dieses Flag gesetzt ist (Weltveraenderung, z. B. Post-Boss).
   readonly requiresFlag?: string;
+  // Phase 176 — zeit-/wettergebundener Fund: erscheint NUR unter dieser Welt-Uhr-Bedingung
+  // (z. B. nur nachts, nur bei Nebel). Ohne bekannte Uhr (kein `clock` uebergeben) bleibt
+  // ein solcher Fund unsichtbar. Reine Zusatzbedingung zum Story-Flag-Gate.
+  readonly requiresTimeOfDay?: TimeOfDay;
+  readonly requiresWeather?: Weather;
 }
 
 const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
@@ -282,26 +289,62 @@ const DISCOVERIES: readonly MapDiscoveryDefinition[] = [
     body: 'Hinter einem Marktstand Blumunds lagert ein gut gehütetes Bündel destillierter Hipokte-Kräuter.',
     rewardItemId: 'hipokte-herb',
     rewardLabel: 'Hipokte-Kraut'
+  },
+  {
+    // Phase 176 — nur im Nebel sichtbar: erst wenn dichter Nebel ueber dem Flüsterhain
+    // liegt, tritt der sonst verborgene Geistfund hervor.
+    mapId: 'whispering-grove',
+    x: 10,
+    y: 6,
+    requiresWeather: 'fog',
+    flag: 'discovery.whispering-grove.mist-cache',
+    title: 'Nebelverhüllter Geistfund',
+    body: 'Nur wenn dichter Nebel den Flüsterhain verhüllt, schimmert zwischen den Stämmen ein sonst unsichtbarer Manatropfen auf.',
+    rewardItemId: 'mana-drop',
+    rewardLabel: 'Manatropfen'
+  },
+  {
+    // Phase 176 — nur nachts sichtbar: die Schreingipfel geben ihr nächtliches Leuchten
+    // erst nach Einbruch der Dunkelheit preis.
+    mapId: 'spirit-highlands',
+    x: 9,
+    y: 5,
+    requiresTimeOfDay: 'night',
+    flag: 'discovery.spirit-highlands.night-ember',
+    title: 'Nächtliches Geisterglühen',
+    body: 'Bei Nacht glimmt auf den Schreingipfeln eine Geistglut auf, die das Tageslicht sonst verschluckt.',
+    rewardItemId: 'spirit-ember',
+    rewardLabel: 'Geistglut'
   }
 ] as const;
 
-function isVisible(def: MapDiscoveryDefinition, flags: Readonly<Record<string, boolean>>): boolean {
+function isVisible(
+  def: MapDiscoveryDefinition,
+  flags: Readonly<Record<string, boolean>>,
+  clock?: WorldClock
+): boolean {
   if (flags[def.flag] === true) return false; // schon eingesammelt
-  return def.requiresFlag === undefined || flags[def.requiresFlag] === true;
+  if (def.requiresFlag !== undefined && flags[def.requiresFlag] !== true) return false;
+  // Phase 176 — Uhr-Gate: ist eine Zeit/Wetter-Bedingung gesetzt, muss die Uhr bekannt
+  // sein UND passen; ohne uebergebene Uhr bleibt ein bedingter Fund unsichtbar.
+  if (def.requiresTimeOfDay !== undefined && clock?.timeOfDay !== def.requiresTimeOfDay) return false;
+  if (def.requiresWeather !== undefined && clock?.weather !== def.requiresWeather) return false;
+  return true;
 }
 
 function toView(def: MapDiscoveryDefinition): MapDiscovery {
-  const { mapId: _m, x: _x, y: _y, requiresFlag: _r, ...view } = def;
+  const { mapId: _m, x: _x, y: _y, requiresFlag: _r, requiresTimeOfDay: _t, requiresWeather: _w, ...view } = def;
   return view;
 }
 
 // Noch nicht eingesammelte, aktuell sichtbare Fundstellen der Karte (für Marker).
 export function getMapDiscoveries(
   mapId: string,
-  flags: Readonly<Record<string, boolean>>
+  flags: Readonly<Record<string, boolean>>,
+  clock?: WorldClock
 ): readonly (MapDiscovery & { readonly x: number; readonly y: number })[] {
   return DISCOVERIES
-    .filter((def) => def.mapId === mapId && isVisible(def, flags))
+    .filter((def) => def.mapId === mapId && isVisible(def, flags, clock))
     .map((def) => ({ ...toView(def), x: def.x, y: def.y }));
 }
 
@@ -310,10 +353,12 @@ export function getMapDiscoveryAt(
   mapId: string,
   x: number,
   y: number,
-  flags: Readonly<Record<string, boolean>>
+  flags: Readonly<Record<string, boolean>>,
+  clock?: WorldClock
 ): MapDiscovery | null {
   const def = DISCOVERIES.find(
-    (candidate) => candidate.mapId === mapId && candidate.x === x && candidate.y === y && isVisible(candidate, flags)
+    (candidate) =>
+      candidate.mapId === mapId && candidate.x === x && candidate.y === y && isVisible(candidate, flags, clock)
   );
   return def ? toView(def) : null;
 }

@@ -7,6 +7,7 @@ import {
   getMapDiscoveries,
   getMapDiscoveryAt
 } from '../src/systems/mapDiscovery';
+import type { WorldClock } from '../src/systems/worldClock';
 
 describe('Karten-Entdeckungen', () => {
   it('liefert eine Fundstelle exakt auf ihrer Kachel, sonst nichts', () => {
@@ -94,5 +95,31 @@ describe('Karten-Entdeckungen', () => {
       'story.council.ready': true,
       'discovery.spirit-highlands.wind-core': true
     })).toBeNull();
+  });
+
+  // Phase 176 — zeit-/wettergebundene Funde.
+  it('zeigt den Nebelfund NUR bei Nebel (Uhr-gegatet)', () => {
+    const clear: WorldClock = { day: 0, timeOfDay: 'day', weather: 'clear' };
+    const foggy: WorldClock = { day: 0, timeOfDay: 'day', weather: 'fog' };
+    // Ohne Uhr oder bei klarem Wetter unsichtbar.
+    expect(getMapDiscoveryAt('whispering-grove', 10, 6, {})).toBeNull();
+    expect(getMapDiscoveryAt('whispering-grove', 10, 6, {}, clear)).toBeNull();
+    // Bei Nebel sichtbar.
+    const mist = getMapDiscoveryAt('whispering-grove', 10, 6, {}, foggy);
+    expect(mist?.rewardItemId).toBe('mana-drop');
+    // Marker-Liste respektiert das Uhr-Gate ebenfalls.
+    expect(getMapDiscoveries('whispering-grove', {}, clear).some((d) => d.x === 10 && d.y === 6)).toBe(false);
+    expect(getMapDiscoveries('whispering-grove', {}, foggy).some((d) => d.x === 10 && d.y === 6)).toBe(true);
+  });
+
+  it('zeigt den Nachtfund NUR nachts und bleibt nach dem Einsammeln weg', () => {
+    const day: WorldClock = { day: 0, timeOfDay: 'day', weather: 'clear' };
+    const night: WorldClock = { day: 0, timeOfDay: 'night', weather: 'clear' };
+    expect(getMapDiscoveryAt('spirit-highlands', 9, 5, {}, day)).toBeNull();
+    expect(getMapDiscoveryAt('spirit-highlands', 9, 5, {}, night)?.rewardItemId).toBe('spirit-ember');
+    // Einmalig: mit gesetztem Flag auch nachts weg.
+    expect(getMapDiscoveryAt('spirit-highlands', 9, 5, {
+      'discovery.spirit-highlands.night-ember': true
+    }, night)).toBeNull();
   });
 });

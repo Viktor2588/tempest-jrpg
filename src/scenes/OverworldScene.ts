@@ -749,7 +749,11 @@ export class OverworldScene extends Phaser.Scene {
 
     // Entdeckungen: Glitzerpunkte mit Lore + Belohnung (Erkundungsanreiz); nur
     // sichtbar, solange nicht eingesammelt (und ggf. erst nach Weltveraenderung).
-    for (const discovery of getMapDiscoveries(this.mapId, this.save.flags)) {
+    for (const discovery of getMapDiscoveries(
+      this.mapId,
+      this.save.flags,
+      clockAt(this.save.clockStep ?? 0, this.save.seed)
+    )) {
       layer.add(this.add.circle(this.cx(discovery.x), this.cy(discovery.y), TILE * 0.24, 0x1f6f66, 0.36)
         .setStrokeStyle(2, 0x8affe4, 0.7));
       layer.add(this.add.text(this.cx(discovery.x), this.cy(discovery.y), '✦', {
@@ -873,7 +877,13 @@ export class OverworldScene extends Phaser.Scene {
     this.refreshClockHud();
     // Entdeckung auf der Kachel hat Vorrang vor einem Zufallskampf: als Modal
     // zeigen, Belohnung/Flag setzt die Discovery-Szene; danach neu zeichnen.
-    if (getMapDiscoveryAt(this.mapId, this.pos.x, this.pos.y, this.save.flags)) {
+    if (getMapDiscoveryAt(
+      this.mapId,
+      this.pos.x,
+      this.pos.y,
+      this.save.flags,
+      clockAt(this.save.clockStep ?? 0, this.save.seed)
+    )) {
       this.scene.launch('Discovery', { mapId: this.mapId, x: this.pos.x, y: this.pos.y });
       this.scene.pause();
       return;
