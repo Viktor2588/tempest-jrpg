@@ -850,12 +850,3 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
-- [x] Phase 168 — Ende-Key-Arts (drei Enden) (abgeschlossen in
-  `/worktree/tempest-phase-168-ende-keyart`). Die EndingScene (Hoehepunkt nach Akt 3)
-  war reiner Text auf Schwarz. Jetzt drei repo-eigene generierte 1280×720-Key-Arts
-  (WebP, je ~120 KB) je Ende — Freiheit (zerberstende Runenketten), Ordnung
-  (Runen-Siegeldom), Geteilte Last (Lichtfaeden auf Monster-Silhouetten) — als
-  Hintergrund mit 0.72-Abdunkelung, Fallback auf Alt-Layout ohne Ende-Flag. Keine
-  Daten-/Balance-Aenderung. Akzeptanz erfuellt: Provenienz in ASSETS.md, Preload-/
-  Ending-Wiring + E2E-Asset-Check, Desktop-Smoke gruen, typecheck ✓, 767 Unit-Tests ✓,
-  build ✓.
