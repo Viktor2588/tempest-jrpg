@@ -2,7 +2,7 @@ import { CRAFTING_RECIPES, ITEMS } from '../data';
 import type { CraftingRecipe, ItemDefinition, ItemRarity } from '../data';
 import { addInventoryItem, getItemCount, removeInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
-import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
+import { isEquipmentInstanceId, reforgeInstance, resolveInstanceItem } from './lootAffix';
 import { rarityOf } from './itemRarity';
 
 // Phase 91 — Die Schmiede (Crafting): reine Regeln über Inventar + Gold + Flags.
@@ -176,6 +176,61 @@ export function salvageEquipment(context: CraftContext, itemId: string): Salvage
     ? materials.map((mat) => `${itemName(mat.itemId)} ×${mat.quantity}`).join(', ')
     : 'nichts Verwertbares';
   return { ok: true, inventory, materials, message: `${item.name} zerlegt → ${gain}.` };
+}
+
+// Phase 160 — Affix-Umschmieden: eine Loot-Instanz gegen Materialkosten neu rollen.
+// Verbraucht v. a. die in 159 zurueckgewonnenen Materialien (Kreislauf Beute → zerlegen →
+// umschmieden). Nur echte `loot|…`-Instanzen sind umschmiedbar (feste Teile tragen ihre
+// kuratierten Affixe/Sets). Rein/funktional; der Seed kommt von der Scene (variiert je Aufruf).
+const REFORGE_MATERIAL_ID = 'magisteel';
+const REFORGE_GOLD_BY_RARITY: Readonly<Record<ItemRarity, number>> = {
+  gewoehnlich: 40, selten: 80, episch: 140, legendaer: 220, 'legendaer-set': 200
+};
+
+export interface ReforgeCost {
+  readonly materialId: string;
+  readonly materialQty: number;
+  readonly gold: number;
+}
+
+export function reforgeCost(itemId: string): ReforgeCost | null {
+  if (!isEquipmentInstanceId(itemId)) return null;
+  const item = resolveGear(itemId);
+  if (!item?.equipmentSlot) return null;
+  return { materialId: REFORGE_MATERIAL_ID, materialQty: 1, gold: REFORGE_GOLD_BY_RARITY[rarityOf(item)] };
+}
+
+export interface ReforgeResult {
+  readonly ok: boolean;
+  readonly inventory: readonly InventoryStack[];
+  readonly gold: number;
+  readonly newItemId: string | null;
+  readonly message: string;
+}
+
+export function reforgeEquipment(context: CraftContext, seed: number, itemId: string): ReforgeResult {
+  const fail = (message: string): ReforgeResult => ({
+    ok: false, inventory: context.inventory, gold: context.gold, newItemId: null, message
+  });
+  const cost = reforgeCost(itemId);
+  if (!cost) return fail('Nur gerollte Beute laesst sich umschmieden.');
+  if (getItemCount(context.inventory, itemId) <= 0) return fail('Item ist nicht im Inventar.');
+  if (getItemCount(context.inventory, cost.materialId) < cost.materialQty) {
+    return fail(`Material fehlt: ${itemName(cost.materialId)}.`);
+  }
+  if (context.gold < cost.gold) return fail(`${cost.gold} Gold erforderlich.`);
+  const newItemId = reforgeInstance(seed, itemId);
+  if (!newItemId) return fail('Umschmieden fehlgeschlagen.');
+  let inventory = removeInventoryItem(context.inventory, itemId, 1);
+  inventory = removeInventoryItem(inventory, cost.materialId, cost.materialQty);
+  inventory = addInventoryItem(inventory, newItemId, 1);
+  return {
+    ok: true,
+    inventory,
+    gold: context.gold - cost.gold,
+    newItemId,
+    message: `${resolveGear(newItemId)?.name ?? 'Beute'} umgeschmiedet.`
+  };
 }
 
 // Menü-/Schmiede-Ansicht: alle aktuell freigeschalteten Rezepte mit

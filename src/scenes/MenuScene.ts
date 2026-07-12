@@ -46,7 +46,8 @@ import {
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildForgeView, craftRecipe, salvageEquipment, salvageYieldLabel, type CraftContext } from '../systems/crafting';
+import { buildForgeView, craftRecipe, reforgeCost, reforgeEquipment, salvageEquipment, salvageYieldLabel, type CraftContext } from '../systems/crafting';
+import { getItemCount } from '../systems/inventory';
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
@@ -706,7 +707,7 @@ export class MenuScene extends Phaser.Scene {
       this.layer.add(this.add.text(300, y + 6, `Zerlegen → ${salvageYieldLabel(entry.item.id)}`, {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
-      this.button(620, y, 130, 'Zerlegen', () => {
+      this.button(600, y, 128, 'Zerlegen', () => {
         const result = salvageEquipment(this.forgeContext(), entry.item.id);
         this.message = result.message;
         if (result.ok) {
@@ -715,6 +716,22 @@ export class MenuScene extends Phaser.Scene {
         }
         this.refresh();
       }, 0x5a3a2f);
+      // Phase 160 — Umschmieden: nur echte Loot-Instanzen tragen neu-rollbare Affixe.
+      const cost = reforgeCost(entry.item.id);
+      if (cost) {
+        const affordable = getItemCount(this.state.inventory, cost.materialId) >= cost.materialQty
+          && this.state.gold >= cost.gold;
+        this.button(738, y, 150, `Umschmieden · ${cost.gold}G`, () => {
+          const seed = (Date.now() & 0x7fffffff) || 1;
+          const result = reforgeEquipment(this.forgeContext(), seed, entry.item.id);
+          this.message = result.message;
+          if (result.ok) {
+            this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+            this.persist();
+          }
+          this.refresh();
+        }, affordable ? 0x2f4a6f : 0x242b38);
+      }
     });
     this.drawListPager(col, page);
   }

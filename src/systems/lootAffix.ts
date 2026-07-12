@@ -107,6 +107,20 @@ export function rollEquipmentInstance(
   return { baseItemId, affixIds };
 }
 
+// Phase 160 — Affix-Umschmieden: rollt fuer eine kodierte Loot-Instanz die Affixe
+// DETERMINISTISCH neu (gleiche Basis-Id + gleiche Raritaets-Regel → gleicher Pool/gleiche
+// Anzahl) und gibt die neue kodierte Instanz-Id zurueck. Statische/unbekannte Ids → null.
+export function reforgeInstance(
+  seed: number,
+  itemId: string,
+  itemDefinitions: readonly ItemDefinition[] = ITEMS
+): string | null {
+  const instance = decodeInstanceId(itemId);
+  if (!instance) return null;
+  const rerolled = rollEquipmentInstance((seed ^ 0x2ef01a9) >>> 0, instance.baseItemId, itemDefinitions);
+  return encodeInstanceId(rerolled);
+}
+
 const INSTANCE_PREFIX = 'loot|';
 
 // Kodierung: `loot|<baseId>|<affix1>,<affix2>` — baseId/affixIds sind kebab-case
