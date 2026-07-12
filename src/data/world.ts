@@ -759,6 +759,89 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['magisteel'] }
+  },
+  // Phase 154 — an Loot gekoppelte Nebenquests: ein erspielbarer Weg zu der in Welle 11
+  // eingefuehrten Ausruestung (Kern/selten/legendaer, Phasen 149/150). Jede Quest jagt in
+  // einer der duennen Regionen (Welle 10/153) und zahlt gezielt ein Gear-Stueck statt nur
+  // Verbrauchsgut. Off-route: die Jagd-Encounter stehen in keiner Region-`encounterIds`-Liste
+  // → ambiente Regionsschwierigkeit/Balance-Harness unberuehrt.
+  {
+    id: 'emberforge-hunt',
+    title: 'Auftrag: Glutkern für die Schmiede',
+    description: 'Rigurd braucht einen glutdurchzogenen Magicule-Kern aus der Glutgrotte — ein Oger-Krieger bewacht die letzte heiße Ader.',
+    steps: [
+      {
+        id: 'accept-ember',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm Rigurds Auftrag an, die Glutgrotte nach einem Kern zu durchsuchen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-ember',
+        title: 'Den Oger-Krieger erlegen',
+        description: 'Stell den Oger-Krieger an der Glutader in der Glutgrotte.',
+        locationId: 'ember-hollow-entrance'
+      },
+      {
+        id: 'report-ember',
+        title: 'Rigurd den Kern bringen',
+        description: 'Bring Rigurd den geborgenen Glutkern und kassiere den Auftrag.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 200, itemIds: ['ember-magicule-core', 'magic-ore'] }
+  },
+  {
+    id: 'echomoor-blade-hunt',
+    title: 'Auftrag: Klinge aus dem Echsenmoor',
+    description: 'Kaijin sucht ein grobes, aber wuchtiges Beil als Vorlage — es liegt bei einem Echsenkrieger im Moor.',
+    steps: [
+      {
+        id: 'accept-blade',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm den Auftrag an, das Beil aus dem Echsenmoor zu bergen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-blade',
+        title: 'Den Echsenkrieger stellen',
+        description: 'Erleg den Echsenkrieger, der das Beil am Moorlager führt.',
+        locationId: 'lizard-marsh-camp'
+      },
+      {
+        id: 'report-blade',
+        title: 'Rigurd berichten',
+        description: 'Bring das Ork-Schlachtbeil zu Rigurd und kassiere den Auftrag.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 170, itemIds: ['orc-cleaver', 'magisteel'] }
+  },
+  {
+    id: 'highland-ward-hunt',
+    title: 'Auftrag: Der Wächter-Talisman',
+    description: 'Nach dem Echo bittet Rigurd, den letzten Nachhut-Streuner am Schreingipfel zu bannen — Shuna weiht daraus einen Schutztalisman.',
+    steps: [
+      {
+        id: 'accept-ward',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm den Auftrag an, den Streuner am Schreingipfel zu bannen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-ward',
+        title: 'Den Nachhut-Streuner bannen',
+        description: 'Stell den Mordrahn-Streuner am Geisterschrein-Gipfel.',
+        locationId: 'shrine-summit'
+      },
+      {
+        id: 'report-ward',
+        title: 'Rigurd berichten',
+        description: 'Bring Rigurd den gebannten Nachhall; Shuna weiht daraus den Talisman.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 260, itemIds: ['ward-talisman', 'spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -2467,6 +2550,98 @@ export const DIALOGS = [
             label: 'Was bleibt nach dem Echo?',
             nextNodeId: 'state-established',
             requirements: [{ flag: 'story.act1.completed' }]
+          },
+          // Phase 154 — an Loot gekoppelte Nebenquests (Gear-Belohnung aus Welle 11).
+          // Verfuegbar ab dem Rat (rigurd-council/rigurd-established nutzen diesen Dialog).
+          {
+            id: 'accept-ember-order',
+            label: 'Auftrag: Glutkern für die Schmiede',
+            nextNodeId: 'ember-order-accepted',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { questStatus: { questId: 'emberforge-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'emberforge-hunt' },
+              { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'accept-ember' },
+              { type: 'set-flag', flag: 'sidequest.emberforge.started', value: true }
+            ]
+          },
+          {
+            id: 'report-ember-order',
+            label: 'Glutkern abliefern',
+            nextNodeId: 'ember-order-paid',
+            requirements: [
+              { questStatus: { questId: 'emberforge-hunt', status: 'active' } },
+              { flag: 'sidequest.emberforge.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'report-ember' },
+              { type: 'complete-quest', questId: 'emberforge-hunt' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'ember-magicule-core', quantity: 1 },
+              { type: 'add-item', itemId: 'magic-ore', quantity: 2 }
+            ]
+          },
+          {
+            id: 'accept-marsh-blade',
+            label: 'Auftrag: Klinge aus dem Echsenmoor',
+            nextNodeId: 'marsh-blade-accepted',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { questStatus: { questId: 'echomoor-blade-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'echomoor-blade-hunt' },
+              { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'accept-blade' },
+              { type: 'set-flag', flag: 'sidequest.echomoor-blade.started', value: true }
+            ]
+          },
+          {
+            id: 'report-marsh-blade',
+            label: 'Ork-Schlachtbeil abliefern',
+            nextNodeId: 'marsh-blade-paid',
+            requirements: [
+              { questStatus: { questId: 'echomoor-blade-hunt', status: 'active' } },
+              { flag: 'sidequest.echomoor-blade.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'report-blade' },
+              { type: 'complete-quest', questId: 'echomoor-blade-hunt' },
+              { type: 'add-gold', amount: 170 },
+              { type: 'add-item', itemId: 'orc-cleaver', quantity: 1 },
+              { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+            ]
+          },
+          {
+            id: 'accept-highland-ward',
+            label: 'Auftrag: Der Wächter-Talisman',
+            nextNodeId: 'highland-ward-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'highland-ward-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'highland-ward-hunt' },
+              { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'accept-ward' },
+              { type: 'set-flag', flag: 'sidequest.highland-ward.started', value: true }
+            ]
+          },
+          {
+            id: 'report-highland-ward',
+            label: 'Gebannten Nachhall abliefern',
+            nextNodeId: 'highland-ward-paid',
+            requirements: [
+              { questStatus: { questId: 'highland-ward-hunt', status: 'active' } },
+              { flag: 'sidequest.highland-ward.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'report-ward' },
+              { type: 'complete-quest', questId: 'highland-ward-hunt' },
+              { type: 'add-gold', amount: 260 },
+              { type: 'add-item', itemId: 'ward-talisman', quantity: 1 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
           }
         ]
       },
@@ -2547,6 +2722,43 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Weil unsere Bindungen hielten, mussten wir nicht wählen zwischen Opfer und Schutzlosigkeit. Wir verteilen die alte Last auf viele Schultern — kein Held trägt sie allein. So bleibt Tempest.',
         choices: [{ id: 'end', label: 'Geteilte Last' }]
+      },
+      // Phase 154 — Auftrags-Zielknoten (an Loot gekoppelte Nebenquests).
+      {
+        id: 'ember-order-accepted',
+        speaker: 'Rigurd',
+        text: 'Die Glutgrotte glimmt noch nach. Ein Oger-Krieger hütet die letzte heiße Ader — brich ihn, und der Kern gehört der Schmiede.',
+        choices: [{ id: 'end', label: 'Zur Glutgrotte' }]
+      },
+      {
+        id: 'ember-order-paid',
+        speaker: 'Rigurd',
+        text: 'Ein sauberer Kern, noch warm. Kaijin bindet ihn dir gleich ein — nimm ihn und das Roherz obendrauf. Tempest dankt dir.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'marsh-blade-accepted',
+        speaker: 'Rigurd',
+        text: 'Das Echsenmoor führt ein grobes Beil — viel Wucht, wenig Finesse. Kaijin will es als Vorlage. Stell den Krieger am Moorlager.',
+        choices: [{ id: 'end', label: 'Zum Echsenmoor' }]
+      },
+      {
+        id: 'marsh-blade-paid',
+        speaker: 'Rigurd',
+        text: 'Genau das Stück. Nimm das Ork-Schlachtbeil — bis Kaijin etwas Besseres schmiedet, spaltet es alles. Und ein Barren Magistahl für den Weg.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'highland-ward-accepted',
+        speaker: 'Rigurd',
+        text: 'Ein letzter Streuner der Nachhut hängt am Schreingipfel fest. Bann ihn — Shuna weiht aus dem Nachhall einen Talisman, der den Geist gegen Kontrolle schirmt.',
+        choices: [{ id: 'end', label: 'Zum Schreingipfel' }]
+      },
+      {
+        id: 'highland-ward-paid',
+        speaker: 'Rigurd',
+        text: 'Der Nachhall ist rein. Shuna hat den Schutztalisman geweiht — trag ihn, und Fäulnis wie Zwang greifen seltener. Ein Funke Geistglut liegt bei.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
       }
     ]
   },
@@ -5152,6 +5364,58 @@ export const ENCOUNTERS = [
       { type: 'complete-quest', questId: 'tempest-arena' },
       { type: 'add-gold', amount: 180 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+    ]
+  },
+  // Phase 154 — Jagd-Encounter der an Loot gekoppelten Nebenquests. Gegated hinter dem
+  // jeweiligen `sidequest.<x>.started`-Flag und `notFlag: cleared`, damit sie nur waehrend
+  // des Auftrags erscheinen und der Sieg den Auftrag abschliesst. Stehen in KEINER
+  // Region-`encounterIds`-Liste → off-route, Balance-Harness unberuehrt.
+  {
+    id: 'emberforge-hunt-battle',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 7, y: 4 },
+    enemyIds: ['ogre-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.emberforge.started' },
+      { notFlag: 'sidequest.emberforge.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.emberforge.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'hunt-ember' }
+    ]
+  },
+  {
+    id: 'echomoor-blade-hunt-battle',
+    mapId: 'lizardman-marsh',
+    kind: 'trigger',
+    position: { x: 7, y: 4 },
+    enemyIds: ['lizardman-warrior', 'lizardman-acolyte'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.echomoor-blade.started' },
+      { notFlag: 'sidequest.echomoor-blade.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.echomoor-blade.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'hunt-blade' }
+    ]
+  },
+  {
+    id: 'highland-ward-hunt-battle',
+    mapId: 'spirit-highlands',
+    kind: 'trigger',
+    position: { x: 9, y: 4 },
+    enemyIds: ['mordrahn-vanguard', 'stray-echo'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.highland-ward.started' },
+      { notFlag: 'sidequest.highland-ward.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.highland-ward.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'hunt-ward' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];
