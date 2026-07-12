@@ -14,6 +14,9 @@ import {
   IFRIT_TEXTURE_KEY,
   ACADEMY_WISP_TEXTURE_KEY,
   BLUMUND_BANDIT_TEXTURE_KEY,
+  MARSH_HEXER_TEXTURE_KEY,
+  STORM_SHARD_TEXTURE_KEY,
+  THORN_TREANT_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
@@ -96,6 +99,9 @@ import enemyMagicColossusUrl from '../assets/sprites/enemy-magic-colossus.png';
 import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
 import academyWispUrl from '../assets/sprites/enemy-academy-wisp.webp';
 import blumundBanditUrl from '../assets/sprites/enemy-blumund-bandit.webp';
+import thornTreantUrl from '../assets/sprites/enemy-thorn-treant.png';
+import marshHexerUrl from '../assets/sprites/enemy-marsh-hexer.png';
+import stormShardUrl from '../assets/sprites/enemy-storm-shard.png';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
@@ -232,6 +238,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
     this.load.image(ACADEMY_WISP_TEXTURE_KEY, academyWispUrl);
     this.load.image(BLUMUND_BANDIT_TEXTURE_KEY, blumundBanditUrl);
+    this.load.image(THORN_TREANT_TEXTURE_KEY, thornTreantUrl);
+    this.load.image(MARSH_HEXER_TEXTURE_KEY, marshHexerUrl);
+    this.load.image(STORM_SHARD_TEXTURE_KEY, stormShardUrl);
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);

@@ -16,6 +16,7 @@ import {
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
   MAGIC_COLOSSUS_TEXTURE_KEY,
+  MARSH_HEXER_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
   OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
@@ -23,6 +24,8 @@ import {
   ORC_SCOUT_TEXTURE_KEY,
   ORC_SOLDIER_TEXTURE_KEY,
   SPORE_MOTH_TEXTURE_KEY,
+  STORM_SHARD_TEXTURE_KEY,
+  THORN_TREANT_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
 
@@ -100,7 +103,10 @@ describe('Gegner-Art-Mapping', () => {
       ['gabiru', GABIRU_TEXTURE_KEY],
       ['masked-majin', MASKED_MAJIN_TEXTURE_KEY],
       ['ifrit', IFRIT_TEXTURE_KEY],
-      ['magic-colossus', MAGIC_COLOSSUS_TEXTURE_KEY]
+      ['magic-colossus', MAGIC_COLOSSUS_TEXTURE_KEY],
+      ['thorn-treant', THORN_TREANT_TEXTURE_KEY],
+      ['marsh-hexer', MARSH_HEXER_TEXTURE_KEY],
+      ['storm-shard', STORM_SHARD_TEXTURE_KEY]
     ] as const) {
       const art = enemyArtFor(id, '');
       expect(art.textureKey).toBe(expectedTexture);
@@ -123,7 +129,10 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-ogre-warrior.webp',
       'enemy-magic-colossus.png',
       'enemy-blumund-bandit.webp',
-      'enemy-academy-wisp.webp'
+      'enemy-academy-wisp.webp',
+      'enemy-thorn-treant.png',
+      'enemy-marsh-hexer.png',
+      'enemy-storm-shard.png'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

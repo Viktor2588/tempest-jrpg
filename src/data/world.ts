@@ -4737,7 +4737,7 @@ export const ENCOUNTERS = [
     mapId: 'spirit-marsh',
     kind: 'random',
     bounds: { x: 4, y: 3, width: 14, height: 9 },
-    enemyIds: ['spore-moth', 'lizardman-acolyte', 'spore-moth'],
+    enemyIds: ['marsh-hexer', 'lizardman-acolyte', 'spore-moth'],
     chance: 0.14
   },
   {
@@ -4757,7 +4757,7 @@ export const ENCOUNTERS = [
     mapId: 'spirit-highlands',
     kind: 'random',
     bounds: { x: 3, y: 2, width: 18, height: 10 },
-    enemyIds: ['lizardman-acolyte', 'mordrahn-vanguard', 'lizardman-acolyte'],
+    enemyIds: ['storm-shard', 'mordrahn-vanguard', 'lizardman-acolyte'],
     chance: 0.13
   },
   {
@@ -5012,6 +5012,14 @@ export const ENCOUNTERS = [
     bounds: { x: 3, y: 3, width: 14, height: 9 },
     enemyIds: ['blumund-bandit', 'human-deserter'],
     chance: 0.1
+  },
+  {
+    id: 'grove-thorns',
+    mapId: 'whispering-grove',
+    kind: 'random',
+    bounds: { x: 3, y: 3, width: 18, height: 9 },
+    enemyIds: ['thorn-treant', 'spore-moth'],
+    chance: 0.11
   },
   {
     id: 'academy-spirit-flare',
