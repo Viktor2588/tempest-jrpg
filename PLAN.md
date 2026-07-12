@@ -848,6 +848,54 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Fünfzehnte Welle: Die Uhr faerbt die Welt (off-combat, balance-neutral, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 779 Unit-Tests + Balance-Harness gruen): Die
+Vierzehnte Welle hat die Welt-Uhr (Phase 101) im KAMPF geweckt (Nebel-Eroeffnung 172,
+Kampf-HUD 173, Bedingungs-Funde 174). Ausserhalb des Kampfes bleibt die Uhr aber weiter
+folgenlos: die Tagesabschnitte `morning`/`day`/`dusk` und das Wetter faerben die
+**Oberwelt** nur als HUD-Text (`clockHudLabel`), aendern aber weder das Bild noch das
+Verhalten der Welt. Zwei verifizierte, off-combat/balance-neutrale Luecken bleiben:
+
+(1) **Die Oberwelt sieht bei Tag und Nacht identisch aus.** Es gibt keine Tint-/
+Beleuchtungsanpassung (Nacht dunkler/blaeulich, Daemmerung warm) — `OverworldScene`
+rendert dieselbe Kachelgrafik unabhaengig von `timeOfDay`. Ein sichtbares Tag/Nacht-
+Bild ist der klassischste „die Welt reagiert"-Effekt und rein kosmetisch (kein
+Kampf-/Save-/Balance-Effekt).
+
+(2) **Discovery-Funde ignorieren Zeit/Wetter.** Das `mapDiscovery`-System (Phase 86 ff.)
+gatet Fundstellen ausschliesslich ueber Story-Flags; es gibt keinen Fund, der nur
+nachts oder nur bei Nebel/Regen erscheint — obwohl die Uhr deterministisch und
+persistiert ist. Ein zeit-/wettergebundener Fund gaebe dem Tageszyklus einen
+Erkundungs-Anreiz, ohne den Kampf zu beruehren.
+
+Diese Welle bleibt bewusst **off-combat** (die Balance-Harness ist strukturell
+unberuehrt) und ohne neue Assets (Tint statt neuer Grafik). Non-Goals gelten weiter
+(kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches Originalwording).
+Reihenfolge: 175 (Tag/Nacht-Tint) ist reine Anzeige; 176 (zeit-/wettergebundener Fund)
+baut auf der vorhandenen `mapDiscovery`-Maschinerie auf.
+
+- [ ] Phase 175 — Tag/Nacht faerbt die Oberwelt (kosmetischer Tint, keine neuen Assets).
+  Umsetzung: eine reine Funktion `overworldTint(clock)` in `systems/worldClock.ts` liefert
+  je Tagesabschnitt/Wetter einen Tint-Farbwert + Alpha (Nacht: dunkelblau, Daemmerung:
+  warm, Nebel: entsaettigtes Grau, Tag/klar: kein Tint). `OverworldScene` legt beim
+  Zeichnen eine bildschirmfuellende, nicht-interaktive Tint-Ebene ueber die Kacheln (unter
+  dem HUD), abgeleitet aus `clockAt(clockStep, seed)`. Rein kosmetisch, keine Kampf-/Save-/
+  Balance-Beruehrung. Akzeptanz: Tint-Ableitung je Abschnitt/Wetter headless
+  (`test/worldClock.test.ts`), Oberwelt rendert mit Tint fehlerfrei (Overworld-E2E-Smoke),
+  typecheck, alle Unit-Tests, build gruen.
+
+- [ ] Phase 176 — Zeit-/wettergebundener Fund (Erkundungs-Anreiz auf dem `mapDiscovery`-
+  System). Umsetzung: `MapDiscoveryDefinition` traegt optional eine Uhr-Bedingung
+  (`requiresTimeOfDay?`/`requiresWeather?`); `getMapDiscoveryAt` (bzw. der Aufrufer)
+  prueft sie zusaetzlich zu den Story-Flags gegen die aktuelle Uhr. Ein bis zwei neue,
+  canon-neutrale Fundstellen erscheinen nur nachts bzw. nur bei Nebel/Regen (z.B. ein
+  „nur im Nebel sichtbarer" Geistfund) und zahlen ueber den bestehenden Discovery-Reward-
+  Pfad (Item/Magicule/Flag). Off-combat, einmalig/flag-gegatet. Akzeptanz: Uhr-Gating
+  (richtige Zeit/Wetter → sichtbar, sonst nicht) + Belohnung + Begehbarkeit headless
+  (`test/mapDiscovery.test.ts`), Datenintegritaet gruen, typecheck, alle Unit-Tests, build
+  gruen.
+
 ## Vierzehnte Welle: Die Welt-Uhr greift ein (verifizierte tote/duenne Maschinerie, Plan 2026-07-12)
 
 Befund (Code-Abgleich auf `main`, 769 Unit-Tests + Balance-Harness gruen): Phase 101
