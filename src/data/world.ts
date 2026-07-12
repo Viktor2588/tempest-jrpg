@@ -5245,6 +5245,42 @@ export const ENCOUNTERS = [
     enemyIds: ['academy-wisp', 'stray-echo'],
     chance: 0.1
   },
+  // Phase 146 — Vielfalt fuer duenne Zufallspools: je ein zweiter Zufalls-Encounter mit
+  // den neuen Archetypen (kleine Gruppen, keine groesseren Bestandskaempfe). Alle Level
+  // liegen im aktuellen Ambient-Band ihrer Region → floor/ceil unveraendert. NICHT in
+  // `region.encounterIds` → off-route zur Story-Harness.
+  {
+    id: 'marsh-brackenhollow',
+    mapId: 'spirit-marsh',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 9 },
+    enemyIds: ['marsh-thornback', 'bog-warden'],
+    chance: 0.12
+  },
+  {
+    id: 'highlands-stormroost',
+    mapId: 'spirit-highlands',
+    kind: 'random',
+    bounds: { x: 3, y: 2, width: 18, height: 10 },
+    enemyIds: ['highland-galecaller', 'lizardman-acolyte'],
+    chance: 0.12
+  },
+  {
+    id: 'blumund-backalley',
+    mapId: 'blumund',
+    kind: 'random',
+    bounds: { x: 3, y: 3, width: 14, height: 9 },
+    enemyIds: ['blumund-brigand', 'blumund-bandit'],
+    chance: 0.1
+  },
+  {
+    id: 'academy-revenant-haunt',
+    mapId: 'freedom-academy',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 8 },
+    enemyIds: ['academy-revenant', 'stray-echo'],
+    chance: 0.1
+  },
   // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale
   // Set-Piece-Trigger auf bestehenden Karten, hinter vorhandene Story-Flags
   // gegated; kein Pflichtpfad, daher nicht in den Balance-Korridoren.

@@ -84,7 +84,15 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'masked-majin': generatedTexture(MASKED_MAJIN_TEXTURE_KEY, 'enemy-boss'),
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
   'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
-  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss')
+  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss'),
+  // Phase 146 — neue Normalgegner-Archetypen. Bis dedizierte Cutouts erzeugt sind,
+  // teilen sie thematisch passende, bereits vorhandene Regions-Texturen (Provenienz
+  // in ASSETS.md dokumentiert).
+  'marsh-thornback': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
+  'bog-warden': generatedTexture(LIZARDMAN_WARRIOR_TEXTURE_KEY, 'enemy-lizard'),
+  'highland-galecaller': generatedTexture(ACADEMY_WISP_TEXTURE_KEY, 'enemy-boss'),
+  'blumund-brigand': generatedTexture(BLUMUND_BANDIT_TEXTURE_KEY, 'enemy-ogre'),
+  'academy-revenant': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss')
 };
 
 export function enemyArtFor(sourceId: string, name: string): EnemyArtSpec {

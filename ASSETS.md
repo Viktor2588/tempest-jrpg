@@ -160,6 +160,15 @@ Lizenzzeile.
 | `ui/predator-perversion-skillsteal.webp` | UI HUD: Praedator-Perversion Skill-Raub / Form-Anzeige, 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG predator skill steal / perversion active HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/praedator-steal-hud.jpg` | UI HUD: Praedator-Perversion Rauben-Status, 1280x720 | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG skill theft HUD for Phase 112 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
+## Phase 146 — neue Gegner-Archetypen (Textur-Wiederverwendung)
+
+Die fünf neuen Normalgegner-Archetypen (`marsh-thornback`, `bog-warden`,
+`highland-galecaller`, `blumund-brigand`, `academy-revenant`, verdrahtet in
+`src/render/enemyArt.ts`) fügen **keine** neuen Bilddateien hinzu. Bis dedizierte
+CC0-Cutouts erzeugt sind, teilen sie thematisch passende, bereits im Repo vorhandene
+Regions-Texturen (Echsen-/Wisp-/Bandit-/Echo-Cutouts). Sobald eigene Cutouts erzeugt
+werden, ersetzen sie diese Zuordnungen und werden hier als eigene Zeilen dokumentiert.
+
 ## Vorgehen beim Hinzufügen
 1. Externe Lizenz prüfen: **muss CC0 sein**. Projektgenerierte Originale mit Provenienz dokumentieren.
 2. Datei nach `src/assets/<kategorie>/` legen; an `docs/PROJECT_KNOWLEDGE.md` und `src/render/artSpec.ts` angleichen. Große gemalte Rasterassets als WebP mit Alpha-Erhalt optimieren.

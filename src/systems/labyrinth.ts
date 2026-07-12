@@ -26,10 +26,13 @@ export interface LabyrinthRun {
   readonly carryRule: 'hp-mp-carry-no-rest';
 }
 
+// Phase 146 — die neuen Archetypen bereichern auch die Labyrinth-Pools (off-route;
+// party-relativ skaliert via Phase 147). Mender/CC/Reflektor machen tiefere Etagen
+// abwechslungsreicher, ohne eine neue Mechanik einzufuehren.
 const ENEMY_POOLS: readonly (readonly string[])[] = [
-  ['spore-moth', 'lizardman-acolyte'],
-  ['ogre-warrior', 'orc-soldier'],
-  ['orc-general', 'lizardman-warrior'],
+  ['spore-moth', 'lizardman-acolyte', 'marsh-thornback'],
+  ['ogre-warrior', 'orc-soldier', 'highland-galecaller'],
+  ['orc-general', 'lizardman-warrior', 'academy-revenant'],
   ['magic-colossus']
 ];
 
