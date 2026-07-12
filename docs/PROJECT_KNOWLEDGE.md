@@ -1146,6 +1146,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 161 - Archetypen-Cutouts
+
+- Branch/Worktree: `phase-161-archetypen-cutouts` in `/worktree/tempest-phase-161-archetypen-cutouts`.
+- Asset-only: `marsh-thornback`, `blumund-brigand` und `academy-revenant` ersetzen geteilte Bestandstexturen durch eigene repo-generierte 512×512-RGBA-Cutouts; Daten und Balance bleiben unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken alle fünf Phase-146-Archetypen ab.
+- Validierung: `git diff --check`, `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
 ### Phase 146 - Content-Vielfalt
 
 - Canonicaler Parallelstand: fuenf neue Normalgegner aus vorhandenen Mechaniken in optionalen Regions- und Labyrinth-Pools; der Story-Trigger-Korridor bleibt unveraendert.
