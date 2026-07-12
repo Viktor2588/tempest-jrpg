@@ -43,7 +43,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
-import { clockAt, clockHudLabel, openingFieldElement, openingStatuses } from '../systems/worldClock';
+import { clockAt, clockHudLabel, openingFieldElement, openingStatuses, overworldTint } from '../systems/worldClock';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
@@ -74,6 +74,9 @@ export class OverworldScene extends Phaser.Scene {
   private onboardingLayer?: Phaser.GameObjects.Container;
   // Phase 101 — Welt-Uhr: HUD-Zeile mit Tageszeit + Wetter.
   private clockHud?: Phaser.GameObjects.Text;
+  // Phase 175 — Tag/Nacht faerbt die Oberwelt: kosmetischer Tint-Overlay (ueber den
+  // Kacheln, unter dem HUD). Rein visuell, keine Kampf-/Save-/Balance-Beruehrung.
+  private clockTint?: Phaser.GameObjects.Rectangle;
   // Zoom-Kompensation für fixe HUD-Elemente (0 bei DPR 1). Siehe hudZoomOffset.
   private hudOffset = { x: 0, y: 0 };
   // Cutscene-light: aktive Szene sperrt Bewegung/Interaktion; Akteur-Sprites
@@ -215,6 +218,12 @@ export class OverworldScene extends Phaser.Scene {
     this.add.text(menuX, menuY, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
+
+    // Phase 175 — Tag/Nacht-Tint: bildschirmfuellender Overlay ueber den Kacheln (Depth 5),
+    // aber unter dem HUD (Depth 10+); fixiert an der Kamera, nicht interaktiv.
+    this.clockTint = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0)
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(5);
+    this.clockTint.disableInteractive();
 
     // Phase 101 — Welt-Uhr: Tageszeit/Wetter-Anzeige unter dem Menüknopf.
     this.clockHud = this.add.text(menuX, menuY + menuRect.height / 2 + 12, '', {
@@ -838,9 +847,20 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   // Phase 101 — Welt-Uhr: HUD-Zeile aus dem aktuellen clockStep + Seed neu setzen.
+  // Phase 175 — dabei den Tag/Nacht-Tint der Oberwelt aktualisieren.
   private refreshClockHud(): void {
-    if (!this.clockHud) return;
-    this.clockHud.setText(clockHudLabel(clockAt(this.save.clockStep ?? 0, this.save.seed)));
+    const clock = clockAt(this.save.clockStep ?? 0, this.save.seed);
+    if (this.clockHud) {
+      this.clockHud.setText(clockHudLabel(clock));
+    }
+    if (this.clockTint) {
+      const tint = overworldTint(clock);
+      if (tint) {
+        this.clockTint.setFillStyle(tint.color, tint.alpha).setVisible(true);
+      } else {
+        this.clockTint.setVisible(false);
+      }
+    }
   }
 
   private resolveEncounterAtCurrentPosition(): void {
