@@ -588,7 +588,13 @@ export class BattleScene extends Phaser.Scene {
     else if (this.mode === 'skills') this.drawSkillList();
     else if (this.mode === 'items') this.drawItemList();
     else if (this.mode === 'team-partners') this.drawTeamPartnerList();
-    else if (this.mode === 'target-enemy') this.drawHint('Ziel-Gegner wählen');
+    else if (this.mode === 'target-enemy') {
+      this.drawHint('Ziel-Gegner wählen');
+      if (this.pendingSteal && this.textures.exists('ui-predator-steal')) {
+        this.layer.add(this.add.image(GAME_WIDTH / 2, 90, 'ui-predator-steal')
+          .setDisplaySize(224, 126).setDepth(45));
+      }
+    }
     else if (this.mode === 'target-ally') this.drawHint('Verbündeten wählen');
   }
 

@@ -19,4 +19,9 @@ describe('BattleScene — Unique-Verb-Befehle', () => {
   it('filtert die Unique-Verben aus der wirkbaren Skill-Liste', () => {
     expect(battleSceneSource).toContain("if (id === 'great-sage' || id === 'predator') return [];");
   });
+
+  it('zeigt beim Rauben-Zielmodus das Skill-Raub-Banner', () => {
+    expect(battleSceneSource).toContain("this.pendingSteal && this.textures.exists('ui-predator-steal')");
+    expect(battleSceneSource).toContain("this.add.image(GAME_WIDTH / 2, 90, 'ui-predator-steal')");
+  });
 });
