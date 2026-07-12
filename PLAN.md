@@ -890,16 +890,22 @@ baut auf der vorhandenen `mapDiscovery`-Maschinerie auf.
   Overworld → Menü → Battle" gegen die volle Chromium-Binary gruen), Balance-Harness
   strukturell unberuehrt (off-combat).
 
-- [ ] Phase 176 — Zeit-/wettergebundener Fund (Erkundungs-Anreiz auf dem `mapDiscovery`-
-  System). Umsetzung: `MapDiscoveryDefinition` traegt optional eine Uhr-Bedingung
-  (`requiresTimeOfDay?`/`requiresWeather?`); `getMapDiscoveryAt` (bzw. der Aufrufer)
-  prueft sie zusaetzlich zu den Story-Flags gegen die aktuelle Uhr. Ein bis zwei neue,
-  canon-neutrale Fundstellen erscheinen nur nachts bzw. nur bei Nebel/Regen (z.B. ein
-  „nur im Nebel sichtbarer" Geistfund) und zahlen ueber den bestehenden Discovery-Reward-
-  Pfad (Item/Magicule/Flag). Off-combat, einmalig/flag-gegatet. Akzeptanz: Uhr-Gating
-  (richtige Zeit/Wetter → sichtbar, sonst nicht) + Belohnung + Begehbarkeit headless
-  (`test/mapDiscovery.test.ts`), Datenintegritaet gruen, typecheck, alle Unit-Tests, build
-  gruen.
+- [x] Phase 176 — Zeit-/wettergebundener Fund (Erkundungs-Anreiz auf dem `mapDiscovery`-
+  System) (abgeschlossen, direkt auf main). Umgesetzt: `MapDiscoveryDefinition` traegt
+  optional `requiresTimeOfDay?`/`requiresWeather?`; `isVisible` prueft sie zusaetzlich zum
+  Story-Flag gegen eine (jetzt durchgereichte) `WorldClock` — ohne bekannte Uhr bleibt ein
+  bedingter Fund unsichtbar. `getMapDiscoveries`/`getMapDiscoveryAt` nehmen optional `clock`;
+  `OverworldScene` (Marker + Schritt-Check) und `DiscoveryScene` reichen
+  `clockAt(clockStep, seed)` durch. Zwei neue canon-neutrale, auf verifiziert begehbaren
+  Kacheln platzierte Funde: „Nebelverhüllter Geistfund" (whispering-grove 10,6 → nur bei
+  Nebel → `mana-drop`) und „Nächtliches Geisterglühen" (spirit-highlands 9,5 → nur nachts →
+  `spirit-ember`). Beide einmalig/flag-gegatet, zahlen ueber den bestehenden Discovery-
+  Reward-Pfad. Off-combat (Balance-Harness strukturell unberuehrt). Akzeptanz erfuellt:
+  Uhr-Gating (richtige Zeit/Wetter sichtbar, sonst/ohne Uhr unsichtbar) + Marker-Konsistenz
+  + Einmaligkeit + Begehbarkeit/echtes Item headless (`test/mapDiscovery.test.ts`, +2 Tests;
+  Daten-Integritaet `test/dataIntegrity.test.ts`/`qa.test.ts` gruen), typecheck ✓,
+  784 Unit-Tests ✓, build ✓, Oberwelt (Marker + Schritt) im echten Browser fehlerfrei
+  gerendert.
 
 ## Vierzehnte Welle: Die Welt-Uhr greift ein (verifizierte tote/duenne Maschinerie, Plan 2026-07-12)
 
