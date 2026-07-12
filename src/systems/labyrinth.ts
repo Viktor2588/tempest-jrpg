@@ -22,9 +22,9 @@ export interface LabyrinthRun {
 }
 
 const ENEMY_POOLS: readonly (readonly string[])[] = [
-  ['spore-moth', 'lizardman-acolyte'],
-  ['ogre-warrior', 'orc-soldier'],
-  ['orc-general', 'lizardman-warrior'],
+  ['spore-moth', 'lizardman-acolyte', 'thorn-treant'],
+  ['ogre-warrior', 'orc-soldier', 'marsh-hexer'],
+  ['orc-general', 'lizardman-warrior', 'storm-shard'],
   ['magic-colossus']
 ];
 

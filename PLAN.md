@@ -529,7 +529,7 @@ ist die Art weg — obwohl `defeatedEnemyCountsByEnemyId` (besiegt) und `devoure
 gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfolge:
 147 ist Fundament (Skalierung), 148 baut darauf; 146 ist unabhaengig.
 
-- [ ] Phase 146 — Content-Vielfalt: neue Gegner-Archetypen fuer duenne Encounter-Pools.
+- [x] Phase 146 — Content-Vielfalt: neue Gegner-Archetypen fuer duenne Encounter-Pools. (abgeschlossen in `/worktree/tempest-phase-146-content-vielfalt`; drei generierte Cutouts samt Provenienz, Enemy-/Regions-/Labyrinth-Wiring; typecheck, 696 Unit-Tests inkl. Balance-Harness, build und fokussierter Desktop-Chromium-Asset-Smoke gruen)
   Eine Handvoll neuer Normalgegner-Arten aus dem VORHANDENEN Motor (Element/Schwaeche/
   Resistenz/Mender/CC/`escalationPercentPerTurn` — keine neue Mechanik), verteilt auf
   Regionen mit duennem Pool und die Labyrinth-Pools. Repo-eigene generierte CC0-Cutouts
@@ -617,5 +617,3 @@ darauf; 152–154 sind Content auf dem neuen System.
   headless, typecheck ✓, Unit-Tests ✓, build ✓.
 
 ## UX- und Welt-Backlog
-
-

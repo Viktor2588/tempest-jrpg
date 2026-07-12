@@ -20,6 +20,9 @@ export const OGRE_WARRIOR_TEXTURE_KEY = 'sprite-enemy-ogre-warrior';
 export const MAGIC_COLOSSUS_TEXTURE_KEY = 'sprite-enemy-magic-colossus';
 export const BLUMUND_BANDIT_TEXTURE_KEY = 'sprite-enemy-blumund-bandit';
 export const ACADEMY_WISP_TEXTURE_KEY = 'sprite-enemy-academy-wisp';
+export const THORN_TREANT_TEXTURE_KEY = 'sprite-enemy-thorn-treant';
+export const MARSH_HEXER_TEXTURE_KEY = 'sprite-enemy-marsh-hexer';
+export const STORM_SHARD_TEXTURE_KEY = 'sprite-enemy-storm-shard';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -73,6 +76,9 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'stray-echo': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
   'human-deserter': generatedTexture('sprite-enemy-human-deserter', 'enemy-ogre'),
   'academy-wisp': generatedTexture(ACADEMY_WISP_TEXTURE_KEY, 'enemy-boss'),
+  'thorn-treant': generatedTexture(THORN_TREANT_TEXTURE_KEY, 'enemy-ogre'),
+  'marsh-hexer': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),
+  'storm-shard': generatedTexture(STORM_SHARD_TEXTURE_KEY, 'enemy-boss'),
   'elder-direwolf': generatedTexture(DIREWOLF_ALPHA_TEXTURE_KEY, 'enemy-wolf'),
   'orc-grunt': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
   'orc-soldier': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
