@@ -848,6 +848,50 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Sechzehnte Welle: Die Uhr im Codex & wetterfeste Vorsorge (off-combat, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 784 Unit-Tests + Balance-Harness gruen): Nach den
+Wellen 14/15 ist die Welt-Uhr im Kampf (Nebel-Eroeffnung, Bedingungs-Funde), auf der
+Oberwelt (Tint) und in der Erkundung (zeit-/wettergebundene Funde) spuerbar. Zwei
+kleine, verifizierte Anschluss-Luecken bleiben — beide off-combat/balance-neutral:
+
+(1) **Die neuen Uhr-Belohnungen (Phase 174) sind nirgends im Codex nachvollziehbar.**
+Die Erst-Sieg-Funde setzen `worldclock.first.<cond>`-Flags, aber es gibt keine
+Uebersicht, welche Bedingungen der Spieler schon abgeraeumt hat (analog zum
+Jagdgrund-Fortschritt im Bestiarium). Ein Spieler, der die Naechte/Nebel-Kaempfe
+sammeln will, hat kein Ziel-Panel.
+
+(2) **Nebel ist im Kampf eine reine Strafe ohne Vorbereitungs-Option.** Die
+Nebel-Eroeffnung (Phase 172) blendet beide Seiten; der `cure-status`-Item-Pfad
+(Phase 129, `purifying-water`) entfernt zwar Status IM Kampf, aber es gibt kein
+proaktives Gegenmittel gegen die Eroeffnungs-Blendung — der Spieler kann sich auf
+Nebel nicht vorbereiten, nur reagieren.
+
+Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first,
+deutsches Originalwording). Reihenfolge: 177 (Codex-Anzeige) ist reine View-Logik;
+178 (Vorsorge-Item) ist ein additiver Item-/Gegenspiel-Pfad. **Keine Phase verschiebt
+den Balance-Korridor** (177 ist Anzeige; 178 ist eine Spieler-optionale Item-Wirkung
+auf einen off-harness Eroeffnungs-Status) — beide werden trotzdem gegen die Harness
+gruen gefahren.
+
+- [ ] Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel). Umsetzung: reine
+  Funktion `weatherConditionProgress(flags)` in `systems/battleResult.ts` (oder einem
+  kleinen neuen `systems/worldClockCodex.ts`) listet die drei Bedingungen (Nacht/Nebel/
+  Regen) mit erledigt/offen aus den `worldclock.first.<cond>`-Flags; ein bestehender
+  Codex-Modus (z.B. das Bestiarium oder Wissen) zeigt eine kompakte Fusszeile
+  „Wetter-Funde m/3". Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz:
+  Fortschritts-Ableitung (0/3 → 3/3, Reihenfolge) headless (`test/*`), typecheck, alle
+  Unit-Tests, build gruen.
+
+- [ ] Phase 178 — Nebelsicht: proaktives Vorsorge-Item gegen die Nebel-Eroeffnung.
+  Umsetzung: neues Verbrauchs-Item (z.B. „Klarsichttropfen") mit einem NEUEN, klar
+  umrissenen Item-Effekt, der die Eroeffnungs-Blendung des naechsten Kampfes verhindert
+  bzw. sofort aufhebt (kleiner Motor-Hook analog `cure-status`), kaeuflich in bestehenden
+  Shops. Bewusst als Spieler-Option; die Auto-Battle-Harness nutzt keine Items → Korridor
+  unberuehrt. Akzeptanz: Item-Wirkung (Nebel-Blind entfernt/praeventiert, kein Verbrauch
+  ohne Wirkung) + Shop-/Datenvalidierung headless (`test/*`, `qa.test.ts`), typecheck,
+  alle Unit-Tests, build, **Balance-Harness gruen**.
+
 ## Fünfzehnte Welle: Die Uhr faerbt die Welt (off-combat, balance-neutral, Plan 2026-07-12)
 
 Befund (Code-Abgleich auf `main`, 779 Unit-Tests + Balance-Harness gruen): Die
