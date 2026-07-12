@@ -850,3 +850,15 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
 
 ## UX- und Welt-Backlog
 
+- [~] Phase 169 — Ultimate Gift: das Erwachen segnet die Gefaehrten. (in Bearbeitung in
+  `/worktree/tempest-phase-169-ultimate-gift`) Canon-Luecke aus IDEE.md §1 („Ultimate
+  Gift: ein hoeheres Wesen kann abgeschwaechte Ultimate Skills VERLEIHEN — Rimuru
+  beschenkt seine engsten Gefolgsleute"): das Erntefest (104/127) buff't heute NUR
+  Rimuru (`AWAKENED_RIMURU_PERKS`) und die Bewohner-Offiziere — die acht Party-
+  Gefaehrten gehen leer aus. Umsetzung ueber den BESTEHENDEN Pfad
+  `awakenedPerksForMember`: je Gefaehrte EIN massvoller, canon-thematischer Perk nach
+  vollzogenem Erwachen (reine Datenergaenzung, kein Motor-Eingriff). Balance-sicher by
+  design: die Harness laeuft ohne `awakeningCompleted` → Korridore unberuehrt (wird
+  trotzdem gruen gefahren). Akzeptanz: Gift-Perks nur nach Erwachen + je Charakter
+  headless getestet, typecheck, Unit-Tests inkl. Balance-Harness, build.
+
