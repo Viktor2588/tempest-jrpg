@@ -732,7 +732,8 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
     'enemy-mordrahn-vanguard',
     'enemy-elder-direwolf',
     'enemy-orc-grunt',
-    'enemy-orc-lord'
+    'enemy-orc-lord',
+    'enemy-milim'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
