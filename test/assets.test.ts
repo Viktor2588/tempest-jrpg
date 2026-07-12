@@ -46,6 +46,24 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
+  it('liefert die zehn generierten Gegner-Cutouts als WebP mit Alpha aus', () => {
+    for (const name of [
+      'orc-lord',
+      'elder-direwolf',
+      'milim',
+      'mordrahn-vanguard',
+      'orc-grunt',
+      'academy-revenant',
+      'marsh-hexer',
+      'marsh-thornback',
+      'storm-shard',
+      'blumund-brigand'
+    ]) {
+      expect(assetFiles).toContain(`sprites/enemy-${name}.webp`);
+      expect(assetFiles).not.toContain(`sprites/enemy-${name}.png`);
+    }
+  });
+
   it('nutzt in sfx.ts echte CC0-SFX-Dateien; die prozedurale Schicht liegt separat', () => {
     // Basis-SFX = echte CC0-Dateien (ASSETS.md). Die prozedurale Game-Feel-Schicht
     // (Phase 144, createOscillator) lebt bewusst in sfxProcedural.ts, damit reine

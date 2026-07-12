@@ -1269,6 +1269,16 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
   inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
 
+### Phase 166 - Generierte Gegner-Cutouts als WebP
+
+- Scope: Die zehn verbleibenden generierten 512x512-Gegner-PNGs wurden bei gleicher
+  Aufloesung als WebP verdrahtet; alle zehn behalten ihren Alpha-Kanal. Nur die drei
+  winzigen 16x16-CC0-Tiles bleiben PNG.
+- Wirkung: 2.166.404 -> 374.642 Bytes (-83 %) fuer diese zehn Cutouts, ohne Art-,
+  Layout-, Gameplay- oder Balance-Aenderung.
+- Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 767 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
