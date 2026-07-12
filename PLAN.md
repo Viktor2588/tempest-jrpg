@@ -529,13 +529,22 @@ ist die Art weg — obwohl `defeatedEnemyCountsByEnemyId` (besiegt) und `devoure
 gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first). Reihenfolge:
 147 ist Fundament (Skalierung), 148 baut darauf; 146 ist unabhaengig.
 
-- [ ] Phase 146 — Content-Vielfalt: neue Gegner-Archetypen fuer duenne Encounter-Pools.
-  Eine Handvoll neuer Normalgegner-Arten aus dem VORHANDENEN Motor (Element/Schwaeche/
-  Resistenz/Mender/CC/`escalationPercentPerTurn` — keine neue Mechanik), verteilt auf
-  Regionen mit duennem Pool und die Labyrinth-Pools. Repo-eigene generierte CC0-Cutouts
-  nach Asset-Prioritaet (Muster Phase 120). Balance-sicher: on-route im Regions-Korridor
-  gegen die Harness, sonst off-route; Harness-Prioritaet unberuehrt. Akzeptanz: Enemy-Defs
-  + Encounter/Labyrinth-Einbau, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
+- [x] Phase 146 — Content-Vielfalt: neue Gegner-Archetypen fuer duenne Encounter-Pools
+  (abgeschlossen, direkt auf main). Umgesetzt: fuenf neue Normalgegner aus dem VORHANDENEN
+  Motor (keine neue Mechanik), je ein distinkter Archetyp — `marsh-thornback` (Element-
+  Reflektor Wind), `bog-warden` (Mender), `highland-galecaller` (Hart-CC Paralyse),
+  `blumund-brigand` (Rudel-Raserei + Verwirrung), `academy-revenant` (Magie-Resistenz +
+  Schlaf). Jeder haengt in je einem zweiten Zufalls-Encounter seiner duennen Region
+  (`marsh-brackenhollow`/`highlands-stormroost`/`blumund-backalley`/`academy-revenant-haunt`
+  — kleine Gruppen statt groesserer Bestandskaempfe) plus in den Labyrinth-Pools (off-route,
+  party-relativ skaliert via Phase 147). Alle Level liegen im bestehenden [floor,ceil]-Band
+  ihrer Region → ambiente Regionsschwierigkeit unveraendert, und die Encounter stehen in
+  keiner `region.encounterIds`-Liste → **Story-Harness/Korridor unberuehrt**. Kunst:
+  thematisch passende Bestandstexturen wiederverwendet (`src/render/enemyArt.ts`, Provenienz
+  in ASSETS.md), bis dedizierte Cutouts erzeugt werden. Akzeptanz erfuellt: Gegner-/Skill-/
+  Textur-/Band-/Off-route-Test headless (`test/enemyArchetypes146.test.ts`, 5 Tests),
+  Datenintegritaet + Gegner-Art + qa-Ambient-Monotonie gruen, typecheck ✓, 726 Unit-Tests ✓,
+  build ✓, **Balance-Harness gruen**.
 
 - [x] Phase 147 — Labyrinth skaliert party-relativ (Wiederholbarkeit traegt)
   (abgeschlossen, direkt auf main). Umgesetzt: `systems/labyrinth.ts` traegt jetzt
@@ -632,7 +641,8 @@ darauf; 152–154 sind Content auf dem neuen System.
   Prioritaet. Balance-safe (off-route / im Regions-Korridor). Akzeptanz: Item-/Set-/
   Rezept-Daten, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**.
 
-- [~] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten).
+- [x] Phase 153 — Duenne Regionen aufwerten (Qualitaet statt neue leere Karten)
+  (abgeschlossen, direkt auf main — Encounter-Vielfalt via Phase 146 nachgezogen).
   Teil-Umsetzung (direkt auf main): fuenf neue, an das Loot gekoppelte Fundstellen
   (`mapDiscovery`) auf duennen Regionen (bislang je nur 1 Fund) — spirit-highlands
   (Windgeist → `lesser-magicule-core`), ember-hollow (Restglut → `ember-magicule-core`;
@@ -642,9 +652,9 @@ darauf; 152–154 sind Content auf dem neuen System.
   (Daten-Integritaetstest deckt Begehbarkeit + echtes Belohnungsitem ab), canon-konforme
   Kurzlore, einmalig/flag-gegatet. Akzeptanz (Fundstellen-Teil) erfuellt: Gating/Belohnungen
   headless (`test/mapDiscovery.test.ts`), typecheck ✓, 716 Unit-Tests ✓, build ✓,
-  **Balance-Harness gruen** (nicht kampfberuehrend). OFFEN: die Encounter-Vielfalt
-  (Phase-146-Archetypen) haengt an Phase 146 (Asset-/Gegner-Arbeit) — nachziehen, sobald 146
-  gemergt ist.
+  **Balance-Harness gruen** (nicht kampfberuehrend). NACHGEZOGEN: die Encounter-Vielfalt
+  ist mit Phase 146 geliefert — die neuen Archetypen besetzen jetzt zweite Zufalls-Encounter
+  auf genau diesen duennen Regionen (spirit-marsh/spirit-highlands/blumund/freedom-academy).
 
 - [x] Phase 154 — Neue Nebenquests, an Loot gekoppelt (abgeschlossen, direkt auf main).
   Umgesetzt: drei optionale Jagd-Nebenquests ueber das bestehende `QuestDefinition`-/
