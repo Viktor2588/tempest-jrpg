@@ -651,15 +651,15 @@ completed_milestones:
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
-    - Added project-generated battle background `src/assets/backgrounds/battle-tempest-invasion.png` with ASSETS provenance, battle arena/preload wiring, headless invasion tests, sceneScript coverage, and focused desktop Chromium smoke `Tempest-Invasion-Save`.
+    - Added project-generated battle background `src/assets/backgrounds/battle-tempest-invasion.webp` with ASSETS provenance, battle arena/preload wiring, headless invasion tests, sceneScript coverage, and focused desktop Chromium smoke `Tempest-Invasion-Save`.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (556 tests), `bun run build`, and `bun run test:e2e -- --project=desktop-chromium -g "Tempest-Invasion-Save"`.
   phase_115:
     - Added the first Ramiris Labyrinth wing as a Band 5/6 set-piece after Shizu's children: `ramiris-labyrinth` map, academy/labyrinth Ramiris NPCs, `ramiris-labyrinth` quest, gateway, and deterministic `magic-colossus` trigger.
-    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.png` and `src/assets/sprites/enemy-magic-colossus.png`; wired preload, region banner, enemy art, and focused browser smoke.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.webp` and `src/assets/sprites/enemy-magic-colossus.webp`; wired preload, region banner, enemy art, and focused browser smoke.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (505 tests), `bun run build`, and focused desktop Chromium smoke `Ramiris-Labyrinth`.
   phase_95:
     - Added a repeatable Tempest Colosseum side activity: `tempest-colosseum` map, Tempest gateway, Arena-Vorstand NPC/dialog, `tempest-arena` quest, and Bronze/Silber/Gold trigger waves using the existing battle/encounter flow.
-    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-tempest-colosseum.png` and `src/assets/backgrounds/battle-tempest-colosseum.png`; wired preload, battle arena mapping, region banner mapping, and focused browser smoke.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-tempest-colosseum.webp` and `src/assets/backgrounds/battle-tempest-colosseum.webp`; wired preload, battle arena mapping, region banner mapping, and focused browser smoke.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (506 tests), `bun run build`, and focused desktop Chromium smoke `Kolosseum`.
   phase_98:
     - Bonds — the character-binding pillar. Relationship points already accrued (+5 per victory per active pair) and bond levels already unlocked team-mix synergy; Phase 98 adds the two missing halves: playable bond scenes and a combat bond perk.
@@ -698,7 +698,7 @@ completed_milestones:
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (504 tests), `bun run build`, and focused desktop Chromium smoke `Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab`.
   phase_113:
     - Shizu's legacy continuation is playable after `story.shizu.vow`: new `freedom-academy` map, Blumund gateway, five child NPCs (Kenya, Chloe, Alice, Ryota, Gale), `shizu-legacy` quest, `shizu-children` codex entry, and a first Geist-core stabilization choice (`story.children.comforted` vs `story.children.tested`) with visible follow-up dialog.
-    - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.png` and `src/assets/ui/region-freedom-academy.png`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
+    - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.webp` and `src/assets/ui/region-freedom-academy.webp`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (498 tests), `bun run build`, and desktop Chromium smoke `Shizu-Schwur-Save lädt Freiheitsakademie`.
   phase_116a:
     - Dead-code sub-PR from the YAGNI audit (Phase 116). Removed 7 exported functions with zero callers anywhere (getUnlockedRelationshipScenes, createMenuState, stopMusic, getTeamFusion, getProgressionLine, getProgressionRegions, getResident) plus the production-unused RNG helpers pick/randomInt (and their two rng.test cases).
@@ -1258,6 +1258,16 @@ test/release.test.ts
   `pendingSteal` im Gegner-Zielmodus. Kampfregeln und Balance bleiben unverändert.
 - Validiert mit `git diff --check`, Typecheck, 765 Unit-Tests inklusive Balance-Harness,
   Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 165 - Grosse Rasterassets als WebP
+
+- Scope: Sieben global vorgeladene 2-3-MB-PNGs (Akademie, Kolosseum, Invasion,
+  Ramiris-Labyrinth, Magiekoloss und Shizus Kinder) wurden bei gleicher Aufloesung
+  als WebP verdrahtet; der Magiekoloss behaelt seinen Alpha-Kanal.
+- Wirkung: 18.541.022 -> 2.410.884 Bytes (-87 %) fuer diese sieben Assets, ohne
+  Art-, Layout-, Gameplay- oder Balance-Aenderung.
+- Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
+  inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
 
 ## 14. Change Checklist
 

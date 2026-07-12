@@ -30,6 +30,22 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
+  it('liefert die sieben grossen Rasterassets WebP-optimiert aus', () => {
+    const optimized = [
+      'ui/region-tempest-colosseum',
+      'ui/region-ramiris-labyrinth',
+      'ui/region-freedom-academy',
+      'backgrounds/battle-tempest-colosseum',
+      'backgrounds/battle-tempest-invasion',
+      'sprites/enemy-magic-colossus',
+      'sprites/portrait-shizu-children'
+    ];
+    for (const path of optimized) {
+      expect(assetFiles).toContain(`${path}.webp`);
+      expect(assetFiles).not.toContain(`${path}.png`);
+    }
+  });
+
   it('nutzt in sfx.ts echte CC0-SFX-Dateien; die prozedurale Schicht liegt separat', () => {
     // Basis-SFX = echte CC0-Dateien (ASSETS.md). Die prozedurale Game-Feel-Schicht
     // (Phase 144, createOscillator) lebt bewusst in sfxProcedural.ts, damit reine

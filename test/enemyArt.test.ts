@@ -139,7 +139,7 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-direwolf-pup.webp',
       'enemy-nameless-echo.webp',
       'enemy-ogre-warrior.webp',
-      'enemy-magic-colossus.png',
+      'enemy-magic-colossus.webp',
       'enemy-blumund-bandit.webp',
       'enemy-academy-wisp.webp',
       'enemy-marsh-hexer.png',

@@ -92,6 +92,6 @@ describe('Phase 110 — Tempest-Invasion', () => {
   it('verwendet den Invasions-Kampfhintergrund und lädt das Asset vor', () => {
     expect(battleArenaForMap('jura-battlefield', 'tempest-invasion-command').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['tempest-invasion']);
-    expect(preloadSource).toContain('../assets/backgrounds/battle-tempest-invasion.png');
+    expect(preloadSource).toContain('../assets/backgrounds/battle-tempest-invasion.webp');
   });
 });
