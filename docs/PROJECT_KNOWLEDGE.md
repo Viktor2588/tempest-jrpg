@@ -1146,6 +1146,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 172 - Arena-Vorstand-Porträt
+
+- Branch/Worktree: `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand`.
+- Asset-only: Der wiederkehrende Arena-Vorstand nutzt im Kolosseum und in seinen Dialogen ein eigenes repo-generiertes 512×512-WebP-Porträt statt einer portraitlosen Darstellung; Daten und Balance bleiben unverändert.
+- Provenienz steht in `ASSETS.md`; Portrait-Mapping, Preload und der bestehende Kolosseum-Smoke prüfen das sichtbare Asset.
+- Validierung: `git diff --check`, 22 fokussierte Tests, `bun run typecheck`, 769 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
 ### Phase 163 - Milim-Kampf-Cutout
 
 - Branch/Worktree: `phase-163-milim-cutout` in `/worktree/tempest-phase-163-milim-cutout`.

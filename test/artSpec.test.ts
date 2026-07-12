@@ -98,6 +98,7 @@ describe('artSpec', () => {
       'treyni',
       'milim',
       'ramiris',
+      'arena-steward',
       'souka',
       'mordrahn'
     ]);

@@ -150,6 +150,7 @@ import blumundAdventurersPortraitUrl from '../assets/sprites/portrait-blumund-ad
 import treyniPortraitUrl from '../assets/sprites/portrait-treyni.webp';
 import milimPortraitUrl from '../assets/sprites/portrait-milim.webp';
 import ramirisPortraitUrl from '../assets/sprites/portrait-ramiris.webp';
+import arenaStewardPortraitUrl from '../assets/sprites/portrait-arena-steward.webp';
 import soukaPortraitUrl from '../assets/sprites/portrait-souka.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
@@ -301,6 +302,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('treyni'), treyniPortraitUrl);
     this.load.image(portraitKey('milim'), milimPortraitUrl);
     this.load.image(portraitKey('ramiris'), ramirisPortraitUrl);
+    this.load.image(portraitKey('arena-steward'), arenaStewardPortraitUrl);
     this.load.image(portraitKey('souka'), soukaPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
@@ -441,6 +443,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('treyni'),
       portraitKey('milim'),
       portraitKey('ramiris'),
+      portraitKey('arena-steward'),
       portraitKey('souka'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
