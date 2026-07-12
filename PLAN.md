@@ -848,4 +848,86 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Vierzehnte Welle: Die Welt-Uhr greift ein (verifizierte tote/duenne Maschinerie, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 769 Unit-Tests + Balance-Harness gruen): Phase 101
+baute die **Welt-Uhr** (Tag/Nacht + Wetter, `systems/worldClock.ts`, im Oberwelt-HUD
+sichtbar), aber sie beeinflusst bis heute **genau eine Sache** — das Eroeffnungs-
+Elementarfeld eines Encounters (`openingFieldElement`: Regen→Wasser, Nacht→Schatten,
+sonst neutral). Daraus folgen drei verifizierte Luecken:
+
+(1) **`fog` ist ein vollstaendig toter Wetterzustand.** Die Wettertabelle
+(`WEATHER_TABLE`, `worldClock.ts:29`) waehlt Nebel an ~1/5 Tagen, aber
+`openingFieldElement` behandelt NUR `rain` und `night` — Nebel faellt durch auf `null`
+und hat damit **null Kampf- oder Spielkonsequenz** (Nachweis: `weather === 'fog'`
+kommt ausserhalb der Tabelle/Labels nirgends vor). Der Spieler sieht „Nebel" im HUD,
+es passiert aber nichts.
+
+(2) **Die Tagesabschnitte `morning`/`day`/`dusk` sind folgenlos.** Nur `night` faerbt
+das Feld; die uebrigen drei Viertel des Tageszyklus haben keinerlei Wirkung. Es gibt
+keinen Grund, die Uhrzeit zu beachten.
+
+(3) **Wetter/Zeit sind im KAMPF unsichtbar.** Das Eroeffnungsfeld erscheint zwar im
+Kampf-Log, aber der Spieler erfaehrt nie, DASS es die Nacht/der Regen war — die
+Kausalitaet (Uhr → Kampf-Eroeffnung) ist nicht lesbar, also auch nicht als System
+erlernbar.
+
+Diese Welle **weckt den toten `fog`-Zustand und macht die Uhr im Kampf zu einem
+lesbaren, spuerbaren Faktor** — rein auf dem vorhandenen Motor (Status-/Feld-/
+Reward-Pfade), mit vorhandenen Daten, bewusst niedriger Komplexitaet und OHNE neue
+Assets. Sie adressiert direkt das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht /
+Grind / kein Schwung`): variable Kampf-Eroeffnungen brechen die „immer dieselbe
+optimale Antwort"-Monotonie, ohne den Zahlen-Korridor zu verschieben. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit: 172 weckt den
+`fog`-Zustand (Fundament), 173 macht die Uhr im Kampf lesbar (baut auf 172 auf), 174
+belohnt das Erkunden zu wechselnden Zeiten (unabhaengig, off-route). (Nummerierung:
+Phase 171 ist an die parallel gemergte Ramiris-Portrait-Phase vergeben; diese Welle
+startet daher bei 172.) **Jede
+kampfberuehrende Phase bleibt off-harness** (die Balance-Harness ruft `startBattle`
+ohne Uhr-/Wetter-Option auf → sie reicht weder Eroeffnungs-Status noch Reward-Bedingung
+durch → Korridor strukturell unberuehrt); wird trotzdem gegen die Harness gruen
+gefahren.
+
+- [x] Phase 172 — Nebel verhuellt das Schlachtfeld (weckt den toten `fog`-Zustand)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Funktion `openingStatuses(clock)`
+  in `systems/worldClock.ts` liefert bei `weather === 'fog'` einen **symmetrischen**
+  Eroeffnungs-`blind` (2 Runden) fuer ALLE Kaempfer — „im Nebel trifft niemand sicher"
+  (physische Treffsicherheit sinkt, canon: Nebel truebt die Sicht beider Seiten);
+  klar/Regen (und Nacht ohne Nebel) liefern keinen Eroeffnungs-Status (leeres Array).
+  `StartBattleOptions` traegt optional `openingStatuses`; `startBattle` wendet sie beim
+  Kampfstart auf ALLE Combatants an (environmental/symmetrisch, kein Widerstands-Wurf)
+  und schreibt je Status EINE Log-Zeile („… liegt ueber dem Schlachtfeld"). `OverworldScene`
+  leitet die Status aus `clockAt(clockStep, seed)` ab und reicht sie NUR bei regulaeren
+  Encountern durch; `BattleScene` gibt sie an `startBattle` weiter. Off-harness (die
+  Balance-Harness ruft `startBattle` ohne `openingStatuses` auf → Korridor unberuehrt).
+  Akzeptanz erfuellt: Nebel→symmetrisches Blind auf allen, klar/Regen/Nacht-ohne-Nebel→leer,
+  Motor wendet den Eroeffnungs-Status auf beide Seiten an + Log headless
+  (`test/worldClock.test.ts`, +4 Tests), typecheck ✓, 773 Unit-Tests ✓, build ✓,
+  **Balance-Harness (beide Tests, je Spec) gruen**. (Battle-E2E im Cloud-Runner nicht
+  ausfuehrbar — Playwright-Browser-Revision fehlt; Phase 172 ist rendering-neutral, nur
+  Log + Status.)
+
+- [ ] Phase 173 — Die Uhr im Kampf lesbar (Wetter/Zeit-Banner). Umsetzung: `BattleScene`
+  zeigt beim regulaeren Encounter eine kompakte, nicht-interaktive Zeit/Wetter-Zeile
+  (`clockHudLabel`, Phase 101) am Kampf-HUD, damit der Spieler die Kausalitaet
+  „Nacht/Regen/Nebel → diese Eroeffnung" lesen kann; die Uhr wird als optionales
+  `clockLabel` von `OverworldScene` durchgereicht (nur reguläre Encounter, nicht
+  Labyrinth/Kolosseum). Reine Anzeige, keine Balance-/Save-Beruehrung. Akzeptanz:
+  HUD-Zeile rendert mit dem korrekten Label (Battle-E2E-Smoke), Label-Ableitung headless,
+  typecheck, alle Unit-Tests, build gruen.
+
+- [ ] Phase 174 — Wechselnde Bedingungen belohnen (nicht-farmbare Wetter-/Nacht-Funde,
+  off-route). Umsetzung: reine Belohnungslogik `weatherConditionReward(clock, flags)` in
+  `systems/battleResult.ts` (analog `bestiaryMastery`): der ERSTE Sieg unter je einer
+  Bedingung (`erste Nacht-Schlacht`, `erster Sieg im Nebel`, `erster Sturmkampf` bei
+  Regen) zahlt EINMALIG einen kleinen deterministischen Magicule-Fund und setzt ein Flag
+  (`worldclock.first.<cond>`), das Doppelzahlung ueber Save-/Kampf-Grenzen verhindert
+  (nicht farmbar). `applyBattleResultToSave` nimmt optional `clock` und bucht bei Sieg;
+  `BattleScene` reicht die Uhr nur bei regulaerem Sieg durch, der Sieg-Bildschirm zeigt
+  den Fund. Off-route (Reward-Pfad, kein Kampf-Balance-Effekt; Harness reicht keine Uhr
+  durch). Akzeptanz: Erst-Sieg-Erkennung je Bedingung + Einmaligkeit/Flag-Diff +
+  Save-Roundtrip headless (`test/weatherReward.test.ts`), typecheck, alle Unit-Tests,
+  build, **Balance-Harness gruen**.
+
 ## UX- und Welt-Backlog
