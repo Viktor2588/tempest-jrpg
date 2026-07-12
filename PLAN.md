@@ -726,18 +726,23 @@ sie lesbar, 157 verzahnt Boss-Loot mit der Kern-/Seelen-Oekonomie. Jede kampfber
 Phase bleibt **off-route** (Labyrinth/Boss-Drops sind Spieler-Belohnung, nicht Teil der
 Story-Harness-Route) → Korridor unberuehrt; wird trotzdem gegen die Harness gruen gefahren.
 
-- [ ] Phase 155 — Labyrinth-Drops vergeben echte Loot-Instanzen.
-  Der Labyrinth-Etagen-Reward haengt deterministisch aus dem Run-/Kampf-Seed eine gerollte
-  Ausruestungs-Instanz an die Belohnung: eine neue reine Funktion (z. B. in `systems/labyrinth.ts`
-  oder `systems/battleResult.ts`) waehlt ueber `rollLabyrinthLootItemId` aus einem
-  kuratierten Basis-Gear-Loot-Tisch pro Tiefe (Raritaet steigt mit der Etage/Tiefen-Lead
-  aus Phase 147), und die kodierte Instanz-Id wird ueber `addInventoryItem` als
-  nicht-stapelbares Inventar-Item gebankt. `BattleScene` ruft den Roll nur auf den
-  Labyrinth-Etagen (`labyrinthEncounterDepth`) auf — sonst unveraendert. Bewusst niedrige
-  Chance/kuratierter Tisch (kein offenes Farmen). Akzeptanz: Loot-Tisch-Auswahl +
-  Tiefe→Raritaet + Determinismus + Inventar-Bank headless, `BattleScene`-Wiring,
-  Labyrinth-/Kampf-E2E-Smoke, typecheck ✓, Unit-Tests ✓, build ✓, **Balance-Harness gruen**
-  (Labyrinth off-route → Korridor unberuehrt).
+- [x] Phase 155 — Labyrinth-Drops vergeben echte Loot-Instanzen (abgeschlossen, direkt auf
+  main). Umgesetzt: `systems/labyrinth.ts` traegt drei kuratierte Basis-Gear-Loot-Tische je
+  Tiefe (`LABYRINTH_LOOT_TABLES`; Tiefe 1 selten, 2 episch, 3 ausschliesslich legendaer) und
+  die reine Funktion `rollLabyrinthFloorLoot(seed, depth)` — sie wuerfelt aus dem Kampf-Seed
+  DETERMINISTISCH mit gedeckelter, tiefenabhaengiger Chance (0.15/0.25/0.4), und rollt bei
+  Erfolg ueber das bestehende `rollLabyrinthLootItemId` (Phase 151) eine kodierte,
+  nicht-stapelbare Ausruestungs-Instanz (sonst `null`; nur Tiefe 1..3 haben einen Tisch). Der
+  Reward-Fluss (`applyBattleResultToSave`) nimmt optional `labyrinthLoot: { seed, depth }`,
+  rollt bei Sieg und bankt die Instanz ueber die Inventar-Normalisierung. `BattleScene` leitet
+  die Tiefe aus `labyrinthEncounterDepth(encounterId)` ab, reicht Seed+Tiefe NUR auf
+  Labyrinth-Etagen durch und zeigt den Fund als „✦ Labyrinth-Fund: …" in der Sieg-Zeile
+  (Instanzname via `resolveInstanceItem`). Bewusst niedrige Chance/kuratierter Tisch (kein
+  offenes Farmen). Akzeptanz erfuellt: Loot-Tisch-Auswahl + Tiefe→Raritaet + Determinismus +
+  gedeckelte Chance + Inventar-Bank (nur Sieg) headless (`test/labyrinthLoot.test.ts`, 5 Tests),
+  `BattleScene`-Wiring, typecheck ✓, 742 Unit-Tests ✓, build ✓, **Balance-Harness gruen**
+  (Labyrinth off-route → Auto-Battle-Harness reicht keine `labyrinthLoot`-Option durch →
+  Korridor unberuehrt).
 
 - [ ] Phase 156 — Instanz-Anzeige im Menue (Raritaets-Farbe + Affix-Aufschluesselung).
   Der Ausruestungs-/Inventar-View faerbt Instanz-Namen nach ihrer (Basis-)Raritaet
