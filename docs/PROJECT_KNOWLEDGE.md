@@ -1146,6 +1146,13 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 162 - Kanon-Varianten-Cutouts
+
+- Branch/Worktree: `phase-162-kanon-cutouts` in `/worktree/tempest-phase-162-kanon-cutouts`.
+- Asset-only: `mordrahn-vanguard`, `elder-direwolf`, `orc-grunt` und `orc-lord` ersetzen geteilte Bestandstexturen durch eigene repo-generierte 512×512-RGBA-Cutouts (xAI Imagine, Chroma-Key lokal entfernt); `stray-echo` bleibt bewusst geteilte Echo-Textur. Daten und Balance unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken die vier Kanon-Varianten ab.
+- Validierung: `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
 ### Phase 161 - Archetypen-Cutouts
 
 - Branch/Worktree: `phase-161-archetypen-cutouts` in `/worktree/tempest-phase-161-archetypen-cutouts`.

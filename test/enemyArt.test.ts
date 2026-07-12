@@ -28,6 +28,10 @@ import {
   MARSH_THORNBACK_TEXTURE_KEY,
   BLUMUND_BRIGAND_TEXTURE_KEY,
   ACADEMY_REVENANT_TEXTURE_KEY,
+  MORDRAHN_VANGUARD_TEXTURE_KEY,
+  ELDER_DIREWOLF_TEXTURE_KEY,
+  ORC_GRUNT_TEXTURE_KEY,
+  ORC_LORD_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
 
@@ -96,10 +100,10 @@ describe('Gegner-Art-Mapping', () => {
     for (const [id, expectedTexture] of [
       ['direwolf-alpha', DIREWOLF_ALPHA_TEXTURE_KEY],
       ['mordrahn-echo', NAMELESS_ECHO_TEXTURE_KEY],
-      ['orc-grunt', ORC_SOLDIER_TEXTURE_KEY],
+      ['orc-grunt', ORC_GRUNT_TEXTURE_KEY],
       ['orc-soldier', ORC_SOLDIER_TEXTURE_KEY],
       ['orc-general', ORC_GENERAL_TEXTURE_KEY],
-      ['orc-lord', ORC_DISASTER_TEXTURE_KEY],
+      ['orc-lord', ORC_LORD_TEXTURE_KEY],
       ['orc-disaster', ORC_DISASTER_TEXTURE_KEY],
       ['lizardman-warrior', LIZARDMAN_WARRIOR_TEXTURE_KEY],
       ['gabiru', GABIRU_TEXTURE_KEY],
@@ -110,7 +114,9 @@ describe('Gegner-Art-Mapping', () => {
       ['highland-galecaller', STORM_SHARD_TEXTURE_KEY],
       ['marsh-thornback', MARSH_THORNBACK_TEXTURE_KEY],
       ['blumund-brigand', BLUMUND_BRIGAND_TEXTURE_KEY],
-      ['academy-revenant', ACADEMY_REVENANT_TEXTURE_KEY]
+      ['academy-revenant', ACADEMY_REVENANT_TEXTURE_KEY],
+      ['mordrahn-vanguard', MORDRAHN_VANGUARD_TEXTURE_KEY],
+      ['elder-direwolf', ELDER_DIREWOLF_TEXTURE_KEY],
     ] as const) {
       const art = enemyArtFor(id, '');
       expect(art.textureKey).toBe(expectedTexture);
@@ -138,7 +144,11 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-storm-shard.png',
       'enemy-marsh-thornback.png',
       'enemy-blumund-brigand.png',
-      'enemy-academy-revenant.png'
+      'enemy-academy-revenant.png',
+      'enemy-mordrahn-vanguard.png',
+      'enemy-elder-direwolf.png',
+      'enemy-orc-grunt.png',
+      'enemy-orc-lord.png'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }
