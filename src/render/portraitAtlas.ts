@@ -70,6 +70,8 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'milim nava':
     case 'milim':
       return 'milim';
+    case 'ramiris':
+      return 'ramiris';
     case 'souka':
       return 'souka';
     case 'mordrahn':

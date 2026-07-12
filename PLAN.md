@@ -849,3 +849,12 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   schmiede-only, nicht kampfberuehrend).
 
 ## UX- und Welt-Backlog
+
+- [x] Phase 171 — Ramiris erhaelt ein echtes Dialog-/Weltportrait
+  (abgeschlossen in `/worktree/tempest-phase-171-ramiris-portrait`). Der zentrale
+  Labyrinth-NPC nutzt ein repo-generiertes 512x512-WebP statt des portraitlosen
+  Fallbacks; `portraitKindForSpeaker` und Preload sind verdrahtet. Keine Dialog-,
+  Gameplay- oder Balance-Aenderung. Akzeptanz erfuellt: Imagegen-Provenienz/Repo-Asset,
+  Mapping-/Asset-Tests, `git diff --check` ✓, typecheck ✓, 769 Unit-Tests inklusive
+  Balance-Harness ✓, build ✓, fokussierter Desktop-Chromium-Smoke auf frischem Port
+  (Ramiris-Portrait + Labyrinth-Assets geladen, keine Browserfehler) ✓.
