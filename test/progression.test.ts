@@ -330,6 +330,46 @@ describe('progression system', () => {
     expect(unit.perks).toContainEqual({ kind: 'damage-dealt', percent: 10 });
   });
 
+  it('verleiht nach dem Erntefest jedem Gefaehrten sein Ultimate Gift (Phase 169)', () => {
+    const flags = { 'story.tempest-invasion.repulsed': true };
+    const state = createProgressionState({
+      magicules: AWAKENING_MAGICULE_COST,
+      souls: AWAKENING_SOUL_COST,
+      promotedResidentIds: ['sturmzahn']
+    });
+
+    // Vor dem Erwachen: keine Geschenk-Perks.
+    const benimaruBefore = createPartyMember(hero('benimaru'), { level: 6 });
+    expect(createProgressionBattleParty([benimaruBefore], state)[0]!.perks)
+      .not.toContainEqual({ kind: 'damage-dealt', percent: 8, element: 'fire' });
+
+    const awakened = awakenTempest(state, flags);
+    expect(awakened.ok).toBe(true);
+
+    // Nach dem Erwachen: je Gefaehrte genau sein canon-thematisches Geschenk.
+    const expectations: ReadonlyArray<readonly [string, Record<string, unknown>]> = [
+      ['benimaru', { kind: 'damage-dealt', percent: 8, element: 'fire' }],
+      ['shuna', { kind: 'buff-power', percent: 10 }],
+      ['shion', { kind: 'damage-dealt', percent: 8, category: 'physical' }],
+      ['souei', { kind: 'dodge', percent: 5 }],
+      ['hakurou', { kind: 'counter', percent: 6 }],
+      ['ranga', { kind: 'damage-dealt', percent: 8, element: 'wind' }],
+      ['gobta', { kind: 'dodge', percent: 5 }],
+      ['rigurd', { kind: 'max-hp', percent: 8 }]
+    ];
+    for (const [characterId, perk] of expectations) {
+      const member = createPartyMember(hero(characterId), { level: 6 });
+      const unit = createProgressionBattleParty([member], awakened.state)[0]!;
+      expect(unit.perks).toContainEqual(perk);
+    }
+
+    // Rimuru behaelt seine eigenen Erwachen-Perks (kein Geschenk-Doppel).
+    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const rimuruUnit = createProgressionBattleParty([rimuru], awakened.state)[0]!;
+    expect(rimuruUnit.perks).toContainEqual({ kind: 'max-hp', percent: 10 });
+    expect(rimuruUnit.perks).not.toContainEqual({ kind: 'buff-power', percent: 10 });
+  });
+
   it('gated das Erntefest auch an den Seelen (Boss-Waehrung)', () => {
     const flags = { 'story.tempest-invasion.repulsed': true };
     // Magicules reichen, aber keine Seelen → gesperrt.

@@ -1269,6 +1269,13 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
   inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
 
+### Phase 169 - Ultimate Gift
+
+- Branch/Worktree: `phase-169-ultimate-gift` in `/worktree/tempest-phase-169-ultimate-gift`.
+- Canon-Feature (IDEE.md §1): nach dem Erntefest erhaelt jeder der acht Party-Gefaehrten EIN massvolles Ultimate-Geschenk als TalentPerk ueber den bestehenden `awakenedPerksForMember`-Pfad (`ULTIMATE_GIFT_PERKS_BY_CHARACTER` in `systems/progression.ts`); Rimuru behaelt seine eigenen Erwachen-Perks. Reine Datenergaenzung, kein Motor-Eingriff.
+- Balance: die Auto-Battle-Harness laeuft ohne `awakeningCompleted` → Korridore strukturell unberuehrt; Harness gruen gefahren.
+- Validierung: `bun run typecheck`, 768 Unit-Tests inklusive Balance-Harness, `bun run build`.
+
 ### Phase 168 - Ende-Key-Arts
 
 - Branch/Worktree: `phase-168-ende-keyart` in `/worktree/tempest-phase-168-ende-keyart`.
