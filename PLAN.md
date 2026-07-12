@@ -830,21 +830,23 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   → leer, Instanz-Aufloesung Basis+Affixe) headless (`test/equipDelta.test.ts`, 4 Tests),
   typecheck ✓, 754 Unit-Tests ✓, build ✓.
 
-- [ ] Phase 159 — Loot zerlegen: Instanzen in Materialien (Salvage an der Schmiede).
-  Eine neue reine Funktion in `systems/crafting.ts` (z. B. `salvageEquipment(context, itemId)`)
-  zerlegt ein Ausruestungs-Item aus dem Inventar deterministisch in Materialien, gestaffelt nach
-  Raritaet (`rarityOf`): selten → 1× `magic-ore`, episch → 1× `magisteel`, legendaer/legendaer-
-  set → 1× `magisteel` + 1× `spirit-ember`; entfernt das Item (`removeInventoryItem`) und bankt
-  die Materialien (`addInventoryItem`). Nur ausruestbare, NICHT getragene Items sind zerlegbar
-  (Schutz vor versehentlichem Verlust getragener/Story-Teile — Startausruestung `gewoehnlich`
-  gibt nichts zurueck, verschwindet aber). An der bereits smith-gegateten Schmiede-Ansicht
-  (`MenuScene.drawForge`, `canEnchantEquipment`) als „Zerlegen"-Aktion je zerlegbarem
-  Inventar-Item angeboten, mit `CraftContext` aus `forgeContext()`. Schliesst die verifizierte
-  Luecke „Loot-Instanzen unverkaeuflich/unentsorgbar" UND speist die tote Material-Oekonomie
-  (magic-ore/magisteel/spirit-ember sind alle Rezept-Inputs). Akzeptanz: Raritaets-gestaffelter
-  Material-Ertrag + Entfernen/Banken + Getragen-/Nicht-Gear-Schutz + Inventar-Roundtrip
-  headless, Schmiede-E2E-Smoke (Zerlegen-Aktion), typecheck ✓, Unit-Tests ✓, build ✓,
-  **Balance-Harness gruen** (menue-only, nicht kampfberuehrend).
+- [x] Phase 159 — Loot zerlegen: Instanzen in Materialien (Salvage an der Schmiede)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Funktion `salvageEquipment(context,
+  itemId)` in `systems/crafting.ts` zerlegt ein Ausruestungs-Item aus dem Inventar
+  deterministisch in Materialien, gestaffelt nach Raritaet (`rarityOf`, loest Loot-Instanzen
+  ueber `resolveInstanceItem` auf): selten → 1× `magic-ore`, episch → 1× `magisteel`, legendaer/
+  legendaer-set → 1× `magisteel` + 1× `spirit-ember`, `gewoehnlich` → nichts; entfernt das Item
+  (`removeInventoryItem`) und bankt die Materialien (`addInventoryItem`). `salvageYield`/
+  `salvageYieldLabel` liefern die Vorschau. Nur ausruestbare Items im Inventar sind zerlegbar
+  (getragene Teile liegen NICHT im Inventar → automatisch geschuetzt; Nicht-Gear/fehlend
+  abgelehnt). Neue smith-gegatete Schmiede-Unteransicht „Werkbank" (`forgeBench`-Umschalter in
+  `MenuScene.drawForge` → `drawWorkbench`) listet die zerlegbare Beute (raritaets-gefaerbt) mit
+  Ertrags-Vorschau und „Zerlegen"-Button, `CraftContext` aus `forgeContext()`. Schliesst die
+  verifizierte Luecke unverkaeuflicher/unentsorgbarer Loot-Instanzen UND speist die (teils toten)
+  Crafting-Materialien. Akzeptanz erfuellt: raritaets-gestaffelter Ertrag + Entfernen/Banken +
+  Instanz-Aufloesung + Nicht-Gear-/Fehlend-Schutz + Vorschau-Label headless
+  (`test/salvage.test.ts`, 5 Tests), typecheck ✓, 759 Unit-Tests ✓, build ✓, **Balance-Harness
+  strukturell unberuehrt** (menue-/schmiede-only, nicht kampfberuehrend).
 
 - [ ] Phase 160 — Affix-Umschmieden: eine Loot-Instanz neu rollen (Schmiede).
   Eine neue reine Funktion in `systems/lootAffix.ts` (z. B. `reforgeInstance(seed, itemId)`)
