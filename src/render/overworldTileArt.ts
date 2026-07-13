@@ -11,6 +11,8 @@ export const GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-goblin-village-floor'
 export const GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-goblin-village-wall';
 export const RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-floor';
 export const RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-wall';
+export const TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-colosseum-floor';
+export const TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY = 'tile-tempest-colosseum-wall';
 export const MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-marsh-floor';
 export const MARSH_WALL_TILE_TEXTURE_KEY = 'tile-marsh-wall';
 export const HIGHLANDS_FLOOR_TILE_TEXTURE_KEY = 'tile-highlands-floor';
@@ -51,6 +53,10 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
   'ramiris-labyrinth': {
     floorKey: RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
     wallKey: RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY
+  },
+  'tempest-colosseum': {
+    floorKey: TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY
   },
   // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
   // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).

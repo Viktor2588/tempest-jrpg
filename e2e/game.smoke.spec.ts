@@ -783,6 +783,8 @@ test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page })
   expect(loadedAssets.some((name) => name.includes('region-tempest-colosseum'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('battle-tempest-colosseum'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-arena-steward'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

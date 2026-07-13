@@ -1389,6 +1389,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Ramiris-Browser-Smoke.
 
+### Phase 187 - Eigene Tiles fuer das Tempest-Kolosseum
+
+- Branch/Worktree: `phase-187-tempest-colosseum-tiles` in
+  `/home/viktor/worktree/tempest-phase-187-tempest-colosseum-tiles`.
+- Assets: `tiles/tile-tempest-colosseum-{floor,wall}.webp`, 128x128, zusammen
+  11,6 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `tempest-colosseum` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Kolosseum-Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

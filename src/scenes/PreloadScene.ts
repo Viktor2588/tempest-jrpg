@@ -55,6 +55,8 @@ import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor
 import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
 import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth-floor.webp';
 import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
+import tempestColosseumFloorTileUrl from '../assets/tiles/tile-tempest-colosseum-floor.webp';
+import tempestColosseumWallTileUrl from '../assets/tiles/tile-tempest-colosseum-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -79,6 +81,8 @@ import {
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -232,6 +236,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY, ramirisLabyrinthFloorTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
+    this.load.image(TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY, tempestColosseumFloorTileUrl);
+    this.load.image(TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY, tempestColosseumWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
@@ -402,6 +408,8 @@ export class PreloadScene extends Phaser.Scene {
       KINGDOM_UNIT_TEXTURE_KEY,
       RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
       RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       MARSH_WALL_TILE_TEXTURE_KEY,
       HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,

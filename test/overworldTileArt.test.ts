@@ -24,6 +24,8 @@ import {
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
   TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   firstAvailableOverworldTileTexture,
   overworldTileTextureCandidates
@@ -56,7 +58,7 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
-  it('gibt Start-Höhle, Goblin-Dorf und Ramiris-Labyrinth eigene Tiles', () => {
+  it('gibt den eigenständigen Schauplätzen eigene Tiles', () => {
     expect(overworldTileTextureCandidates('sealed-cave', false)).toEqual([
       SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -76,6 +78,16 @@ describe('Overworld-Regionstiles', () => {
     ]);
     expect(overworldTileTextureCandidates('ramiris-labyrinth', true)).toEqual([
       RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
+    expect(overworldTileTextureCandidates('tempest-colosseum', false)).toEqual([
+      TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('tempest-colosseum', true)).toEqual([
+      TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
     ]);
@@ -118,6 +130,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-goblin-village-wall.webp',
       'tile-ramiris-labyrinth-floor.webp',
       'tile-ramiris-labyrinth-wall.webp',
+      'tile-tempest-colosseum-floor.webp',
+      'tile-tempest-colosseum-wall.webp',
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',
