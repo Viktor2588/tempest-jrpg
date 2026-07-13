@@ -1367,6 +1367,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 185 - Eigene Tiles fuer das Goblin-Dorf
+
+- Branch/Worktree: `phase-185-goblin-village-tiles` in
+  `/home/viktor/worktree/tempest-phase-185-goblin-village-tiles`.
+- Assets: `tiles/tile-goblin-village-{floor,wall}.webp`, 128x128, zusammen
+  11,1 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `goblin-village` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ranga-Reise-Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

@@ -430,6 +430,11 @@ test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) 
   expect(save.location.mapId).toBe('goblin-village');
   expect(save.flags['travel.ranga.discovery.herb-trail']).toBe(true);
   expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'healing-herb')).toBe(true);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-goblin-village-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-goblin-village-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

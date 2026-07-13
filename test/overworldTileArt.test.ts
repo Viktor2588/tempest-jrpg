@@ -8,6 +8,8 @@ import {
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
   HIGHLANDS_WALL_TILE_TEXTURE_KEY,
   JURA_BATTLEFIELD_FLOOR_TILE_TEXTURE_KEY,
@@ -52,7 +54,7 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
-  it('gibt der Start-Höhle eigene Tiles und themed weitere frühe Band-1-Karten', () => {
+  it('gibt Start-Höhle und Goblin-Dorf eigene Tiles', () => {
     expect(overworldTileTextureCandidates('sealed-cave', false)).toEqual([
       SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -63,6 +65,8 @@ describe('Overworld-Regionstiles', () => {
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
     ]);
+    expect(overworldTileTextureCandidates('goblin-village', false)[0]).toBe(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('goblin-village', true)[0]).toBe(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
       LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -98,6 +102,8 @@ describe('Overworld-Regionstiles', () => {
     for (const file of [
       'tile-sealed-cave-floor.webp',
       'tile-sealed-cave-wall.webp',
+      'tile-goblin-village-floor.webp',
+      'tile-goblin-village-wall.webp',
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',

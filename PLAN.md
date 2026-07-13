@@ -1217,4 +1217,19 @@ obwohl Banner und Kampfhintergrund bereits eine eigene Hoehlenidentitaet besitze
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Desktop-Chromium-Smoke inklusive geladener Hoehlenwand-Textur ✓.
 
+## Zwanzigste Welle: Das Goblin-Dorf wird als Waldsiedlung lesbar (Asset-first, Plan 2026-07-13)
+
+Befund: `goblin-village` verwendet im Overworld aktuell die Boden-/Wandtiles des
+spaeteren Echsen-Sumpfs. Schilf, Wasser und Mangroven passen weder zum Jura-Wald
+noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identitaet.
+
+- [x] Phase 185 — Eigene Overworld-Tiles fuer das Goblin-Dorf (abgeschlossen im
+  isolierten Worktree). Zwei kompakte 128×128-WebP-Assets: begehbarer warmer
+  Waldsiedlungsboden (4,3 KB) und klar blockierende Palisaden-/Hüttenkante (6,8 KB).
+  `goblin-village` nutzt beide ueber das bestehende Theme-/Preload-Wiring mit
+  unveraenderter Default-/Placeholder-Fallbackkette; kein neuer Renderpfad und
+  keine Balance-Aenderung. Provenienz in `ASSETS.md`; Theme-/Preload-Tests gruen,
+  Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
+  Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
+
 ## UX- und Welt-Backlog

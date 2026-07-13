@@ -51,6 +51,8 @@ import wallUrl from '../assets/tiles/wall.png';
 import pathUrl from '../assets/tiles/path.png';
 import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp';
 import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
+import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor.webp';
+import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -71,6 +73,8 @@ import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.web
 import {
   SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -220,6 +224,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tile-path', pathUrl);
     this.load.image(SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY, sealedCaveFloorTileUrl);
     this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
+    this.load.image(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY, goblinVillageFloorTileUrl);
+    this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);

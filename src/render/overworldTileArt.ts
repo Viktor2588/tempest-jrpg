@@ -7,6 +7,8 @@ export const PLACEHOLDER_WALL_TILE_TEXTURE_KEY = 'ph-tile-wall';
 
 export const SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY = 'tile-sealed-cave-floor';
 export const SEALED_CAVE_WALL_TILE_TEXTURE_KEY = 'tile-sealed-cave-wall';
+export const GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-goblin-village-floor';
+export const GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-goblin-village-wall';
 export const MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-marsh-floor';
 export const MARSH_WALL_TILE_TEXTURE_KEY = 'tile-marsh-wall';
 export const HIGHLANDS_FLOOR_TILE_TEXTURE_KEY = 'tile-highlands-floor';
@@ -40,12 +42,12 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     floorKey: SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
     wallKey: SEALED_CAVE_WALL_TILE_TEXTURE_KEY
   },
+  'goblin-village': {
+    floorKey: GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY
+  },
   // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
   // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).
-  'goblin-village': {
-    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
-  },
   'direwolf-den': {
     floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
     wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
