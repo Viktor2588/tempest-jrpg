@@ -1232,18 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Dreiundzwanzigste Welle: Vorhandener Dialog-Tastaturhinweis wird sichtbar (Asset-first, Plan 2026-07-13)
-
-Befund: `ui/dialog-keyboard-hint.webp` ist seit Phase 119 dokumentiert und eingecheckt,
-wird aber weder vorgeladen noch in `DialogueScene` dargestellt. Die bereits vorhandene
-Pfeil-/Leertaste-/Enter-Steuerung bleibt dadurch visuell unerklaert.
-
-- [x] Phase 188 — Dialog-Tastaturhinweis verdrahten (abgeschlossen im isolierten
-  Worktree). `PreloadScene` laedt das vorhandene 1280x720-WebP und registriert daraus
-  nur den relevanten 500x500-Tastenbereich als Phaser-Frame; `DialogueScene` zeigt ihn
-  oberhalb des Panels. Der vorhandene Pfeil-/Leertaste-/Enter-Pfad bleibt unveraendert;
-  kein neues Eingabe-, Tutorial- oder Save-System. Preload-/Scene-Test gruen,
-  Typecheck ✓, 809 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
-  Prolog-Dialog-Desktop-Chromium-Smoke inklusive Leertasten-Auswahl und Asset-Request ✓.
-
 ## UX- und Welt-Backlog
