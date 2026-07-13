@@ -17,6 +17,31 @@ const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, i
 const INVASION_DEFENSE_FLAG = 'story.tempest-invasion.repulsed';
 export const KITCHEN_REST_BUFF_FLAG = 'facility.kitchen.rest-buff.ready';
 
+// Phase 179 — Diplomatie speist die Produktion: erreicht eine Fraktion die `trusted`-
+// Schwelle (Flag aus `diplomacy.adjustReputation`), liefert sie ihrer passenden Einrichtung
+// einen Nachschub-Bonus. Genau die in `data/factions.ts` versprochenen Handelsrouten:
+// Echsenmenschen→Küche (Heilkräuter), Dwargon+Orks→Schmiede (Erz/Ork-Hauer). Mehrere Routen
+// an derselben Einrichtung kumulieren. Rein datengetrieben, analog `defendedRouteBonus`.
+const REPUTATION_SUPPLY_ROUTES: readonly { readonly facilityId: string; readonly flag: string }[] = [
+  { facilityId: 'kitchen', flag: 'reputation.lizardmen.trusted' },
+  { facilityId: 'forge', flag: 'reputation.dwargon.trusted' },
+  { facilityId: 'forge', flag: 'reputation.orcs.trusted' }
+];
+
+function reputationSupplyBonus(
+  facility: FacilityDefinition,
+  baseAmount: number,
+  level: number,
+  flags: StoryFlags
+): number {
+  if (baseAmount <= 0) return 0;
+  const bonusPerRoute = level * facility.output.perStaffPerLevel;
+  const activeRoutes = REPUTATION_SUPPLY_ROUTES.filter(
+    (route) => route.facilityId === facility.id && flags[route.flag]
+  ).length;
+  return activeRoutes * bonusPerRoute;
+}
+
 // Produktionsstaerke je Wachstumsstufe: die Wildnis (noch keine Nation) produziert
 // nichts, jede Ausbaustufe hebt den Multiplikator um eins. Bewusst linear, damit die
 // Ausbeute vorhersehbar mit dem Nationsausbau waechst.
@@ -135,13 +160,15 @@ export function buildFacilityOverview(
     const defendedRouteBonus = facility.id === 'watch' && baseAmount > 0 && flags[INVASION_DEFENSE_FLAG]
       ? level * facility.output.perStaffPerLevel
       : 0;
+    // Phase 179 — Diplomatie-Handelsrouten (`trusted`) heben den Ausstoß der passenden Einrichtung.
+    const supplyBonus = reputationSupplyBonus(facility, baseAmount, level, flags);
     return {
       facility,
       unlocked: level > 0,
       level,
       staff,
       outputLabel: outputLabel(facility),
-      amountPerCycle: baseAmount + defendedRouteBonus
+      amountPerCycle: baseAmount + defendedRouteBonus + supplyBonus
     };
   });
   return {

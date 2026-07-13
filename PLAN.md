@@ -873,19 +873,21 @@ vor, um den Korridor nicht zu beruehren). Reihenfolge: 179 (Produktions-Nachschu
 `trusted`-Schwellen ueber die vorhandene Facility-Maschinerie; 180 (Standing im Codex) macht den
 gesamten Reputations-Fortschritt und die freigeschalteten Belohnungen erstmals sichtbar.
 
-- [ ] Phase 179 — Diplomatie speist die Produktion (`trusted`-Nachschub). Umsetzung: analog
-  zum vorhandenen `defendedRouteBonus` bekommt jede Einrichtung einen fraktions-gegateten
-  Nachschub-Bonus, wenn die passende Fraktion `trusted` erreicht hat: Echsenmenschen
-  (`reputation.lizardmen.trusted`) → Küche (`healing-herb`), Dwargon
-  (`reputation.dwargon.trusted`) → Schmiede (`magic-ore`), Orks (`reputation.orcs.trusted`)
-  → Schmiede (zusätzlicher Ausstoß, „Ork-Hauer-Nachschub"). Der Bonus ist deterministisch
-  (`level * output.perStaffPerLevel`, nur wenn die Einrichtung ueberhaupt besetzt
-  produziert, `baseAmount > 0`), fliesst durch `buildFacilityOverview` in `amountPerCycle`
-  und damit automatisch in `runProductionCycle`. Rein/funktional, keine neuen Assets,
-  keine Kampf-/Balance-Beruehrung. Akzeptanz: Bonus-Ableitung je `trusted`-Flag (an/aus,
-  richtige Einrichtung, kumulierbar Dwargon+Orks an der Schmiede, kein Bonus ohne Besetzung)
-  + Durchschlag in den Produktions-Zyklus headless (`test/facilities.test.ts`), typecheck,
-  alle Unit-Tests, build gruen.
+- [x] Phase 179 — Diplomatie speist die Produktion (`trusted`-Nachschub) (abgeschlossen,
+  direkt auf main). Umgesetzt: analog zum vorhandenen `defendedRouteBonus` bekommt jede
+  Einrichtung einen fraktions-gegateten Nachschub-Bonus, wenn die passende Fraktion `trusted`
+  erreicht hat — datengetriebene Routen-Tabelle `REPUTATION_SUPPLY_ROUTES` in
+  `systems/facilities.ts`: Echsenmenschen (`reputation.lizardmen.trusted`) → Küche
+  (`healing-herb`), Dwargon (`reputation.dwargon.trusted`) → Schmiede (`magic-ore`), Orks
+  (`reputation.orcs.trusted`) → Schmiede (zweite Route, „Ork-Hauer-Nachschub"). Der Bonus
+  (`reputationSupplyBonus`) ist deterministisch (`aktiveRouten * level * output.perStaffPerLevel`),
+  greift nur bei besetzter Produktion (`baseAmount > 0`), fliesst durch `buildFacilityOverview`
+  in `amountPerCycle` und damit automatisch in `runProductionCycle`. Rein/funktional, keine
+  neuen Assets, keine Kampf-/Balance-Beruehrung. Akzeptanz erfuellt: Bonus-Ableitung je
+  `trusted`-Flag (an/aus, richtige Einrichtung, kumulierbar Dwargon+Orks an der Schmiede,
+  kein Bonus ohne Besetzung, keine Fehl-Einrichtung) headless (`test/facilities.test.ts`,
+  +3 Tests), typecheck ✓, 795 Unit-Tests ✓, build ✓, Balance-Harness strukturell unberuehrt
+  (off-combat/Produktions-Schleife).
 
 - [ ] Phase 180 — Diplomatie-Standing im Codex sichtbar (Fortschritt + freigeschaltete Boni).
   Umsetzung: der bestehende Diplomatie-Codex-Modus (`MenuScene`, `buildDiplomacyView`) zeigt
