@@ -908,14 +908,22 @@ trotzdem gegen die Harness gruen gefahren.
   (`test/enemyElementField.test.ts`, 4 Tests), typecheck ✓, 802 Unit-Tests ✓, build ✓,
   **Balance-Harness (7 Tests) gruen** (Koloss off-route → Harness ruft ihn nie auf).
 
-- [ ] Phase 182 — Feld-Reaktion lesbar: der Kampf telegraphiert die Fusion. Reine
-  Ableitung `fieldReactionHints(fieldElement)` (aus der Fusionstabelle: welche
-  Fremd-Elemente loesen welche Fusion aus), in die Battle-View (`buildBattleView`)
-  gefaltet; `BattleScene` zeigt unter der Feld-Zeile eine kompakte Hinweiszeile
-  („↯ Wind/Wasser → Reaktion"). Teacht das Gegenspiel fuer JEDES Feld (Spieler- wie
-  Gegner-Feld). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz: Hint-Ableitung
-  (richtige Fremd-Elemente je Feld, gleiches Element = kein Hint, neutral = leer) headless;
-  typecheck, Tests, build gruen; HUD rendert die Zeile im echten Browser fehlerfrei.
+- [x] Phase 182 — Feld-Reaktion lesbar: der Kampf telegraphiert die Fusion (abgeschlossen,
+  direkt auf main). Umgesetzt: reine Ableitung `fieldReactionElements(fieldElement)`
+  (`systems/battleView.ts`) — filtert aus der Fusionstabelle (`resolveElementFusion`) die
+  Fremd-Elemente, die auf dem geladenen Feld eine Reaktion entladen (gleiches Element =
+  Verstaerkung → ausgeschlossen; neutral → leer). In `renderView` gefaltet
+  (`view.fieldReactions`); `BattleScene` zeigt unter der Feld-Zeile eine kompakte
+  Hinweiszeile („↯ jedes Fremd-Element → Reaktion", bzw. bei duennerer Datenlage die
+  konkreten Elemente). Ein laufender y-Versatz reiht Feld-, Reaktions- und Welt-Uhr-Zeile
+  ueberlappungsfrei. Teacht das Gegenspiel fuer JEDES Feld — das eigene wie das neue
+  feindliche (Phase 181). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt:
+  Hint-Ableitung (Feld-Element selbst ausgeschlossen, neutral = leer, richtige Fremd-Elemente)
+  + View-Faltung (leer ohne Feld, spiegelt das geladene Feld) headless
+  (`test/fieldReactionHint.test.ts`, 5 Tests), typecheck ✓, 807 Unit-Tests ✓, build ✓,
+  **Balance-Harness (7 Tests) gruen**, BattleScene rendert die Zeile im echten Browser
+  fehlerfrei (Battle-Smokes „Title → … → Battle" und „Band 2 → Flüsterhain-Kampf" gegen die
+  Chromium-1194-Binary gruen).
 
 ## Siebzehnte Welle: Die Diplomatie zahlt aus (verifizierte tote Maschinerie, Plan 2026-07-13)
 
