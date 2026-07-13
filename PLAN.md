@@ -1232,19 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Zweiundzwanzigste Welle: Das Tempest-Kolosseum bekommt eigene Overworld-Tiles (Asset-first, Plan 2026-07-13)
-
-Befund: `tempest-colosseum` faellt im Overworld vollstaendig auf die generischen
-16x16-Gras-/Wandtiles zurueck. Das passt weder zum eigenen steinernen Arenabanner noch
-zum bereits vorhandenen Kolosseum-Kampfhintergrund.
-
-- [x] Phase 187 — Eigene Overworld-Tiles fuer das Tempest-Kolosseum (abgeschlossen im
-  isolierten Worktree). Zwei kompakte 128x128-WebP-Assets: begehbarer warmer
-  Sand-/Steinboden (4,6 KB) und klar blockierende Holz-/Steintribuene (6,9 KB).
-  `tempest-colosseum` nutzt beide ueber das bestehende Theme-/Preload-Wiring mit
-  unveraenderter Default-/Placeholder-Fallbackkette; kein neuer Renderpfad und keine
-  Gameplay-/Balance-Aenderung. Provenienz in `ASSETS.md`; Theme-/Preload-Tests gruen,
-  Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
-  Kolosseum-Desktop-Chromium-Smoke inklusive beider geladener Texturen ✓.
-
 ## UX- und Welt-Backlog
