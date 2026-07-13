@@ -1400,6 +1400,18 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Kolosseum-Browser-Smoke.
 
+### Phase 188 - Vorhandener Dialog-Tastaturhinweis
+
+- Branch/Worktree: `phase-188-dialog-keyboard-hint` in
+  `/home/viktor/worktree/tempest-phase-188-dialog-keyboard-hint`.
+- Asset-Reuse: `ui/dialog-keyboard-hint.webp` wird jetzt vorgeladen; aus dem
+  bestehenden 1280x720-Bild wird per Phaser-Frame nur der 500x500-Tastenbereich
+  verwendet, ohne eine neue oder duplizierte Asset-Datei.
+- Wiring: `DialogueScene` zeigt den 150x150-Hinweis oberhalb des Dialogpanels; der
+  vorhandene Tastaturpfad bleibt unveraendert.
+- Validiert mit `git diff --check`, Asset-/Scene-Test, Typecheck, 809 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Prolog-Dialog-Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

@@ -204,6 +204,7 @@ import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
 import formationRowsUrl from '../assets/ui/formation-rows.webp';
+import dialogKeyboardHintUrl from '../assets/ui/dialog-keyboard-hint.webp';
 import mimicFormUrl from '../assets/ui/mimic-form-indicator.webp';
 import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
 
@@ -364,12 +365,15 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
     this.load.image('ui-formation-rows', formationRowsUrl);
+    this.load.image('ui-dialog-keyboard-hint', dialogKeyboardHintUrl);
     this.load.image('ui-mimic-form-indicator', mimicFormUrl);
     this.load.image('ui-predator-steal', predatorStealUrl);
   }
 
   create(): void {
     this.registerKingdomUnitFrames();
+    const dialogHint = this.textures.get('ui-dialog-keyboard-hint');
+    if (!dialogHint.has('controls')) dialogHint.add('controls', 0, 80, 120, 500, 500);
     // Prozedurale Platzhalter-Texturen (ph-<kind>) erzeugen — global verfügbar,
     // bis echte CC0-Assets eingepflegt sind. Szenen nutzen sie mit Rechteck-Fallback.
     generatePlaceholderTextures(this);

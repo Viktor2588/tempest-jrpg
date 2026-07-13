@@ -87,7 +87,8 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   await tapMovementKey(page, 'ArrowUp');
   await page.keyboard.press('Space');
   await settle(page, 100);
-  await clickGamePoint(page, 150, 398); // Schleimform ordnen
+  await expectCanvasContent(page);
+  await page.keyboard.press('Space'); // sichtbaren Tastaturhinweis tatsächlich nutzen
   await settle(page, 100);
   await clickGamePoint(page, 150, 398); // Schwur annehmen
   await settle(page, 100);
@@ -100,6 +101,10 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   expect(save.flags['story.slime.awakened']).toBe(true);
   expect(save.flags['story.storm-dragon.oath']).toBe(true);
   expect(save.quests['slime-awakening'].completedStepIds).toEqual(['cave-awakening', 'storm-dragon-oath']);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('dialog-keyboard-hint'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

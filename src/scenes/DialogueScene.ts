@@ -95,6 +95,11 @@ export class DialogueScene extends Phaser.Scene {
     }
     const settings = loadSettings(window.localStorage);
     const hc = settings.highContrast;
+    if (this.textures.exists('ui-dialog-keyboard-hint')) {
+      this.layer.add(this.add.image(GAME_WIDTH - 120, 130, 'ui-dialog-keyboard-hint', 'controls')
+        .setDisplaySize(150, 150)
+        .setAlpha(0.9));
+    }
     this.panel(70, 230, GAME_WIDTH - 140, 265);
     const textX = this.drawPortrait(this.view.speaker, 126, 314, 64) ? 180 : 94;
     this.layer.add(this.add.text(textX, 250, this.view.speaker, {
