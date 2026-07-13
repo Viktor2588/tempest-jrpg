@@ -885,14 +885,22 @@ gruen gefahren.
   (`test/weatherReward.test.ts`, +3 Tests), typecheck ✓, 787 Unit-Tests ✓, build ✓,
   Balance-Harness strukturell unberuehrt (reine View-Logik).
 
-- [ ] Phase 178 — Nebelsicht: proaktives Vorsorge-Item gegen die Nebel-Eroeffnung.
-  Umsetzung: neues Verbrauchs-Item (z.B. „Klarsichttropfen") mit einem NEUEN, klar
-  umrissenen Item-Effekt, der die Eroeffnungs-Blendung des naechsten Kampfes verhindert
-  bzw. sofort aufhebt (kleiner Motor-Hook analog `cure-status`), kaeuflich in bestehenden
-  Shops. Bewusst als Spieler-Option; die Auto-Battle-Harness nutzt keine Items → Korridor
-  unberuehrt. Akzeptanz: Item-Wirkung (Nebel-Blind entfernt/praeventiert, kein Verbrauch
-  ohne Wirkung) + Shop-/Datenvalidierung headless (`test/*`, `qa.test.ts`), typecheck,
-  alle Unit-Tests, build, **Balance-Harness gruen**.
+- [x] Phase 178 — Nebelsicht: proaktives Vorsorge-Item gegen die Nebel-Eroeffnung
+  (abgeschlossen, direkt auf main). Umgesetzt: neues Verbrauchs-Item „Klarsichttropfen"
+  (`clearsight-drops`, 50 Gold, in allen fuenf Laeuterungswasser-fuehrenden Shops) mit
+  NEUEM Item-Effekt `ward-fog`. Out of combat benutzt (`menu.ts:useItem`, charakter-
+  unabhaengig) laedt es einen einmaligen Nebel-Ward (Flag `worldclock.fogward`); ist der
+  Ward schon geladen, passiert nichts (kein Verbrauch ohne Wirkung). Reine Funktion
+  `openingStatusesWarded(clock, flags)` (`systems/worldClock.ts`) filtert bei NEBEL die
+  Eroeffnungs-Blendung heraus und meldet `wardConsumed`; ohne Nebel bleibt der Ward geladen.
+  `OverworldScene` reicht Uhr+Flags durch und loescht das Flag nur, wenn der Ward
+  tatsaechlich griff. `MenuScene.applyResult` spiegelt jetzt Menue-gesetzte Flags in den
+  Save. Off-Harness (Auto-Battle reicht keine Uhr/Items durch → Korridor unberuehrt).
+  Akzeptanz erfuellt: Ward-Wirkung (Nebel-Blind entfernt/praeventiert, kein Verbrauch ohne
+  Wirkung, ohne Flags identisch zu `openingStatuses`) + Item-Ladung/Nicht-Doppelverbrauch
+  + Shop-/Datenvalidierung headless (`test/worldClock.test.ts` +4, `test/menu.test.ts` +1,
+  `dataIntegrity`/`qa.test.ts` gruen), typecheck ✓, 792 Unit-Tests ✓, build ✓,
+  Balance-Harness ✓ (7 Tests strukturell unberuehrt).
 
 ## Fünfzehnte Welle: Die Uhr faerbt die Welt (off-combat, balance-neutral, Plan 2026-07-12)
 

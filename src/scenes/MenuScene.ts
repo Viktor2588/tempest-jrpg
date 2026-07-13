@@ -1762,6 +1762,8 @@ export class MenuScene extends Phaser.Scene {
     if (result.ok) {
       this.save = {
         ...this.save,
+        // Phase 178 — Menue-Aktionen (z.B. Nebel-Ward laden) koennen Flags setzen; zurueckspiegeln.
+        flags: this.state.flags ?? this.save.flags,
         party: {
           ...this.save.party,
           active: this.state.party,

@@ -110,7 +110,10 @@ export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'co
 export interface ItemEffect {
   // Phase 129 — 'cure-status': entfernt negative/Hart-CC-Status vom Ziel (Gegenmittel
   // zur erwachten Kontroll-Schicht). Behandelt in battle.ts:resolveItem.
-  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill' | 'cure-status';
+  // Phase 178 — 'ward-fog': proaktives Vorsorge-Item (out of combat). Laedt einen
+  // einmaligen Nebel-Ward, der die Nebel-Eroeffnungsblendung des naechsten Kampfes
+  // unterdrueckt (Flag `worldclock.fogward`). Behandelt in menu.ts:useItem.
+  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill' | 'cure-status' | 'ward-fog';
   readonly amount?: number;
   readonly skillId?: string;
 }

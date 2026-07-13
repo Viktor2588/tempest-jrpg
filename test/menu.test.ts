@@ -58,6 +58,25 @@ describe('menu system', () => {
     expect(getItemCount(result.state.inventory, 'healing-herb')).toBe(4);
   });
 
+  it('Phase 178: Klarsichttropfen laden den Nebel-Ward und verbrauchen sich einmal', () => {
+    const state: MenuGameState = {
+      party: createInitialParty(),
+      inventory: [{ itemId: 'clearsight-drops', quantity: 2 }],
+      gold: 0,
+      flags: {}
+    };
+
+    const result = useItem(state, 'clearsight-drops', 'rimuru');
+    expect(result.ok).toBe(true);
+    expect(result.state.flags?.['worldclock.fogward']).toBe(true);
+    expect(getItemCount(result.state.inventory, 'clearsight-drops')).toBe(1);
+
+    // Bereits geladen → kein weiterer Verbrauch (kein Verbrauch ohne Wirkung).
+    const again = useItem(result.state, 'clearsight-drops', 'rimuru');
+    expect(again.ok).toBe(false);
+    expect(getItemCount(again.state.inventory, 'clearsight-drops')).toBe(1);
+  });
+
   it('sortiert Inventar nach Nutzbarkeit/Ausrüstung und Namen für schnelle Menüwege', () => {
     const view = buildMenuView({
       party: createInitialParty(),

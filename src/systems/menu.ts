@@ -23,6 +23,7 @@ import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
 import { instanceAffixLabels, isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
 import { rarityOf } from './itemRarity';
+import { FOG_WARD_FLAG } from './worldClock';
 
 export const MENU_TOUCH_TARGET_PX = 44;
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory', 'core'];
@@ -298,6 +299,23 @@ export function useItem(
   }
   if (getItemCount(state.inventory, itemId) <= 0) {
     return { ok: false, state, message: 'Item ist nicht im Inventar.' };
+  }
+
+  // Phase 178 — Nebelsicht: charakter-unabhaengige Vorsorge. Laedt den einmaligen Nebel-Ward
+  // (Flag). Ist der Ward bereits geladen, passiert nichts (kein Verbrauch ohne Wirkung).
+  if (item.effect.kind === 'ward-fog') {
+    if (state.flags?.[FOG_WARD_FLAG]) {
+      return { ok: false, state, message: 'Der Blick ist bereits geschärft — noch ein Nebelkampf steht offen.' };
+    }
+    return {
+      ok: true,
+      state: {
+        ...state,
+        flags: { ...(state.flags ?? {}), [FOG_WARD_FLAG]: true },
+        inventory: removeInventoryItem(state.inventory, itemId)
+      },
+      message: `${item.name} benutzt — der nächste Nebelkampf beginnt ungetrübt.`
+    };
   }
 
   let changed = false;

@@ -43,7 +43,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
-import { clockAt, clockHudLabel, openingFieldElement, openingStatuses, overworldTint } from '../systems/worldClock';
+import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
@@ -901,13 +901,21 @@ export class OverworldScene extends Phaser.Scene {
       // Phase 101 — Welt-Uhr: Zeit/Wetter des Encounters bestimmen das Eröffnungs-
       // Elementarfeld (Regen=Wasser, Nacht=Schatten); tagsüber/klar bleibt es neutral.
       const clock = clockAt(this.save.clockStep ?? 0, this.save.seed);
+      // Phase 178 — Nebelsicht: ein geladener Nebel-Ward (Klarsichttropfen) hebt die
+      // Nebel-Eroeffnungsblendung dieses Kampfes auf und verbraucht sich dabei einmalig
+      // (nur bei Nebel — sonst bleibt der Ward geladen). Off-Harness (Auto-Battle nutzt keine Uhr).
+      const warded = openingStatusesWarded(clock, this.save.flags);
+      if (warded.wardConsumed) {
+        this.save = { ...this.save, flags: { ...this.save.flags, [FOG_WARD_FLAG]: false } };
+        autoSave(window.localStorage, this.save);
+      }
       battleWipe(this, 'Battle', {
         enemyIds: [...result.state.encounter.enemyIds],
         encounterId: result.state.encounter.id,
         openingField: openingFieldElement(clock),
         // Phase 171 — Nebel verhuellt das Schlachtfeld: symmetrischer Eroeffnungs-Status
-        // aus der Welt-Uhr (Nebel→Blind auf beide Seiten).
-        openingStatuses: openingStatuses(clock),
+        // aus der Welt-Uhr (Nebel→Blind auf beide Seiten). Phase 178: ggf. per Ward aufgehoben.
+        openingStatuses: warded.statuses,
         // Phase 173 — Welt-Uhr im Kampf lesbar: kompakte Zeit/Wetter-Zeile fuer das HUD.
         clockLabel: clockHudLabel(clock),
         // Phase 174 — Welt-Uhr: Uhr fuer die Erst-Sieg-Bedingungsbelohnung (Nacht/Nebel/Regen).
