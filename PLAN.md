@@ -1232,20 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Vierundzwanzigste Welle: Die Glutgrotte bekommt ihre eigene Kampfarena (Asset-first, Plan 2026-07-13)
-
-Befund: `ember-hollow` besitzt eigene Regions- und Overworld-Assets, fehlt aber in der
-Map-Arena-Zuordnung. `masked-majin-ambush`, `ifrit-boss` und der Glutschmiede-Jagdpfad
-fallen dadurch im Kampf auf den gruenen Tempest-Hain zurueck.
-
-- [x] Phase 189 — Eigener Kampfhintergrund fuer die Glutgrotte (abgeschlossen;
-  Worktree `/home/viktor/worktree/tempest-phase-189-ember-hollow-arena`). Ein per
-  Built-in-Imagegen erzeugter 1280x720-WebP-Hintergrund (212,9 KB) gibt der
-  Basalthoehle kontrollierte Lavastraenge, Glutkristalle, ein Feuersiegeltor und eine
-  freie dunkle Kampfmitte. `ember-hollow` nutzt ihn ueber das bestehende
-  `battleArt`-/Preload-Wiring auf Map-Ebene; `masked-majin-ambush`, `ifrit-boss` und
-  `emberforge-hunt-battle` teilen damit ohne Sonderpfad dieselbe Arena. Provenienz in
-  `ASSETS.md`; Arena-/Preload-Test ✓, Typecheck ✓, 809 Unit-Tests inklusive
-  Balance-Harness ✓, Build ✓ und sichtbarer Ember-Hollow-Desktop-Chromium-Battle-Smoke ✓.
-
 ## UX- und Welt-Backlog
