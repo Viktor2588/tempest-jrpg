@@ -22,6 +22,7 @@ export type BattleArenaKind =
   | 'orc-battlefield'
   | 'lizardman-marsh'
   | 'spirit-cave'
+  | 'ember-hollow'
   | 'milim-arrival'
   | 'tempest-colosseum'
   | 'tempest-invasion';
@@ -38,6 +39,7 @@ export const BATTLE_ARENA_TEXTURES = {
   'orc-battlefield': 'battle-bg-orc-battlefield',
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
+  'ember-hollow': 'battle-bg-ember-hollow',
   'milim-arrival': 'battle-bg-milim-arrival',
   'tempest-colosseum': 'battle-bg-tempest-colosseum',
   'tempest-invasion': 'battle-bg-tempest-invasion'
@@ -56,6 +58,7 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'orc-battlefield': 'orc-battlefield',
   'lizardman-marsh': 'lizardman-marsh',
   'spirit-cave': 'spirit-cave',
+  'ember-hollow': 'ember-hollow',
   'milim-clearing': 'milim-arrival',
   'tempest-colosseum': 'tempest-colosseum',
   'ramiris-labyrinth': 'spirit-cave'

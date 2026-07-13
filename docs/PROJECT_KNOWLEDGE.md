@@ -1412,6 +1412,18 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Asset-/Scene-Test, Typecheck, 809 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Prolog-Dialog-Browser-Smoke.
 
+### Phase 189 - Eigene Kampfarena fuer die Glutgrotte
+
+- Branch/Worktree: `phase-189-ember-hollow-arena` in
+  `/home/viktor/worktree/tempest-phase-189-ember-hollow-arena`.
+- Asset: `backgrounds/battle-ember-hollow.webp`, 1280x720, 212,9 KB; per
+  Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ember-hollow` nutzt die Textur ueber das bestehende Map-Arena-/Preload-
+  Wiring; damit teilen `masked-majin-ambush`, `ifrit-boss` und
+  `emberforge-hunt-battle` ohne Encounter-Sonderfaelle dieselbe Arena.
+- Validiert mit `git diff --check`, Arena-/Preload-Test, Typecheck, 809 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ember-Hollow-Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

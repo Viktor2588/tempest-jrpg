@@ -620,16 +620,22 @@ test('Canon-Hauptpfad lädt dedizierte Boss-Cutouts und Arenen', async ({ page }
     if (message.type() === 'error') browserErrors.push(message.text());
   });
 
-  await installBrowserSave(page, bandTwoBrowserSave());
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'ember-hollow', x: 2, y: 6, facing: 'right' }
+  }));
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
   await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Enter');
+  await settle(page, 450);
 
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   for (const file of [
+    'battle-ember-hollow',
     'enemy-direwolf-alpha',
     'enemy-nameless-echo',
     'battle-whispering-grove',
