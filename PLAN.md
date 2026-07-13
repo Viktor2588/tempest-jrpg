@@ -1232,4 +1232,72 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Einundzwanzigste Welle: Die letzten geliehenen Tiles bekommen ihr Gesicht (Asset-first, Plan 2026-07-13)
+
+Befund (Code-Abgleich auf `main`, `src/render/overworldTileArt.ts`
+`OVERWORLD_TILE_THEMES`): Die Neunzehnte und Zwanzigste Welle (Phasen 184/185)
+sowie die parallel gemergten Phasen 186/187 haben vier Storyorte
+(`sealed-cave`, `goblin-village`, `ramiris-labyrinth`, `tempest-colosseum`) von
+geliehenen Fremdtiles auf eigene 128×128-WebP-Sets umgestellt. Zwei begehbare
+Regionen leihen sich weiterhin sichtbar falsche Tiles und haben dadurch keine
+eigene Identität:
+
+(1) **`direwolf-den` ("Direwolf-Lichtung") rendert als Sumpf.** Das Theme mappt
+die Direwolf-Lichtung auf `LIZARDMAN_MARSH_*` (Schilf/Wasser/Mangrove des
+Echsen-Sumpfs) — eine trockene Wald-Lichtung/Wolfshöhle erscheint als
+Feuchtsumpf, genau die Art thematischer Fehlgriff, die die Zwanzigste Welle für
+das Goblin-Dorf behoben hat. Der Ort ist canonisch der Schauplatz des
+Direwolf-Pakts (früher Band-1-Beat) und verdient ein eigenes Gesicht.
+
+(2) **`freedom-academy` ("Freiheitsakademie") rendert als Blumund-Stadt.** Das
+Theme mappt die Akademie auf `BLUMUND_*` — sie hat kein eigenes Bild, obwohl sie
+ein eigenständiger, canonisch bedeutsamer Ort ist (Shizus Kinder / Andersweltler
+der Freiheitsakademie).
+
+Diese Welle setzt das Regionen-Identitäts-Projekt der Neunzehnten/Zwanzigsten
+Welle fort — bewusst niedrige Komplexität, das exakt gleiche Muster wie Phase
+184/185: pro Region zwei kompakte 128×128-WebP-Assets (begehbarer Boden + klar
+blockierende Wand), verdrahtet über das bestehende
+`overworldTileArt`-/`PreloadScene`-Wiring mit unveränderter Default-/Placeholder-
+Fallbackkette. Kein neuer Renderpfad, keine Balance-Berührung (rein kosmetisch,
+off-combat; die Balance-Harness ist strukturell unberührt). Non-Goals gelten
+weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording). Reihenfolge: 189 und 190 sind unabhängig; danach hat jede der
+14 Karten ein thematisch passendes Tile-Set (verbleibende Leihe nur noch die
+`tempest-start`-Wildnis-Basis, siehe Folge-Hinweis unten). Beide Phasen
+dokumentieren die Asset-Provenienz in `ASSETS.md` (Stil wie Phase 184/185) und
+fahren Theme-/Preload-Tests, Typecheck, Unit-Tests inkl. Balance-Harness, Build
+und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Region grün.
+
+- [ ] Phase 189 — Eigene Overworld-Tiles für die Direwolf-Lichtung. Zwei kompakte
+  128×128-WebP-Assets: begehbarer Wald-Lichtungsboden (trockener Waldboden mit
+  Schnee-/Fels-Einschlägen, canon: kaltes Direwolf-Revier) und klar blockierende
+  Fels-/Dickicht-Wand. `direwolf-den` erhält im Theme (`OVERWORLD_TILE_THEMES`)
+  ein eigenes Schlüsselpaar (`DIREWOLF_DEN_FLOOR/WALL_TILE_TEXTURE_KEY`) statt der
+  geliehenen `LIZARDMAN_MARSH_*`-Keys; Preload-Wiring in `PreloadScene.ts` analog
+  Phase 184/185, unveränderte Default-/Placeholder-Fallbackkette; kein neuer
+  Renderpfad, keine Balance-Änderung. Provenienz in `ASSETS.md`. Akzeptanz:
+  Theme-/Preload-Tests grün, Typecheck ✓, Unit-Tests inkl. Balance-Harness ✓,
+  Build ✓, sichtbarer Desktop-Chromium-Smoke inklusive beider geladener
+  Direwolf-Lichtungs-Texturen ✓.
+
+- [ ] Phase 190 — Eigene Overworld-Tiles für die Freiheitsakademie. Zwei kompakte
+  128×128-WebP-Assets: begehbarer Akademie-Bodenbelag (heller Stein-/Fliesenhof
+  einer Andersweltler-Akademie) und klar blockierende Akademie-Mauer/Fassade.
+  `freedom-academy` erhält im Theme ein eigenes Schlüsselpaar
+  (`FREEDOM_ACADEMY_FLOOR/WALL_TILE_TEXTURE_KEY`) statt der geliehenen
+  `BLUMUND_*`-Keys; Preload-Wiring analog Phase 184/185, unveränderte
+  Default-/Placeholder-Fallbackkette; kein neuer Renderpfad, keine Balance-
+  Änderung. Provenienz in `ASSETS.md`. Akzeptanz: Theme-/Preload-Tests grün,
+  Typecheck ✓, Unit-Tests inkl. Balance-Harness ✓, Build ✓, sichtbarer
+  Desktop-Chromium-Smoke inklusive beider geladener Akademie-Texturen ✓.
+
+Folge-Hinweis (optional, kleiner Zuschnitt): Nach 189/190 leiht sich nur noch
+die `tempest-start`-Wildnis-Basis (Vor-Camp-Stufe) die `LIZARDMAN_MARSH_*`-Tiles;
+die Wachstumsstufen Camp/Village/City haben bereits eigene Böden. Ein späteres
+Inkrement könnte der Jura-Wald-Wildnis einen eigenen Waldboden geben und das
+Regionen-Identitäts-Projekt vollständig abschließen — bewusst getrennt gehalten,
+da an die Wachstums-Tile-Umschaltung (`overworldTileArt`/`tempestGrowth`)
+gekoppelt und damit heikler als die zwei isolierten Regionen oben.
+
 ## UX- und Welt-Backlog
