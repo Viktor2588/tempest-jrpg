@@ -55,6 +55,7 @@ import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
 import { buildBestiary } from '../systems/bestiary';
 import { summarizeHuntingGrounds } from '../systems/bestiaryMastery';
+import { weatherConditionProgress } from '../systems/battleResult';
 import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
@@ -1351,9 +1352,12 @@ export class MenuScene extends Phaser.Scene {
     });
 
     const grounds = summarizeHuntingGrounds(this.save.progression.analyzedEnemyIds, this.save.flags);
+    // Phase 177 — Sammelziel der Welt-Uhr-Erstfunde (Nacht/Nebel/Regen) als kompakte Fusszeile.
+    const weather = weatherConditionProgress(this.save.flags);
     this.codexFooter(pageCount,
       `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`
-      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`);
+      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`
+      + ` · Wetter-Funde ${weather.found}/${weather.total}`);
   }
 
   private bestiaryDetailLine(entry: ReturnType<typeof buildBestiary>['entries'][number]): string {

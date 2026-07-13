@@ -874,14 +874,16 @@ den Balance-Korridor** (177 ist Anzeige; 178 ist eine Spieler-optionale Item-Wir
 auf einen off-harness Eroeffnungs-Status) — beide werden trotzdem gegen die Harness
 gruen gefahren.
 
-- [ ] Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel). Umsetzung: reine
-  Funktion `weatherConditionProgress(flags)` in `systems/battleResult.ts` (oder einem
-  kleinen neuen `systems/worldClockCodex.ts`) listet die drei Bedingungen (Nacht/Nebel/
-  Regen) mit erledigt/offen aus den `worldclock.first.<cond>`-Flags; ein bestehender
-  Codex-Modus (z.B. das Bestiarium oder Wissen) zeigt eine kompakte Fusszeile
-  „Wetter-Funde m/3". Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz:
-  Fortschritts-Ableitung (0/3 → 3/3, Reihenfolge) headless (`test/*`), typecheck, alle
-  Unit-Tests, build gruen.
+- [x] Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel) (abgeschlossen, direkt
+  auf main). Umgesetzt: reine Funktion `weatherConditionProgress(flags)` in
+  `systems/battleResult.ts` liefert die drei Bedingungen (Nacht/Nebel/Regen) je mit
+  `found`-Flag plus `found`/`total`-Zaehler aus den `worldclock.first.<cond>`-Flags (Reihenfolge
+  Nacht→Nebel→Regen aus `WEATHER_CONDITION_LABELS`). Das Bestiarium (`MenuScene.drawBestiary`)
+  haengt eine kompakte Fusszeile „Wetter-Funde m/3" an die bestehende Codex-Fusszeile
+  (analog Jagdgründe). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt:
+  Fortschritts-Ableitung (0/3 → 3/3, Reihenfolge, Teilmengen) headless
+  (`test/weatherReward.test.ts`, +3 Tests), typecheck ✓, 787 Unit-Tests ✓, build ✓,
+  Balance-Harness strukturell unberuehrt (reine View-Logik).
 
 - [ ] Phase 178 — Nebelsicht: proaktives Vorsorge-Item gegen die Nebel-Eroeffnung.
   Umsetzung: neues Verbrauchs-Item (z.B. „Klarsichttropfen") mit einem NEUEN, klar
