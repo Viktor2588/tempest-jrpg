@@ -848,6 +848,69 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Achtzehnte Welle: Das Schlachtfeld antwortet — Elementarfelder werden umkaempft (verifizierte einseitige Maschinerie, Plan 2026-07-13)
+
+Befund (Code-Abgleich auf `main`, 798 Unit-Tests + Balance-Harness gruen): Das
+Elementarfeld-/Fusions-System ist voll gebaut und getestet — `chargeField`,
+`fieldReaction`, `triggerFieldReaction`, `fieldMatchMultiplier` (`systems/battle.ts`),
+die 37-Eintrag-Fusionstabelle (`data/fusions.ts`, `resolveElementFusion`) und die
+Feld-Anzeige im Kampf-HUD (`BattleScene`, „Feld: … (n)"). Aber die Maschinerie ist
+**strikt EINSEITIG**: `chargesField` traegt in `src/data` ausschliesslich auf DREI
+**Spieler**-Skills (`ember-field`/Benimaru, `gale-field`/Ranga, `tide-field`/Souei) —
+**kein einziger Gegner laedt je ein Feld** (Nachweis: `grep chargesField src/data`
+findet nur diese drei). Daraus folgen drei verifizierte Luecken:
+
+(1) **Das Feld ist nie umkaempft.** Nur der Spieler laedt Felder, also ist „Board-Control"
+(Phase 94) ein risikofreier Gratis-Buff ohne Gegenspieler — die Entscheidung hat keinen
+Gegner, der dagegenhaelt. Genau die fehlende „muss reagieren"-Tiefe der Kampf-Tiefe-Roadmap
+liegt hier ungenutzt.
+
+(2) **Die Fusions-Reaktions-Tabelle feuert nur FUER den Spieler.** `triggerFieldReaction`
+entlaedt eine Fusion (Zusatz-Break + Status) auf das Ziel, wenn ein FREMDES Element auf
+ein geladenes Feld trifft — aber weil nur der Spieler Felder laedt, trifft die Reaktion
+immer einen Gegner (zu Gunsten des Spielers). Der Spieler steht nie vor einem feindlichen
+Feld, das er brechen/kontern muss.
+
+(3) **Die Feld-Anzeige telegraphiert die Reaktion nicht.** Das HUD zeigt „Feld: Feuer (3)",
+aber nirgends, DASS ein Fremd-Element (z.B. Wind) eine Fusions-Reaktion ausloest und das
+Feld raeumt — das Gegenspiel (Fremd-Element-Treffer kontert + loescht das Feld) ist
+unsichtbar und damit nicht erlernbar.
+
+Diese Welle **weckt die feindliche Halfte der gebauten Feld-Maschinerie** — mit einer
+fast reinen Datenergaenzung (ein Gegner-Feld-Skill) plus reiner, headless-testbarer
+Anzeige-Logik, bewusst niedriger Komplexitaet und OHNE neue Assets. Sie adressiert direkt
+das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht / Grind / kein Schwung`): ein
+feindliches Feld zwingt zur Antwort (Fremd-Element-Treffer raeumt es und entlaedt eine
+Reaktion auf den Gegner, oder man frisst die verstaerkten Erdschlaege/eine Reaktion auf
+die eigene Party). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit:
+181 weckt das feindliche Feld (Fundament), 182 macht die Reaktion lesbar (baut darauf auf).
+**Balance-sicher by design:** der Feld-Traeger ist der Magiekoloss — ein OFF-ROUTE-Boss
+(NICHT in `STORY_ENCOUNTER_IDS`, nicht in den Boss-Benchmarks der Harness) → die
+Balance-Harness ruft ihn nie auf und der Korridor bleibt strukturell unberuehrt; wird
+trotzdem gegen die Harness gruen gefahren.
+
+- [ ] Phase 181 — Feindliche Elementarfelder: der Magiekoloss beherrscht den Boden
+  (off-harness). Neuer Skill `terrastorm-field` („Erdwall-Feld", `element: 'earth'`,
+  `chargesField: true`, `target: 'self'`, `tags: ['buff']`, `tier: 'extra-skill'`) in
+  `data/skills.ts`, verdrahtet in `magic-colossus.phase2SkillIds`. Der Koloss tuermt in
+  Phase 2 (per Break telegraphiert, `armoredUntilBreak`) ein Erdfeld auf, das seine
+  eigenen Erdschlaege (`ogre-smash`, `petrifying-gaze`) verstaerkt; der Spieler kontert,
+  indem er ihn mit Wind/Wasser (seinen Schwaechen) trifft — das entlaedt eine
+  Fusions-Reaktion (Sandsturm/Schlammfeld) auf den Koloss UND raeumt das Feld. Off-route
+  → balance-neutral. Akzeptanz: Gegner-Feld-Ladung (`state.field` gesetzt), Verstaerkung
+  der Erdschlaege, Fremd-Element-Reaktion-auf-Gegner + Feld-Verbrauch headless; Off-route
+  (Koloss nicht in `STORY_ENCOUNTER_IDS`); typecheck, Tests, build, Balance-Harness gruen.
+
+- [ ] Phase 182 — Feld-Reaktion lesbar: der Kampf telegraphiert die Fusion. Reine
+  Ableitung `fieldReactionHints(fieldElement)` (aus der Fusionstabelle: welche
+  Fremd-Elemente loesen welche Fusion aus), in die Battle-View (`buildBattleView`)
+  gefaltet; `BattleScene` zeigt unter der Feld-Zeile eine kompakte Hinweiszeile
+  („↯ Wind/Wasser → Reaktion"). Teacht das Gegenspiel fuer JEDES Feld (Spieler- wie
+  Gegner-Feld). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz: Hint-Ableitung
+  (richtige Fremd-Elemente je Feld, gleiches Element = kein Hint, neutral = leer) headless;
+  typecheck, Tests, build gruen; HUD rendert die Zeile im echten Browser fehlerfrei.
+
 ## Siebzehnte Welle: Die Diplomatie zahlt aus (verifizierte tote Maschinerie, Plan 2026-07-13)
 
 Befund (Code-Abgleich auf `main`, 792 Unit-Tests + Balance-Harness gruen): Das Diplomatie-
