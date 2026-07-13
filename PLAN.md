@@ -890,17 +890,23 @@ canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = 
 Balance-Harness ruft ihn nie auf und der Korridor bleibt strukturell unberuehrt; wird
 trotzdem gegen die Harness gruen gefahren.
 
-- [ ] Phase 181 — Feindliche Elementarfelder: der Magiekoloss beherrscht den Boden
-  (off-harness). Neuer Skill `terrastorm-field` („Erdwall-Feld", `element: 'earth'`,
-  `chargesField: true`, `target: 'self'`, `tags: ['buff']`, `tier: 'extra-skill'`) in
-  `data/skills.ts`, verdrahtet in `magic-colossus.phase2SkillIds`. Der Koloss tuermt in
-  Phase 2 (per Break telegraphiert, `armoredUntilBreak`) ein Erdfeld auf, das seine
-  eigenen Erdschlaege (`ogre-smash`, `petrifying-gaze`) verstaerkt; der Spieler kontert,
-  indem er ihn mit Wind/Wasser (seinen Schwaechen) trifft — das entlaedt eine
-  Fusions-Reaktion (Sandsturm/Schlammfeld) auf den Koloss UND raeumt das Feld. Off-route
-  → balance-neutral. Akzeptanz: Gegner-Feld-Ladung (`state.field` gesetzt), Verstaerkung
-  der Erdschlaege, Fremd-Element-Reaktion-auf-Gegner + Feld-Verbrauch headless; Off-route
-  (Koloss nicht in `STORY_ENCOUNTER_IDS`); typecheck, Tests, build, Balance-Harness gruen.
+- [x] Phase 181 — Feindliche Elementarfelder: der Magiekoloss beherrscht den Boden
+  (off-harness) (abgeschlossen, direkt auf main). Umgesetzt: neuer Skill `terrastorm-field`
+  („Erdwall-Feld", `element: 'earth'`, `chargesField: true`, `target: 'self'`,
+  `tags: ['buff']`, `tier: 'extra-skill'`, `costMp: 10`) in `data/skills.ts`, verdrahtet in
+  `magic-colossus.phase2SkillIds`. Da `chargeField` (`battle.ts`) seiten-agnostisch ist und
+  die KI Buff-Skills positiv bewertet (`scoreEnemySkillTarget`: +1.1, in Phase 2 +0.7),
+  weckt der Koloss die zuvor rein spielerseitige Feld-/Fusions-Maschinerie OHNE Motor-Eingriff:
+  er tuermt in Phase 2 (per Break telegraphiert, `armoredUntilBreak`) ein Erdfeld auf, das
+  seine eigenen Erdschlaege (`ogre-smash`/`petrifying-gaze`, beide `earth`) ueber
+  `fieldMatchMultiplier` verstaerkt. Der Spieler kontert, indem er ihn mit Wind/Wasser (seinen
+  Schwaechen) trifft — das entlaedt eine Fusions-Reaktion (Sandsturm/Schlammfeld, `triggerFieldReaction`)
+  auf den Koloss UND raeumt das Feld. Off-route (Koloss nicht in `STORY_ENCOUNTER_IDS`/
+  Boss-Benchmarks) → balance-neutral. Akzeptanz erfuellt: Daten (Skill chargesField/earth,
+  Koloss-Phase-2-Rotation) + KI-Feld-Ladung im echten Zug-Fluss (`enemyTurn`-Schleife) +
+  Spieler-Konter (Fremd-Element-Reaktion auf Gegner + Feld-Verbrauch) headless
+  (`test/enemyElementField.test.ts`, 4 Tests), typecheck ✓, 802 Unit-Tests ✓, build ✓,
+  **Balance-Harness (7 Tests) gruen** (Koloss off-route → Harness ruft ihn nie auf).
 
 - [ ] Phase 182 — Feld-Reaktion lesbar: der Kampf telegraphiert die Fusion. Reine
   Ableitung `fieldReactionHints(fieldElement)` (aus der Fusionstabelle: welche
