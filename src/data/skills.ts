@@ -197,6 +197,11 @@ export const SKILLS = [
   // Fremd-Element-Treffer (Wind/Wasser = seine Schwächen) entlädt dagegen eine Fusions-Reaktion
   // und räumt das Feld — das ist das lesbare Gegenspiel des Spielers.
   { id: 'terrastorm-field', name: 'Erdwall-Feld', description: 'Der Magiekoloss türmt den Boden zu einem massiven Erdwall auf — Erdtreffer wuchten schwerer, doch fremde Elemente entladen sich als Reaktion.', element: 'earth', target: 'self', costMp: 10, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  // Phase 183 — zweiter, elementar verschiedener Feld-Träger (off-route): Milims überwältigende
+  // Drachenglut entzündet das Schlachtfeld zu einem Flammenfeld, das ihre Feuerschläge
+  // (drago-nova/black-flame) verstärkt. Konter: ein Heilig-Treffer (ihre Schwäche) entlädt
+  // eine Sonnenfeuer-Reaktion und räumt das Feld.
+  { id: 'pyre-field', name: 'Drachen-Glutfeld', description: 'Milims überwältigende Drachenglut entzündet den Boden zu einem Flammenmeer — Feuertreffer lodern verheerend, fremde Elemente entladen sich als Reaktion.', element: 'fire', target: 'self', costMp: 12, power: 0, tags: ['buff'], tier: 'ultimate-skill', chargesField: true },
   // Phase 129 — Gegner-Kontrolle: telegraphierte Hart-CC-Skills aktivieren die gebaute,
   // aber ungenutzte Kontroll-Schicht. Bewusst maessvolle Chance/kurze Dauer; sleep/freeze
   // brechen bei Schaden (wakeOnDamage), stun/petrify nur 1 Runde. Traeger sind

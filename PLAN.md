@@ -884,8 +884,9 @@ feindliches Feld zwingt zur Antwort (Fremd-Element-Treffer raeumt es und entlaed
 Reaktion auf den Gegner, oder man frisst die verstaerkten Erdschlaege/eine Reaktion auf
 die eigene Party). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
 canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit:
-181 weckt das feindliche Feld (Fundament), 182 macht die Reaktion lesbar (baut darauf auf).
-**Balance-sicher by design:** der Feld-Traeger ist der Magiekoloss — ein OFF-ROUTE-Boss
+181 weckt das feindliche Feld (Fundament), 182 macht die Reaktion lesbar (baut darauf auf),
+183 verbreitert die Mechanik um einen zweiten, elementar verschiedenen Off-route-Traeger.
+**Balance-sicher by design:** die Feld-Traeger sind der Magiekoloss und Milim — OFF-ROUTE-Bosse
 (NICHT in `STORY_ENCOUNTER_IDS`, nicht in den Boss-Benchmarks der Harness) → die
 Balance-Harness ruft ihn nie auf und der Korridor bleibt strukturell unberuehrt; wird
 trotzdem gegen die Harness gruen gefahren.
@@ -924,6 +925,21 @@ trotzdem gegen die Harness gruen gefahren.
   **Balance-Harness (7 Tests) gruen**, BattleScene rendert die Zeile im echten Browser
   fehlerfrei (Battle-Smokes „Title → … → Battle" und „Band 2 → Flüsterhain-Kampf" gegen die
   Chromium-1194-Binary gruen).
+
+- [x] Phase 183 — Zweiter Feld-Traeger: Milims Drachen-Glutfeld (off-harness) (abgeschlossen,
+  direkt auf main). Umgesetzt: neuer Skill `pyre-field` („Drachen-Glutfeld", `element: 'fire'`,
+  `chargesField: true`, `target: 'self'`, `tags: ['buff']`, `tier: 'ultimate-skill'`) in
+  `data/skills.ts`, verdrahtet in `milim.phase2SkillIds`. Milims optionaler Duell-Boss
+  (`milim-duel`, off-route) entzuendet in Phase 2 ein Flammenfeld, das ihre Feuerschlaege
+  (`drago-nova`/`black-flame`, beide `fire`) ueber `fieldMatchMultiplier` verstaerkt; der Spieler
+  kontert mit einem Heilig-Treffer (Milims Schwaeche) — das entlaedt die `fire-holy-sunfire`-
+  Reaktion und raeumt das Feld. Beweist, dass die geweckte feindliche Feld-Maschinerie (181)
+  elementuebergreifend generalisiert (Erde beim Koloss, Feuer bei Milim) und den Reaktions-
+  Telegraph (182) auf einem zweiten Feld traegt. Off-route (Milim nicht in `STORY_ENCOUNTER_IDS`/
+  Boss-Benchmarks) → balance-neutral. Akzeptanz erfuellt: Daten (Skill chargesField/fire,
+  Milim-Phase-2-Rotation) headless (`test/enemyElementField.test.ts`, 5 Tests), typecheck ✓,
+  808 Unit-Tests ✓, build ✓, **Balance-Harness (7 Tests) gruen** (Milim off-route → Harness
+  ruft sie nie auf).
 
 ## Siebzehnte Welle: Die Diplomatie zahlt aus (verifizierte tote Maschinerie, Plan 2026-07-13)
 

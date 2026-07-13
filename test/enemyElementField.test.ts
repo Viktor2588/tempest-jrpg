@@ -87,6 +87,15 @@ describe('Phase 181 — Daten', () => {
     const colossus = ENEMIES.find((enemy) => enemy.id === 'magic-colossus')!;
     expect(colossus.phase2SkillIds).toContain('terrastorm-field');
   });
+
+  it('Phase 183 — Drachen-Glutfeld ist ein feuer-elementiger chargesField-Skill in Milims Rotation', () => {
+    const skill = SKILLS.find((candidate) => candidate.id === 'pyre-field')!;
+    expect(skill).toBeDefined();
+    expect(skill.chargesField).toBe(true);
+    expect(skill.element).toBe('fire');
+    const milim = ENEMIES.find((enemy) => enemy.id === 'milim')!;
+    expect(milim.phase2SkillIds).toContain('pyre-field');
+  });
 });
 
 describe('Phase 181 — ein Gegner kann ein Elementarfeld laden', () => {
