@@ -89,6 +89,30 @@ export function openingStatuses(clock: WorldClock): readonly OpeningStatus[] {
   return [];
 }
 
+// Phase 175 — Tag/Nacht faerbt die Oberwelt: ein rein kosmetischer Tint-Overlay je
+// Tageszeit/Wetter (keine neuen Assets, kein Kampf-/Save-/Balance-Effekt). Wetter hat
+// Vorrang (Nebel entsaettigt, Regen kuehlt); sonst faerbt die Tageszeit. `null` = kein
+// Overlay (heller, klarer Tag).
+export interface OverworldTint {
+  readonly color: number;
+  readonly alpha: number;
+}
+
+export function overworldTint(clock: WorldClock): OverworldTint | null {
+  if (clock.weather === 'fog') return { color: 0x9098a4, alpha: 0.3 };
+  if (clock.weather === 'rain') return { color: 0x2a3a52, alpha: 0.24 };
+  switch (clock.timeOfDay) {
+    case 'night':
+      return { color: 0x0a1430, alpha: 0.42 };
+    case 'dusk':
+      return { color: 0x5a2a12, alpha: 0.24 };
+    case 'morning':
+      return { color: 0x2e2a48, alpha: 0.12 };
+    default:
+      return null; // Tag/klar: kein Overlay
+  }
+}
+
 const TIME_LABELS: Readonly<Record<TimeOfDay, string>> = {
   morning: 'Morgen',
   day: 'Tag',

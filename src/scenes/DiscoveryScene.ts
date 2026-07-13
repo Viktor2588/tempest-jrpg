@@ -7,6 +7,7 @@ import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { addInventoryItem } from '../systems/inventory';
 import { getMapDiscoveryAt } from '../systems/mapDiscovery';
 import { autoSave, loadSave } from '../systems/save';
+import { clockAt } from '../systems/worldClock';
 
 interface DiscoveryData {
   readonly mapId?: string;
@@ -26,7 +27,7 @@ export class DiscoveryScene extends Phaser.Scene {
     configureHiDpiScene(this);
     const save = loadSave(window.localStorage);
     const discovery = save && data.mapId !== undefined && data.x !== undefined && data.y !== undefined
-      ? getMapDiscoveryAt(data.mapId, data.x, data.y, save.flags)
+      ? getMapDiscoveryAt(data.mapId, data.x, data.y, save.flags, clockAt(save.clockStep ?? 0, save.seed))
       : null;
     if (!discovery) {
       this.close();

@@ -1146,12 +1146,24 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
-### Phase 175 - Arena-Vorstand-Porträt
+### Phase 177 - Arena-Vorstand-Porträt
 
-- Branch/Worktree wurde vor dem parallelen Push der Welt-Uhr-Phasen als `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand` angelegt; die Archivnummer wurde danach kollisionsfrei auf 175 gesetzt.
+- Branch/Worktree wurde vor den parallelen Welt-Uhr-Phasen als `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand` angelegt; die Archivnummer wurde nach deren Push kollisionsfrei auf 177 gesetzt.
 - Asset-only: Der wiederkehrende Arena-Vorstand nutzt im Kolosseum und in seinen Dialogen ein eigenes repo-generiertes 512×512-WebP-Porträt statt einer portraitlosen Darstellung; Daten und Balance bleiben unverändert.
 - Provenienz steht in `ASSETS.md`; Portrait-Mapping, Preload und der bestehende Kolosseum-Smoke prüfen das sichtbare Asset.
 - Validierung: `git diff --check`, 22 fokussierte Tests, `bun run typecheck`, 769 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 176 - Zeit-/wettergebundene Discovery-Funde
+
+- `MapDiscoveryDefinition` unterstützt optionale Tageszeit-/Wetterbedingungen; Overworld- und Discovery-Szene reichen die persistierte Welt-Uhr an Sichtbarkeits- und Fundprüfungen weiter.
+- Ein einmaliger Nebelfund im Flüsterhain und ein Nachtfund im Geisterhochland nutzen den bestehenden Discovery-Belohnungspfad; Kampf und Balance bleiben unberührt.
+- Validierung: `test/mapDiscovery.test.ts`, Datenintegrität, Typecheck, 784 Unit-Tests, Build und Oberwelt-Browser-Smoke grün.
+
+### Phase 175 - Tag-/Nacht-Tint der Oberwelt
+
+- `overworldTint(clock)` liefert dezente Tageszeit-/Wetter-Tints; `OverworldScene` aktualisiert ein nicht-interaktives Overlay unter dem HUD beim Start und nach Schritten.
+- Die Änderung ist rein kosmetisch und berührt weder Save noch Kampf oder Balance.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 782 Unit-Tests, Build und Oberwelt-Browser-Smoke grün.
 
 ### Phase 174 - Wetter-/Nacht-Funde
 

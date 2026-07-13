@@ -6,6 +6,7 @@ import {
   dayAt,
   openingFieldElement,
   openingStatuses,
+  overworldTint,
   timeOfDayAt,
   weatherAt,
   type WorldClock
@@ -173,6 +174,41 @@ describe('Welt-Uhr: Nebel-Eröffnung (Phase 171)', () => {
     });
     for (const combatant of state.combatants) {
       expect(combatant.statuses.some((status) => status.id === 'blind')).toBe(false);
+    }
+  });
+});
+
+describe('Welt-Uhr: Oberwelt-Tint (Phase 175)', () => {
+  const clock = (partial: Partial<WorldClock>): WorldClock => ({
+    day: 0,
+    timeOfDay: 'day',
+    weather: 'clear',
+    ...partial
+  });
+
+  it('klarer Tag hat keinen Tint (null)', () => {
+    expect(overworldTint(clock({ timeOfDay: 'day', weather: 'clear' }))).toBeNull();
+  });
+
+  it('Nacht faerbt dunkel und deutlich (hoeheres Alpha als Daemmerung/Morgen)', () => {
+    const night = overworldTint(clock({ timeOfDay: 'night' }));
+    const dusk = overworldTint(clock({ timeOfDay: 'dusk' }));
+    const morning = overworldTint(clock({ timeOfDay: 'morning' }));
+    expect(night).not.toBeNull();
+    expect(dusk).not.toBeNull();
+    expect(morning).not.toBeNull();
+    expect(night!.alpha).toBeGreaterThan(dusk!.alpha);
+    expect(dusk!.alpha).toBeGreaterThan(morning!.alpha);
+  });
+
+  it('Wetter hat Vorrang vor der Tageszeit (Nebel/Regen faerben auch tagsueber)', () => {
+    expect(overworldTint(clock({ weather: 'fog', timeOfDay: 'day' }))).not.toBeNull();
+    expect(overworldTint(clock({ weather: 'rain', timeOfDay: 'day' }))).not.toBeNull();
+    // Alpha bleibt in einem dezenten, gueltigen Bereich (kein Vollschwarz).
+    for (const w of ['fog', 'rain'] as const) {
+      const tint = overworldTint(clock({ weather: w }))!;
+      expect(tint.alpha).toBeGreaterThan(0);
+      expect(tint.alpha).toBeLessThan(0.5);
     }
   });
 });
