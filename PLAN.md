@@ -889,14 +889,20 @@ gesamten Reputations-Fortschritt und die freigeschalteten Belohnungen erstmals s
   +3 Tests), typecheck ✓, 795 Unit-Tests ✓, build ✓, Balance-Harness strukturell unberuehrt
   (off-combat/Produktions-Schleife).
 
-- [ ] Phase 180 — Diplomatie-Standing im Codex sichtbar (Fortschritt + freigeschaltete Boni).
-  Umsetzung: der bestehende Diplomatie-Codex-Modus (`MenuScene`, `buildDiplomacyView`) zeigt
-  je Fraktion zusätzlich zur aktuellen Stufe die NÄCHSTE Schwelle und — neu — welche der
-  `known/trusted/allied`-Belohnungen bereits AKTIV ist (aus den gesetzten Unlock-Flags),
-  damit der Spieler den Reputations-Faden als Ziel lesen kann. Reine Anzeige-/View-Logik
-  (kleine Ableitung `factionRewardStatus(reputation, flags)` in `systems/diplomacy.ts`), keine
-  Save-/Balance-Beruehrung. Akzeptanz: Ableitung (welche Belohnung aktiv/offen, Reihenfolge,
-  0→3 pro Fraktion) headless (`test/diplomacy.test.ts`), typecheck, alle Unit-Tests, build gruen.
+- [x] Phase 180 — Diplomatie-Standing im Codex sichtbar (Fortschritt + freigeschaltete Boni)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Ableitung `factionRewardStatus(flags)`
+  in `systems/diplomacy.ts` liefert je Fraktion, welche der drei Schwellen-Belohnungen laut
+  gesetzten Unlock-Flags AKTIV ist (`{ title, reward, active }` + `activeCount`/`total`) — massgeblich
+  sind die Flags, die seit Phase 179 die Handelsrouten treiben, nicht nur der Punktestand. Der
+  Diplomatie-Codex-Modus (`MenuScene.drawDiplomacy`) zeigt jetzt je Fraktion ein `[Boni m/3]`-Tag
+  in der Kopfzeile und eine grün hervorgehobene „Aktiv: …"-Zeile mit den freigeschalteten
+  Belohnungen (bzw. „noch keine Bündnis-Vorteile"); die „Nächste Stufe"-Fusszeile bleibt.
+  Reine Anzeige-/View-Logik, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt: Ableitung
+  (0/3 ohne Flags, genau die gesetzten Unlock-Flags aktiv, Reihenfolge erhalten, 3/3 bei allen
+  Schwellen) headless (`test/diplomacy.test.ts`, +3 Tests), typecheck ✓, 798 Unit-Tests ✓,
+  build ✓, Diplomatie-Panel im echten Browser fehlerfrei gerendert (Codex → Politik-Smoke gegen
+  die Chromium-Binary: Dwargon/Echsen „[Boni 2/3]" + aktive Handelsrouten grün, Blumund/Orks
+  „0/3 · noch keine Bündnis-Vorteile", keine Browserfehler).
 
 ## Sechzehnte Welle: Die Uhr im Codex & wetterfeste Vorsorge (off-combat, Plan 2026-07-12)
 
