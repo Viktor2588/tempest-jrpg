@@ -858,6 +858,8 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   expect(loadedAssets.some((name) => name.includes('region-ramiris-labyrinth'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-magic-colossus'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-ramiris'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

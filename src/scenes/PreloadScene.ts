@@ -53,6 +53,8 @@ import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp'
 import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
 import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor.webp';
 import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
+import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth-floor.webp';
+import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -75,6 +77,8 @@ import {
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -226,6 +230,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
     this.load.image(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY, goblinVillageFloorTileUrl);
     this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
+    this.load.image(RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY, ramirisLabyrinthFloorTileUrl);
+    this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
@@ -394,6 +400,8 @@ export class PreloadScene extends Phaser.Scene {
   private applyConfiguredTextureFilters(): void {
     const linearTextureKeys = [
       KINGDOM_UNIT_TEXTURE_KEY,
+      RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+      RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       MARSH_WALL_TILE_TEXTURE_KEY,
       HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,

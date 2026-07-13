@@ -18,6 +18,8 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
@@ -54,7 +56,7 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
-  it('gibt Start-Höhle und Goblin-Dorf eigene Tiles', () => {
+  it('gibt Start-Höhle, Goblin-Dorf und Ramiris-Labyrinth eigene Tiles', () => {
     expect(overworldTileTextureCandidates('sealed-cave', false)).toEqual([
       SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -67,6 +69,16 @@ describe('Overworld-Regionstiles', () => {
     ]);
     expect(overworldTileTextureCandidates('goblin-village', false)[0]).toBe(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('goblin-village', true)[0]).toBe(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('ramiris-labyrinth', false)).toEqual([
+      RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('ramiris-labyrinth', true)).toEqual([
+      RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
       LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -104,6 +116,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-sealed-cave-wall.webp',
       'tile-goblin-village-floor.webp',
       'tile-goblin-village-wall.webp',
+      'tile-ramiris-labyrinth-floor.webp',
+      'tile-ramiris-labyrinth-wall.webp',
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',

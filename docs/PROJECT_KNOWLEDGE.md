@@ -1378,6 +1378,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Ranga-Reise-Browser-Smoke.
 
+### Phase 186 - Eigene Tiles fuer Ramiris' Labyrinth
+
+- Branch/Worktree: `phase-186-ramiris-labyrinth-tiles` in
+  `/home/viktor/worktree/tempest-phase-186-ramiris-labyrinth-tiles`.
+- Assets: `tiles/tile-ramiris-labyrinth-{floor,wall}.webp`, 128x128, zusammen
+  11,4 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ramiris-labyrinth` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ramiris-Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

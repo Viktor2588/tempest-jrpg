@@ -1232,4 +1232,19 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Einundzwanzigste Welle: Ramiris' Labyrinth bekommt eigene Overworld-Tiles (Asset-first, Plan 2026-07-13)
+
+Befund: `ramiris-labyrinth` faellt im Overworld vollstaendig auf die generischen
+16x16-Gras-/Wandtiles zurueck. Das widerspricht dem bereits etablierten unterirdischen
+Wurzel-, Ruinen- und Geistkristall-Look von Regionsbanner und Kampfhintergrund.
+
+- [x] Phase 186 — Eigene Overworld-Tiles fuer Ramiris' Labyrinth (abgeschlossen im
+  isolierten Worktree). Zwei kompakte 128x128-WebP-Assets: begehbarer moosiger
+  Ruinenboden (3,8 KB) und klar blockierende Wurzel-/Kristallwand (7,6 KB).
+  `ramiris-labyrinth` nutzt beide ueber das bestehende Theme-/Preload-Wiring mit
+  unveraenderter Default-/Placeholder-Fallbackkette; kein neuer Renderpfad und keine
+  Gameplay-/Balance-Aenderung. Provenienz in `ASSETS.md`; Theme-/Preload-Tests gruen,
+  Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
+  Ramiris-Desktop-Chromium-Smoke inklusive beider geladener Texturen ✓.
+
 ## UX- und Welt-Backlog
