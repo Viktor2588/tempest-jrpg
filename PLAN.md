@@ -848,6 +848,54 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Siebzehnte Welle: Die Diplomatie zahlt aus (verifizierte tote Maschinerie, Plan 2026-07-13)
+
+Befund (Code-Abgleich auf `main`, 792 Unit-Tests + Balance-Harness gruen): Das Diplomatie-
+System (`systems/diplomacy.ts`, `data/factions.ts`) fuehrt fuer vier Fraktionen (Dwargon,
+Blumund, Orks, Echsenmenschen) je drei Reputations-Schwellen. `adjustReputation` (aufgerufen
+aus `world.ts` beim Dialog-Effekt `adjust-reputation`) setzt beim Ueberschreiten einer Schwelle
+deterministisch deren `unlockFlag` (`reputation.<faction>.known|trusted|allied`). **Verifiziert:
+diese Unlock-Flags werden NIRGENDS im Code gelesen** (`grep reputation.*.trusted|allied|known`
+ausserhalb von `data/factions.ts` = leer). Die in `factions.ts` versprochenen Belohnungen
+(„Zwergische Handelsroute: Magisteel-Nachschub in der Schmiede", „Sumpfrouten liefern
+Heilkräuter", „Ork-Hauer-Nachschub für die Schmiede", „Bevorzugte Aufträge und Preise",
+„Bündnistruppe", „Späher warnen vor Überfällen") sind heute reiner Beschreibungstext ohne
+mechanische Wirkung — der Reputations-Faden ist eine tote Schleife (reputation steigt → Schwelle
+faellt → Flag gesetzt → nichts passiert). Zugleich existiert im Nachbarsystem `facilities.ts`
+bereits das exakte Vorbild fuer eine flag-gegatete Produktions-Aufwertung: `defendedRouteBonus`
+(die Wache produziert mehr Gold, wenn `story.tempest-invasion.repulsed` gesetzt ist).
+
+Diese Welle weckt die Diplomatie-Belohnungen konsequent **off-combat/balance-neutral** (die
+Balance-Harness reicht weder Fraktions-Reputation noch die Produktions-Schleife durch → Korridor
+strukturell unberuehrt). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording; die „Bündnistruppe"/Kampf-Allianz bleibt bewusst AUSSEN
+vor, um den Korridor nicht zu beruehren). Reihenfolge: 179 (Produktions-Nachschub) weckt die
+`trusted`-Schwellen ueber die vorhandene Facility-Maschinerie; 180 (Standing im Codex) macht den
+gesamten Reputations-Fortschritt und die freigeschalteten Belohnungen erstmals sichtbar.
+
+- [ ] Phase 179 — Diplomatie speist die Produktion (`trusted`-Nachschub). Umsetzung: analog
+  zum vorhandenen `defendedRouteBonus` bekommt jede Einrichtung einen fraktions-gegateten
+  Nachschub-Bonus, wenn die passende Fraktion `trusted` erreicht hat: Echsenmenschen
+  (`reputation.lizardmen.trusted`) → Küche (`healing-herb`), Dwargon
+  (`reputation.dwargon.trusted`) → Schmiede (`magic-ore`), Orks (`reputation.orcs.trusted`)
+  → Schmiede (zusätzlicher Ausstoß, „Ork-Hauer-Nachschub"). Der Bonus ist deterministisch
+  (`level * output.perStaffPerLevel`, nur wenn die Einrichtung ueberhaupt besetzt
+  produziert, `baseAmount > 0`), fliesst durch `buildFacilityOverview` in `amountPerCycle`
+  und damit automatisch in `runProductionCycle`. Rein/funktional, keine neuen Assets,
+  keine Kampf-/Balance-Beruehrung. Akzeptanz: Bonus-Ableitung je `trusted`-Flag (an/aus,
+  richtige Einrichtung, kumulierbar Dwargon+Orks an der Schmiede, kein Bonus ohne Besetzung)
+  + Durchschlag in den Produktions-Zyklus headless (`test/facilities.test.ts`), typecheck,
+  alle Unit-Tests, build gruen.
+
+- [ ] Phase 180 — Diplomatie-Standing im Codex sichtbar (Fortschritt + freigeschaltete Boni).
+  Umsetzung: der bestehende Diplomatie-Codex-Modus (`MenuScene`, `buildDiplomacyView`) zeigt
+  je Fraktion zusätzlich zur aktuellen Stufe die NÄCHSTE Schwelle und — neu — welche der
+  `known/trusted/allied`-Belohnungen bereits AKTIV ist (aus den gesetzten Unlock-Flags),
+  damit der Spieler den Reputations-Faden als Ziel lesen kann. Reine Anzeige-/View-Logik
+  (kleine Ableitung `factionRewardStatus(reputation, flags)` in `systems/diplomacy.ts`), keine
+  Save-/Balance-Beruehrung. Akzeptanz: Ableitung (welche Belohnung aktiv/offen, Reihenfolge,
+  0→3 pro Fraktion) headless (`test/diplomacy.test.ts`), typecheck, alle Unit-Tests, build gruen.
+
 ## Sechzehnte Welle: Die Uhr im Codex & wetterfeste Vorsorge (off-combat, Plan 2026-07-12)
 
 Befund (Code-Abgleich auf `main`, 784 Unit-Tests + Balance-Harness gruen): Nach den
