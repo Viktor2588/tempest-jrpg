@@ -4594,7 +4594,7 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core', 'spirit-oak-staff', 'warded-brigandine', 'swiftwind-boots', 'resonant-core'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core', 'spirit-oak-staff', 'warded-brigandine', 'swiftwind-boots', 'resonant-core'],
     itemRequirements: [
       // Phase 152 — mittlere Raritaeten erst nach der Ratsversammlung.
       { itemId: 'spirit-oak-staff', requirements: [{ flag: 'story.council.ready' }] },
@@ -4658,7 +4658,7 @@ export const SHOPS = [
     name: 'Moorhändlerin',
     mapId: 'spirit-marsh',
     position: { x: 3, y: 5 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'tempest-charm', 'hipokte-herb', 'full-potion', 'revival-elixir'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'tempest-charm', 'hipokte-herb', 'full-potion', 'revival-elixir'],
     buyMultiplier: 1.15,
     sellMultiplier: 0.5,
     buyMultiplierByFlag: [
@@ -4670,7 +4670,7 @@ export const SHOPS = [
     name: 'Schreinrast',
     mapId: 'spirit-highlands',
     position: { x: 4, y: 4 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
     buyMultiplier: 1.2,
     sellMultiplier: 0.5
   },
@@ -4693,7 +4693,7 @@ export const SHOPS = [
     name: 'Dwargon-Apotheke',
     mapId: 'dwargon',
     position: { x: 11, y: 4 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'hipokte-herb', 'full-potion'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'hipokte-herb', 'full-potion'],
     buyMultiplier: 1,
     sellMultiplier: 0.5
   },
@@ -4711,7 +4711,7 @@ export const SHOPS = [
     name: 'Blumunder Gildenbedarf',
     mapId: 'blumund',
     position: { x: 8, y: 9 },
-    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'traveler-cloak', 'hipokte-herb', 'full-potion', 'tempest-charm'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'hipokte-herb', 'full-potion', 'tempest-charm'],
     itemRequirements: [
       { itemId: 'full-potion', requirements: [{ flag: 'trade.blumund.unlocked' }] },
       { itemId: 'tempest-charm', requirements: [{ flag: 'trade.blumund.unlocked' }] }

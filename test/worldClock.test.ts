@@ -6,6 +6,8 @@ import {
   dayAt,
   openingFieldElement,
   openingStatuses,
+  openingStatusesWarded,
+  FOG_WARD_FLAG,
   overworldTint,
   timeOfDayAt,
   weatherAt,
@@ -209,6 +211,42 @@ describe('Welt-Uhr: Oberwelt-Tint (Phase 175)', () => {
       const tint = overworldTint(clock({ weather: w }))!;
       expect(tint.alpha).toBeGreaterThan(0);
       expect(tint.alpha).toBeLessThan(0.5);
+    }
+  });
+});
+
+describe('Welt-Uhr: Nebel-Ward (Phase 178)', () => {
+  const clock = (partial: Partial<WorldClock>): WorldClock => ({
+    day: 0,
+    timeOfDay: 'day',
+    weather: 'clear',
+    ...partial
+  });
+
+  it('geladener Ward hebt die Nebel-Blendung auf und verbraucht sich', () => {
+    const warded = openingStatusesWarded(clock({ weather: 'fog' }), { [FOG_WARD_FLAG]: true });
+    expect(warded.statuses.some((s) => s.id === 'blind')).toBe(false);
+    expect(warded.wardConsumed).toBe(true);
+  });
+
+  it('ohne Ward bleibt die Nebel-Blendung bestehen (kein Verbrauch)', () => {
+    const warded = openingStatusesWarded(clock({ weather: 'fog' }), {});
+    expect(warded.statuses.some((s) => s.id === 'blind')).toBe(true);
+    expect(warded.wardConsumed).toBe(false);
+  });
+
+  it('ohne Nebel bleibt der geladene Ward erhalten (kein Verbrauch ohne Wirkung)', () => {
+    const clear = openingStatusesWarded(clock({ weather: 'clear' }), { [FOG_WARD_FLAG]: true });
+    expect(clear.statuses).toHaveLength(0);
+    expect(clear.wardConsumed).toBe(false);
+    const rain = openingStatusesWarded(clock({ weather: 'rain' }), { [FOG_WARD_FLAG]: true });
+    expect(rain.wardConsumed).toBe(false);
+  });
+
+  it('ohne Flags verhaelt sich das Feld exakt wie openingStatuses', () => {
+    for (const w of ['clear', 'rain', 'fog'] as const) {
+      const c = clock({ weather: w });
+      expect(openingStatusesWarded(c, undefined).statuses).toEqual(openingStatuses(c));
     }
   });
 });

@@ -581,21 +581,43 @@ export class BattleScene extends Phaser.Scene {
     }).setOrigin(1, 0.5));
 
     // Phase 94 — Elementarfeld-Anzeige: nur sichtbar, solange ein Feld geladen ist.
+    // Phase 173/182 — darunter reihen sich Reaktions-Hinweis und Welt-Uhr; wir fuehren
+    // einen laufenden y-Versatz, damit sich die Zeilen nie ueberlappen.
+    let hudLineY = 46;
     if (view.field) {
       this.layer.add(this.add.text(
         GAME_WIDTH - 15,
-        46,
+        hudLineY,
         `Feld: ${elementLabel(view.field.element)} (${view.field.turns})`,
         { fontFamily: 'sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#7fd4ff' }
       ).setOrigin(1, 0.5));
+      hudLineY += 15;
+
+      // Phase 182 — Feld-Reaktion lesbar: telegraphiert, welche Fremd-Elemente auf dem
+      // geladenen Feld eine Fusions-Reaktion entladen (und es raeumen) — das Gegenspiel
+      // gegen ein feindliches Feld wie gegen das eigene.
+      if (view.fieldReactions.length > 0) {
+        // Deckt die Reaktion jedes andere Element ab, bleibt der Hinweis kompakt; sonst
+        // werden die konkreten Fremd-Elemente aufgezaehlt.
+        const trigger = view.fieldReactions.length >= 5
+          ? 'jedes Fremd-Element'
+          : view.fieldReactions.map((element) => elementLabel(element)).join('/');
+        this.layer.add(this.add.text(
+          GAME_WIDTH - 15,
+          hudLineY,
+          `↯ ${trigger} → Reaktion`,
+          { fontFamily: 'sans-serif', fontSize: '11px', color: '#ffcf7a' }
+        ).setOrigin(1, 0.5));
+        hudLineY += 15;
+      }
     }
 
     // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile macht die Kausalitaet
-    // (Nacht/Regen/Nebel → diese Eroeffnung) sichtbar. Unter dem Feld, sonst an dessen Platz.
+    // (Nacht/Regen/Nebel → diese Eroeffnung) sichtbar. Unter Feld + Reaktions-Hinweis.
     if (this.clockLabel) {
       this.layer.add(this.add.text(
         GAME_WIDTH - 15,
-        view.field ? 61 : 46,
+        hudLineY,
         this.clockLabel,
         { fontFamily: 'sans-serif', fontSize: '11px', color: '#b9c6d8' }
       ).setOrigin(1, 0.5));

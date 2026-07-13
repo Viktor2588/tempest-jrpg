@@ -3,6 +3,7 @@ import { renderView, startBattle } from '../src/systems/battle';
 import {
   applyBattleResultToSave,
   newlyRewardedWeatherConditions,
+  weatherConditionProgress,
   weatherConditionRewards
 } from '../src/systems/battleResult';
 import { createNewSave } from '../src/systems/save';
@@ -71,6 +72,39 @@ describe('Welt-Uhr: Bedingungsbelohnung (Phase 174)', () => {
     const secondDelta = again.progression.magicules - after.progression.magicules;
     expect(firstDelta - secondDelta).toBe(8);
     expect(newlyRewardedWeatherConditions(after.flags, again.flags)).toHaveLength(0);
+  });
+
+  // Phase 177 — Codex-Sammelziel: reine Ableitung des Erstfund-Fortschritts (Nacht/Nebel/Regen).
+  it('weatherConditionProgress: 0/3 ohne Flags, sichtbare Reihenfolge Nacht→Nebel→Regen', () => {
+    const progress = weatherConditionProgress({});
+    expect(progress.found).toBe(0);
+    expect(progress.total).toBe(3);
+    expect(progress.entries.map((e) => e.flag)).toEqual([
+      'worldclock.first.night',
+      'worldclock.first.fog',
+      'worldclock.first.rain'
+    ]);
+    expect(progress.entries.every((e) => !e.found)).toBe(true);
+  });
+
+  it('weatherConditionProgress: zaehlt gesetzte Flags und markiert nur diese als gefunden', () => {
+    const progress = weatherConditionProgress({
+      'worldclock.first.night': true,
+      'worldclock.first.rain': true
+    });
+    expect(progress.found).toBe(2);
+    expect(progress.entries.find((e) => e.flag === 'worldclock.first.fog')?.found).toBe(false);
+    expect(progress.entries.find((e) => e.flag === 'worldclock.first.night')?.found).toBe(true);
+  });
+
+  it('weatherConditionProgress: alle drei gesetzt → 3/3', () => {
+    const progress = weatherConditionProgress({
+      'worldclock.first.night': true,
+      'worldclock.first.fog': true,
+      'worldclock.first.rain': true
+    });
+    expect(progress.found).toBe(3);
+    expect(progress.entries.every((e) => e.found)).toBe(true);
   });
 
   it('ohne Uhr-Option bleibt der Reward-Pfad unberührt (off-route/Harness)', () => {

@@ -115,6 +115,10 @@ export const ITEMS = [
   // Phase 129 — Reinigung: Gegenmittel zur erwachten Kontroll-Schicht. Entfernt negative
   // Status (Betäubung, Schlaf, Versteinerung, Lähmung, Gift …) von einem Verbündeten.
   { id: 'purifying-water', name: 'Läuterungswasser', description: 'Von Tempests Geistern geweihtes Wasser. Befreit einen Verbündeten von negativen Statusleiden.', category: 'consumable', price: 60, stackable: true, effect: { kind: 'cure-status' } },
+  // Phase 178 — Nebelsicht: proaktive Vorsorge gegen die Nebel-Eroeffnung. Vor dem Losziehen
+  // benutzt, laedt es einen einmaligen Ward, der die Blendung des naechsten Nebelkampfes
+  // aufhebt (verbraucht sich erst am Nebelkampf, nicht bei klarem Wetter).
+  { id: 'clearsight-drops', name: 'Klarsichttropfen', description: 'Vor dem Aufbruch geträufelt, schärfen sie den Blick — der nächste Kampf im Nebel beginnt ungetrübt.', category: 'consumable', price: 50, stackable: true, effect: { kind: 'ward-fog' } },
   { id: 'magic-ore', name: 'Magisches Erz', description: 'Magicule-getränktes Roherz; Rohstoff für Magisteel und Magiewerkzeuge.', category: 'key', price: 45, stackable: true },
   { id: 'magisteel', name: 'Magisteel', description: 'Aus magischem Erz und Magicules veredelt; überlegener Schmiedewerkstoff.', category: 'key', price: 140, stackable: true },
   { id: 'geld-core', name: 'Geld-Kern', description: 'Verdichteter Kern des Orc-Disasters — Beweis und Evolutionsmaterial.', category: 'key', price: 0, stackable: false },

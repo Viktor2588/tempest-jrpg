@@ -5,6 +5,7 @@ import {
   buildDiplomacyView,
   clampReputation,
   currentThreshold,
+  factionRewardStatus,
   getReputation,
   MAX_REPUTATION,
   validateFactions
@@ -88,6 +89,35 @@ describe('diplomacy rules', () => {
     expect(dwargon.pointsToNext).toBe(20);
     const fremd = view.find((row) => row.faction.id === 'lizardmen')!;
     expect(fremd.rankTitle).toBe('Fremd');
+  });
+});
+
+describe('factionRewardStatus (Phase 180)', () => {
+  it('ohne Flags ist keine Belohnung aktiv (0/3 pro Fraktion)', () => {
+    const status = factionRewardStatus({});
+    expect(status).toHaveLength(FACTIONS.length);
+    for (const entry of status) {
+      expect(entry.activeCount).toBe(0);
+      expect(entry.total).toBe(3);
+      expect(entry.rewards.every((reward) => !reward.active)).toBe(true);
+    }
+  });
+
+  it('markiert genau die gesetzten Unlock-Flags als aktiv (Reihenfolge erhalten)', () => {
+    const { flags } = adjustReputation({}, {}, 'dwargon', 55);
+    const status = factionRewardStatus(flags);
+    const dwargon = status.find((entry) => entry.factionId === 'dwargon')!;
+    expect(dwargon.activeCount).toBe(2);
+    expect(dwargon.rewards.map((reward) => reward.active)).toEqual([true, true, false]);
+    // Andere Fraktionen bleiben unberührt.
+    expect(status.find((entry) => entry.factionId === 'orcs')!.activeCount).toBe(0);
+  });
+
+  it('alle Schwellen einer Fraktion überschritten → 3/3 aktiv', () => {
+    const { flags } = adjustReputation({}, {}, 'blumund', MAX_REPUTATION);
+    const blumund = factionRewardStatus(flags).find((entry) => entry.factionId === 'blumund')!;
+    expect(blumund.activeCount).toBe(3);
+    expect(blumund.rewards.every((reward) => reward.active)).toBe(true);
   });
 });
 

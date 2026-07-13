@@ -62,6 +62,32 @@ const WEATHER_CONDITION_LABELS: readonly (readonly [string, string])[] = [
   ['worldclock.first.rain', 'Erster Sturmkampf']
 ];
 
+// Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel): reine Ableitung, welche
+// der drei Bedingungs-Erstfunde (Nacht/Nebel/Regen) der Spieler schon abgeraeumt hat.
+// Rein/funktional (nur Flag-Lese), keine Save-/Balance-Beruehrung.
+export interface WeatherConditionEntry {
+  readonly flag: string;
+  readonly label: string;
+  readonly found: boolean;
+}
+
+export interface WeatherConditionProgress {
+  readonly entries: readonly WeatherConditionEntry[];
+  readonly found: number;
+  readonly total: number;
+}
+
+export function weatherConditionProgress(
+  flags: Readonly<Record<string, boolean>>
+): WeatherConditionProgress {
+  const entries = WEATHER_CONDITION_LABELS.map(([flag, label]) => ({
+    flag,
+    label,
+    found: flags[flag] === true
+  }));
+  return { entries, found: entries.filter(e => e.found).length, total: entries.length };
+}
+
 // Welche Bedingungs-Belohnungen (Phase 174) in diesem Kampf NEU verdient wurden — fuer
 // die Sieg-Zusammenfassung. Rein/funktional (Flag-Diff vorher→nachher).
 export function newlyRewardedWeatherConditions(

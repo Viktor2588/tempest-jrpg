@@ -848,4 +848,358 @@ unberuehrt; sie wird zur Sicherheit trotzdem gruen gefahren.
   typecheck ✓, 764 Unit-Tests ✓, build ✓, **Balance-Harness strukturell unberuehrt** (menue-/
   schmiede-only, nicht kampfberuehrend).
 
+## Achtzehnte Welle: Das Schlachtfeld antwortet — Elementarfelder werden umkaempft (verifizierte einseitige Maschinerie, Plan 2026-07-13)
+
+Befund (Code-Abgleich auf `main`, 798 Unit-Tests + Balance-Harness gruen): Das
+Elementarfeld-/Fusions-System ist voll gebaut und getestet — `chargeField`,
+`fieldReaction`, `triggerFieldReaction`, `fieldMatchMultiplier` (`systems/battle.ts`),
+die 37-Eintrag-Fusionstabelle (`data/fusions.ts`, `resolveElementFusion`) und die
+Feld-Anzeige im Kampf-HUD (`BattleScene`, „Feld: … (n)"). Aber die Maschinerie ist
+**strikt EINSEITIG**: `chargesField` traegt in `src/data` ausschliesslich auf DREI
+**Spieler**-Skills (`ember-field`/Benimaru, `gale-field`/Ranga, `tide-field`/Souei) —
+**kein einziger Gegner laedt je ein Feld** (Nachweis: `grep chargesField src/data`
+findet nur diese drei). Daraus folgen drei verifizierte Luecken:
+
+(1) **Das Feld ist nie umkaempft.** Nur der Spieler laedt Felder, also ist „Board-Control"
+(Phase 94) ein risikofreier Gratis-Buff ohne Gegenspieler — die Entscheidung hat keinen
+Gegner, der dagegenhaelt. Genau die fehlende „muss reagieren"-Tiefe der Kampf-Tiefe-Roadmap
+liegt hier ungenutzt.
+
+(2) **Die Fusions-Reaktions-Tabelle feuert nur FUER den Spieler.** `triggerFieldReaction`
+entlaedt eine Fusion (Zusatz-Break + Status) auf das Ziel, wenn ein FREMDES Element auf
+ein geladenes Feld trifft — aber weil nur der Spieler Felder laedt, trifft die Reaktion
+immer einen Gegner (zu Gunsten des Spielers). Der Spieler steht nie vor einem feindlichen
+Feld, das er brechen/kontern muss.
+
+(3) **Die Feld-Anzeige telegraphiert die Reaktion nicht.** Das HUD zeigt „Feld: Feuer (3)",
+aber nirgends, DASS ein Fremd-Element (z.B. Wind) eine Fusions-Reaktion ausloest und das
+Feld raeumt — das Gegenspiel (Fremd-Element-Treffer kontert + loescht das Feld) ist
+unsichtbar und damit nicht erlernbar.
+
+Diese Welle **weckt die feindliche Halfte der gebauten Feld-Maschinerie** — mit einer
+fast reinen Datenergaenzung (ein Gegner-Feld-Skill) plus reiner, headless-testbarer
+Anzeige-Logik, bewusst niedriger Komplexitaet und OHNE neue Assets. Sie adressiert direkt
+das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht / Grind / kein Schwung`): ein
+feindliches Feld zwingt zur Antwort (Fremd-Element-Treffer raeumt es und entlaedt eine
+Reaktion auf den Gegner, oder man frisst die verstaerkten Erdschlaege/eine Reaktion auf
+die eigene Party). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit:
+181 weckt das feindliche Feld (Fundament), 182 macht die Reaktion lesbar (baut darauf auf),
+183 verbreitert die Mechanik um einen zweiten, elementar verschiedenen Off-route-Traeger.
+**Balance-sicher by design:** die Feld-Traeger sind der Magiekoloss und Milim — OFF-ROUTE-Bosse
+(NICHT in `STORY_ENCOUNTER_IDS`, nicht in den Boss-Benchmarks der Harness) → die
+Balance-Harness ruft ihn nie auf und der Korridor bleibt strukturell unberuehrt; wird
+trotzdem gegen die Harness gruen gefahren.
+
+- [x] Phase 181 — Feindliche Elementarfelder: der Magiekoloss beherrscht den Boden
+  (off-harness) (abgeschlossen, direkt auf main). Umgesetzt: neuer Skill `terrastorm-field`
+  („Erdwall-Feld", `element: 'earth'`, `chargesField: true`, `target: 'self'`,
+  `tags: ['buff']`, `tier: 'extra-skill'`, `costMp: 10`) in `data/skills.ts`, verdrahtet in
+  `magic-colossus.phase2SkillIds`. Da `chargeField` (`battle.ts`) seiten-agnostisch ist und
+  die KI Buff-Skills positiv bewertet (`scoreEnemySkillTarget`: +1.1, in Phase 2 +0.7),
+  weckt der Koloss die zuvor rein spielerseitige Feld-/Fusions-Maschinerie OHNE Motor-Eingriff:
+  er tuermt in Phase 2 (per Break telegraphiert, `armoredUntilBreak`) ein Erdfeld auf, das
+  seine eigenen Erdschlaege (`ogre-smash`/`petrifying-gaze`, beide `earth`) ueber
+  `fieldMatchMultiplier` verstaerkt. Der Spieler kontert, indem er ihn mit Wind/Wasser (seinen
+  Schwaechen) trifft — das entlaedt eine Fusions-Reaktion (Sandsturm/Schlammfeld, `triggerFieldReaction`)
+  auf den Koloss UND raeumt das Feld. Off-route (Koloss nicht in `STORY_ENCOUNTER_IDS`/
+  Boss-Benchmarks) → balance-neutral. Akzeptanz erfuellt: Daten (Skill chargesField/earth,
+  Koloss-Phase-2-Rotation) + KI-Feld-Ladung im echten Zug-Fluss (`enemyTurn`-Schleife) +
+  Spieler-Konter (Fremd-Element-Reaktion auf Gegner + Feld-Verbrauch) headless
+  (`test/enemyElementField.test.ts`, 4 Tests), typecheck ✓, 802 Unit-Tests ✓, build ✓,
+  **Balance-Harness (7 Tests) gruen** (Koloss off-route → Harness ruft ihn nie auf).
+
+- [x] Phase 182 — Feld-Reaktion lesbar: der Kampf telegraphiert die Fusion (abgeschlossen,
+  direkt auf main). Umgesetzt: reine Ableitung `fieldReactionElements(fieldElement)`
+  (`systems/battleView.ts`) — filtert aus der Fusionstabelle (`resolveElementFusion`) die
+  Fremd-Elemente, die auf dem geladenen Feld eine Reaktion entladen (gleiches Element =
+  Verstaerkung → ausgeschlossen; neutral → leer). In `renderView` gefaltet
+  (`view.fieldReactions`); `BattleScene` zeigt unter der Feld-Zeile eine kompakte
+  Hinweiszeile („↯ jedes Fremd-Element → Reaktion", bzw. bei duennerer Datenlage die
+  konkreten Elemente). Ein laufender y-Versatz reiht Feld-, Reaktions- und Welt-Uhr-Zeile
+  ueberlappungsfrei. Teacht das Gegenspiel fuer JEDES Feld — das eigene wie das neue
+  feindliche (Phase 181). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt:
+  Hint-Ableitung (Feld-Element selbst ausgeschlossen, neutral = leer, richtige Fremd-Elemente)
+  + View-Faltung (leer ohne Feld, spiegelt das geladene Feld) headless
+  (`test/fieldReactionHint.test.ts`, 5 Tests), typecheck ✓, 807 Unit-Tests ✓, build ✓,
+  **Balance-Harness (7 Tests) gruen**, BattleScene rendert die Zeile im echten Browser
+  fehlerfrei (Battle-Smokes „Title → … → Battle" und „Band 2 → Flüsterhain-Kampf" gegen die
+  Chromium-1194-Binary gruen).
+
+- [x] Phase 183 — Zweiter Feld-Traeger: Milims Drachen-Glutfeld (off-harness) (abgeschlossen,
+  direkt auf main). Umgesetzt: neuer Skill `pyre-field` („Drachen-Glutfeld", `element: 'fire'`,
+  `chargesField: true`, `target: 'self'`, `tags: ['buff']`, `tier: 'ultimate-skill'`) in
+  `data/skills.ts`, verdrahtet in `milim.phase2SkillIds`. Milims optionaler Duell-Boss
+  (`milim-duel`, off-route) entzuendet in Phase 2 ein Flammenfeld, das ihre Feuerschlaege
+  (`drago-nova`/`black-flame`, beide `fire`) ueber `fieldMatchMultiplier` verstaerkt; der Spieler
+  kontert mit einem Heilig-Treffer (Milims Schwaeche) — das entlaedt die `fire-holy-sunfire`-
+  Reaktion und raeumt das Feld. Beweist, dass die geweckte feindliche Feld-Maschinerie (181)
+  elementuebergreifend generalisiert (Erde beim Koloss, Feuer bei Milim) und den Reaktions-
+  Telegraph (182) auf einem zweiten Feld traegt. Off-route (Milim nicht in `STORY_ENCOUNTER_IDS`/
+  Boss-Benchmarks) → balance-neutral. Akzeptanz erfuellt: Daten (Skill chargesField/fire,
+  Milim-Phase-2-Rotation) headless (`test/enemyElementField.test.ts`, 5 Tests), typecheck ✓,
+  808 Unit-Tests ✓, build ✓, **Balance-Harness (7 Tests) gruen** (Milim off-route → Harness
+  ruft sie nie auf).
+
+## Siebzehnte Welle: Die Diplomatie zahlt aus (verifizierte tote Maschinerie, Plan 2026-07-13)
+
+Befund (Code-Abgleich auf `main`, 792 Unit-Tests + Balance-Harness gruen): Das Diplomatie-
+System (`systems/diplomacy.ts`, `data/factions.ts`) fuehrt fuer vier Fraktionen (Dwargon,
+Blumund, Orks, Echsenmenschen) je drei Reputations-Schwellen. `adjustReputation` (aufgerufen
+aus `world.ts` beim Dialog-Effekt `adjust-reputation`) setzt beim Ueberschreiten einer Schwelle
+deterministisch deren `unlockFlag` (`reputation.<faction>.known|trusted|allied`). **Verifiziert:
+diese Unlock-Flags werden NIRGENDS im Code gelesen** (`grep reputation.*.trusted|allied|known`
+ausserhalb von `data/factions.ts` = leer). Die in `factions.ts` versprochenen Belohnungen
+(„Zwergische Handelsroute: Magisteel-Nachschub in der Schmiede", „Sumpfrouten liefern
+Heilkräuter", „Ork-Hauer-Nachschub für die Schmiede", „Bevorzugte Aufträge und Preise",
+„Bündnistruppe", „Späher warnen vor Überfällen") sind heute reiner Beschreibungstext ohne
+mechanische Wirkung — der Reputations-Faden ist eine tote Schleife (reputation steigt → Schwelle
+faellt → Flag gesetzt → nichts passiert). Zugleich existiert im Nachbarsystem `facilities.ts`
+bereits das exakte Vorbild fuer eine flag-gegatete Produktions-Aufwertung: `defendedRouteBonus`
+(die Wache produziert mehr Gold, wenn `story.tempest-invasion.repulsed` gesetzt ist).
+
+Diese Welle weckt die Diplomatie-Belohnungen konsequent **off-combat/balance-neutral** (die
+Balance-Harness reicht weder Fraktions-Reputation noch die Produktions-Schleife durch → Korridor
+strukturell unberuehrt). Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System;
+canon-first, deutsches Originalwording; die „Bündnistruppe"/Kampf-Allianz bleibt bewusst AUSSEN
+vor, um den Korridor nicht zu beruehren). Reihenfolge: 179 (Produktions-Nachschub) weckt die
+`trusted`-Schwellen ueber die vorhandene Facility-Maschinerie; 180 (Standing im Codex) macht den
+gesamten Reputations-Fortschritt und die freigeschalteten Belohnungen erstmals sichtbar.
+
+- [x] Phase 179 — Diplomatie speist die Produktion (`trusted`-Nachschub) (abgeschlossen,
+  direkt auf main). Umgesetzt: analog zum vorhandenen `defendedRouteBonus` bekommt jede
+  Einrichtung einen fraktions-gegateten Nachschub-Bonus, wenn die passende Fraktion `trusted`
+  erreicht hat — datengetriebene Routen-Tabelle `REPUTATION_SUPPLY_ROUTES` in
+  `systems/facilities.ts`: Echsenmenschen (`reputation.lizardmen.trusted`) → Küche
+  (`healing-herb`), Dwargon (`reputation.dwargon.trusted`) → Schmiede (`magic-ore`), Orks
+  (`reputation.orcs.trusted`) → Schmiede (zweite Route, „Ork-Hauer-Nachschub"). Der Bonus
+  (`reputationSupplyBonus`) ist deterministisch (`aktiveRouten * level * output.perStaffPerLevel`),
+  greift nur bei besetzter Produktion (`baseAmount > 0`), fliesst durch `buildFacilityOverview`
+  in `amountPerCycle` und damit automatisch in `runProductionCycle`. Rein/funktional, keine
+  neuen Assets, keine Kampf-/Balance-Beruehrung. Akzeptanz erfuellt: Bonus-Ableitung je
+  `trusted`-Flag (an/aus, richtige Einrichtung, kumulierbar Dwargon+Orks an der Schmiede,
+  kein Bonus ohne Besetzung, keine Fehl-Einrichtung) headless (`test/facilities.test.ts`,
+  +3 Tests), typecheck ✓, 795 Unit-Tests ✓, build ✓, Balance-Harness strukturell unberuehrt
+  (off-combat/Produktions-Schleife).
+
+- [x] Phase 180 — Diplomatie-Standing im Codex sichtbar (Fortschritt + freigeschaltete Boni)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Ableitung `factionRewardStatus(flags)`
+  in `systems/diplomacy.ts` liefert je Fraktion, welche der drei Schwellen-Belohnungen laut
+  gesetzten Unlock-Flags AKTIV ist (`{ title, reward, active }` + `activeCount`/`total`) — massgeblich
+  sind die Flags, die seit Phase 179 die Handelsrouten treiben, nicht nur der Punktestand. Der
+  Diplomatie-Codex-Modus (`MenuScene.drawDiplomacy`) zeigt jetzt je Fraktion ein `[Boni m/3]`-Tag
+  in der Kopfzeile und eine grün hervorgehobene „Aktiv: …"-Zeile mit den freigeschalteten
+  Belohnungen (bzw. „noch keine Bündnis-Vorteile"); die „Nächste Stufe"-Fusszeile bleibt.
+  Reine Anzeige-/View-Logik, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt: Ableitung
+  (0/3 ohne Flags, genau die gesetzten Unlock-Flags aktiv, Reihenfolge erhalten, 3/3 bei allen
+  Schwellen) headless (`test/diplomacy.test.ts`, +3 Tests), typecheck ✓, 798 Unit-Tests ✓,
+  build ✓, Diplomatie-Panel im echten Browser fehlerfrei gerendert (Codex → Politik-Smoke gegen
+  die Chromium-Binary: Dwargon/Echsen „[Boni 2/3]" + aktive Handelsrouten grün, Blumund/Orks
+  „0/3 · noch keine Bündnis-Vorteile", keine Browserfehler).
+
+## Sechzehnte Welle: Die Uhr im Codex & wetterfeste Vorsorge (off-combat, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 784 Unit-Tests + Balance-Harness gruen): Nach den
+Wellen 14/15 ist die Welt-Uhr im Kampf (Nebel-Eroeffnung, Bedingungs-Funde), auf der
+Oberwelt (Tint) und in der Erkundung (zeit-/wettergebundene Funde) spuerbar. Zwei
+kleine, verifizierte Anschluss-Luecken bleiben — beide off-combat/balance-neutral:
+
+(1) **Die neuen Uhr-Belohnungen (Phase 174) sind nirgends im Codex nachvollziehbar.**
+Die Erst-Sieg-Funde setzen `worldclock.first.<cond>`-Flags, aber es gibt keine
+Uebersicht, welche Bedingungen der Spieler schon abgeraeumt hat (analog zum
+Jagdgrund-Fortschritt im Bestiarium). Ein Spieler, der die Naechte/Nebel-Kaempfe
+sammeln will, hat kein Ziel-Panel.
+
+(2) **Nebel ist im Kampf eine reine Strafe ohne Vorbereitungs-Option.** Die
+Nebel-Eroeffnung (Phase 172) blendet beide Seiten; der `cure-status`-Item-Pfad
+(Phase 129, `purifying-water`) entfernt zwar Status IM Kampf, aber es gibt kein
+proaktives Gegenmittel gegen die Eroeffnungs-Blendung — der Spieler kann sich auf
+Nebel nicht vorbereiten, nur reagieren.
+
+Non-Goals gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first,
+deutsches Originalwording). Reihenfolge: 177 (Codex-Anzeige) ist reine View-Logik;
+178 (Vorsorge-Item) ist ein additiver Item-/Gegenspiel-Pfad. **Keine Phase verschiebt
+den Balance-Korridor** (177 ist Anzeige; 178 ist eine Spieler-optionale Item-Wirkung
+auf einen off-harness Eroeffnungs-Status) — beide werden trotzdem gegen die Harness
+gruen gefahren.
+
+- [x] Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel) (abgeschlossen, direkt
+  auf main). Umgesetzt: reine Funktion `weatherConditionProgress(flags)` in
+  `systems/battleResult.ts` liefert die drei Bedingungen (Nacht/Nebel/Regen) je mit
+  `found`-Flag plus `found`/`total`-Zaehler aus den `worldclock.first.<cond>`-Flags (Reihenfolge
+  Nacht→Nebel→Regen aus `WEATHER_CONDITION_LABELS`). Das Bestiarium (`MenuScene.drawBestiary`)
+  haengt eine kompakte Fusszeile „Wetter-Funde m/3" an die bestehende Codex-Fusszeile
+  (analog Jagdgründe). Reine Anzeige, keine Save-/Balance-Beruehrung. Akzeptanz erfuellt:
+  Fortschritts-Ableitung (0/3 → 3/3, Reihenfolge, Teilmengen) headless
+  (`test/weatherReward.test.ts`, +3 Tests), typecheck ✓, 787 Unit-Tests ✓, build ✓,
+  Balance-Harness strukturell unberuehrt (reine View-Logik).
+
+- [x] Phase 178 — Nebelsicht: proaktives Vorsorge-Item gegen die Nebel-Eroeffnung
+  (abgeschlossen, direkt auf main). Umgesetzt: neues Verbrauchs-Item „Klarsichttropfen"
+  (`clearsight-drops`, 50 Gold, in allen fuenf Laeuterungswasser-fuehrenden Shops) mit
+  NEUEM Item-Effekt `ward-fog`. Out of combat benutzt (`menu.ts:useItem`, charakter-
+  unabhaengig) laedt es einen einmaligen Nebel-Ward (Flag `worldclock.fogward`); ist der
+  Ward schon geladen, passiert nichts (kein Verbrauch ohne Wirkung). Reine Funktion
+  `openingStatusesWarded(clock, flags)` (`systems/worldClock.ts`) filtert bei NEBEL die
+  Eroeffnungs-Blendung heraus und meldet `wardConsumed`; ohne Nebel bleibt der Ward geladen.
+  `OverworldScene` reicht Uhr+Flags durch und loescht das Flag nur, wenn der Ward
+  tatsaechlich griff. `MenuScene.applyResult` spiegelt jetzt Menue-gesetzte Flags in den
+  Save. Off-Harness (Auto-Battle reicht keine Uhr/Items durch → Korridor unberuehrt).
+  Akzeptanz erfuellt: Ward-Wirkung (Nebel-Blind entfernt/praeventiert, kein Verbrauch ohne
+  Wirkung, ohne Flags identisch zu `openingStatuses`) + Item-Ladung/Nicht-Doppelverbrauch
+  + Shop-/Datenvalidierung headless (`test/worldClock.test.ts` +4, `test/menu.test.ts` +1,
+  `dataIntegrity`/`qa.test.ts` gruen), typecheck ✓, 792 Unit-Tests ✓, build ✓,
+  Balance-Harness ✓ (7 Tests strukturell unberuehrt).
+
+## Fünfzehnte Welle: Die Uhr faerbt die Welt (off-combat, balance-neutral, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 779 Unit-Tests + Balance-Harness gruen): Die
+Vierzehnte Welle hat die Welt-Uhr (Phase 101) im KAMPF geweckt (Nebel-Eroeffnung 172,
+Kampf-HUD 173, Bedingungs-Funde 174). Ausserhalb des Kampfes bleibt die Uhr aber weiter
+folgenlos: die Tagesabschnitte `morning`/`day`/`dusk` und das Wetter faerben die
+**Oberwelt** nur als HUD-Text (`clockHudLabel`), aendern aber weder das Bild noch das
+Verhalten der Welt. Zwei verifizierte, off-combat/balance-neutrale Luecken bleiben:
+
+(1) **Die Oberwelt sieht bei Tag und Nacht identisch aus.** Es gibt keine Tint-/
+Beleuchtungsanpassung (Nacht dunkler/blaeulich, Daemmerung warm) — `OverworldScene`
+rendert dieselbe Kachelgrafik unabhaengig von `timeOfDay`. Ein sichtbares Tag/Nacht-
+Bild ist der klassischste „die Welt reagiert"-Effekt und rein kosmetisch (kein
+Kampf-/Save-/Balance-Effekt).
+
+(2) **Discovery-Funde ignorieren Zeit/Wetter.** Das `mapDiscovery`-System (Phase 86 ff.)
+gatet Fundstellen ausschliesslich ueber Story-Flags; es gibt keinen Fund, der nur
+nachts oder nur bei Nebel/Regen erscheint — obwohl die Uhr deterministisch und
+persistiert ist. Ein zeit-/wettergebundener Fund gaebe dem Tageszyklus einen
+Erkundungs-Anreiz, ohne den Kampf zu beruehren.
+
+Diese Welle bleibt bewusst **off-combat** (die Balance-Harness ist strukturell
+unberuehrt) und ohne neue Assets (Tint statt neuer Grafik). Non-Goals gelten weiter
+(kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches Originalwording).
+Reihenfolge: 175 (Tag/Nacht-Tint) ist reine Anzeige; 176 (zeit-/wettergebundener Fund)
+baut auf der vorhandenen `mapDiscovery`-Maschinerie auf.
+
+- [x] Phase 175 — Tag/Nacht faerbt die Oberwelt (kosmetischer Tint, keine neuen Assets)
+  (abgeschlossen, direkt auf main). Umgesetzt: reine Funktion `overworldTint(clock)` in
+  `systems/worldClock.ts` liefert je Tagesabschnitt/Wetter einen Tint-Farbwert + Alpha
+  (Nebel: entsaettigtes Grau 0.30, Regen: kuehles Blaugrau 0.24, Nacht: dunkelblau 0.42,
+  Daemmerung: warm 0.24, Morgen: dezent 0.12, Tag/klar: `null` = kein Overlay; Wetter hat
+  Vorrang). `OverworldScene` legt eine bildschirmfuellende, nicht-interaktive Tint-Ebene
+  (Depth 5 — ueber den Kacheln, unter dem HUD ab Depth 10) an und aktualisiert sie in
+  `refreshClockHud` aus `clockAt(clockStep, seed)` (bei jedem Schritt + beim Szenenstart).
+  Rein kosmetisch, keine Kampf-/Save-/Balance-Beruehrung. Akzeptanz erfuellt: Tint-Ableitung
+  (Tag=null, Nacht>Daemmerung>Morgen im Alpha, Wetter-Vorrang, dezenter Alpha-Bereich)
+  headless (`test/worldClock.test.ts`, +3 Tests), typecheck ✓, 782 Unit-Tests ✓, build ✓,
+  Oberwelt rendert mit Tint fehlerfrei im echten Browser (Overworld-Smoke „Title →
+  Overworld → Menü → Battle" gegen die volle Chromium-Binary gruen), Balance-Harness
+  strukturell unberuehrt (off-combat).
+
+- [x] Phase 176 — Zeit-/wettergebundener Fund (Erkundungs-Anreiz auf dem `mapDiscovery`-
+  System) (abgeschlossen, direkt auf main). Umgesetzt: `MapDiscoveryDefinition` traegt
+  optional `requiresTimeOfDay?`/`requiresWeather?`; `isVisible` prueft sie zusaetzlich zum
+  Story-Flag gegen eine (jetzt durchgereichte) `WorldClock` — ohne bekannte Uhr bleibt ein
+  bedingter Fund unsichtbar. `getMapDiscoveries`/`getMapDiscoveryAt` nehmen optional `clock`;
+  `OverworldScene` (Marker + Schritt-Check) und `DiscoveryScene` reichen
+  `clockAt(clockStep, seed)` durch. Zwei neue canon-neutrale, auf verifiziert begehbaren
+  Kacheln platzierte Funde: „Nebelverhüllter Geistfund" (whispering-grove 10,6 → nur bei
+  Nebel → `mana-drop`) und „Nächtliches Geisterglühen" (spirit-highlands 9,5 → nur nachts →
+  `spirit-ember`). Beide einmalig/flag-gegatet, zahlen ueber den bestehenden Discovery-
+  Reward-Pfad. Off-combat (Balance-Harness strukturell unberuehrt). Akzeptanz erfuellt:
+  Uhr-Gating (richtige Zeit/Wetter sichtbar, sonst/ohne Uhr unsichtbar) + Marker-Konsistenz
+  + Einmaligkeit + Begehbarkeit/echtes Item headless (`test/mapDiscovery.test.ts`, +2 Tests;
+  Daten-Integritaet `test/dataIntegrity.test.ts`/`qa.test.ts` gruen), typecheck ✓,
+  784 Unit-Tests ✓, build ✓, Oberwelt (Marker + Schritt) im echten Browser fehlerfrei
+  gerendert.
+
+## Vierzehnte Welle: Die Welt-Uhr greift ein (verifizierte tote/duenne Maschinerie, Plan 2026-07-12)
+
+Befund (Code-Abgleich auf `main`, 769 Unit-Tests + Balance-Harness gruen): Phase 101
+baute die **Welt-Uhr** (Tag/Nacht + Wetter, `systems/worldClock.ts`, im Oberwelt-HUD
+sichtbar), aber sie beeinflusst bis heute **genau eine Sache** — das Eroeffnungs-
+Elementarfeld eines Encounters (`openingFieldElement`: Regen→Wasser, Nacht→Schatten,
+sonst neutral). Daraus folgen drei verifizierte Luecken:
+
+(1) **`fog` ist ein vollstaendig toter Wetterzustand.** Die Wettertabelle
+(`WEATHER_TABLE`, `worldClock.ts:29`) waehlt Nebel an ~1/5 Tagen, aber
+`openingFieldElement` behandelt NUR `rain` und `night` — Nebel faellt durch auf `null`
+und hat damit **null Kampf- oder Spielkonsequenz** (Nachweis: `weather === 'fog'`
+kommt ausserhalb der Tabelle/Labels nirgends vor). Der Spieler sieht „Nebel" im HUD,
+es passiert aber nichts.
+
+(2) **Die Tagesabschnitte `morning`/`day`/`dusk` sind folgenlos.** Nur `night` faerbt
+das Feld; die uebrigen drei Viertel des Tageszyklus haben keinerlei Wirkung. Es gibt
+keinen Grund, die Uhrzeit zu beachten.
+
+(3) **Wetter/Zeit sind im KAMPF unsichtbar.** Das Eroeffnungsfeld erscheint zwar im
+Kampf-Log, aber der Spieler erfaehrt nie, DASS es die Nacht/der Regen war — die
+Kausalitaet (Uhr → Kampf-Eroeffnung) ist nicht lesbar, also auch nicht als System
+erlernbar.
+
+Diese Welle **weckt den toten `fog`-Zustand und macht die Uhr im Kampf zu einem
+lesbaren, spuerbaren Faktor** — rein auf dem vorhandenen Motor (Status-/Feld-/
+Reward-Pfade), mit vorhandenen Daten, bewusst niedriger Komplexitaet und OHNE neue
+Assets. Sie adressiert direkt das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht /
+Grind / kein Schwung`): variable Kampf-Eroeffnungen brechen die „immer dieselbe
+optimale Antwort"-Monotonie, ohne den Zahlen-Korridor zu verschieben. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit: 172 weckt den
+`fog`-Zustand (Fundament), 173 macht die Uhr im Kampf lesbar (baut auf 172 auf), 174
+belohnt das Erkunden zu wechselnden Zeiten (unabhaengig, off-route). (Nummerierung:
+Phase 171 ist an die parallel gemergte Ramiris-Portrait-Phase vergeben; diese Welle
+startet daher bei 172.) **Jede
+kampfberuehrende Phase bleibt off-harness** (die Balance-Harness ruft `startBattle`
+ohne Uhr-/Wetter-Option auf → sie reicht weder Eroeffnungs-Status noch Reward-Bedingung
+durch → Korridor strukturell unberuehrt); wird trotzdem gegen die Harness gruen
+gefahren.
+
+- [x] Phase 172 — Nebel verhuellt das Schlachtfeld (weckt den toten `fog`-Zustand)
+  (abgeschlossen, direkt auf main). Umgesetzt: neue reine Funktion `openingStatuses(clock)`
+  in `systems/worldClock.ts` liefert bei `weather === 'fog'` einen **symmetrischen**
+  Eroeffnungs-`blind` (2 Runden) fuer ALLE Kaempfer — „im Nebel trifft niemand sicher"
+  (physische Treffsicherheit sinkt, canon: Nebel truebt die Sicht beider Seiten);
+  klar/Regen (und Nacht ohne Nebel) liefern keinen Eroeffnungs-Status (leeres Array).
+  `StartBattleOptions` traegt optional `openingStatuses`; `startBattle` wendet sie beim
+  Kampfstart auf ALLE Combatants an (environmental/symmetrisch, kein Widerstands-Wurf)
+  und schreibt je Status EINE Log-Zeile („… liegt ueber dem Schlachtfeld"). `OverworldScene`
+  leitet die Status aus `clockAt(clockStep, seed)` ab und reicht sie NUR bei regulaeren
+  Encountern durch; `BattleScene` gibt sie an `startBattle` weiter. Off-harness (die
+  Balance-Harness ruft `startBattle` ohne `openingStatuses` auf → Korridor unberuehrt).
+  Akzeptanz erfuellt: Nebel→symmetrisches Blind auf allen, klar/Regen/Nacht-ohne-Nebel→leer,
+  Motor wendet den Eroeffnungs-Status auf beide Seiten an + Log headless
+  (`test/worldClock.test.ts`, +4 Tests), typecheck ✓, 773 Unit-Tests ✓, build ✓,
+  **Balance-Harness (beide Tests, je Spec) gruen**. (Battle-E2E im Cloud-Runner nicht
+  ausfuehrbar — Playwright-Browser-Revision fehlt; Phase 172 ist rendering-neutral, nur
+  Log + Status.)
+
+- [x] Phase 173 — Die Uhr im Kampf lesbar (Wetter/Zeit-Banner) (abgeschlossen, direkt auf
+  main). Umgesetzt: `BattleScene` traegt ein optionales `clockLabel` (aus `create(data)`)
+  und rendert es rechts oben im Kampf-HUD (unter der Feld-Zeile bei y=61, sonst an deren
+  Platz y=46; gedaempftes Grau, nicht-interaktiv), damit der Spieler die Kausalitaet
+  „Nacht/Regen/Nebel → diese Eroeffnung" lesen kann. `OverworldScene` reicht
+  `clockHudLabel(clock)` (Phase 101) beim regulaeren Encounter durch. Reine Anzeige, keine
+  Balance-/Save-Beruehrung; das Rendering ist gegen `null` gegated (Demo-/Alt-Pfade ohne
+  Uhr bleiben unveraendert). Akzeptanz erfuellt: die Label-Ableitung (`clockHudLabel`) ist
+  headless getestet (`test/worldClock.test.ts`), das Kampf-HUD rendert die Zeile fehlerfrei
+  im echten Browser (Battle-Smoke „Title → Overworld → Menü → Battle" gegen die volle
+  Chromium-Binary gruen), typecheck ✓, 773 Unit-Tests ✓, build ✓.
+
+- [x] Phase 174 — Wechselnde Bedingungen belohnen (nicht-farmbare Wetter-/Nacht-Funde,
+  off-route) (abgeschlossen, direkt auf main). Umgesetzt: reine Belohnungslogik
+  `weatherConditionRewards(clock, flags)` in `systems/battleResult.ts` (analog
+  `bestiaryMastery`): der ERSTE Sieg unter je einer Bedingung (`Erste Nachtschlacht`,
+  `Erster Sieg im Nebel`, `Erster Sturmkampf` bei Regen) zahlt EINMALIG 8 Magicules und
+  setzt ein Flag (`worldclock.first.<cond>`), das Doppelzahlung ueber Save-/Kampf-Grenzen
+  verhindert (nicht farmbar; mehrere Bedingungen koennen im selben Kampf zugleich zahlen,
+  z.B. Regennacht → Nacht + Regen). `ApplyBattleResultOptions` nimmt optional `clock`;
+  `applyBattleResultToSave` bucht die Funde in derselben Flag-/Magicule-Akkumulation wie
+  die Jagdgrund-Meisterschaft. `BattleScene` fuehrt die Encounter-Uhr (`battleClock`) mit
+  und reicht sie nur bei regulaerem Sieg durch; der Sieg-Bildschirm zeigt die neu
+  verdienten Funde („☾ …", `newlyRewardedWeatherConditions`, Flag-Diff). Off-route (die
+  Balance-Harness ruft `applyBattleResultToSave` ohne `clock` auf → keine Wetter-Funde →
+  Korridor unberuehrt). Akzeptanz erfuellt: Erst-Sieg-Erkennung je Bedingung +
+  Mehrfach-gleichzeitig + Einmaligkeit/Flag-Diff + Integration (Magicule-Bonus einmalig,
+  zweiter Sieg zahlt nur Basis) + Off-route-ohne-Uhr headless (`test/weatherReward.test.ts`,
+  6 Tests), typecheck ✓, 779 Unit-Tests ✓, build ✓, **Balance-Harness (beide Tests, je
+  Spec) gruen**, Sieg-Bildschirm im echten Browser fehlerfrei gerendert (Flüsterhain-
+  Kampf-Smoke gegen die volle Chromium-Binary gruen).
+
 ## UX- und Welt-Backlog

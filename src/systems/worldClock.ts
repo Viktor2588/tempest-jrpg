@@ -89,6 +89,29 @@ export function openingStatuses(clock: WorldClock): readonly OpeningStatus[] {
   return [];
 }
 
+// Phase 178 — Nebelsicht (proaktive Vorsorge): ein geladener Nebel-Ward (Klarsichttropfen,
+// Flag `FOG_WARD_FLAG`) unterdrueckt die Nebel-Eroeffnungsblendung des naechsten Kampfes und
+// wird dabei EINMALIG verbraucht. Ohne Nebel bleibt der Ward geladen (kein Verbrauch ohne
+// Wirkung); ohne Ward-Flag verhaelt sich das Feld exakt wie `openingStatuses`. Rein/funktional.
+export const FOG_WARD_FLAG = 'worldclock.fogward';
+
+export interface WardedOpening {
+  readonly statuses: readonly OpeningStatus[];
+  readonly wardConsumed: boolean;
+}
+
+export function openingStatusesWarded(
+  clock: WorldClock,
+  flags: Readonly<Record<string, boolean>> | undefined
+): WardedOpening {
+  const statuses = openingStatuses(clock);
+  const foggy = statuses.some((status) => status.id === 'blind');
+  if (foggy && flags?.[FOG_WARD_FLAG]) {
+    return { statuses: statuses.filter((status) => status.id !== 'blind'), wardConsumed: true };
+  }
+  return { statuses, wardConsumed: false };
+}
+
 // Phase 175 — Tag/Nacht faerbt die Oberwelt: ein rein kosmetischer Tint-Overlay je
 // Tageszeit/Wetter (keine neuen Assets, kein Kampf-/Save-/Balance-Effekt). Wetter hat
 // Vorrang (Nebel entsaettigt, Regen kuehlt); sonst faerbt die Tageszeit. `null` = kein

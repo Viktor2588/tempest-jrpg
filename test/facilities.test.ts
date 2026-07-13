@@ -84,6 +84,46 @@ describe('buildFacilityOverview', () => {
     expect(awakenedForge.staff[0]).toContain('✦');
     expect(awakenedForge.amountPerCycle).toBe((handwerker.length + 2) * 1 * forge.output.perStaffPerLevel);
   });
+
+  // Phase 179 — Diplomatie speist die Produktion: `trusted`-Handelsrouten heben den Ausstoß.
+  it('Echsenmenschen-Bündnis (trusted) liefert der Küche einen Heilkräuter-Nachschub', () => {
+    const kitchen = FACILITIES.find((f) => f.id === 'kitchen')!;
+    const heiler = residentIdsForRole('Heilung');
+    const base = buildFacilityOverview(heiler, CAMP_FLAGS);
+    const boosted = buildFacilityOverview(heiler, { ...CAMP_FLAGS, 'reputation.lizardmen.trusted': true });
+    const baseKitchen = base.facilities.find((v) => v.facility.id === kitchen.id)!;
+    const boostKitchen = boosted.facilities.find((v) => v.facility.id === kitchen.id)!;
+    expect(baseKitchen.amountPerCycle).toBeGreaterThan(0);
+    // Bonus = level(1) * perStaffPerLevel, genau eine Route.
+    expect(boostKitchen.amountPerCycle).toBe(baseKitchen.amountPerCycle + 1 * kitchen.output.perStaffPerLevel);
+  });
+
+  it('Dwargon + Orks (trusted) kumulieren zwei Handelsrouten an der Schmiede', () => {
+    const forge = FACILITIES.find((f) => f.id === 'forge')!;
+    const handwerker = residentIdsForRole('Handwerk');
+    const base = buildFacilityOverview(handwerker, CAMP_FLAGS);
+    const both = buildFacilityOverview(handwerker, {
+      ...CAMP_FLAGS,
+      'reputation.dwargon.trusted': true,
+      'reputation.orcs.trusted': true
+    });
+    const baseForge = base.facilities.find((v) => v.facility.id === forge.id)!;
+    const bothForge = both.facilities.find((v) => v.facility.id === forge.id)!;
+    expect(bothForge.amountPerCycle).toBe(baseForge.amountPerCycle + 2 * 1 * forge.output.perStaffPerLevel);
+  });
+
+  it('kein Nachschub-Bonus ohne Besetzung (baseAmount 0) und an falscher Einrichtung', () => {
+    // Küche ohne Heiler produziert nichts — der Echsen-Bonus greift nicht.
+    const empty = buildFacilityOverview([], { ...CAMP_FLAGS, 'reputation.lizardmen.trusted': true });
+    expect(empty.facilities.find((v) => v.facility.id === 'kitchen')!.amountPerCycle).toBe(0);
+    // Der Küchen-Bonus (Echsen) rührt die Schmiede nicht an.
+    const handwerker = residentIdsForRole('Handwerk');
+    const base = buildFacilityOverview(handwerker, CAMP_FLAGS);
+    const lizardOnly = buildFacilityOverview(handwerker, { ...CAMP_FLAGS, 'reputation.lizardmen.trusted': true });
+    const baseForge = base.facilities.find((v) => v.facility.id === 'forge')!.amountPerCycle;
+    const lizardForge = lizardOnly.facilities.find((v) => v.facility.id === 'forge')!.amountPerCycle;
+    expect(lizardForge).toBe(baseForge);
+  });
 });
 
 describe('facilityOutputAmount', () => {

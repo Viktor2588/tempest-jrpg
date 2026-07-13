@@ -51,10 +51,11 @@ import { getItemCount } from '../systems/inventory';
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
-import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
+import { buildDiplomacyView, factionRewardStatus, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
 import { buildBestiary } from '../systems/bestiary';
 import { summarizeHuntingGrounds } from '../systems/bestiaryMastery';
+import { weatherConditionProgress } from '../systems/battleResult';
 import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
@@ -1351,9 +1352,12 @@ export class MenuScene extends Phaser.Scene {
     });
 
     const grounds = summarizeHuntingGrounds(this.save.progression.analyzedEnemyIds, this.save.flags);
+    // Phase 177 — Sammelziel der Welt-Uhr-Erstfunde (Nacht/Nebel/Regen) als kompakte Fusszeile.
+    const weather = weatherConditionProgress(this.save.flags);
     this.codexFooter(pageCount,
       `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`
-      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`);
+      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`
+      + ` · Wetter-Funde ${weather.found}/${weather.total}`);
   }
 
   private bestiaryDetailLine(entry: ReturnType<typeof buildBestiary>['entries'][number]): string {
@@ -1531,27 +1535,40 @@ export class MenuScene extends Phaser.Scene {
   // nächsten Stufe und der Freischalt-Status jeder Schwelle. Reine Anzeige.
   private drawDiplomacy(): void {
     const standings = buildDiplomacyView(this.save.progression.factionReputationByFactionId);
+    // Phase 180 — welche Schwellen-Belohnungen sind laut Unlock-Flags bereits AKTIV?
+    const rewardStatus = factionRewardStatus(this.save.flags);
+    const rewardsById = new Map(rewardStatus.map((entry) => [entry.factionId, entry]));
     this.layer.add(this.add.text(318, 172, 'Tempests Ruf bei den Mächten der Region — bewegt durch Entscheidungen und Bündnisse.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc', wordWrap: { width: 600 }
     }));
 
     standings.forEach((standing, index) => {
-      const y = 210 + index * 74;
-      this.panel(300, y, 590, 68);
-      this.layer.add(this.add.text(318, y - 24, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})`, {
+      const y = 214 + index * 80;
+      this.panel(300, y, 590, 74);
+      const reward = rewardsById.get(standing.faction.id);
+      const rewardTag = reward ? `   [Boni ${reward.activeCount}/${reward.total}]` : '';
+      this.layer.add(this.add.text(318, y - 27, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})${rewardTag}`, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: standing.points > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const tiers = standing.thresholds
         .map((threshold) => `${threshold.reached ? '✓' : '○'} ${threshold.title} (${threshold.points})`)
         .join('   ');
-      this.layer.add(this.add.text(318, y - 2, tiers, {
+      this.layer.add(this.add.text(318, y - 6, tiers, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8'
       }));
+      // Phase 180 — aktive Belohnungen sichtbar auflisten (aus den gesetzten Unlock-Flags).
+      const activeRewards = reward?.rewards.filter((entry) => entry.active).map((entry) => entry.reward) ?? [];
+      const activeLine = activeRewards.length > 0
+        ? `Aktiv: ${activeRewards.join(' · ')}`
+        : 'Aktiv: noch keine Bündnis-Vorteile';
+      this.layer.add(this.add.text(318, y + 10, activeLine, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: activeRewards.length > 0 ? '#8dffc2' : '#6f83a5', wordWrap: { width: 552 }
+      }));
       const footer = standing.nextThreshold
-        ? `Nächste Stufe „${standing.nextThreshold.title}" in ${standing.pointsToNext} Punkten — schaltet frei: ${standing.nextThreshold.reward}`
+        ? `Nächste „${standing.nextThreshold.title}" in ${standing.pointsToNext} P. — schaltet frei: ${standing.nextThreshold.reward}`
         : `Höchste Stufe erreicht — ${standing.faction.description}`;
-      this.layer.add(this.add.text(318, y + 18, footer, {
+      this.layer.add(this.add.text(318, y + 26, footer, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 552 }
       }));
     });
@@ -1758,6 +1775,8 @@ export class MenuScene extends Phaser.Scene {
     if (result.ok) {
       this.save = {
         ...this.save,
+        // Phase 178 — Menue-Aktionen (z.B. Nebel-Ward laden) koennen Flags setzen; zurueckspiegeln.
+        flags: this.state.flags ?? this.save.flags,
         party: {
           ...this.save.party,
           active: this.state.party,

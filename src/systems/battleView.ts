@@ -10,9 +10,30 @@ import type {
   Side
 } from './battle';
 import { calculateDevourSuccessChance, escalationBonus } from './battle';
+import { resolveElementFusion } from './fusion';
 import type { InventoryStack } from './inventory';
 import type { FormationRow } from './party';
 import { devourChanceBonus } from './talentPerk';
+
+// Phase 182 — Feld-Reaktion lesbar: aus welchen Fremd-Elementen ein geladenes Feld eine
+// Fusions-Reaktion entlaedt (gleiches Element = Verstaerkung, keine Reaktion; neutral = keine).
+const REACTION_CANDIDATE_ELEMENTS: readonly ElementType[] = [
+  'water',
+  'wind',
+  'fire',
+  'earth',
+  'shadow',
+  'holy'
+];
+
+export function fieldReactionElements(fieldElement: ElementType): ElementType[] {
+  if (fieldElement === 'neutral') {
+    return [];
+  }
+  return REACTION_CANDIDATE_ELEMENTS.filter(
+    (candidate) => candidate !== fieldElement && resolveElementFusion(fieldElement, candidate) !== null
+  );
+}
 
 export interface CombatantView {
   readonly id: string;
@@ -79,6 +100,9 @@ export interface BattleView {
   readonly devouredSourceIds: readonly string[];
   // Phase 94 — Elementarfeld: aktiver Feld-Zustand (null = neutral) für die HUD-Anzeige.
   readonly field: BattleField | null;
+  // Phase 182 — Feld-Reaktion lesbar: Fremd-Elemente, die auf dem aktiven Feld eine
+  // Fusions-Reaktion entladen (leer, wenn kein Feld geladen ist).
+  readonly fieldReactions: readonly ElementType[];
 }
 
 export function renderView(state: BattleState): BattleView {
@@ -106,7 +130,8 @@ export function renderView(state: BattleState): BattleView {
     turn: state.turns,
     round: state.round,
     devouredSourceIds: [...state.devouredSourceIds],
-    field: state.field ? { element: state.field.element, turns: state.field.turns } : null
+    field: state.field ? { element: state.field.element, turns: state.field.turns } : null,
+    fieldReactions: state.field ? fieldReactionElements(state.field.element) : []
   };
 }
 

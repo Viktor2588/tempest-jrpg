@@ -192,6 +192,16 @@ export const SKILLS = [
   { id: 'ember-field', name: 'Glutfeld', description: 'Benimaru entfacht den Boden zu einem Flammenfeld — Feuertreffer lodern stärker, ein Windschlag entfacht einen Feuersturm.', element: 'fire', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
   { id: 'gale-field', name: 'Sturmfeld', description: 'Ranga peitscht Sturmböen über das Feld — Windtreffer schneiden schärfer, Fusionen mit anderen Elementen entfesseln sich.', element: 'wind', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
   { id: 'tide-field', name: 'Gezeitenfeld', description: 'Souei flutet das Schlachtfeld mit Wasser — Wassertreffer branden stärker, Fusionen wie Dampf oder Sturmflut werden möglich.', element: 'water', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  // Phase 181 — Feindliches Elementarfeld: der Magiekoloss türmt den Boden zu einem Erdwall
+  // auf (chargesField). Verstärkt seine eigenen Erdschläge (ogre-smash/petrifying-gaze); ein
+  // Fremd-Element-Treffer (Wind/Wasser = seine Schwächen) entlädt dagegen eine Fusions-Reaktion
+  // und räumt das Feld — das ist das lesbare Gegenspiel des Spielers.
+  { id: 'terrastorm-field', name: 'Erdwall-Feld', description: 'Der Magiekoloss türmt den Boden zu einem massiven Erdwall auf — Erdtreffer wuchten schwerer, doch fremde Elemente entladen sich als Reaktion.', element: 'earth', target: 'self', costMp: 10, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  // Phase 183 — zweiter, elementar verschiedener Feld-Träger (off-route): Milims überwältigende
+  // Drachenglut entzündet das Schlachtfeld zu einem Flammenfeld, das ihre Feuerschläge
+  // (drago-nova/black-flame) verstärkt. Konter: ein Heilig-Treffer (ihre Schwäche) entlädt
+  // eine Sonnenfeuer-Reaktion und räumt das Feld.
+  { id: 'pyre-field', name: 'Drachen-Glutfeld', description: 'Milims überwältigende Drachenglut entzündet den Boden zu einem Flammenmeer — Feuertreffer lodern verheerend, fremde Elemente entladen sich als Reaktion.', element: 'fire', target: 'self', costMp: 12, power: 0, tags: ['buff'], tier: 'ultimate-skill', chargesField: true },
   // Phase 129 — Gegner-Kontrolle: telegraphierte Hart-CC-Skills aktivieren die gebaute,
   // aber ungenutzte Kontroll-Schicht. Bewusst maessvolle Chance/kurze Dauer; sleep/freeze
   // brechen bei Schaden (wakeOnDamage), stun/petrify nur 1 Runde. Traeger sind
