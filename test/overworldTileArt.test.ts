@@ -16,6 +16,8 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
+  SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
@@ -50,16 +52,21 @@ describe('Overworld-Regionstiles', () => {
     expect(overworldTileTextureCandidates('ember-hollow', true)[0]).toBe(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY);
   });
 
-  it('themed frühe Band-1-Karten auf vorhandene .webp-Kacheln statt Default', () => {
-    expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
-      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+  it('gibt der Start-Höhle eigene Tiles und themed weitere frühe Band-1-Karten', () => {
+    expect(overworldTileTextureCandidates('sealed-cave', false)).toEqual([
+      SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
       'ph-tile-grass'
     ]);
     expect(overworldTileTextureCandidates('sealed-cave', true)).toEqual([
-      DWARGON_WALL_TILE_TEXTURE_KEY,
+      SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
+    ]);
+    expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
+      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
     ]);
   });
 
@@ -89,6 +96,8 @@ describe('Overworld-Regionstiles', () => {
 
   it('lädt die regionalen Imagegen-Tiles in der Preload-Szene', () => {
     for (const file of [
+      'tile-sealed-cave-floor.webp',
+      'tile-sealed-cave-wall.webp',
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',

@@ -49,6 +49,8 @@ import { KENNEY_PIXEL_TEXTURE_KEYS } from '../render/textureSharpness';
 import grassUrl from '../assets/tiles/grass.png';
 import wallUrl from '../assets/tiles/wall.png';
 import pathUrl from '../assets/tiles/path.png';
+import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp';
+import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -67,6 +69,8 @@ import tempestCampFloorTileUrl from '../assets/tiles/tile-tempest-camp-floor.web
 import tempestVillageFloorTileUrl from '../assets/tiles/tile-tempest-village-floor.webp';
 import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.webp';
 import {
+  SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
+  SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -214,6 +218,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tile-grass', grassUrl);
     this.load.image('tile-wall', wallUrl);
     this.load.image('tile-path', pathUrl);
+    this.load.image(SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY, sealedCaveFloorTileUrl);
+    this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);

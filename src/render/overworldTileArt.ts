@@ -5,6 +5,8 @@ export const DEFAULT_WALL_TILE_TEXTURE_KEY = 'tile-wall';
 export const PLACEHOLDER_FLOOR_TILE_TEXTURE_KEY = 'ph-tile-grass';
 export const PLACEHOLDER_WALL_TILE_TEXTURE_KEY = 'ph-tile-wall';
 
+export const SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY = 'tile-sealed-cave-floor';
+export const SEALED_CAVE_WALL_TILE_TEXTURE_KEY = 'tile-sealed-cave-wall';
 export const MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-marsh-floor';
 export const MARSH_WALL_TILE_TEXTURE_KEY = 'tile-marsh-wall';
 export const HIGHLANDS_FLOOR_TILE_TEXTURE_KEY = 'tile-highlands-floor';
@@ -34,13 +36,12 @@ export const DEFAULT_OVERWORLD_TILE_THEME: OverworldTileTheme = {
 };
 
 export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>> = {
-  // Frühe Band-1-Maps haben keine eigenen Kacheln – auf vorhandene, thematisch
-  // passende .webp-Sets zeigen statt auf das degenerierte Default-Theme
-  // (grass/wall.png). ponytail: reuse existing tiles, keine neuen Assets.
   'sealed-cave': {
-    floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: DWARGON_WALL_TILE_TEXTURE_KEY
+    floorKey: SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: SEALED_CAVE_WALL_TILE_TEXTURE_KEY
   },
+  // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
+  // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).
   'goblin-village': {
     floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
     wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY

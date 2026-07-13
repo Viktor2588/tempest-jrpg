@@ -1202,4 +1202,19 @@ gefahren.
   Spec) gruen**, Sieg-Bildschirm im echten Browser fehlerfrei gerendert (Flüsterhain-
   Kampf-Smoke gegen die volle Chromium-Binary gruen).
 
+## Neunzehnte Welle: Die Start-Hoehle bekommt ihr eigenes Gesicht (Asset-first, Plan 2026-07-13)
+
+Befund: `sealed-cave` verwendet im Overworld aktuell die Dwargon-Boden-/Wandtiles.
+Damit sieht Rimurus organische Kristallhoehle wie die spaetere Zwergenfestung aus,
+obwohl Banner und Kampfhintergrund bereits eine eigene Hoehlenidentitaet besitzen.
+
+- [x] Phase 184 — Eigene Overworld-Tiles fuer die Versiegelte Hoehle (abgeschlossen
+  im isolierten Worktree). Zwei kompakte 128×128-WebP-Assets: begehbarer dunkler
+  Kristallsteinboden (3,7 KB) und klar blockierende Kristallfelswand (7,7 KB).
+  `sealed-cave` nutzt beide ueber das bestehende `overworldTileArt`-/Preload-Wiring
+  mit unveraenderter Default-/Placeholder-Fallbackkette; kein neuer Renderpfad und
+  keine Balance-Aenderung. Provenienz in `ASSETS.md`; Theme-/Preload-Tests gruen,
+  Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
+  Desktop-Chromium-Smoke inklusive geladener Hoehlenwand-Textur ✓.
+
 ## UX- und Welt-Backlog

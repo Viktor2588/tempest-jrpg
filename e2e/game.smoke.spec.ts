@@ -35,6 +35,10 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   await settle(page, 400);  // allow initial scene + tutorial
   await dismissOverworldTutorial(page);
   await expectCanvasContent(page);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-sealed-cave-wall'))).toBe(true);
 
   // Menü-Overlay samt Resume-Pfad prüfen.
   await clickOverworldMenuButton(page);

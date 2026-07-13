@@ -1356,6 +1356,17 @@ test/release.test.ts
 - Validiert mit Mapping-/Asset-Tests, `git diff --check`, Typecheck, 769 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 184 - Eigene Tiles fuer die Versiegelte Hoehle
+
+- Branch/Worktree: `phase-184-sealed-cave-tiles` in
+  `/home/viktor/worktree/tempest-phase-184-sealed-cave-tiles`.
+- Assets: `tiles/tile-sealed-cave-{floor,wall}.webp`, 128x128, zusammen 11,4 KB;
+  per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `sealed-cave` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
