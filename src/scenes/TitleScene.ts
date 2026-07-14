@@ -48,6 +48,7 @@ export class TitleScene extends Phaser.Scene {
       this.showTutorial();
       saveSettings(window.localStorage, { ...settings, seenTutorial: true });
     }
+    this.game.canvas.dataset.ready = 'true';
   }
 
   private menuButton(cx: number, y: number, label: string, cb: () => void): void {
