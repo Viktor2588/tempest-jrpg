@@ -177,6 +177,7 @@ import hakurouPortraitUrl from '../assets/sprites/portrait-hakurou.webp';
 import kurobePortraitUrl from '../assets/sprites/portrait-kurobe.webp';
 import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
 import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
+import kurobeKaijinPortraitUrl from '../assets/sprites/portrait-kurobe-kaijin.webp';
 import eirPortraitUrl from '../assets/sprites/portrait-eir.webp';
 import kaelPortraitUrl from '../assets/sprites/portrait-kael.webp';
 import gazelPortraitUrl from '../assets/sprites/portrait-gazel.webp';
@@ -349,6 +350,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('kurobe'), kurobePortraitUrl);
     this.load.image(portraitKey('souei'), soueiPortraitUrl);
     this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
+    this.load.image(portraitKey('kurobe-kaijin'), kurobeKaijinPortraitUrl);
     this.load.image(portraitKey('eir'), eirPortraitUrl);
     this.load.image(portraitKey('kael'), kaelPortraitUrl);
     this.load.image(portraitKey('gazel'), gazelPortraitUrl);
@@ -504,6 +506,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('kurobe'),
       portraitKey('souei'),
       portraitKey('kaijin'),
+      portraitKey('kurobe-kaijin'),
       portraitKey('eir'),
       portraitKey('kael'),
       portraitKey('gazel'),

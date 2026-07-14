@@ -1584,6 +1584,20 @@ test/release.test.ts
   inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke inklusive
   geladenem Mordrahn-Portrait.
 
+### Phase 200 - Gemeinsames Werkstattportraet fuer Kurobe und Kaijin
+
+- Branch/Worktree: `phase-200-smiths-portrait` in
+  `/worktree/tempest-phase-200-smiths-portrait`.
+- Asset: `sprites/portrait-kurobe-kaijin.webp`, 512x512, 66,1 KB; per
+  Built-in-Imagegen aus den beiden vorhandenen Einzelportraets erzeugt und in
+  `ASSETS.md` dokumentiert.
+- Der erreichbare Sprecher `Kurobe & Kaijin` nutzt nun ueber die bestehende
+  Portraitzuordnung, Preloadkette und Dialogdarstellung einen eigenen Duo-Key;
+  Einzelportraets und Dialogdaten bleiben unveraendert.
+- Validiert mit `git diff --check`, Portrait-/ArtSpec-/Asset-Tests, Typecheck,
+  817 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-
+  Smoke am echten Kurobe-Welt-NPC inklusive geladenem Duo-Portrait.
+
 ## 14. Change Checklist
 
 Before editing:
