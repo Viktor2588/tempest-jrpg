@@ -53,13 +53,20 @@ export function weatherConditionRewards(
   consider('worldclock.first.night', clock.timeOfDay === 'night', 'Erste Nachtschlacht');
   consider('worldclock.first.fog', clock.weather === 'fog', 'Erster Sieg im Nebel');
   consider('worldclock.first.rain', clock.weather === 'rain', 'Erster Sturmkampf');
+  // Phase 208 — Daemmerung/Morgen als eigene Erst-Sieg-Bedingungen (analog Nacht),
+  // damit das Erkunden zu wechselnden Tageszeiten off-route belohnt wird.
+  consider('worldclock.first.dusk', clock.timeOfDay === 'dusk', 'Erster Sieg im Abendrot');
+  consider('worldclock.first.dawn', clock.timeOfDay === 'morning', 'Erster Sieg im Morgenlicht');
   return rewards;
 }
 
 const WEATHER_CONDITION_LABELS: readonly (readonly [string, string])[] = [
   ['worldclock.first.night', 'Erste Nachtschlacht'],
   ['worldclock.first.fog', 'Erster Sieg im Nebel'],
-  ['worldclock.first.rain', 'Erster Sturmkampf']
+  ['worldclock.first.rain', 'Erster Sturmkampf'],
+  // Phase 208 — Daemmerung/Morgen; speisen automatisch Codex-Progress + Sieg-Zusammenfassung.
+  ['worldclock.first.dusk', 'Erster Sieg im Abendrot'],
+  ['worldclock.first.dawn', 'Erster Sieg im Morgenlicht']
 ];
 
 // Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel): reine Ableitung, welche

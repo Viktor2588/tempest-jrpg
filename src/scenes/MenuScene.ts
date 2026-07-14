@@ -1380,7 +1380,8 @@ export class MenuScene extends Phaser.Scene {
     });
 
     const grounds = summarizeHuntingGrounds(this.save.progression.analyzedEnemyIds, this.save.flags);
-    // Phase 177 — Sammelziel der Welt-Uhr-Erstfunde (Nacht/Nebel/Regen) als kompakte Fusszeile.
+    // Phase 177/208 — Sammelziel der Welt-Uhr-Erstfunde (Nacht/Nebel/Regen/Abendrot/Morgenlicht)
+    // als kompakte Fusszeile (Zähler dynamisch aus weatherConditionProgress).
     const weather = weatherConditionProgress(this.save.flags);
     this.codexFooter(pageCount,
       `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`

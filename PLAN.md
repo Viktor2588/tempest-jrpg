@@ -1232,4 +1232,93 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Einundzwanzigste Welle: Die Tageszeit erwacht im Kampf (die letzte tote Uhr-Luecke, Plan 2026-07-14)
+
+Befund (Code-Abgleich, keine offenen Phasen mehr — alle frueheren Wellen sind
+gemergt): Die achtzehnte Welle (Phasen 172–174) weckte den bis dahin toten
+`fog`-Wetterzustand und machte die Welt-Uhr im Kampf lesbar, dokumentierte in
+ihrem eigenen Befund aber drei Luecken — und schloss davon nur die Nebel-Luecke
+(1). Die beiden anderen sind im Code weiterhin offen und verifizierbar:
+
+(1) **Gap (2) der 18. Welle ist unberuehrt: `morning`/`day`/`dusk` sind im Kampf
+folgenlos.** `openingFieldElement` (`systems/worldClock.ts:71`) behandelt bis heute
+NUR `weather === 'rain'` → `water` und `timeOfDay === 'night'` → `shadow`; alle drei
+uebrigen Tagesviertel fallen auf `null` durch und laden also KEIN Eroeffnungsfeld.
+Nachweis: `timeOfDay === 'dusk'` bzw. `'morning'` kommt ausserhalb von reinem
+Tint/Label (`overworldTint`, `TIME_LABELS`, `TIME_GLYPHS`) nirgends vor. Die
+Feld-Maschinerie ist vollstaendig vorhanden (`BattleField`, `FIELD_DURATION_ROUNDS`,
+`startBattle`-`openingField`-Option `:547`, `fieldReactionElements`, `fieldReaction`),
+nutzt aber nur 2 der 7 `ElementType`-Werte als Eroeffnung — `fire`/`wind`/`earth`/`holy`
+laden nie eroeffnend. Drei von vier Tagesvierteln sind damit im Kampf ununterscheidbar.
+
+(2) **Gap (3) der 18. Welle ist fuer das Feld unberuehrt: die Uhr→Feld-Kausalitaet ist
+im Kampf-Log unsichtbar.** Phase 172 gibt dem Eroeffnungs-*Status* (Nebel→Blind) eine
+Log-Zeile („… liegt ueber dem Schlachtfeld", `battle.ts:581`), aber das
+Eroeffnungs-*Feld* wird bei `startBattle` **still** gesetzt (`field: … : null`,
+`battle.ts:547`) — ohne jede Log-Zeile. Der Spieler sieht das Feld-Icon, erfaehrt
+aber nie, DASS es die Nacht/der Regen/die Daemmerung war, die es entzuendet hat; die
+Kausalitaet ist nicht als System erlernbar (identisch zu 18.-Welle-Gap (3), dort nur
+fuer den Status gefixt).
+
+Diese Welle **weckt die beiden letzten toten Tagesviertel im Kampf und macht das
+Eroeffnungsfeld lesbar** — rein auf dem vorhandenen Motor (Feld-/Reward-/Log-Pfade),
+mit vorhandenen Daten, bewusst niedriger Komplexitaet und OHNE neue Assets. Sie
+adressiert direkt das Kern-Feedback aus `TODO.md` (`Kaempfe zu leicht / Grind /
+kein Schwung`): variable Kampf-Eroeffnungen je Tageszeit brechen die „immer dieselbe
+optimale Antwort"-Monotonie, ohne den Zahlen-Korridor zu verschieben. Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording, keine kopierten Dialoge). Reihenfolge = Abhaengigkeit: 206 weckt die
+Felder (Fundament), 207 macht das Eroeffnungsfeld im Log lesbar (baut auf 206 auf und
+schliesst zugleich die bestehenden Nacht/Regen-Felder mit ein), 208 belohnt das
+Erkunden zu Daemmerung/Morgen (unabhaengig, off-route). **Jede kampfberuehrende Phase
+bleibt off-harness** (die Balance-Harness ruft `startBattle` ohne `openingField`/`clock`
+auf → sie reicht weder Eroeffnungsfeld noch Reward-Bedingung durch → Korridor strukturell
+unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
+
+- [x] Phase 206 — Daemmerung & Morgen wecken ihr Eroeffnungsfeld (schliesst 18.-Welle-Gap (2))
+  (abgeschlossen, direkt auf main). Umgesetzt: `openingFieldElement` (`systems/worldClock.ts`)
+  erhielt zwei neue Zweige unterhalb der bestehenden Wetter-Prioritaet: `timeOfDay === 'dusk'`
+  → `fire` (die Abendglut/untergehende Sonne entzuendet das Feld) und `timeOfDay === 'morning'`
+  → `holy` (das erste Licht heiligt das Feld). `day` bleibt bewusst `null` (der klare Mittag ist
+  das neutrale Baseline-Viertel), Wetter behaelt Vorrang (Regen→`water` schlaegt die Tageszeit,
+  wie schon fuer die Nacht). Damit tragen `morning`/`dusk`/`night` je ein eigenes
+  Eroeffnungselement (3 von 4 Vierteln unterscheidbar), das ueber die vorhandene
+  `openingField`-Kette (`OverworldScene:915` → `BattleScene` → `startBattle`) und die
+  Feld-/Reaktions-Maschinerie (Phase 94) voll wirkt — kein neuer Renderpfad, keine Balance-
+  Aenderung. Off-harness (die Balance-Harness ruft `startBattle` ohne `openingField` auf →
+  Korridor unberuehrt). Akzeptanz erfuellt: `openingFieldElement` liefert dusk→fire,
+  morning→holy, day→null, Regen schlaegt Daemmerung/Morgen (Wetter-Vorrang), Nacht→shadow
+  unveraendert (`test/worldClock.test.ts`, +3 Tests), Typecheck ✓, 821 Unit-Tests inkl.
+  Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
+
+- [x] Phase 207 — Das Eroeffnungsfeld wird im Kampf-Log lesbar (schliesst 18.-Welle-Gap (3)
+  fuer das Feld) (abgeschlossen, direkt auf main). Umgesetzt: `startBattle` (`systems/battle.ts`)
+  schreibt beim Laden eines Eroeffnungsfeldes GENAU EINE Log-Zeile („Ein {Element}feld liegt
+  über dem Schlachtfeld.", `FIELD_ELEMENT_LABEL`), analog zur bestehenden Eroeffnungs-Status-
+  Zeile — so wird die Uhr→Feld-Kausalitaet lesbar. Gilt fuer ALLE Eroeffnungsfelder
+  (Nacht→shadow, Regen→water und die neuen Daemmerung→fire/Morgen→holy aus 206); rein additive
+  Log-Zeile, keine Zahlen-/Save-Beruehrung. Off-harness (die Harness reicht kein `openingField`
+  durch → keine Zeile → Korridor unberuehrt). Akzeptanz erfuellt: bei gesetztem `openingField`
+  (≠ neutral) erscheint genau eine Feld-Log-Zeile mit korrekter Bezeichnung (Feuer/Heilig/
+  Schatten/Wasser), bei neutralem/fehlendem/`null` Feld keine (`test/elementalField.test.ts`,
+  +3 Tests), Typecheck ✓, 824 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓,
+  Build ✓.
+
+- [x] Phase 208 — Erste Daemmerungs-/Morgen-Siege belohnen (off-route, nicht farmbar; erweitert
+  Phase 174) (abgeschlossen, direkt auf main). Umgesetzt: `weatherConditionRewards`
+  (`systems/battleResult.ts`) und die geteilte `WEATHER_CONDITION_LABELS`-Tabelle erhielten zwei
+  neue Erst-Sieg-Bedingungen: `worldclock.first.dusk` (`timeOfDay === 'dusk'`, „Erster Sieg im
+  Abendrot") und `worldclock.first.dawn` (`timeOfDay === 'morning'`, „Erster Sieg im
+  Morgenlicht"), jede zahlt EINMALIG dieselben 8 Magicules und setzt ihr Flag (nicht farmbar;
+  mehrere Bedingungen koennen im selben Kampf zugleich zahlen, z.B. Regen+Morgen). Weil
+  `weatherConditionProgress` (Codex, Phase 177) und `newlyRewardedWeatherConditions`
+  (Sieg-Bildschirm) beide aus `WEATHER_CONDITION_LABELS` lesen, erscheinen die neuen Funde ohne
+  Zusatzarbeit im Codex-Sammelziel (Fusszeile jetzt „Wetter-Funde X/5", Zaehler dynamisch) und in
+  der Sieg-Zusammenfassung. Off-route (die Balance-Harness ruft `applyBattleResultToSave` ohne
+  `clock` auf → keine Funde → Korridor unberuehrt). Akzeptanz erfuellt: Erst-Sieg je neuer
+  Bedingung (dusk/dawn eigenstaendig, 8 Magicules, korrekte Labels) + Regen+Morgen zahlen zugleich
+  + Einmaligkeit/nicht farmbar + Codex-Progress zaehlt jetzt 5 statt 3 Bedingungen (0/5, 5/5,
+  Reihenfolge) (`test/weatherReward.test.ts`, +4 Tests, 3 bestehende auf 5 angepasst), Typecheck ✓,
+  828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
+
 ## UX- und Welt-Backlog

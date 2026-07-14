@@ -550,6 +550,13 @@ export function startBattle(options: StartBattleOptions): BattleState {
         : null
   };
 
+  // Phase 207 — das Eroeffnungsfeld wird im Kampf-Log lesbar: genau EINE Zeile beim
+  // Laden eines Uhr-Feldes (Nacht→Schatten, Regen→Wasser, Daemmerung→Feuer, Morgen→Heilig),
+  // damit die Uhr→Feld-Kausalitaet lesbar ist (analog zur Eroeffnungs-Status-Zeile).
+  if (state.field) {
+    pushLog(state, `Ein ${FIELD_ELEMENT_LABEL[state.field.element]}feld liegt über dem Schlachtfeld.`);
+  }
+
   // Phase 123 — Bestiarium-Wissen im Kampf: schon studierte (analysierte) Gegner-Arten
   // starten mit aufgedeckten Schwächen + Telegraph. Bosse (Existenzen) und noch nie
   // studierte Arten bleiben unbekannt (analysisLevel 0) → die Boss-Entscheidungstiefe

@@ -111,6 +111,20 @@ describe('Welt-Uhr: Feld-/Encounter-Einfluss', () => {
     expect(openingFieldElement(clock({ weather: 'clear', timeOfDay: 'day' }))).toBeNull();
   });
 
+  // Phase 206 — Abenddämmerung & Morgen wecken ihr Eröffnungsfeld.
+  it('Abenddämmerung lädt das Eröffnungsfeld auf Feuer', () => {
+    expect(openingFieldElement(clock({ timeOfDay: 'dusk' }))).toBe('fire');
+  });
+
+  it('Morgen lädt das Eröffnungsfeld auf Heilig', () => {
+    expect(openingFieldElement(clock({ timeOfDay: 'morning' }))).toBe('holy');
+  });
+
+  it('Regen hat Vorrang vor Abenddämmerung und Morgen', () => {
+    expect(openingFieldElement(clock({ weather: 'rain', timeOfDay: 'dusk' }))).toBe('water');
+    expect(openingFieldElement(clock({ weather: 'rain', timeOfDay: 'morning' }))).toBe('water');
+  });
+
   it('ein Encounter unter Regen startet in einem Wasserfeld', () => {
     const state = startBattle({
       party: [dummy('party')],
