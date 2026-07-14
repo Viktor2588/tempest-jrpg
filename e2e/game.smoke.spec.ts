@@ -605,7 +605,8 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
     'portrait-blumund-adventurers',
     'portrait-treyni',
     'portrait-milim',
-    'portrait-souka'
+    'portrait-souka',
+    'portrait-mordrahn'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }

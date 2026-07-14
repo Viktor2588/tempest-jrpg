@@ -1232,4 +1232,13 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Dreissigste Welle: Mordrahn erhaelt ein echtes Antagonistenportraet (Asset-first, Plan 2026-07-14)
+
+- [x] Phase 199 — Mordrahn-Portraet. Das prozedurale Laufzeitportraet des zentralen
+  Antagonisten wurde im isolierten Worktree
+  `/worktree/tempest-phase-199-mordrahn-portrait` durch ein repo-gebundenes WebP ersetzt,
+  an den bestehenden Portrait-Key angeschlossen und mit Provenienz belegt. Abnahme:
+  Typecheck ✓, 816 Unit-Tests ✓, Build ✓, Desktop-/Mobile-Browser-Smoke inklusive
+  geladenem `portrait-mordrahn` ✓.
+
 ## UX- und Welt-Backlog

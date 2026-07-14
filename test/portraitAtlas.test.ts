@@ -62,6 +62,14 @@ describe('Portrait-Atlas-Zuordnung', () => {
     }
   });
 
+  it('lädt Mordrahns echtes Storyportrait statt des prozeduralen Fallbacks', () => {
+    expect(portraitSource).toContain("case 'mordrahn':");
+    expect(portraitSource).toContain("case 'mordrahns echo':");
+    expect(portraitSource).toContain("return 'mordrahn';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-mordrahn.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('mordrahn')");
+  });
+
   it('deckt das komplette spielbare Roster in Dialogen und im Party-Menü ab', () => {
     expect(HEROES.every((hero) => PORTRAIT_KINDS.includes(hero.id))).toBe(true);
     expect(menuSource).toContain('PORTRAIT_KINDS.includes');

@@ -186,6 +186,7 @@ import milimPortraitUrl from '../assets/sprites/portrait-milim.webp';
 import ramirisPortraitUrl from '../assets/sprites/portrait-ramiris.webp';
 import arenaStewardPortraitUrl from '../assets/sprites/portrait-arena-steward.webp';
 import soukaPortraitUrl from '../assets/sprites/portrait-souka.webp';
+import mordrahnPortraitUrl from '../assets/sprites/portrait-mordrahn.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
@@ -357,6 +358,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('ramiris'), ramirisPortraitUrl);
     this.load.image(portraitKey('arena-steward'), arenaStewardPortraitUrl);
     this.load.image(portraitKey('souka'), soukaPortraitUrl);
+    this.load.image(portraitKey('mordrahn'), mordrahnPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
@@ -511,6 +513,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('ramiris'),
       portraitKey('arena-steward'),
       portraitKey('souka'),
+      portraitKey('mordrahn'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',
