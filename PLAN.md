@@ -9,7 +9,16 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] Phase 211 — Akademieschueler-Portrait in der Welt
+  - Worktree: `/worktree/tempest-phase-211-academy-student-portraits`
+  - Kenya, Chloe, Alice, Ryota und Gale fallen in der Freiheitsakademie auf
+    Farbkreise zurueck, obwohl ihr vorhandenes Fuenfer-Gruppenportrait bereits
+    geladen wird. Die zentrale Namenszuordnung wiederverwenden und im Browser
+    am echten Akademie-Ort abnehmen.
+  - Abnahme: alle fuenf Schuelernamen nutzen das bestehende
+    `portrait-shizu-children.webp`; Dialog- und Storylogik bleiben unveraendert.
+  - Checks: `npm run typecheck`; `npm test` (832/832); `npm run build`;
+    gezielter Playwright-Smoke Desktop + Mobile (2/2).
 
 ## Integrationswarteschlange
 

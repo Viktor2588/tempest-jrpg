@@ -44,6 +44,13 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 
+  it('zeigt das vorhandene Gruppenportrait auch an allen fünf Akademieschülern', () => {
+    for (const student of ['kenya', 'chloe', 'alice', 'ryota', 'gale']) {
+      expect(portraitSource).toContain(`case '${student}':`);
+    }
+    expect(portraitSource).toContain("return 'shizu-children';");
+  });
+
   it('ordnet Canon- und Regions-NPCs aus Phase 39 dedizierte Storyportraits zu', () => {
     for (const [speakerCase, portraitKind] of [
       ["case 'moorhüterin eir':", 'eir'],
