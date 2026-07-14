@@ -1233,18 +1233,3 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
 ## UX- und Welt-Backlog
-
-- [x] Phase 171 — Mechanik-Handbuch im Codex (Nutzer 2026-07-12: „ingame Mechaniken sauber
-  erklaeren") (abgeschlossen in `/worktree/tempest-phase-171-handbuch`). Befund bestaetigt:
-  die Kampf-Teaching-Curve (Phase 89) erklaert nur die Kampf-Kernverben; die Meta-Systeme
-  erklaerte NICHTS im Spiel. Umgesetzt: achter Codex-Modus „📖 Handbuch" mit 18 knappen,
-  datengetriebenen Mechanik-Eintraegen (`systems/handbook.ts` — Analyse/Break, CT, Reaktion,
-  Resistenz-Leiter, Status/Reinigung, Verschlingen/Mimikry, Rauben, Skill-Raenge, Formation,
-  Magicules/Benennen, Seelen/Erntefest inkl. Ultimate Gift, Loot-Raritaeten/Affixe, Werkbank,
-  Kern-Slot, Bestiarium/Jagdgruende, Labyrinth, Welt-Uhr, Bindungen); spoiler-sensible
-  Eintraege story-gegatet (shizu.vow/council.ready/smithing.unlocked, verifizierte Flags),
-  Fusszeile nennt die Zahl noch gesperrter Eintraege. Codex-Modusleiste startet jetzt bei
-  x=24 (acht Modi in einer Zeile); alle E2E-Modusklick-Koordinaten nachgezogen. Akzeptanz
-  erfuellt: Gating/Datenvaliditaet/Flag-Tippfehler-Schutz headless (`test/handbook.test.ts`,
-  4 Tests), Codex-E2E um Handbuch-Render erweitert, volle E2E-Suite gruen, typecheck ✓,
-  773 Unit-Tests ✓, build ✓.
