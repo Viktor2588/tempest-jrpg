@@ -152,3 +152,46 @@ describe('Phase 94 — Elementarfeld', () => {
     }
   });
 });
+
+// Phase 207 — das Eröffnungsfeld ist im Kampf-Log lesbar (Uhr→Feld-Kausalität).
+describe('Eröffnungsfeld: lesbare Log-Zeile', () => {
+  it('ein geladenes Eröffnungsfeld schreibt genau eine Feld-Log-Zeile', () => {
+    const state = startBattle({
+      party: [fieldHero()],
+      enemies: [dummyEnemy()],
+      openingField: 'fire',
+      seed: 7
+    });
+    const fieldLines = state.log.filter((line) => line.includes('liegt über dem Schlachtfeld'));
+    expect(fieldLines).toHaveLength(1);
+    expect(fieldLines[0]).toBe('Ein Feuerfeld liegt über dem Schlachtfeld.');
+  });
+
+  it('holy/shadow/water bekommen die passende Feld-Bezeichnung', () => {
+    for (const [element, label] of [
+      ['holy', 'Heilig'],
+      ['shadow', 'Schatten'],
+      ['water', 'Wasser']
+    ] as const) {
+      const state = startBattle({
+        party: [fieldHero()],
+        enemies: [dummyEnemy()],
+        openingField: element,
+        seed: 7
+      });
+      expect(state.log).toContain(`Ein ${label}feld liegt über dem Schlachtfeld.`);
+    }
+  });
+
+  it('ohne Eröffnungsfeld (neutral/keins) erscheint keine Feld-Log-Zeile', () => {
+    for (const opening of [undefined, null, 'neutral'] as const) {
+      const state = startBattle({
+        party: [fieldHero()],
+        enemies: [dummyEnemy()],
+        openingField: opening,
+        seed: 7
+      });
+      expect(state.log.some((line) => line.includes('liegt über dem Schlachtfeld'))).toBe(false);
+    }
+  });
+});
