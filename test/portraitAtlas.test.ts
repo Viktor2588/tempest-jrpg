@@ -70,6 +70,13 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain("this.load.image(portraitKey('mordrahn')");
   });
 
+  it('ordnet dem gemeinsamen Werkstattdialog ein echtes Duoportrait zu', () => {
+    expect(portraitSource).toContain("case 'kurobe & kaijin':");
+    expect(portraitSource).toContain("return 'kurobe-kaijin';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-kurobe-kaijin.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('kurobe-kaijin')");
+  });
+
   it('deckt das komplette spielbare Roster in Dialogen und im Party-Menü ab', () => {
     expect(HEROES.every((hero) => PORTRAIT_KINDS.includes(hero.id))).toBe(true);
     expect(menuSource).toContain('PORTRAIT_KINDS.includes');

@@ -1232,4 +1232,14 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Einunddreissigste Welle: Kurobe und Kaijin gemeinsam im Werkstattdialog (Asset-first, Plan 2026-07-14)
+
+- [x] Phase 200 — Schmiedemeister-Duoportraet. Der erreichbare Dialog
+  `Kurobe & Kaijin` nutzt im isolierten Worktree
+  `/worktree/tempest-phase-200-smiths-portrait` ein aus den vorhandenen
+  Einzelportraets erzeugtes repo-gebundenes WebP ueber den bestehenden Portraitpfad.
+  Provenienz und Fallback-Spec sind dokumentiert. Abnahme: Typecheck ✓,
+  817 Unit-Tests ✓, Build ✓, sichtbarer Desktop-/Mobile-Browser-Smoke am echten
+  Kurobe-Welt-NPC inklusive geladenem Duo-Key ✓.
+
 ## UX- und Welt-Backlog

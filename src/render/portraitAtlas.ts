@@ -50,6 +50,8 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'souei';
     case 'kaijin':
       return 'kaijin';
+    case 'kurobe & kaijin':
+      return 'kurobe-kaijin';
     case 'moorhüterin eir':
     case 'eir':
       return 'eir';

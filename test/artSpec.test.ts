@@ -91,6 +91,7 @@ describe('artSpec', () => {
       'kurobe',
       'souei',
       'kaijin',
+      'kurobe-kaijin',
       'eir',
       'kael',
       'gazel',

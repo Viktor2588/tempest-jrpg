@@ -614,6 +614,33 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
   expect(browserErrors).toEqual([]);
 });
 
+test('Kurobe und Kaijin zeigen ihr gemeinsames Werkstattportrait', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 17, y: 7, facing: 'right' },
+    flags: { 'story.kijin.named': true, 'faction.dwargon.allied': true }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 150);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('portrait-kurobe-kaijin'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Canon-Hauptpfad lädt dedizierte Boss-Cutouts und Arenen', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
