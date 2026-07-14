@@ -204,6 +204,7 @@ import orcBattlefieldBattleUrl from '../assets/backgrounds/battle-orc-battlefiel
 import lizardmanMarshBattleUrl from '../assets/backgrounds/battle-lizardman-marsh.webp';
 import spiritCaveBattleUrl from '../assets/backgrounds/battle-spirit-cave.webp';
 import ramirisLabyrinthBattleUrl from '../assets/backgrounds/battle-ramiris-labyrinth.webp';
+import freedomAcademyBattleUrl from '../assets/backgrounds/battle-freedom-academy.webp';
 import emberHollowBattleUrl from '../assets/backgrounds/battle-ember-hollow.webp';
 import milimArrivalBattleUrl from '../assets/backgrounds/battle-milim-arrival.webp';
 import tempestColosseumBattleUrl from '../assets/backgrounds/battle-tempest-colosseum.webp';
@@ -378,6 +379,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['lizardman-marsh'], lizardmanMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-cave'], spiritCaveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ramiris-labyrinth'], ramirisLabyrinthBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['freedom-academy'], freedomAcademyBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ember-hollow'], emberHollowBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['milim-arrival'], milimArrivalBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-colosseum'], tempestColosseumBattleUrl);
