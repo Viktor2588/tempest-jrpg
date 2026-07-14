@@ -70,6 +70,13 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain("this.load.image(portraitKey('border-scout')");
   });
 
+  it('ordnet dem geretteten Grenzgänger sein echtes Storyportrait zu', () => {
+    expect(portraitSource).toContain("case 'geretteter grenzgänger':");
+    expect(portraitSource).toContain("return 'border-traveler';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-border-traveler.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('border-traveler')");
+  });
+
   it('lädt Mordrahns echtes Storyportrait statt des prozeduralen Fallbacks', () => {
     expect(portraitSource).toContain("case 'mordrahn':");
     expect(portraitSource).toContain("case 'mordrahns echo':");

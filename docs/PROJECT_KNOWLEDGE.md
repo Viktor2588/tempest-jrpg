@@ -1707,6 +1707,20 @@ test/release.test.ts
   Unit-Tests, Build und dem exakten CI-Smoke mit 74/74 Desktop-/Mobile-Tests
   ohne Flake.
 
+### Phase 210 - Eigenes Portrait fuer den geretteten Grenzgaenger
+
+- Branch/Worktree: `phase-210-border-traveler-portrait` in
+  `/worktree/tempest-phase-210-border-traveler-portrait`.
+- Asset: `sprites/portrait-border-traveler.webp`, 512x512, 37,9 KB; per
+  Built-in-Imagegen aus vorhandenen Portraitreferenzen erzeugt und in
+  `ASSETS.md` dokumentiert.
+- Der sichtbare Sprecher `Geretteter Grenzgänger` nutzt nun ueber die bestehende
+  Sprecherzuordnung, Preloadkette und lineare Texturfilterung ein eigenes
+  Portrait; Dialog- und Questlogik bleiben unveraendert.
+- Validiert mit `git diff --check`, 19 fokussierten Portrait-/Asset-Tests,
+  Typecheck, 831 Unit-Tests inklusive Balance-Harness, Build sowie
+  Desktop-/Mobile-Chromium-Smoke mit geladenem Portrait und ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
