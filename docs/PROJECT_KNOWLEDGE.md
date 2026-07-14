@@ -1659,6 +1659,22 @@ test/release.test.ts
   Screenshot ins 30-Sekunden-Timeout; der isolierte Wiederholungslauf bestand in
   12,8 Sekunden. Das war Lastkonkurrenz, keine Codeaenderung.
 
+### Phase 205 - Eigenes Portraet fuer die verwundete Grenzspaeherin
+
+- Branch/Worktree: `phase-205-border-scout-portrait` in
+  `/worktree/tempest-phase-205-border-scout-portrait`.
+- Asset: `sprites/portrait-border-scout.webp`, 512x512, 61,9 KB; per
+  Built-in-Imagegen aus vorhandenen Grenzpatrouillen-, Portrait- und
+  Geistmoor-Referenzen erzeugt und in `ASSETS.md` dokumentiert.
+- Die Sprecher `Grenzspäherin` und `Verwundete Grenzspäherin` nutzen nun ueber
+  die bestehende Portraitzuordnung, Preloadkette und Texturfilterung dasselbe
+  echte Portrait statt des generischen Welt-NPC-Kreises; Dialog- und
+  Questlogik bleiben unveraendert.
+- Validiert mit `git diff --check`, 26 fokussierten Portrait-/Asset-Tests,
+  Typecheck, 818 Unit-Tests inklusive Balance-Harness, Build sowie
+  Desktop-/Mobile-Chromium-Smoke am echten Sumpfgrenz-Deeskalationsdialog
+  inklusive geladenem Portrait und ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
