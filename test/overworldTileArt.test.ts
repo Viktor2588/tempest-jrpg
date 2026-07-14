@@ -29,6 +29,9 @@ import {
   TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
@@ -145,6 +148,24 @@ describe('Overworld-Regionstiles', () => {
     })[0]).toBe(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY);
   });
 
+  it('lässt Tempests Siedlungsmauer symmetrisch mit dem Wachstum reifen', () => {
+    // wilderness fällt auf die eigene Wildnis-Wand zurück
+    expect(overworldTileTextureCandidates('tempest-start', true)[0]).toBe(TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true
+    })[0]).toBe(TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true,
+      'story.council.ready': true
+    })[0]).toBe(TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true,
+      'story.council.ready': true,
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })[0]).toBe(TEMPEST_CITY_WALL_TILE_TEXTURE_KEY);
+  });
+
   it('wählt den ersten geladenen Kandidaten deterministisch', () => {
     expect(firstAvailableOverworldTileTexture('spirit-marsh', false, (key) => key === MARSH_FLOOR_TILE_TEXTURE_KEY))
       .toBe(MARSH_FLOOR_TILE_TEXTURE_KEY);
@@ -185,7 +206,10 @@ describe('Overworld-Regionstiles', () => {
       'tile-tempest-wilderness-wall.webp',
       'tile-tempest-camp-floor.webp',
       'tile-tempest-village-floor.webp',
-      'tile-tempest-city-floor.webp'
+      'tile-tempest-city-floor.webp',
+      'tile-tempest-camp-wall.webp',
+      'tile-tempest-village-wall.webp',
+      'tile-tempest-city-wall.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/tiles/${file}`);
     }

@@ -1284,8 +1284,9 @@ Build und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Stufe grün.
   sichtbarer Desktop-Chromium-Smoke der frischen tempest-start-Wildnis (beide
   geladenen Wildnis-Texturen) ✓.
 
-- [ ] Phase 192 — Die Siedlungsmauer wächst mit: stufenabhängige Wände für Lager/
-  Dorf/Stadt. Drei kompakte 128×128-WebP-Wand-Assets, die den bereits wachsenden
+- [x] Phase 192 — Die Siedlungsmauer wächst mit: stufenabhängige Wände für Lager/
+  Dorf/Stadt (abgeschlossen, direkt auf main; Assets projektintern prozedural erzeugt
+  statt Imagegen). Drei kompakte 128×128-WebP-Wand-Assets, die den bereits wachsenden
   Boden ergänzen: grobe Palisade aus angespitzten Stämmen (`camp`), verstärkte
   Holz-/Flechtwerk-Mauer mit ersten Steinsockeln (`village`) und wehrhafte
   Quader-Steinmauer der Hauptstadt (`city`). Neue Schlüssel

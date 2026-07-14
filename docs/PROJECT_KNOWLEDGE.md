@@ -1455,6 +1455,26 @@ test/release.test.ts
 - Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
   Build und Desktop-Chromium-Smoke der wilderness-Stufe (geladene Wildnis-Tiles).
 
+### Phase 192 - Die Siedlungsmauer waechst mit (stufenabhaengige tempest-start-Waende)
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-{camp,village,city}-wall.webp`, 128x128, zusammen ~5,5 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert. Progression: grobe
+  Palisade (camp) -> Holz-/Flechtwerk mit Steinsockeln (village) -> Quader-Steinmauer
+  (city).
+- Wiring: `overworldTileTextureCandidates` waehlt fuer `tempest-start` die Wand jetzt
+  symmetrisch zur bestehenden stufenabhaengigen Boden-Auswahl (`tempestWallKey` spiegelt
+  `tempestFloorKey`); die `wilderness`-Stufe faellt auf die eigene Wildnis-Wand (Phase
+  191, `theme.wallKey`) zurueck. Andere Karten unberuehrt (Nicht-tempest-start-Maps
+  laufen weiter ueber `theme.wallKey`). Preload-Wiring analog inkl. `linearTextureKeys`.
+  Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch, off-combat).
+- Damit reift Tempest sichtbar in Boden UND Wand; das Regionen-Identitaets-Projekt ist
+  abgeschlossen — jede Karte inkl. aller vier tempest-start-Stufen hat ein eigenes
+  Boden+Wand-Set.
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der camp-Stufe (geladene Lager-Wand-Textur).
+
 ## 14. Change Checklist
 
 Before editing:

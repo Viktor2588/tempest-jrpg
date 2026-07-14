@@ -36,6 +36,9 @@ export const TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY = 'tile-tempest-wilderness
 export const TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-camp-floor';
 export const TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-village-floor';
 export const TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-city-floor';
+export const TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY = 'tile-tempest-camp-wall';
+export const TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-tempest-village-wall';
+export const TEMPEST_CITY_WALL_TILE_TEXTURE_KEY = 'tile-tempest-city-wall';
 
 export interface OverworldTileTheme {
   readonly floorKey: string;
@@ -122,7 +125,16 @@ export function overworldTileTextureCandidates(
       : tempestStage === 'city'
         ? TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY
         : null;
-  const themedKey = wall ? theme.wallKey : tempestFloorKey ?? theme.floorKey;
+  // Die Siedlungsmauer reift symmetrisch zum Boden mit; die wilderness-Stufe
+  // faellt auf die eigene Wildnis-Wand (theme.wallKey) zurueck.
+  const tempestWallKey = tempestStage === 'camp'
+    ? TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY
+    : tempestStage === 'village'
+      ? TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY
+      : tempestStage === 'city'
+        ? TEMPEST_CITY_WALL_TILE_TEXTURE_KEY
+        : null;
+  const themedKey = wall ? tempestWallKey ?? theme.wallKey : tempestFloorKey ?? theme.floorKey;
   const defaultKey = wall ? DEFAULT_WALL_TILE_TEXTURE_KEY : DEFAULT_FLOOR_TILE_TEXTURE_KEY;
   const placeholderKey = wall ? PLACEHOLDER_WALL_TILE_TEXTURE_KEY : PLACEHOLDER_FLOOR_TILE_TEXTURE_KEY;
 

@@ -792,6 +792,35 @@ test('tempest-start-Wildnis lädt eigene Jura-Wald-Tiles', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('gewachsenes tempest-start (Lager) lädt eigene Siedlungsmauer', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  // bandTwoBrowserSave setzt story.tempest.named -> Wachstumsstufe "camp".
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'down' }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('tempest-start');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Direwolf-Lichtungs-Save lädt eigene Overworld-Tiles', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
