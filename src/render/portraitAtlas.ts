@@ -55,6 +55,9 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'moorhüterin eir':
     case 'eir':
       return 'eir';
+    case 'grenzspäherin':
+    case 'verwundete grenzspäherin':
+      return 'border-scout';
     case 'schreinwächter kael':
     case 'kael':
       return 'kael';

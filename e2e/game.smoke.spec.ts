@@ -1226,6 +1226,10 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   expect(save.location.mapId).toBe('spirit-marsh');
   expect(save.flags['story.border.deescalated']).toBe(true);
   expect(save.quests['border-escalation'].completedStepIds).toContain('border-clash');
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('portrait-border-scout'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

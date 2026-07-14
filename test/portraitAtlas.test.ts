@@ -62,6 +62,14 @@ describe('Portrait-Atlas-Zuordnung', () => {
     }
   });
 
+  it('ordnet der verwundeten Grenzspäherin ihr echtes Storyportrait zu', () => {
+    expect(portraitSource).toContain("case 'grenzspäherin':");
+    expect(portraitSource).toContain("case 'verwundete grenzspäherin':");
+    expect(portraitSource).toContain("return 'border-scout';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-border-scout.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('border-scout')");
+  });
+
   it('lädt Mordrahns echtes Storyportrait statt des prozeduralen Fallbacks', () => {
     expect(portraitSource).toContain("case 'mordrahn':");
     expect(portraitSource).toContain("case 'mordrahns echo':");

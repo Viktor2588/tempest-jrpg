@@ -179,6 +179,7 @@ import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
 import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
 import kurobeKaijinPortraitUrl from '../assets/sprites/portrait-kurobe-kaijin.webp';
 import eirPortraitUrl from '../assets/sprites/portrait-eir.webp';
+import borderScoutPortraitUrl from '../assets/sprites/portrait-border-scout.webp';
 import kaelPortraitUrl from '../assets/sprites/portrait-kael.webp';
 import gazelPortraitUrl from '../assets/sprites/portrait-gazel.webp';
 import blumundAdventurersPortraitUrl from '../assets/sprites/portrait-blumund-adventurers.webp';
@@ -355,6 +356,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
     this.load.image(portraitKey('kurobe-kaijin'), kurobeKaijinPortraitUrl);
     this.load.image(portraitKey('eir'), eirPortraitUrl);
+    this.load.image(portraitKey('border-scout'), borderScoutPortraitUrl);
     this.load.image(portraitKey('kael'), kaelPortraitUrl);
     this.load.image(portraitKey('gazel'), gazelPortraitUrl);
     this.load.image(portraitKey('blumund-adventurers'), blumundAdventurersPortraitUrl);
@@ -514,6 +516,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('kaijin'),
       portraitKey('kurobe-kaijin'),
       portraitKey('eir'),
+      portraitKey('border-scout'),
       portraitKey('kael'),
       portraitKey('gazel'),
       portraitKey('blumund-adventurers'),

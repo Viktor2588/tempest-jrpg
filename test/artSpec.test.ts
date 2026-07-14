@@ -93,6 +93,7 @@ describe('artSpec', () => {
       'kaijin',
       'kurobe-kaijin',
       'eir',
+      'border-scout',
       'kael',
       'gazel',
       'blumund-adventurers',

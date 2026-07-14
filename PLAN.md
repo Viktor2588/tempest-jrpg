@@ -1232,4 +1232,16 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Sechsunddreissigste Welle: Grenzspaeherin-Portraet (Asset-first, Plan 2026-07-14)
+
+- [x] Phase 205 — Eigenes Portraet fuer die verwundete Grenzspaeherin (isolierter
+  Worktree `/worktree/tempest-phase-205-border-scout-portrait`). Der verpflichtende
+  Band-2-Deeskalationsdialog und sein Welt-NPC nutzen nun ein repo-gebundenes
+  512×512-Portraet statt des generischen Kreises. Beide Sprecherformen laufen
+  ueber das bestehende Portrait-/Preload-Wiring; Provenienz ist in `ASSETS.md`
+  dokumentiert. 26 fokussierte Portrait-/Asset-Tests ✓, Typecheck ✓, 818
+  Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
+  Sumpfgrenz-Deeskalations-Smoke in Desktop und Mobile inklusive geladenem Asset
+  und ohne Browserfehler ✓.
+
 ## UX- und Welt-Backlog
