@@ -1721,6 +1721,18 @@ test/release.test.ts
   Typecheck, 831 Unit-Tests inklusive Balance-Harness, Build sowie
   Desktop-/Mobile-Chromium-Smoke mit geladenem Portrait und ohne Browserfehler.
 
+### Phase 211 - Akademieschueler nutzen ihr Gruppenportrait in der Welt
+
+- Branch/Worktree: `phase-211-academy-student-portraits` in
+  `/worktree/tempest-phase-211-academy-student-portraits`.
+- Das bereits geladene `portrait-shizu-children.webp` zeigt alle fuenf Schueler
+  und wird nun auch fuer die sichtbaren Welt-NPCs Kenya, Chloe, Alice, Ryota und
+  Gale verwendet statt der generischen Farbkreise. Dialog- und Storylogik
+  bleiben unveraendert; kein neues Asset war noetig.
+- Validiert mit `git diff --check`, 11 fokussierten Portrait-Tests, Typecheck,
+  832 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-
+  Chromium-Smoke am echten Freiheitsakademie-Ort ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
