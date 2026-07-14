@@ -1269,7 +1269,8 @@ dokumentieren die Asset-Provenienz in `ASSETS.md` (Stil wie Phase 184/185) und
 fahren Theme-/Preload-Tests, Typecheck, Unit-Tests inkl. Balance-Harness, Build
 und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Region grün.
 
-- [ ] Phase 190 — Eigene Overworld-Tiles für die Freiheitsakademie. Zwei kompakte
+- [x] Phase 190 — Eigene Overworld-Tiles für die Freiheitsakademie (abgeschlossen,
+  direkt auf main; Assets projektintern prozedural erzeugt statt Imagegen). Zwei kompakte
   128×128-WebP-Assets: begehbarer Akademie-Bodenbelag (heller Stein-/Fliesenhof
   einer Andersweltler-Akademie) und klar blockierende Akademie-Mauer/Fassade.
   `freedom-academy` erhält im Theme ein eigenes Schlüsselpaar

@@ -1425,6 +1425,21 @@ test/release.test.ts
 - Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
   Balance-Harness, Build und Desktop-Chromium-Smoke der geladenen Direwolf-Tiles.
 
+### Phase 190 - Eigene Tiles fuer die Freiheitsakademie
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-freedom-academy-{floor,wall}.webp`, 128x128, zusammen ~3,9 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `freedom-academy` nutzt jetzt eigene `FREEDOM_ACADEMY_FLOOR/WALL`-Keys statt
+  der geliehenen `BLUMUND_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und dem erweiterten Freiheitsakademie-Desktop-Chromium-Smoke.
+- Damit hat jede der 14 Karten ein eigenes Tile-Set; verbleibende Leihe ist nur noch
+  die `tempest-start`-Wildnis-Basis (an die Wachstums-Tile-Umschaltung gekoppelt).
+
 ## 14. Change Checklist
 
 Before editing:

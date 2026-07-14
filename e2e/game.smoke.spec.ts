@@ -737,6 +737,8 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-academy-wisp'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-wall'))).toBe(true);
   for (const file of [
     'enemy-marsh-hexer',
     'enemy-storm-shard',

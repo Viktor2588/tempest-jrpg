@@ -10,6 +10,8 @@ import {
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
@@ -83,6 +85,16 @@ describe('Overworld-Regionstiles', () => {
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
     ]);
+    expect(overworldTileTextureCandidates('freedom-academy', false)).toEqual([
+      FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('freedom-academy', true)).toEqual([
+      FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
     expect(overworldTileTextureCandidates('ramiris-labyrinth', false)).toEqual([
       RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -142,6 +154,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-goblin-village-wall.webp',
       'tile-direwolf-den-floor.webp',
       'tile-direwolf-den-wall.webp',
+      'tile-freedom-academy-floor.webp',
+      'tile-freedom-academy-wall.webp',
       'tile-ramiris-labyrinth-floor.webp',
       'tile-ramiris-labyrinth-wall.webp',
       'tile-tempest-colosseum-floor.webp',

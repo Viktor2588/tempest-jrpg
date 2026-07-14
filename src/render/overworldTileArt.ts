@@ -11,6 +11,8 @@ export const GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-goblin-village-floor'
 export const GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-goblin-village-wall';
 export const DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY = 'tile-direwolf-den-floor';
 export const DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY = 'tile-direwolf-den-wall';
+export const FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY = 'tile-freedom-academy-floor';
+export const FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY = 'tile-freedom-academy-wall';
 export const RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-floor';
 export const RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-wall';
 export const TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-colosseum-floor';
@@ -83,8 +85,8 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
   },
   'freedom-academy': {
-    floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
+    floorKey: FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY
   },
   'dwargon': {
     floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
