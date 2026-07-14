@@ -1304,18 +1304,21 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   +3 Tests), Typecheck ✓, 824 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓,
   Build ✓.
 
-- [ ] Phase 208 — Erste Daemmerungs-/Morgen-Siege belohnen (off-route, nicht farmbar; erweitert
-  Phase 174). `weatherConditionRewards` (`systems/battleResult.ts`) und die geteilte
-  `WEATHER_CONDITION_LABELS`-Tabelle erhalten zwei neue Erst-Sieg-Bedingungen:
-  `worldclock.first.dusk` (`timeOfDay === 'dusk'`, „Erster Sieg im Abendrot") und
-  `worldclock.first.dawn` (`timeOfDay === 'morning'`, „Erster Sieg im Morgenlicht"), jede zahlt
-  EINMALIG dieselben 8 Magicules und setzt ihr Flag (nicht farmbar; mehrere Bedingungen koennen
-  im selben Kampf zugleich zahlen). Weil `weatherConditionProgress` (Codex, Phase 177) und
-  `newlyRewardedWeatherConditions` (Sieg-Bildschirm) beide aus `WEATHER_CONDITION_LABELS` lesen,
-  erscheinen die neuen Funde ohne Zusatzarbeit im Codex-Sammelziel und in der Sieg-
-  Zusammenfassung. Akzeptanz: Erst-Sieg je neuer Bedingung + Mehrfach-gleichzeitig (z.B.
-  Daemmerung zaehlt eigenstaendig) + Einmaligkeit/Flag-Diff + Codex-Progress zaehlt jetzt
-  5 statt 3 Bedingungen (`test/weatherReward.test.ts`); Typecheck, volle Unit-Suite inkl.
-  Balance-Harness je Spec gruen, Build. Off-route (die Harness reicht keine Uhr durch).
+- [x] Phase 208 — Erste Daemmerungs-/Morgen-Siege belohnen (off-route, nicht farmbar; erweitert
+  Phase 174) (abgeschlossen, direkt auf main). Umgesetzt: `weatherConditionRewards`
+  (`systems/battleResult.ts`) und die geteilte `WEATHER_CONDITION_LABELS`-Tabelle erhielten zwei
+  neue Erst-Sieg-Bedingungen: `worldclock.first.dusk` (`timeOfDay === 'dusk'`, „Erster Sieg im
+  Abendrot") und `worldclock.first.dawn` (`timeOfDay === 'morning'`, „Erster Sieg im
+  Morgenlicht"), jede zahlt EINMALIG dieselben 8 Magicules und setzt ihr Flag (nicht farmbar;
+  mehrere Bedingungen koennen im selben Kampf zugleich zahlen, z.B. Regen+Morgen). Weil
+  `weatherConditionProgress` (Codex, Phase 177) und `newlyRewardedWeatherConditions`
+  (Sieg-Bildschirm) beide aus `WEATHER_CONDITION_LABELS` lesen, erscheinen die neuen Funde ohne
+  Zusatzarbeit im Codex-Sammelziel (Fusszeile jetzt „Wetter-Funde X/5", Zaehler dynamisch) und in
+  der Sieg-Zusammenfassung. Off-route (die Balance-Harness ruft `applyBattleResultToSave` ohne
+  `clock` auf → keine Funde → Korridor unberuehrt). Akzeptanz erfuellt: Erst-Sieg je neuer
+  Bedingung (dusk/dawn eigenstaendig, 8 Magicules, korrekte Labels) + Regen+Morgen zahlen zugleich
+  + Einmaligkeit/nicht farmbar + Codex-Progress zaehlt jetzt 5 statt 3 Bedingungen (0/5, 5/5,
+  Reihenfolge) (`test/weatherReward.test.ts`, +4 Tests, 3 bestehende auf 5 angepasst), Typecheck ✓,
+  828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
