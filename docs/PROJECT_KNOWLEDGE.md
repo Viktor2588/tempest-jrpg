@@ -1733,6 +1733,18 @@ test/release.test.ts
   832 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-
   Chromium-Smoke am echten Freiheitsakademie-Ort ohne Browserfehler.
 
+### Phase 212 - Rigurd-Portrait fuer die Ratsversammlung
+
+- Branch/Worktree: `phase-212-council-rigurd-portrait` in
+  `/worktree/tempest-phase-212-council-rigurd-portrait`.
+- Der temporaere Welt-NPC `Ratsversammlung` nutzt nun Rigurds bereits geladenes
+  Portrait statt eines generischen Farbkreises, passend zum ausschliesslichen
+  Dialogsprecher Rigurd. Abstrakte Ortsdienste behalten den neutralen Fallback;
+  Dialog-, Wahl- und Storylogik bleiben unveraendert.
+- Validiert mit `git diff --check`, 12 fokussierten Portrait-Tests, Typecheck,
+  833 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-
+  Chromium-Smoke am echten Ratsdialog ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
