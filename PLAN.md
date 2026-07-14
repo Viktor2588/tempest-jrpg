@@ -9,16 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 212 — Rigurd-Portrait fuer die Ratsversammlung
-  - Worktree: `/worktree/tempest-phase-212-council-rigurd-portrait`
-  - Der temporaere Welt-NPC `Ratsversammlung` faellt auf einen Farbkreis
-    zurueck, obwohl sein Dialog ausschliesslich Rigurd zeigt und Rigurds
-    vorhandenes Portrait bereits geladen wird. Die zentrale Namenszuordnung
-    wiederverwenden und am echten Ratsdialog im Browser abnehmen.
-  - Abnahme: `Ratsversammlung` nutzt das vorhandene Rigurd-Portrait; abstrakte
-    Ortsdienste behalten den neutralen Farb-Token-Fallback.
-  - Checks: `bun run typecheck`; `bun run test` (833/833); `bun run build`;
-    gezielter Playwright-Smoke Desktop + Mobile (2/2).
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
