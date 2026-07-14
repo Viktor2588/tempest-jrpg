@@ -1275,19 +1275,21 @@ bleibt off-harness** (die Balance-Harness ruft `startBattle` ohne `openingField`
 auf → sie reicht weder Eroeffnungsfeld noch Reward-Bedingung durch → Korridor strukturell
 unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
 
-- [ ] Phase 206 — Daemmerung & Morgen wecken ihr Eroeffnungsfeld (schliesst 18.-Welle-Gap (2)).
-  `openingFieldElement` (`systems/worldClock.ts`) erhaelt zwei neue Zweige unterhalb der
-  bestehenden Wetter-Prioritaet: `timeOfDay === 'dusk'` → `fire` (die Abendglut/untergehende
-  Sonne entzuendet das Feld) und `timeOfDay === 'morning'` → `holy` (das erste Licht heiligt
-  das Feld). `day` bleibt bewusst `null` (der klare Mittag ist das neutrale Baseline-Viertel),
-  Wetter behaelt Vorrang (Regen→`water` schlaegt die Tageszeit, wie schon fuer die Nacht).
-  Damit tragen `morning`/`dusk`/`night` je ein eigenes Eroeffnungselement (3 von 4 Vierteln
-  unterscheidbar), das ueber die vorhandene `openingField`-Kette (`OverworldScene:915` →
-  `BattleScene` → `startBattle`) und die Feld-/Reaktions-Maschinerie (Phase 94) voll wirkt —
-  kein neuer Renderpfad. Akzeptanz: `openingFieldElement` liefert dusk→fire, morning→holy,
-  day→null, Regen schlaegt Daemmerung/Morgen (Wetter-Vorrang), Nacht→shadow unveraendert
-  (Tests in `test/worldClock.test.ts`); Typecheck, volle Unit-Suite inkl. Balance-Harness je
-  Spec gruen, Build. Off-harness.
+- [x] Phase 206 — Daemmerung & Morgen wecken ihr Eroeffnungsfeld (schliesst 18.-Welle-Gap (2))
+  (abgeschlossen, direkt auf main). Umgesetzt: `openingFieldElement` (`systems/worldClock.ts`)
+  erhielt zwei neue Zweige unterhalb der bestehenden Wetter-Prioritaet: `timeOfDay === 'dusk'`
+  → `fire` (die Abendglut/untergehende Sonne entzuendet das Feld) und `timeOfDay === 'morning'`
+  → `holy` (das erste Licht heiligt das Feld). `day` bleibt bewusst `null` (der klare Mittag ist
+  das neutrale Baseline-Viertel), Wetter behaelt Vorrang (Regen→`water` schlaegt die Tageszeit,
+  wie schon fuer die Nacht). Damit tragen `morning`/`dusk`/`night` je ein eigenes
+  Eroeffnungselement (3 von 4 Vierteln unterscheidbar), das ueber die vorhandene
+  `openingField`-Kette (`OverworldScene:915` → `BattleScene` → `startBattle`) und die
+  Feld-/Reaktions-Maschinerie (Phase 94) voll wirkt — kein neuer Renderpfad, keine Balance-
+  Aenderung. Off-harness (die Balance-Harness ruft `startBattle` ohne `openingField` auf →
+  Korridor unberuehrt). Akzeptanz erfuellt: `openingFieldElement` liefert dusk→fire,
+  morning→holy, day→null, Regen schlaegt Daemmerung/Morgen (Wetter-Vorrang), Nacht→shadow
+  unveraendert (`test/worldClock.test.ts`, +3 Tests), Typecheck ✓, 821 Unit-Tests inkl.
+  Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 - [ ] Phase 207 — Das Eroeffnungsfeld wird im Kampf-Log lesbar (schliesst 18.-Welle-Gap (3)
   fuer das Feld). `startBattle` (`systems/battle.ts`) schreibt beim Laden eines
