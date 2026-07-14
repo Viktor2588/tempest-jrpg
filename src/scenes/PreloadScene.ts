@@ -232,6 +232,7 @@ import formationRowsUrl from '../assets/ui/formation-rows.webp';
 import dialogKeyboardHintUrl from '../assets/ui/dialog-keyboard-hint.webp';
 import mimicFormUrl from '../assets/ui/mimic-form-indicator.webp';
 import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
+import milimFightBannerUrl from '../assets/ui/milim-fight-banner.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -409,6 +410,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('ui-dialog-keyboard-hint', dialogKeyboardHintUrl);
     this.load.image('ui-mimic-form-indicator', mimicFormUrl);
     this.load.image('ui-predator-steal', predatorStealUrl);
+    this.load.image('ui-milim-fight-banner', milimFightBannerUrl);
   }
 
   create(): void {
@@ -535,6 +537,7 @@ export class PreloadScene extends Phaser.Scene {
       ...Object.values(BATTLE_ARENA_TEXTURES),
       ...Object.values(REGION_BANNER_TEXTURES),
       ...Object.values(TEMPEST_GROWTH_BANNER_TEXTURES),
+      'ui-milim-fight-banner',
       ...VFX_KINDS.map(vfxKey)
     ];
 

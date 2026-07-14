@@ -51,6 +51,45 @@ describe('battle result: dauerhafte Skill-Aneignung', () => {
   });
 });
 
+describe('battle result: Milim-Duell', () => {
+  it('vergibt EP, Beute und Drago Nova zusammen mit dem Abschlussflag', () => {
+    const save = createNewSave({ seed: 22, now: '2026-07-14T10:00:00.000Z' });
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(save.party.active),
+      enemyIds: ['milim'],
+      inventory: save.inventory.stacks,
+      seed: 22
+    });
+    const rimuru = battle.combatants.find((combatant) => combatant.side === 'party')!;
+    const milim = battle.combatants.find((combatant) => combatant.sourceId === 'milim')!;
+    battle.activeId = rimuru.id;
+    rimuru.ct = 100;
+    milim.hp = 1;
+
+    expect(act(battle, { type: 'attack', targetId: milim.id }).ok).toBe(true);
+    expect(battle.status).toBe('won');
+    expect(battle.rewards).toEqual({
+      experience: 1000,
+      gold: 300,
+      items: expect.arrayContaining([
+        { itemId: 'magisteel', quantity: 1 },
+        { itemId: 'full-potion', quantity: 1 }
+      ])
+    });
+
+    const result = applyBattleResultToSave(save, renderView(battle), { encounterId: 'milim-duel' });
+    const learned = result.party.active.find((member) => member.characterId === 'rimuru')!.learnedSkillIds;
+    expect(learned.filter((skillId) => skillId === 'drago-nova')).toHaveLength(1);
+    expect(result.flags['story.milim.duel']).toBe(true);
+    expect(result.flags['encounter.milim-duel.cleared']).toBe(true);
+    expect(result.party.gold).toBe(save.party.gold + 300);
+    expect(result.inventory.stacks).toEqual(expect.arrayContaining([
+      { itemId: 'magisteel', quantity: 1 },
+      { itemId: 'full-potion', quantity: 1 }
+    ]));
+  });
+});
+
 describe('battle result: Bestiarium-Analyse-Tally (Phase 122)', () => {
   it('bucht nur studierte Arten ins Analyse-Wissen, erlegte immer in die Zähler', () => {
     const save = createNewSave({ seed: 7, now: '2026-07-10T10:00:00.000Z' });

@@ -5335,8 +5335,7 @@ export const ENCOUNTERS = [
     ]
   },
   {
-    // Milim Nava sucht Tempest auf, um den neuen Dämonenlord zu prüfen — ein
-    // optionaler Duell-Wall weit über dem regulären Ziellevel.
+    // Nach dem Honig-Bündnis prüft Milim Rimuru in einem optionalen Duell.
     id: 'milim-duel',
     mapId: 'tempest-start',
     kind: 'trigger',
@@ -5344,11 +5343,10 @@ export const ENCOUNTERS = [
     enemyIds: ['milim'],
     chance: 1,
     requirements: [
-      { flag: 'story.ifrit.subdued' }
+      { flag: 'story.milim.met' }
     ],
     victoryEffects: [
-      { type: 'set-flag', flag: 'story.milim.duel', value: true },
-      { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+      { type: 'set-flag', flag: 'story.milim.duel', value: true }
     ]
   },
   {
