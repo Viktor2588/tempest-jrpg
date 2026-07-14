@@ -1232,4 +1232,13 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Neunundzwanzigste Welle: Stoerendes Overworld-Viereck beseitigen (Bugfix, Plan 2026-07-14)
+
+- [x] Phase 198 — Overworld-Renderartefakt. Das Viereck war der gemeinsame
+  Rechteck-Fallback fuer NPCs ohne Portraet (an der gemeldeten Stelle das
+  `tempest-camp`); er nutzt jetzt bei unveraenderter Groesse, Farbe und Interaktion
+  einen Kreis. Abnahme: Pixel-Smoke scheitert gegen unveraendertes `main` und besteht
+  mit dem Fix auf Desktop und Mobile (2/2) ✓, Typecheck ✓, 815 Unit-Tests inklusive
+  Balance-Harness ✓ und Build ✓.
+
 ## UX- und Welt-Backlog
