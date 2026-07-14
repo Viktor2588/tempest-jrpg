@@ -1556,6 +1556,20 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Story-Test (22/22), Typecheck, 815 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 198 - Overworld-Viereck durch runden NPC-Fallback ersetzt
+
+- Branch/Worktree: `phase-198-overworld-artifact` in
+  `/worktree/tempest-phase-198-overworld-artifact`.
+- Die Desktop-/Mobile-Reproduktion identifizierte das beige Viereck bei etwa zwei
+  Dritteln der Breite als generischen Rechteck-Fallback eines NPCs ohne Portraet;
+  an der gemeldeten Stelle war dies `tempest-camp`, kein GPU- oder Skalierungsfehler.
+- Der gemeinsame Fallback in `OverworldScene` zeichnet bei gleicher Groesse, Farbe,
+  Kontur, Position und Interaktion nun einen Kreis. Portraet-NPCs bleiben unveraendert;
+  es gibt keinen neuen Renderpfad und keine neue Abhaengigkeit.
+- Der Pixel-Smoke scheitert gegen unveraendertes `main` am gefuellten Quadrateck und
+  besteht mit dem Fix auf Desktop und Mobile. Zusaetzlich gruen: `git diff --check`,
+  Typecheck, 815 Unit-Tests inklusive Balance-Harness und Build.
+
 ## 14. Change Checklist
 
 Before editing:

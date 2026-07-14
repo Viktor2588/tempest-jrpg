@@ -778,7 +778,7 @@ export class OverworldScene extends Phaser.Scene {
         npcSprite = this.add.image(npcX, npcY, portraitTexture).setDisplaySize(size, size);
         layer.add(npcSprite);
       } else {
-        npcSprite = this.add.rectangle(npcX, npcY, TILE * 0.58, TILE * 0.58, npc.color, 0.92)
+        npcSprite = this.add.circle(npcX, npcY, TILE * 0.29, npc.color, 0.92)
           .setStrokeStyle(2, 0x15100a, 0.55);
         layer.add(npcSprite);
       }

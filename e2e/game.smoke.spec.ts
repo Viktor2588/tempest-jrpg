@@ -925,6 +925,34 @@ test('Hakurou-Marker führt sichtbar in die Kijin-Benennung', async ({ page }) =
   expect(browserErrors).toEqual([]);
 });
 
+test('Overworld-Fallbackmarker bleibt rund statt als Viereck stehen', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const screenshot = await page.locator('canvas').screenshot({ animations: 'disabled' });
+  const { width, height, data, channels } = decodePng(screenshot);
+  const colorAt = (x: number, y: number): readonly number[] => {
+    const px = Math.round(x / GAME_WIDTH * width);
+    const py = Math.round(y / GAME_HEIGHT * height);
+    const offset = (py * width + px) * channels;
+    return [data[offset]!, data[offset + 1]!, data[offset + 2]!];
+  };
+  const center = colorAt(600, 414);
+  const diagonal = colorAt(611, 425);
+  expect(center.reduce((distance, value, index) => distance + Math.abs(value - diagonal[index]!), 0))
+    .toBeGreaterThan(40);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
