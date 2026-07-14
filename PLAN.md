@@ -1232,4 +1232,13 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Vierunddreissigste Welle: Eigene Kampfarena fuer Blumund (Asset-first, Plan 2026-07-14)
+
+- [x] Phase 203 — Blumund-Arena (abgeschlossen im isolierten Worktree
+  `/worktree/tempest-phase-203-blumund-arena`). Die erreichbaren Strassenraub- und
+  Hintergassen-Kaempfe in Blumund fallen bislang auf den Tempest-Hain zurueck. Eine
+  repo-gebundene 16:9-Arena aus vorhandenen Blumund-, Tile- und Banditenreferenzen
+  nutzt das bestehende Arena-Wiring; Provenienz und Asset-Tests ✓, Typecheck ✓,
+  817 Unit-Tests ✓, Build ✓ sowie Desktop-/Mobile-Browser-Smoke ✓.
+
 ## UX- und Welt-Backlog
