@@ -1232,4 +1232,79 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Zweiundzwanzigste Welle: Tempest bekommt über alle Wachstumsstufen sein eigenes Gesicht (Asset-first, Plan 2026-07-14)
+
+Befund (Code-Abgleich auf `main`, `src/render/overworldTileArt.ts` +
+`src/systems/tempestGrowth.ts`): Die Neunzehnte bis Einundzwanzigste Welle
+(Phasen 184–190) haben allen 13 eigenständigen Karten ein thematisch passendes,
+eigenes 128×128-WebP-Tile-Set gegeben. Genau **eine** Karte leiht sich weiterhin
+sichtbar fremde Tiles — ausgerechnet der Herzort des Spiels, `tempest-start`
+(Rimurus wachsende Siedlung):
+
+(1) **Die Wildnis-Vorstufe rendert als Echsen-Sumpf.** `overworldTileTextureCandidates`
+mappt die `wilderness`-Stufe (vor der Tempest-Benennung, `resolveTempestGrowthStage`)
+über `theme.floorKey` auf `LIZARDMAN_MARSH_FLOOR` — der Jura-Wald, in dem Rimuru
+erwacht und die ersten Goblins trifft, erscheint als fremder Feuchtsumpf. Das ist
+die letzte verbliebene Fehl-Leihe des Regionen-Identitäts-Projekts.
+
+(2) **Die Siedlungsmauer wächst nicht mit.** Der Boden von `tempest-start`
+wechselt mit dem Wachstum sichtbar (`TEMPEST_CAMP/VILLAGE/CITY_FLOOR`), aber die
+**Wand** ist an `theme.wallKey` gebunden und bleibt über ALLE Stufen
+`LIZARDMAN_MARSH_WALL` (Schilf/Mangrove). Während der Boden von Waldlichtung →
+Lager → Dorf → Stadt reift, bleiben die Hindernisse Sumpfwände — die Wachstums-
+Erzählung ist nur halb sichtbar.
+
+Diese Welle schließt beide Lücken — bewusst niedrige Komplexität, dasselbe
+Asset-first-Muster wie 184–190 (pro Stufe kompakte 128×128-WebP-Assets, verdrahtet
+über das bestehende `overworldTileArt`-/`PreloadScene`-Wiring mit unveränderter
+Default-/Placeholder-Fallbackkette). Kein neuer Renderpfad; die einzige Logik-
+Änderung ist, die bereits existierende stufenabhängige Boden-Auswahl in
+`overworldTileTextureCandidates` symmetrisch auf die Wand zu spiegeln (rein
+kosmetisch, off-combat; die Balance-Harness ist strukturell unberührt). Non-Goals
+gelten weiter (kein Backend/PWA, kein Job/Klassen-System; canon-first, deutsches
+Originalwording). Reihenfolge = Abhängigkeit: 191 ist unabhängig (isolierte
+Wildnis-Stufe, wie 189/190); 192 baut auf dem Stufen-Wand-Wiring auf und schließt
+das Projekt ab. Beide Phasen dokumentieren die Asset-Provenienz in `ASSETS.md`
+und fahren Theme-/Preload-Tests, Typecheck, Unit-Tests inkl. Balance-Harness,
+Build und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Stufe grün.
+
+- [ ] Phase 191 — Eigener Jura-Wald-Boden & -Wand für die tempest-start-Wildnis-Vorstufe.
+  Zwei kompakte 128×128-WebP-Assets: begehbarer Jura-Waldboden (frisches Laub-/
+  Grasgrün mit Wurzeln, Moos und Erdflecken — der lebendige Urwald vor dem
+  Siedlungsbau) und klar blockierende Wald-Dickicht-/Baumstamm-Wand. Neues
+  Schlüsselpaar `TEMPEST_WILDERNESS_FLOOR/WALL_TILE_TEXTURE_KEY`; in
+  `overworldTileTextureCandidates` nutzt die `wilderness`-Stufe (keine Wachstums-
+  Flags) diese Keys statt der geliehenen `LIZARDMAN_MARSH_*`. Camp/Village/City
+  bleiben unberührt; `lizardman-marsh` selbst behält seine eigenen Tiles.
+  Preload-Wiring analog Phase 184/185, unveränderte Default-/Placeholder-Fallback-
+  kette; kein neuer Renderpfad, keine Balance-Änderung. Provenienz in `ASSETS.md`.
+  Akzeptanz: Theme-/Preload-Tests grün (Wildnis → eigene Keys, Wachstumsstufen
+  unverändert), Typecheck ✓, Unit-Tests inkl. Balance-Harness ✓, Build ✓,
+  sichtbarer Desktop-Chromium-Smoke der frischen tempest-start-Wildnis (beide
+  geladenen Wildnis-Texturen) ✓.
+
+- [ ] Phase 192 — Die Siedlungsmauer wächst mit: stufenabhängige Wände für Lager/
+  Dorf/Stadt. Drei kompakte 128×128-WebP-Wand-Assets, die den bereits wachsenden
+  Boden ergänzen: grobe Palisade aus angespitzten Stämmen (`camp`), verstärkte
+  Holz-/Flechtwerk-Mauer mit ersten Steinsockeln (`village`) und wehrhafte
+  Quader-Steinmauer der Hauptstadt (`city`). Neue Schlüssel
+  `TEMPEST_CAMP/VILLAGE/CITY_WALL_TILE_TEXTURE_KEY`; `overworldTileTextureCandidates`
+  wählt für `tempest-start` die Wand analog zur bestehenden stufenabhängigen
+  Boden-Auswahl (symmetrischer `tempestWallKey`, gleiche Stufen-Logik wie
+  `tempestFloorKey`, Fallback auf die Wildnis-Wand aus Phase 191). Damit reift die
+  Siedlung in Boden UND Wand sichtbar mit. Preload-Wiring analog; unveränderte
+  Default-/Placeholder-Fallbackkette; kein neuer Renderpfad, keine Balance-Änderung
+  (rein kosmetisch). Provenienz in `ASSETS.md`. Akzeptanz: Theme-Tests grün (jede
+  Stufe liefert die passende Wand, Wildnis fällt auf die 191-Wand zurück),
+  Preload-Test grün, Typecheck ✓, Unit-Tests inkl. Balance-Harness ✓, Build ✓,
+  sichtbarer Desktop-Chromium-Smoke einer gewachsenen tempest-start-Stufe (geladene
+  Stufen-Wand-Textur) ✓.
+
+Folge-Hinweis (optional): Nach 191/192 hat jede Karte inkl. aller vier
+tempest-start-Wachstumsstufen ein vollständig eigenes Boden+Wand-Set; das
+Regionen-Identitäts-Projekt ist damit abgeschlossen. Ein späteres, unabhängiges
+Inkrement könnte die Wachstums-Umschaltung zusätzlich mit einem einmaligen
+„Tempest wächst"-Weltfolge-Beat (Discovery-Muster) koppeln, damit der Spieler den
+Stufensprung nicht nur beim nächsten Betreten, sondern als Moment erlebt.
+
 ## UX- und Welt-Backlog
