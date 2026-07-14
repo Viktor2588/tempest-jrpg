@@ -121,6 +121,19 @@ const allLocations: readonly WorldLocationDefinition[] = LOCATIONS;
 const allLoreEntries: readonly LoreEntryDefinition[] = LORE_ENTRIES;
 const allNpcs: readonly NpcDefinition[] = NPCS;
 
+const UNNAMED_STORY_NAMES = [
+  { name: 'Gobta', unnamed: 'Goblin', namedFlag: 'story.goblin.plea' },
+  { name: 'Ranga', unnamed: 'Schattenwolf', namedFlag: 'story.direwolf.pact' },
+  { name: 'Hakurou', unnamed: 'Oger', namedFlag: 'story.kijin.named' },
+  { name: 'Shuna', unnamed: 'Ogerin', namedFlag: 'story.kijin.named' }
+] as const;
+
+function resolveStoryNames(text: string, flags: Readonly<Record<string, boolean>>): string {
+  return UNNAMED_STORY_NAMES.reduce((value, entry) => (
+    flags[entry.namedFlag] ? value : value.replaceAll(entry.name, entry.unnamed)
+  ), text);
+}
+
 export function createWorldState(save: SaveGameV2): WorldState {
   return {
     flags: save.flags,
@@ -188,10 +201,13 @@ export function applyWorldState(save: SaveGameV2, world: WorldState): SaveGameV2
 // Sichtbarkeit). Ohne `state` werden alle NPCs der Karte zurückgegeben (z. B. für
 // Reachability-Prüfungen, die jede potenzielle Position abdecken sollen).
 export function getMapNpcs(mapId: string, state?: WorldState): NpcDefinition[] {
-  return allNpcs.filter((npc) =>
+  const npcs = allNpcs.filter((npc) =>
     npc.mapId === mapId
     && (!state || requirementsMet(state, npc.requirements ?? []))
   );
+  return state
+    ? npcs.map((npc) => ({ ...npc, name: resolveStoryNames(npc.name, state.flags) }))
+    : npcs;
 }
 
 // Verzaubern nur bei einem (sichtbaren) Schmied auf der aktuellen Karte —
@@ -505,8 +521,8 @@ export function getDialogView(state: WorldState, dialogId: string, nodeId: strin
   return {
     dialogId,
     nodeId,
-    speaker: node.speaker,
-    text: node.text,
+    speaker: resolveStoryNames(node.speaker, state.flags),
+    text: resolveStoryNames(node.text, state.flags),
     choices: node.choices.filter((choice) => requirementsMet(state, choice.requirements ?? []))
   };
 }
