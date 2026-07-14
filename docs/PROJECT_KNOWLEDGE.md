@@ -1613,6 +1613,22 @@ test/release.test.ts
   inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke bis in den
   echten Magiekoloss-Kampf inklusive geladener Labyrinth-Arena.
 
+### Phase 202 - Eigene Kampfarena fuer die Freiheitsakademie
+
+- Branch/Worktree: `phase-202-academy-arena` in
+  `/worktree/tempest-phase-202-academy-arena`.
+- Asset: `backgrounds/battle-freedom-academy.webp`, 1280x720, 244,3 KB; per
+  Built-in-Imagegen aus vorhandenem Akademie-Banner, Bodentile,
+  Wiedergänger-Farbwelt und der Ramiris-Arena als Kompositionsreferenz erzeugt
+  und in `ASSETS.md` dokumentiert.
+- Der bestehende Map-Arenapfad ordnet `freedom-academy` nun dem eigenen
+  Texture-Key statt dem generischen Tempest-Hain zu; die erreichbaren
+  Geistflammen- und Wiedergänger-Kaempfe sowie ihre Kampfmechanik bleiben
+  unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
+  geladener Akademie-Arena.
+
 ## 14. Change Checklist
 
 Before editing:

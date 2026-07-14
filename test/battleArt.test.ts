@@ -33,6 +33,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('milim-clearing').textureKey).toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
     expect(battleArenaForMap('tempest-colosseum').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
     expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['ramiris-labyrinth']);
+    expect(battleArenaForMap('freedom-academy').textureKey).toBe(BATTLE_ARENA_TEXTURES['freedom-academy']);
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
@@ -76,6 +77,7 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
       'battle-ramiris-labyrinth.webp',
+      'battle-freedom-academy.webp',
       'battle-ember-hollow.webp',
       'battle-milim-arrival.webp',
       'battle-tempest-colosseum.webp',

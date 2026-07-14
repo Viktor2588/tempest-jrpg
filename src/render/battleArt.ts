@@ -23,6 +23,7 @@ export type BattleArenaKind =
   | 'lizardman-marsh'
   | 'spirit-cave'
   | 'ramiris-labyrinth'
+  | 'freedom-academy'
   | 'ember-hollow'
   | 'milim-arrival'
   | 'tempest-colosseum'
@@ -41,6 +42,7 @@ export const BATTLE_ARENA_TEXTURES = {
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
   'ramiris-labyrinth': 'battle-bg-ramiris-labyrinth',
+  'freedom-academy': 'battle-bg-freedom-academy',
   'ember-hollow': 'battle-bg-ember-hollow',
   'milim-arrival': 'battle-bg-milim-arrival',
   'tempest-colosseum': 'battle-bg-tempest-colosseum',
@@ -63,7 +65,8 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'ember-hollow': 'ember-hollow',
   'milim-clearing': 'milim-arrival',
   'tempest-colosseum': 'tempest-colosseum',
-  'ramiris-labyrinth': 'ramiris-labyrinth'
+  'ramiris-labyrinth': 'ramiris-labyrinth',
+  'freedom-academy': 'freedom-academy'
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
