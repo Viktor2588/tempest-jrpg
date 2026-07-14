@@ -1412,8 +1412,73 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Asset-/Scene-Test, Typecheck, 809 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Prolog-Dialog-Browser-Smoke.
 
-### Phase 189 - Eigene Kampfarena fuer die Glutgrotte
+### Phase 189 - Eigene Tiles fuer die Direwolf-Lichtung
 
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-direwolf-den-{floor,wall}.webp`, 128x128, zusammen ~3,6 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `direwolf-den` nutzt jetzt eigene `DIREWOLF_DEN_FLOOR/WALL`-Keys statt der
+  geliehenen `LIZARDMAN_MARSH_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-Chromium-Smoke der geladenen Direwolf-Tiles.
+
+### Phase 190 - Eigene Tiles fuer die Freiheitsakademie
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-freedom-academy-{floor,wall}.webp`, 128x128, zusammen ~3,9 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `freedom-academy` nutzt jetzt eigene `FREEDOM_ACADEMY_FLOOR/WALL`-Keys statt
+  der geliehenen `BLUMUND_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und dem erweiterten Freiheitsakademie-Desktop-Chromium-Smoke.
+- Damit hat jede der 14 Karten ein eigenes Tile-Set; verbleibende Leihe ist nur noch
+  die `tempest-start`-Wildnis-Basis (an die Wachstums-Tile-Umschaltung gekoppelt).
+
+### Phase 191 - Eigener Jura-Wald-Boden & -Wand fuer die tempest-start-Wildnis
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-wilderness-{floor,wall}.webp`, 128x128, zusammen ~2,7 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: Das `tempest-start`-Theme (`OVERWORLD_TILE_THEMES`) traegt jetzt die neuen
+  `TEMPEST_WILDERNESS_FLOOR/WALL`-Keys statt der geliehenen `LIZARDMAN_MARSH_*`; die
+  `wilderness`-Wachstumsstufe rendert dadurch eigenen Jura-Waldboden statt Echsen-Sumpf.
+  Camp/Village/City-Boeden (eigene Keys) bleiben unveraendert; `lizardman-marsh` behaelt
+  seine Tiles. Neue Keys zusaetzlich in `linearTextureKeys` (gleiche Filterung wie die
+  Wachstums-Boeden). Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der wilderness-Stufe (geladene Wildnis-Tiles).
+
+### Phase 192 - Die Siedlungsmauer waechst mit (stufenabhaengige tempest-start-Waende)
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-{camp,village,city}-wall.webp`, 128x128, zusammen ~5,5 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert. Progression: grobe
+  Palisade (camp) -> Holz-/Flechtwerk mit Steinsockeln (village) -> Quader-Steinmauer
+  (city).
+- Wiring: `overworldTileTextureCandidates` waehlt fuer `tempest-start` die Wand jetzt
+  symmetrisch zur bestehenden stufenabhaengigen Boden-Auswahl (`tempestWallKey` spiegelt
+  `tempestFloorKey`); die `wilderness`-Stufe faellt auf die eigene Wildnis-Wand (Phase
+  191, `theme.wallKey`) zurueck. Andere Karten unberuehrt (Nicht-tempest-start-Maps
+  laufen weiter ueber `theme.wallKey`). Preload-Wiring analog inkl. `linearTextureKeys`.
+  Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch, off-combat).
+- Damit reift Tempest sichtbar in Boden UND Wand; das Regionen-Identitaets-Projekt ist
+  abgeschlossen — jede Karte inkl. aller vier tempest-start-Stufen hat ein eigenes
+  Boden+Wand-Set.
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der camp-Stufe (geladene Lager-Wand-Textur).
+
+### Phase 193 - Eigene Kampfarena fuer die Glutgrotte
+
+- Urspruenglich parallel als Phase 189 umgesetzt; beim Merge nach den bereits
+  archivierten Phasen 189-192 konfliktfrei auf Phase 193 fortgeschrieben.
 - Branch/Worktree: `phase-189-ember-hollow-arena` in
   `/home/viktor/worktree/tempest-phase-189-ember-hollow-arena`.
 - Asset: `backgrounds/battle-ember-hollow.webp`, 1280x720, 212,9 KB; per

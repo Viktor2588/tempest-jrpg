@@ -4,10 +4,14 @@ import {
   BLUMUND_WALL_TILE_TEXTURE_KEY,
   DEFAULT_FLOOR_TILE_TEXTURE_KEY,
   DEFAULT_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
   HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
@@ -22,7 +26,12 @@ import {
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
@@ -71,6 +80,26 @@ describe('Overworld-Regionstiles', () => {
     ]);
     expect(overworldTileTextureCandidates('goblin-village', false)[0]).toBe(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('goblin-village', true)[0]).toBe(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('direwolf-den', false)).toEqual([
+      DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('direwolf-den', true)).toEqual([
+      DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
+    expect(overworldTileTextureCandidates('freedom-academy', false)).toEqual([
+      FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('freedom-academy', true)).toEqual([
+      FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
     expect(overworldTileTextureCandidates('ramiris-labyrinth', false)).toEqual([
       RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -92,9 +121,14 @@ describe('Overworld-Regionstiles', () => {
       'ph-tile-wall'
     ]);
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
-      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
       'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('tempest-start', true)).toEqual([
+      TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
     ]);
   });
 
@@ -114,6 +148,24 @@ describe('Overworld-Regionstiles', () => {
     })[0]).toBe(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY);
   });
 
+  it('lässt Tempests Siedlungsmauer symmetrisch mit dem Wachstum reifen', () => {
+    // wilderness fällt auf die eigene Wildnis-Wand zurück
+    expect(overworldTileTextureCandidates('tempest-start', true)[0]).toBe(TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true
+    })[0]).toBe(TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true,
+      'story.council.ready': true
+    })[0]).toBe(TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('tempest-start', true, {
+      'story.tempest.named': true,
+      'story.council.ready': true,
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    })[0]).toBe(TEMPEST_CITY_WALL_TILE_TEXTURE_KEY);
+  });
+
   it('wählt den ersten geladenen Kandidaten deterministisch', () => {
     expect(firstAvailableOverworldTileTexture('spirit-marsh', false, (key) => key === MARSH_FLOOR_TILE_TEXTURE_KEY))
       .toBe(MARSH_FLOOR_TILE_TEXTURE_KEY);
@@ -128,6 +180,10 @@ describe('Overworld-Regionstiles', () => {
       'tile-sealed-cave-wall.webp',
       'tile-goblin-village-floor.webp',
       'tile-goblin-village-wall.webp',
+      'tile-direwolf-den-floor.webp',
+      'tile-direwolf-den-wall.webp',
+      'tile-freedom-academy-floor.webp',
+      'tile-freedom-academy-wall.webp',
       'tile-ramiris-labyrinth-floor.webp',
       'tile-ramiris-labyrinth-wall.webp',
       'tile-tempest-colosseum-floor.webp',
@@ -146,9 +202,14 @@ describe('Overworld-Regionstiles', () => {
       'tile-lizardman-marsh-wall.webp',
       'tile-ember-hollow-floor.webp',
       'tile-ember-hollow-wall.webp',
+      'tile-tempest-wilderness-floor.webp',
+      'tile-tempest-wilderness-wall.webp',
       'tile-tempest-camp-floor.webp',
       'tile-tempest-village-floor.webp',
-      'tile-tempest-city-floor.webp'
+      'tile-tempest-city-floor.webp',
+      'tile-tempest-camp-wall.webp',
+      'tile-tempest-village-wall.webp',
+      'tile-tempest-city-wall.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/tiles/${file}`);
     }

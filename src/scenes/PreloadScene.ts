@@ -53,6 +53,10 @@ import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp'
 import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
 import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor.webp';
 import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
+import direwolfDenFloorTileUrl from '../assets/tiles/tile-direwolf-den-floor.webp';
+import direwolfDenWallTileUrl from '../assets/tiles/tile-direwolf-den-wall.webp';
+import freedomAcademyFloorTileUrl from '../assets/tiles/tile-freedom-academy-floor.webp';
+import freedomAcademyWallTileUrl from '../assets/tiles/tile-freedom-academy-wall.webp';
 import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth-floor.webp';
 import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
 import tempestColosseumFloorTileUrl from '../assets/tiles/tile-tempest-colosseum-floor.webp';
@@ -71,14 +75,23 @@ import lizardmanMarshFloorTileUrl from '../assets/tiles/tile-lizardman-marsh-flo
 import lizardmanMarshWallTileUrl from '../assets/tiles/tile-lizardman-marsh-wall.webp';
 import emberHollowFloorTileUrl from '../assets/tiles/tile-ember-hollow-floor.webp';
 import emberHollowWallTileUrl from '../assets/tiles/tile-ember-hollow-wall.webp';
+import tempestWildernessFloorTileUrl from '../assets/tiles/tile-tempest-wilderness-floor.webp';
+import tempestWildernessWallTileUrl from '../assets/tiles/tile-tempest-wilderness-wall.webp';
 import tempestCampFloorTileUrl from '../assets/tiles/tile-tempest-camp-floor.webp';
 import tempestVillageFloorTileUrl from '../assets/tiles/tile-tempest-village-floor.webp';
 import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.webp';
+import tempestCampWallTileUrl from '../assets/tiles/tile-tempest-camp-wall.webp';
+import tempestVillageWallTileUrl from '../assets/tiles/tile-tempest-village-wall.webp';
+import tempestCityWallTileUrl from '../assets/tiles/tile-tempest-city-wall.webp';
 import {
   SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
@@ -97,9 +110,14 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
-  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
+  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_WALL_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
 import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
 import enemyForestSlimeUrl from '../assets/sprites/enemy-forest-slime.webp';
@@ -236,6 +254,10 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
     this.load.image(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY, goblinVillageFloorTileUrl);
     this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
+    this.load.image(DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY, direwolfDenFloorTileUrl);
+    this.load.image(DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY, direwolfDenWallTileUrl);
+    this.load.image(FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY, freedomAcademyFloorTileUrl);
+    this.load.image(FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY, freedomAcademyWallTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY, ramirisLabyrinthFloorTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
     this.load.image(TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY, tempestColosseumFloorTileUrl);
@@ -254,9 +276,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY, lizardmanMarshWallTileUrl);
     this.load.image(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY, emberHollowFloorTileUrl);
     this.load.image(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY, emberHollowWallTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY, tempestWildernessFloorTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY, tempestWildernessWallTileUrl);
     this.load.image(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY, tempestCampFloorTileUrl);
+    this.load.image(TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY, tempestCampWallTileUrl);
     this.load.image(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY, tempestVillageFloorTileUrl);
+    this.load.image(TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY, tempestVillageWallTileUrl);
     this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
+    this.load.image(TEMPEST_CITY_WALL_TILE_TEXTURE_KEY, tempestCityWallTileUrl);
     // Hochaufgeloeste Projekt-Sprites; die Legacy-Keys bleiben als robuste Aliasse.
     this.load.image('sprite-hero', overworldRimuruSlimeUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -430,9 +457,14 @@ export class PreloadScene extends Phaser.Scene {
       LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
       TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_CITY_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       SPORE_MOTH_TEXTURE_KEY,

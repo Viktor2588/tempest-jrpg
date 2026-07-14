@@ -743,6 +743,8 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-academy-wisp'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-wall'))).toBe(true);
   for (const file of [
     'enemy-marsh-hexer',
     'enemy-storm-shard',
@@ -761,6 +763,94 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('tempest-start-Wildnis lädt eigene Jura-Wald-Tiles', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const wildernessSave = bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'down' }
+  });
+  // Vorstufe erzwingen: ohne story.tempest.named ist die Wachstumsstufe "wilderness".
+  delete (wildernessSave.flags as Record<string, unknown>)['story.tempest.named'];
+  await installBrowserSave(page, wildernessSave);
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('tempest-start');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-wilderness-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-wilderness-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('gewachsenes tempest-start (Lager) lädt eigene Siedlungsmauer', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  // bandTwoBrowserSave setzt story.tempest.named -> Wachstumsstufe "camp".
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'down' }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('tempest-start');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Direwolf-Lichtungs-Save lädt eigene Overworld-Tiles', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'direwolf-den', x: 2, y: 6, facing: 'down' }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('direwolf-den');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-direwolf-den-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-direwolf-den-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

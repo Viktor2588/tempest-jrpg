@@ -9,6 +9,10 @@ export const SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY = 'tile-sealed-cave-floor';
 export const SEALED_CAVE_WALL_TILE_TEXTURE_KEY = 'tile-sealed-cave-wall';
 export const GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-goblin-village-floor';
 export const GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-goblin-village-wall';
+export const DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY = 'tile-direwolf-den-floor';
+export const DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY = 'tile-direwolf-den-wall';
+export const FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY = 'tile-freedom-academy-floor';
+export const FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY = 'tile-freedom-academy-wall';
 export const RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-floor';
 export const RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-wall';
 export const TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-colosseum-floor';
@@ -27,9 +31,14 @@ export const LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-floo
 export const LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-wall';
 export const EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY = 'tile-ember-hollow-floor';
 export const EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY = 'tile-ember-hollow-wall';
+export const TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-wilderness-floor';
+export const TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY = 'tile-tempest-wilderness-wall';
 export const TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-camp-floor';
 export const TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-village-floor';
 export const TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-city-floor';
+export const TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY = 'tile-tempest-camp-wall';
+export const TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-tempest-village-wall';
+export const TEMPEST_CITY_WALL_TILE_TEXTURE_KEY = 'tile-tempest-city-wall';
 
 export interface OverworldTileTheme {
   readonly floorKey: string;
@@ -58,15 +67,15 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     floorKey: TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
     wallKey: TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY
   },
+  'direwolf-den': {
+    floorKey: DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY
+  },
   // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
   // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).
-  'direwolf-den': {
-    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
-  },
   'tempest-start': {
-    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+    floorKey: TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY
   },
   'spirit-marsh': {
     floorKey: MARSH_FLOOR_TILE_TEXTURE_KEY,
@@ -81,8 +90,8 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
   },
   'freedom-academy': {
-    floorKey: BLUMUND_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: BLUMUND_WALL_TILE_TEXTURE_KEY
+    floorKey: FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY
   },
   'dwargon': {
     floorKey: DWARGON_FLOOR_TILE_TEXTURE_KEY,
@@ -116,7 +125,16 @@ export function overworldTileTextureCandidates(
       : tempestStage === 'city'
         ? TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY
         : null;
-  const themedKey = wall ? theme.wallKey : tempestFloorKey ?? theme.floorKey;
+  // Die Siedlungsmauer reift symmetrisch zum Boden mit; die wilderness-Stufe
+  // faellt auf die eigene Wildnis-Wand (theme.wallKey) zurueck.
+  const tempestWallKey = tempestStage === 'camp'
+    ? TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY
+    : tempestStage === 'village'
+      ? TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY
+      : tempestStage === 'city'
+        ? TEMPEST_CITY_WALL_TILE_TEXTURE_KEY
+        : null;
+  const themedKey = wall ? tempestWallKey ?? theme.wallKey : tempestFloorKey ?? theme.floorKey;
   const defaultKey = wall ? DEFAULT_WALL_TILE_TEXTURE_KEY : DEFAULT_FLOOR_TILE_TEXTURE_KEY;
   const placeholderKey = wall ? PLACEHOLDER_WALL_TILE_TEXTURE_KEY : PLACEHOLDER_FLOOR_TILE_TEXTURE_KEY;
 
