@@ -1496,6 +1496,23 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Arena-/Preload-Test, Typecheck, 809 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Ember-Hollow-Browser-Smoke.
 
+### Phase 194 - Imagegen-Refresh fuer die Direwolf-Lichtungs-Tiles
+
+- Urspruenglich parallel als Phase 190 umgesetzt; beim Merge nach den bereits
+  archivierten Phasen 189-193 auf Phase 194 fortgeschrieben.
+- Branch/Worktree: `phase-190-direwolf-den-tiles` in
+  `/worktree/tempest-phase-190-direwolf-den-tiles`.
+- Assets: `tiles/tile-direwolf-den-{floor,wall}.webp`, 128x128, zusammen 11,5 KB;
+  per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert. Sie ersetzen die
+  prozeduralen Schnee-/Steinplatten durch trockene mondhelle Walderde sowie eine
+  klar blockierende Kiefernwurzel-/Felskante passend zu Banner und Kampfarena.
+- Wiring und Tests aus der bereits gelandeten Phase 189 blieben unveraendert;
+  der Merge uebernahm ausschliesslich den sichtbar besseren Asset-Satz samt
+  korrigierter Provenienz.
+- Validiert mit `git diff --check`, Typecheck, 814 Unit-Tests inklusive
+  Balance-Harness, Build und fokussiertem Direwolf-Lichtungs-Desktop-Chromium-Smoke
+  inklusive beider separat geladener Texturen.
+
 ## 14. Change Checklist
 
 Before editing:
