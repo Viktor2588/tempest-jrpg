@@ -1291,17 +1291,18 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   unveraendert (`test/worldClock.test.ts`, +3 Tests), Typecheck ✓, 821 Unit-Tests inkl.
   Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
-- [ ] Phase 207 — Das Eroeffnungsfeld wird im Kampf-Log lesbar (schliesst 18.-Welle-Gap (3)
-  fuer das Feld). `startBattle` (`systems/battle.ts`) schreibt beim Laden eines
-  Eroeffnungsfeldes GENAU EINE Log-Zeile, analog zur bestehenden Status-Zeile (`:581`) und in
-  denselben Worten wie die Board-Control-Aufladung (`FIELD_ELEMENT_LABEL`), z.B. „Ein
-  {Element}feld liegt ueber dem Schlachtfeld." — so wird die Uhr→Feld-Kausalitaet lesbar. Gilt
-  fuer ALLE Eroeffnungsfelder (Nacht→shadow, Regen→water und die neuen Daemmerung/Morgen aus
-  206); rein additive Log-Zeile, keine Zahlen-/Save-Beruehrung. Akzeptanz: bei gesetztem
-  `openingField` (≠ neutral) erscheint die Feld-Log-Zeile beim Kampfstart, bei neutralem/
-  fehlendem Feld nicht (`test/battle.test.ts` bzw. `test/elementalField.test.ts`); Typecheck,
-  volle Unit-Suite inkl. Balance-Harness je Spec gruen, Build. Off-harness (die Harness reicht
-  kein `openingField` durch → keine Zeile → Korridor unberuehrt).
+- [x] Phase 207 — Das Eroeffnungsfeld wird im Kampf-Log lesbar (schliesst 18.-Welle-Gap (3)
+  fuer das Feld) (abgeschlossen, direkt auf main). Umgesetzt: `startBattle` (`systems/battle.ts`)
+  schreibt beim Laden eines Eroeffnungsfeldes GENAU EINE Log-Zeile („Ein {Element}feld liegt
+  über dem Schlachtfeld.", `FIELD_ELEMENT_LABEL`), analog zur bestehenden Eroeffnungs-Status-
+  Zeile — so wird die Uhr→Feld-Kausalitaet lesbar. Gilt fuer ALLE Eroeffnungsfelder
+  (Nacht→shadow, Regen→water und die neuen Daemmerung→fire/Morgen→holy aus 206); rein additive
+  Log-Zeile, keine Zahlen-/Save-Beruehrung. Off-harness (die Harness reicht kein `openingField`
+  durch → keine Zeile → Korridor unberuehrt). Akzeptanz erfuellt: bei gesetztem `openingField`
+  (≠ neutral) erscheint genau eine Feld-Log-Zeile mit korrekter Bezeichnung (Feuer/Heilig/
+  Schatten/Wasser), bei neutralem/fehlendem/`null` Feld keine (`test/elementalField.test.ts`,
+  +3 Tests), Typecheck ✓, 824 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓,
+  Build ✓.
 
 - [ ] Phase 208 — Erste Daemmerungs-/Morgen-Siege belohnen (off-route, nicht farmbar; erweitert
   Phase 174). `weatherConditionRewards` (`systems/battleResult.ts`) und die geteilte
