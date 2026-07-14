@@ -1217,6 +1217,9 @@ export class BattleScene extends Phaser.Scene {
           color: '#ffcf6b'
         });
       }
+      if (this.encounterId === 'milim-duel') {
+        lines.push({ text: '✦ Skill gelernt: Drago Nova', size: 14, color: '#ff9fdf' });
+      }
     }
     if (pactMessage) {
       lines.push({ text: pactMessage, size: 14, color: '#ffd6de' });
@@ -1232,6 +1235,12 @@ export class BattleScene extends Phaser.Scene {
     this.layer.add(this.add.rectangle(
       GAME_WIDTH / 2, (boxTop + boxBottom) / 2, 480, boxBottom - boxTop, 0x0a0f18, 0.94
     ).setStrokeStyle(2, won ? 0xe9c56c : 0xff7b8a, 0.85));
+
+    if (won && this.encounterId === 'milim-duel' && this.textures.exists('ui-milim-fight-banner')) {
+      this.layer.add(this.add.image(GAME_WIDTH / 2, (boxTop + boxBottom) / 2, 'ui-milim-fight-banner')
+        .setDisplaySize(480, 270)
+        .setAlpha(0.22));
+    }
 
     this.layer.add(this.add.text(GAME_WIDTH / 2, titleY, title, {
       fontFamily: 'serif',

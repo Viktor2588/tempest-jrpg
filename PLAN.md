@@ -9,7 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [~] Phase 113 — Milim Kampf Fix & Belohnung (in Bearbeitung, Worktree: /worktree/tempest-phase-113-milim-fight)
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
@@ -213,11 +213,14 @@ liefern die Grundlage fuers Gating in 112/104.
 
 ## Bug-Translation Phases (aus Bugs-Liste übersetzt)
 
-- [~] Phase 113 — Milim Kampf Fix & Belohnung (in Bearbeitung, Worktree:
-  `/worktree/tempest-phase-113-milim-fight`). Der Kampf mit Milim in Tempest
-  stoert technisch und vergibt keine Belohnung bei Sieg. Akzeptanz: Stabiler
-  Kampf, korrekte Belohnung (Items/XP/Skill), Balance-Harness je Rimuru-Spec
-  gruen, Battle-Smoke.
+- [x] Phase 113 — Milim Kampf Fix & Belohnung (abgeschlossen im isolierten
+  Worktree `/worktree/tempest-phase-113-milim-fight`). Das optionale Duell wird
+  erst nach dem Honig-Buendnis freigeschaltet und vergibt beim Sieg 1000 EP,
+  300 Gold, Magisteel, Vollheiltrank und einmalig Drago Nova. Der vorhandene
+  Milim-Siegbanner ist im Ergebnis sichtbar. 32 fokussierte Reward-/Asset-/
+  Integritaetstests ✓, Balance-Harness fuer Predator/Sage/Mimik ✓, Typecheck
+  ✓, 820 Unit-Tests ✓, Build ✓, echter Milim-Duell-Smoke in Desktop und
+  Mobile inklusive persistierter Belohnungen und ohne Browserfehler ✓.
 
 - [x] Phase 119 — Tastatur-Dialog-Navigation (in main integriert). Dialoge per Tastatur bedienbar (Pfeiltasten wechseln, Leertaste bestätigt, "weiter in der story" default-vorausgewählt außer bei echten Multi-Choice). Akzeptanz: Volle Tastatur-Navigation in DialogueScene/Menu, Accessibility-Smoke.
 ## Sechste Welle: Wissen, Sammeln & Meisterschaft (Plan 2026-07-10)

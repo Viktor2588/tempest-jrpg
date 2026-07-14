@@ -279,6 +279,18 @@ export function applyBattleResultToSave(
     nextSave = applyWorldState(nextSave, completed.state);
   }
 
+  if (won && options.encounterId === 'milim-duel') {
+    nextSave = {
+      ...nextSave,
+      party: {
+        ...nextSave.party,
+        active: nextSave.party.active.map((member) => member.characterId === 'rimuru'
+          ? { ...member, learnedSkillIds: uniqueStrings([...member.learnedSkillIds, 'drago-nova']) }
+          : member)
+      }
+    };
+  }
+
   return nextSave;
 }
 

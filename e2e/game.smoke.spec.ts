@@ -1234,6 +1234,65 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   expect(browserErrors).toEqual([]);
 });
 
+test('Milim-Duell vergibt im Browser EP, Beute und Drago Nova', async ({ page }) => {
+  test.setTimeout(45_000);
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 7, y: 7, facing: 'right' },
+    flags: { 'story.milim.met': true },
+    inventory: {
+      stacks: [
+        { itemId: 'full-potion', quantity: 9 },
+        { itemId: 'mana-drop', quantity: 9 }
+      ]
+    },
+    party: {
+      active: [
+        { characterId: 'rimuru', level: 30, learnedSkillIds: ['water-blade'] },
+        { characterId: 'gobta', level: 30 },
+        { characterId: 'ranga', level: 30 }
+      ],
+      reserve: [],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await tapMovementKey(page, 'ArrowRight');
+  await settle(page, 700);
+  await clickGamePoint(page, 880, 496); // Auto-Kampf
+
+  await expect.poll(async () => page.evaluate(() => {
+    const save = JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}');
+    return save.flags?.['story.milim.duel'] === true;
+  }), { timeout: 25_000 }).toBe(true);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  const rimuru = save.party.active.find((member: { characterId: string }) => member.characterId === 'rimuru');
+  expect(rimuru.learnedSkillIds).toContain('drago-nova');
+  expect(rimuru.experience).toBeGreaterThan(0);
+  expect(save.party.gold).toBeGreaterThanOrEqual(520);
+  expect(save.inventory.stacks).toEqual(expect.arrayContaining([
+    expect.objectContaining({ itemId: 'magisteel', quantity: 1 }),
+    expect.objectContaining({ itemId: 'full-potion' })
+  ]));
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('milim-fight-banner'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 for (const ending of [
   { label: 'Freiheit', flag: 'ending.freedom', choiceX: 180, choiceY: 398 },
   { label: 'Ordnung', flag: 'ending.order', choiceX: 800, choiceY: 398 },

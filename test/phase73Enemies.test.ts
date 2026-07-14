@@ -14,7 +14,7 @@ const CASES = [
   { enemyId: 'orc-grunt', encounterId: 'orc-scout-patrol', flag: 'story.treyni.met' },
   { enemyId: 'ogre-warrior', encounterId: 'grieving-ogres', flag: 'story.orc.engaged' },
   { enemyId: 'orc-lord', encounterId: 'orc-lord-remnant', flag: 'story.geld.devoured' },
-  { enemyId: 'milim', encounterId: 'milim-duel', flag: 'story.ifrit.subdued' }
+  { enemyId: 'milim', encounterId: 'milim-duel', flag: 'story.milim.met' }
 ] as const;
 
 describe('Phase 73 — fehlende Gegner eingebaut', () => {
