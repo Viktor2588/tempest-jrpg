@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] Phase 210 — Portrait fuer den geretteten Grenzgaenger
+  - Worktree: `/worktree/tempest-phase-210-border-traveler-portrait`
+  - Der sichtbare Story-Sprecher `Geretteter Grenzgänger` faellt aktuell auf
+    Dialog ohne Portrait zurueck. Ein kanon-neutrales Repo-Portrait erzeugen,
+    einbinden, in `ASSETS.md` dokumentieren und per Browser-Smoke abnehmen.
+  - Abnahme: neues 512x512-WebP mit dokumentierter Imagegen-Provenienz;
+    Sprecher-Mapping, Preload und lineare Texturfilterung verdrahtet.
+  - Checks: `npm run typecheck`; `npm test` (831/831); `npm run build`;
+    gezielter Playwright-Smoke Desktop + Mobile (2/2).
 
 ## Integrationswarteschlange
 

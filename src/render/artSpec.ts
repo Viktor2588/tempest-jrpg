@@ -76,6 +76,7 @@ export type PortraitKind =
   | 'kurobe-kaijin'
   | 'eir'
   | 'border-scout'
+  | 'border-traveler'
   | 'kael'
   | 'gazel'
   | 'blumund-adventurers'
@@ -181,6 +182,7 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'kurobe-kaijin',
   'eir',
   'border-scout',
+  'border-traveler',
   'kael',
   'gazel',
   'blumund-adventurers',
@@ -275,6 +277,8 @@ export function portraitSpec(kind: string): PortraitSpec {
       return { size: 64, base: PALETTE.grassDark, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'elder' };
     case 'border-scout':
       return { size: 64, base: PALETTE.steel, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
+    case 'border-traveler':
+      return { size: 64, base: PALETTE.stone, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.shadow, motif: 'scout' };
     case 'kael':
       return { size: 64, base: PALETTE.mist, accent: PALETTE.water, outline: PALETTE.ink, background: PALETTE.steel, motif: 'elder' };
     case 'gazel':

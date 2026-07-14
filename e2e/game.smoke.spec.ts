@@ -602,6 +602,7 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
   ));
   for (const file of [
     'portrait-eir',
+    'portrait-border-traveler',
     'portrait-kael',
     'portrait-gazel',
     'portrait-blumund-adventurers',
