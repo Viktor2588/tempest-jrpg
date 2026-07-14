@@ -1745,6 +1745,20 @@ test/release.test.ts
   833 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-
   Chromium-Smoke am echten Ratsdialog ohne Browserfehler.
 
+### Phase 213 - Tempest-Lager bekommt ein eigenes Versorgungs-Portrait
+
+- Branch/Worktree: `phase-213-tempest-camp-portrait` in
+  `/worktree/tempest-phase-213-tempest-camp-portrait`.
+- Asset: `sprites/portrait-tempest-camp.webp`, 512x512, 68 KB; per
+  Built-in-Imagegen aus dem vorhandenen Rigurd-Portrait und Tempest-Camp-Banner
+  erzeugt und in `ASSETS.md` dokumentiert.
+- Der zuvor einzige unbebilderte Dialogsprecher `Tempest-Lager` nutzt nun eine
+  Rastplatz-Vignette ueber die vorhandene Sprecher-/Portrait-/Preload-Kette;
+  Dialog-, Rast- und Storylogik bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 834 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke am echten
+  Tempest-Lager ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
