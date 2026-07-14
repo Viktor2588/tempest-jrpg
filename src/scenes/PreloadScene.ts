@@ -75,6 +75,8 @@ import lizardmanMarshFloorTileUrl from '../assets/tiles/tile-lizardman-marsh-flo
 import lizardmanMarshWallTileUrl from '../assets/tiles/tile-lizardman-marsh-wall.webp';
 import emberHollowFloorTileUrl from '../assets/tiles/tile-ember-hollow-floor.webp';
 import emberHollowWallTileUrl from '../assets/tiles/tile-ember-hollow-wall.webp';
+import tempestWildernessFloorTileUrl from '../assets/tiles/tile-tempest-wilderness-floor.webp';
+import tempestWildernessWallTileUrl from '../assets/tiles/tile-tempest-wilderness-wall.webp';
 import tempestCampFloorTileUrl from '../assets/tiles/tile-tempest-camp-floor.webp';
 import tempestVillageFloorTileUrl from '../assets/tiles/tile-tempest-village-floor.webp';
 import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.webp';
@@ -105,6 +107,8 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
@@ -265,6 +269,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY, lizardmanMarshWallTileUrl);
     this.load.image(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY, emberHollowFloorTileUrl);
     this.load.image(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY, emberHollowWallTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY, tempestWildernessFloorTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY, tempestWildernessWallTileUrl);
     this.load.image(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY, tempestCampFloorTileUrl);
     this.load.image(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY, tempestVillageFloorTileUrl);
     this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
@@ -440,6 +446,8 @@ export class PreloadScene extends Phaser.Scene {
       LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
       TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,

@@ -1440,6 +1440,21 @@ test/release.test.ts
 - Damit hat jede der 14 Karten ein eigenes Tile-Set; verbleibende Leihe ist nur noch
   die `tempest-start`-Wildnis-Basis (an die Wachstums-Tile-Umschaltung gekoppelt).
 
+### Phase 191 - Eigener Jura-Wald-Boden & -Wand fuer die tempest-start-Wildnis
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-wilderness-{floor,wall}.webp`, 128x128, zusammen ~2,7 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: Das `tempest-start`-Theme (`OVERWORLD_TILE_THEMES`) traegt jetzt die neuen
+  `TEMPEST_WILDERNESS_FLOOR/WALL`-Keys statt der geliehenen `LIZARDMAN_MARSH_*`; die
+  `wilderness`-Wachstumsstufe rendert dadurch eigenen Jura-Waldboden statt Echsen-Sumpf.
+  Camp/Village/City-Boeden (eigene Keys) bleiben unveraendert; `lizardman-marsh` behaelt
+  seine Tiles. Neue Keys zusaetzlich in `linearTextureKeys` (gleiche Filterung wie die
+  Wachstums-Boeden). Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der wilderness-Stufe (geladene Wildnis-Tiles).
+
 ## 14. Change Checklist
 
 Before editing:

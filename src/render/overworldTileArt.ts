@@ -31,6 +31,8 @@ export const LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-floo
 export const LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY = 'tile-lizardman-marsh-wall';
 export const EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY = 'tile-ember-hollow-floor';
 export const EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY = 'tile-ember-hollow-wall';
+export const TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-wilderness-floor';
+export const TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY = 'tile-tempest-wilderness-wall';
 export const TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-camp-floor';
 export const TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-village-floor';
 export const TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-city-floor';
@@ -69,8 +71,8 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
   // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
   // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).
   'tempest-start': {
-    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
+    floorKey: TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY
   },
   'spirit-marsh': {
     floorKey: MARSH_FLOOR_TILE_TEXTURE_KEY,

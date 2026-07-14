@@ -1268,7 +1268,8 @@ das Projekt ab. Beide Phasen dokumentieren die Asset-Provenienz in `ASSETS.md`
 und fahren Theme-/Preload-Tests, Typecheck, Unit-Tests inkl. Balance-Harness,
 Build und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Stufe grün.
 
-- [ ] Phase 191 — Eigener Jura-Wald-Boden & -Wand für die tempest-start-Wildnis-Vorstufe.
+- [x] Phase 191 — Eigener Jura-Wald-Boden & -Wand für die tempest-start-Wildnis-Vorstufe
+  (abgeschlossen, direkt auf main; Assets projektintern prozedural erzeugt statt Imagegen).
   Zwei kompakte 128×128-WebP-Assets: begehbarer Jura-Waldboden (frisches Laub-/
   Grasgrün mit Wurzeln, Moos und Erdflecken — der lebendige Urwald vor dem
   Siedlungsbau) und klar blockierende Wald-Dickicht-/Baumstamm-Wand. Neues

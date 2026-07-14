@@ -26,6 +26,8 @@ import {
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
@@ -116,9 +118,14 @@ describe('Overworld-Regionstiles', () => {
       'ph-tile-wall'
     ]);
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
-      LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
       'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('tempest-start', true)).toEqual([
+      TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
     ]);
   });
 
@@ -174,6 +181,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-lizardman-marsh-wall.webp',
       'tile-ember-hollow-floor.webp',
       'tile-ember-hollow-wall.webp',
+      'tile-tempest-wilderness-floor.webp',
+      'tile-tempest-wilderness-wall.webp',
       'tile-tempest-camp-floor.webp',
       'tile-tempest-village-floor.webp',
       'tile-tempest-city-floor.webp'
