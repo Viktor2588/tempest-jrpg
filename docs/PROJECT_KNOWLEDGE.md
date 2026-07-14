@@ -1629,6 +1629,21 @@ test/release.test.ts
   inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
   geladener Akademie-Arena.
 
+### Phase 203 - Eigene Kampfarena fuer Blumund
+
+- Branch/Worktree: `phase-203-blumund-arena` in
+  `/worktree/tempest-phase-203-blumund-arena`.
+- Asset: `backgrounds/battle-blumund.webp`, 1280x720, 279,6 KB; per
+  Built-in-Imagegen aus vorhandenem Blumund-Banner, Bodentile, Banditen-Designs
+  und der Freiheitsakademie-Arena als Kompositionsreferenz erzeugt und in
+  `ASSETS.md` dokumentiert.
+- Der bestehende Map-Arenapfad ordnet `blumund` nun dem eigenen Texture-Key
+  statt dem generischen Tempest-Hain zu; die erreichbaren Strassenraub- und
+  Hintergassen-Kaempfe sowie ihre Kampfmechanik bleiben unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
+  geladener Blumund-Arena.
+
 ## 14. Change Checklist
 
 Before editing:
