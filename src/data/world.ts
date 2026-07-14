@@ -2155,7 +2155,7 @@ export const DIALOGS = [
           },
           {
             id: 'hear-goblin-plea',
-            label: 'Goblindorf schützen',
+            label: 'Den jungen Goblin Gobta nennen und das Dorf schützen',
             nextNodeId: 'slime-plea',
             requirements: [
               { questStatus: { questId: 'slime-awakening', status: 'active' } },
@@ -2299,7 +2299,7 @@ export const DIALOGS = [
       {
         id: 'slime-plea',
         speaker: 'Rigurd',
-        text: 'Unser Dorf ist klein und das Rudel schnell. Der Ostpfad führt zur Lichtung. Nimm Kräuter mit, verteidige dich, wenn das Rudel Druck macht, und stopp den Anführer — dann können wir zum ersten Mal bleiben statt fliehen.',
+        text: 'Der frisch benannte Gobta tritt an deine Seite. Unser Dorf ist klein und das Rudel schnell. Der Ostpfad führt zur Lichtung. Nimm Kräuter mit und stopp den Anführer — dann können wir zum ersten Mal bleiben statt fliehen.',
         choices: [{ id: 'end', label: 'Zur Direwolf-Lichtung' }]
       },
       {
@@ -3197,7 +3197,7 @@ export const DIALOGS = [
         choices: [
           {
             id: 'seal-pact',
-            label: 'Den Pakt mit Ranga schließen',
+            label: 'Den Schattenwolf Ranga nennen und den Pakt schließen',
             nextNodeId: 'pact-sealed',
             requirements: [
               { flag: 'story.direwolf.defeated' },

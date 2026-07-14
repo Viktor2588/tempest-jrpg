@@ -1232,4 +1232,13 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Siebenundzwanzigste Welle: Gefaehrten erhalten Eigennamen erst im Dialog (Bugfix, Plan 2026-07-14)
+
+- [x] Phase 196 — Kanonische Gefaehrten-Benennung. Gobta erscheint vor seiner ersten
+  Benennung als „Goblin", Ranga als „Schattenwolf" und die Oger nur als Oger/Ogerin;
+  der Eigenname wird im Benennungsdialog vorgeschlagen und erst nach Bestaetigung
+  dauerhaft verwendet. Abnahme: gemeinsamer NPC-/Dialog-Namenspfad plus fokussierter
+  Welt-Test 46/46 ✓, Typecheck ✓, 815 Unit-Tests inklusive Balance-Harness ✓, Build ✓
+  und sichtbarer Schattenwolf-zu-Ranga-Desktop-Chromium-Smoke ✓.
+
 ## UX- und Welt-Backlog

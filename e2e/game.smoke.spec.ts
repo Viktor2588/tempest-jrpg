@@ -855,6 +855,45 @@ test('Direwolf-Lichtungs-Save lädt eigene Overworld-Tiles', async ({ page }) =>
   expect(browserErrors).toEqual([]);
 });
 
+test('Schattenwolf-Benennung persistiert Ranga erst nach Bestätigung', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'direwolf-den', x: 9, y: 5, facing: 'right' },
+    flags: {
+      'story.direwolf.pact': false,
+      'scene.direwolf-pact.played': false
+    },
+    party: {
+      active: [{ characterId: 'rimuru' }, { characterId: 'gobta' }],
+      reserve: [],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 100);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 150, 398);
+  await settle(page, 150);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['story.direwolf.pact']).toBe(true);
+  expect([...save.party.active, ...save.party.reserve]
+    .find((member: { characterId: string }) => member.characterId === 'ranga')?.name).toBe('Ranga');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
