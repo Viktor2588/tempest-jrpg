@@ -1059,7 +1059,7 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'ramiris-labyrinth', x: 2, y: 7, facing: 'right' },
+    location: { mapId: 'ramiris-labyrinth', x: 17, y: 6, facing: 'right' },
     flags: {
       'story.shizu.vow': true,
       'story.children.first-core': true,
@@ -1089,6 +1089,10 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   expect(loadedAssets.some((name) => name.includes('portrait-ramiris'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-floor'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-wall'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('battle-ramiris-labyrinth'))).toBe(true);
+  await focusGame(page);
+  await tapMovementKey(page, 'ArrowRight');
+  await settle(page, 450);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });

@@ -22,6 +22,7 @@ export type BattleArenaKind =
   | 'orc-battlefield'
   | 'lizardman-marsh'
   | 'spirit-cave'
+  | 'ramiris-labyrinth'
   | 'ember-hollow'
   | 'milim-arrival'
   | 'tempest-colosseum'
@@ -39,6 +40,7 @@ export const BATTLE_ARENA_TEXTURES = {
   'orc-battlefield': 'battle-bg-orc-battlefield',
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
+  'ramiris-labyrinth': 'battle-bg-ramiris-labyrinth',
   'ember-hollow': 'battle-bg-ember-hollow',
   'milim-arrival': 'battle-bg-milim-arrival',
   'tempest-colosseum': 'battle-bg-tempest-colosseum',
@@ -61,7 +63,7 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'ember-hollow': 'ember-hollow',
   'milim-clearing': 'milim-arrival',
   'tempest-colosseum': 'tempest-colosseum',
-  'ramiris-labyrinth': 'spirit-cave'
+  'ramiris-labyrinth': 'ramiris-labyrinth'
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -76,7 +78,7 @@ const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'lizardman-skirmish': 'lizardman-marsh',
   'spirit-trial': 'spirit-cave',
   ifrit: 'spirit-cave',
-  'magic-colossus': 'spirit-cave',
+  'magic-colossus': 'ramiris-labyrinth',
   'milim-arrives': 'milim-arrival',
   'milim-spar': 'milim-arrival',
   'arena-bronze-wave': 'tempest-colosseum',

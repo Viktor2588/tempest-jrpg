@@ -1232,4 +1232,14 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Zweiunddreissigste Welle: Eigene Kampfarena fuer Ramiris' Labyrinth (Asset-first, Plan 2026-07-14)
+
+- [x] Phase 201 — Ramiris-Labyrinth-Arena. Die wiederholbaren Labyrinthkaempfe und
+  der Magiekoloss nutzen im isolierten Worktree
+  `/worktree/tempest-phase-201-ramiris-arena` eine repo-gebundene 1280×720-Arena
+  aus vorhandenen Labyrinth-, Tile- und Bossreferenzen statt der generischen
+  Geisterhoehle. Provenienz und bestehendes Arena-Wiring sind abgesichert. Abnahme:
+  Typecheck ✓, 817 Unit-Tests ✓, Build ✓, sichtbarer Desktop-/Mobile-Browser-Smoke
+  bis in den echten Magiekoloss-Kampf inklusive geladenem Arena-Key ✓.
+
 ## UX- und Welt-Backlog

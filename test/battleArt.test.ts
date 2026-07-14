@@ -32,7 +32,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('ember-hollow').textureKey).toBe(BATTLE_ARENA_TEXTURES['ember-hollow']);
     expect(battleArenaForMap('milim-clearing').textureKey).toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
     expect(battleArenaForMap('tempest-colosseum').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
-    expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+    expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['ramiris-labyrinth']);
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
@@ -49,7 +49,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('tempest-start', 'ifrit').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('ramiris-labyrinth', 'magic-colossus').textureKey)
-      .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+      .toBe(BATTLE_ARENA_TEXTURES['ramiris-labyrinth']);
     for (const encounterId of ['masked-majin-ambush', 'ifrit-boss', 'emberforge-hunt-battle']) {
       expect(battleArenaForMap('ember-hollow', encounterId).textureKey)
         .toBe(BATTLE_ARENA_TEXTURES['ember-hollow']);
@@ -75,6 +75,7 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-orc-battlefield.webp',
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
+      'battle-ramiris-labyrinth.webp',
       'battle-ember-hollow.webp',
       'battle-milim-arrival.webp',
       'battle-tempest-colosseum.webp',
