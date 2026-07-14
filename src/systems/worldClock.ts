@@ -66,12 +66,25 @@ export function clockAt(step: number, seed: number): WorldClock {
 }
 
 // Das Eröffnungs-Elementarfeld (Phase 94) eines Encounters unter dieser Uhr.
-// Regen > Nacht > kein Feld: Wetter hat Vorrang, sonst färbt die Nacht das Feld.
+// Wetter hat Vorrang (Regen→Wasser), sonst färbt die Tageszeit das Feld.
+// Phase 206 — die letzten toten Tagesviertel wecken: Abenddämmerung→Feuer
+// (die Abendglut/untergehende Sonne entzündet das Feld), Morgen→Heilig (das
+// erste Licht heiligt das Feld). Der klare Mittag (`day`) bleibt bewusst
+// neutral (Baseline-Viertel). Damit tragen morning/dusk/night je ein eigenes
+// Eröffnungselement — 3 von 4 Vierteln sind im Kampf unterscheidbar.
 // null = neutrales Startfeld (keine Kampf-Änderung).
 export function openingFieldElement(clock: WorldClock): ElementType | null {
   if (clock.weather === 'rain') return 'water';
-  if (clock.timeOfDay === 'night') return 'shadow';
-  return null;
+  switch (clock.timeOfDay) {
+    case 'night':
+      return 'shadow';
+    case 'dusk':
+      return 'fire';
+    case 'morning':
+      return 'holy';
+    default:
+      return null; // Tag/klar: neutrales Startfeld
+  }
 }
 
 // Phase 171 — Nebel verhuellt das Schlachtfeld: weckt den bis dahin toten `fog`-
