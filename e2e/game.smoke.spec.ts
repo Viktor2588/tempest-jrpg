@@ -718,6 +718,7 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(loadedAssets.some((name) => name.includes('portrait-shizu'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-fuze'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-blumund-bandit'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('battle-blumund'))).toBe(true);
   for (const file of [
     'tile-dwargon-floor',
     'tile-dwargon-wall',
