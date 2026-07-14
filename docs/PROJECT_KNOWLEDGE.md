@@ -1412,6 +1412,19 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Asset-/Scene-Test, Typecheck, 809 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Prolog-Dialog-Browser-Smoke.
 
+### Phase 189 - Eigene Tiles fuer die Direwolf-Lichtung
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-direwolf-den-{floor,wall}.webp`, 128x128, zusammen ~3,6 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `direwolf-den` nutzt jetzt eigene `DIREWOLF_DEN_FLOOR/WALL`-Keys statt der
+  geliehenen `LIZARDMAN_MARSH_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-Chromium-Smoke der geladenen Direwolf-Tiles.
+
 ## 14. Change Checklist
 
 Before editing:

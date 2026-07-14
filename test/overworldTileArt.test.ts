@@ -4,6 +4,8 @@ import {
   BLUMUND_WALL_TILE_TEXTURE_KEY,
   DEFAULT_FLOOR_TILE_TEXTURE_KEY,
   DEFAULT_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -71,6 +73,16 @@ describe('Overworld-Regionstiles', () => {
     ]);
     expect(overworldTileTextureCandidates('goblin-village', false)[0]).toBe(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY);
     expect(overworldTileTextureCandidates('goblin-village', true)[0]).toBe(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY);
+    expect(overworldTileTextureCandidates('direwolf-den', false)).toEqual([
+      DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('direwolf-den', true)).toEqual([
+      DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
     expect(overworldTileTextureCandidates('ramiris-labyrinth', false)).toEqual([
       RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -128,6 +140,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-sealed-cave-wall.webp',
       'tile-goblin-village-floor.webp',
       'tile-goblin-village-wall.webp',
+      'tile-direwolf-den-floor.webp',
+      'tile-direwolf-den-wall.webp',
       'tile-ramiris-labyrinth-floor.webp',
       'tile-ramiris-labyrinth-wall.webp',
       'tile-tempest-colosseum-floor.webp',

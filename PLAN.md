@@ -1269,7 +1269,8 @@ dokumentieren die Asset-Provenienz in `ASSETS.md` (Stil wie Phase 184/185) und
 fahren Theme-/Preload-Tests, Typecheck, Unit-Tests inkl. Balance-Harness, Build
 und einen sichtbaren Desktop-Chromium-Smoke der jeweiligen Region grün.
 
-- [ ] Phase 189 — Eigene Overworld-Tiles für die Direwolf-Lichtung. Zwei kompakte
+- [x] Phase 189 — Eigene Overworld-Tiles für die Direwolf-Lichtung (abgeschlossen,
+  direkt auf main; Assets projektintern prozedural erzeugt statt Imagegen). Zwei kompakte
   128×128-WebP-Assets: begehbarer Wald-Lichtungsboden (trockener Waldboden mit
   Schnee-/Fels-Einschlägen, canon: kaltes Direwolf-Revier) und klar blockierende
   Fels-/Dickicht-Wand. `direwolf-den` erhält im Theme (`OVERWORLD_TILE_THEMES`)

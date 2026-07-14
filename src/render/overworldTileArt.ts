@@ -9,6 +9,8 @@ export const SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY = 'tile-sealed-cave-floor';
 export const SEALED_CAVE_WALL_TILE_TEXTURE_KEY = 'tile-sealed-cave-wall';
 export const GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY = 'tile-goblin-village-floor';
 export const GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY = 'tile-goblin-village-wall';
+export const DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY = 'tile-direwolf-den-floor';
+export const DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY = 'tile-direwolf-den-wall';
 export const RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-floor';
 export const RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY = 'tile-ramiris-labyrinth-wall';
 export const TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY = 'tile-tempest-colosseum-floor';
@@ -58,12 +60,12 @@ export const OVERWORLD_TILE_THEMES: Readonly<Record<string, OverworldTileTheme>>
     floorKey: TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
     wallKey: TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY
   },
+  'direwolf-den': {
+    floorKey: DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+    wallKey: DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY
+  },
   // Die übrigen frühen Band-1-Maps verwenden vorhandene, thematisch passende
   // .webp-Sets statt des degenerierten Default-Themes (grass/wall.png).
-  'direwolf-den': {
-    floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
-    wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY
-  },
   'tempest-start': {
     floorKey: LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
     wallKey: LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY

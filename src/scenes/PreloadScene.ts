@@ -53,6 +53,8 @@ import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp'
 import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
 import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor.webp';
 import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
+import direwolfDenFloorTileUrl from '../assets/tiles/tile-direwolf-den-floor.webp';
+import direwolfDenWallTileUrl from '../assets/tiles/tile-direwolf-den-wall.webp';
 import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth-floor.webp';
 import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
 import tempestColosseumFloorTileUrl from '../assets/tiles/tile-tempest-colosseum-floor.webp';
@@ -79,6 +81,8 @@ import {
   SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
   GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
@@ -235,6 +239,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
     this.load.image(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY, goblinVillageFloorTileUrl);
     this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
+    this.load.image(DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY, direwolfDenFloorTileUrl);
+    this.load.image(DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY, direwolfDenWallTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY, ramirisLabyrinthFloorTileUrl);
     this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
     this.load.image(TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY, tempestColosseumFloorTileUrl);
