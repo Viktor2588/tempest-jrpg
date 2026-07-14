@@ -1336,6 +1336,13 @@ test/release.test.ts
 - Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 767 Unit-Tests
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
 
+### Phase 171 - Mechanik-Handbuch im Codex
+
+- Branch/Worktree: `phase-171-handbuch` in `/worktree/tempest-phase-171-handbuch`.
+- Nutzeranforderung „ingame Mechaniken sauber erklaeren": achter Codex-Modus „📖 Handbuch" mit 18 knappen Mechanik-Eintraegen (`systems/handbook.ts`, `buildHandbook(flags)`); spoiler-sensible Eintraege hinter bestehenden Story-Flags (shizu.vow/council.ready/smithing.unlocked), Fusszeile zaehlt gesperrte Eintraege. Ergaenzt die Kampf-Teaching-Curve (Phase 89) um die Meta-Systeme.
+- Codex-Modusleiste startet bei x=24 statt 300 (acht Modi in einer Zeile); alle E2E-Modusklick-Koordinaten angepasst.
+- Validierung: `bun run typecheck`, 773 Unit-Tests inklusive Balance-Harness, `bun run build`, volle E2E-Suite (alle Projekte).
+
 ### Phase 170 - Mimik-HUD als WebP
 
 - Scope: Das letzte grosse Nicht-WebP-HUD-Asset `mimic-form-indicator` wurde bei
