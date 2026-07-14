@@ -1598,6 +1598,21 @@ test/release.test.ts
   817 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-
   Smoke am echten Kurobe-Welt-NPC inklusive geladenem Duo-Portrait.
 
+### Phase 201 - Eigene Kampfarena fuer Ramiris' Labyrinth
+
+- Branch/Worktree: `phase-201-ramiris-arena` in
+  `/worktree/tempest-phase-201-ramiris-arena`.
+- Asset: `backgrounds/battle-ramiris-labyrinth.webp`, 1280x720, 305,4 KB; per
+  Built-in-Imagegen aus vorhandenem Labyrinth-Banner, Bodentile, Magiekoloss und
+  der bisherigen Geisterhoehlen-Kompositionsreferenz erzeugt und in `ASSETS.md`
+  dokumentiert.
+- Der bestehende Map- und Encounter-Arenapfad ordnet `ramiris-labyrinth` sowie
+  `magic-colossus` nun dem eigenen Texture-Key statt der generischen Geisterhoehle
+  zu; Kampfmechanik und Labyrinthsystem bleiben unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke bis in den
+  echten Magiekoloss-Kampf inklusive geladener Labyrinth-Arena.
+
 ## 14. Change Checklist
 
 Before editing:
