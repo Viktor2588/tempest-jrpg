@@ -32,6 +32,7 @@ import { calculateMemberBaseStats } from './menu';
 import type { PartyMemberState } from './party';
 import { uniqueStrings } from './party';
 import { officerPerksForResidents } from './residents';
+import { isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
 import { buildSkillFusionView, canFuseSkill, fuseSkill, getSkillFusionRecipe, type SkillFusionView } from './skillFusion';
 import {
   addPartialStats,
@@ -64,6 +65,11 @@ export interface ProgressionState {
   // Phase 102 — Magicule-/Seelen-Oekonomie: Meta-Ressource fuer spaeteres Benennen,
   // Evolution und Erwachen. Diese Phase verdient/zeigt nur an; Ausgaben folgen.
   readonly magicules: number;
+  // Phase 127 — Seelen (魂): die kanonische Erwachens-Waehrung. Nur Boss-Siege ernten
+  // Seelen; das Erntefest (Phase 104) verlangt sie zusaetzlich zu den Magicules
+  // („Macht = Magicules (Ausbau) + Seelen (Erwachen)"). Trennt Boss-Kaempfe
+  // oekonomisch von normalen Kills.
+  readonly souls: number;
   // Phase 103 — benannte Offiziere: Bewohner, die mit Magicules befoerdert wurden.
   readonly promotedResidentIds: readonly string[];
   // Phase 104 — Erntefest: einmaliges Massen-Erwachen, das Offiziere dauerhaft
@@ -78,6 +84,15 @@ export interface ProgressionState {
   // Phase 100 — Diplomatie: graduelle Reputation je Faktion (factionId -> Punkte),
   // bewegt über den Welt-Effekt `adjust-reputation`. Schwellen setzen Story-Flags.
   readonly factionReputationByFactionId: Readonly<Record<string, number>>;
+  // Phase 122 — Lebendiges Bestiarium: Gegner-Arten (`sourceId`), die mindestens
+  // einmal per „Analysieren" untersucht wurden. Persistiert das Kampfwissen ueber
+  // den Einzelkampf hinaus (Schwaechen/Telegraph im Codex) und liefert die
+  // Grundlage fuers Kampf-Bootstrapping (Phase 123).
+  readonly analyzedEnemyIds: readonly string[];
+  // Phase 148 — Boss-Echos: Quell-Ids (`sourceId`) der Bosse, die per Verschlingen
+  // bereits geerntet wurden. „Besiegt, aber nicht verschlungen" = defeated-Zaehler > 0
+  // UND nicht in dieser Menge → Grundlage für die Labyrinth-Echo-Auswahl.
+  readonly devouredSourceIds: readonly string[];
 }
 
 export interface CreateProgressionStateOptions {
@@ -91,12 +106,15 @@ export interface CreateProgressionStateOptions {
   readonly residentIds?: readonly string[];
   readonly productionCycles?: number;
   readonly magicules?: number;
+  readonly souls?: number;
   readonly promotedResidentIds?: readonly string[];
   readonly awakeningCompleted?: boolean;
   readonly awakenedResidentIds?: readonly string[];
   readonly defeatedEnemyCountsByEnemyId?: Readonly<Record<string, number>>;
   readonly claimedBountyCountsByBountyId?: Readonly<Record<string, number>>;
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
+  readonly analyzedEnemyIds?: readonly string[];
+  readonly devouredSourceIds?: readonly string[];
 }
 
 export interface MemberActionResult {
@@ -160,12 +178,29 @@ const skillTreeNodeById = new Map<string, SkillTreeNodeDefinition>(
   SKILL_TREES.flatMap((tree) => tree.nodes.map((node) => [node.id, node] as const))
 );
 export const AWAKENING_MAGICULE_COST = 160;
+// Phase 127 — das Erntefest verlangt zusaetzlich geerntete Seelen. Bewusst niedrig
+// gehalten (erreichbar ueber die Boss-Siege des Hauptpfads), aber spuerbar als
+// eigenes, canon-getrenntes Gate neben den Magicules.
+export const AWAKENING_SOUL_COST = 6;
 export const AWAKENING_REQUIRED_FLAG = 'story.tempest-invasion.repulsed';
 export const AWAKENING_SCENE_FLAG = 'story.harvest-festival.awakened';
 const AWAKENED_RIMURU_PERKS: readonly TalentPerk[] = [
   { kind: 'max-hp', percent: 10 },
   { kind: 'damage-dealt', percent: 10 }
 ];
+// Phase 169 — Ultimate Gift (IDEE.md §1): das Erntefest segnet auch die engsten
+// Gefolgsleute mit je EINEM abgeschwaechten, canon-thematischen Geschenk-Perk.
+// Massvoll gehalten; die Balance-Harness laeuft ohne Erwachen → Korridore unberuehrt.
+const ULTIMATE_GIFT_PERKS_BY_CHARACTER: Readonly<Record<string, readonly TalentPerk[]>> = {
+  benimaru: [{ kind: 'damage-dealt', percent: 8, element: 'fire' }],
+  shuna: [{ kind: 'buff-power', percent: 10 }],
+  shion: [{ kind: 'damage-dealt', percent: 8, category: 'physical' }],
+  souei: [{ kind: 'dodge', percent: 5 }],
+  hakurou: [{ kind: 'counter', percent: 6 }],
+  ranga: [{ kind: 'damage-dealt', percent: 8, element: 'wind' }],
+  gobta: [{ kind: 'dodge', percent: 5 }],
+  rigurd: [{ kind: 'max-hp', percent: 8 }]
+};
 
 export function createProgressionState(options: CreateProgressionStateOptions = {}): ProgressionState {
   return {
@@ -183,12 +218,15 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     residentIds: uniqueStrings(options.residentIds ?? []),
     productionCycles: clampNonNegativeInteger(options.productionCycles ?? 0),
     magicules: clampNonNegativeInteger(options.magicules ?? 0),
+    souls: clampNonNegativeInteger(options.souls ?? 0),
     promotedResidentIds: uniqueStrings(options.promotedResidentIds ?? []),
     awakeningCompleted: options.awakeningCompleted === true,
     awakenedResidentIds: uniqueStrings(options.awakenedResidentIds ?? []),
     defeatedEnemyCountsByEnemyId: normalizePointRecord(options.defeatedEnemyCountsByEnemyId ?? {}),
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
-    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {})
+    factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
+    analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? []),
+    devouredSourceIds: uniqueStrings(options.devouredSourceIds ?? [])
   };
 }
 
@@ -443,6 +481,19 @@ export function grantMagicules(state: ProgressionState, amount: number): Progres
   };
 }
 
+// Phase 127 — Seelen ernten (nur aus Boss-Siegen; siehe battleResult).
+export function grantSouls(state: ProgressionState, amount: number): ProgressionActionResult {
+  const granted = clampNonNegativeInteger(amount);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      souls: state.souls + granted
+    },
+    message: `${granted} Seelen geerntet.`
+  };
+}
+
 export function canAwakenTempest(
   state: ProgressionState,
   flags: Readonly<Record<string, boolean>> = {}
@@ -459,6 +510,9 @@ export function canAwakenTempest(
   if (state.magicules < AWAKENING_MAGICULE_COST) {
     return { ok: false, state, message: `${AWAKENING_MAGICULE_COST} Magicules erforderlich.` };
   }
+  if (state.souls < AWAKENING_SOUL_COST) {
+    return { ok: false, state, message: `${AWAKENING_SOUL_COST} Seelen erforderlich (aus Boss-Siegen).` };
+  }
   return { ok: true, state, message: 'Das Erntefest kann beginnen.' };
 }
 
@@ -473,6 +527,7 @@ export function awakenTempest(
     state: {
       ...state,
       magicules: state.magicules - AWAKENING_MAGICULE_COST,
+      souls: state.souls - AWAKENING_SOUL_COST,
       awakeningCompleted: true,
       awakenedResidentIds: uniqueStrings(state.promotedResidentIds)
     },
@@ -556,6 +611,38 @@ export function unlockSkillNode(
       }
     },
     message: `${node.name} freigeschaltet.`
+  };
+}
+
+// Talente zurücksetzen: erstattet alle in Knoten investierten Skill-Punkte und leert
+// die freigeschalteten Knoten (löst damit auch die Strang-Bindung). Erlaubt das
+// Umverteilen der Punkte, ohne die „Qual der Wahl" dauerhaft zu zementieren.
+export function respecSkillNodes(
+  member: PartyMemberState,
+  state: ProgressionState
+): ProgressionActionResult {
+  if (!heroById.has(member.characterId)) {
+    return { ok: false, state, message: 'Charakter nicht gefunden.' };
+  }
+  const unlocked = state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? [];
+  if (unlocked.length === 0) {
+    return { ok: false, state, message: 'Keine Talente zum Zurücksetzen.' };
+  }
+  const refund = unlocked.reduce((sum, id) => sum + (skillTreeNodeById.get(id)?.cost ?? 0), 0);
+  return {
+    ok: true,
+    state: {
+      ...state,
+      skillPointsByCharacterId: {
+        ...state.skillPointsByCharacterId,
+        [member.characterId]: (state.skillPointsByCharacterId[member.characterId] ?? 0) + refund
+      },
+      unlockedSkillNodeIdsByCharacterId: {
+        ...state.unlockedSkillNodeIdsByCharacterId,
+        [member.characterId]: []
+      }
+    },
+    message: `Talente zurückgesetzt · ${refund} Punkte erstattet.`
   };
 }
 
@@ -845,7 +932,8 @@ export function createProgressionBattleParty(
         ...talentPerksForNodes(state.unlockedSkillNodeIdsByCharacterId[member.characterId] ?? []),
         ...awakenedPerksForMember(member.characterId, state),
         ...officerPerksForResidents(state.promotedResidentIds, state.awakenedResidentIds),
-        ...bondPerksForCharacter(member.characterId, state)
+        ...bondPerksForCharacter(member.characterId, state),
+        ...equipmentPerksForMember(member)
       ]
     });
     return [{ ...unit, stats: calculateProgressionBaseStats(member, state) }];
@@ -862,7 +950,22 @@ function awakenedPerksForMember(
   characterId: string,
   state: ProgressionState
 ): readonly TalentPerk[] {
-  return characterId === 'rimuru' && state.awakeningCompleted ? AWAKENED_RIMURU_PERKS : [];
+  if (!state.awakeningCompleted) return [];
+  if (characterId === 'rimuru') return AWAKENED_RIMURU_PERKS;
+  return ULTIMATE_GIFT_PERKS_BY_CHARACTER[characterId] ?? [];
+}
+
+// Phase 135 — Ausruestungs-Perks: sammelt die TalentPerks aller ausgeruesteten Teile
+// (z.B. der Schutztalisman → status-resist). Rein aus `member.equipment` gelesen, damit
+// die Auto-Battle-Harness (ohne Ausruestung) unberuehrt bleibt.
+export function equipmentPerksForMember(member: PartyMemberState): readonly TalentPerk[] {
+  return (Object.values(member.equipment) as readonly (string | undefined)[]).flatMap((itemId) => {
+    // Phase 151 — kodierte Loot-Instanzen liefern Basis- + Affix-Perks (synthetisiert).
+    const item = itemId
+      ? (isEquipmentInstanceId(itemId) ? resolveInstanceItem(itemId) : itemById.get(itemId))
+      : undefined;
+    return item?.perks ?? [];
+  });
 }
 
 // Phase 98 — Bande: alle Bond-Perks der erreichten Bindungsstufen, in denen dieser

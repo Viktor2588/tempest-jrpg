@@ -101,6 +101,7 @@ export type {
   FactionThreshold,
   ItemDefinition,
   ItemEffect,
+  ItemRarity,
   ResidentDefinition,
   ResidentRole,
   ResearchProject,

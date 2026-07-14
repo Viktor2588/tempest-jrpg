@@ -6,6 +6,16 @@ import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 const GAME_WIDTH = 960;
 const GAME_HEIGHT = 540;
 
+/**
+ * Wait a bit for the game loop to advance. Intentionally does NOT screenshot —
+ * per-step canvas pixel checks (page.screenshot) drove the smoke suite into CI
+ * timeouts via software-GL ReadPixels stalls (~65 settle() calls). Render is
+ * still verified at key points via explicit expectCanvasContent().
+ */
+async function settle(page: Page, ms = 150): Promise<void> {
+  await page.waitForTimeout(ms);
+}
+
 test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', async ({ page }) => {
   test.setTimeout(45_000);
   const browserErrors: string[] = [];
@@ -22,23 +32,25 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   // Frisches Browserprofil: Tutorial schließen, dann das Spiel starten.
   await clickGamePoint(page, 480, 370);
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);  // allow initial scene + tutorial
   await dismissOverworldTutorial(page);
   await expectCanvasContent(page);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-sealed-cave-wall'))).toBe(true);
 
   // Menü-Overlay samt Resume-Pfad prüfen.
   await clickOverworldMenuButton(page);
-  await page.waitForTimeout(250);
-  await expectCanvasContent(page);
+  await settle(page, 120);
   await clickGamePoint(page, 636, 94); // Quest-/Story-Tab mit Kapitel-Summary
   await expectCanvasContent(page);
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(250);
+  await settle(page, 120);
 
   // Demo-Kampf über den echten Overworld-Shortcut starten.
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(900);
-  await expectCanvasContent(page);
+  await settle(page, 450);
   expect(browserErrors).toEqual([]);
 });
 
@@ -67,20 +79,21 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await dismissOverworldTutorial(page);
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowUp');
   await tapMovementKey(page, 'ArrowUp');
   await page.keyboard.press('Space');
-  await page.waitForTimeout(250);
-  await clickGamePoint(page, 150, 398); // Schleimform ordnen
-  await page.waitForTimeout(250);
+  await settle(page, 100);
+  await expectCanvasContent(page);
+  await page.keyboard.press('Space'); // sichtbaren Tastaturhinweis tatsächlich nutzen
+  await settle(page, 100);
   await clickGamePoint(page, 150, 398); // Schwur annehmen
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 150, 398); // Zur Oberfläche / Dialog schließen
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save).toHaveProperty('location');
@@ -88,6 +101,10 @@ test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({
   expect(save.flags['story.slime.awakened']).toBe(true);
   expect(save.flags['story.storm-dragon.oath']).toBe(true);
   expect(save.quests['slime-awakening'].completedStepIds).toEqual(['cave-awakening', 'storm-dragon-oath']);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('dialog-keyboard-hint'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -117,17 +134,17 @@ test('Oberwelt-Onboarding markiert Bewegung, Menü und Interaktion im Browser', 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowUp');
   await clickOverworldMenuButton(page);
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await tapMovementKey(page, 'ArrowUp');
   await page.keyboard.press('Space');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.flags['tutorial.overworld.move']).toBe(true);
@@ -163,7 +180,7 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
       updatedAt: '2026-06-28T00:00:00.000Z',
       seed: 12,
       playtimeSeconds: 0,
-      location: { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+      location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
       party: {
         active: [
           { characterId: 'rimuru' },
@@ -218,13 +235,13 @@ test('Abgeschlossener Prolog → erster Band-2-Dialog setzt Rigurd-Awakening im 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await page.keyboard.press('Space');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 150, 398);
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.flags['story.intro.seen']).toBe(true);
@@ -271,11 +288,11 @@ test('Band 2 → erster Flüsterhain-Kampf rendert im Browser', async ({ page })
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowRight');
-  await page.waitForTimeout(1000);
+  await settle(page, 500);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('tempest-start');
@@ -294,7 +311,7 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 3, y: 7, facing: 'up' },
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     inventory: { stacks: [{ itemId: 'wolf-fang-token', quantity: 1 }, { itemId: 'ancestor-seal-fragment', quantity: 1 }] },
     flags: {
       'story.intro.seen': true,
@@ -329,13 +346,13 @@ test('Band 2 → Abschlussdialog schließt binding-of-ancestors im Browser', asy
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await page.keyboard.press('Space');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 150, 398);
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.quests['binding-of-ancestors'].status).toBe('completed');
@@ -375,13 +392,13 @@ test('Band-2-Abschluss zeigt ein einmaliges Kapitel-Meilenstein-Overlay', async 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await expectCanvasContent(page);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.flags['milestone.band-two-complete.shown']).toBe(true);
   await page.keyboard.press('Space');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -403,21 +420,26 @@ test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 840, 94); // Ranga-Tab
   await clickGamePoint(page, 410, 322); // Goblindorf
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await expectCanvasContent(page);
   await clickGamePoint(page, 560, 360); // optionale Kräuterspur untersuchen
-  await page.waitForTimeout(500);
+  await settle(page, 250);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('goblin-village');
   expect(save.flags['travel.ranga.discovery.herb-trail']).toBe(true);
   expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'healing-herb')).toBe(true);
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-goblin-village-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-goblin-village-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -444,14 +466,14 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   const { active, reserve } = MENU_PARTY_LAYOUT;
   await clickGamePoint(page, active.left + active.width / 2, active.firstY + active.rowHeight);
   await clickGamePoint(page, reserve.left + reserve.width / 2, reserve.firstY);
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.party.active.map((member: { characterId: string }) => member.characterId))
@@ -493,14 +515,14 @@ test('Spec-Baum bestätigt die Strangwahl und sperrt andere Richtungen', async (
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 530, 94); // Talente
   await clickGamePoint(page, 398, 269); // Klingenfokus auswählen
   await clickGamePoint(page, 884, 180); // Vorschau-Aktion: freischalten
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 610, 269); // Flammenfokus auswählen (nun gesperrt)
   await clickGamePoint(page, 884, 180);
 
@@ -535,7 +557,7 @@ test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
   await page.waitForTimeout(300);
@@ -543,7 +565,7 @@ test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async 
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(900);
+  await settle(page, 450);
 
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
@@ -571,7 +593,7 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
@@ -583,10 +605,38 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
     'portrait-blumund-adventurers',
     'portrait-treyni',
     'portrait-milim',
-    'portrait-souka'
+    'portrait-souka',
+    'portrait-mordrahn'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Kurobe und Kaijin zeigen ihr gemeinsames Werkstattportrait', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 17, y: 7, facing: 'right' },
+    flags: { 'story.kijin.named': true, 'faction.dwargon.allied': true }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 150);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('portrait-kurobe-kaijin'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -598,16 +648,22 @@ test('Canon-Hauptpfad lädt dedizierte Boss-Cutouts und Arenen', async ({ page }
     if (message.type() === 'error') browserErrors.push(message.text());
   });
 
-  await installBrowserSave(page, bandTwoBrowserSave());
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'ember-hollow', x: 2, y: 6, facing: 'right' }
+  }));
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Enter');
+  await settle(page, 450);
 
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   for (const file of [
+    'battle-ember-hollow',
     'enemy-direwolf-alpha',
     'enemy-nameless-echo',
     'battle-whispering-grove',
@@ -642,12 +698,12 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await tapMovementKey(page, 'ArrowLeft');
   await page.keyboard.press('Space');
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('blumund');
@@ -661,6 +717,8 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(loadedAssets.some((name) => name.includes('tile-blumund-wall'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-fuze'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-blumund-bandit'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('battle-blumund'))).toBe(true);
   for (const file of [
     'tile-dwargon-floor',
     'tile-dwargon-wall',
@@ -703,7 +761,7 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('freedom-academy');
@@ -713,7 +771,215 @@ test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ pa
   ));
   expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-academy-wisp'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-wall'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('battle-freedom-academy'))).toBe(true);
+  for (const file of [
+    'enemy-marsh-hexer',
+    'enemy-storm-shard',
+    'enemy-marsh-thornback',
+    'enemy-blumund-brigand',
+    'enemy-academy-revenant',
+    'enemy-mordrahn-vanguard',
+    'enemy-elder-direwolf',
+    'enemy-orc-grunt',
+    'enemy-orc-lord',
+    'enemy-milim',
+    'title-keyart',
+    'ending-freedom',
+    'ending-order',
+    'ending-true'
+  ]) {
+    expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
+  }
   await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('tempest-start-Wildnis lädt eigene Jura-Wald-Tiles', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const wildernessSave = bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'down' }
+  });
+  // Vorstufe erzwingen: ohne story.tempest.named ist die Wachstumsstufe "wilderness".
+  delete (wildernessSave.flags as Record<string, unknown>)['story.tempest.named'];
+  await installBrowserSave(page, wildernessSave);
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('tempest-start');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-wilderness-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-wilderness-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('gewachsenes tempest-start (Lager) lädt eigene Siedlungsmauer', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  // bandTwoBrowserSave setzt story.tempest.named -> Wachstumsstufe "camp".
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'down' }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('tempest-start');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-camp-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Direwolf-Lichtungs-Save lädt eigene Overworld-Tiles', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'direwolf-den', x: 2, y: 6, facing: 'down' }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('direwolf-den');
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('tile-direwolf-den-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-direwolf-den-wall'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Schattenwolf-Benennung persistiert Ranga erst nach Bestätigung', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'direwolf-den', x: 9, y: 5, facing: 'right' },
+    flags: {
+      'story.direwolf.pact': false,
+      'scene.direwolf-pact.played': false
+    },
+    party: {
+      active: [{ characterId: 'rimuru' }, { characterId: 'gobta' }],
+      reserve: [],
+      gold: 220
+    }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 100);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 150, 398);
+  await settle(page, 150);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['story.direwolf.pact']).toBe(true);
+  expect([...save.party.active, ...save.party.reserve]
+    .find((member: { characterId: string }) => member.characterId === 'ranga')?.name).toBe('Ranga');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Hakurou-Marker führt sichtbar in die Kijin-Benennung', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 4, y: 4, facing: 'right' },
+    flags: { 'story.kijin.named': false }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await expectCanvasContent(page);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 100);
+  await clickGamePoint(page, 150, 398);
+  await settle(page, 150);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['story.kijin.named']).toBe(true);
+  expect([...save.party.active, ...save.party.reserve]
+    .find((member: { characterId: string }) => member.characterId === 'hakurou')?.name).toBe('Hakurou');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Overworld-Fallbackmarker bleibt rund statt als Viereck stehen', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+
+  const screenshot = await page.locator('canvas').screenshot({ animations: 'disabled' });
+  const { width, height, data, channels } = decodePng(screenshot);
+  const colorAt = (x: number, y: number): readonly number[] => {
+    const px = Math.round(x / GAME_WIDTH * width);
+    const py = Math.round(y / GAME_HEIGHT * height);
+    const offset = (py * width + px) * channels;
+    return [data[offset]!, data[offset + 1]!, data[offset + 2]!];
+  };
+  const center = colorAt(600, 414);
+  const diagonal = colorAt(611, 425);
+  expect(center.reduce((distance, value, index) => distance + Math.abs(value - diagonal[index]!), 0))
+    .toBeGreaterThan(40);
   expect(browserErrors).toEqual([]);
 });
 
@@ -735,7 +1001,7 @@ test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page })
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('tempest-colosseum');
@@ -745,6 +1011,9 @@ test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page })
   ));
   expect(loadedAssets.some((name) => name.includes('region-tempest-colosseum'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('battle-tempest-colosseum'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('portrait-arena-steward'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-wall'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -773,7 +1042,7 @@ test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const loadedAssets = await page.evaluate(() => (
     performance.getEntriesByType('resource').map((entry) => entry.name)
@@ -784,6 +1053,7 @@ test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ 
 });
 
 test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page }) => {
+  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -791,7 +1061,7 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   });
 
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'ramiris-labyrinth', x: 2, y: 7, facing: 'right' },
+    location: { mapId: 'ramiris-labyrinth', x: 17, y: 6, facing: 'right' },
     flags: {
       'story.shizu.vow': true,
       'story.children.first-core': true,
@@ -808,7 +1078,7 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.location.mapId).toBe('ramiris-labyrinth');
@@ -818,11 +1088,41 @@ test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page
   ));
   expect(loadedAssets.some((name) => name.includes('region-ramiris-labyrinth'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('enemy-magic-colossus'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('portrait-ramiris'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-floor'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('tile-ramiris-labyrinth-wall'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('battle-ramiris-labyrinth'))).toBe(true);
+  await focusGame(page);
+  await tapMovementKey(page, 'ArrowRight');
+  await settle(page, 450);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
 
+test('Skill-HUD-Banner werden vom Browser geladen', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('predator-perversion-skillsteal'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('mimic-form-indicator'))).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
+  // Belt-and-suspenders: settle() screenshotet nicht mehr (systemischer Fix),
+  // aber dieser menu-schwere Pfad behaelt viele explizite expectCanvasContent()-
+  // Screenshots; auf headless Software-GL bleibt der ReadPixels-Readback teuer.
+  // 60s Budget haelt den Testgruen, ohne gruene Laeufe zu bremsen.
+  test.setTimeout(60_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -849,22 +1149,32 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex
-  await clickGamePoint(page, 692, 140); // Einrichtungen
-  await page.waitForTimeout(250);
+  await clickGamePoint(page, 347, 155); // Einrichtungen (Codex-Modusleiste, Phase 171 startet bei x=24)
+  await settle(page, 100);
   await expectCanvasContent(page);
   await clickGamePoint(page, 810, 448); // Forschen
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 
   const stored = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(stored.flags['research.spirit-cores.stabilized']).toBe(true);
   expect(stored.progression.magicules).toBe(0);
   expect(stored.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'spirit-ember')).toBe(false);
+  await expectCanvasContent(page);
+
+  // Phase 122 — Lebendiges Bestiarium: der siebte Codex-Modus rendert fehlerfrei.
+  await clickGamePoint(page, 616, 155); // 🐾 Bestiarium
+  await settle(page, 100);
+  await expectCanvasContent(page);
+
+  // Phase 171 — Mechanik-Handbuch: der achte Codex-Modus rendert fehlerfrei.
+  await clickGamePoint(page, 713, 155); // 📖 Handbuch
+  await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -904,11 +1214,11 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
 
   await clickOverworldInteractButton(page);
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 180, 398);
   await page.waitForTimeout(300);
 
@@ -916,6 +1226,10 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
   expect(save.location.mapId).toBe('spirit-marsh');
   expect(save.flags['story.border.deescalated']).toBe(true);
   expect(save.quests['border-escalation'].completedStepIds).toContain('border-clash');
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('portrait-border-scout'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -937,11 +1251,11 @@ for (const ending of [
     await page.goto('./');
     await expect(page.locator('canvas')).toBeVisible();
     await clickGamePoint(page, 480, 280);
-    await page.waitForTimeout(700);
+    await settle(page, 400);
     await focusGame(page);
 
     await clickOverworldInteractButton(page);
-    await page.waitForTimeout(250);
+    await settle(page, 100);
     await clickGamePoint(page, ending.choiceX, ending.choiceY);
     await page.waitForTimeout(300);
 
@@ -1007,7 +1321,7 @@ function bandTwoBrowserSave(overrides: {
     updatedAt: '2026-06-28T00:00:00.000Z',
     seed: 22,
     playtimeSeconds: 0,
-    location: overrides.location ?? { mapId: 'tempest-start', x: 3, y: 4, facing: 'left' },
+    location: overrides.location ?? { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     party: overrides.party ?? {
       active: [
         { characterId: 'rimuru' },
@@ -1042,7 +1356,7 @@ function bandTwoBrowserSave(overrides: {
 
 function bandFourDecisionBrowserSave(): Record<string, unknown> {
   return bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 4, y: 8, facing: 'up' },
+    location: { mapId: 'tempest-start', x: 9, y: 7, facing: 'right' },
     flags: {
       'story.act1.completed': true,
       'story.act2.completed': true,
@@ -1112,7 +1426,7 @@ test('Phase 90 — Speicherstände rendern, „Neues Spiel" setzt den Slot aktiv
 
   // Slot 2 ist leer → „✚ Neues Spiel" (x = 160 + 640 − 170 = 630, y-Mitte der 2. Karte).
   await clickGamePoint(page, 630, 274);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
 
   const activeSlot = await page.evaluate(() => window.localStorage.getItem('tempest-chronik.activeSlot'));
   expect(activeSlot).toBe('2');
@@ -1133,15 +1447,15 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await expectCanvasContent(page);
-  await clickGamePoint(page, 583, 140); // Umschalter „🍴 Verschlingen"
-  await page.waitForTimeout(250);
+  await clickGamePoint(page, 146, 140); // Umschalter „🍴 Verschlingen" (Leiste ab x=24, Phase 171)
+  await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -1168,18 +1482,18 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 564, 140); // Umschalter „🏛️ Bewohner"
-  await page.waitForTimeout(250);
+  await clickGamePoint(page, 244, 140); // Umschalter „🏛️ Bewohner" (Leiste ab x=24, Phase 171)
+  await settle(page, 100);
   await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
-  await page.waitForTimeout(250);
-  await clickGamePoint(page, 692, 140); // Umschalter „🏭 Einrichtungen"
-  await page.waitForTimeout(250);
+  await settle(page, 100);
+  await clickGamePoint(page, 347, 140); // Umschalter „🏭 Einrichtungen" (Leiste ab x=24, Phase 171)
+  await settle(page, 100);
   await expectCanvasContent(page);
   await clickGamePoint(page, 450, 508); // „🏕️ Tempest-Rast halten"
   await page.waitForTimeout(300);
@@ -1210,14 +1524,14 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
   await clickGamePoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
-  await page.waitForTimeout(250);
+  await settle(page, 100);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
-  await clickGamePoint(page, 911, 140); // Umschalter „🤝 Politik"
-  await page.waitForTimeout(250);
+  await clickGamePoint(page, 528, 140); // Umschalter „🤝 Politik" (Leiste ab x=24, Phase 171)
+  await settle(page, 100);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
@@ -1247,7 +1561,7 @@ async function clickOverworldInteractButton(page: Page): Promise<void> {
 }
 
 async function dismissOverworldTutorial(page: Page): Promise<void> {
-  await page.waitForTimeout(250);
+  await settle(page, 100);
 }
 
 async function tapMovementKey(page: Page, key: string): Promise<void> {

@@ -3,6 +3,8 @@ import { ENEMIES } from '../src/data';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
+  ACADEMY_WISP_TEXTURE_KEY,
+  BLUMUND_BANDIT_TEXTURE_KEY,
   DIREWOLF_ALPHA_TEXTURE_KEY,
   DIREWOLF_PUP_TEXTURE_KEY,
   FOREST_SLIME_TEXTURE_KEY,
@@ -14,6 +16,7 @@ import {
   LIZARDMAN_WARRIOR_TEXTURE_KEY,
   MASKED_MAJIN_TEXTURE_KEY,
   MAGIC_COLOSSUS_TEXTURE_KEY,
+  MARSH_HEXER_TEXTURE_KEY,
   NAMELESS_ECHO_TEXTURE_KEY,
   OGRE_WARRIOR_TEXTURE_KEY,
   ORC_DISASTER_TEXTURE_KEY,
@@ -21,6 +24,15 @@ import {
   ORC_SCOUT_TEXTURE_KEY,
   ORC_SOLDIER_TEXTURE_KEY,
   SPORE_MOTH_TEXTURE_KEY,
+  STORM_SHARD_TEXTURE_KEY,
+  MARSH_THORNBACK_TEXTURE_KEY,
+  BLUMUND_BRIGAND_TEXTURE_KEY,
+  ACADEMY_REVENANT_TEXTURE_KEY,
+  MORDRAHN_VANGUARD_TEXTURE_KEY,
+  ELDER_DIREWOLF_TEXTURE_KEY,
+  ORC_GRUNT_TEXTURE_KEY,
+  ORC_LORD_TEXTURE_KEY,
+  MILIM_TEXTURE_KEY,
   enemyArtFor
 } from '../src/render/enemyArt';
 
@@ -77,22 +89,36 @@ describe('Gegner-Art-Mapping', () => {
     expect(enemyArtFor('mordrahn', '')).toMatchObject({
       textureKey: 'sprite-enemy-mordrahn'
     });
+    expect(enemyArtFor('blumund-bandit', '')).toMatchObject({
+      textureKey: BLUMUND_BANDIT_TEXTURE_KEY
+    });
+    expect(enemyArtFor('academy-wisp', '')).toMatchObject({
+      textureKey: ACADEMY_WISP_TEXTURE_KEY
+    });
   });
 
   it('verdrahtet Canon-Triggergegner mit dedizierten Cutouts statt Atlas-Frames', () => {
     for (const [id, expectedTexture] of [
       ['direwolf-alpha', DIREWOLF_ALPHA_TEXTURE_KEY],
       ['mordrahn-echo', NAMELESS_ECHO_TEXTURE_KEY],
-      ['orc-grunt', ORC_SOLDIER_TEXTURE_KEY],
+      ['orc-grunt', ORC_GRUNT_TEXTURE_KEY],
       ['orc-soldier', ORC_SOLDIER_TEXTURE_KEY],
       ['orc-general', ORC_GENERAL_TEXTURE_KEY],
-      ['orc-lord', ORC_DISASTER_TEXTURE_KEY],
+      ['orc-lord', ORC_LORD_TEXTURE_KEY],
       ['orc-disaster', ORC_DISASTER_TEXTURE_KEY],
       ['lizardman-warrior', LIZARDMAN_WARRIOR_TEXTURE_KEY],
       ['gabiru', GABIRU_TEXTURE_KEY],
       ['masked-majin', MASKED_MAJIN_TEXTURE_KEY],
       ['ifrit', IFRIT_TEXTURE_KEY],
-      ['magic-colossus', MAGIC_COLOSSUS_TEXTURE_KEY]
+      ['magic-colossus', MAGIC_COLOSSUS_TEXTURE_KEY],
+      ['bog-warden', MARSH_HEXER_TEXTURE_KEY],
+      ['highland-galecaller', STORM_SHARD_TEXTURE_KEY],
+      ['marsh-thornback', MARSH_THORNBACK_TEXTURE_KEY],
+      ['blumund-brigand', BLUMUND_BRIGAND_TEXTURE_KEY],
+      ['academy-revenant', ACADEMY_REVENANT_TEXTURE_KEY],
+      ['mordrahn-vanguard', MORDRAHN_VANGUARD_TEXTURE_KEY],
+      ['elder-direwolf', ELDER_DIREWOLF_TEXTURE_KEY],
+      ['milim', MILIM_TEXTURE_KEY],
     ] as const) {
       const art = enemyArtFor(id, '');
       expect(art.textureKey).toBe(expectedTexture);
@@ -113,7 +139,19 @@ describe('Gegner-Art-Mapping', () => {
       'enemy-direwolf-pup.webp',
       'enemy-nameless-echo.webp',
       'enemy-ogre-warrior.webp',
-      'enemy-magic-colossus.png'
+      'enemy-magic-colossus.webp',
+      'enemy-blumund-bandit.webp',
+      'enemy-academy-wisp.webp',
+      'enemy-marsh-hexer.webp',
+      'enemy-storm-shard.webp',
+      'enemy-marsh-thornback.webp',
+      'enemy-blumund-brigand.webp',
+      'enemy-academy-revenant.webp',
+      'enemy-mordrahn-vanguard.webp',
+      'enemy-elder-direwolf.webp',
+      'enemy-orc-grunt.webp',
+      'enemy-orc-lord.webp',
+      'enemy-milim.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/sprites/${file}`);
     }

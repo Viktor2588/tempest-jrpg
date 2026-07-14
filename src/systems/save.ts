@@ -80,6 +80,10 @@ export interface SaveGameV3 {
   readonly updatedAt: string;
   readonly seed: number;
   readonly playtimeSeconds: number;
+  // Phase 101 — Welt-Uhr: fortlaufender Schrittzähler, aus dem systems/worldClock
+  // deterministisch Tageszeit + Wetter ableitet. Optional/rückwärtskompatibel
+  // (fehlt er in Altständen, startet die Uhr bei 0 = Morgen).
+  readonly clockStep: number;
   readonly location: SaveLocation;
   readonly party: {
     readonly active: readonly PartyMemberState[];
@@ -110,6 +114,7 @@ export function createNewSave(options: CreateSaveOptions = {}): SaveGameV3 {
     updatedAt: now,
     seed: options.seed ?? 1,
     playtimeSeconds: 0,
+    clockStep: 0,
     location: DEFAULT_LOCATION,
     party: {
       active: createInitialParty(),
@@ -154,6 +159,7 @@ function carryOverMember(member: PartyMemberState): PartyMemberState {
   const restored = createPartyMember(definition, {
     level: member.level,
     experience: member.experience,
+    formationRow: member.formationRow,
     learnedSkillIds: member.learnedSkillIds
   });
   return { ...restored, name: member.name, equipment: member.equipment };
@@ -173,6 +179,7 @@ export function normalize(save: SaveGameV3, updatedAt = save.updatedAt): SaveGam
     updatedAt,
     seed: clampNonNegativeInteger(save.seed),
     playtimeSeconds: clampNonNegativeInteger(save.playtimeSeconds),
+    clockStep: clampNonNegativeInteger(save.clockStep),
     location: normalizeLocation(save.location),
     party: {
       active: fallbackParty.active,
@@ -248,10 +255,23 @@ export function importSave(json: string, now = new Date().toISOString()): SaveGa
   return migrate(JSON.parse(json) as unknown, now);
 }
 
+// Ein beschädigter/nicht unterstützter localStorage-Eintrag (unterbrochener Write,
+// Browser-Eviction, künftige Save-Version) darf das Booten NICHT crashen — sonst
+// haengt der Titelbildschirm und der Spieler kommt nicht mal zu „neues Spiel".
+// Auto-Load faellt still auf null zurueck; jeder Aufrufer behandelt null bereits
+// (?? createNewSave()). importSave bleibt strikt fuer explizite Importe.
+function tryImport(json: string): SaveGameV3 | null {
+  try {
+    return importSave(json);
+  } catch {
+    return null;
+  }
+}
+
 export function loadSave(storage: StorageLike, key = activeSaveKey(storage)): SaveGameV3 | null {
   const stored = storage.getItem(key);
   if (stored !== null) {
-    return importSave(stored);
+    return tryImport(stored);
   }
   if (key !== SAVE_STORAGE_KEY) {
     return null;
@@ -259,7 +279,10 @@ export function loadSave(storage: StorageLike, key = activeSaveKey(storage)): Sa
   for (const legacyKey of LEGACY_SAVE_STORAGE_KEYS) {
     const legacy = storage.getItem(legacyKey);
     if (legacy !== null) {
-      const migrated = importSave(legacy);
+      const migrated = tryImport(legacy);
+      if (migrated === null) {
+        continue;
+      }
       storage.setItem(SAVE_STORAGE_KEY, exportSave(migrated));
       return migrated;
     }
@@ -315,6 +338,7 @@ function migrateV1(raw: Record<string, unknown>, now: string): SaveGameV3 {
       updatedAt: now,
       seed: safeNumber(raw.seed, 1),
       playtimeSeconds: safeNumber(raw.playtimeSeconds, 0),
+      clockStep: safeNumber(raw.clockStep, 0),
       location: {
         mapId: safeString(raw.mapId, DEFAULT_LOCATION.mapId),
         x: safeNumber(raw.x, DEFAULT_LOCATION.x),
@@ -350,6 +374,7 @@ function readCurrentSave(raw: Record<string, unknown>, now: string): SaveGameV3 
     updatedAt: safeString(raw.updatedAt, now),
     seed: safeNumber(raw.seed, 1),
     playtimeSeconds: safeNumber(raw.playtimeSeconds, 0),
+    clockStep: safeNumber(raw.clockStep, 0),
     location: isRecord(raw.location) ? readLocation(raw.location) : DEFAULT_LOCATION,
     party: {
       active: readPartyMemberArray(party.active),
@@ -409,6 +434,7 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
   const member = createPartyMember(definition, {
     level: safeNumber(raw.level, definition.initialLevel),
     experience: safeNumber(raw.experience, definition.initialExperience),
+    formationRow: safeFormationRow(raw.formationRow),
     learnedSkillIds: Array.isArray(raw.learnedSkillIds)
       ? raw.learnedSkillIds.filter((skillId): skillId is string => typeof skillId === 'string')
       : []
@@ -424,7 +450,9 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
         ? {
             weapon: safeNullableString(raw.equipment.weapon),
             armor: safeNullableString(raw.equipment.armor),
-            accessory: safeNullableString(raw.equipment.accessory)
+            accessory: safeNullableString(raw.equipment.accessory),
+            // Phase 150 — Kern-Slot: alte Stände ohne `core` → null (keine Bruchgefahr).
+            core: safeNullableString(raw.equipment.core)
           }
         : member.equipment
     }
@@ -433,6 +461,10 @@ function readPartyMember(raw: unknown): PartyMemberState[] {
 
 function normalizePartyMembers(members: readonly PartyMemberState[]): PartyMemberState[] {
   return readPartyMemberArray(members);
+}
+
+function safeFormationRow(value: unknown): PartyMemberState['formationRow'] {
+  return value === 'back' ? 'back' : 'front';
 }
 
 function readInventoryStacks(raw: unknown): InventoryStack[] {
@@ -476,6 +508,8 @@ function readProgressionState(raw: unknown): ProgressionState {
     productionCycles: readNonNegativeInteger(raw.productionCycles),
     // Phase 102 — Magicules: alte Stände starten ohne angesparten Pool.
     magicules: readNonNegativeInteger(raw.magicules),
+    // Phase 127 — Seelen: alte Stände starten ohne geerntete Seelen (0).
+    souls: readNonNegativeInteger(raw.souls),
     // Phase 103 — Offiziere: alte Stände haben noch keine befoerderten Bewohner.
     promotedResidentIds: readStringArray(raw.promotedResidentIds),
     // Phase 104 — Erntefest: alte Stände haben das einmalige Erwachen noch offen.
@@ -487,7 +521,13 @@ function readProgressionState(raw: unknown): ProgressionState {
     claimedBountyCountsByBountyId: readNumberRecord(raw.claimedBountyCountsByBountyId),
     // Phase 100 — Diplomatie: alte Stände ohne Reputationskarte starten neutral
     // (createProgressionState normalisiert auf {}).
-    factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId)
+    factionReputationByFactionId: readNumberRecord(raw.factionReputationByFactionId),
+    // Phase 122 — Lebendiges Bestiarium: alte Stände ohne dieses Feld starten mit
+    // leerem Analyse-Wissen (nichts studiert), Codex zeigt Kampfdaten als „???".
+    analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds),
+    // Phase 148 — Boss-Echos: alte Stände ohne dieses Feld starten mit leerer
+    // Verschlingungs-Historie (nichts verschlungen → alle besiegten Bosse echo-fähig).
+    devouredSourceIds: readStringArray(raw.devouredSourceIds)
   });
 }
 

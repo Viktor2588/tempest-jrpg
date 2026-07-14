@@ -18,6 +18,18 @@ export const DIREWOLF_PUP_TEXTURE_KEY = 'sprite-enemy-direwolf-pup';
 export const NAMELESS_ECHO_TEXTURE_KEY = 'sprite-enemy-nameless-echo';
 export const OGRE_WARRIOR_TEXTURE_KEY = 'sprite-enemy-ogre-warrior';
 export const MAGIC_COLOSSUS_TEXTURE_KEY = 'sprite-enemy-magic-colossus';
+export const BLUMUND_BANDIT_TEXTURE_KEY = 'sprite-enemy-blumund-bandit';
+export const ACADEMY_WISP_TEXTURE_KEY = 'sprite-enemy-academy-wisp';
+export const MARSH_HEXER_TEXTURE_KEY = 'sprite-enemy-marsh-hexer';
+export const STORM_SHARD_TEXTURE_KEY = 'sprite-enemy-storm-shard';
+export const MARSH_THORNBACK_TEXTURE_KEY = 'sprite-enemy-marsh-thornback';
+export const BLUMUND_BRIGAND_TEXTURE_KEY = 'sprite-enemy-blumund-brigand';
+export const ACADEMY_REVENANT_TEXTURE_KEY = 'sprite-enemy-academy-revenant';
+export const MORDRAHN_VANGUARD_TEXTURE_KEY = 'sprite-enemy-mordrahn-vanguard';
+export const ELDER_DIREWOLF_TEXTURE_KEY = 'sprite-enemy-elder-direwolf';
+export const ORC_GRUNT_TEXTURE_KEY = 'sprite-enemy-orc-grunt';
+export const ORC_LORD_TEXTURE_KEY = 'sprite-enemy-orc-lord';
+export const MILIM_TEXTURE_KEY = 'sprite-enemy-milim';
 
 export const KINGDOM_UNIT_ATLAS = {
   columns: 5,
@@ -64,23 +76,36 @@ const ENEMY_ART_BY_SOURCE: Readonly<Record<string, EnemyArtSpec>> = {
   'lizardman-acolyte': generatedTexture(LIZARDMAN_ACOLYTE_TEXTURE_KEY, 'enemy-lizard'),
   'mordrahn-echo': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
   'human-lancer': generatedTexture('sprite-enemy-human-lancer', 'enemy-ogre'),
-  'mordrahn-vanguard': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
+  'blumund-bandit': generatedTexture(BLUMUND_BANDIT_TEXTURE_KEY, 'enemy-ogre'),
+  // Phase 162 — kanonische Varianten mit eigenen Cutouts; 'stray-echo' bleibt als
+  // echte Echo-Variante bewusst auf der namenlosen Echo-Textur.
+  'mordrahn-vanguard': generatedTexture(MORDRAHN_VANGUARD_TEXTURE_KEY, 'enemy-boss'),
   mordrahn: generatedTexture('sprite-enemy-mordrahn', 'enemy-boss'),
   'bog-terror': generatedTexture(BOG_TERROR_TEXTURE_KEY, 'enemy-ogre'),
   'stray-echo': generatedTexture(NAMELESS_ECHO_TEXTURE_KEY, 'enemy-boss'),
   'human-deserter': generatedTexture('sprite-enemy-human-deserter', 'enemy-ogre'),
-  'elder-direwolf': generatedTexture(DIREWOLF_ALPHA_TEXTURE_KEY, 'enemy-wolf'),
-  'orc-grunt': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
+  'academy-wisp': generatedTexture(ACADEMY_WISP_TEXTURE_KEY, 'enemy-boss'),
+  'elder-direwolf': generatedTexture(ELDER_DIREWOLF_TEXTURE_KEY, 'enemy-wolf'),
+  'orc-grunt': generatedTexture(ORC_GRUNT_TEXTURE_KEY, 'enemy-orc'),
   'orc-soldier': generatedTexture(ORC_SOLDIER_TEXTURE_KEY, 'enemy-orc'),
   'orc-general': generatedTexture(ORC_GENERAL_TEXTURE_KEY, 'enemy-orc'),
-  'orc-lord': generatedTexture(ORC_DISASTER_TEXTURE_KEY, 'enemy-boss'),
+  'orc-lord': generatedTexture(ORC_LORD_TEXTURE_KEY, 'enemy-boss'),
   'orc-disaster': generatedTexture(ORC_DISASTER_TEXTURE_KEY, 'enemy-boss'),
   'lizardman-warrior': generatedTexture(LIZARDMAN_WARRIOR_TEXTURE_KEY, 'enemy-lizard'),
   gabiru: generatedTexture(GABIRU_TEXTURE_KEY, 'enemy-lizard'),
   'masked-majin': generatedTexture(MASKED_MAJIN_TEXTURE_KEY, 'enemy-boss'),
   ifrit: generatedTexture(IFRIT_TEXTURE_KEY, 'enemy-boss'),
   'ogre-warrior': generatedTexture(OGRE_WARRIOR_TEXTURE_KEY, 'enemy-ogre'),
-  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss')
+  'magic-colossus': generatedTexture(MAGIC_COLOSSUS_TEXTURE_KEY, 'enemy-boss'),
+  // Phase 163 — Milim war der letzte Gegner ohne dedizierte Kampf-Textur (fiel auf
+  // den Kingdom-Atlas-Slime-Frame zurueck).
+  milim: generatedTexture(MILIM_TEXTURE_KEY, 'enemy-boss'),
+  // Phase 146/161 — neue Normalgegner-Archetypen mit eigenen Regions-Cutouts.
+  'marsh-thornback': generatedTexture(MARSH_THORNBACK_TEXTURE_KEY, 'enemy-lizard'),
+  'bog-warden': generatedTexture(MARSH_HEXER_TEXTURE_KEY, 'enemy-lizard'),
+  'highland-galecaller': generatedTexture(STORM_SHARD_TEXTURE_KEY, 'enemy-boss'),
+  'blumund-brigand': generatedTexture(BLUMUND_BRIGAND_TEXTURE_KEY, 'enemy-ogre'),
+  'academy-revenant': generatedTexture(ACADEMY_REVENANT_TEXTURE_KEY, 'enemy-boss')
 };
 
 export function enemyArtFor(sourceId: string, name: string): EnemyArtSpec {

@@ -24,5 +24,14 @@ export const SKILL_FUSIONS = [
     outputSkillId: 'maelstrom-fang',
     magiculeCost: 40,
     requiresFlag: 'story.geld.devoured'
+  },
+  {
+    id: 'fuse-predator-perversion',
+    name: 'Praedator-Perversion verschmelzen',
+    description: 'Geraubte Kampfkunst, Verschlinger-Aura und Großen Weisen zu einer manipulierenden Unique-Fertigkeit formen.',
+    inputSkillIds: ['venom-spit', 'predator-aura', 'great-sage'],
+    outputSkillId: 'predator-perversion',
+    magiculeCost: 72,
+    requiresFlag: 'story.shizu.vow'
   }
 ] as const satisfies readonly SkillFusionRecipe[];

@@ -26,7 +26,14 @@ export class EndingScene extends Phaser.Scene {
     let profile = loadProfile(storage);
     if (ending) profile = saveProfile(storage, recordEndingSeen(profile, ending.kind));
 
-    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.97);
+    // Ende-Key-Art je Ausgang; Abdunkelung haelt Text/Galerie lesbar.
+    const artKey = ending ? `bg-ending-${ending.kind}` : null;
+    if (artKey && this.textures.exists(artKey)) {
+      this.add.image(cx, GAME_HEIGHT / 2, artKey).setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+      this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.72);
+    } else {
+      this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.97);
+    }
     this.add.text(cx, 54, 'Tempest – Chronik', { fontFamily: 'serif', fontSize: '20px', color: '#9fb2cc' }).setOrigin(0.5);
     this.add.text(cx, 84, 'Akt I – III · Ende', { fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5' }).setOrigin(0.5);
 

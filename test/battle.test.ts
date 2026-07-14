@@ -18,103 +18,12 @@ import {
   type BattleUnitInput
 } from '../src/systems/battle';
 import { createPartyMember } from '../src/systems/party';
+import { GOBTA, autoPlay, weakParty, fastTank, lootEnemy } from './battleHelpers';
 
-// Seit dem story-gesteuerten Party-Aufbau startet ein Spiel nur mit Rimuru. Für Tests, die
-// eine Mehr-Personen-Party brauchen, Gobta explizit ergänzen.
-const GOBTA = HEROES.find((hero) => hero.id === 'gobta')!;
+// autoPlay, weakParty, fastTank, lootEnemy, GOBTA now imported from ./battleHelpers.ts
+// (file split to improve Vitest collection/parallel performance)
 
-function autoPlay(state: BattleState): { status: string; steps: number } {
-  let guard = 0;
-
-  while (state.status === 'active' && guard++ < 5000) {
-    if (isPlayerTurn(state)) {
-      const actor = currentActor(state)!;
-      const enemy = renderView(state).enemies.find((candidate) => !candidate.dead);
-      if (!enemy) break;
-
-      const affordableSkill = actor.skillIds
-        .find((skillId) => skillId === 'storm-gust' && actor.mp >= 7)
-        ?? actor.skillIds.find((skillId) => skillId === 'water-blade' && actor.mp >= 4);
-
-      if (affordableSkill) {
-        act(state, { type: 'skill', skillId: affordableSkill, targetId: enemy.id });
-      } else {
-        act(state, { type: 'attack', targetId: enemy.id });
-      }
-    } else {
-      enemyTurn(state);
-    }
-  }
-
-  return { status: state.status, steps: guard };
-}
-
-function weakParty(): BattleUnitInput[] {
-  return [
-    {
-      sourceId: 'test-weakling',
-      name: 'Testling',
-      side: 'party',
-      level: 1,
-      stats: {
-        maxHp: 18,
-        maxMp: 0,
-        attack: 3,
-        defense: 2,
-        magic: 1,
-        spirit: 2,
-        agility: 4
-      },
-      element: 'neutral',
-      weaknesses: ['shadow'],
-      resistances: [],
-      skillIds: []
-    }
-  ];
-}
-
-function fastTank(): BattleUnitInput[] {
-  const [rimuru] = createDefaultBattleParty();
-  return [
-    {
-      ...rimuru!,
-      stats: {
-        ...rimuru!.stats,
-        maxHp: 160,
-        defense: 10,
-        spirit: 10,
-        agility: 99
-      }
-    }
-  ];
-}
-
-function lootEnemy(): BattleUnitInput[] {
-  return [
-    {
-      sourceId: 'loot-slime',
-      name: 'Beuteschleim',
-      side: 'enemy',
-      level: 1,
-      stats: {
-        maxHp: 20,
-        maxMp: 0,
-        attack: 1,
-        defense: 1,
-        magic: 1,
-        spirit: 1,
-        agility: 1
-      },
-      element: 'water',
-      weaknesses: ['wind'],
-      resistances: [],
-      skillIds: [],
-      experienceReward: 10,
-      goldReward: 5,
-      drops: [{ itemId: 'healing-herb', chance: 1 }]
-    }
-  ];
-}
+// weakParty, fastTank, lootEnemy now come from ./battleHelpers (see file split for faster parallel collection)
 
 function depthHero(
   sourceId: string,
@@ -167,6 +76,52 @@ function phaseEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
     experienceReward: 80,
     goldReward: 50,
     drops: [],
+    ...overrides
+  };
+}
+
+function rowProbeHero(sourceId: string, formationRow: 'front' | 'back'): BattleUnitInput {
+  return {
+    sourceId,
+    name: sourceId,
+    side: 'party',
+    formationRow,
+    level: 4,
+    stats: {
+      maxHp: 120,
+      maxMp: 0,
+      attack: 24,
+      defense: 10,
+      magic: 8,
+      spirit: 10,
+      agility: 12
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: []
+  };
+}
+
+function rowProbeEnemy(overrides: Partial<BattleUnitInput> = {}): BattleUnitInput {
+  return {
+    sourceId: 'row-probe-enemy',
+    name: 'Reihenprüfer',
+    side: 'enemy',
+    level: 4,
+    stats: {
+      maxHp: 300,
+      maxMp: 0,
+      attack: 24,
+      defense: 10,
+      magic: 8,
+      spirit: 10,
+      agility: 30
+    },
+    element: 'neutral',
+    weaknesses: [],
+    resistances: [],
+    skillIds: [],
     ...overrides
   };
 }
@@ -238,6 +193,33 @@ describe('battle engine', () => {
     expect(renderView(a).party).toEqual(renderView(b).party);
     expect(renderView(a).rewards).toEqual(renderView(b).rewards);
     expect(renderView(a).log).toEqual(renderView(b).log);
+  });
+
+  it('übernimmt Front- und Hinterreihe aus der Battle-Party', () => {
+    const state = startBattle({
+      party: [rowProbeHero('front-probe', 'front'), rowProbeHero('back-probe', 'back')],
+      enemies: [rowProbeEnemy()],
+      seed: 12
+    });
+
+    expect(renderView(state).party.map((member) => member.formationRow))
+      .toEqual(['front', 'back']);
+  });
+
+  it('priorisiert die Frontreihe als einfaches Gegnerziel', () => {
+    const state = startBattle({
+      party: [rowProbeHero('front-probe', 'front'), rowProbeHero('back-probe', 'back')],
+      enemies: [rowProbeEnemy()],
+      seed: 13
+    });
+    const enemy = state.combatants.find((combatant) => combatant.side === 'enemy')!;
+    state.activeId = enemy.id;
+
+    enemyTurn(state);
+
+    const view = renderView(state);
+    expect(view.party.find((member) => member.sourceId === 'front-probe')!.hp).toBeLessThan(120);
+    expect(view.party.find((member) => member.sourceId === 'back-probe')!.hp).toBe(120);
   });
 
   it('wendet Schadensmultiplikatoren getrennt für Party und Gegner an', () => {
@@ -415,6 +397,37 @@ describe('battle engine', () => {
     expect(getItemCount(afterView.inventory, 'healing-herb')).toBe(before - 1);
   });
 
+  it('Phase 128 — Wiederbelebungselixier weckt einen kampfunfähigen Verbündeten', () => {
+    const [rimuru] = createDefaultBattleParty();
+    const state = startBattle({
+      party: [
+        { ...rimuru!, stats: { ...rimuru!.stats, agility: 99 } },
+        { ...createHeroBattleUnit(GOBTA), stats: { ...createHeroBattleUnit(GOBTA).stats, agility: 1 } }
+      ],
+      enemyIds: ['forest-slime'],
+      inventory: [{ itemId: 'revival-elixir', quantity: 2 }],
+      seed: 11
+    });
+    const partyUnits = state.combatants.filter((combatant) => combatant.side === 'party');
+    const reviver = partyUnits[0]!;
+    const fallen = partyUnits[1]!;
+    fallen.dead = true;
+    fallen.hp = 0;
+    state.activeId = reviver.id;
+
+    // Wiederbelebung auf einen Lebenden schlägt fehl und verbraucht nichts.
+    const onLiving = act(state, { type: 'item', itemId: 'revival-elixir', targetId: reviver.id });
+    expect(onLiving.ok).toBe(false);
+    expect(getItemCount(renderView(state).inventory, 'revival-elixir')).toBe(2);
+
+    state.activeId = reviver.id;
+    const revived = act(state, { type: 'item', itemId: 'revival-elixir', targetId: fallen.id });
+    expect(revived.ok).toBe(true);
+    expect(fallen.dead).toBe(false);
+    expect(fallen.hp).toBe(80);
+    expect(getItemCount(renderView(state).inventory, 'revival-elixir')).toBe(1);
+  });
+
   it('Giftstatus kann angewendet werden', () => {
     let poisoned = false;
 
@@ -562,6 +575,74 @@ describe('battle engine', () => {
     expect(enemy.phaseIndex).toBe(1);
     expect(enemy.skillIds).toEqual(expect.arrayContaining(['calamity-roar', 'temporal-snare']));
     expect(enemy.ct).toBeGreaterThanOrEqual(BATTLE_BALANCE.bossPhaseCtSurge);
+  });
+
+  it('Phase 138 — das Akademie-Irrlicht gibt vor seiner Phase-2-Überladung eine Antwort-Runde', () => {
+    const state = startBattle({
+      party: [depthHero('shuna', 'Shuna', { skillIds: ['banishing-seal'] })],
+      enemyIds: ['academy-wisp'],
+      seed: 138
+    });
+    const shuna = state.combatants.find((combatant) => combatant.sourceId === 'shuna')!;
+    const wisp = state.combatants.find((combatant) => combatant.sourceId === 'academy-wisp')!;
+    wisp.hp = Math.floor(wisp.maxHp * 0.5);
+    wisp.ct = 101;
+    shuna.ct = 100;
+    state.activeId = shuna.id;
+
+    expect(act(state, { type: 'guard' }).ok).toBe(true);
+    expect(wisp.phaseIndex).toBe(1);
+    expect(wisp.telegraphSkillId).toBe('arcane-overload');
+    expect(renderView(state).enemies[0]!.telegraphHeavy).toBe(true);
+    expect(currentActor(state)?.id).toBe(shuna.id);
+
+    expect(act(state, { type: 'guard' }).ok).toBe(true);
+    expect(currentActor(state)?.id).toBe(wisp.id);
+    const mpBefore = wisp.mp;
+
+    expect(enemyTurn(state).ok).toBe(true);
+    expect(wisp.mp).toBe(mpBefore - 18);
+    expect(state.log[0]).toContain('Arkane Überladung');
+  });
+
+  it('Phase 138 — Shunas Bannsiegel unterbindet die telegraphierte Überladung', () => {
+    let countered = false;
+    for (let seed = 1; seed <= 60 && !countered; seed += 1) {
+      const state = startBattle({
+        party: [
+          depthHero('shuna', 'Shuna', { skillIds: ['banishing-seal'] }),
+          depthHero('rimuru', 'Rimuru', {
+            stats: { maxHp: 150, maxMp: 60, attack: 26, defense: 18, magic: 24, spirit: 18, agility: 4 }
+          })
+        ],
+        enemyIds: ['academy-wisp'],
+        seed
+      });
+      const shuna = state.combatants.find((combatant) => combatant.sourceId === 'shuna')!;
+      const rimuru = state.combatants.find((combatant) => combatant.sourceId === 'rimuru')!;
+      const wisp = state.combatants.find((combatant) => combatant.sourceId === 'academy-wisp')!;
+      wisp.hp = Math.floor(wisp.maxHp * 0.5);
+      wisp.ct = 101;
+      shuna.ct = 100;
+      state.activeId = shuna.id;
+
+      expect(act(state, { type: 'guard' }).ok).toBe(true);
+      expect(currentActor(state)?.id).toBe(shuna.id);
+      expect(act(state, { type: 'skill', skillId: 'banishing-seal', targetId: wisp.id }).ok).toBe(true);
+      if (!wisp.statuses.some((status) => status.id === 'silence')) continue;
+      expect(currentActor(state)?.id).toBe(rimuru.id);
+
+      expect(act(state, { type: 'guard' }).ok).toBe(true);
+      expect(currentActor(state)?.id).toBe(wisp.id);
+      const mpBefore = wisp.mp;
+
+      expect(enemyTurn(state).ok).toBe(true);
+      expect(wisp.mp).toBe(mpBefore);
+      expect(state.log[0]).not.toContain('Arkane Überladung');
+      countered = true;
+    }
+
+    expect(countered).toBe(true);
   });
 
   it('terminiert deterministisch über Talent-Loadouts × Gegnerphasen × Seeds', () => {

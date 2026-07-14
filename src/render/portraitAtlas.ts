@@ -50,9 +50,14 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
       return 'souei';
     case 'kaijin':
       return 'kaijin';
+    case 'kurobe & kaijin':
+      return 'kurobe-kaijin';
     case 'moorhüterin eir':
     case 'eir':
       return 'eir';
+    case 'grenzspäherin':
+    case 'verwundete grenzspäherin':
+      return 'border-scout';
     case 'schreinwächter kael':
     case 'kael':
       return 'kael';
@@ -70,6 +75,10 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'milim nava':
     case 'milim':
       return 'milim';
+    case 'ramiris':
+      return 'ramiris';
+    case 'arena-vorstand':
+      return 'arena-steward';
     case 'souka':
       return 'souka';
     case 'mordrahn':

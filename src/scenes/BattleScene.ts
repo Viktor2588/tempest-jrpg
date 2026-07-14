@@ -1,15 +1,19 @@
 import Phaser from 'phaser';
 import { ITEMS, SKILLS, skillTierBadge } from '../data';
-import type { ItemDefinition, SkillDefinition } from '../data';
+import { instanceAffixLabels, resolveInstanceItem } from '../systems/lootAffix';
+import type { WorldClock } from '../systems/worldClock';
+import type { ElementType, ItemDefinition, SkillDefinition, StatusEffectId } from '../data';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import {
   act,
+  availableMimicElements,
   currentActor,
   enemyTurn,
   isPlayerTurn,
   renderView,
   startBattle,
+  stealableSkillFrom,
   type BattleState,
   type CombatantView,
   type ReactionTiming
@@ -23,11 +27,21 @@ import {
   createScaledEnemyBattleUnits,
   scalingKindForEncounter
 } from '../systems/enemyScaling';
-import { applyBattleResultToSave, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import {
+  createLabyrinthBossEchoUnit,
+  createScaledLabyrinthFloorUnits,
+  labyrinthEncounterDepth,
+  rollLabyrinthFloorLoot,
+  selectLabyrinthBossEcho
+} from '../systems/labyrinth';
+import { applyBattleResultToSave, newlyRewardedWeatherConditions, rollBossLoot, summarizeBattleLevelUps, type LevelUpSummary } from '../systems/battleResult';
+import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
+import { elementLabel } from '../systems/battlePresentation';
 import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 import { playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
@@ -41,7 +55,7 @@ import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
 import { buildEnemyIntel, formatStatusSummary } from '../systems/battlePresentation';
 
-type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'target-enemy' | 'target-ally';
+type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'mimic-forms' | 'target-enemy' | 'target-ally';
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
@@ -55,6 +69,10 @@ export class BattleScene extends Phaser.Scene {
   private pendingItemId: string | null = null;
   private pendingTeamPartnerId: string | null = null;
   private pendingSignature = false;
+  // Phase 112 — Praedator-Perversion: nächste Ziel-Wahl ist ein „Rauben".
+  private pendingSteal = false;
+  // Unique-Verb (Großer Weiser/Verschlinger): nächste Ziel-Wahl löst Analyse/Verschlingen aus.
+  private pendingVerb: 'analyze' | 'devour' | null = null;
   private layer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
   private idleTweens: Phaser.Tweens.Tween[] = [];
@@ -63,44 +81,69 @@ export class BattleScene extends Phaser.Scene {
   private rewardsApplied = false;
   private levelUps: LevelUpSummary[] = [];
   private magiculeGain = 0;
+  private masteredGrounds: string[] = [];
+  // Phase 174 — in diesem Kampf neu verdiente Welt-Uhr-Bedingungsfunde (Sieg-Zeile).
+  private weatherFinds: string[] = [];
+  // Phase 155 — gerollte Labyrinth-Etagen-Beute (kodierte Instanz-Id) für die Sieg-Zeile.
+  private labyrinthLoot: string | null = null;
+  // Phase 157 — gerolltes Boss-Endgame-Loot (kodierte Instanz-Id) für die Sieg-Zeile.
+  private bossLoot: string | null = null;
   private auto = false;
   private save!: SaveGameV2;
   private encounterId: string | null = null;
+  // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile aus dem Encounter (Phase 101).
+  private clockLabel: string | null = null;
+  // Phase 174 — Welt-Uhr: die Uhr des Encounters fuer die Erst-Sieg-Bedingungsbelohnung.
+  private battleClock: WorldClock | null = null;
   private reacting = false; // Phase 85 — Timing-Fenster aktiv, Menü blockiert
 
   constructor() {
     super('Battle');
   }
 
-  create(data: { enemyIds?: string[]; encounterId?: string }): void {
+  create(data: {
+    enemyIds?: string[];
+    encounterId?: string;
+    openingField?: ElementType | null;
+    openingStatuses?: readonly { readonly id: StatusEffectId; readonly turns: number }[];
+    clockLabel?: string | null;
+    clock?: WorldClock | null;
+  }): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
     this.encounterId = data?.encounterId ?? null;
+    this.clockLabel = data?.clockLabel ?? null;
+    this.battleClock = data?.clock ?? null;
     this.state = startBattle({
+      openingField: data?.openingField ?? null,
+      openingStatuses: data?.openingStatuses ?? [],
       party: createProgressionBattleParty(
         this.save.party.active,
         this.save.progression,
         this.save.flags
       ),
       // Phase 67: Gegner skalieren nach oben mit dem Partylevel (Anti-Overgrind).
-      enemies: createScaledEnemyBattleUnits(
-        data?.enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'],
-        averagePartyLevel(this.save.party.active.map((member) => member.level)),
-        scalingKindForEncounter(this.encounterId)
-      ),
+      // Phase 147: Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead (tiefer = härter).
+      enemies: this.buildEncounterEnemies(data?.enemyIds),
       inventory: this.save.inventory.stacks,
       teamMeter: calculateStartingTeamMeter(this.save.party.active, this.save.progression),
       damageMultipliers: {
         party: playerDamageMultiplier(settings),
         enemy: enemyDamageMultiplier(settings)
       },
+      flags: this.save.flags,
+      // Phase 123 — Bestiarium-Wissen im Kampf: bekannte (studierte) Gegner starten
+      // mit aufgedeckten Schwächen; Bosse/Neue müssen frisch analysiert werden.
+      analyzedEnemyIds: this.save.progression.analyzedEnemyIds,
       seed: (Date.now() & 0x7fffffff) || 1
     });
     this.resultAnnounced = false;
     this.rewardsApplied = false;
     this.levelUps = [];
     this.magiculeGain = 0;
+    this.labyrinthLoot = null;
+    this.bossLoot = null;
     this.auto = false; // Phaser nutzt die Instanz wieder → transienten Zustand zurücksetzen
     this.pendingSignature = false;
     this.reacting = false;
@@ -116,6 +159,28 @@ export class BattleScene extends Phaser.Scene {
     this.input.keyboard?.once('keydown', unlockAudio);
     this.afterAction();
     this.showEncounterTutorial();
+  }
+
+  // Phase 147 — Labyrinth-Etagen skalieren party-relativ mit Tiefen-Lead; alle
+  // übrigen Encounter behalten die reguläre Party-relative Skalierung (Phase 67).
+  private buildEncounterEnemies(enemyIds: string[] | undefined) {
+    const ids = enemyIds ?? ['forest-slime', 'direwolf-pup', 'spore-moth'];
+    const partyLevel = averagePartyLevel(this.save.party.active.map((member) => member.level));
+    const depth = labyrinthEncounterDepth(this.encounterId);
+    if (depth !== null) {
+      const floor = createScaledLabyrinthFloorUnits(ids, partyLevel, depth);
+      // Phase 148 — die tiefste Etage beschwört ein skaliertes Echo eines besiegten,
+      // aber nicht verschlungenen Bosses (erneut verschlingbar). Nur wenn eins existiert.
+      if (depth >= 3) {
+        const echoId = selectLabyrinthBossEcho(this.save.progression);
+        const echo = echoId ? createLabyrinthBossEchoUnit(echoId, partyLevel, depth) : null;
+        if (echo) {
+          return [...floor, echo];
+        }
+      }
+      return floor;
+    }
+    return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
   }
 
   private showEncounterTutorial(): void {
@@ -201,8 +266,8 @@ export class BattleScene extends Phaser.Scene {
       if (event.died && !reduced) this.poof(pos);
     }
     const dmg = totalDamage(events);
-    if (dmg > 0) playSfx('hit');
-    if (healed) playSfx('heal');
+    if (dmg > 0) playSfxProcedural('hit');
+    if (healed) playSfxProcedural('heal');
     if (!reduced && dmg > 0) {
       this.cameras.main.shake(Math.min(220, 70 + dmg * 4), Math.min(0.012, 0.003 + dmg * 0.0004));
     }
@@ -317,6 +382,8 @@ export class BattleScene extends Phaser.Scene {
     this.pendingSkillId = null;
     this.pendingItemId = null;
     this.pendingSignature = false;
+    this.pendingSteal = false;
+    this.pendingVerb = null;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
     this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
@@ -475,7 +542,7 @@ export class BattleScene extends Phaser.Scene {
     const view = renderView(this.state);
 
     view.enemies.forEach((enemy, index) => this.drawUnit(enemy, this.colX(index, view.enemies.length), 137, 'enemy'));
-    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), 345, 'party'));
+    view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), this.partyRowY(member), 'party'));
 
     view.log.slice(0, 2).forEach((line, index) => {
       this.layer.add(this.add.text(16, 11 + index * 19, line, {
@@ -513,6 +580,49 @@ export class BattleScene extends Phaser.Scene {
       color: '#f7e5b5'
     }).setOrigin(1, 0.5));
 
+    // Phase 94 — Elementarfeld-Anzeige: nur sichtbar, solange ein Feld geladen ist.
+    // Phase 173/182 — darunter reihen sich Reaktions-Hinweis und Welt-Uhr; wir fuehren
+    // einen laufenden y-Versatz, damit sich die Zeilen nie ueberlappen.
+    let hudLineY = 46;
+    if (view.field) {
+      this.layer.add(this.add.text(
+        GAME_WIDTH - 15,
+        hudLineY,
+        `Feld: ${elementLabel(view.field.element)} (${view.field.turns})`,
+        { fontFamily: 'sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#7fd4ff' }
+      ).setOrigin(1, 0.5));
+      hudLineY += 15;
+
+      // Phase 182 — Feld-Reaktion lesbar: telegraphiert, welche Fremd-Elemente auf dem
+      // geladenen Feld eine Fusions-Reaktion entladen (und es raeumen) — das Gegenspiel
+      // gegen ein feindliches Feld wie gegen das eigene.
+      if (view.fieldReactions.length > 0) {
+        // Deckt die Reaktion jedes andere Element ab, bleibt der Hinweis kompakt; sonst
+        // werden die konkreten Fremd-Elemente aufgezaehlt.
+        const trigger = view.fieldReactions.length >= 5
+          ? 'jedes Fremd-Element'
+          : view.fieldReactions.map((element) => elementLabel(element)).join('/');
+        this.layer.add(this.add.text(
+          GAME_WIDTH - 15,
+          hudLineY,
+          `↯ ${trigger} → Reaktion`,
+          { fontFamily: 'sans-serif', fontSize: '11px', color: '#ffcf7a' }
+        ).setOrigin(1, 0.5));
+        hudLineY += 15;
+      }
+    }
+
+    // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile macht die Kausalitaet
+    // (Nacht/Regen/Nebel → diese Eroeffnung) sichtbar. Unter Feld + Reaktions-Hinweis.
+    if (this.clockLabel) {
+      this.layer.add(this.add.text(
+        GAME_WIDTH - 15,
+        hudLineY,
+        this.clockLabel,
+        { fontFamily: 'sans-serif', fontSize: '11px', color: '#b9c6d8' }
+      ).setOrigin(1, 0.5));
+    }
+
     this.layer.add(this.add.rectangle(GAME_WIDTH / 2, 248, 300, 34, 0x091521, 0.86)
       .setStrokeStyle(1, 0x6b91b2, 0.75));
     this.layer.add(this.add.text(GAME_WIDTH / 2, 248, actor ? `${actor.name} ist am Zug` : '', {
@@ -524,10 +634,17 @@ export class BattleScene extends Phaser.Scene {
     this.drawEncounterTutorialHint(view.teamMeter);
 
     if (this.mode === 'menu') this.drawMenu();
+    else if (this.mode === 'mimic-forms') this.drawMimicFormList();
     else if (this.mode === 'skills') this.drawSkillList();
     else if (this.mode === 'items') this.drawItemList();
     else if (this.mode === 'team-partners') this.drawTeamPartnerList();
-    else if (this.mode === 'target-enemy') this.drawHint('Ziel-Gegner wählen');
+    else if (this.mode === 'target-enemy') {
+      this.drawHint('Ziel-Gegner wählen');
+      if (this.pendingSteal && this.textures.exists('ui-predator-steal')) {
+        this.layer.add(this.add.image(GAME_WIDTH / 2, 90, 'ui-predator-steal')
+          .setDisplaySize(224, 126).setDepth(45));
+      }
+    }
     else if (this.mode === 'target-ally') this.drawHint('Verbündeten wählen');
   }
 
@@ -535,6 +652,10 @@ export class BattleScene extends Phaser.Scene {
     const span = Math.min(GAME_WIDTH - 120, count * 150);
     const start = (GAME_WIDTH - span) / 2 + span / (count * 2);
     return start + (index * span) / count;
+  }
+
+  private partyRowY(unit: CombatantView): number {
+    return unit.formationRow === 'front' ? 326 : 370;
   }
 
   private textureFor(unit: CombatantView, side: 'party' | 'enemy'): {
@@ -608,6 +729,23 @@ export class BattleScene extends Phaser.Scene {
         color: '#f0cf72'
       }).setOrigin(0.5).setAlpha(alpha));
     }
+    // Phase 105 — aktive Mimik-Form (angenommenes Element) über der Einheit anzeigen.
+    if (unit.mimicElement) {
+      this.layer.add(this.add.text(x, y - 28, `⟳ ${elementLabel(unit.mimicElement)}-Form (${unit.mimicTurns})`, {
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        fontStyle: 'bold',
+        color: '#c39bff'
+      }).setOrigin(0.5).setAlpha(alpha));
+    }
+    if (side === 'party') {
+      this.layer.add(this.add.text(x + width / 2 - 10, y - height / 2 + 10, unit.formationRow === 'front' ? 'FRONT' : 'HINTEN', {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: unit.formationRow === 'front' ? '#ffd27a' : '#8fe7ff'
+      }).setOrigin(1, 0.5).setAlpha(alpha));
+    }
 
     this.layer.add(this.add.rectangle(x, y + 38, width - 14, 9, 0x0a0f18, 0.96).setOrigin(0.5));
     this.layer.add(this.add.rectangle(
@@ -635,7 +773,9 @@ export class BattleScene extends Phaser.Scene {
 
     if (side === 'enemy') {
       const intel = buildEnemyIntel(unit);
-      this.layer.add(this.add.text(x, y + 63, `${intel.breakText} · ${intel.weaknessText}`, {
+      let weaknessLine = `${intel.breakText} · ${intel.weaknessText}`;
+      if (intel.casterText) weaknessLine += ` · ${intel.casterText}`;
+      this.layer.add(this.add.text(x, y + 63, weaknessLine, {
         fontFamily: 'sans-serif',
         fontSize: '8px',
         fontStyle: 'bold',
@@ -691,7 +831,7 @@ export class BattleScene extends Phaser.Scene {
       }).setOrigin(0.5, 0));
     }
 
-    if (unit.statuses.includes('poison')) {
+    if (unit.statuses.some((s) => s.id === 'poison')) {
       this.layer.add(this.add.text(x + width / 2 - 8, y - height / 2 + 10, '☠', {
         fontSize: '12px',
         color: '#b06bff'
@@ -703,7 +843,11 @@ export class BattleScene extends Phaser.Scene {
     if (!unit.dead && (wantsEnemy || wantsAlly)) {
       box.setInteractive().setStrokeStyle(2, 0x68ff9a);
       box.on('pointerdown', () => {
-        if (this.pendingTeamPartnerId) {
+        if (this.pendingVerb) {
+          this.doAct({ type: this.pendingVerb, targetId: unit.id });
+        } else if (this.pendingSteal) {
+          this.doAct({ type: 'steal', targetId: unit.id });
+        } else if (this.pendingTeamPartnerId) {
           this.doAct({
             type: 'team-attack',
             partnerId: this.pendingTeamPartnerId,
@@ -731,15 +875,21 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
         this.refresh();
       }],
       ['✨ Skills', () => {
         this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
         this.mode = 'skills';
         this.refresh();
       }],
       ['🎒 Items', () => {
         this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
         this.mode = 'items';
         this.refresh();
       }],
@@ -760,6 +910,8 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
         this.mode = 'team-partners';
         this.refresh();
       }]);
@@ -773,6 +925,8 @@ export class BattleScene extends Phaser.Scene {
         this.pendingItemId = null;
         this.pendingTeamPartnerId = null;
         this.pendingSignature = true;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
         if (actorView.signatureTarget === 'self'
           || actorView.signatureTarget === 'all-allies'
           || actorView.signatureTarget === 'all-enemies') {
@@ -785,6 +939,69 @@ export class BattleScene extends Phaser.Scene {
     }
     if (!actor.skillIds.length) items.splice(1, 1);
     if (!renderView(this.state).inventory.length) items.splice(actor.skillIds.length ? 2 : 1, 1);
+
+    // Großer Weiser (Analysieren) und Verschlinger (Verschlingen) sind Unique-Verben,
+    // keine wirkbaren Skills — sie brauchen eigene Befehle statt eines toten Skill-Eintrags.
+    const livingEnemy = this.state.combatants.some((foe) => foe.side === 'enemy' && !foe.dead);
+    if (actor.skillIds.includes('predator')
+      && this.state.combatants.some((foe) => foe.side === 'enemy' && !foe.dead && foe.devourable)) {
+      items.splice(2, 0, ['🍴 Verschlingen', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = 'devour';
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
+    if (actor.skillIds.includes('great-sage') && livingEnemy) {
+      items.splice(2, 0, ['🔍 Analysieren', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = 'analyze';
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
+
+    // Phase 105 — Mimikry: nur anbieten, wenn Rimuru in diesem Kampf schon eine Form
+    // verschlungen hat (Verschlinger + verfügbare Elemente).
+    if (actor.skillIds.includes('predator') && availableMimicElements(this.state).length > 0) {
+      items.splice(3, 0, ['⟳ Mimik', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingSteal = false;
+        this.pendingVerb = null;
+        this.mode = 'mimic-forms';
+        this.refresh();
+      }]);
+    }
+
+    // Phase 112 — Praedator-Perversion: „Rauben" anbieten, sobald die Shizu-Absorption
+    // (story.shizu.vow) freigeschaltet ist und ein analysierter, nicht-seelengebundener
+    // Gegner mit einer noch nicht bekannten, raubbaren Fertigkeit im Kampf steht.
+    if (actor.skillIds.includes('predator') && this.save.flags['story.shizu.vow']
+      && this.state.combatants.some((foe) =>
+        foe.side === 'enemy' && !foe.dead && !foe.boss
+        && foe.analysisLevel >= 1 && stealableSkillFrom(foe, actor.skillIds) !== null)) {
+      items.splice(3, 0, ['⊗ Rauben', () => {
+        this.pendingSkillId = null;
+        this.pendingItemId = null;
+        this.pendingTeamPartnerId = null;
+        this.pendingSignature = false;
+        this.pendingSteal = true;
+        this.pendingVerb = null;
+        this.mode = 'target-enemy';
+        this.refresh();
+      }]);
+    }
 
     // Phase 81 — Deckung anbieten, sobald ein Gegner einen Zug telegraphiert
     // (v.a. Big-Hits): die Party blockt den vorhergesagten Treffer, statt ihn
@@ -805,7 +1022,9 @@ export class BattleScene extends Phaser.Scene {
 
   private drawSkillList(): void {
     const actor = currentActor(this.state)!;
+    // Unique-Verben (Großer Weiser/Verschlinger) haben eigene Befehle — nicht als tote Skills listen.
     const skills = actor.skillIds.flatMap((id) => {
+      if (id === 'great-sage' || id === 'predator') return [];
       const skill = skillById.get(id);
       return skill ? [skill] : [];
     });
@@ -887,6 +1106,28 @@ export class BattleScene extends Phaser.Scene {
     this.drawChoiceGrid(choices);
   }
 
+  // Phase 105 — Mimikry: wähle das Element einer verschlungenen Form.
+  private drawMimicFormList(): void {
+    // Phase 105 — dekorativer „Mimik"-Banner als Kopf der Form-Auswahl (ui-mimic-form-indicator).
+    // ponytail: rein dekorativ; die konkrete aktive Form/Restdauer steht als Textmarker über der Einheit.
+    if (this.textures.exists('ui-mimic-form-indicator')) {
+      this.layer.add(this.add.image(GAME_WIDTH / 2, 70, 'ui-mimic-form-indicator')
+        .setDisplaySize(224, 112).setDepth(45));
+    }
+    const actorView = renderView(this.state).party.find((candidate) => candidate.active);
+    const choices: Array<[string, () => void]> = availableMimicElements(this.state).map((element) => [
+      actorView?.mimicElement === element
+        ? `${elementLabel(element)} (aktiv)`
+        : `${elementLabel(element)}-Form`,
+      () => this.doAct({ type: 'mimic', element })
+    ]);
+    choices.push(['↩ Zurück', () => {
+      this.mode = 'menu';
+      this.refresh();
+    }]);
+    this.drawChoiceGrid(choices);
+  }
+
   private drawChoiceGrid(choices: ReadonlyArray<readonly [string, () => void]>): void {
     const columns = 5;
     const gap = 8;
@@ -906,7 +1147,7 @@ export class BattleScene extends Phaser.Scene {
     }
     if (!this.resultAnnounced) {
       this.resultAnnounced = true;
-      playSfx(won ? 'victory' : status === 'fled' ? 'cancel' : 'defeat');
+      playSfxProcedural(won ? 'victory' : status === 'fled' ? 'menu' : 'hit'); // fallback for defeat/fled
       if (won && this.encounterId === 'direwolf-pack-leader') {
         this.time.delayedCall(220, () => playSfx('magic'));
       }
@@ -938,6 +1179,43 @@ export class BattleScene extends Phaser.Scene {
       if (this.levelUps.length > 0) {
         const ups = this.levelUps.map((up) => `${up.name} Lv.${up.toLevel}`).join(' · ');
         lines.push({ text: `Stufenaufstieg: ${ups}`, size: 14, color: '#8dffc2' });
+      }
+      if (this.masteredGrounds.length > 0) {
+        lines.push({
+          text: `🐾 Jagdgrund gemeistert: ${this.masteredGrounds.join(' · ')}`,
+          size: 14,
+          color: '#e9c56c'
+        });
+      }
+      // Phase 174 — Welt-Uhr: neu verdiente Bedingungsfunde (Nacht/Nebel/Regen).
+      if (this.weatherFinds.length > 0) {
+        lines.push({
+          text: `☾ ${this.weatherFinds.join(' · ')}`,
+          size: 14,
+          color: '#9fd0ff'
+        });
+      }
+      // Phase 155 — gerollte Labyrinth-Beute sichtbar machen (Basis + Affixe).
+      if (this.labyrinthLoot) {
+        const loot = resolveInstanceItem(this.labyrinthLoot);
+        const affixes = instanceAffixLabels(this.labyrinthLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
+        lines.push({
+          text: `✦ Labyrinth-Fund: ${loot?.name ?? this.labyrinthLoot}${suffix}`,
+          size: 14,
+          color: '#ffd98a'
+        });
+      }
+      // Phase 157 — gerolltes Boss-Endgame-Loot sichtbar machen (Basis + Affixe).
+      if (this.bossLoot) {
+        const loot = resolveInstanceItem(this.bossLoot);
+        const affixes = instanceAffixLabels(this.bossLoot);
+        const suffix = affixes.length > 0 ? ` (${affixes.join(', ')})` : '';
+        lines.push({
+          text: `★ Boss-Beute: ${loot?.name ?? this.bossLoot}${suffix}`,
+          size: 14,
+          color: '#ffcf6b'
+        });
       }
     }
     if (pactMessage) {
@@ -975,11 +1253,25 @@ export class BattleScene extends Phaser.Scene {
   private applyBattleResult(status: string): void {
     const view = renderView(this.state);
     const before = this.save;
+    // Phase 155 — auf Labyrinth-Etagen deterministisch (Kampf-Seed + Tiefe) eine
+    // gerollte Ausruestungs-Instanz droppen; der Reward-Fluss bankt sie ins Inventar.
+    const depth = status === 'won' ? labyrinthEncounterDepth(this.encounterId) : null;
+    this.labyrinthLoot = depth !== null ? rollLabyrinthFloorLoot(this.state.seed, depth) : null;
+    // Phase 157 — Boss-Sieg rollt (deterministisch, gegatet) kern-lastiges Endgame-Loot.
+    this.bossLoot = status === 'won' ? rollBossLoot(view, this.state.seed) : null;
     const after = applyBattleResultToSave(before, view, {
-      encounterId: status === 'won' ? this.encounterId : null
+      encounterId: status === 'won' ? this.encounterId : null,
+      labyrinthLoot: depth !== null ? { seed: this.state.seed, depth } : undefined,
+      bossLoot: status === 'won' ? { seed: this.state.seed } : undefined,
+      // Phase 174 — Welt-Uhr: Erst-Sieg-Bedingungsbelohnung (nur bei vorhandener Uhr).
+      clock: status === 'won' && this.battleClock ? this.battleClock : undefined
     });
     this.levelUps = summarizeBattleLevelUps(before, after);
     this.magiculeGain = after.progression.magicules - before.progression.magicules;
+    // Phase 124 — neu gemeisterte Jagdgruende fuer die Sieg-Zusammenfassung.
+    this.masteredGrounds = newlyMasteredHuntingGrounds(before.flags, after.flags).map((ground) => ground.name);
+    // Phase 174 — neu verdiente Welt-Uhr-Bedingungsfunde (Nacht/Nebel/Regen).
+    this.weatherFinds = newlyRewardedWeatherConditions(before.flags, after.flags);
     this.save = autoSave(window.localStorage, after);
   }
 

@@ -1,15 +1,102 @@
 import type { BattleView } from './battle';
+import { tallyAnalyzedEnemies } from './bestiary';
+import { collectHuntingGroundRewards } from './bestiaryMastery';
 import { tallyDefeatedEnemies } from './bounties';
 import { KITCHEN_REST_BUFF_FLAG } from './facilities';
 import { normalizeInventoryStacks } from './inventory';
-import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules } from './progression';
+import { rollLabyrinthFloorLoot } from './labyrinth';
+import { rollLabyrinthLootItemId } from './lootAffix';
+import { makeRng } from './rng';
+import { applyBattleProgressionRewards, calculateProgressionStats, grantMagicules, grantSouls } from './progression';
 import { recruitResidentsFromDevour } from './residents';
 import type { SaveGameV2 } from './save';
 import { applyWorldState, completeEncounter, createWorldState } from './world';
+import type { WorldClock } from './worldClock';
 
 export interface ApplyBattleResultOptions {
   readonly encounterId?: string | null;
   readonly chapterId?: string;
+  // Phase 155 — Labyrinth-Etagen-Loot: bei einem Sieg auf einer Labyrinth-Etage
+  // rollt der Reward-Fluss deterministisch (aus dem Kampf-Seed + Tiefe) eine
+  // gerollte Ausruestungs-Instanz und bankt sie als nicht-stapelbares Inventar-Item.
+  readonly labyrinthLoot?: { readonly seed: number; readonly depth: number };
+  // Phase 157 — Boss-Drops: bei einem Boss-Sieg rollt der Reward-Fluss deterministisch
+  // (aus dem Kampf-Seed) mit gegateter Chance ein kern-lastiges Endgame-Loot und bankt es.
+  readonly bossLoot?: { readonly seed: number };
+  // Phase 174 — Welt-Uhr: bei einem regulaeren Sieg belohnt der ERSTE Kampf unter je einer
+  // Bedingung (Nacht/Nebel/Regen) einmalig einen Magicule-Fund (nicht farmbar, Flag-gegatet).
+  readonly clock?: WorldClock;
+}
+
+// Phase 174 — Wechselnde Bedingungen belohnen: der ERSTE Sieg unter je einer Welt-Uhr-
+// Bedingung (Nacht / Nebel / Regen) zahlt EINMALIG einen kleinen Magicule-Fund und setzt
+// ein Flag, das Doppelzahlung ueber Save-/Kampf-Grenzen verhindert (nicht farmbar). Rein/
+// funktional; off-route (die Balance-Harness reicht keine Uhr durch → Korridor unberuehrt).
+export interface WeatherConditionReward {
+  readonly flag: string;
+  readonly magicules: number;
+  readonly label: string;
+}
+
+const WEATHER_CONDITION_MAGICULES = 8;
+
+export function weatherConditionRewards(
+  clock: WorldClock,
+  flags: Readonly<Record<string, boolean>>
+): WeatherConditionReward[] {
+  const rewards: WeatherConditionReward[] = [];
+  const consider = (flag: string, active: boolean, label: string): void => {
+    if (active && !flags[flag]) {
+      rewards.push({ flag, magicules: WEATHER_CONDITION_MAGICULES, label });
+    }
+  };
+  consider('worldclock.first.night', clock.timeOfDay === 'night', 'Erste Nachtschlacht');
+  consider('worldclock.first.fog', clock.weather === 'fog', 'Erster Sieg im Nebel');
+  consider('worldclock.first.rain', clock.weather === 'rain', 'Erster Sturmkampf');
+  return rewards;
+}
+
+const WEATHER_CONDITION_LABELS: readonly (readonly [string, string])[] = [
+  ['worldclock.first.night', 'Erste Nachtschlacht'],
+  ['worldclock.first.fog', 'Erster Sieg im Nebel'],
+  ['worldclock.first.rain', 'Erster Sturmkampf']
+];
+
+// Phase 177 — Wetter-/Nacht-Funde im Codex sichtbar (Sammelziel): reine Ableitung, welche
+// der drei Bedingungs-Erstfunde (Nacht/Nebel/Regen) der Spieler schon abgeraeumt hat.
+// Rein/funktional (nur Flag-Lese), keine Save-/Balance-Beruehrung.
+export interface WeatherConditionEntry {
+  readonly flag: string;
+  readonly label: string;
+  readonly found: boolean;
+}
+
+export interface WeatherConditionProgress {
+  readonly entries: readonly WeatherConditionEntry[];
+  readonly found: number;
+  readonly total: number;
+}
+
+export function weatherConditionProgress(
+  flags: Readonly<Record<string, boolean>>
+): WeatherConditionProgress {
+  const entries = WEATHER_CONDITION_LABELS.map(([flag, label]) => ({
+    flag,
+    label,
+    found: flags[flag] === true
+  }));
+  return { entries, found: entries.filter(e => e.found).length, total: entries.length };
+}
+
+// Welche Bedingungs-Belohnungen (Phase 174) in diesem Kampf NEU verdient wurden — fuer
+// die Sieg-Zusammenfassung. Rein/funktional (Flag-Diff vorher→nachher).
+export function newlyRewardedWeatherConditions(
+  beforeFlags: Readonly<Record<string, boolean>>,
+  afterFlags: Readonly<Record<string, boolean>>
+): string[] {
+  return WEATHER_CONDITION_LABELS.filter(([flag]) => !beforeFlags[flag] && afterFlags[flag]).map(
+    ([, label]) => label
+  );
 }
 
 export function calculateBattleMagicules(battle: BattleView): number {
@@ -20,6 +107,37 @@ export function calculateBattleMagicules(battle: BattleView): number {
   const devourMagicules = uniqueStrings(battle.devouredSourceIds).length * 12;
   const bossMagicules = battle.enemies.filter((enemy) => enemy.boss).length * 30;
   return enemyMagicules + devourMagicules + bossMagicules;
+}
+
+// Phase 127 — Seelen (魂): NUR Boss-Siege ernten Seelen (eine je erlegtem Boss).
+// Damit tragen Boss-Kaempfe eine eigene, sichtbare Oekonomie (Erwachens-Gate),
+// getrennt von den Magicules aus jedem Kill.
+export function calculateBattleSouls(battle: BattleView): number {
+  if (battle.status !== 'won') {
+    return 0;
+  }
+  return battle.enemies.filter((enemy) => enemy.boss && enemy.dead).length;
+}
+
+// Phase 157 — Boss-Drops: grosse Boss-Siege geben mit gegateter, deterministischer
+// Chance (aus dem Kampf-Seed) ein gerolltes Endgame-Loot aus einem KERN-lastigen Tisch
+// hoher Raritaet — so bekommt der Kern-Slot (Phase 150) erspielbaren Roll-Nachschub und
+// Boss-Kaempfe eine eigene Loot-Bedeutung neben Seelen (127)/Magicules (102). Rein/
+// funktional (Seed rein → Ergebnis raus), analog `calculateBattleSouls`.
+const BOSS_LOOT_TABLE: readonly string[] = [
+  'soul-forged-core',   // legendaer Kern (Signatur-Perk)
+  'ember-magicule-core', // episch Kern
+  'resonant-core',       // episch Kern
+  'veldora-scale-ward'   // legendaer Accessoire (Kern-Alternative)
+];
+const BOSS_LOOT_CHANCE = 0.5;
+
+export function rollBossLoot(battle: BattleView, seed: number): string | null {
+  if (battle.status !== 'won') return null;
+  const bossKills = battle.enemies.filter((enemy) => enemy.boss && enemy.dead).length;
+  if (bossKills === 0) return null;
+  if (makeRng((seed ^ 0x0b055) >>> 0)() >= BOSS_LOOT_CHANCE) return null;
+  return rollLabyrinthLootItemId((seed ^ 0xb0551007) >>> 0, BOSS_LOOT_TABLE);
 }
 
 export function applyBattleResultToSave(
@@ -45,9 +163,9 @@ export function applyBattleResultToSave(
       };
   // Phase 92 — Bewohner: in diesem Kampf verschlungene Gegner-Arten als Bewohner
   // rekrutieren (per Naming). Idempotent; alte Bewohner bleiben erhalten.
-  const withMagicules = grantMagicules(
-    progressionResult.state,
-    calculateBattleMagicules(battle)
+  const withMagicules = grantSouls(
+    grantMagicules(progressionResult.state, calculateBattleMagicules(battle)).state,
+    calculateBattleSouls(battle)
   ).state;
   const recruited = won
     ? recruitResidentsFromDevour(withMagicules.residentIds, battle.devouredSourceIds)
@@ -64,7 +182,16 @@ export function applyBattleResultToSave(
         defeatedEnemyCountsByEnemyId: tallyDefeatedEnemies(
           progressionBase.defeatedEnemyCountsByEnemyId,
           battle.enemies.filter((enemy) => enemy.dead).map((enemy) => enemy.sourceId)
-        )
+        ),
+        // Phase 122 — Lebendiges Bestiarium: im Sieg studierte Arten (analysisLevel > 0)
+        // dauerhaft ins Analyse-Wissen buchen (deckt Kampfdaten im Codex auf).
+        analyzedEnemyIds: tallyAnalyzedEnemies(
+          progressionBase.analyzedEnemyIds,
+          battle.enemies.filter((enemy) => enemy.analysisLevel > 0).map((enemy) => enemy.sourceId)
+        ),
+        // Phase 148 — Boss-Echos: verschlungene Quell-Ids dauerhaft merken, damit das
+        // Labyrinth nur „besiegt, aber nicht verschlungen"-Bosse als Echo beschwört.
+        devouredSourceIds: uniqueStrings([...progressionBase.devouredSourceIds, ...battle.devouredSourceIds])
       }
     : progressionBase;
   const active = progressionResult.active.map((member) => {
@@ -89,15 +216,51 @@ export function applyBattleResultToSave(
     };
   });
 
+  // Phase 155 — gerollte Labyrinth-Etagen-Beute (deterministisch, gedeckelte Chance)
+  // als nicht-stapelbares Inventar-Item banken. Nur bei Sieg auf einer Labyrinth-Etage.
+  const labyrinthLootId = won && options.labyrinthLoot
+    ? rollLabyrinthFloorLoot(options.labyrinthLoot.seed, options.labyrinthLoot.depth)
+    : null;
+  // Phase 157 — gerolltes Boss-Endgame-Loot (deterministisch, gegatete Chance) banken.
+  const bossLootId = won && options.bossLoot
+    ? rollBossLoot(battle, options.bossLoot.seed)
+    : null;
   const inventory = won
-    ? normalizeInventoryStacks([...battle.inventory, ...battle.rewards.items])
+    ? normalizeInventoryStacks([
+        ...battle.inventory,
+        ...battle.rewards.items,
+        ...(labyrinthLootId ? [{ itemId: labyrinthLootId, quantity: 1 }] : []),
+        ...(bossLootId ? [{ itemId: bossLootId, quantity: 1 }] : [])
+      ])
     : normalizeInventoryStacks(battle.inventory);
 
-  const flags = {
+  const baseFlags = {
     ...save.flags,
     ...(learnedDevourSkill ? { 'codex.predator-devour': true } : {}),
     [KITCHEN_REST_BUFF_FLAG]: false
   };
+
+  // Phase 124 — Sammel-Meisterschaft: neu vollstaendig studierte Jagdgruende
+  // einmalig mit einem Magicule-Fund belohnen (Flag verhindert Doppelzahlung).
+  // Verzahnt den Bestiarium-Sammelpfeiler (122/123) mit der Magicule-Oekonomie
+  // (102). Reine Spieler-Belohnung, kein Kampf-Balance-Effekt.
+  const masteryRewards = won
+    ? collectHuntingGroundRewards(progression.analyzedEnemyIds, baseFlags)
+    : [];
+  let masteredProgression = progression;
+  let flags = baseFlags;
+  for (const reward of masteryRewards) {
+    masteredProgression = grantMagicules(masteredProgression, reward.magicules).state;
+    flags = { ...flags, [reward.flag]: true };
+  }
+
+  // Phase 174 — Welt-Uhr: erster Sieg unter je einer Bedingung (Nacht/Nebel/Regen) einmalig
+  // belohnen; die Flags verhindern Doppelzahlung (nicht farmbar). Off-route Spieler-Belohnung.
+  const weatherRewards = won && options.clock ? weatherConditionRewards(options.clock, flags) : [];
+  for (const reward of weatherRewards) {
+    masteredProgression = grantMagicules(masteredProgression, reward.magicules).state;
+    flags = { ...flags, [reward.flag]: true };
+  }
 
   let nextSave: SaveGameV2 = {
     ...save,
@@ -108,7 +271,7 @@ export function applyBattleResultToSave(
     },
     inventory: { stacks: inventory },
     flags,
-    progression
+    progression: masteredProgression
   };
 
   if (won && options.encounterId) {

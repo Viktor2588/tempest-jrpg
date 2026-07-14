@@ -20,7 +20,11 @@ export type TalentPerk =
   | { readonly kind: 'skill-chain'; readonly triggerSkillId: string; readonly followUpSkillId: string; readonly percent: number }
   | { readonly kind: 'buff-power'; readonly percent: number }
   | { readonly kind: 'devour-chance'; readonly percent: number }
-  | { readonly kind: 'analysis-power'; readonly levels: number };
+  | { readonly kind: 'analysis-power'; readonly levels: number }
+  // Phase 132 — Widerstands-Schicht: Chance, einen negativen Status abzuwehren, wenn er
+  // zugefuegt wuerde. Ohne `statuses` gilt der Widerstand fuer alle Negativ-Status,
+  // mit `statuses` nur fuer die genannten (z.B. Rimurus Isolation → nur 'poison').
+  | { readonly kind: 'status-resist'; readonly percent: number; readonly statuses?: readonly StatusEffectId[] };
 
 export type StatusEffectId =
   | 'poison'
@@ -42,7 +46,14 @@ export type StatusEffectId =
   | 'charm' // Chance, gebannt auszusetzen
   | 'weaken'; // Angriff und Magie gesenkt
 
-export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
+// Phase 150 — vierter Slot 'core' (Magicule-Kern): an die Magicule-/Seelen-Oekonomie
+// gebundene Kerne mit massvollen Boni; generisch über EQUIPMENT_SLOTS verdrahtet.
+export type EquipmentSlot = 'weapon' | 'armor' | 'accessory' | 'core';
+
+// Phase 149 — Raritaet/Tier-Fundament (D3-artig): gewoehnlich < selten < episch <
+// legendaer < legendaer-set. `legendaer` = einzigartig mit genau EINEM Signatur-Perk;
+// `legendaer-set` gehoert zu einem `EQUIPMENT_SETS`-Set (speist die Tier-Boni).
+export type ItemRarity = 'gewoehnlich' | 'selten' | 'episch' | 'legendaer' | 'legendaer-set';
 
 export interface StatBlock {
   readonly maxHp: number;
@@ -88,12 +99,21 @@ export interface SkillDefinition {
   // (auch ohne Analyse) und schlägt gegen ein ungedecktes Ziel (kein Block/Guard)
   // deutlich härter zu — der Spieler soll den Telegraph lesen und kontern.
   readonly heavy?: boolean;
+  // Phase 94 — Elementarfeld: die Fähigkeit lädt das Schlachtfeld auf ihr Element auf.
+  // Ein aktives Feld verstärkt gleichelementige Treffer und löst mit Fusions-Partner-
+  // Elementen eine Reaktion aus (systems/battle wertet es aus, s. resolveElementFusion).
+  readonly chargesField?: boolean;
 }
 
-export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'key';
+export type ItemCategory = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'core' | 'key';
 
 export interface ItemEffect {
-  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill';
+  // Phase 129 — 'cure-status': entfernt negative/Hart-CC-Status vom Ziel (Gegenmittel
+  // zur erwachten Kontroll-Schicht). Behandelt in battle.ts:resolveItem.
+  // Phase 178 — 'ward-fog': proaktives Vorsorge-Item (out of combat). Laedt einen
+  // einmaligen Nebel-Ward, der die Nebel-Eroeffnungsblendung des naechsten Kampfes
+  // unterdrueckt (Flag `worldclock.fogward`). Behandelt in menu.ts:useItem.
+  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill' | 'cure-status' | 'ward-fog';
   readonly amount?: number;
   readonly skillId?: string;
 }
@@ -108,12 +128,19 @@ export interface ItemDefinition {
   readonly startingQuantity?: number;
   readonly equipmentSlot?: EquipmentSlot;
   readonly equipmentSetId?: string;
+  // Phase 149 — Raritaet der Ausruestung (fehlt → gewoehnlich). Steuert Menue-Farbe
+  // und die kuratierten Loot-Budgets (Stat-Multiplikator/Enchant-Cap) in systems/itemRarity.
+  readonly rarity?: ItemRarity;
   readonly enchantment?: {
     readonly maxLevel: number;
     readonly goldCostPerLevel: number;
     readonly statBonusPerLevel: Partial<StatBlock>;
   };
   readonly statBonus?: Partial<StatBlock>;
+  // Phase 135 — Ausruestungs-Perks: passive Kampf-Effekte (TalentPerk), die ein
+  // ausgeruestetes Teil dem Traeger verleiht (z.B. ein Schutztalisman → status-resist).
+  // Werden beim Kampfstart in die Combatant-Perks gemischt (systems/progression).
+  readonly perks?: readonly TalentPerk[];
   readonly effect?: ItemEffect;
 }
 
@@ -316,8 +343,22 @@ export interface EnemyDefinition {
   readonly reflectsCategory?: DamageCategory;
   readonly devourable: boolean;
   readonly devourSkillId?: string;
+  readonly predatorStealSkillId?: string;
+  readonly soulboundSkillIds?: readonly string[];
+  // Phase 109 — Skript-Bosse & Adds: beim Wechsel in Phase 2 beschwört dieser Boss
+  // einmalig zusätzliche Combatants (`summonEnemyId` × `summonCount`) in den Kampf.
+  // Einmalig + endliche Zahl -> terminierend (kein Soft-Lock in Sims/Tests).
+  readonly summonEnemyId?: string;
+  readonly summonCount?: number;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter (Canon: Resistenz -> Nullifizierung -> Absorption):
+  // `nullifies` = Immunität (0 Schaden, „ist immun gegen …"); `absorbs` = das Element
+  // heilt das Ziel statt zu schaden. Reihenfolge der Stärke: Absorption > Nullifizierung
+  // > Resistenz/Schwäche. Bewusst nur auf thematischen, nicht-pflichtpfad-kritischen
+  // Zielen (zwingt zum Element-Wechsel statt Schwäche-Spam).
+  readonly nullifies?: readonly ElementType[];
+  readonly absorbs?: readonly ElementType[];
   readonly experienceReward: number;
   readonly goldReward: number;
   readonly drops: readonly EnemyDrop[];

@@ -36,7 +36,7 @@ test('HiDPI-Canvas behält 960×540-Layout mit begrenztem scharfem Backing Store
 
   await clickLogicalPoint(page, 480, 370);
   await clickLogicalPoint(page, 480, 280);
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(300); // reduced from 700; game should be stable after click + expect in helpers
   const screenshot = await canvas.screenshot();
   expect(screenshot.byteLength).toBeGreaterThan(10_000);
   expect(browserErrors).toEqual([]);

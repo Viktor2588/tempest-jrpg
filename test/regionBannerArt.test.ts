@@ -58,9 +58,9 @@ describe('Gebietsindikator-Banner', () => {
       'region-lizardman-marsh.webp',
       'region-ember-hollow.webp',
       'region-blumund.webp',
-      'region-freedom-academy.png',
-      'region-tempest-colosseum.png',
-      'region-ramiris-labyrinth.png',
+      'region-freedom-academy.webp',
+      'region-tempest-colosseum.webp',
+      'region-ramiris-labyrinth.webp',
       'region-tempest-camp.webp',
       'region-tempest-village.webp',
       'region-tempest-city.webp'

@@ -91,12 +91,16 @@ describe('artSpec', () => {
       'kurobe',
       'souei',
       'kaijin',
+      'kurobe-kaijin',
       'eir',
+      'border-scout',
       'kael',
       'gazel',
       'blumund-adventurers',
       'treyni',
       'milim',
+      'ramiris',
+      'arena-steward',
       'souka',
       'mordrahn'
     ]);

@@ -20,6 +20,7 @@ import {
   applyBattleProgressionRewards,
   awakenTempest,
   AWAKENING_MAGICULE_COST,
+  AWAKENING_SOUL_COST,
   calculateProgressionStats,
   calculateStartingTeamMeter,
   catchUpReserveMembers,
@@ -30,7 +31,9 @@ import {
   createProgressionBattleParty,
   discoverRegion,
   enchantEquipment,
+  equipmentPerksForMember,
   evolveMember,
+  getProgressionRelationships,
   getProgressionSkillIds,
   getRelationshipLevelNumber,
   grantRelationshipPoints,
@@ -149,6 +152,29 @@ describe('progression system', () => {
     expect(skillIds).toContain('direwolf-rush');
   });
 
+  it('Phase 131 — Hakurou und Souei besitzen jetzt eine eigene Bindungs-Achse', () => {
+    // Beide Kijin waren bisher aus RELATIONSHIPS ausgeschlossen (keine Boni/Szenen).
+    for (const characterId of ['hakurou', 'souei']) {
+      const owned = getProgressionRelationships(characterId).filter(
+        (relationship) => relationship.characterId === characterId
+      );
+      expect(owned.length, `${characterId} ohne eigene Bindung`).toBeGreaterThan(0);
+    }
+
+    const hakurou = createPartyMember(hero('hakurou'), { level: 8 });
+    const baseState = createProgressionState();
+    const bondedState = grantRelationshipPoints(baseState, 'hakurou-benimaru', 130).state;
+    const baseStats = calculateProgressionStats(hakurou, baseState);
+    const bondedStats = calculateProgressionStats(hakurou, bondedState);
+
+    expect(getRelationshipLevelNumber(bondedState, 'hakurou-benimaru')).toBe(3);
+    expect(bondedStats.agility).toBeGreaterThan(baseStats.agility);
+    expect(bondedStats.attack).toBeGreaterThan(baseStats.attack);
+
+    const soueiBond = grantRelationshipPoints(baseState, 'souei-shion', 25).state;
+    expect(getRelationshipLevelNumber(soueiBond, 'souei-shion')).toBe(1);
+  });
+
   it('führt Namensgebung, Entwicklung und Skill-Baum als zusammenhängenden Pfad aus', () => {
     const rimuru = createPartyMember(hero('rimuru'), { level: 7 });
     const renamed = renameMember(rimuru, 'Ciel');
@@ -203,6 +229,23 @@ describe('progression system', () => {
     expect(calculateProgressionStats(gobta, enchanted.state).attack).toBeGreaterThan(setAttack);
   });
 
+  it('Phase 135 — ein ausgerüsteter Schutztalisman verleiht dem Kämpfer einen status-resist-Perk', () => {
+    const member = createPartyMember(hero('gobta'), { level: 6 });
+    // Ohne Talisman keine Ausrüstungs-Perks aus dem Zubehör-Slot.
+    const withoutTalisman = { ...member, equipment: { ...member.equipment, accessory: null } };
+    expect(equipmentPerksForMember(withoutTalisman).some((perk) => perk.kind === 'status-resist')).toBe(false);
+
+    const withTalisman = { ...member, equipment: { ...member.equipment, accessory: 'ward-talisman' } };
+    const perks = equipmentPerksForMember(withTalisman);
+    const resist = perks.find((perk) => perk.kind === 'status-resist');
+    expect(resist).toBeTruthy();
+    expect(resist!.kind === 'status-resist' && resist!.percent).toBeGreaterThan(0);
+
+    // Der Perk landet über die Party-Montage in der Combatant-Perk-Liste.
+    const unit = createProgressionBattleParty([withTalisman], createProgressionState())[0]!;
+    expect((unit.perks ?? []).some((perk) => perk.kind === 'status-resist')).toBe(true);
+  });
+
   it('übersetzt Party-Bindungen in Startbuff, Team-Leiste und ausführbaren Team-Angriff', () => {
     const party = [
       createPartyMember(hero('rimuru'), { level: 6 }),
@@ -226,7 +269,7 @@ describe('progression system', () => {
     const target = view.enemies[0]!;
 
     expect(calculateStartingTeamMeter(party, bonded)).toBe(50);
-    expect(view.party.every((member) => member.statuses.includes('attack-up'))).toBe(true);
+    expect(view.party.every((member) => member.statuses.some((s) => s.id === 'attack-up'))).toBe(true);
     expect(actor.synergyPartnerIds).toContain(partner.sourceId);
     expect(act(state, {
       type: 'team-attack',
@@ -262,10 +305,11 @@ describe('progression system', () => {
       .toContain('defense-up');
   });
 
-  it('vollzieht das Erntefest einmalig, verbraucht Magicules und verstärkt Offiziere', () => {
+  it('vollzieht das Erntefest einmalig, verbraucht Magicules + Seelen und verstärkt Offiziere', () => {
     const flags = { 'story.tempest-invasion.repulsed': true };
     const state = createProgressionState({
       magicules: AWAKENING_MAGICULE_COST + 5,
+      souls: AWAKENING_SOUL_COST + 2,
       promotedResidentIds: ['sturmzahn', 'hainspore']
     });
 
@@ -274,6 +318,7 @@ describe('progression system', () => {
 
     expect(awakened.ok).toBe(true);
     expect(awakened.state.magicules).toBe(5);
+    expect(awakened.state.souls).toBe(2); // Seelen ebenfalls verbraucht
     expect(awakened.state.awakeningCompleted).toBe(true);
     expect(awakened.state.awakenedResidentIds).toEqual(['sturmzahn', 'hainspore']);
     expect(awakenTempest(awakened.state, flags).ok).toBe(false);
@@ -283,6 +328,60 @@ describe('progression system', () => {
     expect(unit.formName).toBe('Erwachter Schleim');
     expect(unit.perks).toContainEqual({ kind: 'max-hp', percent: 10 });
     expect(unit.perks).toContainEqual({ kind: 'damage-dealt', percent: 10 });
+  });
+
+  it('verleiht nach dem Erntefest jedem Gefaehrten sein Ultimate Gift (Phase 169)', () => {
+    const flags = { 'story.tempest-invasion.repulsed': true };
+    const state = createProgressionState({
+      magicules: AWAKENING_MAGICULE_COST,
+      souls: AWAKENING_SOUL_COST,
+      promotedResidentIds: ['sturmzahn']
+    });
+
+    // Vor dem Erwachen: keine Geschenk-Perks.
+    const benimaruBefore = createPartyMember(hero('benimaru'), { level: 6 });
+    expect(createProgressionBattleParty([benimaruBefore], state)[0]!.perks)
+      .not.toContainEqual({ kind: 'damage-dealt', percent: 8, element: 'fire' });
+
+    const awakened = awakenTempest(state, flags);
+    expect(awakened.ok).toBe(true);
+
+    // Nach dem Erwachen: je Gefaehrte genau sein canon-thematisches Geschenk.
+    const expectations: ReadonlyArray<readonly [string, Record<string, unknown>]> = [
+      ['benimaru', { kind: 'damage-dealt', percent: 8, element: 'fire' }],
+      ['shuna', { kind: 'buff-power', percent: 10 }],
+      ['shion', { kind: 'damage-dealt', percent: 8, category: 'physical' }],
+      ['souei', { kind: 'dodge', percent: 5 }],
+      ['hakurou', { kind: 'counter', percent: 6 }],
+      ['ranga', { kind: 'damage-dealt', percent: 8, element: 'wind' }],
+      ['gobta', { kind: 'dodge', percent: 5 }],
+      ['rigurd', { kind: 'max-hp', percent: 8 }]
+    ];
+    for (const [characterId, perk] of expectations) {
+      const member = createPartyMember(hero(characterId), { level: 6 });
+      const unit = createProgressionBattleParty([member], awakened.state)[0]!;
+      expect(unit.perks).toContainEqual(perk);
+    }
+
+    // Rimuru behaelt seine eigenen Erwachen-Perks (kein Geschenk-Doppel).
+    const rimuru = createPartyMember(hero('rimuru'), { level: 6 });
+    const rimuruUnit = createProgressionBattleParty([rimuru], awakened.state)[0]!;
+    expect(rimuruUnit.perks).toContainEqual({ kind: 'max-hp', percent: 10 });
+    expect(rimuruUnit.perks).not.toContainEqual({ kind: 'buff-power', percent: 10 });
+  });
+
+  it('gated das Erntefest auch an den Seelen (Boss-Waehrung)', () => {
+    const flags = { 'story.tempest-invasion.repulsed': true };
+    // Magicules reichen, aber keine Seelen → gesperrt.
+    const noSouls = createProgressionState({
+      magicules: AWAKENING_MAGICULE_COST,
+      souls: AWAKENING_SOUL_COST - 1,
+      promotedResidentIds: ['sturmzahn']
+    });
+    const check = canAwakenTempest(noSouls, flags);
+    expect(check.ok).toBe(false);
+    expect(check.message).toContain('Seelen');
+    expect(awakenTempest(noSouls, flags).ok).toBe(false);
   });
 
   it('holt Reservefiguren über Kapitel-Baselines und Party-Abstand ohne Grinding auf', () => {

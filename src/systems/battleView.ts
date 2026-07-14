@@ -1,6 +1,7 @@
 import type { ElementType, SkillDefinition, StatusEffectId } from '../data';
 import { SIGNATURES, SKILLS, type SignatureTarget } from '../data';
 import type {
+  BattleField,
   BattleRewards,
   BattleState,
   BattleStatus,
@@ -9,8 +10,30 @@ import type {
   Side
 } from './battle';
 import { calculateDevourSuccessChance, escalationBonus } from './battle';
+import { resolveElementFusion } from './fusion';
 import type { InventoryStack } from './inventory';
+import type { FormationRow } from './party';
 import { devourChanceBonus } from './talentPerk';
+
+// Phase 182 — Feld-Reaktion lesbar: aus welchen Fremd-Elementen ein geladenes Feld eine
+// Fusions-Reaktion entlaedt (gleiches Element = Verstaerkung, keine Reaktion; neutral = keine).
+const REACTION_CANDIDATE_ELEMENTS: readonly ElementType[] = [
+  'water',
+  'wind',
+  'fire',
+  'earth',
+  'shadow',
+  'holy'
+];
+
+export function fieldReactionElements(fieldElement: ElementType): ElementType[] {
+  if (fieldElement === 'neutral') {
+    return [];
+  }
+  return REACTION_CANDIDATE_ELEMENTS.filter(
+    (candidate) => candidate !== fieldElement && resolveElementFusion(fieldElement, candidate) !== null
+  );
+}
 
 export interface CombatantView {
   readonly id: string;
@@ -18,6 +41,7 @@ export interface CombatantView {
   readonly name: string;
   readonly formName: string | null;
   readonly side: Side;
+  readonly formationRow: FormationRow;
   readonly level: number;
   readonly hp: number;
   readonly maxHp: number;
@@ -35,7 +59,10 @@ export interface CombatantView {
   readonly signatureCharge: number;
   readonly signatureChargeMax: number;
   readonly resonanceElement: ElementType | null;
-  readonly statuses: readonly StatusEffectId[];
+  // Phase 105 — Mimikry: aktives Form-Element (null = Grundform) + verbleibende eigene Züge.
+  readonly mimicElement: ElementType | null;
+  readonly mimicTurns: number;
+  readonly statuses: ReadonlyArray<{ readonly id: StatusEffectId; readonly turns: number }>;
   readonly reaction: QueuedReaction | null;
   readonly breakGauge: number;
   readonly breakGaugeMax: number;
@@ -46,6 +73,7 @@ export interface CombatantView {
   readonly analysisLevel: number;
   readonly revealedWeaknesses: readonly ElementType[];
   readonly revealedResistances: readonly ElementType[];
+  readonly casterHint: string | null;
   readonly telegraphSkillId: string | null;
   readonly telegraphSkillName: string | null;
   // Phase 81 — der telegraphierte Zug ist ein Big-Hit (grosser Treffer → kontern!).
@@ -70,6 +98,11 @@ export interface BattleView {
   readonly round: number;
   // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten.
   readonly devouredSourceIds: readonly string[];
+  // Phase 94 — Elementarfeld: aktiver Feld-Zustand (null = neutral) für die HUD-Anzeige.
+  readonly field: BattleField | null;
+  // Phase 182 — Feld-Reaktion lesbar: Fremd-Elemente, die auf dem aktiven Feld eine
+  // Fusions-Reaktion entladen (leer, wenn kein Feld geladen ist).
+  readonly fieldReactions: readonly ElementType[];
 }
 
 export function renderView(state: BattleState): BattleView {
@@ -96,7 +129,9 @@ export function renderView(state: BattleState): BattleView {
     inventory: [...state.inventory],
     turn: state.turns,
     round: state.round,
-    devouredSourceIds: [...state.devouredSourceIds]
+    devouredSourceIds: [...state.devouredSourceIds],
+    field: state.field ? { element: state.field.element, turns: state.field.turns } : null,
+    fieldReactions: state.field ? fieldReactionElements(state.field.element) : []
   };
 }
 
@@ -112,6 +147,7 @@ function renderCombatant(
     name: combatant.name,
     formName: combatant.formName,
     side: combatant.side,
+    formationRow: combatant.formationRow,
     level: combatant.level,
     hp: combatant.hp,
     maxHp: combatant.maxHp,
@@ -129,7 +165,9 @@ function renderCombatant(
     signatureCharge: combatant.signatureCharge,
     signatureChargeMax: combatant.signatureChargeMax,
     resonanceElement: combatant.resonanceElement,
-    statuses: combatant.statuses.map((status) => status.id),
+    mimicElement: combatant.mimicElement,
+    mimicTurns: combatant.mimicTurns,
+    statuses: combatant.statuses.map((status) => ({ id: status.id, turns: status.turns })),
     reaction: combatant.reaction,
     breakGauge: combatant.breakGauge,
     breakGaugeMax: combatant.breakGaugeMax,
@@ -137,6 +175,9 @@ function renderCombatant(
     escalationBonusPercent: Math.round(escalationBonus(combatant) * 100),
     analysisLevel: combatant.analysisLevel,
     revealedWeaknesses: combatant.analysisLevel >= 1 ? [...combatant.weaknesses] : [],
+    // Phase 137: Caster note for intel when analyzed
+    casterHint: null, // would be set from enemy if high magic, for demo null; real would come from enemy def
+
     revealedResistances: combatant.analysisLevel >= 2 ? [...combatant.resistances] : [],
     telegraphSkillId: combatant.telegraphSkillId,
     telegraphSkillName: SKILLS.find((skill) => skill.id === combatant.telegraphSkillId)?.name ?? null,

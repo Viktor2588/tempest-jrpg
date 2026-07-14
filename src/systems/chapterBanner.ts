@@ -120,9 +120,8 @@ function prologueObjective(save: Pick<SaveGameV2, 'flags' | 'quests'>): string {
 function bandTwoObjective(save: Pick<SaveGameV2, 'flags' | 'quests'>): string {
   const completed = save.quests['binding-of-ancestors']?.completedStepIds ?? [];
   if (!completed.includes('awakening')) return 'Sprich mit Rigurd in Tempest und sammle den ersten Rat.';
-  if (!save.flags['story.shuna.ready'] || !save.flags['story.gobta.ready'] || !save.flags['story.ranga.ready']) {
-    return 'Hole Shunas Siegeldeutung, Gobtas Grenzplan und Rangas Scoutbericht ein.';
-  }
+  if (!save.flags['story.shuna.ready']) return 'Sprich zuerst mit Shuna in Tempest und deute die Siegelspur.';
+  if (!save.flags['story.gobta.ready'] || !save.flags['story.ranga.ready']) return 'Hole Gobtas Grenzplan und Rangas Scoutbericht ein.';
   if (!save.flags['story.council.ready']) return 'Kehre zu Rigurd zurück und versammle den Rat.';
   if (!save.flags['story.grove.cleared']) return 'Sichere den Flüsterhain.';
   if (!save.flags['story.boss.echo-defeated']) return 'Brich das namenlose Echo am Ahnensiegel.';

@@ -5,6 +5,7 @@ import {
   type CharacterDefinition,
   type EquipmentSlot,
   type ItemDefinition,
+  type ItemRarity,
   type SkillDefinition,
   type StatBlock
 } from '../data';
@@ -20,9 +21,12 @@ import type { PartyFormationResult } from './partyFormation';
 import { getChapterSummary, type ChapterSummary } from './chapterBanner';
 import type { QuestState } from './save';
 import { addPartialStats, addStats, scaleStats } from './stats';
+import { instanceAffixLabels, isEquipmentInstanceId, resolveInstanceItem } from './lootAffix';
+import { rarityOf } from './itemRarity';
+import { FOG_WARD_FLAG } from './worldClock';
 
 export const MENU_TOUCH_TARGET_PX = 44;
-export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory'];
+export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'accessory', 'core'];
 
 export interface MenuGameState {
   readonly party: readonly PartyMemberState[];
@@ -52,6 +56,10 @@ export interface InventoryItemView {
   readonly quantity: number;
   readonly usable: boolean;
   readonly equipSlot: EquipmentSlot | null;
+  // Phase 156 — Raritaet + gerollte Affix-Labels, damit der Renderer Instanzen sichtbar
+  // als Loot lesen kann (Name farbig, Affixe als Detailzeile). Statische Items: Affixe leer.
+  readonly rarity: ItemRarity;
+  readonly affixLabels: readonly string[];
 }
 
 export interface MenuView {
@@ -65,6 +73,13 @@ export interface MenuView {
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
+
+// Phase 151 — Item-Resolver: statisches Item ODER (bei einer kodierten Loot-Instanz-Id)
+// die synthetisierte Instanz-Definition (Basis + Affixe). Fuer alle bestehenden Ids
+// verhaelt er sich identisch zum Direktzugriff.
+function resolveItem(id: string): ItemDefinition | undefined {
+  return isEquipmentInstanceId(id) ? resolveInstanceItem(id) : itemById.get(id);
+}
 
 export function buildMenuView(state: MenuGameState): MenuView {
   return {
@@ -142,7 +157,7 @@ export function calculateMemberBaseStats(member: PartyMemberState): StatBlock {
 export function calculateEquipmentBonus(member: PartyMemberState): Partial<StatBlock> {
   return EQUIPMENT_SLOTS.reduce<Partial<StatBlock>>((bonus, slot) => {
     const itemId = member.equipment[slot];
-    const item = itemId ? itemById.get(itemId) : undefined;
+    const item = itemId ? resolveItem(itemId) : undefined;
     return addPartialStats(bonus, item?.statBonus ?? {});
   }, {});
 }
@@ -155,11 +170,38 @@ export function getMemberSkillDefinitions(member: PartyMemberState): SkillDefini
   });
 }
 
+// Phase 158 — Ausruestungs-Vergleich: Stat-Delta eines Kandidaten-Items gegen das aktuell
+// im selben Slot getragene Teil (leerer Slot → voller Kandidaten-Bonus). Nur geaenderte
+// Stats, stabile Reihenfolge. Rein/funktional, headless testbar; loest Loot-Instanzen mit auf.
+export interface EquipmentStatDelta {
+  readonly stat: keyof StatBlock;
+  readonly delta: number;
+}
+
+const DELTA_STAT_ORDER: readonly (keyof StatBlock)[] = [
+  'maxHp', 'maxMp', 'attack', 'defense', 'magic', 'spirit', 'agility'
+];
+
+export function equipmentStatDelta(member: PartyMemberState, itemId: string): EquipmentStatDelta[] {
+  const candidate = resolveItem(itemId);
+  if (!candidate?.equipmentSlot) return [];
+  const currentId = member.equipment[candidate.equipmentSlot];
+  const current = currentId ? resolveItem(currentId) : undefined;
+  const candidateBonus = candidate.statBonus ?? {};
+  const currentBonus = current?.statBonus ?? {};
+  const deltas: EquipmentStatDelta[] = [];
+  for (const stat of DELTA_STAT_ORDER) {
+    const delta = (candidateBonus[stat] ?? 0) - (currentBonus[stat] ?? 0);
+    if (delta !== 0) deltas.push({ stat, delta });
+  }
+  return deltas;
+}
+
 export function getEquipmentItems(member: PartyMemberState): Partial<Record<EquipmentSlot, ItemDefinition>> {
   const equipmentItems: Partial<Record<EquipmentSlot, ItemDefinition>> = {};
   for (const slot of EQUIPMENT_SLOTS) {
     const itemId = member.equipment[slot];
-    const item = itemId ? itemById.get(itemId) : undefined;
+    const item = itemId ? resolveItem(itemId) : undefined;
     if (item) equipmentItems[slot] = item;
   }
   return equipmentItems;
@@ -168,13 +210,15 @@ export function getEquipmentItems(member: PartyMemberState): Partial<Record<Equi
 export function getSortedInventory(inventory: readonly InventoryStack[]): InventoryItemView[] {
   return normalizeInventoryStacks(inventory)
     .flatMap((stack): InventoryItemView[] => {
-      const item = itemById.get(stack.itemId);
+      const item = resolveItem(stack.itemId);
       if (!item) return [];
       return [{
         item,
         quantity: stack.quantity,
         usable: item.category === 'consumable' && !!item.effect,
-        equipSlot: item.equipmentSlot ?? null
+        equipSlot: item.equipmentSlot ?? null,
+        rarity: rarityOf(item),
+        affixLabels: instanceAffixLabels(stack.itemId)
       }];
     })
     .sort((a, b) =>
@@ -188,7 +232,7 @@ export function equipItem(
   characterId: string,
   itemId: string
 ): MenuResult {
-  const item = itemById.get(itemId);
+  const item = resolveItem(itemId);
   if (!item?.equipmentSlot) {
     return { ok: false, state, message: 'Item ist nicht ausrüstbar.' };
   }
@@ -249,12 +293,29 @@ export function useItem(
   itemId: string,
   characterId: string
 ): MenuResult {
-  const item = itemById.get(itemId);
+  const item = resolveItem(itemId);
   if (!item?.effect || item.category !== 'consumable') {
     return { ok: false, state, message: 'Item ist nicht nutzbar.' };
   }
   if (getItemCount(state.inventory, itemId) <= 0) {
     return { ok: false, state, message: 'Item ist nicht im Inventar.' };
+  }
+
+  // Phase 178 — Nebelsicht: charakter-unabhaengige Vorsorge. Laedt den einmaligen Nebel-Ward
+  // (Flag). Ist der Ward bereits geladen, passiert nichts (kein Verbrauch ohne Wirkung).
+  if (item.effect.kind === 'ward-fog') {
+    if (state.flags?.[FOG_WARD_FLAG]) {
+      return { ok: false, state, message: 'Der Blick ist bereits geschärft — noch ein Nebelkampf steht offen.' };
+    }
+    return {
+      ok: true,
+      state: {
+        ...state,
+        flags: { ...(state.flags ?? {}), [FOG_WARD_FLAG]: true },
+        inventory: removeInventoryItem(state.inventory, itemId)
+      },
+      message: `${item.name} benutzt — der nächste Nebelkampf beginnt ungetrübt.`
+    };
   }
 
   let changed = false;
@@ -308,7 +369,8 @@ function categoryRank(item: ItemDefinition): number {
   if (item.category === 'weapon') return 1;
   if (item.category === 'armor') return 2;
   if (item.category === 'accessory') return 3;
-  return 4;
+  if (item.category === 'core') return 4;
+  return 5;
 }
 
 function requireCharacter(characterId: string): CharacterDefinition {

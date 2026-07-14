@@ -267,6 +267,24 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
         message: 'Nicht verschlingbare Gegner dürfen keinen Aneignungs-Skill vergeben.'
       });
     }
+    if (enemy.predatorStealSkillId && !skillIds.has(enemy.predatorStealSkillId)) {
+      issues.push({
+        path: `enemies.${enemy.id}.predatorStealSkillId`,
+        message: `Skill-Raub verweist auf unbekannten Skill '${enemy.predatorStealSkillId}'.`
+      });
+    }
+    if (!enemy.devourable && enemy.predatorStealSkillId) {
+      issues.push({
+        path: `enemies.${enemy.id}.predatorStealSkillId`,
+        message: 'Nicht verschlingbare Gegner dürfen keinen Raub-Skill vergeben.'
+      });
+    }
+    validateSkillReferences(
+      `enemies.${enemy.id}.soulboundSkillIds`,
+      enemy.soulboundSkillIds ?? [],
+      skillIds,
+      issues
+    );
 
     for (const drop of enemy.drops) {
       if (!itemIds.has(drop.itemId)) {

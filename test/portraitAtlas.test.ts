@@ -40,7 +40,7 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(portraitSource).toContain("case 'gildenmeister fuze':");
     expect(portraitSource).toContain("return 'fuze';");
     expect(preloadSource).toContain('../assets/sprites/portrait-shizu.webp');
-    expect(preloadSource).toContain('../assets/sprites/portrait-shizu-children.png');
+    expect(preloadSource).toContain('../assets/sprites/portrait-shizu-children.webp');
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 
@@ -52,12 +52,37 @@ describe('Portrait-Atlas-Zuordnung', () => {
       ["case 'kaval, eren & gido':", 'blumund-adventurers'],
       ["case 'treyni':", 'treyni'],
       ["case 'milim nava':", 'milim'],
+      ["case 'ramiris':", 'ramiris'],
+      ["case 'arena-vorstand':", 'arena-steward'],
       ["case 'souka':", 'souka']
     ] as const) {
       expect(portraitSource).toContain(speakerCase);
       expect(portraitSource).toContain(`return '${portraitKind}';`);
       expect(preloadSource).toContain(`../assets/sprites/portrait-${portraitKind}.webp`);
     }
+  });
+
+  it('ordnet der verwundeten Grenzspäherin ihr echtes Storyportrait zu', () => {
+    expect(portraitSource).toContain("case 'grenzspäherin':");
+    expect(portraitSource).toContain("case 'verwundete grenzspäherin':");
+    expect(portraitSource).toContain("return 'border-scout';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-border-scout.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('border-scout')");
+  });
+
+  it('lädt Mordrahns echtes Storyportrait statt des prozeduralen Fallbacks', () => {
+    expect(portraitSource).toContain("case 'mordrahn':");
+    expect(portraitSource).toContain("case 'mordrahns echo':");
+    expect(portraitSource).toContain("return 'mordrahn';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-mordrahn.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('mordrahn')");
+  });
+
+  it('ordnet dem gemeinsamen Werkstattdialog ein echtes Duoportrait zu', () => {
+    expect(portraitSource).toContain("case 'kurobe & kaijin':");
+    expect(portraitSource).toContain("return 'kurobe-kaijin';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-kurobe-kaijin.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('kurobe-kaijin')");
   });
 
   it('deckt das komplette spielbare Roster in Dialogen und im Party-Menü ab', () => {

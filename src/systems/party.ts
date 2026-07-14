@@ -2,9 +2,12 @@ import { HEROES, SKILLS } from '../data';
 import type { CharacterDefinition, EquipmentSlot } from '../data';
 import { clampLevel, clampNonNegativeInteger, experienceForLevel, scaleStats } from './stats';
 
+export type FormationRow = 'front' | 'back';
+
 export interface PartyMemberState {
   readonly characterId: string;
   readonly name: string;
+  readonly formationRow?: FormationRow;
   readonly level: number;
   readonly experience: number;
   readonly currentHp: number;
@@ -16,6 +19,7 @@ export interface PartyMemberState {
 export interface CreatePartyMemberOptions {
   readonly level?: number;
   readonly experience?: number;
+  readonly formationRow?: FormationRow;
   readonly learnedSkillIds?: readonly string[];
 }
 
@@ -40,6 +44,7 @@ export function createPartyMember(
   return {
     characterId: definition.id,
     name: definition.name,
+    formationRow: options.formationRow ?? 'front',
     level,
     experience,
     currentHp: stats.maxHp,
@@ -48,7 +53,8 @@ export function createPartyMember(
     equipment: {
       weapon: definition.startingEquipment.weapon ?? null,
       armor: definition.startingEquipment.armor ?? null,
-      accessory: definition.startingEquipment.accessory ?? null
+      accessory: definition.startingEquipment.accessory ?? null,
+      core: definition.startingEquipment.core ?? null
     }
   };
 }

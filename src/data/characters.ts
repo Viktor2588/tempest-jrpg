@@ -163,7 +163,7 @@ export const HEROES = [
       spirit: 2,
       agility: 5
     },
-    initialSkillIds: ['direwolf-rush', 'predator-aura', 'quick-step'],
+    initialSkillIds: ['direwolf-rush', 'predator-aura', 'quick-step', 'gale-field'],
     startingEquipment: {
       weapon: null,
       armor: 'traveler-cloak',
@@ -176,7 +176,7 @@ export const HEROES = [
     initialLevel: 1, initialExperience: 0,
     baseStats: { maxHp: 88, maxMp: 30, attack: 18, defense: 13, magic: 18, spirit: 12, agility: 14 },
     growthPerLevel: { maxHp: 10, maxMp: 4, attack: 4, defense: 2, magic: 4, spirit: 2, agility: 3 },
-    initialSkillIds: ['black-flame', 'slime-strike'],
+    initialSkillIds: ['black-flame', 'slime-strike', 'ember-field'],
     startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
   },
   {
@@ -200,7 +200,7 @@ export const HEROES = [
     initialLevel: 1, initialExperience: 0,
     baseStats: { maxHp: 80, maxMp: 22, attack: 17, defense: 11, magic: 12, spirit: 12, agility: 22 },
     growthPerLevel: { maxHp: 9, maxMp: 3, attack: 4, defense: 2, magic: 3, spirit: 2, agility: 5 },
-    initialSkillIds: ['venom-spit', 'quick-step'],
+    initialSkillIds: ['venom-spit', 'quick-step', 'tide-field'],
     startingEquipment: { weapon: 'tempest-training-sword', armor: 'traveler-cloak', accessory: null }
   }
 ] as const satisfies readonly CharacterDefinition[];

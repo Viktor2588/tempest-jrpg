@@ -438,6 +438,54 @@ Required minimum for every phase:
 3. `bun run build`
 4. `bun run test:e2e` when scenes, rendering, assets, layout, or flows change
 
+### Efficient Test Execution (Phase 140 findings)
+
+**Local development (fastest feedback):**
+- Prefer `bun run test:watch` or `bunx vitest` over `bun run test`.
+  Watch mode only re-runs affected tests on file change.
+- Run targeted tests:
+  ```bash
+  bunx vitest run test/battle.test.ts
+  bunx vitest run test/battle.test.ts -t "Eskalation"
+  bun run test:e2e --project=desktop-chromium -g "Title"
+  ```
+
+**Parallelism & sharding:**
+- Vitest uses threads pool by default. Config limits `maxThreads` to 3 in CI.
+- For very large runs or to mimic CI split:
+  ```bash
+  bun run test:shard 1/4
+  bun run test:shard 2/4
+  ```
+- Playwright: `fullyParallel: true`. CI uses 2 workers. For quick local smoke only run 1-2 projects:
+  ```bash
+  bun run test:e2e --project=desktop-chromium --project=mobile-chromium
+  ```
+
+**E2E optimizations:**
+- Replaced many raw `page.waitForTimeout(250|700|900)` with a `settle(page, ms)` helper that does a short wait + `expectCanvasContent` assertion.
+- This reduced wall time and made tests less timing-sensitive.
+- Use `PLAYWRIGHT_PORT` when running multiple worktrees in parallel.
+
+**CI speed improvements:**
+- Aggressive caching for Bun install cache + `~/.cache/ms-playwright`.
+- Unit tests split into 4 parallel matrix jobs.
+- E2E smoke limited to desktop + mobile (HiDPI variants are expensive).
+- `paths-ignore` for pure documentation changes (`.md`, `docs/`, `PLAN.md` etc.) skips expensive jobs.
+
+**Other scripts:**
+- `bun run test:ci` → runs with `--bail=1`
+- `bun run typecheck` is fast and should be run early.
+- Full E2E is rarely needed locally; use grep + specific project for iteration.
+
+**When to run what:**
+- Daily work → `bunx vitest`
+- Before PR → full `bun run test` + targeted E2E smoke
+- Suspect flakiness → run with `--shard` or single project + trace on failure
+- Performance investigation → `time bun run test -- --reporter=dot`
+
+These changes reduced a full 687-test unit run from ~55-56s to ~39s and made CI feedback significantly faster through parallelism + caching.
+
 CI and deployment live in `.github/workflows/`. A verified Vite `dist/` is
 deployed to GitHub Pages from `main`. Phaser is emitted as the large vendor
 chunk and the Vite warning threshold accounts for it.
@@ -541,18 +589,77 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_140:
+    - Test infrastructure overhaul for faster feedback: Vitest Thread-Pool with CI limits + 4-way sharding on GitHub Actions; Playwright workers=2 + only desktop+mobile for smoke; full Bun + Playwright browser caching in CI.
+    - Path-based skipping (docs/md changes skip E2E).
+    - E2E speed/reliability: new `settle()` helper replacing most raw `waitForTimeout`; timeouts reduced significantly while keeping `expectCanvasContent` assertions.
+    - Test file hygiene: extracted `test/battleHelpers.ts`; smaller main test files for better collection/parallelism.
+    - Convenience: `test:shard`, `test:watch`, `test:ci --bail`, updated README + scripts.
+    - Measured: full 687 unit tests now ~39s (was ~56s); typecheck/build/E2E structure green.
+    - Worktree: /home/viktor/worktree/tempest-phase-140-test-infra (branch phase-140-test-infra); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`, `bun run test:e2e --project=desktop-chromium`.
+  phase_141:
+    - Menu & UI improvements + large refactor of the monolithic MenuScene (~1650 lines).
+    - Tab navigation: active tab underline + direct number key shortcuts (1-8), numbered tab labels.
+    - Tooltips: simple hover tooltip system (initially on tabs, extensible).
+    - List UX: filter button + text filter for inventory (applied live).
+    - Polish: subtle hover scale in uiSkin, improved active tab visuals.
+    - Big refactor: extracted MenuTypes.ts, IMenuTabView interface, BaseMenuTabView; introduced tabViews registry in MenuScene. Dispatch now via registry instead of long if/else. Structure ready for full extraction into src/ui/menu/*TabView.ts classes.
+    - Worktree: /home/viktor/worktree/tempest-phase-141-menu-ui (branch phase-141-menu-ui); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
+  phase_142:
+    - Follow-up: Search/Filter extended to Bestiary, Quests, and Codex (Lore entries).
+    - Drag & Drop for active Party members (reorder within front line via drag-and-drop on cards; basic visual feedback and swap).
+    - Accessibility: Clearer focus rings (gold border in uiSkin for focused/selected elements, consistent with tabs).
+    - Complete modularization foundation: Enhanced IMenuTabView + registry; added BestiaryTabView as concrete Sub-View example. All draw tab logic now routable via registry for easy extraction of remaining tabs.
+    - Worktree: /home/viktor/worktree/tempest-phase-142-menu-ui-erweiterungen (branch phase-142-menu-ui-erweiterungen); merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (687 tests), `bun run build`.
+  phase_143:
+    - Advanced the full modularization: tabViews registry now uses proper IMenuTabView objects (no more function lambdas). Dispatch is clean.
+    - Enhanced DnD: now supports moving from active to reserve area.
+    - All filters, focus rings, and DnD from previous list completed.
+    - Structure is now ready for dedicated Sub-View classes in src/ui/menu/ (e.g. PartyTabView etc.).
+    - Worktree: /home/viktor/worktree/tempest-phase-143-menu-modularisierung ; merged cleanly.
+    - Validation: `bun run typecheck`, `bun run test` (688 tests), `bun run build`.
+  phase_145:
+    - MenuScene Sub-View extraction completed: all tabs (party/inventory/equipment/status/growth/quests/codex/travel) are now dedicated *TabView classes owning their state (filters, pages, status).
+    - onActivated called on tab switch for proper resets.
+    - DnD polish: live visual feedback (alpha + stroke) when dragging over reserve drop zone.
+    - Filter buttons/pagination route through view methods.
+    - MenuScene reduced to orchestrator (header, tab row, shared member list on CHARACTER_TABS, dispatch).
+    - Worktree: /worktree/tempest-phase-145-menu-subviews ; merged cleanly.
+    - Validation: typecheck ✓, build ✓, relevant tests ✓.
+  phase_137:
+    - Weichkontrolle sichtbar: HUD status summary zeigt Turns für soft controls (z.B. Stumm(2) · Blind(3)).
+    - Präzisere Logs: Status-Apply-Logs enthalten "(X Runden)" für Blind/Silence/Weaken.
+    - Bestiarium: casterHint für magielastige Gegner (hoher magic > attack+5), angezeigt in Name und Detail-Line.
+    - Battle Intel: casterText in EnemyIntel (null für jetzt, da additiv via Bestiarium).
+    - Additiv, keine Balance-Änderung. Akzeptanz erfüllt.
+    - Worktree: /home/viktor/worktree/tempest-phase-137-weichkontrolle-sichtbar ; merged cleanly.
+    - Validation: typecheck, relevant tests, build.
+  phase_139:
+    - Erster bindender Hebel: punishesHealing (Ifrit) hochgetunt (1.5 ATT + 0.8 MAG), so dass reflex Heilen in Todesspirale kippt.
+    - AI in autoBattle: gegen Punisher Heilung zurückstellen zugunsten Off/Def (genaue Gegenentscheidung, spiegelt Mender-Prio).
+    - Beweis in balanceHarness.test.ts: No-Counter fällt aus Korridor bei Ifrit, Counter bleibt drin.
+    - Akzeptanz: Tune + AI-Branch + Assertion, harness grün (Counter-Linie).
+  phase_138:
+    - Der Zauber-Riegel (off-route Caster): Akademie-Irrlicht (und magic-colossus) erhält telegraphierte schwere Phase-2-Überladung (z.B. black-flame/arcane-overload).
+    - Echte Antwort-Runde durch Wind-up; Silence (Bannsiegel von Shuna) unterbricht den Cast.
+    - Shuna Rekrutierung vor Akademie verfügbar (kanonische Kijin-Benennung).
+    - Off-route (nicht im Harness-Korridor); macht Weichkontrolle (silence) erspielbar wertvoll.
+    - Akzeptanz: Telegraph + Silence-Gegenspiel im Kern, Shuna-Dialog, typecheck+Tests+Build+Smoke, Balance-Harness grün.
   phase_110:
     - Added the Tempest invasion and defense arc after Geld: Rigurd starts `tempest-invasion`, the player clears two gated defense waves on `jura-battlefield`, completing the quest, raising Blumund reputation, and setting `story.tempest-invasion.repulsed`.
     - The defense outcome now gates the Harvest Festival (`AWAKENING_REQUIRED_FLAG`) and visibly improves the Watch facility output; `tempest-invasion-repelled` adds the required sceneScript beat before awakening.
-    - Added project-generated battle background `src/assets/backgrounds/battle-tempest-invasion.png` with ASSETS provenance, battle arena/preload wiring, headless invasion tests, sceneScript coverage, and focused desktop Chromium smoke `Tempest-Invasion-Save`.
+    - Added project-generated battle background `src/assets/backgrounds/battle-tempest-invasion.webp` with ASSETS provenance, battle arena/preload wiring, headless invasion tests, sceneScript coverage, and focused desktop Chromium smoke `Tempest-Invasion-Save`.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (556 tests), `bun run build`, and `bun run test:e2e -- --project=desktop-chromium -g "Tempest-Invasion-Save"`.
   phase_115:
     - Added the first Ramiris Labyrinth wing as a Band 5/6 set-piece after Shizu's children: `ramiris-labyrinth` map, academy/labyrinth Ramiris NPCs, `ramiris-labyrinth` quest, gateway, and deterministic `magic-colossus` trigger.
-    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.png` and `src/assets/sprites/enemy-magic-colossus.png`; wired preload, region banner, enemy art, and focused browser smoke.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-ramiris-labyrinth.webp` and `src/assets/sprites/enemy-magic-colossus.webp`; wired preload, region banner, enemy art, and focused browser smoke.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (505 tests), `bun run build`, and focused desktop Chromium smoke `Ramiris-Labyrinth`.
   phase_95:
     - Added a repeatable Tempest Colosseum side activity: `tempest-colosseum` map, Tempest gateway, Arena-Vorstand NPC/dialog, `tempest-arena` quest, and Bronze/Silber/Gold trigger waves using the existing battle/encounter flow.
-    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-tempest-colosseum.png` and `src/assets/backgrounds/battle-tempest-colosseum.png`; wired preload, battle arena mapping, region banner mapping, and focused browser smoke.
+    - Added project-generated assets with ASSETS provenance: `src/assets/ui/region-tempest-colosseum.webp` and `src/assets/backgrounds/battle-tempest-colosseum.webp`; wired preload, battle arena mapping, region banner mapping, and focused browser smoke.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (506 tests), `bun run build`, and focused desktop Chromium smoke `Kolosseum`.
   phase_98:
     - Bonds — the character-binding pillar. Relationship points already accrued (+5 per victory per active pair) and bond levels already unlocked team-mix synergy; Phase 98 adds the two missing halves: playable bond scenes and a combat bond perk.
@@ -591,7 +698,7 @@ completed_milestones:
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (504 tests), `bun run build`, and focused desktop Chromium smoke `Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab`.
   phase_113:
     - Shizu's legacy continuation is playable after `story.shizu.vow`: new `freedom-academy` map, Blumund gateway, five child NPCs (Kenya, Chloe, Alice, Ryota, Gale), `shizu-legacy` quest, `shizu-children` codex entry, and a first Geist-core stabilization choice (`story.children.comforted` vs `story.children.tested`) with visible follow-up dialog.
-    - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.png` and `src/assets/ui/region-freedom-academy.png`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
+    - Added generated project assets with ASSETS provenance: `src/assets/sprites/portrait-shizu-children.webp` and `src/assets/ui/region-freedom-academy.webp`; wired portrait speaker mapping, PreloadScene loading, region banner mapping, and reused the existing Blumund tile theme for the academy.
     - Validation: `git diff --check`, `bun run typecheck`, `bun run test` (498 tests), `bun run build`, and desktop Chromium smoke `Shizu-Schwur-Save lädt Freiheitsakademie`.
   phase_116a:
     - Dead-code sub-PR from the YAGNI audit (Phase 116). Removed 7 exported functions with zero callers anywhere (getUnlockedRelationshipScenes, createMenuState, stopMusic, getTeamFusion, getProgressionLine, getProgressionRegions, getResident) plus the production-unused RNG helpers pick/randomInt (and their two rng.test cases).
@@ -1037,7 +1144,538 @@ index.html
 test/release.test.ts
 ```
 
-## 13. Change Checklist
+## 13. Phase Notes
+
+### Phase 177 - Arena-Vorstand-Porträt
+
+- Branch/Worktree wurde vor den parallelen Welt-Uhr-Phasen als `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand` angelegt; die Archivnummer wurde nach deren Push kollisionsfrei auf 177 gesetzt.
+- Asset-only: Der wiederkehrende Arena-Vorstand nutzt im Kolosseum und in seinen Dialogen ein eigenes repo-generiertes 512×512-WebP-Porträt statt einer portraitlosen Darstellung; Daten und Balance bleiben unverändert.
+- Provenienz steht in `ASSETS.md`; Portrait-Mapping, Preload und der bestehende Kolosseum-Smoke prüfen das sichtbare Asset.
+- Validierung: `git diff --check`, 22 fokussierte Tests, `bun run typecheck`, 769 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 176 - Zeit-/wettergebundene Discovery-Funde
+
+- `MapDiscoveryDefinition` unterstützt optionale Tageszeit-/Wetterbedingungen; Overworld- und Discovery-Szene reichen die persistierte Welt-Uhr an Sichtbarkeits- und Fundprüfungen weiter.
+- Ein einmaliger Nebelfund im Flüsterhain und ein Nachtfund im Geisterhochland nutzen den bestehenden Discovery-Belohnungspfad; Kampf und Balance bleiben unberührt.
+- Validierung: `test/mapDiscovery.test.ts`, Datenintegrität, Typecheck, 784 Unit-Tests, Build und Oberwelt-Browser-Smoke grün.
+
+### Phase 175 - Tag-/Nacht-Tint der Oberwelt
+
+- `overworldTint(clock)` liefert dezente Tageszeit-/Wetter-Tints; `OverworldScene` aktualisiert ein nicht-interaktives Overlay unter dem HUD beim Start und nach Schritten.
+- Die Änderung ist rein kosmetisch und berührt weder Save noch Kampf oder Balance.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 782 Unit-Tests, Build und Oberwelt-Browser-Smoke grün.
+
+### Phase 174 - Wetter-/Nacht-Funde
+
+- `weatherConditionRewards` vergibt je erstem Sieg bei Nacht, Nebel und Regen einmalig 8 Magicules und persistiert die drei Bedingungen über `worldclock.first.*`-Flags.
+- `BattleScene` reicht die Encounter-Uhr nur bei regulären Siegen weiter und zeigt neu verdiente Wetter-Funde im Ergebnis; ohne Uhr bleibt der Pfad unverändert.
+- Validierung: 779 Unit-Tests inklusive `test/weatherReward.test.ts`, Typecheck, Build, Balance-Harness und Flüsterhain-Browser-Smoke grün.
+
+### Phase 173 - Welt-Uhr im Kampf-HUD
+
+- Reguläre Encounter reichen `clockHudLabel(clock)` an `BattleScene`; die Zeit-/Wetterzeile erscheint rechts oben im HUD und bleibt für Demo-/Altpfade optional.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 773 Unit-Tests, Build und Battle-Browser-Smoke grün.
+
+### Phase 172 - Nebel-Eroeffnungsstatus
+
+- `openingStatuses(clock)` liefert bei Nebel symmetrisches `blind` für alle Kämpfer; `startBattle` wendet optionale Umweltstatus einmalig an und protokolliert sie.
+- Klar, Regen und Nacht ohne Nebel bleiben statusfrei; der bestehende Balance-Harness-Pfad ohne Uhr ist unverändert.
+- Validierung: `test/worldClock.test.ts`, Typecheck, 773 Unit-Tests, Build und Balance-Harness grün.
+
+### Phase 163 - Milim-Kampf-Cutout
+
+- Branch/Worktree: `phase-163-milim-cutout` in `/worktree/tempest-phase-163-milim-cutout`.
+- Asset-only: `milim` war der letzte Gegner ohne dedizierte Kampf-Textur (Kingdom-Atlas-Slime-Fallback); jetzt eigenes repo-generiertes 512×512-RGBA-Cutout (xAI Imagine, Chroma-Key lokal entfernt). Daten und Balance unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken Milim ab. Damit haben ALLE 33 Gegner-Arten dedizierte Texturen.
+- Validierung: `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 162 - Kanon-Varianten-Cutouts
+
+- Branch/Worktree: `phase-162-kanon-cutouts` in `/worktree/tempest-phase-162-kanon-cutouts`.
+- Asset-only: `mordrahn-vanguard`, `elder-direwolf`, `orc-grunt` und `orc-lord` ersetzen geteilte Bestandstexturen durch eigene repo-generierte 512×512-RGBA-Cutouts (xAI Imagine, Chroma-Key lokal entfernt); `stray-echo` bleibt bewusst geteilte Echo-Textur. Daten und Balance unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken die vier Kanon-Varianten ab.
+- Validierung: `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 161 - Archetypen-Cutouts
+
+- Branch/Worktree: `phase-161-archetypen-cutouts` in `/worktree/tempest-phase-161-archetypen-cutouts`.
+- Asset-only: `marsh-thornback`, `blumund-brigand` und `academy-revenant` ersetzen geteilte Bestandstexturen durch eigene repo-generierte 512×512-RGBA-Cutouts; Daten und Balance bleiben unveraendert.
+- Provenienz steht in `ASSETS.md`; Preload-, Art-Mapping- und Browser-Asset-Checks decken alle fünf Phase-146-Archetypen ab.
+- Validierung: `git diff --check`, `bun run typecheck`, 764 Unit-Tests inklusive Balance-Harness, `bun run build` und fokussierter Desktop-Chromium-Smoke.
+
+### Phase 146 - Content-Vielfalt
+
+- Canonicaler Parallelstand: fuenf neue Normalgegner aus vorhandenen Mechaniken in optionalen Regions- und Labyrinth-Pools; der Story-Trigger-Korridor bleibt unveraendert.
+- Asset-Ergaenzung: `bog-warden` und `highland-galecaller` nutzen zwei repo-eigene 512×512-Cutouts aus OpenAI Built-in-Imagegen, lokal vom Chroma-Key freigestellt und in `ASSETS.md` dokumentiert.
+- Validierung nach Parallel-Merge: `git diff --check`, Typecheck, Unit-Tests inklusive Balance-Harness, Build und fokussierter Desktop-Chromium-Asset-Smoke.
+
+### Phase 121 - Shunas Einstiegstempo
+
+- Branch/Worktree: `phase-121-shuna-tempo` in `/worktree/tempest-phase-121-shuna-tempo`.
+- Entscheidung: Shuna bleibt bewusst frueher Band-2-Ratsschritt direkt nach dem Prolog; kein neuer Band-Content davor.
+- Umsetzung: Band-2-Kapitelziel nennt zuerst Shunas Siegeldeutung, danach Gobtas Grenzplan und Rangas Scoutbericht; Questtext spiegelt diese Reihenfolge.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build`; fokussiert `test/chapterBanner.test.ts`.
+
+### Phase 120 - Content-Gegnerassets
+
+- Branch/Worktree: `phase-120-content-assets` in `/worktree/tempest-phase-120-content-assets`.
+- Scope: zwei repo-eigene, generierte Battle-Cutouts fuer Region-Gegner: `enemy-blumund-bandit.webp` und `enemy-academy-wisp.webp`; Provenienz in `ASSETS.md`.
+- Daten/Encounter: neue Gegner `blumund-bandit` und `academy-wisp`; Random-Encounter `blumund-road-ambush` in Blumund und `academy-spirit-flare` in der Freiheitsakademie.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build` und fokussiertem Desktop-Chromium-Smoke fuer die Blumund-/Akademie-Asset-Saves.
+
+### Phase 112 - Praedator-Perversion
+
+- Branch/Worktree: `phase-112-praedator-perversion` in `/home/viktor/worktree/tempest-phase-112-praedator-perversion`; sauber auf main rekonstruiert, weil die Branch-Historie fremde Phase-Commits enthielt.
+- Scope: Rimuru bekommt nach `story.shizu.vow` die aktive Kampfaktion `steal`. Sie verlangt Verschlinger + Großen Weisen, ein analysiertes verschlingbares Ziel und nutzt `predatorStealSkillId` oder `devourSkillId` statt beliebiger gegnerischer `skillIds`.
+- Soulbound-Regel: Bosse, Ultimate-Skills, Unique-Verb-Skills (`predator`, `great-sage`) und explizite `soulboundSkillIds` sind nicht raubbar. Geraubte Skills landen wie Verschlinger-Imitate in `mimicSkillIds` und können nach Sieg dauerhaft gebankt werden.
+- Daten/UI: neues Unique-Skill-Rezept `fuse-predator-perversion`, Skill `predator-perversion`, Rauben-HUD-Asset `ui-praedator-steal-hud`, Preload-Key `ui-praedator-steal-hud`.
+- Validierung: Typecheck, Unit-Tests, Build und Playwright-E2E sind Phase-Abnahmegates; Playwright nutzt wegen paralleler Server einen expliziten `PLAYWRIGHT_PORT`.
+
+### Phase 97 - Formation/Reihen
+
+- Branch/Worktree: `phase-97-formation` in `/worktree/tempest-phase-97-formation`.
+- Scope: aktive Party-Mitglieder tragen optional `formationRow` (`front`/`back`); alte Saves normalisieren auf Front.
+- UI: Party-Menue setzt Front/Hinterreihe, laedt `ui/formation-rows.webp` und zeigt Row-Badges; Battle-HUD positioniert und beschriftet Party-Units nach Row.
+- Battle-Regel: Gegner priorisieren lebende Frontziele; Hinterreihe wird erst angegriffen, wenn keine Front mehr steht. Keine Schadenszahlen geaendert, damit die Balance-Harness stabil bleibt.
+- Validiert mit `git diff --check`, `bun run typecheck`, `bun run test`, `bun run build` und gezieltem Desktop-Chromium-Smoke fuer Title/Menu/Battle.
+
+### Phase 94 - Schlachtfeld-Zustand (Elementarfelder)
+
+- Scope: `BattleState.field` (`BattleField = { element, turns }`, ein Feld gleichzeitig).
+  Eine `chargesField`-Fähigkeit lädt das Feld auf ihr Element; gleichelementige Treffer
+  werden verstärkt (×1.25), ein Fusions-Partner-Element (`resolveElementFusion`) löst eine
+  Reaktion aus (Zusatz-Break-Druck + Fusions-Status, verbraucht das Feld), das Feld klingt
+  pro Runde ab (`FIELD_DURATION_ROUNDS = 3`).
+- Daten: neue Feld-Skills `ember-field` (Feuer/Benimaru), `gale-field` (Wind/Ranga),
+  `tide-field` (Wasser/Souei) — reine Aufbau-Skills (power 0, target self), daher NICHT
+  auto-gewählt → Balance-Harness bleibt unverändert grün.
+- HUD: `renderView().field` liefert Element+Runden; `BattleScene` zeigt „Feld: <Element> (n)"
+  unter der Team-Leiste, solange ein Feld geladen ist.
+- Validiert mit `bun run typecheck`, `bun run test` (inkl. `test/elementalField.test.ts` +
+  Balance-Harness), `bun run build` und einem Battle-Render-Smoke (desktop-chromium).
+
+### Phase 105 - Mimikry als aktive Kampf-Form
+
+- Scope: neue Kampf-Aktion `{ type: 'mimic', element }`. Rimuru (Verschlinger) nimmt on-demand
+  das Element einer in diesem Kampf verschlungenen Gegner-Art an (`availableMimicElements` liest
+  `devouredSourceIds` → Enemy-Element). Die Form haelt `MIMIC_FORM_TURNS = 3` eigene Zuege und
+  klingt in `startTurn` ab; sie setzt `mimicElement`/`mimicTurns` + Resonanz.
+- Effekt: der sonst elementneutrale Grundangriff kanalisiert das Form-Element und wirkt damit
+  Schwaeche/Resistenz (`elementMultiplier` nur bei aktiver Form) — On-Demand-Schadenselement gegen
+  reflectsElement/Schwaechen. Basiselement/Defensive bleiben unveraendert.
+- Harness: Auto-Battle waehlt `mimic` nie → `mimicElement` bleibt in der Balance-Harness immer null,
+  Grundangriffe unveraendert → Korridore gruen.
+- UI/HUD: Kampfmenue zeigt „⟳ Mimik" (wenn Formen verfuegbar) → Element-Auswahl (`mimic-forms`);
+  die aktive Form steht ueber der Einheit. `renderView().party[].mimicElement/mimicTurns` headless.
+- Validiert mit `bun run typecheck`, `bun run test` (`test/mimicForm.test.ts` + Balance-Harness),
+  `bun run build` und Battle-Render-Smoke (desktop-chromium).
+
+### Phase 109 - Skript-Bosse & Adds (mid-fight Beschwoerung)
+
+- Scope: neue Grundfaehigkeit — ein Boss beschwoert beim Wechsel in Phase 2 einmalig
+  zusaetzliche Combatants in den `BattleState`. Datengetrieben ueber
+  `EnemyDefinition.summonEnemyId`/`summonCount`; `spawnSummons` haengt in `updateEnemyPhase`
+  am bestehenden Phasen-Trigger.
+- Hard-Termination: `Combatant.summonsUsed` erlaubt genau eine Beschwoerung je Boss; endliche
+  Zahl -> keine Endlos-Spawns/Soft-Lock in Sims/Tests. Auto-Battle behandelt beliebige
+  Gegnerzahlen (zielt auf alle Lebenden), Siegbedingung schliesst Adds ein.
+- Content: `magic-colossus` (Ramiris-Labyrinth, ausserhalb der Balance-Harness-Story) beschwoert
+  2× `stray-echo` — thematisches Set-Piece ohne neue Assets. Harness/Story-Bosse bleiben
+  unberuehrt -> Korridore gruen.
+- HUD: die Adds erscheinen ueber `renderView().enemies` automatisch als weitere Gegner.
+- Validiert mit `bun run typecheck`, `bun run test` (`test/scriptBoss.test.ts`: Spawn/
+  Einmaligkeit/Termination + Balance-Harness), `bun run build` und Battle-Render-Smoke.
+
+### Phase 164 - Sichtbares Skill-Raub-Banner
+
+- Scope: Das vorhandene `ui/predator-perversion-skillsteal.webp` erscheint nur in der
+  Rauben-Zielwahl; das nie gerenderte, textfehlerhafte JPG-Duplikat wurde entfernt.
+- Wiring: `PreloadScene` lädt `ui-predator-steal`; `BattleScene` rendert es nur bei
+  `pendingSteal` im Gegner-Zielmodus. Kampfregeln und Balance bleiben unverändert.
+- Validiert mit `git diff --check`, Typecheck, 765 Unit-Tests inklusive Balance-Harness,
+  Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 165 - Grosse Rasterassets als WebP
+
+- Scope: Sieben global vorgeladene 2-3-MB-PNGs (Akademie, Kolosseum, Invasion,
+  Ramiris-Labyrinth, Magiekoloss und Shizus Kinder) wurden bei gleicher Aufloesung
+  als WebP verdrahtet; der Magiekoloss behaelt seinen Alpha-Kanal.
+- Wirkung: 18.541.022 -> 2.410.884 Bytes (-87 %) fuer diese sieben Assets, ohne
+  Art-, Layout-, Gameplay- oder Balance-Aenderung.
+- Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 766 Unit-Tests
+  inklusive Balance-Harness, Build und vier fokussierten Desktop-Chromium-Smokes.
+
+### Phase 169 - Ultimate Gift
+
+- Branch/Worktree: `phase-169-ultimate-gift` in `/worktree/tempest-phase-169-ultimate-gift`.
+- Canon-Feature (IDEE.md §1): nach dem Erntefest erhaelt jeder der acht Party-Gefaehrten EIN massvolles Ultimate-Geschenk als TalentPerk ueber den bestehenden `awakenedPerksForMember`-Pfad (`ULTIMATE_GIFT_PERKS_BY_CHARACTER` in `systems/progression.ts`); Rimuru behaelt seine eigenen Erwachen-Perks. Reine Datenergaenzung, kein Motor-Eingriff.
+- Balance: die Auto-Battle-Harness laeuft ohne `awakeningCompleted` → Korridore strukturell unberuehrt; Harness gruen gefahren.
+- Validierung: `bun run typecheck`, 768 Unit-Tests inklusive Balance-Harness, `bun run build`.
+
+### Phase 168 - Ende-Key-Arts
+
+- Branch/Worktree: `phase-168-ende-keyart` in `/worktree/tempest-phase-168-ende-keyart`.
+- Asset-only: die EndingScene erhaelt je Ende ein repo-generiertes 1280×720-Key-Art (`backgrounds/ending-{freedom,order,true}.webp`, je ~120 KB) mit 0.72-Abdunkelungs-Overlay; ohne Ende-Flag bleibt das alte Voll-Schwarz-Layout (Fallback). Keine Daten-/Balance-Aenderung.
+- Provenienz steht in `ASSETS.md`; der E2E-Asset-Check deckt alle drei Key-Arts ab.
+- Validierung: `bun run typecheck`, 767 Unit-Tests inklusive Balance-Harness, `bun run build`, Desktop-Chromium-Smoke (Asset-Preload).
+
+### Phase 167 - Titelbildschirm-Key-Art
+
+- Branch/Worktree: `phase-167-titel-keyart` in `/worktree/tempest-phase-167-titel-keyart`.
+- Asset-only: der Titelbildschirm (einzige Szene ohne Art-Layer) erhaelt ein repo-generiertes 1280×720-Key-Art (`backgrounds/title-keyart.webp`, 90 KB) hinter Titel/Menue mit 0.45-Abdunkelungs-Overlay; kanontreuer gesichtsloser Slime, Tempest-Stadt, Drachensilhouette im Sturmhimmel. Keine Daten-/Balance-Aenderung.
+- Provenienz steht in `ASSETS.md`; der E2E-Asset-Check deckt das Key-Art ab.
+- Validierung: `bun run typecheck`, 767 Unit-Tests inklusive Balance-Harness, `bun run build`, Desktop-Chromium-Smokes (Title-Flow + Asset-Preload).
+
+### Phase 166 - Generierte Gegner-Cutouts als WebP
+
+- Scope: Die zehn verbleibenden generierten 512x512-Gegner-PNGs wurden bei gleicher
+  Aufloesung als WebP verdrahtet; alle zehn behalten ihren Alpha-Kanal. Nur die drei
+  winzigen 16x16-CC0-Tiles bleiben PNG.
+- Wirkung: 2.166.404 -> 374.642 Bytes (-83 %) fuer diese zehn Cutouts, ohne Art-,
+  Layout-, Gameplay- oder Balance-Aenderung.
+- Validiert mit Format-/Wiring-Tests, `git diff --check`, Typecheck, 767 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 171 - Mechanik-Handbuch im Codex
+
+- Branch/Worktree: `phase-171-handbuch` in `/worktree/tempest-phase-171-handbuch`.
+- Nutzeranforderung „ingame Mechaniken sauber erklaeren": achter Codex-Modus „📖 Handbuch" mit 18 knappen Mechanik-Eintraegen (`systems/handbook.ts`, `buildHandbook(flags)`); spoiler-sensible Eintraege hinter bestehenden Story-Flags (shizu.vow/council.ready/smithing.unlocked), Fusszeile zaehlt gesperrte Eintraege. Ergaenzt die Kampf-Teaching-Curve (Phase 89) um die Meta-Systeme.
+- Codex-Modusleiste startet bei x=24 statt 300 (acht Modi in einer Zeile); alle E2E-Modusklick-Koordinaten angepasst.
+- Validierung: `bun run typecheck`, 773 Unit-Tests inklusive Balance-Harness, `bun run build`, volle E2E-Suite (alle Projekte).
+
+### Phase 170 - Mimik-HUD als WebP
+
+- Scope: Das letzte grosse Nicht-WebP-HUD-Asset `mimic-form-indicator` wurde bei
+  gleicher Aufloesung auf WebP umgestellt; der bestehende Phaser-Texture-Key bleibt
+  stabil. Die drei winzigen Pixel-Tiles bleiben PNG.
+- Wirkung: 209.448 -> 68.256 Bytes (-67 %), ohne Art-, Layout-, Gameplay- oder
+  Balance-Aenderung.
+- Validiert mit Format-/Wiring-Test, `git diff --check`, Typecheck, 769 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 171 - Ramiris-Portrait
+
+- Asset: `sprites/portrait-ramiris.webp`, 512x512, 96 KB; per Built-in-Imagegen
+  aus den Projektstilreferenzen Milim/Treyni erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ramiris` ist ein echter `PortraitKind`, `portraitKindForSpeaker('Ramiris')`
+  liefert ihn; `PreloadScene` lädt das WebP unter dem bestehenden Portrait-Key. Damit
+  nutzen Dialog und Overworld-NPC automatisch das echte Bild statt ohne Portrait.
+- Validiert mit Mapping-/Asset-Tests, `git diff --check`, Typecheck, 769 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 184 - Eigene Tiles fuer die Versiegelte Hoehle
+
+- Branch/Worktree: `phase-184-sealed-cave-tiles` in
+  `/home/viktor/worktree/tempest-phase-184-sealed-cave-tiles`.
+- Assets: `tiles/tile-sealed-cave-{floor,wall}.webp`, 128x128, zusammen 11,4 KB;
+  per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `sealed-cave` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 185 - Eigene Tiles fuer das Goblin-Dorf
+
+- Branch/Worktree: `phase-185-goblin-village-tiles` in
+  `/home/viktor/worktree/tempest-phase-185-goblin-village-tiles`.
+- Assets: `tiles/tile-goblin-village-{floor,wall}.webp`, 128x128, zusammen
+  11,1 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `goblin-village` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ranga-Reise-Browser-Smoke.
+
+### Phase 186 - Eigene Tiles fuer Ramiris' Labyrinth
+
+- Branch/Worktree: `phase-186-ramiris-labyrinth-tiles` in
+  `/home/viktor/worktree/tempest-phase-186-ramiris-labyrinth-tiles`.
+- Assets: `tiles/tile-ramiris-labyrinth-{floor,wall}.webp`, 128x128, zusammen
+  11,4 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ramiris-labyrinth` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ramiris-Browser-Smoke.
+
+### Phase 187 - Eigene Tiles fuer das Tempest-Kolosseum
+
+- Branch/Worktree: `phase-187-tempest-colosseum-tiles` in
+  `/home/viktor/worktree/tempest-phase-187-tempest-colosseum-tiles`.
+- Assets: `tiles/tile-tempest-colosseum-{floor,wall}.webp`, 128x128, zusammen
+  11,6 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `tempest-colosseum` nutzt die beiden Texturen ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette.
+- Validiert mit `git diff --check`, Theme-/Asset-Tests, Typecheck, 808 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Kolosseum-Browser-Smoke.
+
+### Phase 188 - Vorhandener Dialog-Tastaturhinweis
+
+- Branch/Worktree: `phase-188-dialog-keyboard-hint` in
+  `/home/viktor/worktree/tempest-phase-188-dialog-keyboard-hint`.
+- Asset-Reuse: `ui/dialog-keyboard-hint.webp` wird jetzt vorgeladen; aus dem
+  bestehenden 1280x720-Bild wird per Phaser-Frame nur der 500x500-Tastenbereich
+  verwendet, ohne eine neue oder duplizierte Asset-Datei.
+- Wiring: `DialogueScene` zeigt den 150x150-Hinweis oberhalb des Dialogpanels; der
+  vorhandene Tastaturpfad bleibt unveraendert.
+- Validiert mit `git diff --check`, Asset-/Scene-Test, Typecheck, 809 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Prolog-Dialog-Browser-Smoke.
+
+### Phase 189 - Eigene Tiles fuer die Direwolf-Lichtung
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-direwolf-den-{floor,wall}.webp`, 128x128, zusammen ~3,6 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `direwolf-den` nutzt jetzt eigene `DIREWOLF_DEN_FLOOR/WALL`-Keys statt der
+  geliehenen `LIZARDMAN_MARSH_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-Chromium-Smoke der geladenen Direwolf-Tiles.
+
+### Phase 190 - Eigene Tiles fuer die Freiheitsakademie
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-freedom-academy-{floor,wall}.webp`, 128x128, zusammen ~3,9 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise)
+  und in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: `freedom-academy` nutzt jetzt eigene `FREEDOM_ACADEMY_FLOOR/WALL`-Keys statt
+  der geliehenen `BLUMUND_*`-Tiles, ueber das bestehende
+  `OVERWORLD_TILE_THEMES`-/Preload-Wiring mit unveraenderter Default-Fallbackkette;
+  kein neuer Renderpfad, keine Balance-Beruehrung (rein kosmetisch, off-combat).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive
+  Balance-Harness, Build und dem erweiterten Freiheitsakademie-Desktop-Chromium-Smoke.
+- Damit hat jede der 14 Karten ein eigenes Tile-Set; verbleibende Leihe ist nur noch
+  die `tempest-start`-Wildnis-Basis (an die Wachstums-Tile-Umschaltung gekoppelt).
+
+### Phase 191 - Eigener Jura-Wald-Boden & -Wand fuer die tempest-start-Wildnis
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-wilderness-{floor,wall}.webp`, 128x128, zusammen ~2,7 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert.
+- Wiring: Das `tempest-start`-Theme (`OVERWORLD_TILE_THEMES`) traegt jetzt die neuen
+  `TEMPEST_WILDERNESS_FLOOR/WALL`-Keys statt der geliehenen `LIZARDMAN_MARSH_*`; die
+  `wilderness`-Wachstumsstufe rendert dadurch eigenen Jura-Waldboden statt Echsen-Sumpf.
+  Camp/Village/City-Boeden (eigene Keys) bleiben unveraendert; `lizardman-marsh` behaelt
+  seine Tiles. Neue Keys zusaetzlich in `linearTextureKeys` (gleiche Filterung wie die
+  Wachstums-Boeden). Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch).
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der wilderness-Stufe (geladene Wildnis-Tiles).
+
+### Phase 192 - Die Siedlungsmauer waechst mit (stufenabhaengige tempest-start-Waende)
+
+- Direkt auf `main` (geplanter Lauf, per Auftrag autorisiert statt Phase-Worktree).
+- Assets: `tiles/tile-tempest-{camp,village,city}-wall.webp`, 128x128, zusammen ~5,5 KB;
+  projektintern prozedural erzeugt (Python/Pillow, nahtlose Tileable-Value-Noise),
+  in `ASSETS.md` als projektgenerierte Originale dokumentiert. Progression: grobe
+  Palisade (camp) -> Holz-/Flechtwerk mit Steinsockeln (village) -> Quader-Steinmauer
+  (city).
+- Wiring: `overworldTileTextureCandidates` waehlt fuer `tempest-start` die Wand jetzt
+  symmetrisch zur bestehenden stufenabhaengigen Boden-Auswahl (`tempestWallKey` spiegelt
+  `tempestFloorKey`); die `wilderness`-Stufe faellt auf die eigene Wildnis-Wand (Phase
+  191, `theme.wallKey`) zurueck. Andere Karten unberuehrt (Nicht-tempest-start-Maps
+  laufen weiter ueber `theme.wallKey`). Preload-Wiring analog inkl. `linearTextureKeys`.
+  Kein neuer Renderpfad, keine Balance-Beruehrung (kosmetisch, off-combat).
+- Damit reift Tempest sichtbar in Boden UND Wand; das Regionen-Identitaets-Projekt ist
+  abgeschlossen — jede Karte inkl. aller vier tempest-start-Stufen hat ein eigenes
+  Boden+Wand-Set.
+- Validiert mit Theme-/Preload-Tests, Typecheck, Unit-Tests inklusive Balance-Harness,
+  Build und Desktop-Chromium-Smoke der camp-Stufe (geladene Lager-Wand-Textur).
+
+### Phase 193 - Eigene Kampfarena fuer die Glutgrotte
+
+- Urspruenglich parallel als Phase 189 umgesetzt; beim Merge nach den bereits
+  archivierten Phasen 189-192 konfliktfrei auf Phase 193 fortgeschrieben.
+- Branch/Worktree: `phase-189-ember-hollow-arena` in
+  `/home/viktor/worktree/tempest-phase-189-ember-hollow-arena`.
+- Asset: `backgrounds/battle-ember-hollow.webp`, 1280x720, 212,9 KB; per
+  Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert.
+- Wiring: `ember-hollow` nutzt die Textur ueber das bestehende Map-Arena-/Preload-
+  Wiring; damit teilen `masked-majin-ambush`, `ifrit-boss` und
+  `emberforge-hunt-battle` ohne Encounter-Sonderfaelle dieselbe Arena.
+- Validiert mit `git diff --check`, Arena-/Preload-Test, Typecheck, 809 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Ember-Hollow-Browser-Smoke.
+
+### Phase 194 - Imagegen-Refresh fuer die Direwolf-Lichtungs-Tiles
+
+- Urspruenglich parallel als Phase 190 umgesetzt; beim Merge nach den bereits
+  archivierten Phasen 189-193 auf Phase 194 fortgeschrieben.
+- Branch/Worktree: `phase-190-direwolf-den-tiles` in
+  `/worktree/tempest-phase-190-direwolf-den-tiles`.
+- Assets: `tiles/tile-direwolf-den-{floor,wall}.webp`, 128x128, zusammen 11,5 KB;
+  per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert. Sie ersetzen die
+  prozeduralen Schnee-/Steinplatten durch trockene mondhelle Walderde sowie eine
+  klar blockierende Kiefernwurzel-/Felskante passend zu Banner und Kampfarena.
+- Wiring und Tests aus der bereits gelandeten Phase 189 blieben unveraendert;
+  der Merge uebernahm ausschliesslich den sichtbar besseren Asset-Satz samt
+  korrigierter Provenienz.
+- Validiert mit `git diff --check`, Typecheck, 814 Unit-Tests inklusive
+  Balance-Harness, Build und fokussiertem Direwolf-Lichtungs-Desktop-Chromium-Smoke
+  inklusive beider separat geladener Texturen.
+
+### Phase 195 - Imagegen-Refresh fuer die Freiheitsakademie-Tiles
+
+- Branch/Worktree: `phase-195-freedom-academy-tiles` in
+  `/worktree/tempest-phase-195-freedom-academy-tiles`.
+- Assets: `tiles/tile-freedom-academy-{floor,wall}.webp`, 128x128, zusammen
+  17,0 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert. Sie
+  ersetzen die prozeduralen Fliesen-/Ziegelraster durch warmes Natursteinpflaster
+  und eine klar blockierende gotische Schieferdach-/Natursteinkante passend zum
+  vorhandenen Regionsbanner.
+- Bestehende Texture-Keys, Theme-/Preload-Wiring, Fallbackkette und Tests blieben
+  unveraendert; kein neuer Renderpfad und keine neue Abhaengigkeit.
+- Validiert mit `git diff --check`, Theme-/Preload-Test (6/6), Typecheck,
+  814 Unit-Tests inklusive Balance-Harness, Build und vorhandenem
+  Freiheitsakademie-Desktop-Chromium-Smoke inklusive beider geladener Texturen.
+
+### Phase 196 - Gefaehrtennamen erst nach der Benennung
+
+- Branch/Worktree: `phase-196-companion-names` in
+  `/worktree/tempest-phase-196-companion-names`.
+- Der gemeinsame NPC-/Dialog-Anzeigepfad maskiert Gobta, Ranga, Hakurou und Shuna
+  bis zu ihren bestehenden Story-Flags als Goblin, Schattenwolf, Oger oder Ogerin.
+  Die statischen Weltdaten und gespeicherten Charakter-IDs bleiben unveraendert.
+- Die vorhandenen Entscheidungen schlagen Gobta, Ranga und die Kijin-Namen explizit
+  vor; nach Bestaetigung setzen die bestehenden Effekte weiterhin die kanonischen
+  Namen und Flags. Es gibt keinen neuen Dialogzustand und keine Save-Migration.
+- Validiert mit `git diff --check`, Welt-Test (46/46), Typecheck, 815 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke vom
+  Schattenwolf zur dauerhaft gespeicherten Ranga-Benennung.
+
+### Phase 197 - Hakurou-Hauptstory-Marker abgesichert
+
+- Branch/Worktree: `phase-197-hakurou-marker` in
+  `/worktree/tempest-phase-197-hakurou-marker`.
+- Die Live-Diagnose bestaetigte, dass der bestehende datengetriebene
+  `npcHasQuestMarker`-Pfad Hakurou bereits korrekt markiert, solange die sichtbare
+  Kijin-Benennungsoption `story.kijin.named` setzen kann, und danach automatisch
+  erlischt. Deshalb wurde kein redundanter Hakurou-Sonderfall eingefuehrt.
+- Der exakte Uebergang `Marker an -> Kijin benennen -> Marker aus` ist nun im
+  szenentreuen Durchspieltest festgehalten; ein fokussierter Desktop-Chromium-Smoke
+  bestaetigt den sichtbaren Canvas- und Dialogpfad bis zur persistierten Benennung.
+- Validiert mit `git diff --check`, Story-Test (22/22), Typecheck, 815 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
+### Phase 198 - Overworld-Viereck durch runden NPC-Fallback ersetzt
+
+- Branch/Worktree: `phase-198-overworld-artifact` in
+  `/worktree/tempest-phase-198-overworld-artifact`.
+- Die Desktop-/Mobile-Reproduktion identifizierte das beige Viereck bei etwa zwei
+  Dritteln der Breite als generischen Rechteck-Fallback eines NPCs ohne Portraet;
+  an der gemeldeten Stelle war dies `tempest-camp`, kein GPU- oder Skalierungsfehler.
+- Der gemeinsame Fallback in `OverworldScene` zeichnet bei gleicher Groesse, Farbe,
+  Kontur, Position und Interaktion nun einen Kreis. Portraet-NPCs bleiben unveraendert;
+  es gibt keinen neuen Renderpfad und keine neue Abhaengigkeit.
+- Der Pixel-Smoke scheitert gegen unveraendertes `main` am gefuellten Quadrateck und
+  besteht mit dem Fix auf Desktop und Mobile. Zusaetzlich gruen: `git diff --check`,
+  Typecheck, 815 Unit-Tests inklusive Balance-Harness und Build.
+
+### Phase 199 - Echtes Mordrahn-Antagonistenportraet
+
+- Branch/Worktree: `phase-199-mordrahn-portrait` in
+  `/worktree/tempest-phase-199-mordrahn-portrait`.
+- Asset: `sprites/portrait-mordrahn.webp`, 512x512, 88,2 KB; per
+  Built-in-Imagegen aus dem vorhandenen Mordrahn-Kampfdesign und bestehenden
+  Portrait-Stilreferenzen erzeugt und in `ASSETS.md` dokumentiert.
+- Der bestehende `portrait-mordrahn`-Key laedt nun das repo-gebundene WebP statt
+  des prozeduralen Laufzeit-Fallbacks; Sprecherzuordnung, Dialog-/Welt-Renderer und
+  Fallbackkette bleiben unveraendert.
+- Validiert mit `git diff --check`, Portrait-/Asset-Tests, Typecheck, 816 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke inklusive
+  geladenem Mordrahn-Portrait.
+
+### Phase 200 - Gemeinsames Werkstattportraet fuer Kurobe und Kaijin
+
+- Branch/Worktree: `phase-200-smiths-portrait` in
+  `/worktree/tempest-phase-200-smiths-portrait`.
+- Asset: `sprites/portrait-kurobe-kaijin.webp`, 512x512, 66,1 KB; per
+  Built-in-Imagegen aus den beiden vorhandenen Einzelportraets erzeugt und in
+  `ASSETS.md` dokumentiert.
+- Der erreichbare Sprecher `Kurobe & Kaijin` nutzt nun ueber die bestehende
+  Portraitzuordnung, Preloadkette und Dialogdarstellung einen eigenen Duo-Key;
+  Einzelportraets und Dialogdaten bleiben unveraendert.
+- Validiert mit `git diff --check`, Portrait-/ArtSpec-/Asset-Tests, Typecheck,
+  817 Unit-Tests inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-
+  Smoke am echten Kurobe-Welt-NPC inklusive geladenem Duo-Portrait.
+
+### Phase 201 - Eigene Kampfarena fuer Ramiris' Labyrinth
+
+- Branch/Worktree: `phase-201-ramiris-arena` in
+  `/worktree/tempest-phase-201-ramiris-arena`.
+- Asset: `backgrounds/battle-ramiris-labyrinth.webp`, 1280x720, 305,4 KB; per
+  Built-in-Imagegen aus vorhandenem Labyrinth-Banner, Bodentile, Magiekoloss und
+  der bisherigen Geisterhoehlen-Kompositionsreferenz erzeugt und in `ASSETS.md`
+  dokumentiert.
+- Der bestehende Map- und Encounter-Arenapfad ordnet `ramiris-labyrinth` sowie
+  `magic-colossus` nun dem eigenen Texture-Key statt der generischen Geisterhoehle
+  zu; Kampfmechanik und Labyrinthsystem bleiben unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke bis in den
+  echten Magiekoloss-Kampf inklusive geladener Labyrinth-Arena.
+
+### Phase 202 - Eigene Kampfarena fuer die Freiheitsakademie
+
+- Branch/Worktree: `phase-202-academy-arena` in
+  `/worktree/tempest-phase-202-academy-arena`.
+- Asset: `backgrounds/battle-freedom-academy.webp`, 1280x720, 244,3 KB; per
+  Built-in-Imagegen aus vorhandenem Akademie-Banner, Bodentile,
+  Wiedergänger-Farbwelt und der Ramiris-Arena als Kompositionsreferenz erzeugt
+  und in `ASSETS.md` dokumentiert.
+- Der bestehende Map-Arenapfad ordnet `freedom-academy` nun dem eigenen
+  Texture-Key statt dem generischen Tempest-Hain zu; die erreichbaren
+  Geistflammen- und Wiedergänger-Kaempfe sowie ihre Kampfmechanik bleiben
+  unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
+  geladener Akademie-Arena.
+
+### Phase 203 - Eigene Kampfarena fuer Blumund
+
+- Branch/Worktree: `phase-203-blumund-arena` in
+  `/worktree/tempest-phase-203-blumund-arena`.
+- Asset: `backgrounds/battle-blumund.webp`, 1280x720, 279,6 KB; per
+  Built-in-Imagegen aus vorhandenem Blumund-Banner, Bodentile, Banditen-Designs
+  und der Freiheitsakademie-Arena als Kompositionsreferenz erzeugt und in
+  `ASSETS.md` dokumentiert.
+- Der bestehende Map-Arenapfad ordnet `blumund` nun dem eigenen Texture-Key
+  statt dem generischen Tempest-Hain zu; die erreichbaren Strassenraub- und
+  Hintergassen-Kaempfe sowie ihre Kampfmechanik bleiben unveraendert.
+- Validiert mit `git diff --check`, Arena-/Asset-Tests, Typecheck, 817 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
+  geladener Blumund-Arena.
+
+### Phase 204 - Drei bereits implementierte Plan-Bugs revalidiert
+
+- Branch/Worktree: `phase-204-plan-reconciliation` in
+  `/worktree/tempest-phase-204-plan-reconciliation`.
+- Ein paralleler Commit hatte die in Phasen 196–198 bereits erledigten Punkte zu
+  Gefaehrtennamen, Hakurous Hauptstory-Marker und dem rechteckigen NPC-Fallback
+  erneut als offen in `PLAN.md` eingetragen. Aktueller Code und die bestehenden
+  gezielten Tests bestaetigten alle drei Fixes; es war kein Produktcode noetig.
+- Die doppelten offenen Eintraege wurden entfernt. Validiert mit `git diff --check`,
+  68 fokussierten World-/Story-Tests, allen sechs fokussierten Desktop-/Mobile-
+  Chromium-Smokes, Typecheck, 817 Unit-Tests inklusive Balance-Harness und Build.
+- Der erste parallele Browserlauf brachte den Hakurou-Mobile-Smoke beim finalen
+  Screenshot ins 30-Sekunden-Timeout; der isolierte Wiederholungslauf bestand in
+  12,8 Sekunden. Das war Lastkonkurrenz, keine Codeaenderung.
+
+### Phase 205 - Eigenes Portraet fuer die verwundete Grenzspaeherin
+
+- Branch/Worktree: `phase-205-border-scout-portrait` in
+  `/worktree/tempest-phase-205-border-scout-portrait`.
+- Asset: `sprites/portrait-border-scout.webp`, 512x512, 61,9 KB; per
+  Built-in-Imagegen aus vorhandenen Grenzpatrouillen-, Portrait- und
+  Geistmoor-Referenzen erzeugt und in `ASSETS.md` dokumentiert.
+- Die Sprecher `Grenzspäherin` und `Verwundete Grenzspäherin` nutzen nun ueber
+  die bestehende Portraitzuordnung, Preloadkette und Texturfilterung dasselbe
+  echte Portrait statt des generischen Welt-NPC-Kreises; Dialog- und
+  Questlogik bleiben unveraendert.
+- Validiert mit `git diff --check`, 26 fokussierten Portrait-/Asset-Tests,
+  Typecheck, 818 Unit-Tests inklusive Balance-Harness, Build sowie
+  Desktop-/Mobile-Chromium-Smoke am echten Sumpfgrenz-Deeskalationsdialog
+  inklusive geladenem Portrait und ohne Browserfehler.
+
+## 14. Change Checklist
 
 Before editing:
 

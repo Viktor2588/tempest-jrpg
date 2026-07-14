@@ -9,6 +9,7 @@ import {
 import {
   applyBattleResultToSave,
   calculateBattleMagicules,
+  calculateBattleSouls,
   summarizeBattleLevelUps
 } from '../src/systems/battleResult';
 import { KITCHEN_REST_BUFF_FLAG } from '../src/systems/facilities';
@@ -45,6 +46,33 @@ describe('battle result: dauerhafte Skill-Aneignung', () => {
     expect(result.progression.magicules).toBe(13);
     expect(learned.filter((skillId) => skillId === 'venom-spit')).toHaveLength(1);
     expect(repeated.flags['codex.predator-devour']).toBe(true);
+    // Phase 122 — der im Sieg analysierte Gegner landet dauerhaft im Bestiarium.
+    expect(result.progression.analyzedEnemyIds).toContain('spore-moth');
+  });
+});
+
+describe('battle result: Bestiarium-Analyse-Tally (Phase 122)', () => {
+  it('bucht nur studierte Arten ins Analyse-Wissen, erlegte immer in die Zähler', () => {
+    const save = createNewSave({ seed: 7, now: '2026-07-10T10:00:00.000Z' });
+    const battle = startBattle({
+      party: createBattlePartyFromMembers(save.party.active),
+      enemyIds: ['forest-slime'],
+      inventory: save.inventory.stacks,
+      seed: 7
+    });
+    const rimuru = battle.combatants.find((combatant) => combatant.side === 'party')!;
+    const foe = battle.combatants.find((combatant) => combatant.side === 'enemy')!;
+    battle.activeId = rimuru.id;
+    rimuru.ct = 100;
+    foe.hp = 1;
+    // Bewusst NICHT analysiert (analysisLevel bleibt 0): normaler Angriff besiegt den Gegner.
+    expect(act(battle, { type: 'attack', targetId: foe.id }).ok).toBe(true);
+    expect(battle.status).toBe('won');
+
+    const result = applyBattleResultToSave(save, renderView(battle));
+    // Erlegt → Besiegt-Zähler; nicht studiert → kein Bestiarium-Analyse-Eintrag.
+    expect(result.progression.defeatedEnemyCountsByEnemyId['forest-slime']).toBe(1);
+    expect(result.progression.analyzedEnemyIds).not.toContain('forest-slime');
   });
 });
 
@@ -70,6 +98,45 @@ describe('battle result: Magicules', () => {
     expect(round.progression.magicules).toBe(77);
     expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.magicules)
       .toBe(0);
+  });
+});
+
+describe('battle result: Seelen (Phase 127)', () => {
+  it('erntet Seelen nur aus erlegten Bossen, nicht aus Trash', () => {
+    const bossWin = {
+      status: 'won',
+      enemies: [{ boss: false, dead: true }, { boss: true, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(bossWin)).toBe(1);
+
+    const trashWin = {
+      status: 'won',
+      enemies: [{ boss: false, dead: true }, { boss: false, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(trashWin)).toBe(0);
+
+    const overlivedBoss = {
+      status: 'won',
+      enemies: [{ boss: true, dead: false }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(overlivedBoss)).toBe(0);
+
+    const lost = {
+      status: 'lost',
+      enemies: [{ boss: true, dead: true }]
+    } as unknown as BattleView;
+    expect(calculateBattleSouls(lost)).toBe(0);
+  });
+
+  it('bucht die geernteten Seelen in den Save und migriert alte Stände auf 0', () => {
+    const save = createNewSave();
+    expect(save.progression.souls).toBe(0);
+    const round = importSave(exportSave({
+      ...save,
+      progression: { ...save.progression, souls: 4 }
+    }));
+    expect(round.progression.souls).toBe(4);
+    expect(migrate({ schemaVersion: 1, seed: 1 }, '2026-07-07T10:00:00.000Z').progression.souls).toBe(0);
   });
 });
 

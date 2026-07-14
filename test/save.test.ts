@@ -65,7 +65,8 @@ describe('save.ts', () => {
         skillPointsByCharacterId: { rimuru: 2 },
         unlockedSkillNodeIdsByCharacterId: { rimuru: ['rimuru-predator-focus'] },
         awakeningCompleted: true,
-        awakenedResidentIds: ['sturmzahn']
+        awakenedResidentIds: ['sturmzahn'],
+        analyzedEnemyIds: ['forest-slime', 'spore-moth']
       }
     };
 
@@ -88,6 +89,8 @@ describe('save.ts', () => {
       .toEqual(['rimuru-predator-focus']);
     expect(loaded.progression.awakeningCompleted).toBe(true);
     expect(loaded.progression.awakenedResidentIds).toEqual(['sturmzahn']);
+    // Phase 122 — Lebendiges Bestiarium: Analyse-Wissen übersteht den Roundtrip.
+    expect(loaded.progression.analyzedEnemyIds).toEqual(['forest-slime', 'spore-moth']);
   });
 
   it('migriert einen alten v1-Spielstand auf das aktuelle Schema', () => {
@@ -175,6 +178,32 @@ describe('save.ts', () => {
 
     resetSave(storage);
     expect(loadSave(storage)).toBeNull();
+  });
+
+  it('crasht nicht an einem beschädigten Spielstand, sondern lädt als „kein Save" (null)', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(SAVE_STORAGE_KEY, '{ das ist kein gueltiges JSON');
+    expect(() => loadSave(storage)).not.toThrow();
+    expect(loadSave(storage)).toBeNull();
+
+    // Nicht unterstützte künftige Version → ebenfalls graceful null statt Wurf.
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify({ schemaVersion: 999 }));
+    expect(loadSave(storage)).toBeNull();
+
+    // Expliziter Import bleibt strikt (klare Fehlermeldung fürs UI).
+    expect(() => importSave('{ kaputt')).toThrow();
+  });
+
+  it('persistiert den Welt-Uhr-Schrittzähler (Phase 101) über Speichern/Laden', () => {
+    const storage = new MemoryStorage();
+    const save = { ...createNewSave({ seed: 5 }), clockStep: 37 };
+    autoSave(storage, save);
+    expect(loadSave(storage)?.clockStep).toBe(37);
+  });
+
+  it('setzt clockStep für neue Spielstände auf 0 und klemmt negative Werte', () => {
+    expect(createNewSave().clockStep).toBe(0);
+    expect(normalize({ ...createNewSave(), clockStep: -12 }).clockStep).toBe(0);
   });
 
   it('trägt bei New Game+ Fortschritt mit, setzt aber die Story zurück und heilt die Party', () => {

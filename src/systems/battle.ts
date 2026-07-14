@@ -8,6 +8,7 @@ import {
   SIGNATURES,
   SKILLS,
   type CharacterDefinition,
+  type ElementFusionDefinition,
   type ElementType,
   type EnemyDefinition,
   type EnemyDrop,
@@ -19,7 +20,7 @@ import {
   type StatusEffectId
 } from '../data';
 import { getItemCount, normalizeInventoryStacks, type InventoryStack } from './inventory';
-import type { PartyMemberState } from './party';
+import type { FormationRow, PartyMemberState } from './party';
 import { makeRng, type Rng } from './rng';
 import {
   analysisBonusLevels,
@@ -31,17 +32,27 @@ import {
   dodgeChance,
   maxHpMultiplier,
   skillChainFor,
+  statusResistChance,
   type DamageCategory,
   type TalentPerk
 } from './talentPerk';
 import { scaleStats } from './stats';
 import { resolveElementFusion } from './fusion';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 
 export type Side = 'party' | 'enemy';
 export type BattleStatus = 'active' | 'won' | 'lost' | 'fled';
 
 export interface StatusInstance {
   readonly id: StatusEffectId;
+  turns: number;
+}
+
+// Phase 94 — Elementarfeld: der elementare Zustand des Schlachtfelds. Ein Feld
+// verstärkt gleichelementige Treffer, öffnet Fusions-Reaktionen und klingt pro
+// Runde ab. Nur ein Feld gleichzeitig (einfachste tragfähige Lösung).
+export interface BattleField {
+  readonly element: ElementType;
   turns: number;
 }
 
@@ -58,6 +69,7 @@ export interface BattleUnitInput {
   readonly name: string;
   readonly formName?: string;
   readonly side: Side;
+  readonly formationRow?: FormationRow;
   readonly level: number;
   readonly stats: StatBlock;
   readonly currentHp?: number;
@@ -65,6 +77,9 @@ export interface BattleUnitInput {
   readonly element: ElementType;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter (Nullifizierung/Absorption).
+  readonly nullifies?: readonly ElementType[];
+  readonly absorbs?: readonly ElementType[];
   readonly skillIds: readonly string[];
   readonly boss?: boolean;
   readonly phase2SkillIds?: readonly string[];
@@ -78,6 +93,11 @@ export interface BattleUnitInput {
   readonly reflectsCategory?: DamageCategory;
   readonly devourable?: boolean;
   readonly devourSkillId?: string;
+  readonly predatorStealSkillId?: string;
+  readonly soulboundSkillIds?: readonly string[];
+  // Phase 109 — Skript-Bosse: einmalige Add-Beschwörung beim Phasenwechsel.
+  readonly summonEnemyId?: string;
+  readonly summonCount?: number;
   readonly synergyPartnerIds?: readonly string[];
   readonly openingStatusIds?: readonly StatusEffectId[];
   readonly experienceReward?: number;
@@ -93,6 +113,7 @@ export interface Combatant {
   readonly name: string;
   readonly formName: string | null;
   readonly side: Side;
+  readonly formationRow: FormationRow;
   readonly level: number;
   readonly baseStats: StatBlock;
   baseSkillIds: string[];
@@ -108,6 +129,10 @@ export interface Combatant {
   readonly element: ElementType;
   readonly weaknesses: readonly ElementType[];
   readonly resistances: readonly ElementType[];
+  // Phase 125 — Resistenz-Leiter. Nicht readonly, damit Phase 126 (Mimikry) das
+  // Profil temporär überschreiben kann.
+  nullifies: readonly ElementType[];
+  absorbs: readonly ElementType[];
   skillIds: string[];
   readonly boss: boolean;
   readonly phase2SkillIds: readonly string[];
@@ -131,8 +156,25 @@ export interface Combatant {
   readonly reflectsCategory: DamageCategory | null;
   // Phase 41 — Verschlinger: in diesem Kampf per Mimik angeeignete Skills (Phase 42 bankt sie dauerhaft).
   mimicSkillIds: string[];
+  // Phase 105 — Mimikry als aktive Kampf-Form: nimmt für einige Züge das Element einer
+  // in diesem Kampf verschlungenen Gegner-Art an (On-Demand-Wechsel des Angriffs-Elements).
+  // null/0 = eigene Grundform.
+  mimicElement: ElementType | null;
+  mimicTurns: number;
+  // Phase 126 — Mimikry erbt defensiv das Resistenz-Profil der angenommenen Form
+  // (temporär, wird beim Formende geleert). Getrennt von der Grundform, damit das
+  // eigene Profil erhalten bleibt.
+  mimicResistances: readonly ElementType[];
+  mimicNullifies: readonly ElementType[];
+  mimicAbsorbs: readonly ElementType[];
   readonly devourable: boolean;
   readonly devourSkillId: string | null;
+  readonly predatorStealSkillId: string | null;
+  readonly soulboundSkillIds: readonly string[];
+  // Phase 109 — Skript-Bosse: Add-Beschwörung beim Phasenwechsel (einmalig via summonsUsed).
+  readonly summonEnemyId: string | null;
+  readonly summonCount: number;
+  summonsUsed: boolean;
   readonly synergyPartnerIds: readonly string[];
   readonly signatureId: string | null;
   signatureCharge: number;
@@ -175,11 +217,14 @@ export interface BattleState {
   turns: number;
   readonly seed: number;
   readonly rng: Rng;
+  readonly flags: Readonly<Record<string, boolean>>;
   log: string[];
   rewards: BattleRewards;
   // Phase 92 — Bewohner: Quell-IDs der in diesem Kampf verschlungenen Gegner-Arten
   // (für die Rekrutierung nach dem Sieg). Nur erfolgreiche Verschlinger-Finisher.
   devouredSourceIds: string[];
+  // Phase 94 — Elementarfeld: der aktive Feld-Zustand (null = neutrales Feld).
+  field: BattleField | null;
 }
 
 export type BattleAction =
@@ -189,6 +234,9 @@ export type BattleAction =
   | { type: 'team-attack'; partnerId: string; targetId: string }
   | { type: 'analyze'; targetId: string }
   | { type: 'devour'; targetId: string }
+  | { type: 'steal'; targetId: string }
+  // Phase 105 — Mimikry: nimmt on-demand das Element einer verschlungenen Gegner-Art an.
+  | { type: 'mimic'; element: ElementType }
   | { type: 'signature'; targetId?: string }
   | { type: 'guard' }
   // Phase 85 — optionales Reaktions-Timing: die UI liefert das im Timing-Fenster
@@ -203,6 +251,18 @@ export interface StartBattleOptions {
   readonly inventory?: readonly InventoryStack[];
   readonly teamMeter?: number;
   readonly damageMultipliers?: Partial<BattleDamageMultipliers>;
+  readonly flags?: Readonly<Record<string, boolean>>;
+  // Phase 101 — Welt-Uhr: Eröffnungs-Elementarfeld (Zeit/Wetter des Encounters).
+  // null/neutral/undefiniert = neutrales Startfeld (unverändertes Verhalten).
+  readonly openingField?: ElementType | null;
+  // Phase 171 — Welt-Uhr: symmetrische Eroeffnungs-Status (z.B. Nebel→Blind auf ALLE
+  // Kaempfer). Environmental/beidseitig — kein Widerstands-Wurf. Fehlt/leer =
+  // unveraendertes Verhalten. Die Balance-Harness reicht das nie durch → off-harness.
+  readonly openingStatuses?: readonly { readonly id: StatusEffectId; readonly turns: number }[];
+  // Phase 123 — Bestiarium-Wissen im Kampf: bereits studierte Gegner-Arten (`sourceId`s
+  // aus progression.analyzedEnemyIds). Nicht-Boss-Gegner dieser Arten starten mit
+  // aufgedeckten Schwächen (analysisLevel 1); Bosse/Neue müssen frisch analysiert werden.
+  readonly analyzedEnemyIds?: readonly string[];
   readonly seed: number;
 }
 
@@ -241,6 +301,23 @@ const CT_MAX = CT_THRESHOLD * 3;
 // Aussetz-Status, die einen Zug hart überspringen (Schlaf/Eis enden zusätzlich bei Schaden).
 const HARD_SKIP_STATUSES = ['stun', 'sleep', 'freeze', 'petrify'] as const satisfies readonly StatusEffectId[];
 const WAKE_ON_DAMAGE_STATUSES: readonly StatusEffectId[] = ['sleep', 'freeze', 'charm'];
+// Phase 129 — heilbare (negative) Status, die ein Reinigungs-Item ('cure-status') entfernt.
+// Positive Buffs (attack-up/defense-up/magic-up/haste) bleiben erhalten.
+const CURABLE_STATUSES: readonly StatusEffectId[] = [
+  'poison',
+  'spirit-down',
+  'guard-break',
+  'stun',
+  'sleep',
+  'freeze',
+  'paralyze',
+  'petrify',
+  'blind',
+  'silence',
+  'confuse',
+  'charm',
+  'weaken'
+];
 // Phase 41 — Verschlinger + Momentum
 const MOMENTUM_CT_SURGE = 35;
 // Phase 80 — Anti-Aussitzen: Gnadenfrist (Runden ohne Eskalation) + Deckel des
@@ -257,6 +334,11 @@ const HEAVY_UNBRACED_BONUS = 1.6;
 // Element-Reflektor wirft einen Bruchteil zurück.
 const ARMOR_UNBROKEN_MULTIPLIER = 0.65;
 const ELEMENT_REFLECT_FRACTION = 0.5;
+// Phase 125 — Absorption: das absorbierte Element heilt das Ziel um einen Bruchteil
+// des sonst zugefügten Schadens (gedeckelt auf max. LP). Bewusst < 1, damit ein
+// einzelner Treffer nicht voll zurückheilt (weniger swingy, kein Auto-Battle-Soft-Lock;
+// absorbierte Elemente sind ohnehin nie Schwächen, die die Gegner-KI/Auto anpeilt).
+const ELEMENT_ABSORB_FRACTION = 0.5;
 // Phase 87 — Rudel-Raserei hält praktisch den ganzen Kampf (attack-up, einmalig).
 const ENRAGE_TURNS = 99;
 // Phase 87 — Mender-Heilabsicht: skaliert mit den fehlenden LP des Verbündeten. Hoch genug,
@@ -270,6 +352,15 @@ const CATEGORY_RESIST_MULTIPLIER = 0.55;
 // Phase 88b — Kategorie-Reflektor: Anteil des zurückgeworfenen Kategorie-Schadens (breiter
 // als ein Element-Reflektor, daher milder pro Treffer).
 const CATEGORY_REFLECT_FRACTION = 0.3;
+// Phase 94 — Elementarfeld: Dauer (Runden) eines frisch geladenen Feldes, Schadensbonus
+// für gleichelementige Treffer und der Zusatzdruck einer Fusions-Reaktion. Bewusst klein
+// gehalten (Board-Control, kein Alles-Overkill).
+const FIELD_DURATION_ROUNDS = 3;
+const FIELD_MATCH_AMPLIFY = 1.25;
+const FIELD_REACTION_BREAK_PRESSURE = 2;
+// Phase 105 — Mimikry: wie viele eigene Züge eine angenommene Form hält, bevor Rimuru in
+// seine Grundform zurückfällt.
+const MIMIC_FORM_TURNS = 3;
 // Unique-Verben (Analysieren/Verschlingen) sind keine direkt wirkbaren Fähigkeiten.
 const UNIQUE_VERB_SKILL_IDS = new Set<string>(['predator', 'great-sage']);
 const RIMURU_BATTLE_LOADOUT_LIMIT = 8;
@@ -281,7 +372,8 @@ const RIMURU_CORE_LOADOUT_SKILLS = [
   'predator-aura',
   // Phase 108 — verschmolzene Skills bleiben im Loadout sichtbar.
   'hydro-lash',
-  'maelstrom-fang'
+  'maelstrom-fang',
+  'predator-perversion'
 ] as const;
 const DEBUFF_STATUSES: readonly StatusEffectId[] = [
   'poison', 'spirit-down', 'guard-break', 'stun', 'sleep', 'freeze',
@@ -316,6 +408,7 @@ export function createBattlePartyFromMembers(
         level: member.level,
         currentHp: member.currentHp,
         currentMp: member.currentMp,
+        formationRow: member.formationRow ?? 'front',
         skillIds: battleLoadoutSkillIds(member),
         perks: perksByCharacterId[member.characterId]
       })
@@ -341,6 +434,7 @@ export function createHeroBattleUnit(
   overrides: Partial<Pick<
     BattleUnitInput,
     'currentHp'
+    | 'formationRow'
     | 'currentMp'
     | 'formName'
     | 'level'
@@ -359,6 +453,7 @@ export function createHeroBattleUnit(
     name: overrides.name ?? hero.name,
     formName: overrides.formName,
     side: 'party',
+    formationRow: overrides.formationRow,
     level,
     stats,
     currentHp: overrides.currentHp,
@@ -385,11 +480,14 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     sourceId: enemy.id,
     name: enemy.name,
     side: 'enemy',
+    formationRow: 'front',
     level: enemy.level,
     stats: enemy.stats,
     element: enemy.element,
     weaknesses: enemy.weaknesses,
     resistances: enemy.resistances,
+    nullifies: enemy.nullifies,
+    absorbs: enemy.absorbs,
     skillIds: enemy.skillIds,
     boss: enemy.boss,
     phase2SkillIds: enemy.phase2SkillIds,
@@ -403,6 +501,10 @@ export function createEnemyBattleUnit(enemy: EnemyDefinition): BattleUnitInput {
     reflectsCategory: enemy.reflectsCategory,
     devourable: enemy.devourable,
     devourSkillId: enemy.devourSkillId,
+    predatorStealSkillId: enemy.predatorStealSkillId,
+    soulboundSkillIds: enemy.soulboundSkillIds,
+    summonEnemyId: enemy.summonEnemyId,
+    summonCount: enemy.summonCount,
     experienceReward: enemy.experienceReward,
     goldReward: enemy.goldReward,
     drops: enemy.drops
@@ -414,7 +516,10 @@ export function startBattle(options: StartBattleOptions): BattleState {
   const party = options.party ?? createDefaultBattleParty();
   const enemies = options.enemies ?? createEnemyBattleUnits(options.enemyIds ?? ['forest-slime']);
   const combatants = [
-    ...party.map((unit, index) => createCombatant(unit, `p${index}-${unit.sourceId}`)),
+    ...party.map((unit, index) => createCombatant({
+      ...unit,
+      formationRow: unit.formationRow ?? 'front'
+    }, `p${index}-${unit.sourceId}`)),
     ...enemies.map((unit, index) => createCombatant(unit, `e${index}-${unit.sourceId}`))
   ];
 
@@ -433,10 +538,49 @@ export function startBattle(options: StartBattleOptions): BattleState {
     turns: 0,
     seed: options.seed,
     rng,
+    flags: options.flags ?? {},
     log: ['Ein Kampf beginnt!'],
     rewards: { experience: 0, gold: 0, items: [] },
-    devouredSourceIds: []
+    devouredSourceIds: [],
+    // Phase 101 — Welt-Uhr: die Zeit/Wetter-Uhr kann den Kampf in einem geladenen
+    // Elementarfeld (Phase 94) eröffnen (Regen=Wasser, Nacht=Schatten).
+    field:
+      options.openingField && options.openingField !== 'neutral'
+        ? { element: options.openingField, turns: FIELD_DURATION_ROUNDS }
+        : null
   };
+
+  // Phase 123 — Bestiarium-Wissen im Kampf: schon studierte (analysierte) Gegner-Arten
+  // starten mit aufgedeckten Schwächen + Telegraph. Bosse (Existenzen) und noch nie
+  // studierte Arten bleiben unbekannt (analysisLevel 0) → die Boss-Entscheidungstiefe
+  // und der erste Analyse-Moment neuer Gegner bleiben erhalten.
+  const analyzedKnown = new Set(options.analyzedEnemyIds ?? []);
+  if (analyzedKnown.size > 0) {
+    for (const combatant of state.combatants) {
+      if (
+        combatant.side === 'enemy' &&
+        !combatant.boss &&
+        combatant.analysisLevel < 1 &&
+        analyzedKnown.has(combatant.sourceId)
+      ) {
+        combatant.analysisLevel = 1;
+        combatant.telegraphSkillId = predictTelegraph(state, combatant);
+      }
+    }
+  }
+
+  // Phase 171 — Welt-Uhr: symmetrische Eroeffnungs-Status (Nebel truebt beiden Seiten
+  // die Sicht). Environmental → direkt auf ALLE Kaempfer, ohne Widerstands-Wurf; genau
+  // eine Log-Zeile je Status, damit die Bedingung lesbar ist.
+  const openingStatuses = options.openingStatuses ?? [];
+  if (openingStatuses.length > 0) {
+    for (const opening of openingStatuses) {
+      for (const combatant of state.combatants) {
+        applyStatus(combatant, opening.id, opening.turns);
+      }
+      pushLog(state, `${statusLabel(opening.id)} liegt ueber dem Schlachtfeld — beide Seiten sind betroffen.`);
+    }
+  }
 
   advanceToNextActor(state);
   return state;
@@ -605,7 +749,9 @@ function chooseEnemyAttackTarget(
   if (actor.phaseIndex >= 1) {
     return foes.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]!;
   }
-  return foes[Math.floor(state.rng() * foes.length)]!;
+  const frontLine = foes.filter((foe) => foe.formationRow === 'front');
+  const pool = frontLine.length > 0 ? frontLine : foes;
+  return pool[Math.floor(state.rng() * pool.length)]!;
 }
 
 function resolveEnemyAction(state: BattleState, actor: Combatant, action: BattleAction): ActionResult {
@@ -629,6 +775,7 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     name: unit.name,
     formName: unit.formName ?? null,
     side: unit.side,
+    formationRow: unit.formationRow ?? (unit.side === 'party' ? 'back' : 'front'),
     level: unit.level,
     baseStats: unit.stats,
     baseSkillIds,
@@ -644,6 +791,8 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     element: unit.element,
     weaknesses: unit.weaknesses,
     resistances: unit.resistances,
+    nullifies: unit.nullifies ?? [],
+    absorbs: unit.absorbs ?? [],
     skillIds: uniqueStrings([...baseSkillIds]),
     boss: unit.boss ?? false,
     phase2SkillIds: uniqueStrings(unit.phase2SkillIds ?? []),
@@ -659,8 +808,18 @@ function createCombatant(unit: BattleUnitInput, id: string): Combatant {
     resistsCategory: unit.resistsCategory ?? null,
     reflectsCategory: unit.reflectsCategory ?? null,
     mimicSkillIds: [],
+    mimicElement: null,
+    mimicTurns: 0,
+    mimicResistances: [],
+    mimicNullifies: [],
+    mimicAbsorbs: [],
     devourable: unit.devourable ?? false,
     devourSkillId: unit.devourSkillId ?? null,
+    predatorStealSkillId: unit.predatorStealSkillId ?? null,
+    soulboundSkillIds: uniqueStrings(unit.soulboundSkillIds ?? []),
+    summonEnemyId: unit.summonEnemyId ?? null,
+    summonCount: Math.max(0, unit.summonCount ?? 0),
+    summonsUsed: false,
     synergyPartnerIds: [...(unit.synergyPartnerIds ?? [])],
     signatureId: signature?.id ?? null,
     signatureCharge: 0,
@@ -749,6 +908,12 @@ function resolveAction(state: BattleState, actor: Combatant, action: BattleActio
     case 'devour':
       return resolveDevour(state, actor, action.targetId);
 
+    case 'steal':
+      return resolvePredatorSteal(state, actor, action.targetId);
+
+    case 'mimic':
+      return resolveMimicForm(state, actor, action.element);
+
     case 'signature':
       return resolveSignature(state, actor, action.targetId);
   }
@@ -780,9 +945,15 @@ function resolveAttack(state: BattleState, actor: Combatant, targetId: string): 
     return { ok: false, reason: 'Ungültiges Ziel.' };
   }
 
-  const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8) * variance(state.rng);
-  const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: actor.element });
+  // Phase 105 — eine angenommene Mimik-Form kanalisiert ihr Element in den Grundangriff:
+  // erst dann wirkt die Element-Schwäche/-Resistenz auf den sonst elementneutralen Schlag.
+  const elementFactor = actor.mimicElement ? elementMultiplier(actor.mimicElement, target) : 1;
+  const rawDamage = (effectiveStat(actor, 'attack') * 1.8 - effectiveStat(target, 'defense') * 0.8)
+    * elementFactor
+    * variance(state.rng);
+  const damage = applyDamage(state, actor, target, rawDamage, true, { category: 'physical', element: attackElement(actor) });
   pushLog(state, `${actor.name} greift ${target.name} an: ${damage} Schaden.`);
+  playSfxProcedural('hit');
   checkDeath(state, target);
   endTurn(state, actor);
   return { ok: true };
@@ -817,12 +988,15 @@ function resolveSkill(
   if (skill.element !== 'neutral') {
     actor.resonanceElement = skill.element;
   }
+  // Phase 94 — Board-Control: die Fähigkeit lädt (bei chargesField) das Feld auf.
+  chargeField(state, actor, skill);
 
   if (isHealingSkill(skill)) {
     for (const target of targets) {
       const amount = Math.max(1, Math.round(skill.power + effectiveStat(actor, 'magic') * 0.6));
       target.hp = Math.min(target.maxHp, target.hp + amount);
       pushLog(state, `${actor.name} heilt ${target.name} um ${amount} LP.`);
+      playSfxProcedural('heal');
       applySkillStatus(state, actor, target, skill);
       applyCtDelta(target, skill.ctDelta);
     }
@@ -841,6 +1015,13 @@ function resolveSkill(
     return { ok: true };
   }
 
+  // Phase 94 — Feld-Zustand bei Cast-Beginn: bestimmt Verstärkung + Reaktion für ALLE
+  // Ziele dieses Skills (die Reaktion breitet sich über die Ziele aus und verbraucht das
+  // Feld danach einmalig).
+  const castField = state.field;
+  const fieldAmplify = fieldMatchMultiplier(castField, skill.element);
+  const reaction = fieldReaction(castField, skill.element);
+
   let momentumGranted = false;
   for (const target of targets) {
     const usesPhysicalScaling = skill.tags.includes('physical') && !skill.tags.includes('magical');
@@ -848,6 +1029,7 @@ function resolveSkill(
     const mitigation = usesPhysicalScaling ? effectiveStat(target, 'defense') : effectiveStat(target, 'spirit');
     const rawDamage = (skill.power + offense * 1.35 - mitigation * 0.55)
       * elementMultiplier(skill.element, target)
+      * fieldAmplify
       * variance(state.rng);
     const damage = applyDamage(state, actor, target, rawDamage, true, {
       category: usesPhysicalScaling ? 'physical' : 'magical',
@@ -857,6 +1039,9 @@ function resolveSkill(
     const weaknessText = target.weaknesses.includes(skill.element) ? ' (Schwäche!)' : '';
     pushLog(state, `${actor.name} nutzt ${skill.name}: ${damage} Schaden${weaknessText}.`);
     applyBreakPressure(state, target, skill.element, skill.tags.includes('debuff') ? 1 : 0);
+    if (reaction && !target.dead) {
+      triggerFieldReaction(state, target, reaction);
+    }
     if (!momentumGranted && damage > 0 && target.weaknesses.includes(skill.element)) {
       grantMomentum(state, actor, 'Schwächentreffer');
       momentumGranted = true;
@@ -864,6 +1049,10 @@ function resolveSkill(
     applySkillStatus(state, actor, target, skill);
     applyCtDelta(target, skill.ctDelta);
     checkDeath(state, target);
+  }
+  // Die Fusions-Reaktion verbraucht das Feld (Board-Control wird eingelöst).
+  if (reaction && state.field === castField) {
+    state.field = null;
   }
 
   // Perk skill-chain: nach diesem Skill mit Chance einen Folge-Skill ohne Zugkosten.
@@ -960,6 +1149,23 @@ function resolveItem(
       pushLog(state, `${actor.name} belebt ${target.name} wieder.`);
       break;
 
+    case 'cure-status': {
+      if (target.dead) {
+        return { ok: false, reason: 'Ziel ist kampfunfähig.' };
+      }
+      const before = target.statuses.length;
+      for (let index = target.statuses.length - 1; index >= 0; index -= 1) {
+        if (CURABLE_STATUSES.includes(target.statuses[index]!.id)) {
+          target.statuses.splice(index, 1);
+        }
+      }
+      if (target.statuses.length === before) {
+        return { ok: false, reason: 'Kein heilbarer Status vorhanden.' };
+      }
+      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} wird von Statusleiden befreit.`);
+      break;
+    }
+
     case 'grant-skill':
       return { ok: false, reason: 'Skill-Items sind im Kampf noch nicht nutzbar.' };
   }
@@ -1009,9 +1215,9 @@ function resolveTeamAttack(
     fusion?.damageElement ?? 'neutral',
     fusion?.breakPressure ?? 2
   );
-  if (fusion?.statusEffect && target.hp > 0) {
+  if (fusion?.statusEffect && target.hp > 0 && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
     applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
-    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)}.`);
+    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)} (${fusion.statusEffect.turns} Runden).`);
   }
   pushLog(
     state,
@@ -1047,6 +1253,17 @@ function resolveAnalyze(state: BattleState, actor: Combatant, targetId: string):
   target.telegraphSkillId = predictTelegraph(state, target);
   const weaknessText = target.weaknesses.length > 0 ? target.weaknesses.join(', ') : 'keine bekannten';
   pushLog(state, `Großer Weiser analysiert ${target.name} (Stufe ${target.analysisLevel}): Schwächen ${weaknessText}.`);
+  if (target.magic >= target.attack) {
+    pushLog(state, `${target.name} ist ein Zauberwirker - Bannsiegel unterbindet Fähigkeiten.`);
+  }
+  // Phase 125 — die Analyse deckt auch die obere Resistenz-Leiter auf, damit der
+  // Spieler weiß, welches Element NICHT zu spammen ist (absorbiert/immun).
+  if (target.absorbs.length > 0) {
+    pushLog(state, `${target.name} absorbiert ${target.absorbs.map((element) => FIELD_ELEMENT_LABEL[element]).join(', ')}.`);
+  }
+  if (target.nullifies.length > 0) {
+    pushLog(state, `${target.name} ist immun gegen ${target.nullifies.map((element) => FIELD_ELEMENT_LABEL[element]).join(', ')}.`);
+  }
   endTurn(state, actor);
   return { ok: true };
 }
@@ -1097,7 +1314,68 @@ function resolveDevour(state: BattleState, actor: Combatant, targetId: string): 
   } else {
     pushLog(state, `${actor.name} verschlingt ${target.name}.`);
   }
+  playSfxProcedural('devour');
   grantMomentum(state, actor, 'Verschlingen');
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+// Phase 112 — Praedator-Perversion: Ultimate- und Unique-Verb-Skills bleiben
+// seelengebunden; normale Skills/Extra-Skills können aus verschlingbaren Gegnern
+// herausgerissen werden.
+export function isStealableSkillId(skillId: string): boolean {
+  const skill = skillById.get(skillId);
+  return !!skill && skill.tier !== 'ultimate-skill' && !UNIQUE_VERB_SKILL_IDS.has(skill.id);
+}
+
+// Wählt die kanonische Raub-Fertigkeit eines verschlingbaren Ziels: expliziter
+// predatorStealSkillId, sonst der vorhandene devourSkillId.
+export function stealableSkillFrom(
+  target: Pick<Combatant, 'boss' | 'devourable' | 'devourSkillId' | 'predatorStealSkillId' | 'soulboundSkillIds'>,
+  actorSkillIds: readonly string[]
+): string | null {
+  const skillId = target.predatorStealSkillId ?? target.devourSkillId;
+  if (
+    target.boss
+    || !target.devourable
+    || !skillId
+    || target.soulboundSkillIds.includes(skillId)
+    || actorSkillIds.includes(skillId)
+    || !isStealableSkillId(skillId)
+  ) {
+    return null;
+  }
+  return skillId;
+}
+
+function resolvePredatorSteal(state: BattleState, actor: Combatant, targetId: string): ActionResult {
+  if (!actor.skillIds.includes('predator') || !actor.skillIds.includes('great-sage')) {
+    return { ok: false, reason: 'Praedator-Perversion braucht Verschlinger und Großen Weisen.' };
+  }
+  if (state.flags['story.shizu.vow'] !== true) {
+    return { ok: false, reason: 'Shizus Schwur ist noch nicht erfüllt.' };
+  }
+
+  const target = getCombatant(state, targetId);
+  if (!target || target.dead || target.side === actor.side) {
+    return { ok: false, reason: 'Ungültiges Ziel.' };
+  }
+  if (!target.devourable || target.analysisLevel < 1) {
+    return { ok: false, reason: 'Ziel muss analysiert und verschlingbar sein.' };
+  }
+
+  const skillId = stealableSkillFrom(target, actor.skillIds);
+  if (!skillId) {
+    return { ok: false, reason: 'Diese Fertigkeit ist seelengebunden oder bereits bekannt.' };
+  }
+
+  // In mimicSkillIds ablegen: temporär in diesem Kampf nutzbar, bei Sieg dauerhaft
+  // in learnedSkillIds gebankt (systems/battleResult) — analog zum Verschlinger-Imitat.
+  actor.mimicSkillIds = uniqueStrings([...actor.mimicSkillIds, skillId]);
+  actor.skillIds = uniqueStrings([...actor.skillIds, skillId]);
+  const stolenName = skillById.get(skillId)?.name ?? skillId;
+  pushLog(state, `${actor.name} raubt ${target.name} die Fertigkeit ${stolenName}.`);
+  grantMomentum(state, actor, 'Skill-Raub');
   endTurn(state, actor);
   return { ok: true };
 }
@@ -1170,6 +1448,86 @@ function resolveBossDevourPressure(
   return { ok: true };
 }
 
+// Phase 105 — die Elemente der in diesem Kampf verschlungenen Gegner-Arten, die Rimuru als
+// Form annehmen kann (nicht-neutral, dedupliziert).
+export function availableMimicElements(state: BattleState): ElementType[] {
+  const elements: ElementType[] = [];
+  for (const sourceId of state.devouredSourceIds) {
+    const element = enemyById.get(sourceId)?.element;
+    if (element && element !== 'neutral' && !elements.includes(element)) {
+      elements.push(element);
+    }
+  }
+  return elements;
+}
+
+// Das wirksame Angriffs-Element eines Kämpfers: die angenommene Mimik-Form überschreibt die
+// Grundform (nur offensiv — Grundangriff/Resonanz).
+function attackElement(combatant: Combatant): ElementType {
+  return combatant.mimicElement ?? combatant.element;
+}
+
+// Phase 105 — Mimikry als aktive Kampf-Form: Rimuru nimmt on-demand das Element einer
+// verschlungenen Gegner-Art an. Gegated über den Verschlinger + eine tatsächlich in diesem
+// Kampf verschlungene Form (wiederverwendet devouredSourceIds).
+function resolveMimicForm(state: BattleState, actor: Combatant, element: ElementType): ActionResult {
+  if (!actor.skillIds.includes('predator')) {
+    return { ok: false, reason: 'Mimikry braucht den Verschlinger.' };
+  }
+  if (!availableMimicElements(state).includes(element)) {
+    return { ok: false, reason: 'Diese Form wurde noch nicht verschlungen.' };
+  }
+  if (attackElement(actor) === element) {
+    return { ok: false, reason: 'Diese Form ist bereits aktiv.' };
+  }
+
+  actor.mimicElement = element;
+  actor.mimicTurns = MIMIC_FORM_TURNS;
+  actor.resonanceElement = element;
+  // Phase 126 — die Form erbt defensiv das Resistenz-Profil ihrer Quell-Art (die
+  // in diesem Kampf verschlungene Gegner-Art mit diesem Element). Ein echter Grund,
+  // eine Form gezielt zu WÄHLEN — z. B. die Ifrit-Form gegen einen Feuer-Boss.
+  const source = mimicSourceEnemy(state, element);
+  actor.mimicResistances = source?.resistances ?? [];
+  actor.mimicNullifies = source?.nullifies ?? [];
+  actor.mimicAbsorbs = source?.absorbs ?? [];
+  const defenseNote = actor.mimicAbsorbs.length > 0
+    ? ` (absorbiert ${actor.mimicAbsorbs.map((el) => FIELD_ELEMENT_LABEL[el]).join('/')})`
+    : actor.mimicNullifies.length > 0
+      ? ` (immun gegen ${actor.mimicNullifies.map((el) => FIELD_ELEMENT_LABEL[el]).join('/')})`
+      : '';
+  pushLog(state, `${actor.name} nimmt die ${FIELD_ELEMENT_LABEL[element]}-Form an${defenseNote}.`);
+  endTurn(state, actor);
+  return { ok: true };
+}
+
+// Die verschlungene Gegner-Art, deren Element die angenommene Form traegt (erste
+// Übereinstimmung reicht — das Profil ist pro Element thematisch eindeutig).
+function mimicSourceEnemy(state: BattleState, element: ElementType): EnemyDefinition | undefined {
+  for (const sourceId of state.devouredSourceIds) {
+    const enemy = enemyById.get(sourceId);
+    if (enemy?.element === element) {
+      return enemy;
+    }
+  }
+  return undefined;
+}
+
+function tickMimicForm(state: BattleState, actor: Combatant): void {
+  if (actor.mimicTurns <= 0) {
+    return;
+  }
+  actor.mimicTurns -= 1;
+  if (actor.mimicTurns <= 0) {
+    actor.mimicElement = null;
+    // Phase 126 — geerbtes Resistenz-Profil mit dem Formende entziehen.
+    actor.mimicResistances = [];
+    actor.mimicNullifies = [];
+    actor.mimicAbsorbs = [];
+    pushLog(state, `${actor.name} kehrt in die Grundform zurück.`);
+  }
+}
+
 function resolveSignature(
   state: BattleState,
   actor: Combatant,
@@ -1233,8 +1591,9 @@ function resolveSignature(
       case 'status':
         for (const target of effectTargets) {
           if (target.dead) continue;
+          if (resistsNegativeStatus(state, target, effect.statusId)) continue;
           applyStatus(target, effect.statusId, effect.turns);
-          pushLog(state, `${target.name}: ${statusLabel(effect.statusId)}.`);
+          pushAppliedStatus(state, target, effect.statusId);
         }
         break;
 
@@ -1393,11 +1752,17 @@ function applySkillStatus(state: BattleState, actor: Combatant, target: Combatan
   if (state.rng() > skill.statusEffect.chance) {
     return;
   }
+  if (resistsNegativeStatus(state, target, skill.statusEffect.id)) {
+    return;
+  }
 
   // Perk buff-power: von dieser Figur gewirkte Buffs auf Verbündete halten länger.
   const bonusTurns = target.side === actor.side ? buffBonusTurns(actor.perks) : 0;
-  applyStatus(target, skill.statusEffect.id, skill.statusEffect.turns + bonusTurns);
-  pushLog(state, `${target.name}: ${statusLabel(skill.statusEffect.id)}.`);
+  const turns = skill.statusEffect.turns + bonusTurns;
+  applyStatus(target, skill.statusEffect.id, turns);
+  const label = statusLabel(skill.statusEffect.id);
+  const feedback = statusFeedback(skill.statusEffect.id);
+  pushLog(state, `${target.name}: ${label}${feedback ? ` (${feedback})` : ''} (${turns} Runden).`);
 }
 
 function advanceToNextActor(state: BattleState): void {
@@ -1432,7 +1797,6 @@ function advanceToNextActor(state: BattleState): void {
         }
         continue;
       }
-      updateEnemyPhase(state, actor);
       state.activeId = actor.id;
       return;
     }
@@ -1441,6 +1805,8 @@ function advanceToNextActor(state: BattleState): void {
       combatant.ct += effectiveStat(combatant, 'agility');
     }
     state.round += 1;
+    // Phase 94 — das Elementarfeld klingt pro Runde ab.
+    tickField(state);
   }
 
   resolveByTurnCap(state);
@@ -1449,7 +1815,17 @@ function advanceToNextActor(state: BattleState): void {
 // Liefert true, wenn der Kämpfer diesen Zug wegen eines Aussetz-Status verliert.
 function startTurn(state: BattleState, actor: Combatant): boolean {
   actor.guarding = false;
-  updateEnemyPhase(state, actor);
+  const phaseChanged = updateEnemyPhase(state, actor);
+  const phaseSkill = actor.telegraphSkillId ? getSkill(actor.telegraphSkillId) : undefined;
+  if (phaseChanged && !actor.boss && phaseSkill?.heavy) {
+    // Der Wisp braucht einen Wind-up-Zug: Danach kann die Party den frischen
+    // Telegraph lesen und z. B. mit Bannsiegel antworten.
+    actor.ct = CT_THRESHOLD;
+    for (const ally of livingCombatants(state, 'party')) {
+      ally.ct = Math.max(ally.ct, CT_THRESHOLD);
+    }
+    return true;
+  }
 
   // Aussetz-Status VOR dem Abklingen prüfen, damit z. B. eine 1-Zug-Betäubung genau einmal greift.
   const disabledBy = computeDisabled(state, actor);
@@ -1466,6 +1842,8 @@ function startTurn(state: BattleState, actor: Combatant): boolean {
     status.turns -= 1;
   }
   removeExpiredStatuses(actor);
+  // Phase 105 — die angenommene Mimik-Form klingt über die eigenen Züge ab.
+  tickMimicForm(state, actor);
 
   if (disabledBy && !actor.dead) {
     pushLog(state, `${actor.name} ist ${statusLabel(disabledBy)} und setzt aus.`);
@@ -1589,7 +1967,8 @@ function punishHealingIfNeeded(state: BattleState, healer: Combatant): void {
   if (!punisher) {
     return;
   }
-  const raw = (effectiveStat(punisher, 'attack') * 0.7 + effectiveStat(punisher, 'magic') * 0.4) * variance(state.rng);
+  // Phase 139: höher getunt, damit reflexives Heilen in Todesspirale kippt.
+  const raw = (effectiveStat(punisher, 'attack') * 1.5 + effectiveStat(punisher, 'magic') * 0.8) * variance(state.rng);
   const dealt = applyDamage(state, punisher, healer, raw, false, { category: 'magical', element: punisher.element });
   pushLog(state, `${punisher.name} bestraft die Heilung — ${dealt} Schaden an ${healer.name}.`);
   checkDeath(state, healer);
@@ -1628,6 +2007,24 @@ function applyDamage(
     target.reaction = null;
     pushLog(state, `${target.name} weicht ${attacker.name} aus.`);
     return 0;
+  }
+
+  // Phase 125 — Resistenz-Leiter: Absorption > Nullifizierung. Beide brechen die
+  // normale Schadensberechnung ab (zwingt zum Element-Wechsel statt Schwäche-Spam).
+  if (rawDamage > 0 && context.element) {
+    // Phase 126 — geerbte (Mimikry-)Absorption/Immunität greift wie die eigene.
+    if (target.absorbs.includes(context.element) || target.mimicAbsorbs.includes(context.element)) {
+      target.reaction = null;
+      const before = target.hp;
+      target.hp = Math.min(target.maxHp, target.hp + Math.max(1, Math.round(rawDamage * ELEMENT_ABSORB_FRACTION)));
+      pushLog(state, `${target.name} absorbiert ${FIELD_ELEMENT_LABEL[context.element]} und heilt ${target.hp - before} LP.`);
+      return 0;
+    }
+    if (target.nullifies.includes(context.element) || target.mimicNullifies.includes(context.element)) {
+      target.reaction = null;
+      pushLog(state, `${target.name} ist immun gegen ${FIELD_ELEMENT_LABEL[context.element]}.`);
+      return 0;
+    }
   }
 
   // Perk: ausgeteilter (+X %) und erlittener (-X %) Schaden nach Kategorie/Element.
@@ -1773,6 +2170,7 @@ function applyBreakPressure(
 
   target.breakGauge = target.breakGaugeMax;
   applyStatus(target, 'guard-break', 2);
+  playSfxProcedural('break');
   target.ct = 0;
   state.teamMeter = clamp(state.teamMeter + TEAM_METER_BREAK_GAIN, 0, TEAM_METER_MAX);
   pushLog(state, `${target.name} ist gebrochen! Team-Leiste ${state.teamMeter}/${TEAM_METER_MAX}.`);
@@ -1790,9 +2188,9 @@ function grantMomentum(state: BattleState, actor: Combatant, reason: string): vo
   }
 }
 
-function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
+function updateEnemyPhase(state: BattleState, combatant: Combatant): boolean {
   if (combatant.side !== 'enemy' || combatant.dead || combatant.phaseIndex >= 1) {
-    return;
+    return false;
   }
   if (combatant.hp / combatant.maxHp <= combatant.phaseThreshold) {
     combatant.phaseIndex = 1;
@@ -1802,7 +2200,33 @@ function updateEnemyPhase(state: BattleState, combatant: Combatant): void {
       combatant.boss ? BATTLE_BALANCE.bossPhaseCtSurge : CT_THRESHOLD
     );
     pushLog(state, `${combatant.name} wechselt in Phase 2.`);
+    refreshEnemyTelegraph(state, combatant);
+    // Phase 109 — skript-getriebene Bossphase: beschwört beim Phasenwechsel einmalig Adds.
+    spawnSummons(state, combatant);
+    return true;
   }
+  return false;
+}
+
+// Phase 109 — Add-Beschwörung: fügt beim Phasenwechsel einmalig zusätzliche Gegner in den
+// BattleState ein. Hard-Termination: nur ein Mal je Boss (summonsUsed), endliche Zahl.
+function spawnSummons(state: BattleState, boss: Combatant): void {
+  if (boss.summonsUsed || !boss.summonEnemyId || boss.summonCount <= 0) {
+    return;
+  }
+  boss.summonsUsed = true;
+  const template = enemyById.get(boss.summonEnemyId);
+  if (!template) {
+    return;
+  }
+  const input = createEnemyBattleUnit(template);
+  for (let i = 0; i < boss.summonCount; i += 1) {
+    const summon = createCombatant(input, `e-summon-${state.combatants.length}-${template.id}`);
+    // Adds treten frisch geladen, aber nicht sofort am Zug an (charge normal auf).
+    summon.ct = 0;
+    state.combatants.push(summon);
+  }
+  pushLog(state, `${boss.name} beschwört ${boss.summonCount}× ${template.name}!`);
 }
 
 function scoreEnemySkillTarget(
@@ -1821,7 +2245,8 @@ function scoreEnemySkillTarget(
       : target.hp / target.maxHp;
     const breakPriority = hasStatus(target, 'guard-break') ? 2.2 : 0;
     const disabledPenalty = hasAnyControlStatus(target) && target.hp / target.maxHp > 0.35 ? -1.2 : 0;
-    score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty;
+    const rowPriority = target.side === 'party' && target.formationRow === 'front' ? 0.35 : 0;
+    score += (skill.power / 12) * vulnerability + woundedPriority + breakPriority + disabledPenalty + rowPriority;
   }
 
   // Phase 87 — Mender: heilt am liebsten den am stärksten verwundeten Verbündeten;
@@ -1991,6 +2416,20 @@ function applyStatus(target: Combatant, statusId: StatusEffectId, turns: number)
   target.statuses.push({ id: statusId, turns });
 }
 
+// Phase 132 — Widerstands-Schicht: prueft, ob ein NEGATIVER Status per status-resist-Perk
+// abgewehrt wird. Buffs (nicht in DEBUFF_STATUSES) und Ziele ohne passenden Perk passieren
+// ungehindert. Gibt true zurueck (+ Log), wenn der Status abgewehrt wurde.
+function resistsNegativeStatus(state: BattleState, target: Combatant, statusId: StatusEffectId): boolean {
+  if (!DEBUFF_STATUSES.includes(statusId)) return false;
+  const chance = statusResistChance(target.perks, statusId);
+  if (chance <= 0) return false;
+  if (state.rng() < chance) {
+    pushLog(state, `${target.name} widersteht ${statusLabel(statusId)}.`);
+    return true;
+  }
+  return false;
+}
+
 function statusLabel(statusId: StatusEffectId): string {
   switch (statusId) {
     case 'poison':
@@ -2030,6 +2469,24 @@ function statusLabel(statusId: StatusEffectId): string {
   }
 }
 
+function pushAppliedStatus(state: BattleState, target: Combatant, statusId: StatusEffectId): void {
+  const feedback = statusFeedback(statusId);
+  pushLog(state, `${target.name}: ${statusLabel(statusId)}${feedback ? ` (${feedback})` : ''}.`);
+}
+
+function statusFeedback(statusId: StatusEffectId): string | null {
+  switch (statusId) {
+    case 'silence':
+      return 'Fähigkeiten gesperrt';
+    case 'blind':
+      return 'physischer Angriff gesenkt';
+    case 'weaken':
+      return 'Angriff und Magie gesenkt';
+    default:
+      return null;
+  }
+}
+
 function hasSynergyLink(a: Combatant, b: Combatant): boolean {
   return a.synergyPartnerIds.includes(b.sourceId) || b.synergyPartnerIds.includes(a.sourceId);
 }
@@ -2054,11 +2511,76 @@ function livingCombatants(state: BattleState, side?: Side): Combatant[] {
   return state.combatants.filter((combatant) => !combatant.dead && (!side || combatant.side === side));
 }
 
+// Phase 94 — Elementarfeld (Board-Control).
+const FIELD_ELEMENT_LABEL: Readonly<Record<ElementType, string>> = {
+  neutral: 'Neutral', water: 'Wasser', wind: 'Wind', fire: 'Feuer',
+  earth: 'Erde', shadow: 'Schatten', holy: 'Heilig'
+};
+
+// Lädt das Schlachtfeld auf das Element der Fähigkeit auf (nur mit chargesField-Flag).
+function chargeField(state: BattleState, actor: Combatant, skill: SkillDefinition): void {
+  if (!skill.chargesField || skill.element === 'neutral') {
+    return;
+  }
+  state.field = { element: skill.element, turns: FIELD_DURATION_ROUNDS };
+  pushLog(state, `${actor.name} lädt das Schlachtfeld mit ${FIELD_ELEMENT_LABEL[skill.element]} auf.`);
+}
+
+// Gleichelementiger Treffer auf dem Feld schlägt verstärkt zu.
+function fieldMatchMultiplier(field: BattleField | null, element: ElementType): number {
+  return field && element !== 'neutral' && field.element === element ? FIELD_MATCH_AMPLIFY : 1;
+}
+
+// Trifft ein anderes Element auf ein geladenes Feld und bilden beide ein Fusions-Paar,
+// entsteht eine Reaktion (z. B. Glutfeld + Wind = Feuersturm). Gleiches Element = keine
+// Reaktion (das ist der Verstärkungs-Fall).
+function fieldReaction(
+  field: BattleField | null,
+  element: ElementType
+): ElementFusionDefinition | null {
+  if (!field || element === 'neutral' || field.element === element) {
+    return null;
+  }
+  return resolveElementFusion(field.element, element);
+}
+
+// Eine Fusions-Reaktion entlädt sich auf ein Ziel: Zusatz-Break-Druck + der Status
+// der Fusion (verzahnt mit der 21-Paar-Fusionstabelle).
+function triggerFieldReaction(
+  state: BattleState,
+  target: Combatant,
+  fusion: ElementFusionDefinition
+): void {
+  pushLog(state, `Feldreaktion: ${fusion.name} entlädt sich auf ${target.name}!`);
+  applyBreakPressure(state, target, fusion.damageElement, FIELD_REACTION_BREAK_PRESSURE);
+  if (fusion.statusEffect && !resistsNegativeStatus(state, target, fusion.statusEffect.id)) {
+    applyStatus(target, fusion.statusEffect.id, fusion.statusEffect.turns);
+    pushLog(state, `${target.name}: ${statusLabel(fusion.statusEffect.id)} (${fusion.statusEffect.turns} Runden).`);
+  }
+}
+
+// Runden-Abklingen des Feldes.
+function tickField(state: BattleState): void {
+  if (!state.field) {
+    return;
+  }
+  state.field.turns -= 1;
+  if (state.field.turns <= 0) {
+    state.field = null;
+    pushLog(state, 'Das Elementarfeld verweht.');
+  }
+}
+
 function elementMultiplier(element: ElementType, target: Combatant): number {
   if (target.weaknesses.includes(element)) {
     return 1.75;
   }
-  if (target.resistances.includes(element) || target.element === element) {
+  // Phase 126 — auch geerbte (Mimikry-)Resistenzen mindern den Schaden.
+  if (
+    target.resistances.includes(element)
+    || target.mimicResistances.includes(element)
+    || target.element === element
+  ) {
     return 0.5;
   }
   return 1;

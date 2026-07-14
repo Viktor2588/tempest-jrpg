@@ -12,6 +12,7 @@ import {
   useItem,
   type MenuGameState
 } from '../src/systems/menu';
+import menuSceneSource from '../src/scenes/MenuScene.ts?raw';
 
 function stateWithInventory(itemId: string): MenuGameState {
   return {
@@ -55,6 +56,25 @@ describe('menu system', () => {
     const healed = result.state.party.find((member) => member.characterId === 'rimuru')!;
     expect(healed.currentHp).toBe(50);
     expect(getItemCount(result.state.inventory, 'healing-herb')).toBe(4);
+  });
+
+  it('Phase 178: Klarsichttropfen laden den Nebel-Ward und verbrauchen sich einmal', () => {
+    const state: MenuGameState = {
+      party: createInitialParty(),
+      inventory: [{ itemId: 'clearsight-drops', quantity: 2 }],
+      gold: 0,
+      flags: {}
+    };
+
+    const result = useItem(state, 'clearsight-drops', 'rimuru');
+    expect(result.ok).toBe(true);
+    expect(result.state.flags?.['worldclock.fogward']).toBe(true);
+    expect(getItemCount(result.state.inventory, 'clearsight-drops')).toBe(1);
+
+    // Bereits geladen → kein weiterer Verbrauch (kein Verbrauch ohne Wirkung).
+    const again = useItem(result.state, 'clearsight-drops', 'rimuru');
+    expect(again.ok).toBe(false);
+    expect(getItemCount(again.state.inventory, 'clearsight-drops')).toBe(1);
   });
 
   it('sortiert Inventar nach Nutzbarkeit/Ausrüstung und Namen für schnelle Menüwege', () => {
@@ -132,6 +152,12 @@ describe('menu system', () => {
     // ehemaliger Vorhut-Klassenskill ist jetzt Teil des Startkits
     expect(skills).toContain('battle-cry');
     expect(skills).toContain('goblin-feint');
+  });
+
+  it('Phase 119: keyboard nav in Menu (arrows cycle, space activate) - drives MenuScene selection', () => {
+    expect(menuSceneSource).toContain('moveMenuSelection');
+    expect(menuSceneSource).toContain('activateMenuSelection');
+    expect(menuSceneSource).toContain('keydown-LEFT');
   });
 
   it('erzwingt mindestens 44px Touch-Ziele für Menübuttons', () => {

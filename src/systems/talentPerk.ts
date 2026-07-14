@@ -1,4 +1,4 @@
-import { SKILL_TREES, type DamageCategory, type ElementType, type SkillTreeNodeDefinition, type TalentPerk } from '../data';
+import { SKILL_TREES, type DamageCategory, type ElementType, type SkillTreeNodeDefinition, type StatusEffectId, type TalentPerk } from '../data';
 
 export type { DamageCategory, TalentPerk } from '../data';
 
@@ -116,6 +116,21 @@ export function analysisBonusLevels(perks: readonly TalentPerk[]): number {
   );
 }
 
+// Phase 132 — Widerstands-Schicht: Chance (0..1), einen negativen Status abzuwehren.
+// Nimmt den staerksten passenden `status-resist`-Perk (kein Stapeln, gedeckelt auf 1).
+export function statusResistChance(
+  perks: readonly TalentPerk[],
+  statusId: StatusEffectId
+): number {
+  let chance = 0;
+  for (const perk of perks) {
+    if (perk.kind !== 'status-resist') continue;
+    if (perk.statuses !== undefined && !perk.statuses.includes(statusId)) continue;
+    chance = Math.max(chance, perk.percent / 100);
+  }
+  return Math.min(1, Math.max(0, chance));
+}
+
 // --- Phase 70: Spec-Baum-Knoten → Perks / Branch-Lock ---
 // Knoten-Register über alle Spec-Bäume (nodeId → {branch, perks}).
 const specNodeById = new Map<string, { readonly branch?: string; readonly perks: readonly TalentPerk[] }>(
@@ -180,7 +195,26 @@ export function describePerk(perk: TalentPerk): string {
       return `+${perk.percent}% Verschlingen-Chance`;
     case 'analysis-power':
       return `Großer Weiser analysiert +${perk.levels} Stufe`;
+    case 'status-resist':
+      return perk.statuses && perk.statuses.length > 0
+        ? `${perk.percent}% Widerstand gegen bestimmte Zustände`
+        : `${perk.percent}% Widerstand gegen schädliche Zustände`;
   }
+}
+
+// Kompakter Sperrgrund für die Knoten-Kachel im Talentbaum — macht aus dem
+// nichtssagenden „Gesperrt" einen konkreten Grund (Strang-Bindung, Level, Vorstufe …).
+// Nimmt die ausführliche canUnlockSkillNode-Meldung und kürzt sie auf ein Tag.
+export function compactLockReason(message: string): string {
+  if (message.includes('Spezialisierungsstrang')) return 'Anderer Strang';
+  if (message.startsWith('Level')) return message.replace(' erforderlich.', '');
+  if (message.includes('Vorgänger')) return 'Vorstufe';
+  if (message.includes('Skill-Punkte')) return 'SP fehlt';
+  if (message.includes('Entwicklung')) return 'Evolution';
+  if (message.includes('Bindung')) return 'Bindung';
+  if (message.includes('Region')) return 'Region';
+  if (message.includes('Story')) return 'Story';
+  return 'Gesperrt';
 }
 
 // Alle Perk-Beschreibungen eines Knotens (für die Vorschau).

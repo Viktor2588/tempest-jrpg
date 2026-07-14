@@ -116,6 +116,40 @@ export function buildDiplomacyView(reputation: ReputationMap): FactionStandingVi
   });
 }
 
+// Phase 180 — Diplomatie-Standing sichtbar: pro Fraktion, welche Schwellen-Belohnung bereits
+// AKTIV ist. Massgeblich sind die tatsaechlich gesetzten Unlock-Flags (die seit Phase 179 die
+// Handelsrouten treiben), nicht nur der Punktestand. Rein/funktional, reine Anzeige-Ableitung.
+export interface FactionRewardEntry {
+  readonly title: string;
+  readonly reward: string;
+  readonly active: boolean;
+}
+
+export interface FactionRewardStatus {
+  readonly factionId: string;
+  readonly factionName: string;
+  readonly rewards: readonly FactionRewardEntry[];
+  readonly activeCount: number;
+  readonly total: number;
+}
+
+export function factionRewardStatus(flags: FlagMap): FactionRewardStatus[] {
+  return FACTIONS.map<FactionRewardStatus>((faction) => {
+    const rewards = faction.thresholds.map<FactionRewardEntry>((threshold) => ({
+      title: threshold.title,
+      reward: threshold.reward,
+      active: flags[threshold.unlockFlag] === true
+    }));
+    return {
+      factionId: faction.id,
+      factionName: faction.name,
+      rewards,
+      activeCount: rewards.filter((entry) => entry.active).length,
+      total: rewards.length
+    };
+  });
+}
+
 // Datenintegrität: streng aufsteigende Schwellen in [1, MAX_REPUTATION], eindeutige
 // Unlock-Flags über alle Faktionen.
 export function validateFactions(): string[] {

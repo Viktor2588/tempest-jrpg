@@ -12,6 +12,18 @@ import {
   FOREST_SLIME_TEXTURE_KEY,
   GABIRU_TEXTURE_KEY,
   IFRIT_TEXTURE_KEY,
+  ACADEMY_WISP_TEXTURE_KEY,
+  BLUMUND_BANDIT_TEXTURE_KEY,
+  MARSH_HEXER_TEXTURE_KEY,
+  STORM_SHARD_TEXTURE_KEY,
+  MARSH_THORNBACK_TEXTURE_KEY,
+  BLUMUND_BRIGAND_TEXTURE_KEY,
+  ACADEMY_REVENANT_TEXTURE_KEY,
+  MORDRAHN_VANGUARD_TEXTURE_KEY,
+  ELDER_DIREWOLF_TEXTURE_KEY,
+  ORC_GRUNT_TEXTURE_KEY,
+  ORC_LORD_TEXTURE_KEY,
+  MILIM_TEXTURE_KEY,
   KINGDOM_UNIT_ATLAS,
   KINGDOM_UNIT_FRAMES,
   KINGDOM_UNIT_TEXTURE_KEY,
@@ -37,6 +49,18 @@ import { KENNEY_PIXEL_TEXTURE_KEYS } from '../render/textureSharpness';
 import grassUrl from '../assets/tiles/grass.png';
 import wallUrl from '../assets/tiles/wall.png';
 import pathUrl from '../assets/tiles/path.png';
+import sealedCaveFloorTileUrl from '../assets/tiles/tile-sealed-cave-floor.webp';
+import sealedCaveWallTileUrl from '../assets/tiles/tile-sealed-cave-wall.webp';
+import goblinVillageFloorTileUrl from '../assets/tiles/tile-goblin-village-floor.webp';
+import goblinVillageWallTileUrl from '../assets/tiles/tile-goblin-village-wall.webp';
+import direwolfDenFloorTileUrl from '../assets/tiles/tile-direwolf-den-floor.webp';
+import direwolfDenWallTileUrl from '../assets/tiles/tile-direwolf-den-wall.webp';
+import freedomAcademyFloorTileUrl from '../assets/tiles/tile-freedom-academy-floor.webp';
+import freedomAcademyWallTileUrl from '../assets/tiles/tile-freedom-academy-wall.webp';
+import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth-floor.webp';
+import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
+import tempestColosseumFloorTileUrl from '../assets/tiles/tile-tempest-colosseum-floor.webp';
+import tempestColosseumWallTileUrl from '../assets/tiles/tile-tempest-colosseum-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -51,10 +75,27 @@ import lizardmanMarshFloorTileUrl from '../assets/tiles/tile-lizardman-marsh-flo
 import lizardmanMarshWallTileUrl from '../assets/tiles/tile-lizardman-marsh-wall.webp';
 import emberHollowFloorTileUrl from '../assets/tiles/tile-ember-hollow-floor.webp';
 import emberHollowWallTileUrl from '../assets/tiles/tile-ember-hollow-wall.webp';
+import tempestWildernessFloorTileUrl from '../assets/tiles/tile-tempest-wilderness-floor.webp';
+import tempestWildernessWallTileUrl from '../assets/tiles/tile-tempest-wilderness-wall.webp';
 import tempestCampFloorTileUrl from '../assets/tiles/tile-tempest-camp-floor.webp';
 import tempestVillageFloorTileUrl from '../assets/tiles/tile-tempest-village-floor.webp';
 import tempestCityFloorTileUrl from '../assets/tiles/tile-tempest-city-floor.webp';
+import tempestCampWallTileUrl from '../assets/tiles/tile-tempest-camp-wall.webp';
+import tempestVillageWallTileUrl from '../assets/tiles/tile-tempest-village-wall.webp';
+import tempestCityWallTileUrl from '../assets/tiles/tile-tempest-city-wall.webp';
 import {
+  SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY,
+  SEALED_CAVE_WALL_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+  GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY,
+  FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+  RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -69,9 +110,14 @@ import {
   LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
   MARSH_FLOOR_TILE_TEXTURE_KEY,
   MARSH_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
   TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
-  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY
+  TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
+  TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+  TEMPEST_CITY_WALL_TILE_TEXTURE_KEY
 } from '../render/overworldTileArt';
 import overworldRimuruSlimeUrl from '../assets/sprites/overworld-rimuru-slime.webp';
 import enemyForestSlimeUrl from '../assets/sprites/enemy-forest-slime.webp';
@@ -90,8 +136,20 @@ import enemyIfritUrl from '../assets/sprites/enemy-ifrit.webp';
 import enemyDirewolfAlphaUrl from '../assets/sprites/enemy-direwolf-alpha.webp';
 import enemyNamelessEchoUrl from '../assets/sprites/enemy-nameless-echo.webp';
 import enemyOgreWarriorUrl from '../assets/sprites/enemy-ogre-warrior.webp';
-import enemyMagicColossusUrl from '../assets/sprites/enemy-magic-colossus.png';
+import enemyMagicColossusUrl from '../assets/sprites/enemy-magic-colossus.webp';
 import kingdomUnitsUrl from '../assets/sprites/kingdom-board-units.webp';
+import academyWispUrl from '../assets/sprites/enemy-academy-wisp.webp';
+import blumundBanditUrl from '../assets/sprites/enemy-blumund-bandit.webp';
+import marshHexerUrl from '../assets/sprites/enemy-marsh-hexer.webp';
+import stormShardUrl from '../assets/sprites/enemy-storm-shard.webp';
+import marshThornbackUrl from '../assets/sprites/enemy-marsh-thornback.webp';
+import blumundBrigandUrl from '../assets/sprites/enemy-blumund-brigand.webp';
+import academyRevenantUrl from '../assets/sprites/enemy-academy-revenant.webp';
+import mordrahnVanguardUrl from '../assets/sprites/enemy-mordrahn-vanguard.webp';
+import elderDirewolfUrl from '../assets/sprites/enemy-elder-direwolf.webp';
+import orcGruntUrl from '../assets/sprites/enemy-orc-grunt.webp';
+import orcLordUrl from '../assets/sprites/enemy-orc-lord.webp';
+import enemyMilimUrl from '../assets/sprites/enemy-milim.webp';
 import humanLancerUrl from '../assets/sprites/enemy-human-lancer.webp';
 import humanDeserterUrl from '../assets/sprites/enemy-human-deserter.webp';
 import mordrahnUrl from '../assets/sprites/enemy-mordrahn.webp';
@@ -111,7 +169,7 @@ import rigurdPortraitUrl from '../assets/sprites/portrait-rigurd.webp';
 import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
-import shizuChildrenPortraitUrl from '../assets/sprites/portrait-shizu-children.png';
+import shizuChildrenPortraitUrl from '../assets/sprites/portrait-shizu-children.webp';
 import fuzePortraitUrl from '../assets/sprites/portrait-fuze.webp';
 import benimaruPortraitUrl from '../assets/sprites/portrait-benimaru.webp';
 import shionPortraitUrl from '../assets/sprites/portrait-shion.webp';
@@ -119,16 +177,25 @@ import hakurouPortraitUrl from '../assets/sprites/portrait-hakurou.webp';
 import kurobePortraitUrl from '../assets/sprites/portrait-kurobe.webp';
 import soueiPortraitUrl from '../assets/sprites/portrait-souei.webp';
 import kaijinPortraitUrl from '../assets/sprites/portrait-kaijin.webp';
+import kurobeKaijinPortraitUrl from '../assets/sprites/portrait-kurobe-kaijin.webp';
 import eirPortraitUrl from '../assets/sprites/portrait-eir.webp';
+import borderScoutPortraitUrl from '../assets/sprites/portrait-border-scout.webp';
 import kaelPortraitUrl from '../assets/sprites/portrait-kael.webp';
 import gazelPortraitUrl from '../assets/sprites/portrait-gazel.webp';
 import blumundAdventurersPortraitUrl from '../assets/sprites/portrait-blumund-adventurers.webp';
 import treyniPortraitUrl from '../assets/sprites/portrait-treyni.webp';
 import milimPortraitUrl from '../assets/sprites/portrait-milim.webp';
+import ramirisPortraitUrl from '../assets/sprites/portrait-ramiris.webp';
+import arenaStewardPortraitUrl from '../assets/sprites/portrait-arena-steward.webp';
 import soukaPortraitUrl from '../assets/sprites/portrait-souka.webp';
+import mordrahnPortraitUrl from '../assets/sprites/portrait-mordrahn.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
+import titleKeyartUrl from '../assets/backgrounds/title-keyart.webp';
+import endingFreedomUrl from '../assets/backgrounds/ending-freedom.webp';
+import endingOrderUrl from '../assets/backgrounds/ending-order.webp';
+import endingTrueUrl from '../assets/backgrounds/ending-true.webp';
 import direwolfDenBattleUrl from '../assets/backgrounds/battle-direwolf-den.webp';
 import ancestorSealBattleUrl from '../assets/backgrounds/battle-ancestor-seal.webp';
 import spiritMarshBattleUrl from '../assets/backgrounds/battle-spirit-marsh.webp';
@@ -137,9 +204,13 @@ import ogreRuinsBattleUrl from '../assets/backgrounds/battle-ogre-ruins.webp';
 import orcBattlefieldBattleUrl from '../assets/backgrounds/battle-orc-battlefield.webp';
 import lizardmanMarshBattleUrl from '../assets/backgrounds/battle-lizardman-marsh.webp';
 import spiritCaveBattleUrl from '../assets/backgrounds/battle-spirit-cave.webp';
+import ramirisLabyrinthBattleUrl from '../assets/backgrounds/battle-ramiris-labyrinth.webp';
+import freedomAcademyBattleUrl from '../assets/backgrounds/battle-freedom-academy.webp';
+import blumundBattleUrl from '../assets/backgrounds/battle-blumund.webp';
+import emberHollowBattleUrl from '../assets/backgrounds/battle-ember-hollow.webp';
 import milimArrivalBattleUrl from '../assets/backgrounds/battle-milim-arrival.webp';
-import tempestColosseumBattleUrl from '../assets/backgrounds/battle-tempest-colosseum.png';
-import tempestInvasionBattleUrl from '../assets/backgrounds/battle-tempest-invasion.png';
+import tempestColosseumBattleUrl from '../assets/backgrounds/battle-tempest-colosseum.webp';
+import tempestInvasionBattleUrl from '../assets/backgrounds/battle-tempest-invasion.webp';
 import regionSealedCaveUrl from '../assets/ui/region-sealed-cave.webp';
 import regionGoblinVillageUrl from '../assets/ui/region-goblin-village.webp';
 import regionDirewolfDenUrl from '../assets/ui/region-direwolf-den.webp';
@@ -151,12 +222,16 @@ import regionJuraBattlefieldUrl from '../assets/ui/region-jura-battlefield.webp'
 import regionLizardmanMarshUrl from '../assets/ui/region-lizardman-marsh.webp';
 import regionEmberHollowUrl from '../assets/ui/region-ember-hollow.webp';
 import regionBlumundUrl from '../assets/ui/region-blumund.webp';
-import regionFreedomAcademyUrl from '../assets/ui/region-freedom-academy.png';
-import regionTempestColosseumUrl from '../assets/ui/region-tempest-colosseum.png';
-import regionRamirisLabyrinthUrl from '../assets/ui/region-ramiris-labyrinth.png';
+import regionFreedomAcademyUrl from '../assets/ui/region-freedom-academy.webp';
+import regionTempestColosseumUrl from '../assets/ui/region-tempest-colosseum.webp';
+import regionRamirisLabyrinthUrl from '../assets/ui/region-ramiris-labyrinth.webp';
 import regionTempestCampUrl from '../assets/ui/region-tempest-camp.webp';
 import regionTempestVillageUrl from '../assets/ui/region-tempest-village.webp';
 import regionTempestCityUrl from '../assets/ui/region-tempest-city.webp';
+import formationRowsUrl from '../assets/ui/formation-rows.webp';
+import dialogKeyboardHintUrl from '../assets/ui/dialog-keyboard-hint.webp';
+import mimicFormUrl from '../assets/ui/mimic-form-indicator.webp';
+import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -181,6 +256,18 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tile-grass', grassUrl);
     this.load.image('tile-wall', wallUrl);
     this.load.image('tile-path', pathUrl);
+    this.load.image(SEALED_CAVE_FLOOR_TILE_TEXTURE_KEY, sealedCaveFloorTileUrl);
+    this.load.image(SEALED_CAVE_WALL_TILE_TEXTURE_KEY, sealedCaveWallTileUrl);
+    this.load.image(GOBLIN_VILLAGE_FLOOR_TILE_TEXTURE_KEY, goblinVillageFloorTileUrl);
+    this.load.image(GOBLIN_VILLAGE_WALL_TILE_TEXTURE_KEY, goblinVillageWallTileUrl);
+    this.load.image(DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY, direwolfDenFloorTileUrl);
+    this.load.image(DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY, direwolfDenWallTileUrl);
+    this.load.image(FREEDOM_ACADEMY_FLOOR_TILE_TEXTURE_KEY, freedomAcademyFloorTileUrl);
+    this.load.image(FREEDOM_ACADEMY_WALL_TILE_TEXTURE_KEY, freedomAcademyWallTileUrl);
+    this.load.image(RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY, ramirisLabyrinthFloorTileUrl);
+    this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
+    this.load.image(TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY, tempestColosseumFloorTileUrl);
+    this.load.image(TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY, tempestColosseumWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
@@ -195,9 +282,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY, lizardmanMarshWallTileUrl);
     this.load.image(EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY, emberHollowFloorTileUrl);
     this.load.image(EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY, emberHollowWallTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY, tempestWildernessFloorTileUrl);
+    this.load.image(TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY, tempestWildernessWallTileUrl);
     this.load.image(TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY, tempestCampFloorTileUrl);
+    this.load.image(TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY, tempestCampWallTileUrl);
     this.load.image(TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY, tempestVillageFloorTileUrl);
+    this.load.image(TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY, tempestVillageWallTileUrl);
     this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
+    this.load.image(TEMPEST_CITY_WALL_TILE_TEXTURE_KEY, tempestCityWallTileUrl);
     // Hochaufgeloeste Projekt-Sprites; die Legacy-Keys bleiben als robuste Aliasse.
     this.load.image('sprite-hero', overworldRimuruSlimeUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
@@ -223,6 +315,18 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('sprite-enemy-ogre', enemyOgreWarriorUrl);
     this.load.image(OGRE_WARRIOR_TEXTURE_KEY, enemyOgreWarriorUrl);
     this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
+    this.load.image(ACADEMY_WISP_TEXTURE_KEY, academyWispUrl);
+    this.load.image(BLUMUND_BANDIT_TEXTURE_KEY, blumundBanditUrl);
+    this.load.image(MARSH_HEXER_TEXTURE_KEY, marshHexerUrl);
+    this.load.image(STORM_SHARD_TEXTURE_KEY, stormShardUrl);
+    this.load.image(MARSH_THORNBACK_TEXTURE_KEY, marshThornbackUrl);
+    this.load.image(BLUMUND_BRIGAND_TEXTURE_KEY, blumundBrigandUrl);
+    this.load.image(ACADEMY_REVENANT_TEXTURE_KEY, academyRevenantUrl);
+    this.load.image(MORDRAHN_VANGUARD_TEXTURE_KEY, mordrahnVanguardUrl);
+    this.load.image(ELDER_DIREWOLF_TEXTURE_KEY, elderDirewolfUrl);
+    this.load.image(ORC_GRUNT_TEXTURE_KEY, orcGruntUrl);
+    this.load.image(ORC_LORD_TEXTURE_KEY, orcLordUrl);
+    this.load.image(MILIM_TEXTURE_KEY, enemyMilimUrl);
     this.load.image('sprite-enemy-human-lancer', humanLancerUrl);
     this.load.image('sprite-enemy-human-deserter', humanDeserterUrl);
     this.load.image('sprite-enemy-mordrahn', mordrahnUrl);
@@ -250,16 +354,25 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('kurobe'), kurobePortraitUrl);
     this.load.image(portraitKey('souei'), soueiPortraitUrl);
     this.load.image(portraitKey('kaijin'), kaijinPortraitUrl);
+    this.load.image(portraitKey('kurobe-kaijin'), kurobeKaijinPortraitUrl);
     this.load.image(portraitKey('eir'), eirPortraitUrl);
+    this.load.image(portraitKey('border-scout'), borderScoutPortraitUrl);
     this.load.image(portraitKey('kael'), kaelPortraitUrl);
     this.load.image(portraitKey('gazel'), gazelPortraitUrl);
     this.load.image(portraitKey('blumund-adventurers'), blumundAdventurersPortraitUrl);
     this.load.image(portraitKey('treyni'), treyniPortraitUrl);
     this.load.image(portraitKey('milim'), milimPortraitUrl);
+    this.load.image(portraitKey('ramiris'), ramirisPortraitUrl);
+    this.load.image(portraitKey('arena-steward'), arenaStewardPortraitUrl);
     this.load.image(portraitKey('souka'), soukaPortraitUrl);
+    this.load.image(portraitKey('mordrahn'), mordrahnPortraitUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
+    this.load.image('bg-title-keyart', titleKeyartUrl);
+    this.load.image('bg-ending-freedom', endingFreedomUrl);
+    this.load.image('bg-ending-order', endingOrderUrl);
+    this.load.image('bg-ending-true', endingTrueUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['direwolf-den'], direwolfDenBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['ancestor-seal'], ancestorSealBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-marsh'], spiritMarshBattleUrl);
@@ -268,6 +381,10 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['orc-battlefield'], orcBattlefieldBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['lizardman-marsh'], lizardmanMarshBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['spirit-cave'], spiritCaveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['ramiris-labyrinth'], ramirisLabyrinthBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['freedom-academy'], freedomAcademyBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['blumund'], blumundBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['ember-hollow'], emberHollowBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['milim-arrival'], milimArrivalBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-colosseum'], tempestColosseumBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-invasion'], tempestInvasionBattleUrl);
@@ -288,10 +405,16 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.camp, regionTempestCampUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.village, regionTempestVillageUrl);
     this.load.image(TEMPEST_GROWTH_BANNER_TEXTURES.city, regionTempestCityUrl);
+    this.load.image('ui-formation-rows', formationRowsUrl);
+    this.load.image('ui-dialog-keyboard-hint', dialogKeyboardHintUrl);
+    this.load.image('ui-mimic-form-indicator', mimicFormUrl);
+    this.load.image('ui-predator-steal', predatorStealUrl);
   }
 
   create(): void {
     this.registerKingdomUnitFrames();
+    const dialogHint = this.textures.get('ui-dialog-keyboard-hint');
+    if (!dialogHint.has('controls')) dialogHint.add('controls', 0, 80, 120, 500, 500);
     // Prozedurale Platzhalter-Texturen (ph-<kind>) erzeugen — global verfügbar,
     // bis echte CC0-Assets eingepflegt sind. Szenen nutzen sie mit Rechteck-Fallback.
     generatePlaceholderTextures(this);
@@ -328,6 +451,10 @@ export class PreloadScene extends Phaser.Scene {
   private applyConfiguredTextureFilters(): void {
     const linearTextureKeys = [
       KINGDOM_UNIT_TEXTURE_KEY,
+      RAMIRIS_LABYRINTH_FLOOR_TILE_TEXTURE_KEY,
+      RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       MARSH_WALL_TILE_TEXTURE_KEY,
       HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,
@@ -342,9 +469,14 @@ export class PreloadScene extends Phaser.Scene {
       LIZARDMAN_MARSH_WALL_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
       EMBER_HOLLOW_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_WILDERNESS_WALL_TILE_TEXTURE_KEY,
       TEMPEST_CAMP_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_VILLAGE_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY,
+      TEMPEST_CAMP_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY,
+      TEMPEST_CITY_WALL_TILE_TEXTURE_KEY,
       OVERWORLD_RIMURU_TEXTURE_KEY,
       FOREST_SLIME_TEXTURE_KEY,
       SPORE_MOTH_TEXTURE_KEY,
@@ -382,16 +514,23 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('kurobe'),
       portraitKey('souei'),
       portraitKey('kaijin'),
+      portraitKey('kurobe-kaijin'),
       portraitKey('eir'),
+      portraitKey('border-scout'),
       portraitKey('kael'),
       portraitKey('gazel'),
       portraitKey('blumund-adventurers'),
       portraitKey('treyni'),
       portraitKey('milim'),
+      portraitKey('ramiris'),
+      portraitKey('arena-steward'),
       portraitKey('souka'),
+      portraitKey('mordrahn'),
       'sprite-enemy-human-lancer',
       'sprite-enemy-human-deserter',
       'sprite-enemy-mordrahn',
+      ACADEMY_WISP_TEXTURE_KEY,
+      BLUMUND_BANDIT_TEXTURE_KEY,
       ...Object.values(PARTY_BATTLE_ART),
       ...Object.values(BATTLE_ARENA_TEXTURES),
       ...Object.values(REGION_BANNER_TEXTURES),

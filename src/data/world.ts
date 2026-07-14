@@ -242,7 +242,7 @@ export const QUESTS = [
       {
         id: 'gather-council',
         title: 'Rat versammeln',
-        description: 'Hole Shunas Siegeldeutung, Gobtas Späherplan und Rangas Scoutbericht ein.',
+        description: 'Beginne mit Shunas Siegeldeutung und sammle danach Gobtas Späherplan und Rangas Scoutbericht.',
         locationId: 'tempest-hollow'
       },
       {
@@ -759,6 +759,89 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 160, itemIds: ['magisteel'] }
+  },
+  // Phase 154 — an Loot gekoppelte Nebenquests: ein erspielbarer Weg zu der in Welle 11
+  // eingefuehrten Ausruestung (Kern/selten/legendaer, Phasen 149/150). Jede Quest jagt in
+  // einer der duennen Regionen (Welle 10/153) und zahlt gezielt ein Gear-Stueck statt nur
+  // Verbrauchsgut. Off-route: die Jagd-Encounter stehen in keiner Region-`encounterIds`-Liste
+  // → ambiente Regionsschwierigkeit/Balance-Harness unberuehrt.
+  {
+    id: 'emberforge-hunt',
+    title: 'Auftrag: Glutkern für die Schmiede',
+    description: 'Rigurd braucht einen glutdurchzogenen Magicule-Kern aus der Glutgrotte — ein Oger-Krieger bewacht die letzte heiße Ader.',
+    steps: [
+      {
+        id: 'accept-ember',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm Rigurds Auftrag an, die Glutgrotte nach einem Kern zu durchsuchen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-ember',
+        title: 'Den Oger-Krieger erlegen',
+        description: 'Stell den Oger-Krieger an der Glutader in der Glutgrotte.',
+        locationId: 'ember-hollow-entrance'
+      },
+      {
+        id: 'report-ember',
+        title: 'Rigurd den Kern bringen',
+        description: 'Bring Rigurd den geborgenen Glutkern und kassiere den Auftrag.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 200, itemIds: ['ember-magicule-core', 'magic-ore'] }
+  },
+  {
+    id: 'echomoor-blade-hunt',
+    title: 'Auftrag: Klinge aus dem Echsenmoor',
+    description: 'Kaijin sucht ein grobes, aber wuchtiges Beil als Vorlage — es liegt bei einem Echsenkrieger im Moor.',
+    steps: [
+      {
+        id: 'accept-blade',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm den Auftrag an, das Beil aus dem Echsenmoor zu bergen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-blade',
+        title: 'Den Echsenkrieger stellen',
+        description: 'Erleg den Echsenkrieger, der das Beil am Moorlager führt.',
+        locationId: 'lizard-marsh-camp'
+      },
+      {
+        id: 'report-blade',
+        title: 'Rigurd berichten',
+        description: 'Bring das Ork-Schlachtbeil zu Rigurd und kassiere den Auftrag.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 170, itemIds: ['orc-cleaver', 'magisteel'] }
+  },
+  {
+    id: 'highland-ward-hunt',
+    title: 'Auftrag: Der Wächter-Talisman',
+    description: 'Nach dem Echo bittet Rigurd, den letzten Nachhut-Streuner am Schreingipfel zu bannen — Shuna weiht daraus einen Schutztalisman.',
+    steps: [
+      {
+        id: 'accept-ward',
+        title: 'Rigurds Auftrag annehmen',
+        description: 'Nimm den Auftrag an, den Streuner am Schreingipfel zu bannen.',
+        locationId: 'tempest-hollow'
+      },
+      {
+        id: 'hunt-ward',
+        title: 'Den Nachhut-Streuner bannen',
+        description: 'Stell den Mordrahn-Streuner am Geisterschrein-Gipfel.',
+        locationId: 'shrine-summit'
+      },
+      {
+        id: 'report-ward',
+        title: 'Rigurd berichten',
+        description: 'Bring Rigurd den gebannten Nachhall; Shuna weiht daraus den Talisman.',
+        locationId: 'tempest-hollow'
+      }
+    ],
+    reward: { gold: 260, itemIds: ['ward-talisman', 'spirit-ember'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -768,7 +851,7 @@ export const LOCATIONS = [
     name: 'Tempest-Hainstadt',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 3, y: 5 },
+    position: { x: 11, y: 8 },
     description: 'Eine junge Monsterstadt aus Palisaden, Werkbänken und improvisierten Versammlungsplätzen.',
     identity: 'Sicherer Hub: Dialoge, Shops, Bindungen und Questentscheidungen.',
     unlockFlag: 'story.tempest.named'
@@ -778,7 +861,7 @@ export const LOCATIONS = [
     name: 'Ratsplatz von Tempest',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 4, y: 5 },
+    position: { x: 8, y: 8 },
     description: 'Ein befestigter Feuerkreis, an dem Rigurd die ersten Aufgaben der jungen Stadt sammelt.',
     identity: 'Post-Prolog-Hubmarker: macht den Rat von Tempest als Zentrum der Band-2-Route sichtbar.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -788,7 +871,7 @@ export const LOCATIONS = [
     name: 'Namensstein',
     kind: 'shrine',
     mapId: 'tempest-start',
-    position: { x: 5, y: 6 },
+    position: { x: 13, y: 9 },
     description: 'Ein einfacher Stein mit dem neuen Stadtnamen — noch roh, aber für alle sichtbar.',
     identity: 'Post-Prolog-Hubmarker: zeigt, dass aus dem Notlager eine benannte Siedlung geworden ist.',
     unlockFlag: 'story.tempest.named'
@@ -798,7 +881,7 @@ export const LOCATIONS = [
     name: 'Tempest-Palisade',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 6, y: 5 },
+    position: { x: 14, y: 6 },
     description: 'Frisch gesetzte Holzpfähle und Wachtücher markieren den Übergang von Lager zu Stadt.',
     identity: 'Post-Prolog-Hubmarker: weniger Notlager, mehr sichtbare Siedlungsstruktur.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -808,7 +891,7 @@ export const LOCATIONS = [
     name: 'Tempest-Lager',
     kind: 'outpost',
     mapId: 'tempest-start',
-    position: { x: 7, y: 7 },
+    position: { x: 12, y: 11 },
     description: 'Ein geschützter Lagerkreis mit Wasser, Decken und genug Ruhe für kurze Absprachen.',
     identity: 'Ruhepunkt: Heilen, Speichern und kurze optionale Partygespräche zwischen den Hauptbeats.',
     unlockFlag: 'story.slime-prologue.completed'
@@ -818,7 +901,7 @@ export const LOCATIONS = [
     name: 'Tafel des Rates',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 4, y: 6 },
+    position: { x: 7, y: 9 },
     description: 'Auf der ersten Ratstafel stehen Versorgung, Hainroute und Shunas Siegelzeichen nebeneinander.',
     identity: 'Band-2-Hubmarker: Der Rat verändert Tempest sichtbar von einer Ansammlung Hütten zu einer organisierten Stadt.',
     unlockFlag: 'story.council.ready'
@@ -828,7 +911,7 @@ export const LOCATIONS = [
     name: 'Siegelwacht',
     kind: 'shrine',
     mapId: 'tempest-start',
-    position: { x: 5, y: 7 },
+    position: { x: 14, y: 3 },
     description: 'Ein kleiner Schutzstein erinnert an das gebrochene Echo und markiert Tempests erste gemeinsam bestandene Krise.',
     identity: 'Band-2-Abschlussmarker: Das Ahnensiegel wird Teil von Tempests sichtbarer Geschichte.',
     unlockFlag: 'story.act1.completed'
@@ -838,7 +921,7 @@ export const LOCATIONS = [
     name: 'Kijin-Viertel',
     kind: 'city',
     mapId: 'tempest-start',
-    position: { x: 12, y: 6 },
+    position: { x: 17, y: 6 },
     description: 'Geschwungene Dächer, Übungsplätze und Shunas Webzeichen geben den Kijin erstmals einen eigenen Stadtteil.',
     identity: 'Jungstadt-Marker: Die benannten Oger prägen Tempests Architektur und Alltag sichtbar.',
     unlockFlag: 'story.kijin.named'
@@ -849,7 +932,7 @@ export const LOCATIONS = [
     kind: 'city',
     mapId: 'tempest-start',
     // (15,5) liegt im Stadt-Layout selbst in einer Wand → Marker unerreichbar/verdeckt.
-    position: { x: 16, y: 6 },
+    position: { x: 20, y: 9 },
     description: 'Kaijins kompakte Magisteel-Essen und steinerne Werkhallen verbinden Dwargons Handwerk mit Tempests Holzbau.',
     identity: 'Jungstadt-Marker: Das Bündnis mit Kaijins Schmieden verändert Tempests Silhouette und Versorgung.',
     unlockFlag: 'faction.dwargon.allied'
@@ -1730,7 +1813,7 @@ export const LORE_ENTRIES = [
     title: 'Die Namensgebung der Oger',
     lockedTitle: 'Geflüchtete Krieger',
     category: 'history',
-    body: 'Sechs Oger überlebten den Untergang ihres Dorfes. Als Rimuru ihnen Namen gab, loderte die Magie auf und hob sie zu Kijin empor — Benimaru, Shion, Hakurou, Kurobe und Souei. Ein Name ist kein Wort, sondern ein Anteil an Macht; wer ihn schenkt, bindet Schicksale aneinander.',
+    body: 'Sechs Oger überlebten den Untergang ihres Dorfes. Als Rimuru ihnen Namen gab, loderte die Magie auf und hob sie zu Kijin empor — Benimaru, Shion, Hakurou, Shuna, Kurobe und Souei. Ein Name ist kein Wort, sondern ein Anteil an Macht; wer ihn schenkt, bindet Schicksale aneinander.',
     unlockFlag: 'story.kijin.named'
   },
   {
@@ -1881,6 +1964,59 @@ export const LORE_ENTRIES = [
 
 export const DIALOGS = [
   {
+    // Konsequente Entscheidung (kein reines Fortschritts-Gate): der Spieler waehlt
+    // Tempests erste Ausrichtung; die Wahl ist einmalig, schliesst die anderen aus
+    // und wird sichtbar am Ortsbild (drei sich ausschliessende Wahrzeichen-Fundstellen).
+    id: 'tempest-priority',
+    startNodeId: 'root',
+    nodes: [
+      {
+        id: 'root',
+        speaker: 'Rigurd',
+        text: 'Meister, Tempest traegt nun einen Namen — doch worauf legen wir zuerst unsere Kraft? Deine Entscheidung formt, was die Siedler als Erstes errichten.',
+        choices: [
+          {
+            id: 'defense',
+            label: 'Wehrhaftigkeit — ein Wachturm',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.defense', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          {
+            id: 'trade',
+            label: 'Wohlstand — ein Marktplatz',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.trade', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          {
+            id: 'knowledge',
+            label: 'Wissen — eine Schriftenhalle',
+            nextNodeId: 'chosen',
+            requirements: [{ notFlag: 'tempest.priority.chosen' }],
+            effects: [
+              { type: 'set-flag', flag: 'tempest.priority.knowledge', value: true },
+              { type: 'set-flag', flag: 'tempest.priority.chosen', value: true }
+            ]
+          },
+          { id: 'later', label: 'Noch nicht entscheiden', requirements: [{ notFlag: 'tempest.priority.chosen' }] }
+        ]
+      },
+      {
+        id: 'chosen',
+        speaker: 'Rigurd',
+        text: 'Verstanden, Meister. Die Siedler beginnen sofort — man wird es bald am Ortsbild sehen.',
+        choices: [{ id: 'end', label: 'Gut.' }]
+      }
+    ]
+  },
+  {
     id: 'sealed-storm-dragon',
     startNodeId: 'start',
     nodes: [
@@ -2019,7 +2155,7 @@ export const DIALOGS = [
           },
           {
             id: 'hear-goblin-plea',
-            label: 'Goblindorf schützen',
+            label: 'Den jungen Goblin Gobta nennen und das Dorf schützen',
             nextNodeId: 'slime-plea',
             requirements: [
               { questStatus: { questId: 'slime-awakening', status: 'active' } },
@@ -2163,7 +2299,7 @@ export const DIALOGS = [
       {
         id: 'slime-plea',
         speaker: 'Rigurd',
-        text: 'Unser Dorf ist klein und das Rudel schnell. Der Ostpfad führt zur Lichtung. Nimm Kräuter mit, verteidige dich, wenn das Rudel Druck macht, und stopp den Anführer — dann können wir zum ersten Mal bleiben statt fliehen.',
+        text: 'Der frisch benannte Gobta tritt an deine Seite. Unser Dorf ist klein und das Rudel schnell. Der Ostpfad führt zur Lichtung. Nimm Kräuter mit und stopp den Anführer — dann können wir zum ersten Mal bleiben statt fliehen.',
         choices: [{ id: 'end', label: 'Zur Direwolf-Lichtung' }]
       },
       {
@@ -2414,6 +2550,98 @@ export const DIALOGS = [
             label: 'Was bleibt nach dem Echo?',
             nextNodeId: 'state-established',
             requirements: [{ flag: 'story.act1.completed' }]
+          },
+          // Phase 154 — an Loot gekoppelte Nebenquests (Gear-Belohnung aus Welle 11).
+          // Verfuegbar ab dem Rat (rigurd-council/rigurd-established nutzen diesen Dialog).
+          {
+            id: 'accept-ember-order',
+            label: 'Auftrag: Glutkern für die Schmiede',
+            nextNodeId: 'ember-order-accepted',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { questStatus: { questId: 'emberforge-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'emberforge-hunt' },
+              { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'accept-ember' },
+              { type: 'set-flag', flag: 'sidequest.emberforge.started', value: true }
+            ]
+          },
+          {
+            id: 'report-ember-order',
+            label: 'Glutkern abliefern',
+            nextNodeId: 'ember-order-paid',
+            requirements: [
+              { questStatus: { questId: 'emberforge-hunt', status: 'active' } },
+              { flag: 'sidequest.emberforge.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'report-ember' },
+              { type: 'complete-quest', questId: 'emberforge-hunt' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'ember-magicule-core', quantity: 1 },
+              { type: 'add-item', itemId: 'magic-ore', quantity: 2 }
+            ]
+          },
+          {
+            id: 'accept-marsh-blade',
+            label: 'Auftrag: Klinge aus dem Echsenmoor',
+            nextNodeId: 'marsh-blade-accepted',
+            requirements: [
+              { flag: 'story.council.ready' },
+              { questStatus: { questId: 'echomoor-blade-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'echomoor-blade-hunt' },
+              { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'accept-blade' },
+              { type: 'set-flag', flag: 'sidequest.echomoor-blade.started', value: true }
+            ]
+          },
+          {
+            id: 'report-marsh-blade',
+            label: 'Ork-Schlachtbeil abliefern',
+            nextNodeId: 'marsh-blade-paid',
+            requirements: [
+              { questStatus: { questId: 'echomoor-blade-hunt', status: 'active' } },
+              { flag: 'sidequest.echomoor-blade.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'report-blade' },
+              { type: 'complete-quest', questId: 'echomoor-blade-hunt' },
+              { type: 'add-gold', amount: 170 },
+              { type: 'add-item', itemId: 'orc-cleaver', quantity: 1 },
+              { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+            ]
+          },
+          {
+            id: 'accept-highland-ward',
+            label: 'Auftrag: Der Wächter-Talisman',
+            nextNodeId: 'highland-ward-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'highland-ward-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'highland-ward-hunt' },
+              { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'accept-ward' },
+              { type: 'set-flag', flag: 'sidequest.highland-ward.started', value: true }
+            ]
+          },
+          {
+            id: 'report-highland-ward',
+            label: 'Gebannten Nachhall abliefern',
+            nextNodeId: 'highland-ward-paid',
+            requirements: [
+              { questStatus: { questId: 'highland-ward-hunt', status: 'active' } },
+              { flag: 'sidequest.highland-ward.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'report-ward' },
+              { type: 'complete-quest', questId: 'highland-ward-hunt' },
+              { type: 'add-gold', amount: 260 },
+              { type: 'add-item', itemId: 'ward-talisman', quantity: 1 },
+              { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+            ]
           }
         ]
       },
@@ -2494,6 +2722,43 @@ export const DIALOGS = [
         speaker: 'Rigurd',
         text: 'Weil unsere Bindungen hielten, mussten wir nicht wählen zwischen Opfer und Schutzlosigkeit. Wir verteilen die alte Last auf viele Schultern — kein Held trägt sie allein. So bleibt Tempest.',
         choices: [{ id: 'end', label: 'Geteilte Last' }]
+      },
+      // Phase 154 — Auftrags-Zielknoten (an Loot gekoppelte Nebenquests).
+      {
+        id: 'ember-order-accepted',
+        speaker: 'Rigurd',
+        text: 'Die Glutgrotte glimmt noch nach. Ein Oger-Krieger hütet die letzte heiße Ader — brich ihn, und der Kern gehört der Schmiede.',
+        choices: [{ id: 'end', label: 'Zur Glutgrotte' }]
+      },
+      {
+        id: 'ember-order-paid',
+        speaker: 'Rigurd',
+        text: 'Ein sauberer Kern, noch warm. Kaijin bindet ihn dir gleich ein — nimm ihn und das Roherz obendrauf. Tempest dankt dir.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'marsh-blade-accepted',
+        speaker: 'Rigurd',
+        text: 'Das Echsenmoor führt ein grobes Beil — viel Wucht, wenig Finesse. Kaijin will es als Vorlage. Stell den Krieger am Moorlager.',
+        choices: [{ id: 'end', label: 'Zum Echsenmoor' }]
+      },
+      {
+        id: 'marsh-blade-paid',
+        speaker: 'Rigurd',
+        text: 'Genau das Stück. Nimm das Ork-Schlachtbeil — bis Kaijin etwas Besseres schmiedet, spaltet es alles. Und ein Barren Magistahl für den Weg.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'highland-ward-accepted',
+        speaker: 'Rigurd',
+        text: 'Ein letzter Streuner der Nachhut hängt am Schreingipfel fest. Bann ihn — Shuna weiht aus dem Nachhall einen Talisman, der den Geist gegen Kontrolle schirmt.',
+        choices: [{ id: 'end', label: 'Zum Schreingipfel' }]
+      },
+      {
+        id: 'highland-ward-paid',
+        speaker: 'Rigurd',
+        text: 'Der Nachhall ist rein. Shuna hat den Schutztalisman geweiht — trag ihn, und Fäulnis wie Zwang greifen seltener. Ein Funke Geistglut liegt bei.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
       }
     ]
   },
@@ -2932,7 +3197,7 @@ export const DIALOGS = [
         choices: [
           {
             id: 'seal-pact',
-            label: 'Den Pakt mit Ranga schließen',
+            label: 'Den Schattenwolf Ranga nennen und den Pakt schließen',
             nextNodeId: 'pact-sealed',
             requirements: [
               { flag: 'story.direwolf.defeated' },
@@ -3106,7 +3371,7 @@ export const DIALOGS = [
         choices: [
           {
             id: 'name-them',
-            label: 'Die Oger benennen (Benimaru, Shion, Hakurou, Kurobe, Souei)',
+            label: 'Die Oger benennen (Benimaru, Shion, Hakurou, Shuna, Kurobe, Souei)',
             nextNodeId: 'named',
             requirements: [
               { flag: 'story.slime-prologue.completed' },
@@ -3116,6 +3381,7 @@ export const DIALOGS = [
               { type: 'recruit-character', characterId: 'benimaru' },
               { type: 'recruit-character', characterId: 'shion' },
               { type: 'recruit-character', characterId: 'hakurou' },
+              { type: 'recruit-character', characterId: 'shuna' },
               // Kurobe wird benannt, bleibt aber Schmied — kein Kampfroster-Beitritt.
               { type: 'recruit-character', characterId: 'souei' },
               { type: 'set-flag', flag: 'story.kijin.named', value: true },
@@ -3128,7 +3394,7 @@ export const DIALOGS = [
       {
         id: 'named',
         speaker: 'Hakurou',
-        text: 'Mit jedem Namen lodert die Magie auf — die Oger steigen zu Kijin auf. Benimaru, Shion, Hakurou, Kurobe und Souei knien nieder und schwören Tempest ewige Gefolgschaft.',
+        text: 'Mit jedem Namen lodert die Magie auf — die Oger steigen zu Kijin auf. Benimaru, Shion, Hakurou, Shuna, Kurobe und Souei knien nieder und schwören Tempest ewige Gefolgschaft.',
         choices: [{ id: 'end', label: 'Willkommen bei Tempest' }]
       }
     ]
@@ -3905,6 +4171,31 @@ export const DIALOGS = [
             nextNodeId: 'after',
             requirements: [{ flag: 'story.magic-colossus.defeated' }]
           },
+          {
+            id: 'start-run',
+            label: 'Labyrinthlauf starten',
+            nextNodeId: 'run-started',
+            requirements: [
+              { flag: 'story.magic-colossus.defeated' },
+              { notFlag: 'labyrinth.run.active' }
+            ],
+            effects: [
+              { type: 'set-flag', flag: 'labyrinth.run.active', value: true },
+              { type: 'set-flag', flag: 'labyrinth.floor1.cleared', value: false },
+              { type: 'set-flag', flag: 'labyrinth.floor2.cleared', value: false },
+              { type: 'set-flag', flag: 'labyrinth.floor3.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-1.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-2.cleared', value: false },
+              { type: 'set-flag', flag: 'encounter.labyrinth-floor-3.cleared', value: false }
+            ]
+          },
+          {
+            id: 'abort-run',
+            label: 'Lauf abbrechen',
+            nextNodeId: 'run-aborted',
+            requirements: [{ flag: 'labyrinth.run.active' }],
+            effects: [{ type: 'set-flag', flag: 'labyrinth.run.active', value: false }]
+          },
           { id: 'leave', label: 'Noch vorbereiten' }
         ]
       },
@@ -3919,6 +4210,18 @@ export const DIALOGS = [
         speaker: 'Ramiris',
         text: 'Ramiris klopft gegen einen Geistkristall. „Gut. Der Koloss ist gebrochen, nicht zerstört. Genau so kommt ihr später an die Großgeister, ohne die Kinder zu verbrennen.“',
         choices: [{ id: 'end', label: 'Daten sichern' }]
+      },
+      {
+        id: 'run-started',
+        speaker: 'Ramiris',
+        text: 'Ramiris klappt drei Türen nacheinander auf. „Keine Rast zwischen den Etagen. Was ihr an LP und MP verliert, tragt ihr weiter — dafür spuckt der Kern echtes Schmiedematerial aus.“',
+        choices: [{ id: 'end', label: 'In die erste Etage' }]
+      },
+      {
+        id: 'run-aborted',
+        speaker: 'Ramiris',
+        text: 'Der Türspalt faltet sich zu. „Abbrechen ist erlaubt. Prahlen erst, wenn ihr den Lauf auch beendet.“',
+        choices: [{ id: 'end', label: 'Zurück zur Akademie' }]
       }
     ]
   },
@@ -3937,6 +4240,17 @@ export const DIALOGS = [
 ] as const satisfies readonly DialogDefinition[];
 
 export const NPCS = [
+  {
+    // Entscheidungspunkt nach der Benennung; verschwindet, sobald die Ausrichtung
+    // gewaehlt ist (tempest.priority.chosen).
+    id: 'tempest-council',
+    name: 'Ratsversammlung',
+    mapId: 'tempest-start',
+    position: { x: 3, y: 11 },
+    dialogId: 'tempest-priority',
+    color: 0xc9a24a,
+    requirements: [{ flag: 'story.tempest.named' }, { notFlag: 'tempest.priority.chosen' }]
+  },
   {
     id: 'sealed-storm-dragon',
     name: 'Veldora',
@@ -3967,7 +4281,7 @@ export const NPCS = [
     id: 'rigurd-tempest',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 2, y: 4 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [
@@ -3979,7 +4293,7 @@ export const NPCS = [
     id: 'rigurd-council',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 3, y: 6 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [
@@ -3991,7 +4305,7 @@ export const NPCS = [
     id: 'rigurd-established',
     name: 'Rigurd',
     mapId: 'tempest-start',
-    position: { x: 4, y: 7 },
+    position: { x: 10, y: 7 },
     dialogId: 'rigurd-act1',
     color: 0xe9c56c,
     requirements: [{ flag: 'story.act1.completed' }]
@@ -4000,7 +4314,7 @@ export const NPCS = [
     id: 'shuna',
     name: 'Shuna',
     mapId: 'tempest-start',
-    position: { x: 7, y: 3 },
+    position: { x: 11, y: 3 },
     dialogId: 'shuna-ritual',
     color: 0xf0b7ff,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4009,7 +4323,7 @@ export const NPCS = [
     id: 'gobta',
     name: 'Gobta',
     mapId: 'tempest-start',
-    position: { x: 8, y: 5 },
+    position: { x: 13, y: 7 },
     dialogId: 'gobta-border',
     color: 0x9ff0a4,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4027,7 +4341,7 @@ export const NPCS = [
     id: 'ranga-tempest',
     name: 'Ranga',
     mapId: 'tempest-start',
-    position: { x: 9, y: 5 },
+    position: { x: 4, y: 8 },
     dialogId: 'ranga-scout',
     color: 0x9fb6d6,
     requirements: [{ flag: 'story.direwolf.pact' }]
@@ -4077,7 +4391,7 @@ export const NPCS = [
     id: 'hakurou-camp',
     name: 'Hakurou',
     mapId: 'tempest-start',
-    position: { x: 6, y: 5 },
+    position: { x: 5, y: 4 },
     dialogId: 'kijin-naming',
     color: 0xd66c6c,
     // Die geflüchteten Oger erscheinen im Dorf, sobald das Slime-Prolog-Kapitel steht.
@@ -4087,7 +4401,7 @@ export const NPCS = [
     id: 'tempest-camp',
     name: 'Tempest-Lager',
     mapId: 'tempest-start',
-    position: { x: 7, y: 7 },
+    position: { x: 12, y: 10 },
     dialogId: 'tempest-rest',
     color: 0xf0d078,
     requirements: [{ flag: 'story.slime-prologue.completed' }]
@@ -4096,7 +4410,7 @@ export const NPCS = [
     id: 'kurobe-tempest',
     name: 'Kurobe',
     mapId: 'tempest-start',
-    position: { x: 12, y: 6 },
+    position: { x: 18, y: 7 },
     dialogId: 'tempest-builders',
     color: 0x9d6c4a,
     requirements: [{ flag: 'story.kijin.named' }, { flag: 'faction.dwargon.allied' }]
@@ -4105,7 +4419,7 @@ export const NPCS = [
     id: 'kaijin-tempest',
     name: 'Kaijin',
     mapId: 'tempest-start',
-    position: { x: 15, y: 6 },
+    position: { x: 19, y: 9 },
     dialogId: 'tempest-builders',
     color: 0xd2a679,
     service: 'smith',
@@ -4280,14 +4594,35 @@ export const SHOPS = [
     name: 'Tempest-Vorrat',
     mapId: 'tempest-start',
     position: { x: 5, y: 3 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'kurobe-katana', 'kijin-haori', 'oni-mask'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'revival-elixir', 'ward-talisman', 'kurobe-katana', 'kijin-haori', 'oni-mask', 'lesser-magicule-core', 'ember-magicule-core', 'soul-forged-core', 'spirit-oak-staff', 'warded-brigandine', 'swiftwind-boots', 'resonant-core'],
     itemRequirements: [
+      // Phase 152 — mittlere Raritaeten erst nach der Ratsversammlung.
+      { itemId: 'spirit-oak-staff', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'warded-brigandine', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'swiftwind-boots', requirements: [{ flag: 'story.council.ready' }] },
+      { itemId: 'resonant-core', requirements: [{ flag: 'story.council.ready' }] },
       {
         itemId: 'tempest-charm',
         requirements: [{ flag: 'story.council.ready' }]
       },
       {
+        itemId: 'lesser-magicule-core',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'ember-magicule-core',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'soul-forged-core',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
         itemId: 'hipokte-herb',
+        requirements: [{ flag: 'story.council.ready' }]
+      },
+      {
+        itemId: 'revival-elixir',
         requirements: [{ flag: 'story.council.ready' }]
       },
       {
@@ -4323,7 +4658,7 @@ export const SHOPS = [
     name: 'Moorhändlerin',
     mapId: 'spirit-marsh',
     position: { x: 3, y: 5 },
-    itemIds: ['healing-herb', 'mana-drop', 'tempest-charm', 'hipokte-herb', 'full-potion'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'tempest-charm', 'hipokte-herb', 'full-potion', 'revival-elixir'],
     buyMultiplier: 1.15,
     sellMultiplier: 0.5,
     buyMultiplierByFlag: [
@@ -4335,7 +4670,7 @@ export const SHOPS = [
     name: 'Schreinrast',
     mapId: 'spirit-highlands',
     position: { x: 4, y: 4 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'tempest-charm', 'hipokte-herb', 'full-potion', 'magisteel-blade', 'dwarf-plate', 'forge-band'],
     buyMultiplier: 1.2,
     sellMultiplier: 0.5
   },
@@ -4358,7 +4693,7 @@ export const SHOPS = [
     name: 'Dwargon-Apotheke',
     mapId: 'dwargon',
     position: { x: 11, y: 4 },
-    itemIds: ['healing-herb', 'mana-drop', 'hipokte-herb', 'full-potion'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'hipokte-herb', 'full-potion'],
     buyMultiplier: 1,
     sellMultiplier: 0.5
   },
@@ -4376,7 +4711,7 @@ export const SHOPS = [
     name: 'Blumunder Gildenbedarf',
     mapId: 'blumund',
     position: { x: 8, y: 9 },
-    itemIds: ['healing-herb', 'mana-drop', 'traveler-cloak', 'hipokte-herb', 'full-potion', 'tempest-charm'],
+    itemIds: ['healing-herb', 'mana-drop', 'purifying-water', 'clearsight-drops', 'traveler-cloak', 'hipokte-herb', 'full-potion', 'tempest-charm'],
     itemRequirements: [
       { itemId: 'full-potion', requirements: [{ flag: 'trade.blumund.unlocked' }] },
       { itemId: 'tempest-charm', requirements: [{ flag: 'trade.blumund.unlocked' }] }
@@ -4807,6 +5142,61 @@ export const ENCOUNTERS = [
     ]
   },
   {
+    id: 'labyrinth-floor-1',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 6, y: 6 },
+    enemyIds: ['spore-moth', 'lizardman-acolyte'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { notFlag: 'labyrinth.floor1.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor1.cleared', value: true },
+      { type: 'add-gold', amount: 35 },
+      { type: 'add-item', itemId: 'healing-herb', quantity: 1 }
+    ]
+  },
+  {
+    id: 'labyrinth-floor-2',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 12, y: 7 },
+    enemyIds: ['ogre-warrior', 'orc-soldier'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { flag: 'labyrinth.floor1.cleared' },
+      { notFlag: 'labyrinth.floor2.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor2.cleared', value: true },
+      { type: 'add-gold', amount: 70 },
+      { type: 'add-item', itemId: 'magic-ore', quantity: 2 }
+    ]
+  },
+  {
+    id: 'labyrinth-floor-3',
+    mapId: 'ramiris-labyrinth',
+    kind: 'trigger',
+    position: { x: 18, y: 6 },
+    enemyIds: ['orc-general', 'lizardman-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'labyrinth.run.active' },
+      { flag: 'labyrinth.floor2.cleared' },
+      { notFlag: 'labyrinth.floor3.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'labyrinth.floor3.cleared', value: true },
+      { type: 'set-flag', flag: 'labyrinth.run.active', value: false },
+      { type: 'add-gold', amount: 120 },
+      { type: 'add-item', itemId: 'magisteel', quantity: 1 },
+      { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
+    ]
+  },
+  {
     id: 'tempest-invasion-vanguard',
     mapId: 'jura-battlefield',
     kind: 'trigger',
@@ -4843,6 +5233,58 @@ export const ENCOUNTERS = [
       { type: 'add-gold', amount: 160 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
     ]
+  },
+  {
+    id: 'blumund-road-ambush',
+    mapId: 'blumund',
+    kind: 'random',
+    bounds: { x: 3, y: 3, width: 14, height: 9 },
+    enemyIds: ['blumund-bandit', 'human-deserter'],
+    chance: 0.1
+  },
+  {
+    id: 'academy-spirit-flare',
+    mapId: 'freedom-academy',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 8 },
+    enemyIds: ['academy-wisp', 'stray-echo'],
+    chance: 0.1
+  },
+  // Phase 146 — Vielfalt fuer duenne Zufallspools: je ein zweiter Zufalls-Encounter mit
+  // den neuen Archetypen (kleine Gruppen, keine groesseren Bestandskaempfe). Alle Level
+  // liegen im aktuellen Ambient-Band ihrer Region → floor/ceil unveraendert. NICHT in
+  // `region.encounterIds` → off-route zur Story-Harness.
+  {
+    id: 'marsh-brackenhollow',
+    mapId: 'spirit-marsh',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 9 },
+    enemyIds: ['marsh-thornback', 'bog-warden'],
+    chance: 0.12
+  },
+  {
+    id: 'highlands-stormroost',
+    mapId: 'spirit-highlands',
+    kind: 'random',
+    bounds: { x: 3, y: 2, width: 18, height: 10 },
+    enemyIds: ['highland-galecaller', 'lizardman-acolyte'],
+    chance: 0.12
+  },
+  {
+    id: 'blumund-backalley',
+    mapId: 'blumund',
+    kind: 'random',
+    bounds: { x: 3, y: 3, width: 14, height: 9 },
+    enemyIds: ['blumund-brigand', 'blumund-bandit'],
+    chance: 0.1
+  },
+  {
+    id: 'academy-revenant-haunt',
+    mapId: 'freedom-academy',
+    kind: 'random',
+    bounds: { x: 4, y: 3, width: 14, height: 8 },
+    enemyIds: ['academy-revenant', 'stray-echo'],
+    chance: 0.1
   },
   // Phase 73 — bislang encounter-lose Gegner ins Spiel holen. Optionale
   // Set-Piece-Trigger auf bestehenden Karten, hinter vorhandene Story-Flags
@@ -4963,6 +5405,58 @@ export const ENCOUNTERS = [
       { type: 'complete-quest', questId: 'tempest-arena' },
       { type: 'add-gold', amount: 180 },
       { type: 'add-item', itemId: 'magisteel', quantity: 1 }
+    ]
+  },
+  // Phase 154 — Jagd-Encounter der an Loot gekoppelten Nebenquests. Gegated hinter dem
+  // jeweiligen `sidequest.<x>.started`-Flag und `notFlag: cleared`, damit sie nur waehrend
+  // des Auftrags erscheinen und der Sieg den Auftrag abschliesst. Stehen in KEINER
+  // Region-`encounterIds`-Liste → off-route, Balance-Harness unberuehrt.
+  {
+    id: 'emberforge-hunt-battle',
+    mapId: 'ember-hollow',
+    kind: 'trigger',
+    position: { x: 7, y: 4 },
+    enemyIds: ['ogre-warrior'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.emberforge.started' },
+      { notFlag: 'sidequest.emberforge.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.emberforge.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'emberforge-hunt', stepId: 'hunt-ember' }
+    ]
+  },
+  {
+    id: 'echomoor-blade-hunt-battle',
+    mapId: 'lizardman-marsh',
+    kind: 'trigger',
+    position: { x: 7, y: 4 },
+    enemyIds: ['lizardman-warrior', 'lizardman-acolyte'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.echomoor-blade.started' },
+      { notFlag: 'sidequest.echomoor-blade.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.echomoor-blade.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'echomoor-blade-hunt', stepId: 'hunt-blade' }
+    ]
+  },
+  {
+    id: 'highland-ward-hunt-battle',
+    mapId: 'spirit-highlands',
+    kind: 'trigger',
+    position: { x: 9, y: 4 },
+    enemyIds: ['mordrahn-vanguard', 'stray-echo'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.highland-ward.started' },
+      { notFlag: 'sidequest.highland-ward.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.highland-ward.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'hunt-ward' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

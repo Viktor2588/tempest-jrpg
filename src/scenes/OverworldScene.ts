@@ -14,6 +14,8 @@ import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type 
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
+import { addUiPortraitFrame } from '../render/uiSkin';
 import {
   configureHiDpiScene,
   hudZoomOffset,
@@ -41,6 +43,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
+import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
 import { playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
@@ -69,6 +72,11 @@ export class OverworldScene extends Phaser.Scene {
   private minimapOriginY = 0;
   private minimapCell = 4;
   private onboardingLayer?: Phaser.GameObjects.Container;
+  // Phase 101 — Welt-Uhr: HUD-Zeile mit Tageszeit + Wetter.
+  private clockHud?: Phaser.GameObjects.Text;
+  // Phase 175 — Tag/Nacht faerbt die Oberwelt: kosmetischer Tint-Overlay (ueber den
+  // Kacheln, unter dem HUD). Rein visuell, keine Kampf-/Save-/Balance-Beruehrung.
+  private clockTint?: Phaser.GameObjects.Rectangle;
   // Zoom-Kompensation für fixe HUD-Elemente (0 bei DPR 1). Siehe hudZoomOffset.
   private hudOffset = { x: 0, y: 0 };
   // Cutscene-light: aktive Szene sperrt Bewegung/Interaktion; Akteur-Sprites
@@ -210,6 +218,18 @@ export class OverworldScene extends Phaser.Scene {
     this.add.text(menuX, menuY, '☰ Menü (M)', { fontFamily: 'sans-serif', fontSize: '14px', color: '#d8ecff' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(11);
     menuBtn.on('pointerdown', openMenu);
+
+    // Phase 175 — Tag/Nacht-Tint: bildschirmfuellender Overlay ueber den Kacheln (Depth 5),
+    // aber unter dem HUD (Depth 10+); fixiert an der Kamera, nicht interaktiv.
+    this.clockTint = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0)
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(5);
+    this.clockTint.disableInteractive();
+
+    // Phase 101 — Welt-Uhr: Tageszeit/Wetter-Anzeige unter dem Menüknopf.
+    this.clockHud = this.add.text(menuX, menuY + menuRect.height / 2 + 12, '', {
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#bfe0ff'
+    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(11);
+    this.refreshClockHud();
 
     this.drawOnboardingHints();
     this.time.delayedCall(180, () => {
@@ -683,17 +703,24 @@ export class OverworldScene extends Phaser.Scene {
           0
         ).setOrigin(0, 0).setStrokeStyle(1, color, 0.22));
       }
-      // Phase 107 — ruhiger runder Punkt-Marker statt gefuelltem Kasten; das Ziel kraeftiger.
-      layer.add(this.add.circle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.26, color, isObjective ? 0.5 : 0.3)
-        .setStrokeStyle(2, color, isObjective ? 0.95 : 0.6));
+      // Punkt-Marker entstoeren: nur zeichnen, wenn er JETZT etwas bedeutet — ein
+      // Gateway (Regionswechsel), das aktuelle Ziel oder eine Ortschaft nahe am
+      // Spieler. Sonst bleibt der Boden frei von verstreuten Farbkreisen.
+      const isGateway = location.kind === 'gateway';
+      const nearPlayer = markerLabelVisible(this.pos, location.position, isObjective);
+      if (isGateway || isObjective || nearPlayer) {
+        layer.add(this.add.circle(this.cx(location.position.x), this.cy(location.position.y), TILE * 0.26, color, isObjective ? 0.5 : 0.3)
+          .setStrokeStyle(2, color, isObjective ? 0.95 : 0.6));
+      }
       // Gateways bekommen ein Reise-Symbol, damit klar ist, dass man hier die Region wechselt.
-      if (location.kind === 'gateway') {
+      if (isGateway) {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y), '⇄', {
           fontFamily: 'sans-serif', fontSize: '18px', color: '#cdeeff'
         }).setOrigin(0.5).setStroke('#0a1a24', 3));
       }
-      // Phase 107 — Dauer-Namenslabel nur nahe Spieler oder am Ziel (entstoert den Cluster).
-      if (markerLabelVisible(this.pos, location.position, isObjective)) {
+      // Ortsname nahe Spieler/am Ziel — Gateways (Reiseziele) IMMER, damit klar ist,
+      // wohin ein Übergang führt (vorher flackerten die Namen je nach Nähe).
+      if (isGateway || nearPlayer) {
         layer.add(this.add.text(this.cx(location.position.x), this.cy(location.position.y) + 28, location.name, {
           fontFamily: 'sans-serif',
           fontSize: '10px',
@@ -722,7 +749,11 @@ export class OverworldScene extends Phaser.Scene {
 
     // Entdeckungen: Glitzerpunkte mit Lore + Belohnung (Erkundungsanreiz); nur
     // sichtbar, solange nicht eingesammelt (und ggf. erst nach Weltveraenderung).
-    for (const discovery of getMapDiscoveries(this.mapId, this.save.flags)) {
+    for (const discovery of getMapDiscoveries(
+      this.mapId,
+      this.save.flags,
+      clockAt(this.save.clockStep ?? 0, this.save.seed)
+    )) {
       layer.add(this.add.circle(this.cx(discovery.x), this.cy(discovery.y), TILE * 0.24, 0x1f6f66, 0.36)
         .setStrokeStyle(2, 0x8affe4, 0.7));
       layer.add(this.add.text(this.cx(discovery.x), this.cy(discovery.y), '✦', {
@@ -733,24 +764,44 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     for (const npc of getMapNpcs(this.mapId, world)) {
-      const npcSprite = this.add.rectangle(this.cx(npc.position.x), this.cy(npc.position.y), TILE * 0.62, TILE * 0.62, npc.color, 0.95)
-        .setStrokeStyle(2, 0xfff1aa, 0.9);
-      layer.add(npcSprite);
+      const npcX = this.cx(npc.position.x);
+      const npcY = this.cy(npc.position.y);
+      // Porträt-Token für benannte Figuren (aus dem Porträt-Atlas, per Name gemappt);
+      // ersetzt die alten einfarbigen Quadrate. Ohne Porträt (z. B. „Ratsversammlung")
+      // bleibt ein dezentes Farb-Token als Fallback.
+      const portraitKind = portraitKindForSpeaker(npc.name);
+      const portraitTexture = portraitKind ? portraitKey(portraitKind) : null;
+      let npcSprite: Phaser.GameObjects.GameObject & { x: number; y: number };
+      if (portraitTexture && this.textures.exists(portraitTexture)) {
+        const size = TILE * 0.62;
+        layer.add(addUiPortraitFrame(this, npcX, npcY, size));
+        npcSprite = this.add.image(npcX, npcY, portraitTexture).setDisplaySize(size, size);
+        layer.add(npcSprite);
+      } else {
+        npcSprite = this.add.circle(npcX, npcY, TILE * 0.29, npc.color, 0.92)
+          .setStrokeStyle(2, 0x15100a, 0.55);
+        layer.add(npcSprite);
+      }
       this.actorSprites.set(npc.id, npcSprite);
       // Name normalerweise über dem Marker; bei NPCs in den obersten Reihen nach
       // unten kippen, sonst wird der Name (und der Quest-Marker darüber) am oberen
       // Kartenrand abgeschnitten (z. B. „König Gazel Dwargo" im Dwargon-Thronsaal).
       const flipDown = npc.position.y <= 1;
       const nameY = this.cy(npc.position.y) + (flipDown ? 34 : -34);
-      layer.add(this.add.text(this.cx(npc.position.x), nameY, npc.name, {
-        fontFamily: 'sans-serif',
-        fontSize: '11px',
-        color: '#e9eef7'
-      }).setOrigin(0.5));
+      // Namens-Label nur nahe am Spieler oder bei aktivem Quest-Marker zeigen —
+      // sonst überlappen auf dichten Karten (Tempest) ~10 NPC-Namen zu einem Brei.
+      const hasQuestMarker = npcHasQuestMarker(world, npc.id);
+      if (hasQuestMarker || markerLabelVisible(this.pos, npc.position, false)) {
+        layer.add(this.add.text(this.cx(npc.position.x), nameY, npc.name, {
+          fontFamily: 'sans-serif',
+          fontSize: '11px',
+          color: '#e9eef7'
+        }).setOrigin(0.5).setStroke('#0a0f1a', 3));
+      }
       // Quest-Marker: goldenes „!" bei NPCs, bei denen ein Gespräch JETZT die
       // Story voranbringt (unterscheidet sich vom pinken Encounter-„!" auf der Kachel).
       // Statisch gehalten, damit beim worldLayer-Neuzeichnen keine Tweens lecken.
-      if (npcHasQuestMarker(world, npc.id)) {
+      if (hasQuestMarker) {
         layer.add(this.add.text(this.cx(npc.position.x), nameY + (flipDown ? 18 : -18), '❗', {
           fontFamily: 'sans-serif',
           fontSize: '20px',
@@ -799,12 +850,40 @@ export class OverworldScene extends Phaser.Scene {
     }
   }
 
+  // Phase 101 — Welt-Uhr: HUD-Zeile aus dem aktuellen clockStep + Seed neu setzen.
+  // Phase 175 — dabei den Tag/Nacht-Tint der Oberwelt aktualisieren.
+  private refreshClockHud(): void {
+    const clock = clockAt(this.save.clockStep ?? 0, this.save.seed);
+    if (this.clockHud) {
+      this.clockHud.setText(clockHudLabel(clock));
+    }
+    if (this.clockTint) {
+      const tint = overworldTint(clock);
+      if (tint) {
+        this.clockTint.setFillStyle(tint.color, tint.alpha).setVisible(true);
+      } else {
+        this.clockTint.setVisible(false);
+      }
+    }
+  }
+
   private resolveEncounterAtCurrentPosition(): void {
     this.stepCount += 1;
     this.save = loadSave(window.localStorage) ?? this.save;
+    // Phase 101 — Welt-Uhr: jeder Schritt lässt die Zeit voranschreiten. Persistiert,
+    // damit Tageszeit/Wetter über Speichern/Laden hinweg konsistent bleiben.
+    this.save = { ...this.save, clockStep: (this.save.clockStep ?? 0) + 1 };
+    autoSave(window.localStorage, this.save);
+    this.refreshClockHud();
     // Entdeckung auf der Kachel hat Vorrang vor einem Zufallskampf: als Modal
     // zeigen, Belohnung/Flag setzt die Discovery-Szene; danach neu zeichnen.
-    if (getMapDiscoveryAt(this.mapId, this.pos.x, this.pos.y, this.save.flags)) {
+    if (getMapDiscoveryAt(
+      this.mapId,
+      this.pos.x,
+      this.pos.y,
+      this.save.flags,
+      clockAt(this.save.clockStep ?? 0, this.save.seed)
+    )) {
       this.scene.launch('Discovery', { mapId: this.mapId, x: this.pos.x, y: this.pos.y });
       this.scene.pause();
       return;
@@ -819,9 +898,28 @@ export class OverworldScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
 
     if (result.state.encounter) {
+      // Phase 101 — Welt-Uhr: Zeit/Wetter des Encounters bestimmen das Eröffnungs-
+      // Elementarfeld (Regen=Wasser, Nacht=Schatten); tagsüber/klar bleibt es neutral.
+      const clock = clockAt(this.save.clockStep ?? 0, this.save.seed);
+      // Phase 178 — Nebelsicht: ein geladener Nebel-Ward (Klarsichttropfen) hebt die
+      // Nebel-Eroeffnungsblendung dieses Kampfes auf und verbraucht sich dabei einmalig
+      // (nur bei Nebel — sonst bleibt der Ward geladen). Off-Harness (Auto-Battle nutzt keine Uhr).
+      const warded = openingStatusesWarded(clock, this.save.flags);
+      if (warded.wardConsumed) {
+        this.save = { ...this.save, flags: { ...this.save.flags, [FOG_WARD_FLAG]: false } };
+        autoSave(window.localStorage, this.save);
+      }
       battleWipe(this, 'Battle', {
         enemyIds: [...result.state.encounter.enemyIds],
-        encounterId: result.state.encounter.id
+        encounterId: result.state.encounter.id,
+        openingField: openingFieldElement(clock),
+        // Phase 171 — Nebel verhuellt das Schlachtfeld: symmetrischer Eroeffnungs-Status
+        // aus der Welt-Uhr (Nebel→Blind auf beide Seiten). Phase 178: ggf. per Ward aufgehoben.
+        openingStatuses: warded.statuses,
+        // Phase 173 — Welt-Uhr im Kampf lesbar: kompakte Zeit/Wetter-Zeile fuer das HUD.
+        clockLabel: clockHudLabel(clock),
+        // Phase 174 — Welt-Uhr: Uhr fuer die Erst-Sieg-Bedingungsbelohnung (Nacht/Nebel/Regen).
+        clock
       });
     }
   }

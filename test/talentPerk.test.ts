@@ -142,3 +142,21 @@ describe('TalentPerk-Kampfwirkung', () => {
     expect(buffTurns([{ kind: 'buff-power', percent: 100 }])).toBe(buffTurns(undefined) + 1);
   });
 });
+
+import { compactLockReason } from '../src/systems/talentPerk';
+
+describe('compactLockReason — konkreter Sperrgrund statt „unbekannt"', () => {
+  it('macht aus der Branch-Lock-Meldung ein kurzes Tag', () => {
+    expect(compactLockReason('Anderer Spezialisierungsstrang bereits gewählt.')).toBe('Anderer Strang');
+  });
+  it('kürzt die Level-Anforderung', () => {
+    expect(compactLockReason('Level 9 erforderlich.')).toBe('Level 9');
+  });
+  it('erkennt fehlende Vorstufen und Punkte', () => {
+    expect(compactLockReason('Vorgänger-Knoten fehlen.')).toBe('Vorstufe');
+    expect(compactLockReason('Nicht genug Skill-Punkte.')).toBe('SP fehlt');
+  });
+  it('fällt für unbekannte Meldungen auf Gesperrt zurück', () => {
+    expect(compactLockReason('Irgendwas anderes.')).toBe('Gesperrt');
+  });
+});

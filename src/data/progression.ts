@@ -483,6 +483,42 @@ export const RELATIONSHIPS = [
       { id: 'milim-honey', requiredLevel: 1, title: 'Honig besiegt den Demonlord', summary: 'Rimuru gewinnt Milims Freundschaft mit einem Glas Honig statt einer Schlacht.', flagId: 'bond-milim-1' },
       { id: 'milim-dragon-fist', requiredLevel: 3, title: 'Bund der Drachenfaust', summary: 'Milims Vertrauen verleiht Rimurus Sturm einen Hauch von Drachenzerstörung.' }
     ]
+  },
+  // Phase 131 — Bindungs-Paritaet: Hakurou und Souei hatten bisher keine eigene
+  // Beziehung und damit keine Bindungs-Achse. Beide Bande sind Party↔Party (Kijin),
+  // sammeln also wie die uebrigen Punkte, wenn beide aktiv kaempfen. Bewusst modeste
+  // Boni (kanonischer Meister/Schueler bzw. Klingen-Brueder-Bund).
+  {
+    id: 'hakurou-benimaru',
+    characterId: 'hakurou',
+    partnerId: 'benimaru',
+    partnerName: 'Benimaru',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Meister und Schüler', passiveBonus: { agility: 1, attack: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 15 } },
+      { level: 2, requiredPoints: 70, title: 'Schwertform vollendet', passiveBonus: { agility: 2, attack: 2 }, partnerPassiveBonus: { attack: 2, agility: 1 }, combatBonus: { startingTeamMeter: 30, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Erbe des Schwertheiligen', passiveBonus: { agility: 3, attack: 3, maxHp: 6 }, partnerPassiveBonus: { attack: 3, agility: 2 }, combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }, perk: { kind: 'counter', percent: 8 } }
+    ],
+    scenes: [
+      { id: 'hakurou-benimaru-drill', requiredLevel: 1, title: 'Der harte Drill', summary: 'Der alte Schwertmeister schleift Benimarus Grundformen, bis der General strauchelt und doch nicht aufgibt.', flagId: 'bond-hakurou-1' },
+      { id: 'hakurou-benimaru-heir', requiredLevel: 3, title: 'Das anvertraute Erbe', summary: 'Hakurou erkennt in Benimaru den würdigen Erben seiner Schwertkunst — beide Klingen führen wie eine.' }
+    ]
+  },
+  {
+    id: 'souei-shion',
+    characterId: 'souei',
+    partnerId: 'shion',
+    partnerName: 'Shion',
+    partnerKind: 'party',
+    levels: [
+      { level: 1, requiredPoints: 25, title: 'Rimurus Klingen', passiveBonus: { agility: 1, attack: 1 }, partnerPassiveBonus: { attack: 1 }, combatBonus: { startingTeamMeter: 15 } },
+      { level: 2, requiredPoints: 70, title: 'Schatten und Schild', passiveBonus: { agility: 2, attack: 1, maxHp: 4 }, partnerPassiveBonus: { attack: 2, defense: 1 }, combatBonus: { startingTeamMeter: 30, teamAttack: true } },
+      { level: 3, requiredPoints: 130, title: 'Lautlose Wacht', passiveBonus: { agility: 3, attack: 2, maxHp: 8 }, partnerPassiveBonus: { attack: 3, defense: 2 }, combatBonus: { startingTeamMeter: 45, teamAttack: true, openingStatusId: 'haste' }, perk: { kind: 'dodge', percent: 6 } }
+    ],
+    scenes: [
+      { id: 'souei-shion-watch', requiredLevel: 1, title: 'Geteilte Wacht', summary: 'Der lautlose Späher und die unbeugsame Leibwache stimmen ihre Wachen ab — keine Bedrohung erreicht Rimuru unbemerkt.', flagId: 'bond-souei-1' },
+      { id: 'souei-shion-silent', requiredLevel: 3, title: 'Schatten deckt Schild', summary: 'Soueis Fäden und Shions Wille verweben sich zu einem Schutz, den kein Feind durchbricht.' }
+    ]
   }
 ] as const satisfies readonly RelationshipDefinition[];
 
@@ -522,6 +558,21 @@ export const SKILL_TREES = [
         requiredNodeIds: ['rimuru-fluid-core'],
         branch: 'predator',
         perks: [{ kind: 'devour-chance', percent: 15 }]
+      },
+      {
+        // Phase 134 — Isolation (canon Praedator-Unterfaehigkeit, IDEE.md §1): der
+        // Schleimleib kapselt Gift ab und neutralisiert es. Seitenzweig ab dem
+        // Verschlinger-Fundament; bewusst NICHT in der Balance-Harness-Prioritätsliste
+        // (RIMURU_SPEC_PRIORITIES) → die Harness schaltet den Knoten nie frei, Sims unberührt.
+        id: 'rimuru-predator-isolation',
+        name: 'Isolation',
+        description: 'Praedator-Unterfaehigkeit: Rimurus Schleimleib kapselt Gift und Fäulnis ab und neutralisiert sie vollständig.',
+        cost: 1,
+        requiredLevel: 3,
+        requiredNodeIds: ['rimuru-fluid-core'],
+        branch: 'predator',
+        perks: [{ kind: 'status-resist', percent: 100, statuses: ['poison'] }],
+        statBonus: { spirit: 2 }
       },
       {
         id: 'rimuru-predator-devour',
@@ -665,8 +716,8 @@ export const SKILL_TREES = [
       // Strang 1 — Schutz (Verteidigung: Schadensresistenz + max-LP)
       { id: 'shuna-ward-focus', name: 'Schutzfokus', description: 'Strang Schutz: lehrt das Barrieregebet.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'ward', skillId: 'barrier-prayer', perks: [{ kind: 'damage-taken', percent: 12 }], statBonus: { spirit: 2 } },
       { id: 'shuna-ward-body', name: 'Schutzgewebe', description: 'Verwebt Zähigkeit ins Gewand.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }] },
-      { id: 'shuna-ward-veil', name: 'Segensschleier', description: 'Mindert erlittenen Schaden weiter.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'damage-taken', percent: 12 }] },
-      { id: 'shuna-ward-circle', name: 'Sakralkreis', description: 'Vollendung des Schutz-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-ward-body'], branch: 'ward', perks: [{ kind: 'max-hp', percent: 12 }, { kind: 'damage-taken', percent: 10 }], statBonus: { spirit: 3 } },
+      { id: 'shuna-ward-veil', name: 'Segensschleier', description: 'Mindert erlittenen Schaden und wehrt oft schädliche Zustände ab.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shuna-ward-focus'], branch: 'ward', perks: [{ kind: 'damage-taken', percent: 12 }, { kind: 'status-resist', percent: 30 }] },
+      { id: 'shuna-ward-circle', name: 'Sakralkreis', description: 'Vollendung des Schutz-Strangs — das heilige Siegel bringt selbst Zauberer zum Schweigen.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shuna-ward-body'], branch: 'ward', skillId: 'banishing-seal', perks: [{ kind: 'max-hp', percent: 12 }, { kind: 'damage-taken', percent: 10 }], statBonus: { spirit: 3 } },
       // Strang 2 — Weberin (Support: Buff-Dauer + Heil-Kette)
       { id: 'shuna-weave-focus', name: 'Weber-Fokus', description: 'Strang Weberin: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'weave', perks: [{ kind: 'buff-power', percent: 100 }], statBonus: { maxMp: 4, spirit: 1 } },
       { id: 'shuna-weave-prayer', name: 'Gebetsfaden', description: 'Beruhigendes Gebet webt ein Sakralgewebe nach.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shuna-weave-focus'], branch: 'weave', perks: [{ kind: 'skill-chain', triggerSkillId: 'soothing-prayer', followUpSkillId: 'sacred-weave', percent: 35 }] },
@@ -701,7 +752,7 @@ export const SKILL_TREES = [
     { id: 'shion-crush-focus', name: 'Zermalmerfokus', description: 'Strang Zermalmen: rohe physische Wucht.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }], skillId: 'ogre-smash', statBonus: { attack: 2 } },
     { id: 'shion-crush-quake', name: 'Nachbeben', description: 'Oger-Wucht entlädt einen Folgehieb.', cost: 2, requiredLevel: 5, requiredNodeIds: ['shion-crush-focus'], branch: 'crush', perks: [{ kind: 'skill-chain', triggerSkillId: 'ogre-smash', followUpSkillId: 'orc-cleave', percent: 35 }] },
     { id: 'shion-crush-might', name: 'Titanenkraft', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['shion-crush-focus'], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
-    { id: 'shion-crush-titan', name: 'Titanengriff', description: 'Vollendung des Zermalmen-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-crush-quake'], branch: 'crush', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { attack: 4 } },
+    { id: 'shion-crush-titan', name: 'Titanengriff', description: 'Vollendung des Zermalmen-Strangs — der Griff zermürbt Angriff und Magie des Ziels.', cost: 2, requiredLevel: 9, requiredNodeIds: ['shion-crush-quake'], branch: 'crush', skillId: 'enfeebling-grip', perks: [{ kind: 'damage-dealt', percent: 25, category: 'physical' }], statBonus: { attack: 4 } },
     // Strang 2 — Bollwerk (Verteidigung)
     { id: 'shion-bulwark-body', name: 'Eisenkörper', description: 'Strang Bollwerk: monströse Konstitution.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'bulwark', perks: [{ kind: 'max-hp', percent: 15 }], skillId: 'iron-guard', statBonus: { defense: 2 } },
     { id: 'shion-bulwark-wall', name: 'Bollwerk', description: 'Verschanzte Verteidigung.', cost: 1, requiredLevel: 5, requiredNodeIds: ['shion-bulwark-body'], branch: 'bulwark', perks: [{ kind: 'damage-taken', percent: 15 }] },
@@ -723,7 +774,7 @@ export const SKILL_TREES = [
     { id: 'hakurou-iai-stance', name: 'Iai-Haltung', description: 'Strang Iai: geduldiger Gegenschlag.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'iai', perks: [{ kind: 'counter', percent: 30 }], statBonus: { attack: 2 } },
     { id: 'hakurou-iai-read', name: 'Klingenlesen', description: 'Erhöht die Konterchance.', cost: 1, requiredLevel: 5, requiredNodeIds: ['hakurou-iai-stance'], branch: 'iai', perks: [{ kind: 'counter', percent: 20 }] },
     { id: 'hakurou-iai-edge', name: 'Scharfe Schneide', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 6, requiredNodeIds: ['hakurou-iai-stance'], branch: 'iai', perks: [{ kind: 'damage-dealt', percent: 15, category: 'physical' }] },
-    { id: 'hakurou-iai-master', name: 'Schwertheiliger', description: 'Vollendung des Iai-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-iai-read'], branch: 'iai', perks: [{ kind: 'counter', percent: 30, scale: 1.4 }] },
+    { id: 'hakurou-iai-master', name: 'Schwertheiliger', description: 'Vollendung des Iai-Strangs — der perfekte Blitzzug lässt Gegner erstarren.', cost: 2, requiredLevel: 9, requiredNodeIds: ['hakurou-iai-read'], branch: 'iai', perks: [{ kind: 'counter', percent: 30, scale: 1.4 }], skillId: 'iai-stillness' },
     // Strang 3 — Lehrmeister (Team)
     { id: 'hakurou-mentor-call', name: 'Lehrmeister', description: 'Strang Lehrmeister: eigene Buffs halten länger.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'mentor', perks: [{ kind: 'buff-power', percent: 100 }], skillId: 'battle-cry' },
     { id: 'hakurou-mentor-guard', name: 'Deckung lehren', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['hakurou-mentor-call'], branch: 'mentor', perks: [{ kind: 'damage-taken', percent: 12 }] },
@@ -740,12 +791,12 @@ export const SKILL_TREES = [
     { id: 'souei-shadow-step', name: 'Schattenschritt', description: 'Strang Schatten: verdeckte Beweglichkeit.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'shadow', perks: [{ kind: 'dodge', percent: 18 }], statBonus: { agility: 3 } },
     { id: 'souei-shadow-veil', name: 'Schattenschleier', description: 'Mindert erlittenen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['souei-shadow-step'], branch: 'shadow', perks: [{ kind: 'damage-taken', percent: 15 }] },
     { id: 'souei-shadow-evade', name: 'Nebelgang', description: 'Erhöht die Ausweichchance.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-shadow-step'], branch: 'shadow', perks: [{ kind: 'dodge', percent: 12 }] },
-    { id: 'souei-shadow-phantom', name: 'Phantom', description: 'Vollendung des Schatten-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-shadow-veil'], branch: 'shadow', perks: [{ kind: 'dodge', percent: 20 }, { kind: 'damage-taken', percent: 10 }] },
+    { id: 'souei-shadow-phantom', name: 'Phantom', description: 'Vollendung des Schatten-Strangs — Stahlfäden aus dem Schatten fesseln den Feind.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-shadow-veil'], branch: 'shadow', perks: [{ kind: 'dodge', percent: 20 }, { kind: 'damage-taken', percent: 10 }], skillId: 'shadow-bind' },
     // Strang 3 — Meucheln (Präzision/Konter)
     { id: 'souei-assassin-focus', name: 'Meuchelfokus', description: 'Strang Meucheln: tödliche Präzision.', cost: 1, requiredLevel: 3, requiredNodeIds: [], branch: 'assassin', perks: [{ kind: 'counter', percent: 25 }], skillId: 'quick-step', statBonus: { agility: 2 } },
     { id: 'souei-assassin-mark', name: 'Todesmal', description: 'Steigert den physischen Schaden.', cost: 1, requiredLevel: 5, requiredNodeIds: ['souei-assassin-focus'], branch: 'assassin', perks: [{ kind: 'damage-dealt', percent: 18, category: 'physical' }] },
     { id: 'souei-assassin-riposte', name: 'Blutriposte', description: 'Erhöht die Konterchance.', cost: 1, requiredLevel: 6, requiredNodeIds: ['souei-assassin-focus'], branch: 'assassin', perks: [{ kind: 'counter', percent: 20 }] },
-    { id: 'souei-assassin-execute', name: 'Meucheln', description: 'Vollendung des Meuchel-Strangs.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-assassin-mark'], branch: 'assassin', perks: [{ kind: 'damage-dealt', percent: 22, category: 'physical' }, { kind: 'counter', percent: 15 }], statBonus: { attack: 3 } }
+    { id: 'souei-assassin-execute', name: 'Meucheln', description: 'Vollendung des Meuchel-Strangs — ein Wurf Schattenstaub blendet das Ziel vor dem Stich.', cost: 2, requiredLevel: 9, requiredNodeIds: ['souei-assassin-mark'], branch: 'assassin', skillId: 'blinding-dust', perks: [{ kind: 'damage-dealt', percent: 22, category: 'physical' }, { kind: 'counter', percent: 15 }], statBonus: { attack: 3 } }
   ] },
   { id: 'rigurd-tree', characterId: 'rigurd', name: 'Goblin-Häuptling', nodes: [
     // Strang 1 — Wall (Verteidigung)
@@ -815,6 +866,16 @@ export const EQUIPMENT_SETS = [
     tiers: [
       { pieces: 2, statBonus: { defense: 3, maxHp: 8 } },
       { pieces: 3, statBonus: { attack: 4, defense: 4, maxMp: 4 } }
+    ]
+  },
+  // Phase 152 — neues Legendaer-Set „Sturmgeist-Ornat" (Wind/Geist), in der Schmiede gefertigt.
+  {
+    id: 'stormspirit-regalia',
+    name: 'Sturmgeist-Ornat',
+    itemIds: ['galewind-edge', 'stormweave-garb', 'zephyr-band'],
+    tiers: [
+      { pieces: 2, statBonus: { agility: 2, spirit: 2 } },
+      { pieces: 3, statBonus: { maxHp: 10, magic: 3, agility: 3 } }
     ]
   }
 ] as const satisfies readonly EquipmentSetDefinition[];

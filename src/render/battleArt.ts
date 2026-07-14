@@ -22,6 +22,10 @@ export type BattleArenaKind =
   | 'orc-battlefield'
   | 'lizardman-marsh'
   | 'spirit-cave'
+  | 'ramiris-labyrinth'
+  | 'freedom-academy'
+  | 'blumund'
+  | 'ember-hollow'
   | 'milim-arrival'
   | 'tempest-colosseum'
   | 'tempest-invasion';
@@ -38,6 +42,10 @@ export const BATTLE_ARENA_TEXTURES = {
   'orc-battlefield': 'battle-bg-orc-battlefield',
   'lizardman-marsh': 'battle-bg-lizardman-marsh',
   'spirit-cave': 'battle-bg-spirit-cave',
+  'ramiris-labyrinth': 'battle-bg-ramiris-labyrinth',
+  'freedom-academy': 'battle-bg-freedom-academy',
+  'blumund': 'battle-bg-blumund',
+  'ember-hollow': 'battle-bg-ember-hollow',
   'milim-arrival': 'battle-bg-milim-arrival',
   'tempest-colosseum': 'battle-bg-tempest-colosseum',
   'tempest-invasion': 'battle-bg-tempest-invasion'
@@ -56,9 +64,12 @@ const MAP_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'orc-battlefield': 'orc-battlefield',
   'lizardman-marsh': 'lizardman-marsh',
   'spirit-cave': 'spirit-cave',
+  'ember-hollow': 'ember-hollow',
   'milim-clearing': 'milim-arrival',
   'tempest-colosseum': 'tempest-colosseum',
-  'ramiris-labyrinth': 'spirit-cave'
+  'ramiris-labyrinth': 'ramiris-labyrinth',
+  'freedom-academy': 'freedom-academy',
+  'blumund': 'blumund'
 };
 
 const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
@@ -73,7 +84,7 @@ const ENCOUNTER_ARENAS: Readonly<Record<string, BattleArenaKind>> = {
   'lizardman-skirmish': 'lizardman-marsh',
   'spirit-trial': 'spirit-cave',
   ifrit: 'spirit-cave',
-  'magic-colossus': 'spirit-cave',
+  'magic-colossus': 'ramiris-labyrinth',
   'milim-arrives': 'milim-arrival',
   'milim-spar': 'milim-arrival',
   'arena-bronze-wave': 'tempest-colosseum',

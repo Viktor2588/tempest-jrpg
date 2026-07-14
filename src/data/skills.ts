@@ -184,5 +184,52 @@ export const SKILLS = [
   // Phase 108 — Skill-Fusion: verschmolzene Fertigkeiten. Der Große Weiser bündelt
   // gelernte Skills zu einem stärkeren; jeder Output steht über seinen Eingaben.
   { id: 'hydro-lash', name: 'Hydra-Schneide', description: 'Der Große Weiser bündelt Schleimschlag und Wasserstrahl zu einer geformten Wasserklinge, die härter und präziser trifft.', element: 'water', target: 'single-enemy', costMp: 7, power: 40, tags: ['magical'], tier: 'extra-skill', heavy: true },
-  { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true }
+  { id: 'maelstrom-fang', name: 'Mahlstrom-Reißzahn', description: 'Rangas Sturmwolf verschmilzt Direwolf-Ansturm und Raubtieraura zu einem reißenden Wirbelsturm-Angriff.', element: 'wind', target: 'single-enemy', costMp: 11, power: 52, tags: ['physical'], tier: 'unique-skill', heavy: true },
+  { id: 'predator-perversion', name: 'Praedator-Perversion', description: 'Praedator zerlegt geraubte Fertigkeiten; der Große Weiser setzt sie zu einer schärferen Unique-Form zusammen.', element: 'shadow', target: 'single-enemy', costMp: 16, power: 58, tags: ['magical', 'debuff'], tier: 'unique-skill', heavy: true, statusEffect: { id: 'guard-break', chance: 0.75, turns: 2 } },
+  // Phase 94 — Elementarfelder: laden das Schlachtfeld elementar auf (Board-Control).
+  // Reiner Aufbau (kein Schaden) → verstärkt danach gleichelementige Treffer und öffnet
+  // Fusions-Reaktionen (z. B. Glutfeld + Windtreffer = Feuersturm). Keine Auto-Nutzung.
+  { id: 'ember-field', name: 'Glutfeld', description: 'Benimaru entfacht den Boden zu einem Flammenfeld — Feuertreffer lodern stärker, ein Windschlag entfacht einen Feuersturm.', element: 'fire', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  { id: 'gale-field', name: 'Sturmfeld', description: 'Ranga peitscht Sturmböen über das Feld — Windtreffer schneiden schärfer, Fusionen mit anderen Elementen entfesseln sich.', element: 'wind', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  { id: 'tide-field', name: 'Gezeitenfeld', description: 'Souei flutet das Schlachtfeld mit Wasser — Wassertreffer branden stärker, Fusionen wie Dampf oder Sturmflut werden möglich.', element: 'water', target: 'self', costMp: 8, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  // Phase 181 — Feindliches Elementarfeld: der Magiekoloss türmt den Boden zu einem Erdwall
+  // auf (chargesField). Verstärkt seine eigenen Erdschläge (ogre-smash/petrifying-gaze); ein
+  // Fremd-Element-Treffer (Wind/Wasser = seine Schwächen) entlädt dagegen eine Fusions-Reaktion
+  // und räumt das Feld — das ist das lesbare Gegenspiel des Spielers.
+  { id: 'terrastorm-field', name: 'Erdwall-Feld', description: 'Der Magiekoloss türmt den Boden zu einem massiven Erdwall auf — Erdtreffer wuchten schwerer, doch fremde Elemente entladen sich als Reaktion.', element: 'earth', target: 'self', costMp: 10, power: 0, tags: ['buff'], tier: 'extra-skill', chargesField: true },
+  // Phase 183 — zweiter, elementar verschiedener Feld-Träger (off-route): Milims überwältigende
+  // Drachenglut entzündet das Schlachtfeld zu einem Flammenfeld, das ihre Feuerschläge
+  // (drago-nova/black-flame) verstärkt. Konter: ein Heilig-Treffer (ihre Schwäche) entlädt
+  // eine Sonnenfeuer-Reaktion und räumt das Feld.
+  { id: 'pyre-field', name: 'Drachen-Glutfeld', description: 'Milims überwältigende Drachenglut entzündet den Boden zu einem Flammenmeer — Feuertreffer lodern verheerend, fremde Elemente entladen sich als Reaktion.', element: 'fire', target: 'self', costMp: 12, power: 0, tags: ['buff'], tier: 'ultimate-skill', chargesField: true },
+  // Phase 129 — Gegner-Kontrolle: telegraphierte Hart-CC-Skills aktivieren die gebaute,
+  // aber ungenutzte Kontroll-Schicht. Bewusst maessvolle Chance/kurze Dauer; sleep/freeze
+  // brechen bei Schaden (wakeOnDamage), stun/petrify nur 1 Runde. Traeger sind
+  // Nicht-Harness-Gegner (Balance-Korridor unberuehrt); Gegenmittel: Läuterungswasser.
+  { id: 'slumber-glow', name: 'Schlummerglühen', description: 'Das Akademie-Irrlicht pulsiert in einlullenden Wellen, die die Lider schwer werden lassen.', element: 'holy', target: 'single-enemy', costMp: 8, power: 12, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'sleep', chance: 0.5, turns: 2 } },
+  { id: 'blinding-feint', name: 'Blendfinte', description: 'Ein Handvoll Sand und ein falscher Hieb — der Blumund-Bandit stiftet Verwirrung.', element: 'neutral', target: 'single-enemy', costMp: 7, power: 16, tags: ['physical', 'debuff'], tier: 'skill', statusEffect: { id: 'confuse', chance: 0.5, turns: 2 } },
+  { id: 'petrifying-gaze', name: 'Versteinernder Blick', description: 'Der Magiekoloss richtet seinen uralten Blick — Fleisch beginnt zu Stein zu erstarren.', element: 'earth', target: 'single-enemy', costMp: 12, power: 10, tags: ['magical', 'debuff'], tier: 'extra-skill', heavy: true, statusEffect: { id: 'petrify', chance: 0.35, turns: 1 } },
+  { id: 'paralytic-howl', name: 'Lähmendes Heulen', description: 'Das uralte Direwolf-Heulen fährt durch Mark und Bein und lähmt die Glieder.', element: 'neutral', target: 'single-enemy', costMp: 9, power: 14, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'paralyze', chance: 0.5, turns: 2 } },
+  { id: 'crushing-blow', name: 'Zermalmender Hieb', description: 'Ein wuchtiger Ogerhieb, der das Ziel benommen zu Boden schlägt.', element: 'earth', target: 'single-enemy', costMp: 8, power: 28, tags: ['physical', 'debuff'], tier: 'extra-skill', heavy: true, statusEffect: { id: 'stun', chance: 0.4, turns: 1 } },
+  // Phase 130 — Spieler-Kontrolle: gezielte CC-Fertigkeiten als TIEFE Spec-Belohnung
+  // (Kapstein-Knoten von Hakurou/Souei, NICHT in der Balance-Harness-Priorität → Sims
+  // unberuehrt). Bewusst kurze Dauer/maessvolle Chance; der Spieler erspielt Kontrolle
+  // durch Spezialisierungs-Commitment (Qual der Wahl), statt sie geschenkt zu bekommen.
+  { id: 'iai-stillness', name: 'Iai — Reglosigkeit', description: 'Hakurous vollendeter Blitzzug trifft einen Nerv und lässt das Ziel erstarren.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 30, tags: ['physical', 'debuff'], tier: 'extra-skill', heavy: true, statusEffect: { id: 'stun', chance: 0.45, turns: 1 } },
+  { id: 'shadow-bind', name: 'Schattenfessel', description: 'Souei wirft Stahlfäden aus dem Schatten, die die Glieder des Ziels verschnüren.', element: 'shadow', target: 'single-enemy', costMp: 11, power: 24, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'paralyze', chance: 0.55, turns: 2 } },
+  // Phase 133 — Freeze & Charm erwachen: die letzten beiden toten Hart-CC-Status. Beide
+  // Traeger sind Nicht-Harness-Gegner (human-deserter, orc-lord) → Balance-Korridor
+  // unberuehrt. freeze bricht bei Schaden (wakeOnDamage); charm gibt nur eine Aussetz-Chance.
+  { id: 'frost-flask', name: 'Frostkolben', description: 'Der Deserteur zerschellt einen erbeuteten Alchemie-Kolben — beißender Frost lässt das Ziel erstarren.', element: 'water', target: 'single-enemy', costMp: 8, power: 18, tags: ['magical', 'debuff'], tier: 'skill', statusEffect: { id: 'freeze', chance: 0.4, turns: 2 } },
+  { id: 'dominating-gaze', name: 'Beherrschender Blick', description: 'Der Ork-Lord fängt den Blick des Ziels — Gelds Fluch beugt für einen Moment dessen Willen.', element: 'shadow', target: 'single-enemy', costMp: 12, power: 14, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'charm', chance: 0.4, turns: 2 } },
+  // Phase 136 — Spieler-Weichkontrolle: gezielte Debuff-Fertigkeiten (silence/blind/weaken)
+  // aktivieren die bislang nur auf Fusionen genutzte weiche Kontroll-Schicht offensiv. Als
+  // TIEFE Spec-Belohnung an Nicht-Harness-Kapstein-Knoten (requiredLevel 9) → Balance-Korridor
+  // unberuehrt (die Harness schaltet nur Gobta-/Rimuru-Knoten frei).
+  { id: 'banishing-seal', name: 'Bannsiegel', description: 'Shuna verschließt mit einem heiligen Siegel den Zauberfluss des Ziels — für kurze Zeit keine Fähigkeiten.', element: 'holy', target: 'single-enemy', costMp: 12, power: 16, tags: ['magical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'silence', chance: 0.6, turns: 2 } },
+  { id: 'blinding-dust', name: 'Blendstaub', description: 'Souei schleudert feinen Schattenstaub in die Augen des Ziels und trübt dessen Treffsicherheit.', element: 'shadow', target: 'single-enemy', costMp: 8, power: 20, tags: ['physical', 'debuff'], tier: 'skill', statusEffect: { id: 'blind', chance: 0.6, turns: 2 } },
+  { id: 'enfeebling-grip', name: 'Zermürbender Griff', description: 'Shions Titanengriff presst die Kraft aus den Gliedern des Ziels — Angriff und Magie sinken.', element: 'neutral', target: 'single-enemy', costMp: 10, power: 26, tags: ['physical', 'debuff'], tier: 'extra-skill', statusEffect: { id: 'weaken', chance: 0.7, turns: 2 } },
+  // Phase 138 — optionaler Akademie-Caster: Phase 2 wird als schwerer Flächenzauber
+  // angekündigt; Bannsiegel lässt das Irrlicht stattdessen nur physisch angreifen.
+  { id: 'arcane-overload', name: 'Arkane Überladung', description: 'Das Irrlicht überlädt seine freien Geistersplitter und entlädt sie über die ganze Gruppe.', element: 'holy', target: 'all-enemies', costMp: 18, power: 50, tags: ['magical', 'debuff'], tier: 'extra-skill', heavy: true, ctDelta: -75 }
 ] as const satisfies readonly SkillDefinition[];

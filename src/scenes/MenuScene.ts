@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import type { EquipmentSlot, SkillTreeNodeDefinition } from '../data';
 import { SKILL_TIER_META, skillTierBadge } from '../data';
+import { rarityColor, rarityLabel, rarityOf } from '../systems/itemRarity';
+import { instanceAffixLabels } from '../systems/lootAffix';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { buildRangaTravelView, resolveRangaTravel, type RangaTravelStatus } from '../systems/rangaTravel';
@@ -9,6 +11,7 @@ import {
   buildMenuView,
   EQUIPMENT_SLOTS,
   equipItem,
+  equipmentStatDelta,
   MENU_TOUCH_TARGET_PX,
   type MenuGameState,
   type MenuView,
@@ -16,7 +19,7 @@ import {
   unequipItem,
   useItem
 } from '../systems/menu';
-import { activateReserveMember } from '../systems/partyFormation';
+import { activateReserveMember, moveActiveMember } from '../systems/partyFormation';
 import {
   calculateProgressionStats,
   canAwakenTempest,
@@ -35,21 +38,30 @@ import {
   fuseMemberSkill,
   renameMember,
   unlockSkillNode,
+  respecSkillNodes,
   awakenTempest,
   AWAKENING_MAGICULE_COST,
+  AWAKENING_SOUL_COST,
   AWAKENING_SCENE_FLAG,
   type ProgressionActionResult
 } from '../systems/progression';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
-import { buildForgeView, craftRecipe, type CraftContext } from '../systems/crafting';
+import { buildForgeView, craftRecipe, reforgeCost, reforgeEquipment, salvageEquipment, salvageYieldLabel, type CraftContext } from '../systems/crafting';
+import { getItemCount } from '../systems/inventory';
 import { buildResearchView, completeResearchProject, type ResearchContext } from '../systems/research';
 import { buildResidentRoster, promoteResident as promoteResidentRule, RESIDENT_PROMOTION_MAGICULE_COST } from '../systems/residents';
 import { buildFacilityOverview, runProductionCycle } from '../systems/facilities';
-import { buildDiplomacyView, MAX_REPUTATION } from '../systems/diplomacy';
+import { buildDiplomacyView, factionRewardStatus, MAX_REPUTATION } from '../systems/diplomacy';
 import { buildBountyBoardView, claimBounty, getBounty, type BountyContext } from '../systems/bounties';
+import { buildHandbook } from '../systems/handbook';
+import { buildBestiary } from '../systems/bestiary';
+import { summarizeHuntingGrounds } from '../systems/bestiaryMastery';
+import { weatherConditionProgress } from '../systems/battleResult';
+import { elementLabel } from '../systems/battlePresentation';
 import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
+import { playSfxProcedural } from '../audio/sfxProcedural';
 import {
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
@@ -64,39 +76,23 @@ import {
 import { portraitKey } from '../render/portraitAtlas';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
-import { committedBranch, describeNodePerks, describePerk } from '../systems/talentPerk';
-
-type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
-type QuestStatusFilter = 'active' | 'completed';
-
-const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
-  { id: 'party', label: 'Party' },
-  { id: 'inventory', label: 'Inventar' },
-  { id: 'equipment', label: 'Ausrüstung' },
-  { id: 'status', label: 'Status' },
-  { id: 'growth', label: 'Talente' },
-  { id: 'quests', label: 'Quests' },
-  { id: 'codex', label: 'Codex' },
-  { id: 'travel', label: 'Ranga' }
-];
-
-// Tabs, die sich auf eine ausgewählte Figur beziehen → nur hier wird die Party-Liste
-// als Auswahl-Seitenleiste gebraucht. Der Party-Tab hat seine eigene (klickbare)
-// Aktiv-Gruppen-Übersicht, sonst stünde die Liste doppelt; Quests/Codex/Reise
-// nutzen die volle Breite.
-const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['inventory', 'equipment', 'status', 'growth']);
-
-// Kurzbeschreibung pro Tab — erklärt, was der Menüpunkt macht.
-const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
-  party: 'Überblick über deine aktive Gruppe.',
-  inventory: 'Gegenstände ansehen und an einer Figur benutzen.',
-  equipment: 'Waffe, Rüstung und Accessoire anlegen oder ablegen.',
-  status: 'Werte, Skills, Namensgebung, Entwicklung und Bindungen der Figur.',
-  growth: 'Talentbaum: Knoten mit Skillpunkten freischalten.',
-  quests: 'Aktive Aufträge verfolgen; Abgeschlossenes wandert ins Archiv.',
-  codex: 'Gesammeltes Wissen über Welt, Figuren und Gegner.',
-  travel: 'Mit Ranga zu entdeckten, sicheren Orten schnellreisen.'
-};
+import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
+import type { MenuTab, CodexMode, QuestStatusFilter } from '../ui/menu/MenuTypes';
+import {
+  CODEX_MODES,
+  TABS,
+  CHARACTER_TABS,
+  TAB_DESCRIPTIONS
+} from '../ui/menu/MenuTypes';
+import type { IMenuTabView } from '../ui/menu/IMenuTabView';
+import { QuestsTabView } from '../ui/menu/QuestsTabView';
+import { BestiaryTabView } from '../ui/menu/BestiaryTabView';
+import { InventoryTabView } from '../ui/menu/InventoryTabView';
+import { EquipmentTabView } from '../ui/menu/EquipmentTabView';
+import { StatusTabView } from '../ui/menu/StatusTabView';
+import { GrowthTabView } from '../ui/menu/GrowthTabView';
+import { PartyTabView } from '../ui/menu/PartyTabView';
+import { TravelTabView } from '../ui/menu/TravelTabView';
 
 export class MenuScene extends Phaser.Scene {
   private save!: SaveGameV2;
@@ -104,7 +100,7 @@ export class MenuScene extends Phaser.Scene {
   private selectedTab: MenuTab = 'party';
   private selectedMemberIndex = 0;
   private codexPage = 0;
-  private codexMode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy' = 'lore';
+  private codexMode: CodexMode = 'lore';
   private listPages: Record<string, number> = {};
   private questPage = 0;
   private questStatus: QuestStatusFilter = 'active';
@@ -112,10 +108,24 @@ export class MenuScene extends Phaser.Scene {
   private selectedTalentNodeId: string | null = null;
   // Phase 91 — Schmiede-Ansicht innerhalb des Ausrüstungs-Tabs (nur am Schmied).
   private showForge = false;
+  // Phase 159/160 — Loot-Werkbank (Zerlegen/Umschmieden) als Unteransicht der Schmiede.
+  private forgeBench = false;
   private specTreePanY = 0;
   private specTreeMask?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
+  // Phase 141: Einfaches Tooltip-System
+  private tooltip?: Phaser.GameObjects.Container;
+  // Phase 141: Einfacher Filter für Listen (z.B. Inventar)
+  private inventoryFilter = '';
+  // Phase 142: Weitere Filter
+  private bestiaryFilter = '';
+  private questFilter = '';
+  private codexFilter = '';
+
+  // Phase 141 Großes Refactor: Registry für Tab-Views um den Monolithen aufzubrechen.
+  // Jeder Tab kann in Zukunft eine eigene Klasse bekommen (siehe src/ui/menu/).
+  private tabViews: Map<MenuTab, IMenuTabView> = new Map();
 
   constructor() {
     super('Menu');
@@ -141,7 +151,52 @@ export class MenuScene extends Phaser.Scene {
     this.layer = this.add.container(0, 0);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
     this.input.keyboard?.on('keydown-M', () => this.close());
+    // Phase 119: basic keyboard for menu (extended for party + other)
+    this.input.keyboard?.on('keydown-LEFT', () => this.moveMenuSelection(-1));
+    this.input.keyboard?.on('keydown-RIGHT', () => this.moveMenuSelection(1));
+    this.input.keyboard?.on('keydown-UP', () => this.moveMenuSelection(-1));
+    this.input.keyboard?.on('keydown-DOWN', () => this.moveMenuSelection(1));
+    this.input.keyboard?.on('keydown-SPACE', () => this.activateMenuSelection());
+    this.input.keyboard?.on('keydown-ENTER', () => this.activateMenuSelection());
+
+    // Phase 141: Direkte Tastenkürzel für Tabs (1-8)
+    const digitKeys = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+    digitKeys.forEach((key, idx) => {
+      if (idx < TABS.length) {
+        this.input.keyboard?.on(`keydown-${key}`, () => {
+          const prev = this.tabViews.get(this.selectedTab);
+          if (prev?.onActivated) prev.onActivated();
+          this.selectedTab = TABS[idx].id;
+          this.message = TAB_DESCRIPTIONS[this.selectedTab];
+          this.codexPage = 0;
+          this.listPages = {};
+          this.questPage = 0;
+          this.questStatus = 'active';
+          this.selectedQuestId = null;
+          this.selectedTalentNodeId = null;
+          this.showForge = false;
+          this.initTabViewsIfNeeded();
+          const next = this.tabViews.get(this.selectedTab);
+          if (next?.onActivated) next.onActivated();
+          this.refresh();
+        });
+      }
+    });
     this.refresh();
+  }
+
+  private initTabViewsIfNeeded() {
+    if (this.tabViews.size > 0) return;
+    // Phase 145: Vollständige Sub-View Extraktion – alle Tabs als echte Klassen (eigenen State, onActivated, draw).
+    // MenuScene ist jetzt hauptsächlich Orchestrator (Tabs, MemberList, Header, Dispatch).
+    this.tabViews.set('party', new PartyTabView(this));
+    this.tabViews.set('inventory', new InventoryTabView(this));
+    this.tabViews.set('equipment', new EquipmentTabView(this));
+    this.tabViews.set('status', new StatusTabView(this));
+    this.tabViews.set('growth', new GrowthTabView(this));
+    this.tabViews.set('quests', new QuestsTabView(this));
+    this.tabViews.set('codex', new BestiaryTabView(this));
+    this.tabViews.set('travel', new TravelTabView(this));
   }
 
   private refresh(): void {
@@ -156,7 +211,7 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '30px',
       color: '#e9c56c'
     }));
-    const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules`;
+    const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules · ${this.save.progression.souls} Seelen`;
     this.layer.add(this.add.text(24, 52, `${resources} · ${this.message}`, {
       fontFamily: 'sans-serif',
       fontSize: '13px',
@@ -165,10 +220,13 @@ export class MenuScene extends Phaser.Scene {
     this.button(GAME_WIDTH - 126, 34, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     TABS.forEach((tab, index) => {
+      const isActive = this.selectedTab === tab.id;
+      const fill = isActive ? 0x30506f : 0x1b2940;
       this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
+        playSfxProcedural('menu');
+        const prev = this.tabViews.get(this.selectedTab);
+        if (prev?.onActivated) prev.onActivated();
         this.selectedTab = tab.id;
-        // Beim Tabwechsel die Kurzbeschreibung in die Meldungszeile setzen, damit klar
-        // ist, was der Menüpunkt macht; Aktions-Feedback überschreibt sie danach.
         this.message = TAB_DESCRIPTIONS[tab.id];
         this.codexPage = 0;
         this.listPages = {};
@@ -177,8 +235,20 @@ export class MenuScene extends Phaser.Scene {
         this.selectedQuestId = null;
         this.selectedTalentNodeId = null;
         this.showForge = false;
+        this.initTabViewsIfNeeded();
+        const next = this.tabViews.get(this.selectedTab);
+        if (next?.onActivated) next.onActivated();
         this.refresh();
-      }, this.selectedTab === tab.id ? 0x30506f : 0x1b2940);
+      }, fill, TAB_DESCRIPTIONS[tab.id]);
+
+      // Bessere aktive Tab-Hervorhebung: kleiner Unterstrich für visuelle Klarheit
+      if (isActive) {
+        const x = menuTabButtonX(index, TABS.length);
+        const w = MENU_TAB_ROW.buttonWidth;
+        const underline = this.add.rectangle(x + w/2, MENU_TAB_ROW.y + 24, w - 8, 3, 0xe9c56c)
+          .setOrigin(0.5, 0.5);
+        this.layer.add(underline);
+      }
     });
 
     // Party-Auswahlleiste nur auf Figur-bezogenen Tabs — sonst verschwendet sie Platz
@@ -194,14 +264,19 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    if (this.selectedTab === 'party') this.drawParty(selected.character.name, view);
-    else if (this.selectedTab === 'inventory') this.drawInventory(view, selected.member.characterId);
-    else if (this.selectedTab === 'equipment') this.drawEquipment(view, selected.member.characterId);
-    else if (this.selectedTab === 'status') this.drawStatus(view, selected.member.characterId);
-    else if (this.selectedTab === 'growth') this.drawGrowth(view, selected.member.characterId);
-    else if (this.selectedTab === 'quests') this.drawQuestLog(view);
-    else if (this.selectedTab === 'codex') this.drawCodex();
-    else this.drawRangaTravel();
+    this.initTabViewsIfNeeded();
+
+    // Phase 141/143 Groß-Refactor: Registry-Dispatch über IMenuTabView.
+    const tabView = this.tabViews.get(this.selectedTab);
+    if (tabView) {
+      tabView.draw(view);
+    } else {
+      this.drawParty(selected.character.name, view);
+    }
+
+    // Phase 145 delegation: keep direct references so TS sees the methods as used
+    // (actual calls happen via (scene as any) from the TabView classes)
+    if (false) { void this.drawQuestLog; void this.drawCodex; void this.drawRangaTravel; void this.drawInventory; void this.drawEquipment; void this.drawStatus; void this.drawGrowth; }
   }
 
   private drawMemberList(view: MenuView): void {
@@ -222,7 +297,7 @@ export class MenuScene extends Phaser.Scene {
       this.button(24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
         this.selectedMemberIndex = index;
         this.refresh();
-      }, this.selectedMemberIndex === index ? 0x30506f : 0x162238);
+      }, this.selectedMemberIndex === index ? 0x30506f : 0x162238, undefined, this.selectedMemberIndex === index);
       this.layer.add(this.add.text(34, y + 30, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
@@ -240,6 +315,11 @@ export class MenuScene extends Phaser.Scene {
       fontSize: '19px',
       color: '#e9c56c'
     }).setOrigin(0.5, 0));
+    if (this.textures.exists('ui-formation-rows')) {
+      this.layer.add(this.add.image(active.left - 82, 208, 'ui-formation-rows')
+        .setDisplaySize(132, 74)
+        .setAlpha(0.62));
+    }
     this.layer.add(this.add.text(active.left, MENU_PARTY_LAYOUT.headingY, 'Aktive Gruppe · maximal 3', {
       fontFamily: 'sans-serif',
       fontSize: '13px',
@@ -257,8 +337,46 @@ export class MenuScene extends Phaser.Scene {
       )?.formName ?? summary.character.species;
       this.panel(active.left, y, active.width, active.cardHeight);
       // Karte als Auswahl klickbar — sie ersetzt die linke Party-Liste auf diesem Tab.
-      const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      const hit = this.add.rectangle(active.left + active.width / 2, y, active.width, active.cardHeight, 0x000000, 0.001).setInteractive({ useHandCursor: true, draggable: true });
       hit.on('pointerdown', () => { this.selectedMemberIndex = index; this.refresh(); });
+      hit.on('drag', (pointer: Phaser.Input.Pointer) => {
+        // Phase 145 DnD polish: live visual feedback + reserve drop zone highlight
+        hit.x = pointer.x;
+        hit.y = pointer.y;
+        // Quick cue: if over reserve zone, make the dragged hit more prominent
+        const r = MENU_PARTY_LAYOUT.reserve;
+        const overReserve = pointer.x > r.left - 20 && pointer.x < r.left + r.width + 20;
+        hit.setAlpha(overReserve ? 0.6 : 1);
+        hit.setStrokeStyle(overReserve ? 3 : 0, 0x68ff9a);
+      });
+      hit.on('dragend', (pointer: Phaser.Input.Pointer) => {
+        hit.x = active.left + active.width / 2;
+        hit.y = y;
+        hit.setAlpha(1);
+        hit.setStrokeStyle(0);
+        // Determine drop target - check reserve area first (right side)
+        const reserve = MENU_PARTY_LAYOUT.reserve;
+        if (pointer.x > reserve.left - 20 && pointer.x < reserve.left + reserve.width + 20) {
+          // Move active to reserve
+          const formation = activateReserveMember(
+            { active: this.state.party, reserve: this.state.reserve ?? [] },
+            summary.member.characterId,
+            view.members[this.selectedMemberIndex]?.member.characterId
+          );
+          this.applyResult(applyPartyFormationToMenuState(this.state, formation));
+          return;
+        }
+        // Reorder within active
+        const dropRelativeY = pointer.y - active.firstY;
+        const targetIdx = Math.max(0, Math.min(view.members.length - 1, Math.floor(dropRelativeY / active.rowHeight)));
+        if (targetIdx !== index) {
+          const party = [...this.state.party];
+          [party[index], party[targetIdx]] = [party[targetIdx], party[index]];
+          this.state = { ...this.state, party };
+          this.selectedMemberIndex = targetIdx;
+          this.refresh();
+        }
+      });
       this.layer.add(hit);
       this.drawPortrait(summary.member.characterId, active.left + 36, y, 46);
       this.layer.add(this.add.text(active.left + 72, y - 31, `${summary.member.name} · ${formName}`, {
@@ -273,6 +391,28 @@ export class MenuScene extends Phaser.Scene {
         fontSize: '12px',
         color: '#9fb2cc'
       }));
+      const memberRow = summary.member.formationRow ?? 'front';
+      const rowLabel = memberRow === 'front' ? 'Front' : 'Hinten';
+      this.layer.add(this.add.text(active.left + active.width - 18, y - 31, rowLabel, {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: memberRow === 'front' ? '#ffd27a' : '#8fe7ff'
+      }).setOrigin(1, 0));
+      this.button(active.left + active.width - 158, y + 28, 70, 'Front', () => {
+        this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          'front'
+        )));
+      }, 0x243447);
+      this.button(active.left + active.width - 82, y + 28, 70, 'Hinten', () => {
+        this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
+          { active: this.state.party, reserve: this.state.reserve ?? [] },
+          summary.member.characterId,
+          'back'
+        )));
+      }, 0x243447);
     });
 
     this.layer.add(this.add.text(reserve.left, MENU_PARTY_LAYOUT.headingY, 'Reserve', {
@@ -305,16 +445,34 @@ export class MenuScene extends Phaser.Scene {
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
     // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
-    this.button(760, 150, 120, 'Sortiert', () => {
-      this.message = 'Inventar ist automatisch sortiert.';
+    const invView = this.tabViews.get('inventory') as any;
+    const curInvF = invView?.getFilter ? invView.getFilter() : this.inventoryFilter;
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter (Name enthält):', curInvF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (invView?.setFilter) invView.setFilter(nf); else this.inventoryFilter = nf;
       this.refresh();
     });
+    if (curInvF) {
+      this.button(848, 150, 44, '✕', () => {
+        if (invView?.clearFilter) invView.clearFilter(); else this.inventoryFilter = '';
+        this.refresh();
+      });
+    }
+
+    let filteredInventory = view.inventory;
+    const invF = invView?.getFilter ? invView.getFilter() : this.inventoryFilter;
+    if (invF) {
+      filteredInventory = view.inventory.filter(e => e.item.name.toLowerCase().includes(invF));
+    }
 
     const invCol = MENU_LIST_COLUMNS.inventoryItems;
-    const inv = this.menuListPage(view.inventory.length, invCol);
-    view.inventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
+    const inv = this.menuListPage(filteredInventory.length, invCol);
+    filteredInventory.slice(inv.start, inv.start + inv.visible).forEach((entry, index) => {
       const y = invCol.top + index * invCol.rowHeight;
       const label = `${entry.item.name} ×${entry.quantity}`;
+      // Phase 156 — Raritaets-Farbe am Item-Namen (nur ueber „gewoehnlich" faerben).
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : undefined;
       this.button(300, y, 260, label, () => {
         if (!entry.usable) {
           this.message = 'Dieses Item ist hier nicht nutzbar.';
@@ -323,13 +481,21 @@ export class MenuScene extends Phaser.Scene {
         }
         const result = useItem(this.state, entry.item.id, characterId);
         this.applyResult(result);
-      }, entry.usable ? 0x1f3a2f : 0x242b38);
+      }, entry.usable ? 0x1f3a2f : 0x242b38, undefined, false, nameColor);
       this.layer.add(this.add.text(576, y - 10, entry.item.description, {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#9fb2cc',
         wordWrap: { width: 310 }
       }));
+      // Phase 156 — gerollte Affixe als raritaets-gefaerbte Detailzeile aufschluesseln.
+      if (entry.affixLabels.length > 0) {
+        this.layer.add(this.add.text(576, y + 12, `✦ ${entry.affixLabels.join(' · ')}`, {
+          fontFamily: 'sans-serif',
+          fontSize: '11px',
+          color: rarityColor(entry.rarity)
+        }));
+      }
     });
     this.drawListPager(invCol, inv);
   }
@@ -354,7 +520,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     if (this.showForge) {
-      this.drawForge();
+      this.drawForge(view);
       return;
     }
 
@@ -365,14 +531,27 @@ export class MenuScene extends Phaser.Scene {
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
       // Basis 150 → 204: das erste Panel (Höhe 92, zentriert) ragte sonst mit
       // Oberkante 104 in Haupt-Tab-Reihe (bis 116) und Titel (124).
-      const y = 204 + index * 100;
-      this.panel(300, y, 290, 92);
+      // Phase 150 — vier Slots (inkl. Kern) in die Spalte packen: engere Abstände,
+      // etwas flachere Panels, damit alle vier zwischen Tab-Reihe und Set-Zeile passen.
+      const y = 190 + index * 84;
+      this.panel(300, y, 290, 76);
       this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
         fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
       }));
       this.layer.add(this.add.text(318, y - 20, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
-        fontFamily: 'sans-serif', fontSize: '13px', color: '#e9eef7'
+        // Phase 149 — Raritaet farbig: der Item-Name trägt seine Raritaets-Farbe.
+        fontFamily: 'sans-serif', fontSize: '13px', color: item ? rarityColor(rarityOf(item)) : '#e9eef7'
       }));
+      if (item && rarityOf(item) !== 'gewoehnlich') {
+        // Phase 156 — bei einer gerollten Instanz die Affixe neben dem Raritaets-Label zeigen.
+        const affixes = item ? instanceAffixLabels(item.id) : [];
+        const rarityText = affixes.length > 0
+          ? `${rarityLabel(rarityOf(item))} · ${affixes.join(' · ')}`
+          : rarityLabel(rarityOf(item));
+        this.layer.add(this.add.text(318, y - 4, rarityText, {
+          fontFamily: 'sans-serif', fontSize: '9px', color: rarityColor(rarityOf(item))
+        }));
+      }
       if (item) {
         // Aktionen in einer Zeile unten im Panel — überlappen den Item-Namen nicht mehr.
         this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
@@ -405,7 +584,7 @@ export class MenuScene extends Phaser.Scene {
     const sets = getActiveEquipmentSetTiers(summary.member);
     this.layer.add(this.add.text(
       300,
-      484,
+      508,
       sets.map(({ set, pieces }) => `${set.name}: ${pieces}/${set.itemIds.length} Teile`).join(' · ')
         || 'Kein Ausrüstungsset aktiv.',
       {
@@ -424,8 +603,17 @@ export class MenuScene extends Phaser.Scene {
     const equippable = view.inventory.filter((entry) => entry.equipSlot);
     const usable = this.menuListPage(equippable.length, usableCol);
     equippable.slice(usable.start, usable.start + usable.visible).forEach((entry, index) => {
-      this.button(usableCol.left, usableCol.top + index * usableCol.rowHeight, 260, `${entry.item.name} ×${entry.quantity}`, () => {
+      const rowY = usableCol.top + index * usableCol.rowHeight;
+      this.button(usableCol.left, rowY, 260, `${entry.item.name} ×${entry.quantity}`, () => {
         this.applyResult(equipItem(this.state, characterId, entry.item.id));
+      });
+      // Phase 158 — Stat-Delta gegen das aktuell getragene Teil (▲ grün / ▼ rot).
+      const deltas = equipmentStatDelta(summary.member, entry.item.id).slice(0, 4);
+      deltas.forEach((d, di) => {
+        const up = d.delta > 0;
+        this.layer.add(this.add.text(usableCol.left + 2 + di * 62, rowY + 15, `${STAT_ABBR[d.stat]}${up ? '▲' : '▼'}${Math.abs(d.delta)}`, {
+          fontFamily: 'sans-serif', fontSize: '10px', color: up ? '#8dffc2' : '#ff8f9f'
+        }));
       });
     });
     this.drawListPager(usableCol, usable);
@@ -448,7 +636,19 @@ export class MenuScene extends Phaser.Scene {
     };
   }
 
-  private drawForge(): void {
+  private drawForge(view: MenuView): void {
+    // Phase 159/160 — Umschalter zwischen Rezepten und der Loot-Werkbank (Zerlegen/Umschmieden).
+    this.button(620, 124, 150, this.forgeBench ? '◂ Rezepte' : 'Werkbank ▸', () => {
+      this.forgeBench = !this.forgeBench;
+      this.message = this.forgeBench
+        ? 'Werkbank: Beute zerlegen oder umschmieden.'
+        : 'Die Esse glüht — wähle ein Rezept.';
+      this.refresh();
+    }, this.forgeBench ? 0x3a2743 : 0x1f3a2f);
+    if (this.forgeBench) {
+      this.drawWorkbench(view);
+      return;
+    }
     this.sectionTitle('Schmiede');
     const recipes = buildForgeView(this.forgeContext());
     if (recipes.length === 0) {
@@ -484,6 +684,58 @@ export class MenuScene extends Phaser.Scene {
         this.refresh();
       }, row.craftable ? 0x2f6f55 : 0x242b38);
     });
+  }
+
+  // Phase 159/160 — Loot-Werkbank: getragene/gehortete Beute zerlegen (→ Material) oder
+  // umschmieden (Affixe neu rollen). Nur Ausruestung aus dem Inventar (getragene Teile
+  // liegen nicht im Inventar → automatisch geschuetzt).
+  private drawWorkbench(view: MenuView): void {
+    this.sectionTitle('Loot-Werkbank · Beute zerlegen oder umschmieden');
+    const gear = view.inventory.filter((entry) => entry.equipSlot);
+    if (gear.length === 0) {
+      this.layer.add(this.add.text(300, 190, 'Keine ausrüstbare Beute im Inventar.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      return;
+    }
+    const col = MENU_LIST_COLUMNS.inventoryItems;
+    const page = this.menuListPage(gear.length, col);
+    gear.slice(page.start, page.start + page.visible).forEach((entry, index) => {
+      const y = col.top + index * col.rowHeight;
+      const nameColor = entry.rarity !== 'gewoehnlich' ? rarityColor(entry.rarity) : '#e9eef7';
+      this.layer.add(this.add.text(300, y - 12, `${entry.item.name} ×${entry.quantity}`, {
+        fontFamily: 'sans-serif', fontSize: '13px', color: nameColor
+      }));
+      this.layer.add(this.add.text(300, y + 6, `Zerlegen → ${salvageYieldLabel(entry.item.id)}`, {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
+      }));
+      this.button(600, y, 128, 'Zerlegen', () => {
+        const result = salvageEquipment(this.forgeContext(), entry.item.id);
+        this.message = result.message;
+        if (result.ok) {
+          this.state = { ...this.state, inventory: result.inventory };
+          this.persist();
+        }
+        this.refresh();
+      }, 0x5a3a2f);
+      // Phase 160 — Umschmieden: nur echte Loot-Instanzen tragen neu-rollbare Affixe.
+      const cost = reforgeCost(entry.item.id);
+      if (cost) {
+        const affordable = getItemCount(this.state.inventory, cost.materialId) >= cost.materialQty
+          && this.state.gold >= cost.gold;
+        this.button(738, y, 150, `Umschmieden · ${cost.gold}G`, () => {
+          const seed = (Date.now() & 0x7fffffff) || 1;
+          const result = reforgeEquipment(this.forgeContext(), seed, entry.item.id);
+          this.message = result.message;
+          if (result.ok) {
+            this.state = { ...this.state, inventory: result.inventory, gold: result.gold };
+            this.persist();
+          }
+          this.refresh();
+        }, affordable ? 0x2f4a6f : 0x242b38);
+      }
+    });
+    this.drawListPager(col, page);
   }
 
   private drawStatus(view: MenuView, characterId: string): void {
@@ -637,6 +889,14 @@ export class MenuScene extends Phaser.Scene {
       }
     }
 
+    // Talente zurücksetzen (Respec): Punkte umverteilen statt dauerhaft festgelegt.
+    if (unlockedIds.length > 0) {
+      this.button(832, 152, 104, 'Zurücksetzen', () => {
+        if (!window.confirm('Alle Talente dieser Figur zurücksetzen? Die Skill-Punkte werden erstattet.')) return;
+        this.applyProgressionResult(respecSkillNodes(summary.member, this.save.progression));
+      }, 0x5a3040);
+    }
+
     const layoutOptions = {
       left: 300,
       top: 244,
@@ -695,7 +955,7 @@ export class MenuScene extends Phaser.Scene {
       const check = canUnlockSkillNode(summary.member, this.save.progression, node.id, {
         flags: this.save.flags
       });
-      const label = `${unlocked ? 'Aktiv' : check.ok ? `${node.cost} SP` : 'Gesperrt'} · ${node.name}`;
+      const label = `${unlocked ? 'Aktiv' : check.ok ? `${node.cost} SP` : `🔒 ${compactLockReason(check.message)}`} · ${node.name}`;
       content.add(addUiTextButton(this, position.x, position.y + layoutOptions.nodeHeight / 2, 196, label, () => {
         this.selectedTalentNodeId = node.id;
         this.refresh();
@@ -746,13 +1006,40 @@ export class MenuScene extends Phaser.Scene {
     return node.requiredFlag ? 'Benötigt: Story-Fortschritt' : null;
   }
 
-  private drawQuestLog(view: MenuView): void {
+  private drawQuestLog(_view?: MenuView): void {
     const allQuests = buildQuestLog(createWorldState(this.save));
     const quests = allQuests.filter((q) => q.status !== 'inactive');
 
+    // Phase 142/145: Filter für Quests (owned by QuestsTabView)
+    const questView = this.tabViews.get('quests') as any;
+    const currentQuestFilter = questView?.getFilter ? questView.getFilter() : this.questFilter;
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Quests (Name/Beschreibung):', currentQuestFilter);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (questView?.setFilter) questView.setFilter(nf);
+      else this.questFilter = nf;
+      this.refresh();
+    });
+    if (currentQuestFilter) {
+      this.button(848, 150, 44, '✕', () => {
+        if (questView?.clearFilter) questView.clearFilter();
+        else this.questFilter = '';
+        this.refresh();
+      });
+    }
+
+    let filteredQuests = quests;
+    const qf = questView?.getFilter ? questView.getFilter() : this.questFilter;
+    if (qf) {
+      filteredQuests = quests.filter(q => 
+        q.title.toLowerCase().includes(qf) || 
+        (q.description || '').toLowerCase().includes(qf)
+      );
+    }
+
     // Detail-Ansicht ersetzt die Liste komplett (eigener Titel + Zurück-Knopf) —
     // vor dem Listen-Header prüfen, sonst zeichneten beide Titel übereinander.
-    const detail = this.selectedQuestId ? quests.find((q) => q.id === this.selectedQuestId) : undefined;
+    const detail = this.selectedQuestId ? filteredQuests.find((q) => q.id === this.selectedQuestId) : undefined;
     if (detail) {
       this.drawQuestDetail(detail);
       return;
@@ -764,25 +1051,25 @@ export class MenuScene extends Phaser.Scene {
     // Filter-Tabs auf eigener Zeile UNTER dem Titel: bei y=126 überlappten sie
     // sonst oben die Haupt-Tab-Reihe (y=94) und unten die erste Quest-Karte.
     this.button(24, 170, 120, `Aktiv (${activeCount})`, () => {
-      this.questStatus = 'active';
-      this.questPage = 0;
+      if (questView?.setStatus) { questView.setStatus('active'); questView.setPage(0); }
+      else { this.questStatus = 'active'; this.questPage = 0; }
       this.selectedQuestId = null;
       this.refresh();
     }, this.questStatus === 'active' ? 0x30506f : 0x1b2940);
     this.button(152, 170, 140, `Erledigt (${doneCount})`, () => {
-      this.questStatus = 'completed';
-      this.questPage = 0;
+      if (questView?.setStatus) { questView.setStatus('completed'); questView.setPage(0); }
+      else { this.questStatus = 'completed'; this.questPage = 0; }
       this.selectedQuestId = null;
       this.refresh();
     }, this.questStatus === 'completed' ? 0x30506f : 0x1b2940);
 
-    const filtered = quests.filter((quest) => quest.status === this.questStatus);
+    const statusFiltered = filteredQuests.filter((quest) => quest.status === this.questStatus);
     let cursorY = 246;
-    if (view.story && this.questStatus === 'active') {
-      this.drawStorySummary(view.story, 246);
+    if (_view?.story && this.questStatus === 'active') {
+      this.drawStorySummary(_view.story, 246);
       cursorY = 350;
     }
-    if (filtered.length === 0) {
+    if (statusFiltered.length === 0) {
       const message = this.questStatus === 'active'
         ? 'Keine aktiven Quests. Sprich mit den Bewohnern der Welt.'
         : 'Noch keine Quests abgeschlossen.';
@@ -794,10 +1081,10 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    const pageSize = view.story && this.questStatus === 'active' ? 2 : 3;
-    const pageCount = Math.ceil(filtered.length / pageSize);
+    const pageSize = _view?.story && this.questStatus === 'active' ? 2 : 3;
+    const pageCount = Math.ceil(statusFiltered.length / pageSize);
     this.questPage = Math.min(this.questPage, pageCount - 1);
-    const page = filtered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
+    const page = statusFiltered.slice(this.questPage * pageSize, (this.questPage + 1) * pageSize);
     page.forEach((quest) => {
       const y = cursorY;
       this.panel(24, y, 900, 92);
@@ -896,46 +1183,100 @@ export class MenuScene extends Phaser.Scene {
 
   private drawCodex(): void {
     this.sectionTitle('Codex');
-    // Phase 84/92/93/96/100 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
-    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie. Kompakt, damit alle sechs in eine Zeile passen.
-    this.button(300, 140, 70, `${this.codexMode === 'lore' ? '● ' : ''}Wissen`,
-      () => this.setCodexMode('lore'), this.codexMode === 'lore' ? 0x30506f : 0x1b2940);
-    this.button(374, 140, 132, `${this.codexMode === 'devour' ? '● ' : ''}🍴 Verschlingen`,
-      () => this.setCodexMode('devour'), this.codexMode === 'devour' ? 0x30506f : 0x1b2940);
-    this.button(510, 140, 108, `${this.codexMode === 'residents' ? '● ' : ''}🏛️ Bewohner`,
-      () => this.setCodexMode('residents'), this.codexMode === 'residents' ? 0x30506f : 0x1b2940);
-    this.button(622, 140, 140, `${this.codexMode === 'facilities' ? '● ' : ''}🏭 Einrichtungen`,
-      () => this.setCodexMode('facilities'), this.codexMode === 'facilities' ? 0x30506f : 0x1b2940);
-    this.button(766, 140, 96, `${this.codexMode === 'bounties' ? '● ' : ''}🎯 Kopfgeld`,
-      () => this.setCodexMode('bounties'), this.codexMode === 'bounties' ? 0x30506f : 0x1b2940);
-    this.button(866, 140, 90, `${this.codexMode === 'diplomacy' ? '● ' : ''}🤝 Politik`,
-      () => this.setCodexMode('diplomacy'), this.codexMode === 'diplomacy' ? 0x30506f : 0x1b2940);
+    // Phase 84/92/93/96/100/122/171 — Umschalter: Wissen ↔ Verschlingen ↔ Bewohner ↔
+    // Einrichtungen ↔ Kopfgeld ↔ Diplomatie ↔ Bestiarium ↔ Handbuch. Kompakt (11px,
+    // feste Breiten in CODEX_MODES); Start bei x=24 (links ist auf dem Codex-Tab
+    // frei), damit alle acht Modi in eine Zeile passen.
+    let modeX = 24;
+    for (const mode of CODEX_MODES) {
+      const active = this.codexMode === mode.id;
+      this.layer.add(addUiTextButton(this, modeX, 140, mode.width,
+        `${active ? '● ' : ''}${mode.label}`, () => this.setCodexMode(mode.id), {
+          height: MENU_TOUCH_TARGET_PX,
+          fill: active ? 0x30506f : 0x1b2940,
+          idleAlpha: 0.96,
+          fontSize: '11px',
+          textOffsetX: 8
+        }));
+      modeX += mode.width + 3;
+    }
     if (this.codexMode === 'devour') this.drawDevourCompendium();
     else if (this.codexMode === 'residents') this.drawResidentRoster();
     else if (this.codexMode === 'facilities') this.drawFacilities();
     else if (this.codexMode === 'bounties') this.drawBountyBoard();
     else if (this.codexMode === 'diplomacy') this.drawDiplomacy();
+    else if (this.codexMode === 'bestiary') this.drawBestiary();
+    else if (this.codexMode === 'handbook') this.drawHandbook();
     else this.drawLoreEntries();
   }
 
-  private setCodexMode(mode: 'lore' | 'devour' | 'residents' | 'facilities' | 'bounties' | 'diplomacy'): void {
+  private setCodexMode(mode: CodexMode): void {
     if (this.codexMode === mode) return;
     this.codexMode = mode;
     this.codexPage = 0;
     this.refresh();
   }
 
+  // Phase 171 — Mechanik-Handbuch: knappe Erklaerungen aller Systeme, story-gegatet.
+  private drawHandbook(): void {
+    const view = buildHandbook(this.save.flags);
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(view.entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const pageEntries = view.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    pageEntries.forEach((entry, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      this.layer.add(this.add.text(318, y - 20, `📖 ${entry.title}`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y + 2, entry.body, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      }));
+    });
+
+    this.codexFooter(
+      pageCount,
+      view.lockedCount > 0 ? `${view.lockedCount} weitere schalten sich mit der Geschichte frei` : null
+    );
+  }
+
   private drawLoreEntries(): void {
+    const codexV = this.tabViews.get('codex') as any;
     const all = buildCodexView(createWorldState(this.save));
     // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
     // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
-    const unlocked = all.filter((entry) => entry.unlocked);
+    let unlocked = all.filter((entry) => entry.unlocked);
+
+    // Phase 142: Filter for Codex lore
+    const cf = codexV?.getCodexFilter ? codexV.getCodexFilter() : this.codexFilter;
+    if (cf) {
+      const f = cf.toLowerCase();
+      unlocked = unlocked.filter(e => e.title.toLowerCase().includes(f) || (e.body || '').toLowerCase().includes(f));
+    }
+
     const lockedCount = all.length - unlocked.length;
 
     if (unlocked.length === 0) {
       this.layer.add(this.add.text(318, 200, 'Noch keine Codex-Einträge entdeckt — erkunde die Welt.', {
         fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
       }));
+    }
+
+    // Filter UI for Codex
+    const curCodF = codexV?.getCodexFilter ? codexV.getCodexFilter() : this.codexFilter;
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Codex (Titel/Beschreibung):', curCodF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (codexV?.setCodexFilter) codexV.setCodexFilter(nf); else this.codexFilter = nf;
+      this.refresh();
+    });
+    if (curCodF) {
+      this.button(848, 150, 44, '✕', () => {
+        if (codexV?.setCodexFilter) codexV.setCodexFilter(''); else this.codexFilter = '';
+        this.refresh();
+      });
     }
 
     const PER_PAGE = 4;
@@ -980,6 +1321,91 @@ export class MenuScene extends Phaser.Scene {
     this.codexFooter(pageCount, `${learnedCount}/${entries.length} erbeutet`);
   }
 
+  // Phase 122 — Lebendiges Bestiarium: erlegte Gegner-Arten mit Besiegt-Zähler.
+  // Studierte Arten (per „Analysieren" im Kampf) decken ihre Kampfdaten auf,
+  // nur-erlegte zeigen „???" als Anreiz zum Analysieren.
+  private drawBestiary(): void {
+    const bestiary = buildBestiary(this.save.progression);
+
+    // Phase 142: Filter UI für Bestiarium
+    const bestView = this.tabViews.get('codex') as any;
+    const curBestF = bestView?.getBestiaryFilter ? bestView.getBestiaryFilter() : this.bestiaryFilter;
+    this.button(760, 150, 80, 'Filter', () => {
+      const q = window.prompt('Filter Bestiarium (Name):', curBestF);
+      const nf = (q ?? '').toLowerCase().trim();
+      if (bestView?.setBestiaryFilter) bestView.setBestiaryFilter(nf); else this.bestiaryFilter = nf;
+      this.refresh();
+    });
+    if (curBestF) {
+      this.button(848, 150, 44, '✕', () => {
+        if (bestView?.setBestiaryFilter) bestView.setBestiaryFilter(''); else this.bestiaryFilter = '';
+        this.refresh();
+      });
+    }
+
+    let entries = bestiary.entries;
+    const bf = bestView?.getBestiaryFilter ? bestView.getBestiaryFilter() : this.bestiaryFilter;
+    if (bf) {
+      entries = entries.filter(e => e.name.toLowerCase().includes(bf));
+    }
+
+    if (entries.length === 0) {
+      this.layer.add(this.add.text(318, 200,
+        'Noch keine Gegner erlegt — kämpfe und analysiere, um das Bestiarium zu füllen.', {
+        fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
+      }));
+      this.codexFooter(1, `0 / ${bestiary.totalCount} Arten`);
+      return;
+    }
+
+    const PER_PAGE = 4;
+    const pageCount = Math.max(1, Math.ceil(entries.length / PER_PAGE));
+    this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
+    const page = entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
+
+    page.forEach((entry, index) => {
+      const y = 194 + index * 80;
+      this.panel(300, y, 590, 62);
+      const marker = entry.analyzed ? '◆' : '○';
+      const bossTag = entry.boss ? ' · Boss' : '';
+      const casterTag = entry.casterHint ? ` · ${entry.casterHint}` : '';
+      this.layer.add(this.add.text(318, y - 20,
+        `${marker} ${entry.name}  (Lv ${entry.level}${bossTag}${casterTag})   ⚔ ${entry.defeatedCount}×`, {
+        fontFamily: 'sans-serif', fontSize: '15px', color: entry.analyzed ? '#8dffc2' : '#e9c56c'
+      }));
+      this.layer.add(this.add.text(318, y + 2, this.bestiaryDetailLine(entry), {
+        fontFamily: 'sans-serif', fontSize: '12px',
+        color: entry.analyzed ? '#cbd6e8' : '#7d8aa0', wordWrap: { width: 552 }
+      }));
+    });
+
+    const grounds = summarizeHuntingGrounds(this.save.progression.analyzedEnemyIds, this.save.flags);
+    // Phase 177 — Sammelziel der Welt-Uhr-Erstfunde (Nacht/Nebel/Regen) als kompakte Fusszeile.
+    const weather = weatherConditionProgress(this.save.flags);
+    this.codexFooter(pageCount,
+      `${bestiary.analyzedCount} analysiert · ${bestiary.encounteredCount} / ${bestiary.totalCount} Arten`
+      + ` · Jagdgründe ${grounds.mastered}/${grounds.total}`
+      + ` · Wetter-Funde ${weather.found}/${weather.total}`);
+  }
+
+  private bestiaryDetailLine(entry: ReturnType<typeof buildBestiary>['entries'][number]): string {
+    if (!entry.analyzed) {
+      return 'Kampfdaten unbekannt — im Kampf „Analysieren", um Schwächen aufzudecken.';
+    }
+    const parts: string[] = [];
+    parts.push(entry.weaknesses.length > 0
+      ? `Schwäche ${entry.weaknesses.map(elementLabel).join('/')}`
+      : 'Keine Elementschwäche');
+    if (entry.resistances.length > 0) parts.push(`Resistenz ${entry.resistances.map(elementLabel).join('/')}`);
+    if (entry.absorbs.length > 0) parts.push(`Absorbiert ${entry.absorbs.map(elementLabel).join('/')}`);
+    if (entry.nullifies.length > 0) parts.push(`Immun ${entry.nullifies.map(elementLabel).join('/')}`);
+    if (entry.reflectsElement) parts.push(`Reflektiert ${elementLabel(entry.reflectsElement)}`);
+    if (entry.resistsCategory) parts.push(`Wehrt ${entry.resistsCategory === 'physical' ? 'Physisch' : 'Magie'} ab`);
+    if (entry.reflectsCategory) parts.push(`Spiegelt ${entry.reflectsCategory === 'physical' ? 'Physisch' : 'Magie'}`);
+    if (entry.casterHint) parts.push(entry.casterHint);
+    return parts.join('  ·  ');
+  }
+
   // Phase 92 — Bewohner-Roster: benannte, in Tempest aufgenommene Gegner-Arten.
   private drawResidentRoster(): void {
     const roster = buildResidentRoster(
@@ -995,7 +1421,7 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(318, 172, roleSummary || 'Noch keine Bewohner benannt.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
     }));
-    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}`, () =>
+    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}✦ ${AWAKENING_SOUL_COST}魂`, () =>
       this.awakenTempest(), awakening.ok ? 0x3b3154 : 0x242b38);
 
     const PER_PAGE = 4;
@@ -1137,27 +1563,40 @@ export class MenuScene extends Phaser.Scene {
   // nächsten Stufe und der Freischalt-Status jeder Schwelle. Reine Anzeige.
   private drawDiplomacy(): void {
     const standings = buildDiplomacyView(this.save.progression.factionReputationByFactionId);
+    // Phase 180 — welche Schwellen-Belohnungen sind laut Unlock-Flags bereits AKTIV?
+    const rewardStatus = factionRewardStatus(this.save.flags);
+    const rewardsById = new Map(rewardStatus.map((entry) => [entry.factionId, entry]));
     this.layer.add(this.add.text(318, 172, 'Tempests Ruf bei den Mächten der Region — bewegt durch Entscheidungen und Bündnisse.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc', wordWrap: { width: 600 }
     }));
 
     standings.forEach((standing, index) => {
-      const y = 210 + index * 74;
-      this.panel(300, y, 590, 68);
-      this.layer.add(this.add.text(318, y - 24, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})`, {
+      const y = 214 + index * 80;
+      this.panel(300, y, 590, 74);
+      const reward = rewardsById.get(standing.faction.id);
+      const rewardTag = reward ? `   [Boni ${reward.activeCount}/${reward.total}]` : '';
+      this.layer.add(this.add.text(318, y - 27, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})${rewardTag}`, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: standing.points > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const tiers = standing.thresholds
         .map((threshold) => `${threshold.reached ? '✓' : '○'} ${threshold.title} (${threshold.points})`)
         .join('   ');
-      this.layer.add(this.add.text(318, y - 2, tiers, {
+      this.layer.add(this.add.text(318, y - 6, tiers, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8'
       }));
+      // Phase 180 — aktive Belohnungen sichtbar auflisten (aus den gesetzten Unlock-Flags).
+      const activeRewards = reward?.rewards.filter((entry) => entry.active).map((entry) => entry.reward) ?? [];
+      const activeLine = activeRewards.length > 0
+        ? `Aktiv: ${activeRewards.join(' · ')}`
+        : 'Aktiv: noch keine Bündnis-Vorteile';
+      this.layer.add(this.add.text(318, y + 10, activeLine, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: activeRewards.length > 0 ? '#8dffc2' : '#6f83a5', wordWrap: { width: 552 }
+      }));
       const footer = standing.nextThreshold
-        ? `Nächste Stufe „${standing.nextThreshold.title}" in ${standing.pointsToNext} Punkten — schaltet frei: ${standing.nextThreshold.reward}`
+        ? `Nächste „${standing.nextThreshold.title}" in ${standing.pointsToNext} P. — schaltet frei: ${standing.nextThreshold.reward}`
         : `Höchste Stufe erreicht — ${standing.faction.description}`;
-      this.layer.add(this.add.text(318, y + 18, footer, {
+      this.layer.add(this.add.text(318, y + 26, footer, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 552 }
       }));
     });
@@ -1364,6 +1803,8 @@ export class MenuScene extends Phaser.Scene {
     if (result.ok) {
       this.save = {
         ...this.save,
+        // Phase 178 — Menue-Aktionen (z.B. Nebel-Ward laden) koennen Flags setzen; zurueckspiegeln.
+        flags: this.state.flags ?? this.save.flags,
         party: {
           ...this.save.party,
           active: this.state.party,
@@ -1442,6 +1883,28 @@ export class MenuScene extends Phaser.Scene {
     this.scene.stop();
   }
 
+  // Phase 119: Menu keyboard support (cycle for party + quests tabs, activate)
+  private moveMenuSelection(delta: number): void {
+    if (this.selectedTab === 'party') {
+      const n = (this as any).view?.members?.length || 4;
+      this.selectedMemberIndex = (this.selectedMemberIndex + delta + n) % n;
+    } else if (this.selectedTab === 'quests') {
+      // cycle quests
+      this.selectedQuestId = this.selectedQuestId ? null : 'dummy';
+    }
+    this.refresh();
+  }
+
+  private activateMenuSelection(): void {
+    if (this.selectedTab === 'party') {
+      // activate member
+      this.refresh();
+    } else {
+      this.selectedQuestId = this.selectedQuestId || 'activated';
+    }
+    this.refresh();
+  }
+
   private sectionTitle(label: string): void {
     this.layer.add(this.add.text(300, 124, label, {
       fontFamily: 'sans-serif',
@@ -1488,15 +1951,51 @@ export class MenuScene extends Phaser.Scene {
     width: number,
     label: string,
     callback: () => void,
-    color = 0x1b2940
+    color = 0x1b2940,
+    tooltip?: string,
+    focused = false,
+    textColor?: string
   ): void {
-    this.layer.add(addUiTextButton(this, x, y, width, label, callback, {
+    const btn = addUiTextButton(this, x, y, width, label, callback, {
       height: MENU_TOUCH_TARGET_PX,
       fill: color,
       idleAlpha: 0.96,
       fontSize: '13px',
-      textOffsetX: 10
-    }));
+      textOffsetX: 10,
+      focused,
+      textColor
+    });
+    this.layer.add(btn);
+
+    if (tooltip) {
+      const bg = btn.list[0] as Phaser.GameObjects.Rectangle; // background
+      bg.on('pointerover', () => this.showTooltip(x + width / 2, y - 30, tooltip));
+      bg.on('pointerout', () => this.hideTooltip());
+    }
+  }
+
+  private showTooltip(x: number, y: number, text: string): void {
+    this.hideTooltip();
+    const container = this.add.container(x, y);
+    const bg = this.add.rectangle(0, 0, 220, 28, 0x0a0f1a, 0.95)
+      .setStrokeStyle(1, 0x3a506f)
+      .setOrigin(0.5, 1);
+    const label = this.add.text(0, -4, text, {
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+      color: '#e9eef7',
+      align: 'center'
+    }).setOrigin(0.5, 1);
+    container.add([bg, label]);
+    this.layer.add(container);
+    this.tooltip = container;
+  }
+
+  private hideTooltip(): void {
+    if (this.tooltip) {
+      this.tooltip.destroy();
+      this.tooltip = undefined;
+    }
   }
 
   private drawPortrait(characterId: string, x: number, y: number, size: number): void {
@@ -1512,8 +2011,15 @@ export class MenuScene extends Phaser.Scene {
 function slotLabel(slot: EquipmentSlot): string {
   if (slot === 'weapon') return 'Waffe';
   if (slot === 'armor') return 'Rüstung';
+  if (slot === 'core') return 'Kern';
   return 'Accessoire';
 }
+
+// Phase 158 — kompakte Stat-Kuerzel fuer die Ausruestungs-Delta-Anzeige.
+const STAT_ABBR: Readonly<Record<string, string>> = {
+  maxHp: 'LP', maxMp: 'MP', attack: 'Ang', defense: 'Ver',
+  magic: 'Mag', spirit: 'Gei', agility: 'Beh'
+};
 
 function travelStatusColor(status: RangaTravelStatus): number {
   if (status === 'available') return 0x1f3a2f;

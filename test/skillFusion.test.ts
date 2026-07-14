@@ -94,6 +94,24 @@ describe('skill-fusion rules', () => {
     expect(isSkillFusionVisible(recipe, ['maelstrom-fang'], { 'story.geld.devoured': true })).toBe(false);
   });
 
+  it('gatet Praedator-Perversion über Shizus Schwur und verbraucht geraubte Skills', () => {
+    const recipe = SKILL_FUSIONS.find((entry) => entry.id === 'fuse-predator-perversion')!;
+    const before = context({
+      learnedSkillIds: ['venom-spit', 'predator-aura', 'great-sage'],
+      magicules: 72,
+      flags: { 'story.shizu.vow': true }
+    });
+
+    expect(isSkillFusionVisible(recipe, before.learnedSkillIds, {})).toBe(false);
+
+    const result = fuseSkill(recipe, before);
+
+    expect(result.ok).toBe(true);
+    expect(result.magicules).toBe(0);
+    expect(result.learnedSkillIds).toContain('predator-perversion');
+    expect(result.learnedSkillIds).not.toContain('venom-spit');
+  });
+
   it('listet nur sichtbare Rezepte in der Ansicht', () => {
     const view = buildSkillFusionView(context({
       learnedSkillIds: ['slime-strike', 'water-jet', 'direwolf-rush', 'predator-aura'],

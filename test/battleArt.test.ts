@@ -29,9 +29,12 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('jura-battlefield').textureKey).toBe(BATTLE_ARENA_TEXTURES['orc-battlefield']);
     expect(battleArenaForMap('lizardman-marsh').textureKey).toBe(BATTLE_ARENA_TEXTURES['lizardman-marsh']);
     expect(battleArenaForMap('spirit-cave').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+    expect(battleArenaForMap('ember-hollow').textureKey).toBe(BATTLE_ARENA_TEXTURES['ember-hollow']);
     expect(battleArenaForMap('milim-clearing').textureKey).toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
     expect(battleArenaForMap('tempest-colosseum').textureKey).toBe(BATTLE_ARENA_TEXTURES['tempest-colosseum']);
-    expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+    expect(battleArenaForMap('ramiris-labyrinth').textureKey).toBe(BATTLE_ARENA_TEXTURES['ramiris-labyrinth']);
+    expect(battleArenaForMap('freedom-academy').textureKey).toBe(BATTLE_ARENA_TEXTURES['freedom-academy']);
+    expect(battleArenaForMap('blumund').textureKey).toBe(BATTLE_ARENA_TEXTURES['blumund']);
   });
 
   it('kann Story-Encounter auf eine spezifische Arena abbilden', () => {
@@ -48,7 +51,11 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('tempest-start', 'ifrit').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
     expect(battleArenaForMap('ramiris-labyrinth', 'magic-colossus').textureKey)
-      .toBe(BATTLE_ARENA_TEXTURES['spirit-cave']);
+      .toBe(BATTLE_ARENA_TEXTURES['ramiris-labyrinth']);
+    for (const encounterId of ['masked-majin-ambush', 'ifrit-boss', 'emberforge-hunt-battle']) {
+      expect(battleArenaForMap('ember-hollow', encounterId).textureKey)
+        .toBe(BATTLE_ARENA_TEXTURES['ember-hollow']);
+    }
     expect(battleArenaForMap('tempest-start', 'milim-arrives').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['milim-arrival']);
     expect(battleArenaForMap('tempest-start', 'arena-gold-wave').textureKey)
@@ -70,9 +77,13 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-orc-battlefield.webp',
       'battle-lizardman-marsh.webp',
       'battle-spirit-cave.webp',
+      'battle-ramiris-labyrinth.webp',
+      'battle-freedom-academy.webp',
+      'battle-blumund.webp',
+      'battle-ember-hollow.webp',
       'battle-milim-arrival.webp',
-      'battle-tempest-colosseum.png',
-      'battle-tempest-invasion.png'
+      'battle-tempest-colosseum.webp',
+      'battle-tempest-invasion.webp'
     ]) {
       expect(preloadSource).toContain(`../assets/backgrounds/${file}`);
     }
