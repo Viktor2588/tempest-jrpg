@@ -395,8 +395,10 @@ test('Band-2-Abschluss zeigt ein einmaliges Kapitel-Meilenstein-Overlay', async 
   await settle(page, 400);
   await expectCanvasContent(page);
 
-  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
-  expect(save.flags['milestone.band-two-complete.shown']).toBe(true);
+  await expect.poll(async () => page.evaluate(() => {
+    const save = JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}');
+    return save.flags?.['milestone.band-two-complete.shown'];
+  })).toBe(true);
   await page.keyboard.press('Space');
   await settle(page, 100);
   await expectCanvasContent(page);
@@ -1487,8 +1489,9 @@ test('Phase 90 — Speicherstände rendern, „Neues Spiel" setzt den Slot aktiv
   await clickGamePoint(page, 630, 274);
   await settle(page, 400);
 
-  const activeSlot = await page.evaluate(() => window.localStorage.getItem('tempest-chronik.activeSlot'));
-  expect(activeSlot).toBe('2');
+  await expect.poll(async () => page.evaluate(() => (
+    window.localStorage.getItem('tempest-chronik.activeSlot')
+  ))).toBe('2');
   const slot2 = await page.evaluate(() => window.localStorage.getItem('tempest-chronik.save.v3.slot2'));
   expect(slot2).not.toBeNull();
   await expectCanvasContent(page); // in der Overworld angekommen
@@ -1596,7 +1599,9 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
 });
 
 async function clickGamePoint(page: Page, x: number, y: number): Promise<void> {
-  const box = await page.locator('canvas').boundingBox();
+  const canvas = page.locator('canvas');
+  await expect(canvas).toHaveAttribute('data-ready', 'true', { timeout: 15_000 });
+  const box = await canvas.boundingBox();
   if (!box) throw new Error('Game canvas not found');
   await page.mouse.click(
     box.x + (x / GAME_WIDTH) * box.width,
