@@ -7,23 +7,9 @@ Status:
 - `[~]` wird bereits in dem genannten Worktree bearbeitet.
 - `[ ]` ist offen und darf gemaess `AGENTS.md` uebernommen werden.
 
-## Naechster Schritt
-
-- [x] Phase 209 — CI-Browser-Smoke stabilisiert
-  - Worktree: `/worktree/tempest-phase-209-ci-smoke`
-  - Letzter `main`-Workflow `29339950032` scheitert trotz gruenem Typecheck und
-    830 Unit-Tests an zwei zeitabhaengigen Playwright-Pruefungen: Band-2-
-    Meilenstein sowie Save-Slot-Aktivierung. `TitleScene` markiert das Canvas
-    nun erst nach vollstaendig aufgebautem Titel als bereit; der gemeinsame
-    Klickhelfer wartet darauf und die beiden Storage-Effekte werden
-    ereignisbasiert gepollt statt nach festen 400 ms gelesen.
-  - Abnahme: Fehler mit 12 CI-parallelen Wiederholungen reproduziert; danach
-    12/12 Regressionen ohne Retry, Typecheck, 830 Unit-Tests, Build und der
-    exakte CI-Smoke mit 74/74 Desktop-/Mobile-Tests ohne Flake bestanden.
-
 ## Laufende Arbeit
 
-- Phase 209 im oben genannten Worktree.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 

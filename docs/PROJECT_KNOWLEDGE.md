@@ -1691,6 +1691,22 @@ test/release.test.ts
   Build sowie Desktop-/Mobile-Chromium-Smoke des echten Duells inklusive
   persistierter Belohnungen und ohne Browserfehler.
 
+### Phase 209 - CI-Browser-Smoke stabilisiert
+
+- Branch/Worktree: `phase-209-ci-smoke` in
+  `/worktree/tempest-phase-209-ci-smoke`.
+- Der fehlgeschlagene `main`-Workflow `29339950032` verlor unter paralleler
+  Software-GL-Last Titelbildschirm-Klicks, weil das Canvas bereits existierte,
+  Phaser aber noch Assets lud. `TitleScene` markiert das Canvas nun erst nach
+  vollstaendig aufgebautem Titel als bereit; der gemeinsame Playwright-
+  Klickhelfer wartet auf dieses Signal. Die asynchronen Milestone- und Slot-
+  Storage-Effekte werden ereignisbasiert gepollt statt nach festen 400 ms
+  abgelesen.
+- Validiert mit einer reproduzierenden 12-fachen CI-Parallelrunde, danach 12/12
+  fokussierten Regressionen ohne Retry, `git diff --check`, Typecheck, 830
+  Unit-Tests, Build und dem exakten CI-Smoke mit 74/74 Desktop-/Mobile-Tests
+  ohne Flake.
+
 ## 14. Change Checklist
 
 Before editing:
