@@ -21,18 +21,6 @@ Worktrees werden strikt pro Phase unter `/worktree/tempest-phase-<nr>-<kurzname>
 
 ## Bugs
 - ~~zu viele punkte Geometrien nach abschluss von quests~~ (GESCHLOSSEN 2026-07-12 nach Live-Browser-Repro: Band-2-Save mit zwei abgeschlossenen Quests geladen, 10 Redraw-Zyklen (Menue auf/zu + Schritte) erzwungen, Frames pixelverglichen — 0,28 % Differenz = reine Idle-Animation, KEINE Marker-Akkumulation. Die sichtbaren Punkte sind gelabelte, beabsichtigte Landmarken/Fundstellen/NPC-Quest-Marker; die Entstoer-Filter aus der Code-Analyse 2026-07-10 greifen. Falls es dem Nutzer um die DICHTE der Marker im Ratsplatz-Cluster geht statt um einen Leak: bitte neue, konkretere Beschreibung.)
-- [ ] Gefaehrten-Benennung: Neu beitretende Figuren duerfen vor ihrer ersten
-  Benennung noch nicht ihren spaeteren Eigennamen tragen. Gobta erscheint zunaechst
-  als „Goblin", Ranga als „Schattenwolf" und die Oger entsprechend nur als Oger/Ogerin;
-  der kanonische Eigenname wird erst im ersten Benennungsdialog vorgeschlagen und nach
-  Bestaetigung dauerhaft verwendet.
-- [ ] Hakurou-Hauptstory-Marker: Hakurou in Tempest braucht ein gut sichtbares
-  Ausrufezeichen, solange seine fuer die Hauptgeschichte notwendige Benennungs-/Dialogaktion
-  offen ist. Ohne Marker wird leicht uebersehen, dass die Hauptstory bei ihm weitergeht.
-- [ ] Overworld-Renderartefakt: Auf der Hauptkarte erscheint ein stoerendes Viereck bei
-  ungefaehr 66 % der Bildschirmbreite/Aufloesung. Exakte Position und betroffene
-  Aufloesung noch per Screenshot reproduzieren; Abnahme: kein Viereck bei Desktop- und
-  Mobile-Smokes.
 
 ## Story-Roadmap (TODO: Story & Events fesselnder machen)
 
@@ -1243,5 +1231,16 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   keine Balance-Aenderung. Provenienz in `ASSETS.md`; Theme-/Preload-Tests gruen,
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
+
+## Fuenfunddreissigste Welle: Plan-Reconciliation nach Parallel-Commit (Plan 2026-07-14)
+
+- [x] Phase 204 — Drei bereits implementierte Bug-Notizen revalidiert
+  (abgeschlossen im isolierten Worktree
+  `/worktree/tempest-phase-204-plan-reconciliation`). Die nach Phasen 196–198
+  erneut committeden offenen Eintraege zu Gefaehrtennamen, Hakurous Storymarker
+  und rundem NPC-Fallback wurden gegen aktuellen Code, Unit-Tests sowie
+  Desktop-/Mobile-Smokes geprueft und aus dem offenen Plan entfernt. 68 fokussierte
+  Unit-Tests ✓, alle sechs fokussierten Browser-Smokes ✓, Typecheck ✓, 817 Unit-Tests ✓
+  und Build ✓.
 
 ## UX- und Welt-Backlog
