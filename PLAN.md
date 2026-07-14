@@ -1232,17 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Sechsundzwanzigste Welle: Die Freiheitsakademie verliert das Raster-Placeholder (Asset-first, Plan 2026-07-14)
-
-Befund: Die bereits verdrahteten Akademie-Tiles sind prozedurale, gleichfoermige
-Fliesen- und Ziegelraster. Sie transportieren weder den warmen Naturstein noch die
-dunklen gotischen Gebaeudekanten des vorhandenen Regionsbanners.
-
-- [x] Phase 195 — Imagegen-Refresh fuer die Freiheitsakademie. Ausschliesslich
-  die beiden bestehenden 128×128-WebP-Tiles durch bannernahe, nahtlose Varianten
-  ersetzen; Keys, Theme-/Preload-Wiring, Fallbackkette und Tests unveraendert
-  wiederverwenden. Abnahme: Provenienz in `ASSETS.md` ✓, Theme-/Preload-Test 6/6 ✓,
-  Typecheck ✓, 814 Unit-Tests inklusive Balance-Harness ✓, Build ✓ und vorhandener
-  Freiheitsakademie-Desktop-Chromium-Smoke inklusive beider Texturen ✓.
-
 ## UX- und Welt-Backlog

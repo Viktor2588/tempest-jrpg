@@ -1513,6 +1513,21 @@ test/release.test.ts
   Balance-Harness, Build und fokussiertem Direwolf-Lichtungs-Desktop-Chromium-Smoke
   inklusive beider separat geladener Texturen.
 
+### Phase 195 - Imagegen-Refresh fuer die Freiheitsakademie-Tiles
+
+- Branch/Worktree: `phase-195-freedom-academy-tiles` in
+  `/worktree/tempest-phase-195-freedom-academy-tiles`.
+- Assets: `tiles/tile-freedom-academy-{floor,wall}.webp`, 128x128, zusammen
+  17,0 KB; per Built-in-Imagegen erzeugt und in `ASSETS.md` dokumentiert. Sie
+  ersetzen die prozeduralen Fliesen-/Ziegelraster durch warmes Natursteinpflaster
+  und eine klar blockierende gotische Schieferdach-/Natursteinkante passend zum
+  vorhandenen Regionsbanner.
+- Bestehende Texture-Keys, Theme-/Preload-Wiring, Fallbackkette und Tests blieben
+  unveraendert; kein neuer Renderpfad und keine neue Abhaengigkeit.
+- Validiert mit `git diff --check`, Theme-/Preload-Test (6/6), Typecheck,
+  814 Unit-Tests inklusive Balance-Harness, Build und vorhandenem
+  Freiheitsakademie-Desktop-Chromium-Smoke inklusive beider geladener Texturen.
+
 ## 14. Change Checklist
 
 Before editing:
