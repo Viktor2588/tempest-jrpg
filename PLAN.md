@@ -1232,4 +1232,14 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Achtundzwanzigste Welle: Hakurou fuehrt sichtbar in der Hauptstory weiter (Bugfix, Plan 2026-07-14)
+
+- [x] Phase 197 — Hakurou-Hauptstory-Marker. Live-Diagnose: Der bestehende
+  datengetriebene NPC-Marker zeigt Hakurou bereits korrekt waehrend der offenen
+  Kijin-Benennung und erlischt mit `story.kijin.named`; kein Produktcode-Sonderfall
+  noetig. Der exakte Story-Uebergang ist nun im Durchspieltest abgesichert und per
+  sichtbarem Desktop-Chromium-Smoke bestaetigt. Abnahme: Story-Test 22/22 ✓,
+  Typecheck ✓, 815 Unit-Tests inklusive Balance-Harness ✓, Build ✓ und fokussierter
+  Hakurou-Desktop-Chromium-Smoke ✓.
+
 ## UX- und Welt-Backlog

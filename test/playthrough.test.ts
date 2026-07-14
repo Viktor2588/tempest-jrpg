@@ -469,6 +469,9 @@ describe('Act-1-Durchspielen (szenentreu)', () => {
     save = talk(save, 'rigurd', 'name-village');
     expect(marker(save, 'rigurd-tempest')).toBe(true);
     expect(marker(save, 'rigurd')).toBe(true); // post-Prolog-Patrouille ist jetzt sichtbar
+    expect(marker(save, 'hakurou-camp')).toBe(true); // Kijin-Benennung ist Hauptstory
+    const afterKijinNaming = talk(save, 'hakurou-camp', 'name-them');
+    expect(marker(afterKijinNaming, 'hakurou-camp')).toBe(false);
 
     save = talk(save, 'rigurd-tempest', 'after-prologue'); // Quest aktiv + awakening
     // Jetzt sind Shuna und Gobta dran; Rigurd wartet auf den vollständigen Rat.
