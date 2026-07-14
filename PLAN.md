@@ -1232,13 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Dreiunddreissigste Welle: Eigene Kampfarena fuer die Freiheitsakademie (Asset-first, Plan 2026-07-14)
-
-- [x] Phase 202 — Freiheitsakademie-Arena (abgeschlossen im isolierten Worktree
-  `/worktree/tempest-phase-202-academy-arena`). Die erreichbaren Geistflammen- und
-  Wiedergänger-Kaempfe auf dem Akademiegelaende fallen bislang auf den Tempest-Hain
-  zurueck. Eine repo-gebundene 16:9-Arena aus vorhandenen Akademie-, Tile- und
-  Gegnerreferenzen nutzt das bestehende Arena-Wiring; Provenienz und Asset-Tests ✓,
-  Typecheck ✓, 817 Unit-Tests ✓, Build ✓ sowie Desktop-/Mobile-Browser-Smoke ✓.
-
 ## UX- und Welt-Backlog
