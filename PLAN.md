@@ -1232,15 +1232,4 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
-## Fuenfunddreissigste Welle: Plan-Reconciliation nach Parallel-Commit (Plan 2026-07-14)
-
-- [x] Phase 204 — Drei bereits implementierte Bug-Notizen revalidiert
-  (abgeschlossen im isolierten Worktree
-  `/worktree/tempest-phase-204-plan-reconciliation`). Die nach Phasen 196–198
-  erneut committeden offenen Eintraege zu Gefaehrtennamen, Hakurous Storymarker
-  und rundem NPC-Fallback wurden gegen aktuellen Code, Unit-Tests sowie
-  Desktop-/Mobile-Smokes geprueft und aus dem offenen Plan entfernt. 68 fokussierte
-  Unit-Tests ✓, alle sechs fokussierten Browser-Smokes ✓, Typecheck ✓, 817 Unit-Tests ✓
-  und Build ✓.
-
 ## UX- und Welt-Backlog

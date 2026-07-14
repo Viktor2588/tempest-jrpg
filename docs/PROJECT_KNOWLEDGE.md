@@ -1644,6 +1644,21 @@ test/release.test.ts
   inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke mit
   geladener Blumund-Arena.
 
+### Phase 204 - Drei bereits implementierte Plan-Bugs revalidiert
+
+- Branch/Worktree: `phase-204-plan-reconciliation` in
+  `/worktree/tempest-phase-204-plan-reconciliation`.
+- Ein paralleler Commit hatte die in Phasen 196–198 bereits erledigten Punkte zu
+  Gefaehrtennamen, Hakurous Hauptstory-Marker und dem rechteckigen NPC-Fallback
+  erneut als offen in `PLAN.md` eingetragen. Aktueller Code und die bestehenden
+  gezielten Tests bestaetigten alle drei Fixes; es war kein Produktcode noetig.
+- Die doppelten offenen Eintraege wurden entfernt. Validiert mit `git diff --check`,
+  68 fokussierten World-/Story-Tests, allen sechs fokussierten Desktop-/Mobile-
+  Chromium-Smokes, Typecheck, 817 Unit-Tests inklusive Balance-Harness und Build.
+- Der erste parallele Browserlauf brachte den Hakurou-Mobile-Smoke beim finalen
+  Screenshot ins 30-Sekunden-Timeout; der isolierte Wiederholungslauf bestand in
+  12,8 Sekunden. Das war Lastkonkurrenz, keine Codeaenderung.
+
 ## 14. Change Checklist
 
 Before editing:
