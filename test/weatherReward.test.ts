@@ -74,15 +74,18 @@ describe('Welt-Uhr: Bedingungsbelohnung (Phase 174)', () => {
     expect(newlyRewardedWeatherConditions(after.flags, again.flags)).toHaveLength(0);
   });
 
-  // Phase 177 — Codex-Sammelziel: reine Ableitung des Erstfund-Fortschritts (Nacht/Nebel/Regen).
-  it('weatherConditionProgress: 0/3 ohne Flags, sichtbare Reihenfolge Nacht→Nebel→Regen', () => {
+  // Phase 177/208 — Codex-Sammelziel: reine Ableitung des Erstfund-Fortschritts
+  // (Nacht/Nebel/Regen + Abendrot/Morgenlicht).
+  it('weatherConditionProgress: 0/5 ohne Flags, sichtbare Reihenfolge Nacht→Nebel→Regen→Abendrot→Morgenlicht', () => {
     const progress = weatherConditionProgress({});
     expect(progress.found).toBe(0);
-    expect(progress.total).toBe(3);
+    expect(progress.total).toBe(5);
     expect(progress.entries.map((e) => e.flag)).toEqual([
       'worldclock.first.night',
       'worldclock.first.fog',
-      'worldclock.first.rain'
+      'worldclock.first.rain',
+      'worldclock.first.dusk',
+      'worldclock.first.dawn'
     ]);
     expect(progress.entries.every((e) => !e.found)).toBe(true);
   });
@@ -97,14 +100,44 @@ describe('Welt-Uhr: Bedingungsbelohnung (Phase 174)', () => {
     expect(progress.entries.find((e) => e.flag === 'worldclock.first.night')?.found).toBe(true);
   });
 
-  it('weatherConditionProgress: alle drei gesetzt → 3/3', () => {
+  it('weatherConditionProgress: alle fünf gesetzt → 5/5', () => {
     const progress = weatherConditionProgress({
       'worldclock.first.night': true,
       'worldclock.first.fog': true,
-      'worldclock.first.rain': true
+      'worldclock.first.rain': true,
+      'worldclock.first.dusk': true,
+      'worldclock.first.dawn': true
     });
-    expect(progress.found).toBe(3);
+    expect(progress.found).toBe(5);
     expect(progress.entries.every((e) => e.found)).toBe(true);
+  });
+
+  // Phase 208 — Daemmerung/Morgen als eigene Erst-Sieg-Bedingungen.
+  it('Abenddämmerung zahlt eigenständig (worldclock.first.dusk)', () => {
+    const rewards = weatherConditionRewards(clock({ timeOfDay: 'dusk' }), {});
+    expect(rewards.map((r) => r.flag)).toEqual(['worldclock.first.dusk']);
+    expect(rewards[0]!.magicules).toBe(8);
+    expect(rewards[0]!.label).toBe('Erster Sieg im Abendrot');
+  });
+
+  it('Morgen zahlt eigenständig (worldclock.first.dawn)', () => {
+    const rewards = weatherConditionRewards(clock({ timeOfDay: 'morning' }), {});
+    expect(rewards.map((r) => r.flag)).toEqual(['worldclock.first.dawn']);
+    expect(rewards[0]!.label).toBe('Erster Sieg im Morgenlicht');
+  });
+
+  it('eine Regennacht-Dämmerung ist unmöglich, aber Regen+Morgen zahlen zugleich', () => {
+    const rewards = weatherConditionRewards(clock({ timeOfDay: 'morning', weather: 'rain' }), {});
+    expect(rewards.map((r) => r.flag).sort()).toEqual([
+      'worldclock.first.dawn',
+      'worldclock.first.rain'
+    ]);
+  });
+
+  it('gesetztes Dämmerungs-Flag wird nicht erneut gezahlt (nicht farmbar)', () => {
+    expect(
+      weatherConditionRewards(clock({ timeOfDay: 'dusk' }), { 'worldclock.first.dusk': true })
+    ).toHaveLength(0);
   });
 
   it('ohne Uhr-Option bleibt der Reward-Pfad unberührt (off-route/Harness)', () => {
