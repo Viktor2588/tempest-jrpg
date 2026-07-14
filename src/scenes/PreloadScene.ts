@@ -57,6 +57,8 @@ import ramirisLabyrinthFloorTileUrl from '../assets/tiles/tile-ramiris-labyrinth
 import ramirisLabyrinthWallTileUrl from '../assets/tiles/tile-ramiris-labyrinth-wall.webp';
 import tempestColosseumFloorTileUrl from '../assets/tiles/tile-tempest-colosseum-floor.webp';
 import tempestColosseumWallTileUrl from '../assets/tiles/tile-tempest-colosseum-wall.webp';
+import direwolfDenFloorTileUrl from '../assets/tiles/tile-direwolf-den-floor.webp';
+import direwolfDenWallTileUrl from '../assets/tiles/tile-direwolf-den-wall.webp';
 import marshFloorTileUrl from '../assets/tiles/tile-marsh-floor.webp';
 import marshWallTileUrl from '../assets/tiles/tile-marsh-wall.webp';
 import highlandsFloorTileUrl from '../assets/tiles/tile-highlands-floor.webp';
@@ -83,6 +85,8 @@ import {
   RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
   TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -240,6 +244,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY, ramirisLabyrinthWallTileUrl);
     this.load.image(TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY, tempestColosseumFloorTileUrl);
     this.load.image(TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY, tempestColosseumWallTileUrl);
+    this.load.image(DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY, direwolfDenFloorTileUrl);
+    this.load.image(DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY, direwolfDenWallTileUrl);
     this.load.image(MARSH_FLOOR_TILE_TEXTURE_KEY, marshFloorTileUrl);
     this.load.image(MARSH_WALL_TILE_TEXTURE_KEY, marshWallTileUrl);
     this.load.image(HIGHLANDS_FLOOR_TILE_TEXTURE_KEY, highlandsFloorTileUrl);
@@ -416,6 +422,8 @@ export class PreloadScene extends Phaser.Scene {
       RAMIRIS_LABYRINTH_WALL_TILE_TEXTURE_KEY,
       TEMPEST_COLOSSEUM_FLOOR_TILE_TEXTURE_KEY,
       TEMPEST_COLOSSEUM_WALL_TILE_TEXTURE_KEY,
+      DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+      DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
       MARSH_FLOOR_TILE_TEXTURE_KEY,
       MARSH_WALL_TILE_TEXTURE_KEY,
       HIGHLANDS_FLOOR_TILE_TEXTURE_KEY,

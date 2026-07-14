@@ -4,6 +4,8 @@ import {
   BLUMUND_WALL_TILE_TEXTURE_KEY,
   DEFAULT_FLOOR_TILE_TEXTURE_KEY,
   DEFAULT_WALL_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+  DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
   DWARGON_FLOOR_TILE_TEXTURE_KEY,
   DWARGON_WALL_TILE_TEXTURE_KEY,
   EMBER_HOLLOW_FLOOR_TILE_TEXTURE_KEY,
@@ -91,6 +93,16 @@ describe('Overworld-Regionstiles', () => {
       DEFAULT_WALL_TILE_TEXTURE_KEY,
       'ph-tile-wall'
     ]);
+    expect(overworldTileTextureCandidates('direwolf-den', false)).toEqual([
+      DIREWOLF_DEN_FLOOR_TILE_TEXTURE_KEY,
+      DEFAULT_FLOOR_TILE_TEXTURE_KEY,
+      'ph-tile-grass'
+    ]);
+    expect(overworldTileTextureCandidates('direwolf-den', true)).toEqual([
+      DIREWOLF_DEN_WALL_TILE_TEXTURE_KEY,
+      DEFAULT_WALL_TILE_TEXTURE_KEY,
+      'ph-tile-wall'
+    ]);
     expect(overworldTileTextureCandidates('tempest-start', false)).toEqual([
       LIZARDMAN_MARSH_FLOOR_TILE_TEXTURE_KEY,
       DEFAULT_FLOOR_TILE_TEXTURE_KEY,
@@ -132,6 +144,8 @@ describe('Overworld-Regionstiles', () => {
       'tile-ramiris-labyrinth-wall.webp',
       'tile-tempest-colosseum-floor.webp',
       'tile-tempest-colosseum-wall.webp',
+      'tile-direwolf-den-floor.webp',
+      'tile-direwolf-den-wall.webp',
       'tile-marsh-floor.webp',
       'tile-marsh-wall.webp',
       'tile-highlands-floor.webp',

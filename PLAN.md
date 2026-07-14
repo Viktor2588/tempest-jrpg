@@ -1232,4 +1232,18 @@ noch zum ersten Goblin-Dorf und nehmen dem fruehen Storyort seine eigene Identit
   Typecheck ✓, 808 Unit-Tests inklusive Balance-Harness ✓, Build ✓, sichtbarer
   Ranga-Reise-Desktop-Smoke inklusive beider geladener Goblin-Dorf-Texturen ✓.
 
+## Fuenfundzwanzigste Welle: Die Direwolf-Lichtung verliert das Sumpf-Theme (Asset-first, Plan 2026-07-13)
+
+Befund: `direwolf-den` verwendet im Overworld aktuell direkt die Boden-/Wandtiles
+des Echsen-Sumpfs. Wasser, Schilf und Mangroven widersprechen der trockenen,
+mondhellen Bosslichtung aus Regionsbanner und eigener Kampfarena.
+
+- [x] Phase 190 — Eigene Overworld-Tiles fuer die Direwolf-Lichtung. Zwei
+  kompakte 128×128-WebP-Assets fuer kuehle Walderde und eine klar blockierende
+  Kiefernwurzel-/Felskante; Verdrahtung ueber das bestehende Theme-/Preload-Wiring
+  mit unveraenderter Fallbackkette. Abnahme: Provenienz in `ASSETS.md` ✓, Mapping-/
+  Preload-Test 5/5 ✓, Typecheck ✓, 809 Unit-Tests inklusive Balance-Harness ✓,
+  Build ✓ und sichtbarer Direwolf-Lichtungs-Desktop-Chromium-Smoke inklusive
+  beider separat geladener Texturen ✓.
+
 ## UX- und Welt-Backlog
