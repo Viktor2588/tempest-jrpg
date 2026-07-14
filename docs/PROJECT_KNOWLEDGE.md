@@ -1675,6 +1675,22 @@ test/release.test.ts
   Desktop-/Mobile-Chromium-Smoke am echten Sumpfgrenz-Deeskalationsdialog
   inklusive geladenem Portrait und ohne Browserfehler.
 
+### Phase 113 - Milim-Kampf repariert und belohnt
+
+- Branch/Worktree: `phase-113-milim-fight` in
+  `/worktree/tempest-phase-113-milim-fight`; vor Abschluss auf den aktuellen
+  `main`-Stand gebracht.
+- Das optionale Tempest-Duell wird erst nach dem Honig-Buendnis
+  (`story.milim.met`) freigeschaltet statt schon nach Ifrit. Milims unveraenderter
+  Level-20-Kampf zahlt nun 1000 EP, 300 Gold, Magisteel und Vollheiltrank; Rimuru
+  lernt beim ersten Sieg idempotent Drago Nova.
+- Das vorhandene `ui/milim-fight-banner.webp` ist mit dokumentierter xAI-Imagine-
+  Provenienz repo-gebunden und erscheint ausschliesslich im Milim-Siegspanel.
+- Validiert mit `git diff --check`, 32 fokussierten Reward-/Asset-/Integritaets-
+  Tests, Balance-Harness fuer Predator/Sage/Mimik, Typecheck, 820 Unit-Tests,
+  Build sowie Desktop-/Mobile-Chromium-Smoke des echten Duells inklusive
+  persistierter Belohnungen und ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
