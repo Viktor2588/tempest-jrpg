@@ -617,6 +617,32 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
   expect(browserErrors).toEqual([]);
 });
 
+test('Ratsversammlung nutzt Rigurds Weltportrait und öffnet den echten Ratsdialog', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 3, y: 10, facing: 'down' }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await expectCanvasContent(page);
+  await clickOverworldInteractButton(page);
+  await settle(page, 100);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 150, 398);
+  await settle(page, 100);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['tempest.priority.defense']).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Kurobe und Kaijin zeigen ihr gemeinsames Werkstattportrait', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

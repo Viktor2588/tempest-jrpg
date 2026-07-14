@@ -767,8 +767,8 @@ export class OverworldScene extends Phaser.Scene {
       const npcX = this.cx(npc.position.x);
       const npcY = this.cy(npc.position.y);
       // Porträt-Token für benannte Figuren (aus dem Porträt-Atlas, per Name gemappt);
-      // ersetzt die alten einfarbigen Quadrate. Ohne Porträt (z. B. „Ratsversammlung")
-      // bleibt ein dezentes Farb-Token als Fallback.
+      // ersetzt die alten einfarbigen Quadrate. Für abstrakte Ortsdienste ohne
+      // Figur bleibt ein dezentes Farb-Token als Fallback.
       const portraitKind = portraitKindForSpeaker(npc.name);
       const portraitTexture = portraitKind ? portraitKey(portraitKind) : null;
       let npcSprite: Phaser.GameObjects.GameObject & { x: number; y: number };

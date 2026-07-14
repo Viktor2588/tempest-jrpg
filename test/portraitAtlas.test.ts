@@ -19,6 +19,12 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(portraitSource).toContain("return 'ranga';");
   });
 
+  it('zeigt Rigurds vorhandenes Portrait am Ratsversammlungs-NPC', () => {
+    expect(portraitSource).toContain("case 'ratsversammlung':");
+    expect(portraitSource).toContain("return 'rigurd';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-rigurd.webp');
+  });
+
   it('lädt echte Imagegen-Portraits für den aktuellen Kerncast', () => {
     for (const file of [
       'portrait-rimuru.webp',
