@@ -1687,7 +1687,7 @@ test/release.test.ts
 - Das vorhandene `ui/milim-fight-banner.webp` ist mit dokumentierter xAI-Imagine-
   Provenienz repo-gebunden und erscheint ausschliesslich im Milim-Siegspanel.
 - Validiert mit `git diff --check`, 32 fokussierten Reward-/Asset-/Integritaets-
-  Tests, Balance-Harness fuer Predator/Sage/Mimik, Typecheck, 820 Unit-Tests,
+  Tests, Balance-Harness fuer Predator/Sage/Mimik, Typecheck, 830 Unit-Tests,
   Build sowie Desktop-/Mobile-Chromium-Smoke des echten Duells inklusive
   persistierter Belohnungen und ohne Browserfehler.
 
