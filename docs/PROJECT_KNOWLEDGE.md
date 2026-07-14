@@ -1528,6 +1528,20 @@ test/release.test.ts
   814 Unit-Tests inklusive Balance-Harness, Build und vorhandenem
   Freiheitsakademie-Desktop-Chromium-Smoke inklusive beider geladener Texturen.
 
+### Phase 196 - Gefaehrtennamen erst nach der Benennung
+
+- Branch/Worktree: `phase-196-companion-names` in
+  `/worktree/tempest-phase-196-companion-names`.
+- Der gemeinsame NPC-/Dialog-Anzeigepfad maskiert Gobta, Ranga, Hakurou und Shuna
+  bis zu ihren bestehenden Story-Flags als Goblin, Schattenwolf, Oger oder Ogerin.
+  Die statischen Weltdaten und gespeicherten Charakter-IDs bleiben unveraendert.
+- Die vorhandenen Entscheidungen schlagen Gobta, Ranga und die Kijin-Namen explizit
+  vor; nach Bestaetigung setzen die bestehenden Effekte weiterhin die kanonischen
+  Namen und Flags. Es gibt keinen neuen Dialogzustand und keine Save-Migration.
+- Validiert mit `git diff --check`, Welt-Test (46/46), Typecheck, 815 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke vom
+  Schattenwolf zur dauerhaft gespeicherten Ranga-Benennung.
+
 ## 14. Change Checklist
 
 Before editing:
