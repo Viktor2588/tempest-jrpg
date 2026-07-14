@@ -34,6 +34,11 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'shizu':
       return 'shizu';
     case 'shizus schüler':
+    case 'kenya':
+    case 'chloe':
+    case 'alice':
+    case 'ryota':
+    case 'gale':
       return 'shizu-children';
     case 'gildenmeister fuze':
     case 'fuze':

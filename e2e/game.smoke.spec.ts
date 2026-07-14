@@ -747,7 +747,7 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(browserErrors).toEqual([]);
 });
 
-test('Shizu-Schwur-Save lädt Freiheitsakademie und Schülerassets', async ({ page }) => {
+test('Shizu-Schwur-Save rendert Freiheitsakademie und Schülergruppenportrait', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
