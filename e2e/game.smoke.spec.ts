@@ -894,6 +894,37 @@ test('Schattenwolf-Benennung persistiert Ranga erst nach Bestätigung', async ({
   expect(browserErrors).toEqual([]);
 });
 
+test('Hakurou-Marker führt sichtbar in die Kijin-Benennung', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 4, y: 4, facing: 'right' },
+    flags: { 'story.kijin.named': false }
+  }));
+
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await expectCanvasContent(page);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 100);
+  await clickGamePoint(page, 150, 398);
+  await settle(page, 150);
+
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['story.kijin.named']).toBe(true);
+  expect([...save.party.active, ...save.party.reserve]
+    .find((member: { characterId: string }) => member.characterId === 'hakurou')?.name).toBe('Hakurou');
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

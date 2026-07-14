@@ -1542,6 +1542,20 @@ test/release.test.ts
   inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke vom
   Schattenwolf zur dauerhaft gespeicherten Ranga-Benennung.
 
+### Phase 197 - Hakurou-Hauptstory-Marker abgesichert
+
+- Branch/Worktree: `phase-197-hakurou-marker` in
+  `/worktree/tempest-phase-197-hakurou-marker`.
+- Die Live-Diagnose bestaetigte, dass der bestehende datengetriebene
+  `npcHasQuestMarker`-Pfad Hakurou bereits korrekt markiert, solange die sichtbare
+  Kijin-Benennungsoption `story.kijin.named` setzen kann, und danach automatisch
+  erlischt. Deshalb wurde kein redundanter Hakurou-Sonderfall eingefuehrt.
+- Der exakte Uebergang `Marker an -> Kijin benennen -> Marker aus` ist nun im
+  szenentreuen Durchspieltest festgehalten; ein fokussierter Desktop-Chromium-Smoke
+  bestaetigt den sichtbaren Canvas- und Dialogpfad bis zur persistierten Benennung.
+- Validiert mit `git diff --check`, Story-Test (22/22), Typecheck, 815 Unit-Tests
+  inklusive Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
