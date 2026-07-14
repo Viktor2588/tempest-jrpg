@@ -27,6 +27,8 @@ export function portraitKindForSpeaker(speaker: string): PortraitKind | null {
     case 'rigurd':
     case 'ratsversammlung':
       return 'rigurd';
+    case 'tempest-lager':
+      return 'tempest-camp';
     case 'veldora':
     case 'versiegelter sturmdrache':
       return 'storm-dragon';

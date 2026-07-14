@@ -25,6 +25,13 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain('../assets/sprites/portrait-rigurd.webp');
   });
 
+  it('zeigt am Tempest-Lager die eigene Rastplatz-Vignette', () => {
+    expect(portraitSource).toContain("case 'tempest-lager':");
+    expect(portraitSource).toContain("return 'tempest-camp';");
+    expect(preloadSource).toContain('../assets/sprites/portrait-tempest-camp.webp');
+    expect(preloadSource).toContain("this.load.image(portraitKey('tempest-camp')");
+  });
+
   it('lädt echte Imagegen-Portraits für den aktuellen Kerncast', () => {
     for (const file of [
       'portrait-rimuru.webp',
