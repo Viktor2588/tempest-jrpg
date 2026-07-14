@@ -1570,6 +1570,20 @@ test/release.test.ts
   besteht mit dem Fix auf Desktop und Mobile. Zusaetzlich gruen: `git diff --check`,
   Typecheck, 815 Unit-Tests inklusive Balance-Harness und Build.
 
+### Phase 199 - Echtes Mordrahn-Antagonistenportraet
+
+- Branch/Worktree: `phase-199-mordrahn-portrait` in
+  `/worktree/tempest-phase-199-mordrahn-portrait`.
+- Asset: `sprites/portrait-mordrahn.webp`, 512x512, 88,2 KB; per
+  Built-in-Imagegen aus dem vorhandenen Mordrahn-Kampfdesign und bestehenden
+  Portrait-Stilreferenzen erzeugt und in `ASSETS.md` dokumentiert.
+- Der bestehende `portrait-mordrahn`-Key laedt nun das repo-gebundene WebP statt
+  des prozeduralen Laufzeit-Fallbacks; Sprecherzuordnung, Dialog-/Welt-Renderer und
+  Fallbackkette bleiben unveraendert.
+- Validiert mit `git diff --check`, Portrait-/Asset-Tests, Typecheck, 816 Unit-Tests
+  inklusive Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke inklusive
+  geladenem Mordrahn-Portrait.
+
 ## 14. Change Checklist
 
 Before editing:
