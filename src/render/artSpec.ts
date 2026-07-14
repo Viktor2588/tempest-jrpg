@@ -62,6 +62,7 @@ export type PortraitKind =
   | 'vael'
   | 'lyrre'
   | 'rigurd'
+  | 'tempest-camp'
   | 'storm-dragon'
   | 'ranga'
   | 'shizu'
@@ -168,6 +169,7 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'vael',
   'lyrre',
   'rigurd',
+  'tempest-camp',
   'storm-dragon',
   'ranga',
   'shizu',

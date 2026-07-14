@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] Phase 213 — Tempest-Lager bekommt ein eigenes Versorgungs-Portrait
+  - Worktree: `/worktree/tempest-phase-213-tempest-camp-portrait`.
+  - Der einzige zuvor unbebilderte Dialogsprecher nutzt jetzt eine
+    repo-generierte Rastplatz-Vignette über die bestehende
+    Sprecher-/Portrait-/Preload-Kette; Dialog- und Rastlogik bleiben
+    unverändert.
+  - Abnahme: Asset als 512×512-WebP übernommen und in `ASSETS.md`
+    dokumentiert; Typecheck; 834/834 Unit-Tests; Produktions-Build;
+    gezielter Playwright-Smoke Desktop + Mobile (2/2).
 
 ## Integrationswarteschlange
 

@@ -80,6 +80,7 @@ describe('artSpec', () => {
       'vael',
       'lyrre',
       'rigurd',
+      'tempest-camp',
       'storm-dragon',
       'ranga',
       'shizu',

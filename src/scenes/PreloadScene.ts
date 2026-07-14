@@ -166,6 +166,7 @@ import rimuruPortraitUrl from '../assets/sprites/portrait-rimuru.webp';
 import gobtaPortraitUrl from '../assets/sprites/portrait-gobta.webp';
 import shunaPortraitUrl from '../assets/sprites/portrait-shuna.webp';
 import rigurdPortraitUrl from '../assets/sprites/portrait-rigurd.webp';
+import tempestCampPortraitUrl from '../assets/sprites/portrait-tempest-camp.webp';
 import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
@@ -345,6 +346,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('gobta'), gobtaPortraitUrl);
     this.load.image(portraitKey('shuna'), shunaPortraitUrl);
     this.load.image(portraitKey('rigurd'), rigurdPortraitUrl);
+    this.load.image(portraitKey('tempest-camp'), tempestCampPortraitUrl);
     this.load.image(portraitKey('ranga'), rangaPortraitUrl);
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(portraitKey('shizu'), shizuPortraitUrl);
@@ -507,6 +509,7 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('gobta'),
       portraitKey('shuna'),
       portraitKey('rigurd'),
+      portraitKey('tempest-camp'),
       portraitKey('ranga'),
       portraitKey('storm-dragon'),
       portraitKey('shizu'),
