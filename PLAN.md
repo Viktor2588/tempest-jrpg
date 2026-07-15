@@ -1322,3 +1322,18 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Dreiundzwanzigste Welle: Das Bestiarium zeigt die bereits vorhandenen Gegner (Asset-Reuse, Plan 2026-07-15)
+
+Befund: Fuer jede datengetriebene Gegnerart existiert bereits ein dediziertes,
+vorgeladenes Kampf-Cutout (`enemyArtFor` ist vollstaendig getestet), die vier
+sichtbaren Bestiarium-Karten rendern aber ausschliesslich Text. Damit bleibt die
+groesste vorhandene Gegner-Asset-Sammlung gerade im Sammel-/Wissensmodus unsichtbar.
+
+- [x] Phase 215 — Gegner-Cutouts im Bestiarium (abgeschlossen im isolierten
+  Worktree). Die bestehenden Texturen werden in der vorhandenen
+  Vierer-Kartenansicht wiederverwendet; nur erlegte, aber noch nicht analysierte
+  Arten erscheinen als abgedunkelte Silhouette. Keine neuen Assets, Daten- oder
+  Balance-Aenderungen. Mapping-/Bestiarium-Tests gruen, Typecheck ✓, 836
+  Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie fokussierter Desktop-/
+  Mobile-Chromium-Smoke mit gefuelltem Bestiarium ✓.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/data';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
+import menuSource from '../src/scenes/MenuScene.ts?raw';
 import {
   BOG_TERROR_TEXTURE_KEY,
   ACADEMY_WISP_TEXTURE_KEY,
@@ -37,6 +38,12 @@ import {
 } from '../src/render/enemyArt';
 
 describe('Gegner-Art-Mapping', () => {
+  it('verwendet die vorhandenen Gegner-Cutouts auch im Bestiarium', () => {
+    expect(menuSource).toContain('enemyArtFor(entry.enemyId, entry.name)');
+    expect(menuSource).toContain('this.add.image(336, y, art.textureKey, art.frame)');
+    expect(menuSource).toContain('if (!entry.analyzed) image.setTint');
+  });
+
   it('ordnet jedem datengetriebenen Gegner eine echte Textur zu', () => {
     for (const enemy of ENEMIES) {
       expect(enemyArtFor(enemy.id, enemy.name).textureKey).toBeTruthy();

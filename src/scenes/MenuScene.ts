@@ -74,6 +74,7 @@ import {
   type MenuListPage
 } from '../systems/menuLayout';
 import { portraitKey } from '../render/portraitAtlas';
+import { enemyArtFor } from '../render/enemyArt';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
@@ -1366,16 +1367,23 @@ export class MenuScene extends Phaser.Scene {
     page.forEach((entry, index) => {
       const y = 194 + index * 80;
       this.panel(300, y, 590, 62);
+      const art = enemyArtFor(entry.enemyId, entry.name);
+      if (art.textureKey && this.textures.exists(art.textureKey)) {
+        this.layer.add(addUiPortraitFrame(this, 336, y, 46));
+        const image = this.add.image(336, y, art.textureKey, art.frame).setDisplaySize(46, 46);
+        if (!entry.analyzed) image.setTint(0x303846).setAlpha(0.78);
+        this.layer.add(image);
+      }
       const marker = entry.analyzed ? '◆' : '○';
       const bossTag = entry.boss ? ' · Boss' : '';
       const casterTag = entry.casterHint ? ` · ${entry.casterHint}` : '';
-      this.layer.add(this.add.text(318, y - 20,
+      this.layer.add(this.add.text(372, y - 20,
         `${marker} ${entry.name}  (Lv ${entry.level}${bossTag}${casterTag})   ⚔ ${entry.defeatedCount}×`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.analyzed ? '#8dffc2' : '#e9c56c'
       }));
-      this.layer.add(this.add.text(318, y + 2, this.bestiaryDetailLine(entry), {
+      this.layer.add(this.add.text(372, y + 2, this.bestiaryDetailLine(entry), {
         fontFamily: 'sans-serif', fontSize: '12px',
-        color: entry.analyzed ? '#cbd6e8' : '#7d8aa0', wordWrap: { width: 552 }
+        color: entry.analyzed ? '#cbd6e8' : '#7d8aa0', wordWrap: { width: 496 }
       }));
     });
 
