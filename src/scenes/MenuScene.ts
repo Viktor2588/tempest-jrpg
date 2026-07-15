@@ -1596,16 +1596,21 @@ export class MenuScene extends Phaser.Scene {
     standings.forEach((standing, index) => {
       const y = 214 + index * 80;
       this.panel(300, y, 590, 74);
+      const mapId = standing.faction.id === 'orcs' ? 'jura-battlefield'
+        : standing.faction.id === 'lizardmen' ? 'lizardman-marsh'
+          : standing.faction.id;
+      const bannerKey = regionBannerTextureForMap(mapId, (key) => this.textures.exists(key));
+      if (bannerKey) this.layer.add(this.add.image(336, y, bannerKey).setDisplaySize(54, 54));
       const reward = rewardsById.get(standing.faction.id);
       const rewardTag = reward ? `   [Boni ${reward.activeCount}/${reward.total}]` : '';
-      this.layer.add(this.add.text(318, y - 27, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})${rewardTag}`, {
+      this.layer.add(this.add.text(372, y - 27, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})${rewardTag}`, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: standing.points > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const tiers = standing.thresholds
         .map((threshold) => `${threshold.reached ? '✓' : '○'} ${threshold.title} (${threshold.points})`)
         .join('   ');
-      this.layer.add(this.add.text(318, y - 6, tiers, {
+      this.layer.add(this.add.text(372, y - 6, tiers, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8'
       }));
       // Phase 180 — aktive Belohnungen sichtbar auflisten (aus den gesetzten Unlock-Flags).
@@ -1613,14 +1618,14 @@ export class MenuScene extends Phaser.Scene {
       const activeLine = activeRewards.length > 0
         ? `Aktiv: ${activeRewards.join(' · ')}`
         : 'Aktiv: noch keine Bündnis-Vorteile';
-      this.layer.add(this.add.text(318, y + 10, activeLine, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: activeRewards.length > 0 ? '#8dffc2' : '#6f83a5', wordWrap: { width: 552 }
+      this.layer.add(this.add.text(372, y + 10, activeLine, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: activeRewards.length > 0 ? '#8dffc2' : '#6f83a5', wordWrap: { width: 496 }
       }));
       const footer = standing.nextThreshold
         ? `Nächste „${standing.nextThreshold.title}" in ${standing.pointsToNext} P. — schaltet frei: ${standing.nextThreshold.reward}`
         : `Höchste Stufe erreicht — ${standing.faction.description}`;
-      this.layer.add(this.add.text(318, y + 26, footer, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 552 }
+      this.layer.add(this.add.text(372, y + 26, footer, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#9fb2cc', wordWrap: { width: 496 }
       }));
     });
   }
