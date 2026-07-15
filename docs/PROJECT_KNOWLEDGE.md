@@ -1817,6 +1817,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 839 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 219 - Gegner-Cutouts auf dem Kopfgeldbrett
+
+- Branch/Worktree: `phase-219-bounty-cutouts` in
+  `/worktree/tempest-phase-219-bounty-cutouts`.
+- Jede sichtbare Kopfgeldkarte verwendet nun ueber ihre vorhandene
+  `targetEnemyId` und `enemyArtFor` das bereits vorgeladene Ziel-Cutout.
+- Validiert mit `git diff --check`, Typecheck, 840 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
