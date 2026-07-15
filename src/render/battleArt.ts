@@ -16,7 +16,9 @@ export type BattleArenaKind =
   | 'tempest-grove'
   | 'whispering-grove'
   | 'sealed-cave'
-  | 'tempest-settlement'
+  | 'tempest-camp'
+  | 'tempest-village'
+  | 'tempest-city'
   | 'direwolf-den'
   | 'ancestor-seal'
   | 'spirit-marsh'
@@ -37,7 +39,9 @@ export const BATTLE_ARENA_TEXTURES = {
   'tempest-grove': 'battle-bg-tempest-grove',
   'whispering-grove': 'battle-bg-whispering-grove',
   'sealed-cave': 'battle-bg-sealed-cave',
-  'tempest-settlement': 'battle-bg-tempest-settlement',
+  'tempest-camp': 'battle-bg-tempest-camp',
+  'tempest-village': 'battle-bg-tempest-village',
+  'tempest-city': 'battle-bg-tempest-city',
   'direwolf-den': 'battle-bg-direwolf-den',
   'ancestor-seal': 'battle-bg-ancestor-seal',
   'spirit-marsh': 'battle-bg-spirit-marsh',
@@ -110,10 +114,12 @@ export function battleArenaForMap(
   kind: BattleArenaKind;
   textureKey: string;
 } {
+  const tempestStage = mapId === 'tempest-start' ? resolveTempestGrowthStage(flags) : 'wilderness';
   const kind = ENCOUNTER_ARENAS[encounterId ?? '']
-    ?? (mapId === 'tempest-start' && resolveTempestGrowthStage(flags) !== 'wilderness'
-      ? 'tempest-settlement'
-      : null)
+    ?? (tempestStage === 'camp' ? 'tempest-camp'
+      : tempestStage === 'village' ? 'tempest-village'
+        : tempestStage === 'city' ? 'tempest-city'
+          : null)
     ?? MAP_ARENAS[mapId ?? '']
     ?? 'tempest-grove';
   return { kind, textureKey: BATTLE_ARENA_TEXTURES[kind] };

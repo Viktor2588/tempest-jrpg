@@ -610,7 +610,9 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
     'portrait-milim',
     'portrait-souka',
     'portrait-mordrahn',
-    'battle-tempest-settlement'
+    'battle-tempest-camp',
+    'battle-tempest-village',
+    'battle-tempest-city'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
@@ -618,30 +620,37 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
   expect(browserErrors).toEqual([]);
 });
 
-test('Gewachsenes Tempest zeigt seine Siedlungsarena im regulaeren Kampf', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('pageerror', (error) => browserErrors.push(error.message));
-  page.on('console', (message) => {
-    if (message.type() === 'error') browserErrors.push(message.text());
+for (const [stage, flags] of [
+  ['camp', {}],
+  ['village', { 'story.council.ready': true }],
+  ['city', { 'story.kijin.named': true, 'faction.dwargon.allied': true }]
+] as const) {
+  test(`Tempest-${stage} zeigt seine Wachstumsarena im regulaeren Kampf`, async ({ page }) => {
+    const browserErrors: string[] = [];
+    page.on('pageerror', (error) => browserErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') browserErrors.push(message.text());
+    });
+
+    await installBrowserSave(page, bandTwoBrowserSave({
+      location: { mapId: 'tempest-start', x: 19, y: 12, facing: 'right' },
+      flags
+    }));
+    await page.goto('./');
+    await expect(page.locator('canvas')).toBeVisible();
+    await clickGamePoint(page, 480, 280);
+    await settle(page, 400);
+    await tapMovementKey(page, 'ArrowRight');
+    await settle(page, 400);
+
+    const loadedAssets = await page.evaluate(() => (
+      performance.getEntriesByType('resource').map((entry) => entry.name)
+    ));
+    expect(loadedAssets.some((name) => name.includes(`battle-tempest-${stage}`))).toBe(true);
+    await expectCanvasContent(page);
+    expect(browserErrors).toEqual([]);
   });
-
-  await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'tempest-start', x: 19, y: 12, facing: 'right' }
-  }));
-  await page.goto('./');
-  await expect(page.locator('canvas')).toBeVisible();
-  await clickGamePoint(page, 480, 280);
-  await settle(page, 400);
-  await tapMovementKey(page, 'ArrowRight');
-  await settle(page, 400);
-
-  const loadedAssets = await page.evaluate(() => (
-    performance.getEntriesByType('resource').map((entry) => entry.name)
-  ));
-  expect(loadedAssets.some((name) => name.includes('battle-tempest-settlement'))).toBe(true);
-  await expectCanvasContent(page);
-  expect(browserErrors).toEqual([]);
-});
+}
 
 test('Ratsversammlung nutzt Rigurds Weltportrait und öffnet den echten Ratsdialog', async ({ page }) => {
   const browserErrors: string[] = [];
