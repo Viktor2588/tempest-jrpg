@@ -1322,12 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Vierunddreissigste Welle: Speicherstaende zeigen ihre Hauptfigur (Asset-Reuse, Plan 2026-07-15)
-
-- [x] Phase 226 — Gruppenleiter-Portrait in belegten Speicherkarten
-  (abgeschlossen im isolierten Worktree).
-  Die vorhandene `characterId` des ersten aktiven Mitglieds nutzt das bestehende
-  Portraitasset; leere Slots und fehlende Texturen behalten ihren Text-Fallback.
-  Typecheck ✓, 846 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
-  Desktop-/Mobile-Chromium-Smoke ✓.

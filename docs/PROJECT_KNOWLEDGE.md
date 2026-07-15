@@ -1883,6 +1883,16 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke ueber den echten
   EndingScene-Start.
 
+### Phase 226 - Gruppenleiter-Portrait in Speicherkarten
+
+- Branch/Worktree: `phase-226-save-slot-portraits` in
+  `/worktree/tempest-phase-226-save-slot-portraits`.
+- Belegte Speicherslots zeigen nun ueber die vorhandene `characterId` das
+  Portrait des ersten aktiven Gruppenmitglieds; leere Slots und fehlende
+  Texturen behalten ihren bisherigen Text-Fallback.
+- Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
