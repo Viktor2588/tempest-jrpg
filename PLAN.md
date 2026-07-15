@@ -1322,3 +1322,12 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Achtundzwanzigste Welle: Verschlingen zeigt seine Quellen (Asset-Reuse, Plan 2026-07-15)
+
+- [x] Phase 220 — Gegner-Cutouts im Verschlingen-Kompendium (abgeschlossen im
+  isolierten Worktree). Das
+  vorhandene `enemyId`-/`enemyName`-Paar nutzt `enemyArtFor`; noch nicht erbeutete
+  Skills bleiben als Silhouette markiert. Keine neuen Assets oder Balance-Aenderungen.
+  Typecheck ✓, 841 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
+  Desktop-/Mobile-Chromium-Smoke ✓.

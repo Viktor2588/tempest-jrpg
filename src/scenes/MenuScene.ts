@@ -1312,10 +1312,17 @@ export class MenuScene extends Phaser.Scene {
     page.forEach((entry, index) => {
       const y = 194 + index * 80;
       this.panel(300, y, 590, 62);
-      this.layer.add(this.add.text(318, y - 20, `${entry.learned ? '✓' : '○'} ${entry.enemyName}  (Lv ${entry.level})`, {
+      const art = enemyArtFor(entry.enemyId, entry.enemyName);
+      if (art.textureKey && this.textures.exists(art.textureKey)) {
+        this.layer.add(addUiPortraitFrame(this, 336, y, 46));
+        const image = this.add.image(336, y, art.textureKey, art.frame).setDisplaySize(46, 46);
+        if (!entry.learned) image.setTint(0x303846).setAlpha(0.78);
+        this.layer.add(image);
+      }
+      this.layer.add(this.add.text(372, y - 20, `${entry.learned ? '✓' : '○'} ${entry.enemyName}  (Lv ${entry.level})`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.learned ? '#8dffc2' : '#e9c56c'
       }));
-      this.layer.add(this.add.text(318, y + 2, `🍴 Verschlingen lehrt: ${entry.skillName}`, {
+      this.layer.add(this.add.text(372, y + 2, `🍴 Verschlingen lehrt: ${entry.skillName}`, {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8'
       }));
     });
