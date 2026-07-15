@@ -238,6 +238,7 @@ import dialogKeyboardHintUrl from '../assets/ui/dialog-keyboard-hint.webp';
 import mimicFormUrl from '../assets/ui/mimic-form-indicator.webp';
 import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
 import milimFightBannerUrl from '../assets/ui/milim-fight-banner.webp';
+import shopMerchantVignetteUrl from '../assets/ui/shop-merchant-vignette.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -421,6 +422,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('ui-mimic-form-indicator', mimicFormUrl);
     this.load.image('ui-predator-steal', predatorStealUrl);
     this.load.image('ui-milim-fight-banner', milimFightBannerUrl);
+    this.load.image('ui-shop-merchant-vignette', shopMerchantVignetteUrl);
   }
 
   create(): void {

@@ -51,6 +51,9 @@ export class ShopScene extends Phaser.Scene {
       fontSize: '13px',
       color: '#9fb2cc'
     }));
+    if (this.textures.exists('ui-shop-merchant-vignette')) {
+      this.layer.add(this.add.image(700, 116, 'ui-shop-merchant-vignette').setDisplaySize(120, 60));
+    }
     this.button(GAME_WIDTH - 188, 112, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     this.view.items.forEach((item, index) => {
