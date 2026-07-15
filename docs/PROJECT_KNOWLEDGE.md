@@ -1853,6 +1853,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 843 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 223 - Neutrale Haendler-Vignette im Shopkopf
+
+- Branch/Worktree: `phase-223-shop-vignette` in
+  `/worktree/tempest-phase-223-shop-vignette`.
+- Asset: `ui/shop-merchant-vignette.webp`, 512x256, 21 KB; per OpenAI Built-in
+  Imagegen erzeugt, als WebP optimiert und in `ASSETS.md` dokumentiert.
+- Alle vorhandenen Shoptypen zeigen das neutrale Stillleben aus Tasche, Trank,
+  Kraeutern, Gold und Magieerz; Shopdaten und Balance bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 844 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

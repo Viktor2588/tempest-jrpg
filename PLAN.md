@@ -1322,12 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Einunddreissigste Welle: Der Handel bekommt ein sichtbares Gesicht (Asset, Plan 2026-07-15)
-
-- [x] Phase 223 — Neutrale Händler-Vignette im Shopkopf (abgeschlossen im
-  isolierten Worktree). Ein einziges
-  neues Projektasset visualisiert Waren, Gold und Handel in allen bestehenden
-  Shoptypen; kein Atlas, keine Shop-Unterklassen und keine Balance-Aenderungen.
-  Asset-Provenienz dokumentiert, Typecheck ✓, 844 Unit-Tests inklusive
-  Balance-Harness ✓, Build ✓ sowie Desktop-/Mobile-Chromium-Smoke ✓.
