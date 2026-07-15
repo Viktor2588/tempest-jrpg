@@ -1774,6 +1774,18 @@ test/release.test.ts
   Balance-Harness, Build sowie sechs fokussierten Desktop-/Mobile-Chromium-
   Smokes in echten Trainingskaempfen.
 
+### Phase 215 - Gegner-Cutouts im Bestiarium
+
+- Branch/Worktree: `phase-215-bestiary-cutouts` in
+  `/worktree/tempest-phase-215-bestiary-cutouts`.
+- Die vorhandenen, vorgeladenen Gegnertexturen aus `enemyArtFor` erscheinen nun
+  auch in der vierteiligen Bestiarium-Ansicht. Analysierte Gegner werden farbig
+  gezeigt, nur besiegte und noch nicht analysierte Arten als abgedunkelte
+  Silhouette; Daten-, Kampf- und Balancelogik bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 836 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke mit
+  gefuelltem Bestiarium und ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
