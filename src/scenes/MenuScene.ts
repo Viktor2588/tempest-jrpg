@@ -1686,15 +1686,20 @@ export class MenuScene extends Phaser.Scene {
     page.forEach((view, index) => {
       const y = 194 + index * 80;
       this.panel(300, y, 590, 62);
-      this.layer.add(this.add.text(318, y - 20, `${view.claimable ? '✦' : '◎'} ${view.bounty.name}  (${view.progress}/${view.required})`, {
+      const art = enemyArtFor(view.bounty.targetEnemyId, view.targetName);
+      if (art.textureKey && this.textures.exists(art.textureKey)) {
+        this.layer.add(addUiPortraitFrame(this, 336, y, 46));
+        this.layer.add(this.add.image(336, y, art.textureKey, art.frame).setDisplaySize(46, 46));
+      }
+      this.layer.add(this.add.text(372, y - 20, `${view.claimable ? '✦' : '◎'} ${view.bounty.name}  (${view.progress}/${view.required})`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: view.claimable ? '#8dffc2' : '#e9c56c'
       }));
       const rewardText = [
         view.rewardGold > 0 ? `${view.rewardGold} Gold` : null,
         ...view.rewardItems.map((reward) => `${reward.label} +${reward.amount}`)
       ].filter((entry): entry is string => entry !== null).join(', ');
-      this.layer.add(this.add.text(318, y + 2, `Ziel: ${view.targetName} · Lohn: ${rewardText}`, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 430 }
+      this.layer.add(this.add.text(372, y + 2, `Ziel: ${view.targetName} · Lohn: ${rewardText}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 376 }
       }));
       if (view.claimable) {
         this.button(748, y + 13, 126, 'Einlösen', () => this.claimBountyReward(view.bounty.id), 0x2f6f55);

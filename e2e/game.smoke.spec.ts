@@ -1241,6 +1241,24 @@ test('Bestiarium zeigt analysierte Cutouts und unbekannte Silhouetten', async ({
   expect(browserErrors).toEqual([]);
 });
 
+test('Kopfgeldbrett zeigt die vorhandenen Ziel-Cutouts', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({ flags: { 'story.blumund.guild-tested': true } }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await clickGamePoint(page, 760, 94); // Codex
+  await clickGamePoint(page, 448, 140); // Kopfgeld
+  await settle(page, 150);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Bewohner-Roster zeigt benannte Cutouts und unbekannte Silhouetten', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

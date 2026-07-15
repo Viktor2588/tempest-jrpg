@@ -49,6 +49,10 @@ describe('Gegner-Art-Mapping', () => {
     expect(menuSource).toContain('if (!entry.recruited) image.setTint');
   });
 
+  it('verwendet die Ziel-Cutouts auch auf dem Kopfgeldbrett', () => {
+    expect(menuSource).toContain('enemyArtFor(view.bounty.targetEnemyId, view.targetName)');
+  });
+
   it('ordnet jedem datengetriebenen Gegner eine echte Textur zu', () => {
     for (const enemy of ENEMIES) {
       expect(enemyArtFor(enemy.id, enemy.name).textureKey).toBeTruthy();
