@@ -1798,6 +1798,16 @@ test/release.test.ts
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke mit
   gefuelltem Bewohner-Roster und ohne Browserfehler.
 
+### Phase 217 - Wachstumsbanner in der Einrichtungen-Ansicht
+
+- Branch/Worktree: `phase-217-facility-growth-banner` in
+  `/worktree/tempest-phase-217-facility-growth-banner`.
+- Die Einrichtungen-Ansicht verwendet nun ueber den bestehenden
+  `regionBannerTextureForMap`-Pfad das zum Tempest-Wachstumsstand passende,
+  bereits vorgeladene Gebietsbild. Daten- und Balancelogik bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 838 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
