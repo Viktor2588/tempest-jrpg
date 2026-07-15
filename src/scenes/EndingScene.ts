@@ -52,13 +52,22 @@ export class EndingScene extends Phaser.Scene {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
     }).setOrigin(0.5);
     gallery.forEach((entry, index) => {
-      this.add.text(cx, 336 + index * 22, `${entry.seen ? '◈' : '◇'} ${entry.title}`, {
+      const x = cx + (index - 1) * 210;
+      const key = `bg-ending-${entry.kind}`;
+      if (this.textures.exists(key)) {
+        const image = this.add.image(x, 362, key).setDisplaySize(180, 72);
+        if (!entry.seen) image.setTint(0x303846).setAlpha(0.72);
+      }
+      this.add.rectangle(x, 362, 184, 76, 0x000000, 0)
+        .setStrokeStyle(1, entry.seen ? 0xe9c56c : 0x46536a, 0.9);
+      this.add.text(x, 408, `${entry.seen ? '◈' : '◇'} ${entry.title}`, {
         fontFamily: 'sans-serif', fontSize: '13px',
-        color: entry.seen ? '#8dffc2' : '#6f83a5'
+        color: entry.seen ? '#8dffc2' : '#6f83a5',
+        align: 'center', wordWrap: { width: 184 }
       }).setOrigin(0.5);
     });
     if (seenCount === gallery.length) {
-      this.add.text(cx, 336 + gallery.length * 22 + 4, '★ Alle Enden entdeckt — Chronist von Tempest ★', {
+      this.add.text(cx, 442, '★ Alle Enden entdeckt — Chronist von Tempest ★', {
         fontFamily: 'serif', fontSize: '13px', color: '#e9c56c'
       }).setOrigin(0.5);
     }
