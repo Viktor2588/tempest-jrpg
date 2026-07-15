@@ -455,6 +455,9 @@ export class MenuScene extends Phaser.Scene {
 
   private drawInventory(view: MenuView, characterId: string): void {
     this.sectionTitle('Inventar · antippen zum Nutzen');
+    if (this.textures.exists('ui-shop-merchant-vignette')) {
+      this.layer.add(this.add.image(690, 150, 'ui-shop-merchant-vignette').setDisplaySize(120, 60));
+    }
     // y=126 überlappte die Haupt-Tab-Reihe (bis y=116); auf 150 unter die Tabs.
     const invView = this.tabViews.get('inventory') as any;
     const curInvF = invView?.getFilter ? invView.getFilter() : this.inventoryFilter;
