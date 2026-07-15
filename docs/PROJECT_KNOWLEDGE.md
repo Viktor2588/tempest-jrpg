@@ -1844,6 +1844,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 842 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 222 - Portraits in der Charakter-Seitenleiste
+
+- Branch/Worktree: `phase-222-member-list-portraits` in
+  `/worktree/tempest-phase-222-member-list-portraits`.
+- Die Charakterwahl in Inventar, Ausruestung, Status und Talenten zeigt nun ueber
+  die vorhandene `characterId` und das bestehende Mapping die Gruppenportraits.
+- Validiert mit `git diff --check`, Typecheck, 843 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

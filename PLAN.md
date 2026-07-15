@@ -1322,12 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Dreissigste Welle: Charakterwahl zeigt die Gruppe (Asset-Reuse, Plan 2026-07-15)
-
-- [x] Phase 222 — Portraits in der Charakter-Seitenleiste (abgeschlossen im
-  isolierten Worktree). Die
-  vorhandene `characterId` nutzt das bestehende Portrait-Mapping innerhalb des
-  vorhandenen Auswahlbuttons. Keine neuen Assets oder Balance-Aenderungen.
-  Typecheck ✓, 843 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
-  Desktop-/Mobile-Chromium-Smoke ✓.
