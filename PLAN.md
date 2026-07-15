@@ -1322,3 +1322,10 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Zweiunddreissigste Welle: Das Inventar zeigt seine Waren (Asset-Reuse, Plan 2026-07-15)
+
+- [x] Phase 224 — Händler-Vignette im Inventarkopf (abgeschlossen im isolierten
+  Worktree). Das vorhandene 21-KB-Shopasset wird ohne weitere Daten- oder
+  Balance-Aenderung wiederverwendet. Typecheck ✓, 844 Unit-Tests inklusive
+  Balance-Harness ✓, Build ✓ sowie Desktop-/Mobile-Chromium-Smoke ✓.
