@@ -1331,12 +1331,11 @@ und Dorf zur Stadt, jeder regulaere Kampf faellt aber weiter auf den unveraender
 Tempest mehrere tatsaechlich erreichbare Encounter, sodass eine Wachstumsarena im
 normalen Spiel sichtbar wird.
 
-- [~] Phase 214 — Kampfarena fuer das gewachsene Tempest (Umsetzung und Abnahme
-  abgeschlossen; Remote-Push durch Sicherheitsfreigabe blockiert; Worktree
-  `/worktree/tempest-phase-214-tempest-battle-growth`). Drei neue 1280x720-WebPs
+- [x] Phase 214 — Kampfarena fuer das gewachsene Tempest (abgeschlossen im
+  isolierten Worktree). Drei neue 1280x720-WebPs
   zeigen Lager, Dorf und Stadt jeweils mit freier Kampfmitte. Regulaere
   Tempest-Encounter nutzen die zum Wachstumsstand passende Arena ueber die
   bestehende Arena-/Preload-Kette; besondere
   Story-Arenen behalten Vorrang. Provenienz in `ASSETS.md`; Mapping-/Asset-Tests
   gruen, Typecheck ✓, 835 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
-  fokussierter Desktop-/Mobile-Chromium-Smoke im echten Trainingskampf ✓.
+  sechs fokussierte Desktop-/Mobile-Chromium-Smokes im echten Trainingskampf ✓.
