@@ -65,6 +65,15 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('tempest-start', 'unknown').kind).toBe('tempest-grove');
   });
 
+  it('zeigt Tempests Wachstum in regulaeren Kaempfen, ohne Story-Arenen zu ueberschreiben', () => {
+    expect(battleArenaForMap('tempest-start', null, { 'story.tempest.named': true }).kind)
+      .toBe('tempest-settlement');
+    expect(battleArenaForMap('tempest-start', 'training-clearing', { 'story.council.ready': true }).kind)
+      .toBe('tempest-settlement');
+    expect(battleArenaForMap('tempest-start', 'whispering-grove-ambush', { 'story.council.ready': true }).kind)
+      .toBe('whispering-grove');
+  });
+
   it('fällt für alte oder unbekannte Karten auf den Tempest-Hain zurück', () => {
     expect(battleArenaForMap(undefined).kind).toBe('tempest-grove');
     expect(battleArenaForMap('legacy-map').kind).toBe('tempest-grove');
@@ -73,6 +82,7 @@ describe('Battle-Art-Zuordnung', () => {
   it('lädt die kommenden Canon-Arenen in der Preload-Szene', () => {
     for (const file of [
       'battle-whispering-grove.webp',
+      'battle-tempest-settlement.webp',
       'battle-ogre-ruins.webp',
       'battle-orc-battlefield.webp',
       'battle-lizardman-marsh.webp',

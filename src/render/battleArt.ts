@@ -1,3 +1,5 @@
+import { resolveTempestGrowthStage, type StoryFlags } from '../systems/tempestGrowth';
+
 export const PARTY_BATTLE_ART = {
   rimuru: 'sprite-party-rimuru',
   gobta: 'sprite-party-gobta',
@@ -14,6 +16,7 @@ export type BattleArenaKind =
   | 'tempest-grove'
   | 'whispering-grove'
   | 'sealed-cave'
+  | 'tempest-settlement'
   | 'direwolf-den'
   | 'ancestor-seal'
   | 'spirit-marsh'
@@ -34,6 +37,7 @@ export const BATTLE_ARENA_TEXTURES = {
   'tempest-grove': 'battle-bg-tempest-grove',
   'whispering-grove': 'battle-bg-whispering-grove',
   'sealed-cave': 'battle-bg-sealed-cave',
+  'tempest-settlement': 'battle-bg-tempest-settlement',
   'direwolf-den': 'battle-bg-direwolf-den',
   'ancestor-seal': 'battle-bg-ancestor-seal',
   'spirit-marsh': 'battle-bg-spirit-marsh',
@@ -98,11 +102,18 @@ export function partyBattleTextureFor(sourceId: string): string | null {
   return PARTY_BATTLE_ART[sourceId as keyof typeof PARTY_BATTLE_ART] ?? null;
 }
 
-export function battleArenaForMap(mapId: string | undefined, encounterId?: string | null): {
+export function battleArenaForMap(
+  mapId: string | undefined,
+  encounterId?: string | null,
+  flags: StoryFlags = {}
+): {
   kind: BattleArenaKind;
   textureKey: string;
 } {
   const kind = ENCOUNTER_ARENAS[encounterId ?? '']
+    ?? (mapId === 'tempest-start' && resolveTempestGrowthStage(flags) !== 'wilderness'
+      ? 'tempest-settlement'
+      : null)
     ?? MAP_ARENAS[mapId ?? '']
     ?? 'tempest-grove';
   return { kind, textureKey: BATTLE_ARENA_TEXTURES[kind] };

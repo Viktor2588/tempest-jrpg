@@ -194,6 +194,7 @@ import mordrahnPortraitUrl from '../assets/sprites/portrait-mordrahn.webp';
 import tempestGroveBattleUrl from '../assets/backgrounds/battle-tempest-grove.webp';
 import whisperingGroveBattleUrl from '../assets/backgrounds/battle-whispering-grove.webp';
 import sealedCaveBattleUrl from '../assets/backgrounds/battle-sealed-cave.webp';
+import tempestSettlementBattleUrl from '../assets/backgrounds/battle-tempest-settlement.webp';
 import titleKeyartUrl from '../assets/backgrounds/title-keyart.webp';
 import endingFreedomUrl from '../assets/backgrounds/ending-freedom.webp';
 import endingOrderUrl from '../assets/backgrounds/ending-order.webp';
@@ -374,6 +375,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(BATTLE_ARENA_TEXTURES['tempest-grove'], tempestGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['whispering-grove'], whisperingGroveBattleUrl);
     this.load.image(BATTLE_ARENA_TEXTURES['sealed-cave'], sealedCaveBattleUrl);
+    this.load.image(BATTLE_ARENA_TEXTURES['tempest-settlement'], tempestSettlementBattleUrl);
     this.load.image('bg-title-keyart', titleKeyartUrl);
     this.load.image('bg-ending-freedom', endingFreedomUrl);
     this.load.image('bg-ending-order', endingOrderUrl);

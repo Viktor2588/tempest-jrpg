@@ -1322,3 +1322,19 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Zweiundzwanzigste Welle: Tempests Wachstum bleibt im Kampf sichtbar (Asset-first, Plan 2026-07-15)
+
+Befund: Die Oberwelt von `tempest-start` waechst sichtbar von Wildnis ueber Lager
+und Dorf zur Stadt, jeder regulaere Kampf faellt aber weiter auf den unveraenderten
+`battle-tempest-grove.webp`-Hintergrund zurueck. Anders als das Goblin-Dorf besitzt
+Tempest mehrere tatsaechlich erreichbare Encounter, sodass eine Wachstumsarena im
+normalen Spiel sichtbar wird.
+
+- [x] Phase 214 — Kampfarena fuer das gewachsene Tempest (abgeschlossen im
+  isolierten Worktree). Das neue 1280x720-WebP zeigt Palisade, Huetten und
+  Jura-Waldrand mit freier Kampfmitte. Regulaere Tempest-Encounter nutzen es ab
+  der Lager-Stufe ueber die bestehende Arena-/Preload-Kette; besondere
+  Story-Arenen behalten Vorrang. Provenienz in `ASSETS.md`; Mapping-/Asset-Tests
+  gruen, Typecheck ✓, 835 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
+  fokussierter Desktop-/Mobile-Chromium-Smoke im echten Trainingskampf ✓.

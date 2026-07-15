@@ -609,10 +609,36 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
     'portrait-treyni',
     'portrait-milim',
     'portrait-souka',
-    'portrait-mordrahn'
+    'portrait-mordrahn',
+    'battle-tempest-settlement'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Gewachsenes Tempest zeigt seine Siedlungsarena im regulaeren Kampf', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 19, y: 12, facing: 'right' }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await tapMovementKey(page, 'ArrowRight');
+  await settle(page, 400);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('battle-tempest-settlement'))).toBe(true);
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
