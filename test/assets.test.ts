@@ -7,6 +7,7 @@ import battleSource from '../src/scenes/BattleScene.ts?raw';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import shopSource from '../src/scenes/ShopScene.ts?raw';
 import menuSource from '../src/scenes/MenuScene.ts?raw';
+import endingSource from '../src/scenes/EndingScene.ts?raw';
 
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
   .map((path) => path.replace('../src/assets/', ''));
@@ -16,6 +17,12 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(preloadSource).toContain("this.load.image('ui-shop-merchant-vignette'");
     expect(shopSource).toContain("this.add.image(700, 116, 'ui-shop-merchant-vignette')");
     expect(menuSource).toContain("this.add.image(690, 150, 'ui-shop-merchant-vignette')");
+  });
+
+  it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {
+    expect(endingSource).toContain('const key = `bg-ending-${entry.kind}`');
+    expect(endingSource).toContain('this.add.image(x, 362, key)');
+    expect(endingSource).toContain('if (!entry.seen) image.setTint');
   });
 
   it('dokumentiert jede eingecheckte Asset-Datei in ASSETS.md', () => {

@@ -91,6 +91,21 @@ test('Shopkopf zeigt die projektgenerierte Händler-Vignette', async ({ page }) 
   expect(browserErrors).toEqual([]);
 });
 
+test('Ende-Galerie zeigt erreichte Key-Art und unbekannte Karten', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({ flags: { 'ending.true': true } }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 500);
+  await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.filter((name) => name.includes('ending-')).length).toBeGreaterThanOrEqual(3);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
