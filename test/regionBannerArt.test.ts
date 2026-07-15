@@ -15,6 +15,12 @@ describe('Gebietsindikator-Banner', () => {
     expect(menuSource).toContain('this.add.image(836, 172, bannerKey)');
   });
 
+  it('zeigt vorhandene Gebiets-Banner auch in den Diplomatiekarten', () => {
+    expect(menuSource).toContain("standing.faction.id === 'orcs' ? 'jura-battlefield'");
+    expect(menuSource).toContain("standing.faction.id === 'lizardmen' ? 'lizardman-marsh'");
+    expect(menuSource).toContain('this.add.image(336, y, bannerKey)');
+  });
+
   it('deckt jede vorhandene Overworld-Karte ab', () => {
     expect(Object.keys(REGION_BANNER_TEXTURES).sort()).toEqual(Object.keys(MAPS).sort());
   });
