@@ -71,6 +71,26 @@ test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
+test('Shopkopf zeigt die projektgenerierte Händler-Vignette', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'tempest-start', x: 4, y: 3, facing: 'right' }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Space');
+  await settle(page, 150);
+  await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('shop-merchant-vignette'))).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
