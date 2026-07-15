@@ -106,6 +106,19 @@ test('Ende-Galerie zeigt erreichte Key-Art und unbekannte Karten', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
+test('Speicherkarten zeigen das Portrait der Hauptfigur', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 392);
+  await settle(page, 250);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

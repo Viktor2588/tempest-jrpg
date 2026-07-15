@@ -4,11 +4,17 @@ import { PORTRAIT_KINDS } from '../src/render/artSpec';
 import portraitSource from '../src/render/portraitAtlas.ts?raw';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import menuSource from '../src/scenes/MenuScene.ts?raw';
+import saveSlotSource from '../src/scenes/SaveSlotScene.ts?raw';
 
 describe('Portrait-Atlas-Zuordnung', () => {
   it('zeigt die vorhandenen Charakterportraits auch in der Seitenleiste', () => {
     expect(menuSource).toContain('this.drawPortrait(summary.member.characterId, 48, y, 34)');
     expect(menuSource).toContain('textOffsetX: 54');
+  });
+
+  it('zeigt das vorhandene Gruppenleiter-Portrait auch im belegten Speicherslot', () => {
+    expect(saveSlotSource).toContain('portraitKey(lead.characterId as PortraitKind)');
+    expect(saveSlotSource).toContain('this.add.image(x + 40, y + 66, leadPortrait)');
   });
 
   it('ordnet den versiegelten Sturmdrachen einem eigenen Portrait zu', () => {

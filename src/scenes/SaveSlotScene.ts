@@ -13,6 +13,9 @@ import {
 import { getChapterBanner } from '../systems/chapterBanner';
 import { playSfx } from '../audio/sfx';
 import { fadeIn, fadeToScene } from './transition';
+import { portraitKey } from '../render/portraitAtlas';
+import { addUiPortraitFrame } from '../render/uiSkin';
+import type { PortraitKind } from '../render/artSpec';
 
 // Phase 90 — Speicherstand-Auswahl: pro Slot Fortsetzen / Neues Spiel / Löschen.
 // Der gewählte Slot wird aktiv gesetzt; alle Spielszenen speichern/laden dann dorthin.
@@ -64,10 +67,15 @@ export class SaveSlotScene extends Phaser.Scene {
       const banner = getChapterBanner(info.save);
       const lead = info.save.party.active[0];
       const leadText = lead ? `${lead.name} · Lv ${lead.level}` : 'Party unbekannt';
-      this.layer.add(this.add.text(x + 16, y + 40, `${banner.kicker}: ${banner.line}`, {
+      const leadPortrait = lead ? portraitKey(lead.characterId as PortraitKind) : null;
+      if (leadPortrait && this.textures.exists(leadPortrait)) {
+        this.layer.add(addUiPortraitFrame(this, x + 40, y + 66, 44));
+        this.layer.add(this.add.image(x + 40, y + 66, leadPortrait).setDisplaySize(44, 44));
+      }
+      this.layer.add(this.add.text(x + 76, y + 40, `${banner.kicker}: ${banner.line}`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: '#e9eef7'
       }));
-      this.layer.add(this.add.text(x + 16, y + 64, `${leadText}  ·  ${formatDate(info.save.updatedAt)}`, {
+      this.layer.add(this.add.text(x + 76, y + 64, `${leadText}  ·  ${formatDate(info.save.updatedAt)}`, {
         fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
       }));
       this.button(x + w - 300, y + h / 2, 130, '▶ Fortsetzen', () => this.continueSlot(info.slot));
