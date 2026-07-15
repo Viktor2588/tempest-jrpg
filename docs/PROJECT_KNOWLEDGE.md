@@ -1786,6 +1786,18 @@ test/release.test.ts
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke mit
   gefuelltem Bestiarium und ohne Browserfehler.
 
+### Phase 216 - Herkunfts-Cutouts im Bewohner-Roster
+
+- Branch/Worktree: `phase-216-resident-cutouts` in
+  `/worktree/tempest-phase-216-resident-cutouts`.
+- Die bereits vorgeladenen Gegnertexturen der jeweiligen `originEnemyId`
+  erscheinen nun auch im Bewohner-Roster. Benannte Bewohner werden farbig
+  gezeigt, noch unbekannte Plaetze als abgedunkelte Herkunfts-Silhouette;
+  Daten-, Kampf- und Balancelogik bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 837 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke mit
+  gefuelltem Bewohner-Roster und ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:

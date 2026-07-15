@@ -1322,17 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Vierundzwanzigste Welle: Bewohner zeigen ihre Herkunft (Asset-Reuse, Plan 2026-07-15)
-
-Befund: Jeder datengetriebene Bewohner verweist bereits auf genau eine
-`originEnemyId` mit vorhandenem, vorgeladenem Gegner-Cutout. Das sichtbare
-Bewohner-Roster zeigt diese Herkunft bislang nur als Text.
-
-- [x] Phase 216 — Herkunfts-Cutouts im Bewohner-Roster (abgeschlossen im
-  isolierten Worktree). Die
-  vorhandenen Gegnertexturen werden in der Vierer-Kartenansicht wiederverwendet;
-  noch nicht benannte Bewohner bleiben als abgedunkelte Silhouette erkennbar.
-  Keine neuen Assets, Daten- oder Balance-Aenderungen. Mapping-/Bewohner-Tests
-  gruen, Typecheck ✓, 837 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
-  fokussierter Desktop-/Mobile-Chromium-Smoke mit gefuelltem Bewohner-Roster ✓.
