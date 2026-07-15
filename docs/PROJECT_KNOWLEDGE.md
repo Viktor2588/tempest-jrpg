@@ -1873,6 +1873,16 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 844 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 225 - Key-Art-Karten in der Ende-Galerie
+
+- Branch/Worktree: `phase-225-ending-gallery-art` in
+  `/worktree/tempest-phase-225-ending-gallery-art`.
+- Die drei vorhandenen Ende-Hintergruende erscheinen nun als Galerie-Karten;
+  ungesehene Enden bleiben abgedunkelt und behalten ihren `???`-Titel.
+- Validiert mit `git diff --check`, Typecheck, 845 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke ueber den echten
+  EndingScene-Start.
+
 ## 14. Change Checklist
 
 Before editing:

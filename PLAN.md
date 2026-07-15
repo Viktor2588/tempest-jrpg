@@ -1322,12 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Dreiunddreissigste Welle: Die Ende-Galerie zeigt ihre Key-Arts (Asset-Reuse, Plan 2026-07-15)
-
-- [x] Phase 225 — Key-Art-Karten in der Ende-Galerie (abgeschlossen im
-  isolierten Worktree). Die drei
-  vorhandenen Ende-Hintergründe werden als Galerie-Thumbnails wiederverwendet;
-  ungesehene Enden bleiben abgedunkelt und spoilerfrei. Typecheck ✓, 845
-  Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie Desktop-/Mobile-
-  Chromium-Smoke über den echten EndingScene-Start ✓.
