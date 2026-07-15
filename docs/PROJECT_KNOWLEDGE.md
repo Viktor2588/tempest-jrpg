@@ -1864,6 +1864,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 844 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 224 - Haendler-Vignette im Inventarkopf
+
+- Branch/Worktree: `phase-224-inventory-vignette` in
+  `/worktree/tempest-phase-224-inventory-vignette`.
+- Das vorhandene 21-KB-Shopasset visualisiert nun auch den Inventarkopf; kein
+  zweites Asset, kein Item-Icon-System und keine Daten- oder Balance-Aenderung.
+- Validiert mit `git diff --check`, Typecheck, 844 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
