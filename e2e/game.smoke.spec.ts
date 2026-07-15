@@ -1207,6 +1207,40 @@ test('Skill-HUD-Banner werden vom Browser geladen', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Bestiarium zeigt analysierte Cutouts und unbekannte Silhouetten', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const save = bandTwoBrowserSave();
+  save.progression = {
+    ...(save.progression as Record<string, unknown>),
+    defeatedEnemyCountsByEnemyId: { 'forest-slime': 3, 'direwolf-pup': 1 },
+    analyzedEnemyIds: ['forest-slime']
+  };
+  await installBrowserSave(page, save);
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await settle(page, 100);
+  await clickGamePoint(page, 760, 94); // Codex
+  await clickGamePoint(page, 616, 155); // Bestiarium
+  await settle(page, 150);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('enemy-forest-slime'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-direwolf-pup'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
   // Belt-and-suspenders: settle() screenshotet nicht mehr (systemischer Fix),
   // aber dieser menu-schwere Pfad behaelt viele explizite expectCanvasContent()-
