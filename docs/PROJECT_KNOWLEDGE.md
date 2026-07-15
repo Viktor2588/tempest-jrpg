@@ -1759,6 +1759,21 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke am echten
   Tempest-Lager ohne Browserfehler.
 
+### Phase 214 - Tempests Wachstum bleibt im Kampf sichtbar
+
+- Branch/Worktree: `phase-214-tempest-battle-growth` in
+  `/worktree/tempest-phase-214-tempest-battle-growth`.
+- Assets: `backgrounds/battle-tempest-{camp,village,city}.webp`, jeweils
+  1280x720; per Built-in-Imagegen aus den vorhandenen Tempest-Bannern,
+  Wachstumstiles und Kampfkompositionen erzeugt und in `ASSETS.md`
+  dokumentiert.
+- Regulaere Encounter auf `tempest-start` waehlen ueber den bestehenden
+  `resolveTempestGrowthStage`-Stand die passende Lager-, Dorf- oder Stadtarena;
+  spezielle Story-Arenen behalten Vorrang.
+- Validiert mit `git diff --check`, Typecheck, 835 Unit-Tests inklusive
+  Balance-Harness, Build sowie sechs fokussierten Desktop-/Mobile-Chromium-
+  Smokes in echten Trainingskaempfen.
+
 ## 14. Change Checklist
 
 Before editing:
