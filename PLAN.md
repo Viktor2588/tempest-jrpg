@@ -1322,3 +1322,12 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Fuenfundzwanzigste Welle: Tempests Ausbau bleibt im Einrichtungen-Menue sichtbar (Asset-Reuse, Plan 2026-07-15)
+
+- [x] Phase 217 — Wachstumsbanner in der Einrichtungen-Ansicht (abgeschlossen
+  im isolierten Worktree).
+  Der bereits berechnete Wachstumsstand nutzt dort das vorhandene regionale
+  Tempest-Banner. Keine neuen Assets, Daten- oder Balance-Aenderungen.
+  Typecheck ✓, 838 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
+  fokussierter Desktop-/Mobile-Chromium-Smoke der Einrichtungen ✓.

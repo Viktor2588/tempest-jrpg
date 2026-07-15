@@ -75,6 +75,7 @@ import {
 } from '../systems/menuLayout';
 import { portraitKey } from '../render/portraitAtlas';
 import { enemyArtFor } from '../render/enemyArt';
+import { regionBannerTextureForMap } from '../render/regionBannerArt';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
@@ -1523,8 +1524,14 @@ export class MenuScene extends Phaser.Scene {
       ? `${stageLabel} · Ausbaustufe ${overview.level} · ${cycles} Produktionszyklen`
       : `${stageLabel} · noch keine Einrichtungen — gründe zuerst Tempest`;
     this.layer.add(this.add.text(318, 172, summary, {
-      fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc', wordWrap: { width: 450 }
     }));
+    const bannerKey = regionBannerTextureForMap(
+      'tempest-start',
+      (textureKey) => this.textures.exists(textureKey),
+      this.save.flags
+    );
+    if (bannerKey) this.layer.add(this.add.image(836, 172, bannerKey).setDisplaySize(104, 40));
 
     overview.facilities.forEach((view, index) => {
       const y = 204 + index * 60;
