@@ -21,6 +21,11 @@ describe('Gebietsindikator-Banner', () => {
     expect(menuSource).toContain('this.add.image(336, y, bannerKey)');
   });
 
+  it('zeigt vorhandene Gebiets-Banner auch in Rangas Reiseliste', () => {
+    expect(menuSource).toContain('regionBannerTextureForMap(\n        destination.mapId');
+    expect(menuSource).toContain("destination.status === 'unknown' || destination.status === 'locked'");
+  });
+
   it('deckt jede vorhandene Overworld-Karte ab', () => {
     expect(Object.keys(REGION_BANNER_TEXTURES).sort()).toEqual(Object.keys(MAPS).sort());
   });
