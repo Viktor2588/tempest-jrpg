@@ -7,8 +7,14 @@ import {
   regionBannerTextureForMap
 } from '../src/render/regionBannerArt';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
+import menuSource from '../src/scenes/MenuScene.ts?raw';
 
 describe('Gebietsindikator-Banner', () => {
+  it('zeigt das vorhandene Tempest-Wachstumsbanner auch bei den Einrichtungen', () => {
+    expect(menuSource).toContain("regionBannerTextureForMap(\n      'tempest-start'");
+    expect(menuSource).toContain('this.add.image(836, 172, bannerKey)');
+  });
+
   it('deckt jede vorhandene Overworld-Karte ab', () => {
     expect(Object.keys(REGION_BANNER_TEXTURES).sort()).toEqual(Object.keys(MAPS).sort());
   });
