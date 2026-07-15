@@ -1808,6 +1808,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 838 Unit-Tests inklusive
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 218 - Gebiets-Banner in den Diplomatiekarten
+
+- Branch/Worktree: `phase-218-diplomacy-banners` in
+  `/worktree/tempest-phase-218-diplomacy-banners`.
+- Dwargon, Blumund, Orks und Echsenmenschen verwenden nun ihre vorhandenen
+  Gebiets-Banner in den Diplomatiekarten; Daten und Balance bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 839 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

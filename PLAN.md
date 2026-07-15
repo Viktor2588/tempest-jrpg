@@ -1322,11 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Sechsundzwanzigste Welle: Diplomatie zeigt ihre Regionen (Asset-Reuse, Plan 2026-07-15)
-
-- [x] Phase 218 — Gebiets-Banner in den Diplomatiekarten (abgeschlossen im
-  isolierten Worktree). Vorhandene
-  Banner visualisieren Dwargon, Blumund, Orks und Echsenmenschen. Keine neuen
-  Assets, Daten- oder Balance-Aenderungen. Typecheck ✓, 839 Unit-Tests inklusive
-  Balance-Harness ✓, Build ✓ sowie Desktop-/Mobile-Chromium-Smoke ✓.
