@@ -9,12 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 227 — Veralteten Fallbackmarker-Smoke entfernen (abgeschlossen)
-  Worktree: `/worktree/tempest-phase-227-fallback-smoke`. Der Smoke tastete den
-  inzwischen mit eigener Rastplatz-Vignette ausgestatteten NPC „Tempest-Lager“
-  weiterhin als runden Fallback ab und widersprach damit dem aktuellen Soll.
-  Abnahme: Typecheck, 846 Unit-Tests, Build sowie 3 fokussierte Desktop-Smokes
-  (Rastplatz-Vignette, Schattenwolf-Benennung, Kolosseum) grün.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 

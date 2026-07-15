@@ -1893,6 +1893,16 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 227 - Veralteten Fallbackmarker-Smoke entfernen
+
+- Branch/Worktree: `phase-227-fallback-smoke` in
+  `/worktree/tempest-phase-227-fallback-smoke`.
+- Der entfernte Pixeltest erwartete beim NPC `Tempest-Lager` noch einen runden
+  Fallback, obwohl dieser bereits die dedizierte Rastplatz-Vignette verwendet;
+  der bestehende Vignetten-Smoke deckt das aktuelle Sollverhalten ab.
+- Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
+  Balance-Harness, Build sowie 3 fokussierten Desktop-Chromium-Smokes.
+
 ## 14. Change Checklist
 
 Before editing:
