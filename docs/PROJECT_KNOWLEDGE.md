@@ -1826,6 +1826,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 840 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 220 - Gegner-Cutouts im Verschlingen-Kompendium
+
+- Branch/Worktree: `phase-220-devour-cutouts` in
+  `/worktree/tempest-phase-220-devour-cutouts`.
+- Das Kompendium verwendet nun `enemyId`, `enemyName` und `enemyArtFor` fuer die
+  vorhandenen Cutouts; noch nicht erbeutete Quellen erscheinen als Silhouette.
+- Validiert mit `git diff --check`, Typecheck, 841 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
