@@ -44,6 +44,11 @@ describe('Gegner-Art-Mapping', () => {
     expect(menuSource).toContain('if (!entry.analyzed) image.setTint');
   });
 
+  it('verwendet die Herkunfts-Cutouts auch im Bewohner-Roster', () => {
+    expect(menuSource).toContain('enemyArtFor(entry.resident.originEnemyId, entry.originEnemyName)');
+    expect(menuSource).toContain('if (!entry.recruited) image.setTint');
+  });
+
   it('ordnet jedem datengetriebenen Gegner eine echte Textur zu', () => {
     for (const enemy of ENEMIES) {
       expect(enemyArtFor(enemy.id, enemy.name).textureKey).toBeTruthy();

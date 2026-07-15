@@ -1441,17 +1441,24 @@ export class MenuScene extends Phaser.Scene {
     page.forEach((entry, index) => {
       const y = 206 + index * 78;
       this.panel(300, y, 590, 60);
+      const art = enemyArtFor(entry.resident.originEnemyId, entry.originEnemyName);
+      if (art.textureKey && this.textures.exists(art.textureKey)) {
+        this.layer.add(addUiPortraitFrame(this, 336, y, 46));
+        const image = this.add.image(336, y, art.textureKey, art.frame).setDisplaySize(46, 46);
+        if (!entry.recruited) image.setTint(0x303846).setAlpha(0.78);
+        this.layer.add(image);
+      }
       const heading = entry.recruited
         ? `${entry.awakened ? '✦' : entry.promoted ? '★' : '✓'} ${entry.resident.name} — ${entry.resident.species}  · ${entry.resident.role}`
         : `○ Unbenannt — ${entry.resident.species}`;
-      this.layer.add(this.add.text(318, y - 19, heading, {
+      this.layer.add(this.add.text(372, y - 19, heading, {
         fontFamily: 'sans-serif', fontSize: '15px', color: entry.recruited ? '#8dffc2' : '#6f83a5'
       }));
       const body = entry.recruited
         ? entry.resident.origin
         : `Verschlinge einen ${entry.originEnemyName}, um ihn zu benennen.`;
-      this.layer.add(this.add.text(318, y + 2, body, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      this.layer.add(this.add.text(372, y + 2, body, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 496 }
       }));
       if (entry.recruited && !entry.promoted) {
         this.button(748, y + 13, 126, `Offizier · ${RESIDENT_PROMOTION_MAGICULE_COST}`, () =>

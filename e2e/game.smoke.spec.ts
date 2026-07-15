@@ -1241,6 +1241,39 @@ test('Bestiarium zeigt analysierte Cutouts und unbekannte Silhouetten', async ({
   expect(browserErrors).toEqual([]);
 });
 
+test('Bewohner-Roster zeigt benannte Cutouts und unbekannte Silhouetten', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const save = bandTwoBrowserSave();
+  save.progression = {
+    ...(save.progression as Record<string, unknown>),
+    residentIds: ['sturmzahn']
+  };
+  await installBrowserSave(page, save);
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await settle(page, 100);
+  await clickGamePoint(page, 760, 94); // Codex
+  await clickGamePoint(page, 244, 140); // Bewohner
+  await settle(page, 150);
+
+  const loadedAssets = await page.evaluate(() => (
+    performance.getEntriesByType('resource').map((entry) => entry.name)
+  ));
+  expect(loadedAssets.some((name) => name.includes('enemy-direwolf-alpha'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('enemy-spore-moth'))).toBe(true);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({ page }) => {
   // Belt-and-suspenders: settle() screenshotet nicht mehr (systemischer Fix),
   // aber dieser menu-schwere Pfad behaelt viele explizite expectCanvasContent()-
