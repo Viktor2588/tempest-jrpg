@@ -1819,7 +1819,19 @@ export class MenuScene extends Phaser.Scene {
       const y = destCol.top + index * destCol.rowHeight;
       const label = `${destination.name} · ${destination.dangerLabel}`;
       const clickable = destination.status === 'available';
-      this.button(300, y, 238, label, () => {
+      const bannerKey = regionBannerTextureForMap(
+        destination.mapId,
+        (textureKey) => this.textures.exists(textureKey),
+        this.save.flags
+      );
+      if (bannerKey) {
+        const banner = this.add.image(320, y, bannerKey).setDisplaySize(34, 34);
+        if (destination.status === 'unknown' || destination.status === 'locked') {
+          banner.setTint(0x303846).setAlpha(0.78);
+        }
+        this.layer.add(banner);
+      }
+      this.button(344, y, 194, label, () => {
         if (!clickable) {
           this.message = destination.reason;
           this.refresh();
