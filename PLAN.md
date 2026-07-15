@@ -1331,8 +1331,9 @@ und Dorf zur Stadt, jeder regulaere Kampf faellt aber weiter auf den unveraender
 Tempest mehrere tatsaechlich erreichbare Encounter, sodass eine Wachstumsarena im
 normalen Spiel sichtbar wird.
 
-- [x] Phase 214 — Kampfarena fuer das gewachsene Tempest (abgeschlossen im
-  isolierten Worktree). Das neue 1280x720-WebP zeigt Palisade, Huetten und
+- [~] Phase 214 — Kampfarena fuer das gewachsene Tempest (Umsetzung und Abnahme
+  abgeschlossen; Remote-Push durch Sicherheitsfreigabe blockiert; Worktree
+  `/worktree/tempest-phase-214-tempest-battle-growth`). Das neue 1280x720-WebP zeigt Palisade, Huetten und
   Jura-Waldrand mit freier Kampfmitte. Regulaere Tempest-Encounter nutzen es ab
   der Lager-Stufe ueber die bestehende Arena-/Preload-Kette; besondere
   Story-Arenen behalten Vorrang. Provenienz in `ASSETS.md`; Mapping-/Asset-Tests
