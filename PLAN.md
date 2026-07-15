@@ -1322,3 +1322,11 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
+
+## Siebenundzwanzigste Welle: Kopfgelder zeigen ihre Ziele (Asset-Reuse, Plan 2026-07-15)
+
+- [x] Phase 219 — Gegner-Cutouts auf dem Kopfgeldbrett (abgeschlossen im
+  isolierten Worktree). Die
+  vorhandene `targetEnemyId` nutzt das bestehende `enemyArtFor`-Mapping. Keine
+  neuen Assets, Daten- oder Balance-Aenderungen. Typecheck ✓, 840 Unit-Tests
+  inklusive Balance-Harness ✓, Build ✓ sowie Desktop-/Mobile-Chromium-Smoke ✓.
