@@ -6,6 +6,11 @@ import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import menuSource from '../src/scenes/MenuScene.ts?raw';
 
 describe('Portrait-Atlas-Zuordnung', () => {
+  it('zeigt die vorhandenen Charakterportraits auch in der Seitenleiste', () => {
+    expect(menuSource).toContain('this.drawPortrait(summary.member.characterId, 48, y, 34)');
+    expect(menuSource).toContain('textOffsetX: 54');
+  });
+
   it('ordnet den versiegelten Sturmdrachen einem eigenen Portrait zu', () => {
     expect(portraitSource).toContain("case 'versiegelter sturmdrache':");
     expect(portraitSource).toContain("return 'storm-dragon';");

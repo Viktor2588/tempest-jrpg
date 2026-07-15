@@ -296,10 +296,19 @@ export class MenuScene extends Phaser.Scene {
         summary.member,
         this.save.progression
       );
-      this.button(24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
+      const button = addUiTextButton(this, 24, y, 232, `${summary.member.name}  Lv.${summary.member.level}`, () => {
         this.selectedMemberIndex = index;
         this.refresh();
-      }, this.selectedMemberIndex === index ? 0x30506f : 0x162238, undefined, this.selectedMemberIndex === index);
+      }, {
+        height: MENU_TOUCH_TARGET_PX,
+        fill: this.selectedMemberIndex === index ? 0x30506f : 0x162238,
+        idleAlpha: 0.96,
+        fontSize: '13px',
+        textOffsetX: 54,
+        focused: this.selectedMemberIndex === index
+      });
+      this.layer.add(button);
+      this.drawPortrait(summary.member.characterId, 48, y, 34);
       this.layer.add(this.add.text(34, y + 30, `LP ${summary.member.currentHp}/${stats.maxHp} · MP ${summary.member.currentMp}/${stats.maxMp}`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',

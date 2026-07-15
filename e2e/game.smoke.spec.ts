@@ -54,6 +54,23 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   expect(browserErrors).toEqual([]);
 });
 
+test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('2');
+  await settle(page, 150);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Prologstart → Sturmdrachen-Schwur setzt Storyflags im Browser', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
