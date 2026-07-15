@@ -53,6 +53,11 @@ describe('Gegner-Art-Mapping', () => {
     expect(menuSource).toContain('enemyArtFor(view.bounty.targetEnemyId, view.targetName)');
   });
 
+  it('verwendet die Quellen-Cutouts auch im Verschlingen-Kompendium', () => {
+    expect(menuSource).toContain('enemyArtFor(entry.enemyId, entry.enemyName)');
+    expect(menuSource).toContain('if (!entry.learned) image.setTint');
+  });
+
   it('ordnet jedem datengetriebenen Gegner eine echte Textur zu', () => {
     for (const enemy of ENEMIES) {
       expect(enemyArtFor(enemy.id, enemy.name).textureKey).toBeTruthy();
