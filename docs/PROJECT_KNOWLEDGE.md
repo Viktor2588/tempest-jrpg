@@ -1835,6 +1835,15 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 841 Unit-Tests inklusive
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
 
+### Phase 221 - Gebiets-Banner in der Ranga-Reiseliste
+
+- Branch/Worktree: `phase-221-ranga-banners` in
+  `/worktree/tempest-phase-221-ranga-banners`.
+- Rangas Reiseziele verwenden nun ihre vorhandene `mapId` mit
+  `regionBannerTextureForMap`; unbekannte und gesperrte Ziele bleiben abgedunkelt.
+- Validiert mit `git diff --check`, Typecheck, 842 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:

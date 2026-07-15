@@ -1322,12 +1322,3 @@ unberuehrt); wird trotzdem gegen die Harness gruen gefahren.
   828 Unit-Tests inkl. Balance-Harness (beide Tests, je Spec) gruen ✓, Build ✓.
 
 ## UX- und Welt-Backlog
-
-## Neunundzwanzigste Welle: Rangas Routen zeigen ihre Regionen (Asset-Reuse, Plan 2026-07-15)
-
-- [x] Phase 221 — Gebiets-Banner in der Ranga-Reiseliste (abgeschlossen im
-  isolierten Worktree). Die vorhandene
-  Ziel-`mapId` nutzt `regionBannerTextureForMap`; unbekannte und gesperrte Ziele
-  bleiben abgedunkelt. Keine neuen Assets, Daten- oder Balance-Aenderungen.
-  Typecheck ✓, 842 Unit-Tests inklusive Balance-Harness ✓, Build ✓ sowie
-  Desktop-/Mobile-Chromium-Smoke ✓.
