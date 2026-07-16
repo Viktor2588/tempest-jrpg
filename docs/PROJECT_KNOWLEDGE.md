@@ -1903,6 +1903,21 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
   Balance-Harness, Build sowie 3 fokussierten Desktop-Chromium-Smokes.
 
+### Phase 228 - Eigene Portraits fuer die fuenf Akademieschueler
+
+- Branch/Worktree: `phase-228-academy-student-portraits` in
+  `/worktree/tempest-phase-228-academy-student-portraits`.
+- Assets: `sprites/portrait-{kenya,chloe,alice,ryota,gale}.webp`, jeweils
+  512x512; projektinterne Ausschnitte aus dem vorhandenen, projektgenerierten
+  Gruppenportrait `portrait-shizu-children.webp`, in `ASSETS.md` dokumentiert.
+- Kenya, Chloe, Alice, Ryota und Gale verwenden nun auf der Weltkarte und im
+  Dialog ihr eigenes Portrait statt fuenfmal dasselbe Gruppenmotiv; der
+  Gruppen-Key bleibt fuer echte Gruppensprecher erhalten. Story und Balance
+  bleiben unveraendert.
+- Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke am
+  echten Freiheitsakademie-Save ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:

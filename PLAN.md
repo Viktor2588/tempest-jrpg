@@ -9,15 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 228 — Eigene Portraits für die fünf Akademieschüler (abgeschlossen)
-  im Worktree `/worktree/tempest-phase-228-academy-student-portraits`.
-  Kenya, Chloe, Alice, Ryota und Gale verwenden auf der Karte und im Dialog
-  derzeit alle dasselbe Gruppenportrait. Fünf Ausschnitte aus dem vorhandenen
-  projektgenerierten Gruppenasset machen die benannten Figuren unterscheidbar,
-  ohne Story- oder Balanceänderung. Akzeptanz erfüllt: eindeutige
-  Sprecherzuordnung und Asset-Provenienz dokumentiert; `git diff --check`,
-  Typecheck, 846 Unit-Tests inklusive Balance-Harness, Build sowie fokussierter
-  Desktop-/Mobile-Chromium-Smoke am echten Freiheitsakademie-Save grün.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
