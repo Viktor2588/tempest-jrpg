@@ -2001,6 +2001,18 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke, der die echte
   Dwargon-Schmiede oeffnet und Magisteel herstellt.
 
+### Phase 235 - Party-Art fuer Beitritts-Meilensteine
+
+- Branch/Worktree: `phase-235-join-milestone-art` in
+  `/worktree/tempest-phase-235-join-milestone-art`.
+- Die eindeutigen Gruppenbeitritte `gobta-joins` und `ranga-joins` zeigen nun
+  den jeweils bereits geladenen Party-Cutout. Allgemeine Kapitel- und
+  Boss-Meilensteine bleiben bewusst unveraendert.
+- Kein neues Asset, keine neue Datenstruktur und keine Gameplay-Aenderung.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke des echten
+  Gobta-Beitritts-Meilensteins.
+
 ## 14. Change Checklist
 
 Before editing:
