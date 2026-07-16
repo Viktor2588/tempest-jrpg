@@ -8,6 +8,7 @@ import preloadSource from '../src/scenes/PreloadScene.ts?raw';
 import shopSource from '../src/scenes/ShopScene.ts?raw';
 import menuSource from '../src/scenes/MenuScene.ts?raw';
 import endingSource from '../src/scenes/EndingScene.ts?raw';
+import overworldSource from '../src/scenes/OverworldScene.ts?raw';
 
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
   .map((path) => path.replace('../src/assets/', ''));
@@ -17,6 +18,8 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(preloadSource).toContain("this.load.image('ui-shop-merchant-vignette'");
     expect(shopSource).toContain("this.add.image(700, 116, 'ui-shop-merchant-vignette')");
     expect(menuSource).toContain("this.add.image(690, 150, 'ui-shop-merchant-vignette')");
+    expect(overworldSource).toContain("this.add.image(x, y, 'ui-shop-merchant-vignette')");
+    expect(overworldSource).toContain('.setCrop(64, 0, 256, 256)');
   });
 
   it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {

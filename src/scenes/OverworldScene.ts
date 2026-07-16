@@ -811,13 +811,23 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     for (const shop of SHOPS.filter((item) => item.mapId === this.mapId)) {
-      layer.add(this.add.rectangle(this.cx(shop.position.x), this.cy(shop.position.y), TILE * 0.7, TILE * 0.7, 0x2f6f55, 0.95)
-        .setStrokeStyle(2, 0x8affc1, 0.9));
-      layer.add(this.add.text(this.cx(shop.position.x), this.cy(shop.position.y), '店', {
-        fontFamily: 'sans-serif',
-        fontSize: '18px',
-        color: '#e9eef7'
-      }).setOrigin(0.5));
+      const x = this.cx(shop.position.x);
+      const y = this.cy(shop.position.y);
+      if (this.textures.exists('ui-shop-merchant-vignette')) {
+        const size = TILE * 0.7;
+        layer.add(addUiPortraitFrame(this, x, y, size));
+        layer.add(this.add.image(x, y, 'ui-shop-merchant-vignette')
+          .setCrop(64, 0, 256, 256)
+          .setDisplaySize(size, size));
+      } else {
+        layer.add(this.add.rectangle(x, y, TILE * 0.7, TILE * 0.7, 0x2f6f55, 0.95)
+          .setStrokeStyle(2, 0x8affc1, 0.9));
+        layer.add(this.add.text(x, y, '店', {
+          fontFamily: 'sans-serif',
+          fontSize: '18px',
+          color: '#e9eef7'
+        }).setOrigin(0.5));
+      }
     }
   }
 

@@ -71,7 +71,7 @@ test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
-test('Shopkopf zeigt die projektgenerierte Händler-Vignette', async ({ page }) => {
+test('Weltmarker und Shopkopf zeigen die projektgenerierte Händler-Vignette', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
