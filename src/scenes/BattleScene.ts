@@ -39,7 +39,7 @@ import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
 import { elementLabel } from '../systems/battlePresentation';
-import { enemyDamageMultiplier, loadSettings, playerDamageMultiplier } from '../systems/settings';
+import { battleTurnDelayMs, enemyDamageMultiplier, loadSettings, playerDamageMultiplier, type BattleSpeed } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playSfxProcedural } from '../audio/sfxProcedural';
 import { playMusic, resumeMusic } from '../audio/music';
@@ -89,6 +89,7 @@ export class BattleScene extends Phaser.Scene {
   // Phase 157 — gerolltes Boss-Endgame-Loot (kodierte Instanz-Id) für die Sieg-Zeile.
   private bossLoot: string | null = null;
   private auto = false;
+  private battleSpeed: BattleSpeed = 'normal';
   private save!: SaveGameV2;
   private encounterId: string | null = null;
   // Phase 173 — Welt-Uhr im Kampf lesbar: Zeit/Wetter-Zeile aus dem Encounter (Phase 101).
@@ -112,6 +113,7 @@ export class BattleScene extends Phaser.Scene {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
     const settings = loadSettings(window.localStorage);
+    this.battleSpeed = settings.battleSpeed;
     this.encounterId = data?.encounterId ?? null;
     this.clockLabel = data?.clockLabel ?? null;
     this.battleClock = data?.clock ?? null;
@@ -350,7 +352,7 @@ export class BattleScene extends Phaser.Scene {
       this.mode = 'menu';
       this.refresh();
       if (this.auto) {
-        this.time.delayedCall(260, () => {
+        this.time.delayedCall(battleTurnDelayMs({ battleSpeed: this.battleSpeed }, 260), () => {
           if (!this.auto || !isPlayerTurn(this.state)) return;
           const action = chooseAutoAction(this.state);
           if (action) this.doAct(action);
@@ -361,7 +363,7 @@ export class BattleScene extends Phaser.Scene {
 
     this.mode = 'busy';
     this.refresh();
-    this.time.delayedCall(320, () => {
+    this.time.delayedCall(battleTurnDelayMs({ battleSpeed: this.battleSpeed }, 320), () => {
       if (this.auto) prepareAutoReaction(this.state);
       const before = snapshot(this.allViews());
       enemyTurn(this.state);

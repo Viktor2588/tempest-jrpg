@@ -4,10 +4,12 @@
 
 export type Difficulty = 'leicht' | 'normal' | 'schwer';
 export type TextSpeed = 'langsam' | 'normal' | 'schnell' | 'sofort';
+export type BattleSpeed = 'normal' | 'schnell';
 export type Colorblind = 'aus' | 'protan' | 'deutan' | 'tritan';
 
 export const DIFFICULTIES: readonly Difficulty[] = ['leicht', 'normal', 'schwer'];
 export const TEXT_SPEEDS: readonly TextSpeed[] = ['langsam', 'normal', 'schnell', 'sofort'];
+export const BATTLE_SPEEDS: readonly BattleSpeed[] = ['normal', 'schnell'];
 export const COLORBLIND_MODES: readonly Colorblind[] = ['aus', 'protan', 'deutan', 'tritan'];
 
 export interface GameSettings {
@@ -19,6 +21,7 @@ export interface GameSettings {
   // Zugänglichkeit (Phase 14)
   difficulty: Difficulty;
   textSpeed: TextSpeed;
+  battleSpeed: BattleSpeed;
   highContrast: boolean;
   colorblind: Colorblind;
 }
@@ -38,6 +41,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   seenTutorial: false,
   difficulty: 'normal',
   textSpeed: 'normal',
+  battleSpeed: 'normal',
   highContrast: false,
   colorblind: 'aus'
 };
@@ -64,6 +68,7 @@ export function normalizeSettings(raw: unknown): GameSettings {
     seenTutorial: asBool(r.seenTutorial, DEFAULT_SETTINGS.seenTutorial),
     difficulty: asEnum(r.difficulty, DIFFICULTIES, DEFAULT_SETTINGS.difficulty),
     textSpeed: asEnum(r.textSpeed, TEXT_SPEEDS, DEFAULT_SETTINGS.textSpeed),
+    battleSpeed: asEnum(r.battleSpeed, BATTLE_SPEEDS, DEFAULT_SETTINGS.battleSpeed),
     highContrast: asBool(r.highContrast, DEFAULT_SETTINGS.highContrast),
     colorblind: asEnum(r.colorblind, COLORBLIND_MODES, DEFAULT_SETTINGS.colorblind)
   };
@@ -100,6 +105,11 @@ export function effectiveMusicVolume(s: GameSettings): number {
 /** Verzögerung pro Zeichen für den Dialog-Schreibmaschineneffekt (ms). 0 = sofort. */
 export function textCharDelayMs(s: GameSettings): number {
   return { langsam: 45, normal: 24, schnell: 12, sofort: 0 }[s.textSpeed];
+}
+
+/** Zugpause im Kampf; Animationen und Kampfwerte bleiben unverändert. */
+export function battleTurnDelayMs(s: Pick<GameSettings, 'battleSpeed'>, normalMs: number): number {
+  return s.battleSpeed === 'schnell' ? Math.round(normalMs * 0.35) : normalMs;
 }
 
 /** Schadensmultiplikator gegen den Spieler je Schwierigkeit (für die Kampf-Engine). */

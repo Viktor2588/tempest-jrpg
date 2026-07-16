@@ -3,8 +3,8 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import {
   loadSettings, saveSettings, type GameSettings,
-  DIFFICULTIES, TEXT_SPEEDS, COLORBLIND_MODES,
-  type Difficulty, type TextSpeed, type Colorblind
+  DIFFICULTIES, TEXT_SPEEDS, BATTLE_SPEEDS, COLORBLIND_MODES,
+  type Difficulty, type TextSpeed, type BattleSpeed, type Colorblind
 } from '../systems/settings';
 import { playSfx } from '../audio/sfx';
 import { updateMusicVolume } from '../audio/music';
@@ -14,6 +14,7 @@ type VolumeKey = 'masterVolume' | 'musicVolume' | 'sfxVolume';
 
 const DIFFICULTY_LABEL: Record<Difficulty, string> = { leicht: 'Leicht', normal: 'Normal', schwer: 'Schwer' };
 const TEXTSPEED_LABEL: Record<TextSpeed, string> = { langsam: 'Langsam', normal: 'Normal', schnell: 'Schnell', sofort: 'Sofort' };
+const BATTLESPEED_LABEL: Record<BattleSpeed, string> = { normal: 'Normal', schnell: 'Schnell' };
 const COLORBLIND_LABEL: Record<Colorblind, string> = { aus: 'Aus', protan: 'Protanopie', deutan: 'Deuteranopie', tritan: 'Tritanopie' };
 
 // Optionsbildschirm: Lautstärken, Zugänglichkeit (Schwierigkeit, Tempo, Kontrast,
@@ -37,7 +38,7 @@ export class OptionsScene extends Phaser.Scene {
     this.add.text(GAME_WIDTH / 2, 52, '⚙ Optionen', { fontFamily: 'serif', fontSize: '32px', color: '#e9c56c' }).setOrigin(0.5);
 
     let y = 102;
-    const pitch = 46;
+    const pitch = 42;
     this.volumeRow('Gesamtlautstärke', 'masterVolume', y); y += pitch;
     this.volumeRow('Musik', 'musicVolume', y); y += pitch;
     this.volumeRow('Soundeffekte', 'sfxVolume', y); y += pitch;
@@ -47,6 +48,9 @@ export class OptionsScene extends Phaser.Scene {
     }); y += pitch;
     this.cycleRow('Textgeschwindigkeit', y, () => TEXTSPEED_LABEL[this.settings.textSpeed], (dir) => {
       this.settings.textSpeed = cycle(TEXT_SPEEDS, this.settings.textSpeed, dir);
+    }); y += pitch;
+    this.cycleRow('Kampftempo', y, () => BATTLESPEED_LABEL[this.settings.battleSpeed], (dir) => {
+      this.settings.battleSpeed = cycle(BATTLE_SPEEDS, this.settings.battleSpeed, dir);
     }); y += pitch;
     this.toggleRow('Reduzierte Bewegung', y, () => this.settings.reducedMotion, (v) => { this.settings.reducedMotion = v; }); y += pitch;
     this.toggleRow('Hoher Kontrast', y, () => this.settings.highContrast, (v) => { this.settings.highContrast = v; }); y += pitch;
