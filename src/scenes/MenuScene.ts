@@ -113,7 +113,9 @@ export class MenuScene extends Phaser.Scene {
   // Phase 159/160 — Loot-Werkbank (Zerlegen/Umschmieden) als Unteransicht der Schmiede.
   private forgeBench = false;
   private specTreePanY = 0;
-  private specTreeMask?: Phaser.GameObjects.Graphics;
+  private specTreeContent?: Phaser.GameObjects.Container;
+  private specTreeMask?: Phaser.Display.Masks.GeometryMask;
+  private specTreeMaskShape?: Phaser.GameObjects.Graphics;
   private layer!: Phaser.GameObjects.Container;
   private message = TAB_DESCRIPTIONS.party;
   // Phase 141: Einfaches Tooltip-System
@@ -160,6 +162,14 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-DOWN', () => this.moveMenuSelection(1));
     this.input.keyboard?.on('keydown-SPACE', () => this.activateMenuSelection());
     this.input.keyboard?.on('keydown-ENTER', () => this.activateMenuSelection());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.specTreeContent?.clearMask(false);
+      this.specTreeMask?.destroy();
+      this.specTreeMaskShape?.destroy();
+      this.specTreeContent = undefined;
+      this.specTreeMask = undefined;
+      this.specTreeMaskShape = undefined;
+    });
 
     // Phase 141: Direkte Tastenkürzel für Tabs (1-8)
     const digitKeys = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
@@ -202,8 +212,11 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private refresh(): void {
-    this.specTreeMask?.destroy();
-    this.specTreeMask = undefined;
+    // Die GeometryMask vom alten Talentbaum loesen, aber waehrend der Scene
+    // wiederverwenden. Zerstoeren mitten im WebGL-Frame hinterlaesst sonst
+    // einen Stencil, der spaetere Tabs beschneidet oder ausblendet.
+    this.specTreeContent?.clearMask(false);
+    this.specTreeContent = undefined;
     this.layer.removeAll(true);
     const view = buildMenuView(this.state);
     const selected = view.members[this.selectedMemberIndex] ?? view.members[0];
@@ -925,11 +938,14 @@ export class MenuScene extends Phaser.Scene {
     const layout = layoutSpecTree(tree, layoutOptions);
     this.specTreePanY = clampSpecTreePan(layout, this.specTreePanY, layoutOptions);
     const content = this.add.container(0, this.specTreePanY);
-    const maskShape = this.make.graphics({ x: 0, y: 0 }, false)
-      .fillStyle(0xffffff)
-      .fillRect(294, 214, 642, 306);
-    this.specTreeMask = maskShape;
-    content.setMask(maskShape.createGeometryMask());
+    if (!this.specTreeMaskShape) {
+      this.specTreeMaskShape = this.make.graphics({ x: 0, y: 0 }, false)
+        .fillStyle(0xffffff)
+        .fillRect(294, 214, 642, 306);
+      this.specTreeMask = this.specTreeMaskShape.createGeometryMask();
+    }
+    this.specTreeContent = content;
+    content.setMask(this.specTreeMask!);
     const panZone = this.add.zone(294, 214, 642, 306).setOrigin(0).setInteractive();
     let dragY: number | null = null;
     const panTo = (value: number): void => {

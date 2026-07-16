@@ -10,7 +10,13 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 240 – UI-Browser-Audit**
+  - Worktree: `/worktree/tempest-phase-240-ui-browser-audit`
+  - Abnahme: Hochkant-Handys erhalten einen lesbaren Querformat-Hinweis; die
+    Talentbaum-Maske beschneidet beim Wechsel zu Ranga keine spaeteren Tabs.
+  - Checks: `git diff --check`, Typecheck, 852 Unit-Tests, Build, visueller
+    Desktop-/Mobile-Clickthrough sowie Kernfluss-, Hochkant-, Masken- und
+    HiDPI-Browser-Smokes.
 
 ## Integrationswarteschlange
 
