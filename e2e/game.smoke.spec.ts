@@ -1909,7 +1909,8 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await page.waitForTimeout(200);
   await clickGamePoint(page, 244, 140); // Umschalter „🏛️ Bewohner" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
-  await clickGamePoint(page, 810, 219); // Sturmzahn zum Offizier befördern
+  // Card-Anker y=238 (Phase-241: Aktionen in der Karte), Button bei y+8 → Mitte 246.
+  await clickGamePoint(page, 810, 246); // Sturmzahn zum Offizier befördern
   await settle(page, 100);
   await clickGamePoint(page, 347, 140); // Umschalter „🏭 Einrichtungen" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
