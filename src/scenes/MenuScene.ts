@@ -651,6 +651,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawForge(view: MenuView): void {
+    this.drawPortrait('kaijin', 842, 148, 44);
     // Phase 159/160 — Umschalter zwischen Rezepten und der Loot-Werkbank (Zerlegen/Umschmieden).
     this.button(620, 124, 150, this.forgeBench ? '◂ Rezepte' : 'Werkbank ▸', () => {
       this.forgeBench = !this.forgeBench;

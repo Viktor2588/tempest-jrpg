@@ -691,6 +691,31 @@ test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async 
   expect(browserErrors).toEqual([]);
 });
 
+test('Dwargon-Schmiede zeigt Kaijin und schmiedet ein Rezept', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'dwargon', x: 2, y: 7, facing: 'right' },
+    flags: { 'craft.smithing.unlocked': true },
+    inventory: { stacks: [{ itemId: 'magic-ore', quantity: 2 }] },
+    party: { active: [{ characterId: 'rimuru' }], reserve: [], gold: 220 }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('3');
+  await clickGamePoint(page, 539, 124);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 735, 188);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'magisteel')?.quantity).toBe(1);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
