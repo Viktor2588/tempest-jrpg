@@ -11,6 +11,7 @@ import endingSource from '../src/scenes/EndingScene.ts?raw';
 import overworldSource from '../src/scenes/OverworldScene.ts?raw';
 import saveSlotSource from '../src/scenes/SaveSlotScene.ts?raw';
 import optionsSource from '../src/scenes/OptionsScene.ts?raw';
+import discoverySource from '../src/scenes/DiscoveryScene.ts?raw';
 
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
   .map((path) => path.replace('../src/assets/', ''));
@@ -37,6 +38,11 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
 
   it('verwendet das vorhandene Titel-Key-Art auch hinter den Optionen', () => {
     expect(optionsSource).toContain("this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-title-keyart')");
+  });
+
+  it('zeigt Fundstellen mit dem vorhandenen Motiv ihrer Region', () => {
+    expect(discoverySource).toContain('regionBannerTextureForMap(');
+    expect(discoverySource).toContain('this.add.image(cx, 166, bannerKey)');
   });
 
   it('dokumentiert jede eingecheckte Asset-Datei in ASSETS.md', () => {

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { playSfx } from '../audio/sfx';
 import { GAME_HEIGHT, GAME_WIDTH } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
+import { regionBannerTextureForMap } from '../render/regionBannerArt';
 import { fadeIn } from './transition';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { addInventoryItem } from '../systems/inventory';
@@ -26,34 +27,54 @@ export class DiscoveryScene extends Phaser.Scene {
   create(data: DiscoveryData): void {
     configureHiDpiScene(this);
     const save = loadSave(window.localStorage);
-    const discovery = save && data.mapId !== undefined && data.x !== undefined && data.y !== undefined
-      ? getMapDiscoveryAt(data.mapId, data.x, data.y, save.flags, clockAt(save.clockStep ?? 0, save.seed))
-      : null;
+    const mapId = data.mapId ?? '';
+    if (!save || data.x === undefined || data.y === undefined) {
+      this.close();
+      return;
+    }
+    const discovery = getMapDiscoveryAt(
+      mapId,
+      data.x,
+      data.y,
+      save.flags,
+      clockAt(save.clockStep ?? 0, save.seed)
+    );
     if (!discovery) {
       this.close();
       return;
     }
 
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.55);
-    addUiPanel(this, GAME_WIDTH / 2 - 280, GAME_HEIGHT / 2, 560, 240, { originY: 0.5 });
+    const cx = GAME_WIDTH / 2;
+    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.62);
+    addUiPanel(this, cx - 280, GAME_HEIGHT / 2, 560, 340, { originY: 0.5 });
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 88, 'ENTDECKUNG', {
+    const bannerKey = regionBannerTextureForMap(
+      mapId,
+      (key) => this.textures.exists(key),
+      save.flags
+    );
+    if (bannerKey) {
+      this.add.image(cx, 166, bannerKey).setDisplaySize(536, 128);
+      this.add.rectangle(cx, 166, 536, 128, 0x05070d, 0.48);
+    }
+
+    this.add.text(cx, 122, 'ENTDECKUNG', {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#e9c56c'
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 56, discovery.title, {
+    this.add.text(cx, 164, discovery.title, {
       fontFamily: 'serif', fontSize: '26px', color: '#e9eef7'
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 10, discovery.body, {
+    this.add.text(cx, 258, discovery.body, {
       fontFamily: 'sans-serif', fontSize: '14px', color: '#cbd6e8', align: 'center', wordWrap: { width: 480 }
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 38, `Fund: ${discovery.rewardLabel}`, {
+    this.add.text(cx, 318, `Fund: ${discovery.rewardLabel}`, {
       fontFamily: 'sans-serif', fontSize: '15px', color: '#8affc1'
     }).setOrigin(0.5);
 
     addUiTextButton(
       this,
-      GAME_WIDTH / 2 - 110,
-      GAME_HEIGHT / 2 + 82,
+      cx - 110,
+      390,
       220,
       `${discovery.rewardLabel} nehmen`,
       () => this.claim(discovery.flag, discovery.rewardItemId),
