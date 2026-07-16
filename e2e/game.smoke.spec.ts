@@ -175,8 +175,10 @@ test('Optionen zeigen Titel-Key-Art und bleiben bedienbar', async ({ page }) => 
   await settle(page, 250);
   await expectCanvasContent(page);
   await clickGamePoint(page, 720, 102);
+  await clickGamePoint(page, 720, 312);
   const settings = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-settings-v1') ?? '{}'));
   expect(settings.masterVolume).toBe(0.1);
+  expect(settings.battleSpeed).toBe('schnell');
   expect(browserErrors).toEqual([]);
 });
 

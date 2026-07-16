@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_SETTINGS, SETTINGS_KEY, normalizeSettings, loadSettings, saveSettings,
   effectiveSfxVolume, effectiveMusicVolume,
-  textCharDelayMs, enemyDamageMultiplier, playerDamageMultiplier, type SettingsStorage
+  textCharDelayMs, battleTurnDelayMs, enemyDamageMultiplier, playerDamageMultiplier, type SettingsStorage
 } from '../src/systems/settings';
 
 function memStorage(initial?: Record<string, string>): SettingsStorage & { data: Record<string, string> } {
@@ -51,21 +51,25 @@ describe('settings', () => {
   it('Zugänglichkeits-Defaults und Enum-Validierung', () => {
     expect(DEFAULT_SETTINGS.difficulty).toBe('normal');
     expect(DEFAULT_SETTINGS.textSpeed).toBe('normal');
+    expect(DEFAULT_SETTINGS.battleSpeed).toBe('normal');
     expect(DEFAULT_SETTINGS.colorblind).toBe('aus');
     // ungültige Enum-Werte fallen auf Default zurück
-    const n = normalizeSettings({ difficulty: 'unmöglich', textSpeed: 5, colorblind: 'x', highContrast: 1 });
+    const n = normalizeSettings({ difficulty: 'unmöglich', textSpeed: 5, battleSpeed: 'sofort', colorblind: 'x', highContrast: 1 });
     expect(n.difficulty).toBe('normal');
     expect(n.textSpeed).toBe('normal');
+    expect(n.battleSpeed).toBe('normal');
     expect(n.colorblind).toBe('aus');
     expect(n.highContrast).toBe(false);
     // gültige Werte bleiben erhalten
-    const ok = normalizeSettings({ difficulty: 'schwer', textSpeed: 'sofort', colorblind: 'deutan', highContrast: true });
-    expect(ok).toMatchObject({ difficulty: 'schwer', textSpeed: 'sofort', colorblind: 'deutan', highContrast: true });
+    const ok = normalizeSettings({ difficulty: 'schwer', textSpeed: 'sofort', battleSpeed: 'schnell', colorblind: 'deutan', highContrast: true });
+    expect(ok).toMatchObject({ difficulty: 'schwer', textSpeed: 'sofort', battleSpeed: 'schnell', colorblind: 'deutan', highContrast: true });
   });
 
   it('abgeleitete Zugänglichkeitswerte', () => {
     expect(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'sofort' })).toBe(0);
     expect(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'langsam' })).toBeGreaterThan(textCharDelayMs({ ...DEFAULT_SETTINGS, textSpeed: 'schnell' }));
+    expect(battleTurnDelayMs(DEFAULT_SETTINGS, 320)).toBe(320);
+    expect(battleTurnDelayMs({ ...DEFAULT_SETTINGS, battleSpeed: 'schnell' }, 320)).toBe(112);
     expect(enemyDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'leicht' })).toBeLessThan(1);
     expect(enemyDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'schwer' })).toBeGreaterThan(1);
     expect(playerDamageMultiplier({ ...DEFAULT_SETTINGS, difficulty: 'leicht' })).toBeGreaterThan(1);
