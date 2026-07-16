@@ -9,15 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 229 — Händler-Vignette auf der Weltkarte (abgeschlossen)
-  im Worktree `/worktree/tempest-phase-229-overworld-shop-art`.
-  Erreichbare Shops verwenden auf der Weltkarte noch ein generisches grünes
-  Quadrat, obwohl ihre projektgenerierte Händler-Vignette bereits vorgeladen
-  und in Shop sowie Inventar sichtbar ist. Ein quadratischer Bildausschnitt
-  ersetzt nur diesen Marker; Shopdaten, Interaktion und Balance bleiben
-  unverändert. Akzeptanz erfüllt: Asset-Reuse-Test, `git diff --check`,
-  Typecheck, 846 Unit-Tests inklusive Balance-Harness, Build sowie fokussierter
-  Desktop-/Mobile-Chromium-Smoke an einem echten Tempest-Shop grün.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 

@@ -1918,6 +1918,20 @@ test/release.test.ts
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke am
   echten Freiheitsakademie-Save ohne Browserfehler.
 
+### Phase 229 - Haendler-Vignette auf der Weltkarte
+
+- Branch/Worktree: `phase-229-overworld-shop-art` in
+  `/worktree/tempest-phase-229-overworld-shop-art`.
+- Der gemeinsame Overworld-Shopmarker verwendet nun einen quadratischen
+  Ausschnitt der bereits vorgeladenen `ui/shop-merchant-vignette.webp` im
+  bestehenden UI-Rahmen statt des generischen gruenen Quadrats. Fehlt die
+  Textur, bleibt der alte Marker als Fallback erhalten.
+- Kein neues Asset, keine neuen Daten und keine Balance-Aenderung; dieselbe
+  Haendler-Identitaet verbindet Weltkarte, Shopkopf und Inventar.
+- Validiert mit `git diff --check`, Typecheck, 846 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke an
+  einem echten Tempest-Shop ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
