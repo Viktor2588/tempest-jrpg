@@ -10,12 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 244 – Talentbaum-Grenzen**
-  - Worktree: `/worktree/tempest-phase-244-talent-tree-bounds`
-  - Runtime und Tests verwenden dieselbe `DEFAULT_SPEC_LAYOUT`-Geometrie; der
-    tiefste Knoten endet nun innerhalb der bestehenden Maskenunterkante.
-  - Abnahme: Typecheck, 853 Unit-Tests, Build, kompakter Desktop-/Mobile-
-    Clickthrough ohne Browserfehler und Talentbaum-/Ranga-Smoke (2/2).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

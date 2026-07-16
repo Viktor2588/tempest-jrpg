@@ -2123,6 +2123,19 @@ test/release.test.ts
   Balance-Harness, Build und fokussiertem Desktop-/Mobile-Chromium-Smoke samt
   Vor-/Zurueck-Pager (2/2).
 
+### Phase 244 - Talentbaum-Grenzen
+
+- Branch/Worktree: `phase-244-talent-tree-bounds` in
+  `/worktree/tempest-phase-244-talent-tree-bounds`.
+- `DEFAULT_SPEC_LAYOUT` ist nun die gemeinsame Geometriequelle fuer Runtime
+  und Headless-Test; die abweichende Inline-Kopie in `MenuScene` entfiel.
+- Ein Startwert von y=242 und 57 px Zeilenabstand halten auch Rimurus fuenften
+  Verschlinger-Knoten vollstaendig innerhalb der vorhandenen Maskenunterkante
+  bei y=520, ohne die 50-px-Karten zu verkleinern.
+- Validiert mit `git diff --check`, Typecheck, 853 Unit-Tests inklusive
+  Balance-Harness, Build, visuellem Desktop-/Mobile-Clickthrough ohne
+  Browserfehler und Talentbaum-/Ranga-Chromium-Smoke (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
