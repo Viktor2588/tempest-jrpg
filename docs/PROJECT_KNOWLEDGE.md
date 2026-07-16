@@ -2136,6 +2136,20 @@ test/release.test.ts
   Balance-Harness, Build, visuellem Desktop-/Mobile-Clickthrough ohne
   Browserfehler und Talentbaum-/Ranga-Chromium-Smoke (2/2).
 
+### Phase 245 - Handbuch-Kartenlayout
+
+- Branch/Worktree: `phase-245-handbook-layout` in
+  `/worktree/tempest-phase-245-handbook-layout`.
+- Das Mechanik-Handbuch zeigt drei 90-px-Karten pro Seite statt vier
+  62-px-Karten. Alle 18 Eintraege bleiben ueber den vorhandenen Codex-Pager
+  erreichbar.
+- Lange dreizeilige Texte wie `Elemente & Resistenz-Leiter` bleiben nun auf
+  Desktop und im mobilen Querformat vollstaendig innerhalb der goldenen
+  Kartenkante, ohne die Schrift zu verkleinern.
+- Validiert mit `git diff --check`, Typecheck, 853 Unit-Tests inklusive
+  Balance-Harness, Build, visueller Desktop-/Mobile-Worst-Case-Abnahme und
+  erweitertem Handbuch-Pager-Chromium-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
