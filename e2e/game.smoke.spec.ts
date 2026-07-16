@@ -106,7 +106,7 @@ test('Ende-Galerie zeigt erreichte Key-Art und unbekannte Karten', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
-test('Speicherkarten zeigen das Portrait der Hauptfigur', async ({ page }) => {
+test('Speicherverwaltung zeigt Titel-Key-Art und Portrait der Hauptfigur', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
@@ -116,6 +116,8 @@ test('Speicherkarten zeigen das Portrait der Hauptfigur', async ({ page }) => {
   await clickGamePoint(page, 480, 392);
   await settle(page, 250);
   await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('title-keyart'))).toBe(true);
   expect(browserErrors).toEqual([]);
 });
 

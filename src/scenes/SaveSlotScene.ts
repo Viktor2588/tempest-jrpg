@@ -29,7 +29,8 @@ export class SaveSlotScene extends Phaser.Scene {
   create(): void {
     configureHiDpiScene(this);
     fadeIn(this);
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-title-keyart').setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.62);
     this.add.text(GAME_WIDTH / 2, 48, '🗂 Speicherstände', {
       fontFamily: 'serif',
       fontSize: '32px',
