@@ -10,13 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 241 – UI-Kartenlayout**
-  - Worktree: `/worktree/tempest-phase-241-ui-card-layout`
-  - Abnahme: Shop-Zeile, Formationsschalter und Bewohneraktionen bleiben auf
-    Desktop und Mobile innerhalb ihrer jeweiligen Panels.
-  - Checks: `git diff --check`, Typecheck, 852 Unit-Tests, Build, erneuter
-    46-Zustaende-Clickthrough und Party-/Shop-/Bewohner-Browser-Smokes (6/6;
-    Desktop-Party nach parallelem Screenshot-Timeout isoliert bestaetigt).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

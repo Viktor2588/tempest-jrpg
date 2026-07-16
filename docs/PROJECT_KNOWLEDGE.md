@@ -2075,6 +2075,20 @@ test/release.test.ts
   Balance-Harness, Build, visuellem Desktop-/Mobile-Clickthrough sowie
   Kernfluss-, Hochkant-, Masken- und HiDPI-Chromium-Smokes (10/10).
 
+### Phase 241 - UI-Kartenlayout
+
+- Branch/Worktree: `phase-241-ui-card-layout` in
+  `/worktree/tempest-phase-241-ui-card-layout`.
+- Die sechs Shop-Zeilen nutzen den vorhandenen Panelraum ohne Ueberlauf; die
+  letzte Kaufen-/Verkaufen-Zeile bleibt auf Desktop und Mobil innerhalb des
+  Vorratsfensters.
+- Front-/Hinten-Schalter sitzen innerhalb ihrer Party-Karten. Das
+  Bewohner-Roster zeigt drei Eintraege pro Seite, sodass Erntefest- und
+  Offiziersaktionen weder Codex-Leiste noch Nachbarkarten ueberdecken.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build, erneutem 46-Zustaende-Clickthrough ohne Browserfehler
+  sowie Desktop-/Mobile-Smokes fuer Party, Shop und Bewohner (6/6).
+
 ## 14. Change Checklist
 
 Before editing:
