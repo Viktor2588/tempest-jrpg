@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { playSfx } from '../audio/sfx';
 import { GAME_HEIGHT, GAME_WIDTH } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
+import { PARTY_BATTLE_ART } from '../render/battleArt';
 import { getMilestoneById, type MilestoneTone } from '../systems/milestones';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { fadeIn } from './transition';
@@ -29,6 +30,14 @@ export class MilestoneScene extends Phaser.Scene {
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.82);
     addUiPanel(this, 140, GAME_HEIGHT / 2, 680, 360, { originY: 0.5 });
     this.add.rectangle(GAME_WIDTH / 2, 114, 680, 5, accent, 0.95);
+    const joinArtKey = milestone.id === 'gobta-joins'
+      ? PARTY_BATTLE_ART.gobta
+      : milestone.id === 'ranga-joins'
+        ? PARTY_BATTLE_ART.ranga
+        : null;
+    if (joinArtKey && this.textures.exists(joinArtKey)) {
+      this.add.image(742, 338, joinArtKey).setDisplaySize(150, 150);
+    }
 
     this.add.text(GAME_WIDTH / 2, 142, milestone.kicker.toUpperCase(), {
       fontFamily: 'sans-serif',

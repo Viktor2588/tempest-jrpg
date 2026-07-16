@@ -9,7 +9,13 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] **Phase 235 – Party-Art für Beitritts-Meilensteine**
+  - Worktree: `/worktree/tempest-phase-235-join-milestone-art`
+  - Gobtas und Rangas eindeutige Gruppenbeitritte zeigen ihre bereits geladenen
+    Party-Cutouts; allgemeine Kapitel-/Boss-Meilensteine bleiben unverändert.
+  - Abnahme: Asset-Wiring-Test, Typecheck, 852 Tests und Build erfolgreich;
+    Desktop-/Mobile-Browser-Smoke rendert den echten Gobta-Beitritts-Meilenstein
+    ohne Browserfehler.
 
 ## Integrationswarteschlange
 
