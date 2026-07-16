@@ -67,6 +67,11 @@ export type PortraitKind =
   | 'ranga'
   | 'shizu'
   | 'shizu-children'
+  | 'kenya'
+  | 'chloe'
+  | 'alice'
+  | 'ryota'
+  | 'gale'
   | 'fuze'
   | 'benimaru'
   | 'shion'
@@ -174,6 +179,11 @@ export const PORTRAIT_KINDS: readonly PortraitKind[] = [
   'ranga',
   'shizu',
   'shizu-children',
+  'kenya',
+  'chloe',
+  'alice',
+  'ryota',
+  'gale',
   'fuze',
   'benimaru',
   'shion',

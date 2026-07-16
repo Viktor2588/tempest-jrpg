@@ -68,10 +68,14 @@ describe('Portrait-Atlas-Zuordnung', () => {
     expect(preloadSource).toContain('../assets/sprites/portrait-fuze.webp');
   });
 
-  it('zeigt das vorhandene Gruppenportrait auch an allen fünf Akademieschülern', () => {
+  it('zeigt jedem Akademieschüler einen eigenen Ausschnitt aus dem Gruppenportrait', () => {
     for (const student of ['kenya', 'chloe', 'alice', 'ryota', 'gale']) {
       expect(portraitSource).toContain(`case '${student}':`);
+      expect(portraitSource).toContain(`return '${student}';`);
+      expect(preloadSource).toContain(`../assets/sprites/portrait-${student}.webp`);
+      expect(preloadSource).toContain(`this.load.image(portraitKey('${student}')`);
     }
+    expect(portraitSource).toContain("case 'shizus schüler':");
     expect(portraitSource).toContain("return 'shizu-children';");
   });
 

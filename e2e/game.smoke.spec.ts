@@ -899,7 +899,7 @@ test('Föderations-Save reist nach Blumund und lädt neue Regionsassets', async 
   expect(browserErrors).toEqual([]);
 });
 
-test('Shizu-Schwur-Save rendert Freiheitsakademie und Schülergruppenportrait', async ({ page }) => {
+test('Shizu-Schwur-Save rendert Freiheitsakademie und eigene Schülerportraits', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -925,7 +925,9 @@ test('Shizu-Schwur-Save rendert Freiheitsakademie und Schülergruppenportrait', 
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   expect(loadedAssets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
-  expect(loadedAssets.some((name) => name.includes('portrait-shizu-children'))).toBe(true);
+  for (const student of ['kenya', 'chloe', 'alice', 'ryota', 'gale']) {
+    expect(loadedAssets.some((name) => name.includes(`portrait-${student}`))).toBe(true);
+  }
   expect(loadedAssets.some((name) => name.includes('enemy-academy-wisp'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-floor'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-freedom-academy-wall'))).toBe(true);

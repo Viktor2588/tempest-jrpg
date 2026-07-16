@@ -171,6 +171,11 @@ import rangaPortraitUrl from '../assets/sprites/portrait-ranga.webp';
 import veldoraPortraitUrl from '../assets/sprites/portrait-veldora.webp';
 import shizuPortraitUrl from '../assets/sprites/portrait-shizu.webp';
 import shizuChildrenPortraitUrl from '../assets/sprites/portrait-shizu-children.webp';
+import kenyaPortraitUrl from '../assets/sprites/portrait-kenya.webp';
+import chloePortraitUrl from '../assets/sprites/portrait-chloe.webp';
+import alicePortraitUrl from '../assets/sprites/portrait-alice.webp';
+import ryotaPortraitUrl from '../assets/sprites/portrait-ryota.webp';
+import galePortraitUrl from '../assets/sprites/portrait-gale.webp';
 import fuzePortraitUrl from '../assets/sprites/portrait-fuze.webp';
 import benimaruPortraitUrl from '../assets/sprites/portrait-benimaru.webp';
 import shionPortraitUrl from '../assets/sprites/portrait-shion.webp';
@@ -355,6 +360,11 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(portraitKey('storm-dragon'), veldoraPortraitUrl);
     this.load.image(portraitKey('shizu'), shizuPortraitUrl);
     this.load.image(portraitKey('shizu-children'), shizuChildrenPortraitUrl);
+    this.load.image(portraitKey('kenya'), kenyaPortraitUrl);
+    this.load.image(portraitKey('chloe'), chloePortraitUrl);
+    this.load.image(portraitKey('alice'), alicePortraitUrl);
+    this.load.image(portraitKey('ryota'), ryotaPortraitUrl);
+    this.load.image(portraitKey('gale'), galePortraitUrl);
     this.load.image(portraitKey('fuze'), fuzePortraitUrl);
     this.load.image(portraitKey('benimaru'), benimaruPortraitUrl);
     this.load.image(portraitKey('shion'), shionPortraitUrl);
@@ -522,6 +532,11 @@ export class PreloadScene extends Phaser.Scene {
       portraitKey('storm-dragon'),
       portraitKey('shizu'),
       portraitKey('shizu-children'),
+      portraitKey('kenya'),
+      portraitKey('chloe'),
+      portraitKey('alice'),
+      portraitKey('ryota'),
+      portraitKey('gale'),
       portraitKey('fuze'),
       portraitKey('benimaru'),
       portraitKey('shion'),
