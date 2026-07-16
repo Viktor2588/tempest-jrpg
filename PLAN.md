@@ -10,11 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 239 — Speicherstand-Touchziele auf 44 px (abgeschlossen im
-  isolierten Worktree). Der gemeinsame lokale Slot-Button ist nun 44 px hoch;
-  Fortsetzen, Löschen, Neues Spiel und Zurück profitieren ohne neuen Renderpfad.
-  Akzeptanz: Randklick startet einen leeren Slot im Desktop-/Mobile-Chromium-
-  Smoke 2/2 ✓, Typecheck ✓, 852 Unit-Tests inklusive Balance-Harness ✓, Build ✓.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

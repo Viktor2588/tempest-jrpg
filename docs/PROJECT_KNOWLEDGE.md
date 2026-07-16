@@ -2049,6 +2049,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
   Balance-Harness, Build und Desktop-/Mobile-Chromium-Randklick-Smoke (2/2).
 
+### Phase 239 - Mobile Speicherstand-Touchziele
+
+- Branch/Worktree: `phase-239-save-touch-targets` in
+  `/worktree/tempest-phase-239-save-touch-targets`.
+- Der gemeinsame lokale Button-Pfad der Speicherverwaltung ist nun 44 px hoch;
+  damit erfüllen Fortsetzen, Löschen, Neues Spiel und Zurück die Touch-Invariante.
+- Die bestehende zentrierte Layer-/Farbvarianten-Logik blieb unverändert; die
+  Korrektur ist eine einzelne Höhenänderung statt eines neuen Renderpfads.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-/Mobile-Chromium-Randklick-Smoke (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
