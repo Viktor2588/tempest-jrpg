@@ -1945,6 +1945,20 @@ test/release.test.ts
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke der
   echten Speicherverwaltung ohne Browserfehler.
 
+### Phase 231 - Titel-Key-Art hinter den Optionen
+
+- Branch/Worktree: `phase-231-options-keyart` in
+  `/worktree/tempest-phase-231-options-keyart`.
+- Die eigenstaendige Optionenszene verwendet nun das bereits vorgeladene
+  `backgrounds/title-keyart.webp` hinter einem starken Lesbarkeits-Overlay;
+  Layout, Einstellungen und Accessibility-Bedienung bleiben unveraendert.
+- Kein neues Asset und keine neue Renderabstraktion. Der neue Browser-Smoke
+  deckt erstmals den echten Optionen-Pfad ab und prueft eine persistierte
+  Lautstaerkeaenderung statt nur Canvas-Sichtbarkeit.
+- Validiert mit `git diff --check`, Typecheck, 848 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke ohne
+  Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:
