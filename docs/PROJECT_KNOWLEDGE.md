@@ -2060,6 +2060,21 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
   Balance-Harness, Build und Desktop-/Mobile-Chromium-Randklick-Smoke (2/2).
 
+### Phase 240 - UI-Browser-Audit
+
+- Branch/Worktree: `phase-240-ui-browser-audit` in
+  `/worktree/tempest-phase-240-ui-browser-audit`.
+- Kleine Hochkant-Handys zeigen nun einen lesbaren Querformat-Hinweis, statt
+  das feste 960-x-540-Spiel auf unbedienbare 390 x 219 CSS-Pixel zu verkleinern.
+  Die regulaeren Mobile- und HiDPI-Smokes laufen deshalb im Querformat.
+- Die Geometriemaske des Talentbaums wird innerhalb der Menue-Scene
+  wiederverwendet, beim Tabwechsel explizit geloest und erst beim Shutdown
+  zerstoert. Dadurch beschneidet sie den spaeteren Ranga-Tab nicht mehr und
+  hinterlaesst auch keinen schwarzen WebGL-Frame.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build, visuellem Desktop-/Mobile-Clickthrough sowie
+  Kernfluss-, Hochkant-, Masken- und HiDPI-Chromium-Smokes (10/10).
+
 ## 14. Change Checklist
 
 Before editing:
@@ -2073,12 +2088,14 @@ While editing:
 - Keep data, pure rules, and presentation in their established layers.
 - Add normalization/migration for persisted changes.
 - Update asset file, mapping, preload, manifest, and tests together.
-- Verify mobile layout and 44-pixel minimum touch targets.
+- Verify mobile landscape layout, the portrait orientation gate, and
+  44-pixel minimum logical touch targets.
 
 Before completion:
 
 - Run the required quality gates.
-- Verify desktop and `390x844` when presentation changes.
+- Verify desktop, `844x390` gameplay, and the `390x844` orientation gate when
+  presentation changes.
 - Update only unresolved task state in `PLAN.md`.
 - Commit and push the phase branch.
 - Do not delete unmerged worktrees or branches.
