@@ -1531,6 +1531,10 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
   await clickGamePoint(page, 713, 155); // 📖 Handbuch
   await settle(page, 100);
   await expectCanvasContent(page);
+  await clickGamePoint(page, 452, 512); // Seite mit Elemente & Resistenz-Leiter
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 348, 512);
+  await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
 

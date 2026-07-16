@@ -1233,18 +1233,18 @@ export class MenuScene extends Phaser.Scene {
   // Phase 171 — Mechanik-Handbuch: knappe Erklaerungen aller Systeme, story-gegatet.
   private drawHandbook(): void {
     const view = buildHandbook(this.save.flags);
-    const PER_PAGE = 4;
+    const PER_PAGE = 3;
     const pageCount = Math.max(1, Math.ceil(view.entries.length / PER_PAGE));
     this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
     const pageEntries = view.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
 
     pageEntries.forEach((entry, index) => {
-      const y = 194 + index * 80;
-      this.panel(300, y, 590, 62);
-      this.layer.add(this.add.text(318, y - 20, `📖 ${entry.title}`, {
+      const y = 212 + index * 102;
+      this.panel(300, y, 590, 90);
+      this.layer.add(this.add.text(318, y - 31, `📖 ${entry.title}`, {
         fontFamily: 'sans-serif', fontSize: '15px', color: '#e9c56c'
       }));
-      this.layer.add(this.add.text(318, y + 2, entry.body, {
+      this.layer.add(this.add.text(318, y - 8, entry.body, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
       }));
     });

@@ -10,7 +10,12 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 245 – Handbuch-Kartenlayout**
+  - Worktree: `/worktree/tempest-phase-245-handbook-layout`
+  - Drei 90-px-Karten pro Seite halten auch lange Mechaniktexte vollständig
+    innerhalb der Panels; alle Einträge bleiben über den Codex-Pager erreichbar.
+  - Abnahme: Typecheck, 853 Unit-Tests, Build, visuelle Desktop-/Mobile-
+    Worst-Case-Prüfung und erweiterter Handbuch-Pager-Smoke.
 
 ## Integrationswarteschlange
 
