@@ -57,7 +57,7 @@ export class ShopScene extends Phaser.Scene {
     this.button(GAME_WIDTH - 188, 112, 104, 'Schließen', () => this.close(), 0x3a2230);
 
     this.view.items.forEach((item, index) => {
-      const y = 182 + index * 58;
+      const y = 182 + index * 52;
       this.layer.add(this.add.text(104, y - 10, `${item.name} · Besitz: ${item.quantity}`, {
         fontFamily: 'sans-serif',
         fontSize: '15px',
