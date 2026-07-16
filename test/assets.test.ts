@@ -12,6 +12,7 @@ import overworldSource from '../src/scenes/OverworldScene.ts?raw';
 import saveSlotSource from '../src/scenes/SaveSlotScene.ts?raw';
 import optionsSource from '../src/scenes/OptionsScene.ts?raw';
 import discoverySource from '../src/scenes/DiscoveryScene.ts?raw';
+import milestoneSource from '../src/scenes/MilestoneScene.ts?raw';
 
 const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: true, query: '?url', import: 'default' }))
   .map((path) => path.replace('../src/assets/', ''));
@@ -27,6 +28,12 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
 
   it('zeigt Kaijins vorhandenes Portrait in der Schmiede', () => {
     expect(menuSource).toContain("this.drawPortrait('kaijin', 842, 148, 44)");
+  });
+
+  it('zeigt Gobtas und Rangas Party-Art bei ihrem Gruppenbeitritt', () => {
+    expect(milestoneSource).toContain("milestone.id === 'gobta-joins'");
+    expect(milestoneSource).toContain("milestone.id === 'ranga-joins'");
+    expect(milestoneSource).toContain('this.add.image(742, 338, joinArtKey)');
   });
 
   it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {
