@@ -1975,6 +1975,20 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke, der die echte
   Moor-Fundstelle betritt, rendert und ihre Belohnung nimmt.
 
+### Phase 233 - Regionsmotive ohne Verzerrung
+
+- Branch/Worktree: `phase-233-banner-aspect-ratio` in
+  `/worktree/tempest-phase-233-banner-aspect-ratio`.
+- Der gemeinsame `addRegionBannerImage`-Renderer verwendet einen mittigen
+  Cover-Ausschnitt statt `setDisplaySize`-Streckung. Damit behalten sowohl die
+  4:1-Banner als auch die 2:1-/2,5:1-Quellen ihr Seitenverhaeltnis in Minimap,
+  Fundstellen, Einrichtungen, Diplomatie und Rangas Reiseliste.
+- Bestehende Motive und Layoutgroessen bleiben unveraendert; es wurden weder
+  neue Assets noch eine Abhaengigkeit hinzugefuegt.
+- Validiert mit `git diff --check`, Typecheck, 850 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke an der echten
+  Akademie-Fundstelle mit ihrem 2:1-Quellmotiv.
+
 ## 14. Change Checklist
 
 Before editing:
