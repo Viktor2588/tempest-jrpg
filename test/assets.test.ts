@@ -25,6 +25,10 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(overworldSource).toContain('.setCrop(64, 0, 256, 256)');
   });
 
+  it('zeigt Kaijins vorhandenes Portrait in der Schmiede', () => {
+    expect(menuSource).toContain("this.drawPortrait('kaijin', 842, 148, 44)");
+  });
+
   it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {
     expect(endingSource).toContain('const key = `bg-ending-${entry.kind}`');
     expect(endingSource).toContain('this.add.image(x, 362, key)');
