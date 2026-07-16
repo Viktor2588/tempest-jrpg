@@ -1989,6 +1989,18 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke an der echten
   Akademie-Fundstelle mit ihrem 2:1-Quellmotiv.
 
+### Phase 234 - Kaijin-Portrait in der Schmiede
+
+- Branch/Worktree: `phase-234-forge-portrait` in
+  `/worktree/tempest-phase-234-forge-portrait`.
+- Die erreichbare Rezept- und Werkbankansicht zeigt nun Kaijins bereits
+  geladenes, kanonisches Portrait ueber den vorhandenen `drawPortrait`-Helfer.
+- Kein neues Asset und kein neuer Renderer; die bewusst aus dem Kampfroster
+  entfernten Kaijin-/Kurobe-Kampf-Cutouts bleiben weiterhin ungeladen.
+- Validiert mit `git diff --check`, Typecheck, 851 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke, der die echte
+  Dwargon-Schmiede oeffnet und Magisteel herstellt.
+
 ## 14. Change Checklist
 
 Before editing:

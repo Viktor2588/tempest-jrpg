@@ -9,13 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 234 – Kaijin-Portrait in der Schmiede**
-  - Worktree: `/worktree/tempest-phase-234-forge-portrait`
-  - Die erreichbare Schmiedeansicht zeigt Kaijins bereits geladenes, kanonisches
-    Portrait; die aus dem Kampfroster entfernten Schmied-Cutouts bleiben ungenutzt.
-  - Abnahme: Asset-Wiring-Test, Typecheck, 851 Tests und Build erfolgreich;
-    Desktop-/Mobile-Browser-Smoke öffnet die echte Dwargon-Schmiede und
-    schmiedet Magisteel ohne Browserfehler.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
