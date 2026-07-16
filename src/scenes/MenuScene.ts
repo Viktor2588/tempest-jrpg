@@ -78,7 +78,7 @@ import { portraitKey } from '../render/portraitAtlas';
 import { enemyArtFor } from '../render/enemyArt';
 import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
-import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
+import { clampSpecTreePan, DEFAULT_SPEC_LAYOUT, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
 import type { MenuTab, CodexMode, QuestStatusFilter } from '../ui/menu/MenuTypes';
 import {
@@ -916,16 +916,7 @@ export class MenuScene extends Phaser.Scene {
       }, 0x5a3040);
     }
 
-    const layoutOptions = {
-      left: 300,
-      top: 244,
-      columnWidth: 212,
-      rowHeight: 62,
-      nodeWidth: 196,
-      nodeHeight: 50,
-      viewportWidth: GAME_WIDTH,
-      viewportHeight: GAME_HEIGHT
-    } as const;
+    const layoutOptions = DEFAULT_SPEC_LAYOUT;
     const layout = layoutSpecTree(tree, layoutOptions);
     this.specTreePanY = clampSpecTreePan(layout, this.specTreePanY, layoutOptions);
     const content = this.add.container(0, this.specTreePanY);
