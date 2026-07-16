@@ -1959,6 +1959,22 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke ohne
   Browserfehler.
 
+### Phase 232 - Regionsmotiv fuer Fundstellen
+
+- Branch/Worktree: `phase-232-discovery-region-art` in
+  `/worktree/tempest-phase-232-discovery-region-art`.
+- Die erreichbare `DiscoveryScene` verwendet ihre bereits vorhandene `mapId`
+  mit der zentralen `regionBannerTextureForMap`-Zuordnung. Fundstellen zeigen
+  dadurch das Motiv ihrer Region; fuer Tempest wird auch die aktuelle
+  Wachstumsstufe beruecksichtigt, fehlende Texturen behalten den bisherigen
+  textbasierten Fallback.
+- Kein neues Asset, keine neue Abstraktion und keine Gameplay-Aenderung; die
+  bereits vollstaendig geladenen Regionsmotive erhalten einen weiteren
+  passenden sichtbaren Einsatz.
+- Validiert mit `git diff --check`, Typecheck, 849 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke, der die echte
+  Moor-Fundstelle betritt, rendert und ihre Belohnung nimmt.
+
 ## 14. Change Checklist
 
 Before editing:

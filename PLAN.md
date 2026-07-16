@@ -9,13 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 232 – Regionsmotiv für Fundstellen**
-  - Worktree: `/worktree/tempest-phase-232-discovery-region-art`
-  - Die erreichbare `DiscoveryScene` nutzt ihre bereits vorhandene `mapId`, um
-    das geladene Regionsmotiv hinter der jeweiligen Entdeckung zu zeigen.
-  - Abnahme: Asset-Wiring-Test, Typecheck, 849 Tests und Build erfolgreich;
-    Desktop-/Mobile-Browser-Smoke betritt die Moor-Fundstelle, rendert sie und
-    nimmt die Belohnung ohne Browserfehler.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
