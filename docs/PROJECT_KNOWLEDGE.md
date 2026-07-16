@@ -2038,6 +2038,17 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
   Balance-Harness und Build. Renderingneutral, daher kein Browser-Smoke.
 
+### Phase 238 - Mobile Options-Touchziele
+
+- Branch/Worktree: `phase-238-options-touch-targets` in
+  `/worktree/tempest-phase-238-options-touch-targets`.
+- Alle Pfeil-/Toggle-Ziele im Optionsbildschirm sind nun 44 x 44 px. Das
+  44-px-Zeilenraster hält sie getrennt und innerhalb des 960 x 540 Layouts.
+- Der lokale 40-px-Zurueck-Button entfiel; `addUiTextButton` liefert das bereits
+  projektweit verwendete 44-px-Ziel und reduziert dabei Duplikation.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-/Mobile-Chromium-Randklick-Smoke (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
