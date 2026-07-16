@@ -423,14 +423,14 @@ export class MenuScene extends Phaser.Scene {
         fontStyle: 'bold',
         color: memberRow === 'front' ? '#ffd27a' : '#8fe7ff'
       }).setOrigin(1, 0));
-      this.button(active.left + active.width - 158, y + 28, 70, 'Front', () => {
+      this.button(active.left + active.width - 158, y + 18, 70, 'Front', () => {
         this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
           { active: this.state.party, reserve: this.state.reserve ?? [] },
           summary.member.characterId,
           'front'
         )));
       }, 0x243447);
-      this.button(active.left + active.width - 82, y + 28, 70, 'Hinten', () => {
+      this.button(active.left + active.width - 82, y + 18, 70, 'Hinten', () => {
         this.applyResult(applyPartyFormationToMenuState(this.state, moveActiveMember(
           { active: this.state.party, reserve: this.state.reserve ?? [] },
           summary.member.characterId,
@@ -1467,16 +1467,16 @@ export class MenuScene extends Phaser.Scene {
     this.layer.add(this.add.text(318, 172, roleSummary || 'Noch keine Bewohner benannt.', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#9fb2cc'
     }));
-    this.button(672, 172, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}✦ ${AWAKENING_SOUL_COST}魂`, () =>
+    this.button(672, 184, 216, `Erntefest · ${AWAKENING_MAGICULE_COST}✦ ${AWAKENING_SOUL_COST}魂`, () =>
       this.awakenTempest(), awakening.ok ? 0x3b3154 : 0x242b38);
 
-    const PER_PAGE = 4;
+    const PER_PAGE = 3;
     const pageCount = Math.max(1, Math.ceil(roster.entries.length / PER_PAGE));
     this.codexPage = Math.min(Math.max(0, this.codexPage), pageCount - 1);
     const page = roster.entries.slice(this.codexPage * PER_PAGE, this.codexPage * PER_PAGE + PER_PAGE);
 
     page.forEach((entry, index) => {
-      const y = 206 + index * 78;
+      const y = 238 + index * 78;
       this.panel(300, y, 590, 60);
       const art = enemyArtFor(entry.resident.originEnemyId, entry.originEnemyName);
       if (art.textureKey && this.textures.exists(art.textureKey)) {
@@ -1498,7 +1498,7 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 496 }
       }));
       if (entry.recruited && !entry.promoted) {
-        this.button(748, y + 13, 126, `Offizier · ${RESIDENT_PROMOTION_MAGICULE_COST}`, () =>
+        this.button(748, y + 8, 126, `Offizier · ${RESIDENT_PROMOTION_MAGICULE_COST}`, () =>
           this.promoteResident(entry.resident.id), this.save.progression.magicules >= RESIDENT_PROMOTION_MAGICULE_COST
             ? 0x2f6f55
             : 0x242b38
