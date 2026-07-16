@@ -9,7 +9,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] Phase 231 — Titel-Key-Art hinter den Optionen (abgeschlossen)
+  im Worktree `/worktree/tempest-phase-231-options-keyart`.
+  Die eigenständige Optionenszene ist der letzte Einstiegspfad mit vollständig
+  deckender Farbfläche. Das vorgeladene Titelbild wird hinter einem starken
+  Lesbarkeits-Overlay wiederverwendet; Einstellungen und Accessibility-
+  Bedienung bleiben unverändert. Akzeptanz erfüllt: Asset-Reuse-Test,
+  `git diff --check`, Typecheck, 848 Unit-Tests inklusive Balance-Harness,
+  Build sowie neuer Desktop-/Mobile-Chromium-Smoke des echten Optionen-Pfads
+  inklusive persistierter Lautstärkeänderung grün.
 
 ## Integrationswarteschlange
 

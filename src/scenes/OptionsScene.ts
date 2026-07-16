@@ -32,7 +32,8 @@ export class OptionsScene extends Phaser.Scene {
     this.settings = loadSettings(window.localStorage);
     fadeIn(this);
 
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-title-keyart').setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.72);
     this.add.text(GAME_WIDTH / 2, 52, '⚙ Optionen', { fontFamily: 'serif', fontSize: '32px', color: '#e9c56c' }).setOrigin(0.5);
 
     let y = 102;
