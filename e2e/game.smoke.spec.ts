@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { inflateSync } from 'node:zlib';
+import { FACTIONS } from '../src/data';
 import { MENU_EQUIPMENT_LAYOUT, MENU_PARTY_LAYOUT } from '../src/systems/menuLayout';
 import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 
@@ -1933,7 +1934,13 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   page.on('console', (message) => {
     if (message.type() === 'error') browserErrors.push(message.text());
   });
-  await installBrowserSave(page, bandTwoBrowserSave());
+  const save = bandTwoBrowserSave({
+    flags: Object.fromEntries(FACTIONS.flatMap((faction) =>
+      faction.thresholds.map((threshold) => [threshold.unlockFlag, true])))
+  });
+  (save.progression as Record<string, unknown>).factionReputationByFactionId =
+    Object.fromEntries(FACTIONS.map((faction) => [faction.id, 100]));
+  await installBrowserSave(page, save);
 
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
@@ -1946,6 +1953,10 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   await page.waitForTimeout(200);
   await clickGamePoint(page, 528, 140); // Umschalter „🤝 Politik" (Leiste ab x=24, Phase 171)
   await settle(page, 100);
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 452, 512); // zweite Seite
+  await expectCanvasContent(page);
+  await clickGamePoint(page, 348, 512); // zurück zur ersten Seite
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
