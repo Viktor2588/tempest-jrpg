@@ -10,12 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 243 – Diplomatie-Kartenlayout**
-  - Worktree: `/worktree/tempest-phase-243-diplomacy-layout`
-  - Vier überfüllte Fraktionskarten auf zwei lesbare Karten pro Codex-Seite
-    umgestellt; vorhandener Pager erschließt weiterhin alle vier Fraktionen.
-  - Abnahme: aktueller 46-Zustände-Audit, visuelle Worst-Case-Prüfung mit allen
-    Boni, Typecheck, 853 Unit-Tests, Build und Desktop-/Mobile-Smoke (2/2).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

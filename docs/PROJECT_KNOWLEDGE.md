@@ -2107,6 +2107,22 @@ test/release.test.ts
   Balance-Harness, Build, visueller Mobile-Abnahme und fokussiertem Desktop-/
   Mobile-Chromium-Smoke fuer das echte Ablegen samt Save-Persistenz (2/2).
 
+### Phase 243 - Diplomatie-Kartenlayout
+
+- Branch/Worktree: `phase-243-diplomacy-layout` in
+  `/worktree/tempest-phase-243-diplomacy-layout`.
+- Der Politik-Codex zeigt zwei statt vier Fraktionskarten pro Seite und nutzt
+  dafuer den vorhandenen Codex-Pager. Alle vier Fraktionen bleiben erreichbar.
+- Die 124-px-Karten bieten auch im Maximalzustand Platz fuer Titel, drei
+  Schwellen, drei aktive Boni und den umbrechenden Folgetext, ohne goldene
+  Kartentrenner oder die naechste Fraktion zu ueberdecken.
+- Gefunden und belegt durch einen erneuten 46-Zustaende-Clickthrough ohne
+  Browserfehler; visuell auf Desktop und Mobile mit 100 Ruf und allen Boni
+  abgenommen.
+- Validiert mit `git diff --check`, Typecheck, 853 Unit-Tests inklusive
+  Balance-Harness, Build und fokussiertem Desktop-/Mobile-Chromium-Smoke samt
+  Vor-/Zurueck-Pager (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
