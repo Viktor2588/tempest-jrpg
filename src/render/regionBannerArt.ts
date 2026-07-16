@@ -1,3 +1,4 @@
+import type Phaser from 'phaser';
 import { resolveTempestGrowthStage, type StoryFlags } from '../systems/tempestGrowth';
 
 export const REGION_BANNER_TEXTURES: Readonly<Record<string, string>> = {
@@ -34,4 +35,35 @@ export function regionBannerTextureForMap(
     ? TEMPEST_GROWTH_BANNER_TEXTURES[stage]
     : REGION_BANNER_TEXTURES[mapId] ?? DEFAULT_REGION_BANNER_TEXTURE_KEY;
   return exists(key) ? key : null;
+}
+
+export function coverCrop(
+  sourceWidth: number,
+  sourceHeight: number,
+  targetWidth: number,
+  targetHeight: number
+): readonly [number, number, number, number] {
+  const sourceRatio = sourceWidth / sourceHeight;
+  const targetRatio = targetWidth / targetHeight;
+  if (sourceRatio > targetRatio) {
+    const width = sourceHeight * targetRatio;
+    return [(sourceWidth - width) / 2, 0, width, sourceHeight];
+  }
+  const height = sourceWidth / targetRatio;
+  return [0, (sourceHeight - height) / 2, sourceWidth, height];
+}
+
+export function addRegionBannerImage(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  textureKey: string,
+  width: number,
+  height: number
+): Phaser.GameObjects.Image {
+  const image = scene.add.image(x, y, textureKey);
+  const source = image.texture.getSourceImage() as { width: number; height: number };
+  return image
+    .setCrop(...coverCrop(source.width, source.height, width, height))
+    .setDisplaySize(width, height);
 }

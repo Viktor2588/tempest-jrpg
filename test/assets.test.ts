@@ -42,7 +42,7 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
 
   it('zeigt Fundstellen mit dem vorhandenen Motiv ihrer Region', () => {
     expect(discoverySource).toContain('regionBannerTextureForMap(');
-    expect(discoverySource).toContain('this.add.image(cx, 166, bannerKey)');
+    expect(discoverySource).toContain('addRegionBannerImage(this, cx, 166, bannerKey, 536, 128)');
   });
 
   it('dokumentiert jede eingecheckte Asset-Datei in ASSETS.md', () => {

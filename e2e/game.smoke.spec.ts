@@ -96,7 +96,7 @@ test('Fundstelle zeigt das Motiv ihrer Region', async ({ page }) => {
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
   await installBrowserSave(page, bandTwoBrowserSave({
-    location: { mapId: 'spirit-marsh', x: 4, y: 10, facing: 'down' }
+    location: { mapId: 'freedom-academy', x: 13, y: 7, facing: 'down' }
   }));
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
@@ -107,11 +107,11 @@ test('Fundstelle zeigt das Motiv ihrer Region', async ({ page }) => {
   await settle(page, 200);
   await expectCanvasContent(page);
   const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
-  expect(assets.some((name) => name.includes('region-spirit-marsh'))).toBe(true);
+  expect(assets.some((name) => name.includes('region-freedom-academy'))).toBe(true);
   await page.keyboard.press('Enter');
   await settle(page, 150);
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
-  expect(save.flags['discovery.spirit-marsh.moor-bloom']).toBe(true);
+  expect(save.flags['discovery.freedom-academy.leftover-apparatus']).toBe(true);
   expect(browserErrors).toEqual([]);
 });
 

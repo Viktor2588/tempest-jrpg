@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { playSfx } from '../audio/sfx';
 import { GAME_HEIGHT, GAME_WIDTH } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
-import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { fadeIn } from './transition';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { addInventoryItem } from '../systems/inventory';
@@ -54,7 +54,7 @@ export class DiscoveryScene extends Phaser.Scene {
       save.flags
     );
     if (bannerKey) {
-      this.add.image(cx, 166, bannerKey).setDisplaySize(536, 128);
+      addRegionBannerImage(this, cx, 166, bannerKey, 536, 128);
       this.add.rectangle(cx, 166, 536, 128, 0x05070d, 0.48);
     }
 
