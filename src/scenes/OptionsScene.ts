@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
+import { addUiTextButton } from '../render/uiSkin';
 import {
   loadSettings, saveSettings, type GameSettings,
   DIFFICULTIES, TEXT_SPEEDS, BATTLE_SPEEDS, COLORBLIND_MODES,
@@ -37,8 +38,8 @@ export class OptionsScene extends Phaser.Scene {
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.72);
     this.add.text(GAME_WIDTH / 2, 52, '⚙ Optionen', { fontFamily: 'serif', fontSize: '32px', color: '#e9c56c' }).setOrigin(0.5);
 
-    let y = 102;
-    const pitch = 42;
+    let y = 92;
+    const pitch = 44;
     this.volumeRow('Gesamtlautstärke', 'masterVolume', y); y += pitch;
     this.volumeRow('Musik', 'musicVolume', y); y += pitch;
     this.volumeRow('Soundeffekte', 'sfxVolume', y); y += pitch;
@@ -58,7 +59,7 @@ export class OptionsScene extends Phaser.Scene {
       this.settings.colorblind = cycle(COLORBLIND_MODES, this.settings.colorblind, dir);
     });
 
-    this.button(GAME_WIDTH / 2 - 90, GAME_HEIGHT - 34, '↩ Zurück', () => {
+    addUiTextButton(this, GAME_WIDTH / 2 - 90, GAME_HEIGHT - 34, 180, '↩ Zurück', () => {
       playSfx('cancel');
       fadeToScene(this, this.from);
     });
@@ -107,16 +108,8 @@ export class OptionsScene extends Phaser.Scene {
   private onOff(b: boolean): string { return b ? 'An' : 'Aus'; }
 
   private squareButton(x: number, y: number, label: string, cb: () => void): void {
-    const bg = this.add.rectangle(x, y, 38, 38, 0x1b2940, 0.95).setStrokeStyle(1, 0x68d7ff, 0.6).setInteractive();
+    const bg = this.add.rectangle(x, y, 44, 44, 0x1b2940, 0.95).setStrokeStyle(1, 0x68d7ff, 0.6).setInteractive();
     this.add.text(x, y, label, { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5);
-    bg.on('pointerover', () => bg.setFillStyle(0x274062, 1));
-    bg.on('pointerout', () => bg.setFillStyle(0x1b2940, 0.95));
-    bg.on('pointerdown', cb);
-  }
-
-  private button(x: number, y: number, label: string, cb: () => void): void {
-    const bg = this.add.rectangle(x, y, 180, 40, 0x1b2940, 0.95).setOrigin(0, 0.5).setStrokeStyle(1, 0x68d7ff, 0.6).setInteractive();
-    this.add.text(x + 16, y, label, { fontFamily: 'sans-serif', fontSize: '16px', color: '#e9eef7' }).setOrigin(0, 0.5);
     bg.on('pointerover', () => bg.setFillStyle(0x274062, 1));
     bg.on('pointerout', () => bg.setFillStyle(0x1b2940, 0.95));
     bg.on('pointerdown', cb);

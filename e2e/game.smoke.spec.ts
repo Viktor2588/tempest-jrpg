@@ -174,7 +174,7 @@ test('Optionen zeigen Titel-Key-Art und bleiben bedienbar', async ({ page }) => 
   await clickGamePoint(page, 480, 336);
   await settle(page, 250);
   await expectCanvasContent(page);
-  await clickGamePoint(page, 720, 102);
+  await clickGamePoint(page, 741, 92); // Rand des 44×44-Touchziels
   await clickGamePoint(page, 720, 312);
   const settings = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-settings-v1') ?? '{}'));
   expect(settings.masterVolume).toBe(0.1);
