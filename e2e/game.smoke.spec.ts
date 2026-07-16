@@ -1786,7 +1786,7 @@ test('Phase 90 — Speicherstände rendern, „Neues Spiel" setzt den Slot aktiv
   await expectCanvasContent(page); // Slot-Auswahl rendert
 
   // Slot 2 ist leer → „✚ Neues Spiel" (x = 160 + 640 − 170 = 630, y-Mitte der 2. Karte).
-  await clickGamePoint(page, 630, 274);
+  await clickGamePoint(page, 630, 295); // Rand des 44-px-Touchziels
   await settle(page, 400);
 
   await expect.poll(async () => page.evaluate(() => (

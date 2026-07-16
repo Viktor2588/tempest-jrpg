@@ -132,7 +132,7 @@ export class SaveSlotScene extends Phaser.Scene {
   }
 
   private button(x: number, y: number, w: number, label: string, cb: () => void, fill = 0x1b2940, stroke = 0x68d7ff): void {
-    const bg = this.add.rectangle(x, y, w, 40, fill, 0.95).setStrokeStyle(1, stroke, 0.6).setInteractive();
+    const bg = this.add.rectangle(x, y, w, 44, fill, 0.95).setStrokeStyle(1, stroke, 0.6).setInteractive();
     const txt = this.add.text(x, y, label, { fontFamily: 'sans-serif', fontSize: '15px', color: '#e9eef7' }).setOrigin(0.5);
     bg.on('pointerover', () => bg.setFillStyle(fill === 0x1b2940 ? 0x274062 : 0x4a2530, 1));
     bg.on('pointerout', () => bg.setFillStyle(fill, 0.95));
