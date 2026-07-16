@@ -9,13 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 236 — Wählbares Kampftempo (abgeschlossen im isolierten Worktree).
-  Die persistente Option „Kampftempo: Normal/Schnell“ nutzt das vorhandene
-  Settings-System; Schnell verkürzt ausschließlich die Zugpausen (260→91 ms,
-  320→112 ms), ohne Animationen oder Kampfwerte zu ändern. Alte/teilweise
-  Settings migrieren auf Normal. Akzeptanz: Settings-/Delay-Logik headless,
-  Typecheck ✓, 852 Unit-Tests inklusive Balance-Harness ✓, Build ✓, Desktop-/
-  Mobile-Smoke für Optionslayout und echten Battle-Pfad 4/4 ✓.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 

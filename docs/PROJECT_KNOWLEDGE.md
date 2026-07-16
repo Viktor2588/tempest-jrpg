@@ -2013,6 +2013,19 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke des echten
   Gobta-Beitritts-Meilensteins.
 
+### Phase 236 - Waehlbares Kampftempo
+
+- Branch/Worktree: `phase-236-kampftempo` in
+  `/worktree/tempest-phase-236-kampftempo`.
+- Die persistente Option `Kampftempo: Normal/Schnell` lebt im vorhandenen
+  Settings-System. Schnell reduziert nur die Zugpausen von 260 auf 91 ms und
+  von 320 auf 112 ms; Animationen, Entscheidungen und Kampfwerte bleiben gleich.
+- Alte und teilweise gespeicherte Optionen migrieren auf Normal. Das erweiterte
+  Optionslayout bleibt auf Desktop und Mobil bedienbar.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke fuer Optionslayout
+  und echten Battle-Pfad (4/4).
+
 ## 14. Change Checklist
 
 Before editing:
