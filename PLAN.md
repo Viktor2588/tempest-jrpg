@@ -10,12 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 242 – Ausrüstungskarten-Layout**
-  - Worktree: `/worktree/tempest-phase-242-equipment-layout`
-  - Ausrüstungsmetadaten in eine kompakte Kopfzeile gezogen und vier 82-px-Karten
-    mit getrennten 44-px-Aktionsflächen in ein gemeinsames Layout überführt.
-  - Abnahme: Typecheck, 853 Unit-Tests, Produktions-Build sowie fokussierter
-    Playwright-Smoke auf Desktop und Mobile; zusätzlich visuell auf Mobile geprüft.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

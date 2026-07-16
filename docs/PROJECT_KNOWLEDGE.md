@@ -2089,6 +2089,24 @@ test/release.test.ts
   Balance-Harness, Build, erneutem 46-Zustaende-Clickthrough ohne Browserfehler
   sowie Desktop-/Mobile-Smokes fuer Party, Shop und Bewohner (6/6).
 
+### Phase 242 - Ausruestungskarten-Layout
+
+- Branch/Worktree: `phase-242-equipment-layout` in
+  `/worktree/tempest-phase-242-equipment-layout`.
+- Die vier Ausruestungsslots verwenden eine gemeinsame, getestete Geometrie.
+  Slot, Seltenheit und Affixe stehen kompakt in der Kopfzeile; Itemname und
+  44-px-Aktionen bleiben getrennt innerhalb der 82-px-Karte.
+- Die zuvor auf der Kartenunterkante und in Folgezeilen liegenden Ablegen-/
+  Verzaubern-Flaechen sind auf Desktop und im mobilen Querformat vollstaendig
+  innerhalb ihres Panels und weiterhin bedienbar.
+- Vor der Auswahl wurde der sichtbare Assetbestand geprueft. Die verbleibenden
+  prozeduralen Sora-/Vael-/Lyrre-Portraits gehoeren laut Kanonregel nur zum
+  optionalen Legacy-Pfad; deshalb wurde kein neues Asset fuer den Hauptpfad
+  erzeugt.
+- Validiert mit `git diff --check`, Typecheck, 853 Unit-Tests inklusive
+  Balance-Harness, Build, visueller Mobile-Abnahme und fokussiertem Desktop-/
+  Mobile-Chromium-Smoke fuer das echte Ablegen samt Save-Persistenz (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
