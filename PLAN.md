@@ -9,7 +9,13 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
+- [x] **Phase 233 – Regionsmotive ohne Verzerrung**
+  - Worktree: `/worktree/tempest-phase-233-banner-aspect-ratio`
+  - Der gemeinsame Banner-Renderer schneidet vorhandene Regionsmotive passend
+    auf ihre 4:1-, Karten- und quadratischen Flächen zu, statt sie zu strecken.
+  - Abnahme: Renderer-Test, Typecheck, 850 Tests und Build erfolgreich;
+    Desktop-/Mobile-Browser-Smoke betritt und bedient die Fundstelle mit dem
+    2:1-Akademiemotiv ohne Browserfehler.
 
 ## Integrationswarteschlange
 

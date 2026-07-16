@@ -75,7 +75,7 @@ import {
 } from '../systems/menuLayout';
 import { portraitKey } from '../render/portraitAtlas';
 import { enemyArtFor } from '../render/enemyArt';
-import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { PORTRAIT_KINDS, type PortraitKind } from '../render/artSpec';
 import { clampSpecTreePan, layoutSpecTree } from '../systems/specTreeLayout';
 import { committedBranch, compactLockReason, describeNodePerks, describePerk } from '../systems/talentPerk';
@@ -1550,7 +1550,7 @@ export class MenuScene extends Phaser.Scene {
       (textureKey) => this.textures.exists(textureKey),
       this.save.flags
     );
-    if (bannerKey) this.layer.add(this.add.image(836, 172, bannerKey).setDisplaySize(104, 40));
+    if (bannerKey) this.layer.add(addRegionBannerImage(this, 836, 172, bannerKey, 104, 40));
 
     overview.facilities.forEach((view, index) => {
       const y = 204 + index * 60;
@@ -1619,7 +1619,7 @@ export class MenuScene extends Phaser.Scene {
         : standing.faction.id === 'lizardmen' ? 'lizardman-marsh'
           : standing.faction.id;
       const bannerKey = regionBannerTextureForMap(mapId, (key) => this.textures.exists(key));
-      if (bannerKey) this.layer.add(this.add.image(336, y, bannerKey).setDisplaySize(54, 54));
+      if (bannerKey) this.layer.add(addRegionBannerImage(this, 336, y, bannerKey, 54, 54));
       const reward = rewardsById.get(standing.faction.id);
       const rewardTag = reward ? `   [Boni ${reward.activeCount}/${reward.total}]` : '';
       this.layer.add(this.add.text(372, y - 27, `${standing.faction.name} — ${standing.rankTitle} (${standing.points}/${MAX_REPUTATION})${rewardTag}`, {
@@ -1837,7 +1837,7 @@ export class MenuScene extends Phaser.Scene {
         this.save.flags
       );
       if (bannerKey) {
-        const banner = this.add.image(320, y, bannerKey).setDisplaySize(34, 34);
+        const banner = addRegionBannerImage(this, 320, y, bannerKey, 34, 34);
         if (destination.status === 'unknown' || destination.status === 'locked') {
           banner.setTint(0x303846).setAlpha(0.78);
         }

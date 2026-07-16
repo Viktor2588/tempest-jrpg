@@ -13,7 +13,7 @@ import {
 import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
-import { regionBannerTextureForMap } from '../render/regionBannerArt';
+import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
 import { addUiPortraitFrame } from '../render/uiSkin';
 import {
@@ -617,7 +617,7 @@ export class OverworldScene extends Phaser.Scene {
       this.save.flags
     );
     if (bannerKey) {
-      layer.add(this.add.image(bannerX, bannerY, bannerKey).setOrigin(0.5, 0).setDisplaySize(bannerW, bannerH));
+      layer.add(addRegionBannerImage(this, bannerX, bannerY, bannerKey, bannerW, bannerH).setOrigin(0.5, 0));
       layer.add(this.add.rectangle(bannerX, bannerY, bannerW, bannerH, 0x030812, 0.28).setOrigin(0.5, 0));
     } else {
       layer.add(this.add.rectangle(bannerX, bannerY, bannerW, bannerH, 0x101827, 0.86)

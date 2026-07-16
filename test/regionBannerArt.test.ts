@@ -4,6 +4,7 @@ import {
   DEFAULT_REGION_BANNER_TEXTURE_KEY,
   REGION_BANNER_TEXTURES,
   TEMPEST_GROWTH_BANNER_TEXTURES,
+  coverCrop,
   regionBannerTextureForMap
 } from '../src/render/regionBannerArt';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
@@ -12,13 +13,13 @@ import menuSource from '../src/scenes/MenuScene.ts?raw';
 describe('Gebietsindikator-Banner', () => {
   it('zeigt das vorhandene Tempest-Wachstumsbanner auch bei den Einrichtungen', () => {
     expect(menuSource).toContain("regionBannerTextureForMap(\n      'tempest-start'");
-    expect(menuSource).toContain('this.add.image(836, 172, bannerKey)');
+    expect(menuSource).toContain('addRegionBannerImage(this, 836, 172, bannerKey, 104, 40)');
   });
 
   it('zeigt vorhandene Gebiets-Banner auch in den Diplomatiekarten', () => {
     expect(menuSource).toContain("standing.faction.id === 'orcs' ? 'jura-battlefield'");
     expect(menuSource).toContain("standing.faction.id === 'lizardmen' ? 'lizardman-marsh'");
-    expect(menuSource).toContain('this.add.image(336, y, bannerKey)');
+    expect(menuSource).toContain('addRegionBannerImage(this, 336, y, bannerKey, 54, 54)');
   });
 
   it('zeigt vorhandene Gebiets-Banner auch in Rangas Reiseliste', () => {
@@ -84,5 +85,10 @@ describe('Gebietsindikator-Banner', () => {
     ]) {
       expect(preloadSource).toContain(`../assets/ui/${file}`);
     }
+  });
+
+  it('schneidet breite und hohe Quellen mittig zu statt sie zu verzerren', () => {
+    expect(coverCrop(512, 128, 54, 54)).toEqual([192, 0, 128, 128]);
+    expect(coverCrop(1774, 887, 536, 128)[3]).toBeCloseTo(423.64, 2);
   });
 });
