@@ -1932,6 +1932,19 @@ test/release.test.ts
   Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke an
   einem echten Tempest-Shop ohne Browserfehler.
 
+### Phase 230 - Titel-Key-Art hinter der Speicherverwaltung
+
+- Branch/Worktree: `phase-230-save-slot-keyart` in
+  `/worktree/tempest-phase-230-save-slot-keyart`.
+- Die Speicherverwaltung verwendet nun das bereits vorgeladene
+  `backgrounds/title-keyart.webp` hinter einem staerkeren Lesbarkeits-Overlay;
+  Slotkarten, Portraits und Interaktionen bleiben unveraendert.
+- Kein neues Asset, keine neue Renderabstraktion und keine Speicherlogik-
+  Aenderung; die Einstiegsszenen erhalten eine gemeinsame visuelle Identitaet.
+- Validiert mit `git diff --check`, Typecheck, 847 Unit-Tests inklusive
+  Balance-Harness, Build sowie fokussiertem Desktop-/Mobile-Chromium-Smoke der
+  echten Speicherverwaltung ohne Browserfehler.
+
 ## 14. Change Checklist
 
 Before editing:

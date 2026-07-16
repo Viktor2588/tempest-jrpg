@@ -9,15 +9,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 230 — Titel-Key-Art hinter der Speicherverwaltung (abgeschlossen)
-  im Worktree `/worktree/tempest-phase-230-save-slot-keyart`.
-  Die Speicherverwaltung besitzt bereits bebilderte Slotkarten, liegt aber
-  noch auf einer vollständig deckenden Farbfläche. Das vorgeladene Titelbild
-  wird wie im Titelbildschirm abgedunkelt wiederverwendet; Speicherlogik und
-  Layout bleiben unverändert. Akzeptanz erfüllt: Asset-Reuse-Test,
-  `git diff --check`, Typecheck, 847 Unit-Tests inklusive Balance-Harness,
-  Build sowie fokussierter Desktop-/Mobile-Chromium-Smoke der echten
-  Speicherverwaltung grün.
+- Keine (alle kürzlich abgeschlossenen Phasen archiviert nach Merge).
 
 ## Integrationswarteschlange
 
