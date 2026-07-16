@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SKILL_TREES, type SkillTreeNodeDefinition } from '../src/data';
 import { getSkillTree } from '../src/systems/progression';
 import { describePerk } from '../src/systems/talentPerk';
-import { analyzeSpecTreeLayout, clampSpecTreePan, layoutSpecTree } from '../src/systems/specTreeLayout';
+import { analyzeSpecTreeLayout, clampSpecTreePan, DEFAULT_SPEC_LAYOUT, layoutSpecTree } from '../src/systems/specTreeLayout';
 
 const branchedTrees = SKILL_TREES.filter((tree) =>
   (tree.nodes as readonly SkillTreeNodeDefinition[]).some((node) => node.branch !== undefined)
@@ -20,9 +20,12 @@ describe('Phase 72 — Spec-Baum-Layout', () => {
     expect(layout.edges).toContainEqual({ fromNodeId: 'benimaru-blade-focus', toNodeId: 'benimaru-blade-counter' });
   });
 
-  it('platziert alle Strang-Bäume ohne Überlappung im Canvas', () => {
+  it('platziert alle Strang-Bäume ohne Überlappung im sichtbaren Talentbereich', () => {
     for (const tree of branchedTrees) {
-      const issues = analyzeSpecTreeLayout(layoutSpecTree(tree));
+      const issues = analyzeSpecTreeLayout(layoutSpecTree(tree), {
+        ...DEFAULT_SPEC_LAYOUT,
+        viewportHeight: 520
+      });
       expect(issues, tree.characterId).toEqual([]);
     }
   });

@@ -44,10 +44,10 @@ export interface SpecLayoutOptions {
 }
 
 export const DEFAULT_SPEC_LAYOUT: SpecLayoutOptions = {
-  left: 312,
-  top: 200,
+  left: 300,
+  top: 242,
   columnWidth: 212,
-  rowHeight: 62,
+  rowHeight: 57,
   nodeWidth: 196,
   nodeHeight: 50,
   viewportWidth: 960,
