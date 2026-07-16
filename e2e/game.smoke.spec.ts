@@ -71,6 +71,35 @@ test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
+test('Talentbaum-Maske beschneidet den spaeteren Ranga-Tab nicht', async ({ page }) => {
+  test.setTimeout(45_000);
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('5');
+  await settle(page, 100);
+  await page.keyboard.press('8');
+  await settle(page, 200);
+
+  const canvas = page.locator('canvas');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Game canvas not found');
+  const header = await page.screenshot({
+    animations: 'disabled',
+    clip: {
+      x: box.x + box.width * 20 / GAME_WIDTH,
+      y: box.y + box.height * 12 / GAME_HEIGHT,
+      width: box.width * 220 / GAME_WIDTH,
+      height: box.height * 54 / GAME_HEIGHT
+    }
+  });
+  expect(getBrightPixelRatio(header)).toBeGreaterThan(0.01);
+});
+
 test('Gobtas Beitritts-Meilenstein zeigt seine Party-Art', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
@@ -1967,6 +1996,15 @@ function getVisiblePixelRatio(png: Buffer): number {
     if (alpha > 5 && data[index]! + data[index + 1]! + data[index + 2]! > 18) visible++;
   }
   return visible / (width * height);
+}
+
+function getBrightPixelRatio(png: Buffer): number {
+  const { width, height, data, channels } = decodePng(png);
+  let bright = 0;
+  for (let index = 0; index < data.length; index += channels) {
+    if (data[index]! + data[index + 1]! + data[index + 2]! > 180) bright++;
+  }
+  return bright / (width * height);
 }
 
 function decodePng(png: Buffer): { width: number; height: number; data: Uint8Array; channels: 3 | 4 } {

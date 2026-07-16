@@ -27,7 +27,7 @@ export default defineConfig({
     {
       name: 'mobile-chromium',
       testIgnore: /hidpi\.smoke\.spec\.ts/,
-      use: { browserName: 'chromium', viewport: { width: 390, height: 844 } }
+      use: { browserName: 'chromium', viewport: { width: 844, height: 390 } }
     },
     {
       name: 'hidpi-desktop-chromium',
@@ -43,7 +43,7 @@ export default defineConfig({
       testMatch: /hidpi\.smoke\.spec\.ts/,
       use: {
         browserName: 'chromium',
-        viewport: { width: 390, height: 844 },
+        viewport: { width: 844, height: 390 },
         deviceScaleFactor: 3
       }
     }
