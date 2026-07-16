@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeRects } from '../src/systems/mobileLayout';
 import {
   analyzeMenuColumns,
+  MENU_EQUIPMENT_LAYOUT,
   MENU_LIST_COLUMNS,
   MENU_PARTY_LAYOUT,
   MENU_TAB_ROW,
@@ -88,6 +89,25 @@ describe('Phase 59 — Menü-Layout-Validierung (HudLayoutIssue-Muster auf Menü
         height: MENU_TOUCH_TARGET_HEIGHT
       }
     ], MENU_VIEWPORT, 0)).toEqual([]);
+  });
+
+  it('hält Ausrüstungskarten und 44px-Aktionen getrennt innerhalb ihrer Zeilen', () => {
+    const layout = MENU_EQUIPMENT_LAYOUT;
+    const cards = Array.from({ length: 4 }, (_, index) => ({
+      id: `equipment.${index}`,
+      x: layout.left + layout.width / 2,
+      y: layout.firstY + index * layout.rowHeight,
+      width: layout.width,
+      height: layout.cardHeight
+    }));
+
+    expect(analyzeRects(cards, MENU_VIEWPORT, 0)).toEqual([]);
+    for (const card of cards) {
+      expect(card.y + layout.actionOffsetY - MENU_TOUCH_TARGET_HEIGHT / 2)
+        .toBeGreaterThanOrEqual(card.y - layout.cardHeight / 2);
+      expect(card.y + layout.actionOffsetY + MENU_TOUCH_TARGET_HEIGHT / 2)
+        .toBeLessThanOrEqual(card.y + layout.cardHeight / 2);
+    }
   });
 });
 

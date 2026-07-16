@@ -63,6 +63,7 @@ import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipme
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { playSfxProcedural } from '../audio/sfxProcedural';
 import {
+  MENU_EQUIPMENT_LAYOUT,
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
   MENU_PAGER_HEIGHT,
@@ -556,42 +557,32 @@ export class MenuScene extends Phaser.Scene {
     EQUIPMENT_SLOTS.forEach((slot, index) => {
       const item = summary.equipmentItems[slot];
       const enchantmentLevel = getEnchantmentLevel(summary.member, this.save.progression, slot);
-      // Basis 150 → 204: das erste Panel (Höhe 92, zentriert) ragte sonst mit
-      // Oberkante 104 in Haupt-Tab-Reihe (bis 116) und Titel (124).
-      // Phase 150 — vier Slots (inkl. Kern) in die Spalte packen: engere Abstände,
-      // etwas flachere Panels, damit alle vier zwischen Tab-Reihe und Set-Zeile passen.
-      const y = 190 + index * 84;
-      this.panel(300, y, 290, 76);
-      this.layer.add(this.add.text(318, y - 38, slotLabel(slot), {
-        fontFamily: 'sans-serif', fontSize: '10px', color: '#9fb2cc'
+      const layout = MENU_EQUIPMENT_LAYOUT;
+      const y = layout.firstY + index * layout.rowHeight;
+      this.panel(layout.left, y, layout.width, layout.cardHeight);
+      const affixes = item ? instanceAffixLabels(item.id) : [];
+      const rarity = item && rarityOf(item) !== 'gewoehnlich'
+        ? ` · ${rarityLabel(rarityOf(item))}${affixes.length > 0 ? ` · ${affixes.join(' · ')}` : ''}`
+        : '';
+      this.layer.add(this.add.text(318, y + layout.headerOffsetY, `${slotLabel(slot)}${rarity}`, {
+        fontFamily: 'sans-serif', fontSize: '9px', color: item ? rarityColor(rarityOf(item)) : '#9fb2cc'
       }));
-      this.layer.add(this.add.text(318, y - 20, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
+      this.layer.add(this.add.text(318, y + layout.itemOffsetY, `${item?.name ?? 'Leer'}${enchantmentLevel > 0 ? ` +${enchantmentLevel}` : ''}`, {
         // Phase 149 — Raritaet farbig: der Item-Name trägt seine Raritaets-Farbe.
         fontFamily: 'sans-serif', fontSize: '13px', color: item ? rarityColor(rarityOf(item)) : '#e9eef7'
       }));
-      if (item && rarityOf(item) !== 'gewoehnlich') {
-        // Phase 156 — bei einer gerollten Instanz die Affixe neben dem Raritaets-Label zeigen.
-        const affixes = item ? instanceAffixLabels(item.id) : [];
-        const rarityText = affixes.length > 0
-          ? `${rarityLabel(rarityOf(item))} · ${affixes.join(' · ')}`
-          : rarityLabel(rarityOf(item));
-        this.layer.add(this.add.text(318, y - 4, rarityText, {
-          fontFamily: 'sans-serif', fontSize: '9px', color: rarityColor(rarityOf(item))
-        }));
-      }
       if (item) {
-        // Aktionen in einer Zeile unten im Panel — überlappen den Item-Namen nicht mehr.
-        this.button(502, y + 24, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
+        this.button(502, y + layout.actionOffsetY, 76, 'Ablegen', () => this.applyResult(unequipItem(this.state, characterId, slot)));
         if (item.enchantment && enchantmentLevel < item.enchantment.maxLevel) {
           const cost = item.enchantment.goldCostPerLevel * (enchantmentLevel + 1);
           if (!canEnchant) {
-            this.button(310, y + 24, 184, 'Verzaubern · nur bei Schmied', () => {
+            this.button(310, y + layout.actionOffsetY, 184, 'Verzaubern · nur bei Schmied', () => {
               this.message = 'Verzaubern geht nur bei einem Schmied — oder wenn Rimuru den Skill dafür gelernt hat.';
               this.refresh();
             }, 0x242b38);
             return;
           }
-          this.button(310, y + 24, 184, `Verzaubern · ${cost} Gold`, () => {
+          this.button(310, y + layout.actionOffsetY, 184, `Verzaubern · ${cost} Gold`, () => {
             const result = enchantEquipment(
               summary.member,
               this.save.progression,

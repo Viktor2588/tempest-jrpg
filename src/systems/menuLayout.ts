@@ -48,6 +48,17 @@ export const MENU_PARTY_LAYOUT = (() => {
   };
 })();
 
+export const MENU_EQUIPMENT_LAYOUT = {
+  left: 300,
+  width: 290,
+  firstY: 184,
+  rowHeight: 86,
+  cardHeight: 82,
+  headerOffsetY: -35,
+  itemOffsetY: -21,
+  actionOffsetY: 15
+} as const;
+
 function centeredRowLeft(count: number, width: number, gap: number): number {
   return (MENU_VIEWPORT.width - (count * width + Math.max(0, count - 1) * gap)) / 2;
 }

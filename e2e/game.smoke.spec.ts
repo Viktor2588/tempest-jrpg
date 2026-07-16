@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { inflateSync } from 'node:zlib';
-import { MENU_PARTY_LAYOUT } from '../src/systems/menuLayout';
+import { MENU_EQUIPMENT_LAYOUT, MENU_PARTY_LAYOUT } from '../src/systems/menuLayout';
 import { layoutOverworldTouchControls } from '../src/systems/mobileLayout';
 
 const GAME_WIDTH = 960;
@@ -68,6 +68,29 @@ test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page
   await page.keyboard.press('2');
   await settle(page, 150);
   await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
+test('Ausrüstungskarten bleiben bedienbar und legen ein Teil ab', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('3');
+  await settle(page, 150);
+  await expectCanvasContent(page);
+
+  const armorY = MENU_EQUIPMENT_LAYOUT.firstY + MENU_EQUIPMENT_LAYOUT.rowHeight;
+  await clickGamePoint(page, 540, armorY + MENU_EQUIPMENT_LAYOUT.actionOffsetY);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.party.active[0].equipment.armor).toBeNull();
+  expect(save.inventory.stacks.some((stack: { itemId: string }) => stack.itemId === 'traveler-cloak')).toBe(true);
   expect(browserErrors).toEqual([]);
 });
 
