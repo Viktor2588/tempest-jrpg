@@ -10,12 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 237 — PLAN auf offene Arbeit reduziert (abgeschlossen im isolierten
-  Worktree). 44 historische Abschlusskarten entfernt, Datei von 1324 auf unter
-  30 Zeilen reduziert;
-  `docs/PROJECT_KNOWLEDGE.md` und Git-Historie bleiben das Archiv. Akzeptanz:
-  `git diff --check` ✓, Typecheck ✓, 852 Unit-Tests inklusive Balance-Harness ✓,
-  Build ✓; renderingneutral, daher kein Browser-Smoke erforderlich.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

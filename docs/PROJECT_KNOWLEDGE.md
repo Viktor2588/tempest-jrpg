@@ -2026,6 +2026,18 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-/Mobile-Chromium-Smoke fuer Optionslayout
   und echten Battle-Pfad (4/4).
 
+### Phase 237 - PLAN-Hygiene
+
+- Branch/Worktree: `phase-237-plan-hygiene` in
+  `/worktree/tempest-phase-237-plan-hygiene`.
+- `PLAN.md` enthaelt auf `main` nur noch offene/laufende Arbeit, Statusregeln,
+  Integrationswarteschlange und das verbindliche Worktree-Schema. 44 erledigte
+  Phasenkarten wurden entfernt; ihre Historie bleibt hier und in Git erhalten.
+- Die Datei schrumpfte von 1324 auf 23 Zeilen und entspricht damit wieder ihrer
+  eigenen Offenheitsregel sowie `AGENTS.md`.
+- Validiert mit `git diff --check`, Typecheck, 852 Unit-Tests inklusive
+  Balance-Harness und Build. Renderingneutral, daher kein Browser-Smoke.
+
 ## 14. Change Checklist
 
 Before editing:
