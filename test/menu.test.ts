@@ -77,6 +77,19 @@ describe('menu system', () => {
     expect(getItemCount(again.state.inventory, 'clearsight-drops')).toBe(1);
   });
 
+  it('markiert Kampfitems im Menü als unbenutzbar und verbraucht sie nicht', () => {
+    const state: MenuGameState = {
+      party: createInitialParty(),
+      inventory: [{ itemId: 'purifying-water', quantity: 1 }],
+      gold: 0
+    };
+
+    expect(buildMenuView(state).inventory[0]?.usable).toBe(false);
+    const result = useItem(state, 'purifying-water', 'rimuru');
+    expect(result.ok).toBe(false);
+    expect(getItemCount(result.state.inventory, 'purifying-water')).toBe(1);
+  });
+
   it('sortiert Inventar nach Nutzbarkeit/Ausrüstung und Namen für schnelle Menüwege', () => {
     const view = buildMenuView({
       party: createInitialParty(),
