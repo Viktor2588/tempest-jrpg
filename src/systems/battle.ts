@@ -1173,8 +1173,6 @@ function resolveItem(
       break;
     }
 
-    case 'grant-skill':
-      return { ok: false, reason: 'Skill-Items sind im Kampf noch nicht nutzbar.' };
   }
 
   consumeItem(state, itemId);

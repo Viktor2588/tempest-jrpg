@@ -113,9 +113,8 @@ export interface ItemEffect {
   // Phase 178 — 'ward-fog': proaktives Vorsorge-Item (out of combat). Laedt einen
   // einmaligen Nebel-Ward, der die Nebel-Eroeffnungsblendung des naechsten Kampfes
   // unterdrueckt (Flag `worldclock.fogward`). Behandelt in menu.ts:useItem.
-  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'grant-skill' | 'cure-status' | 'ward-fog';
+  readonly kind: 'heal-hp' | 'restore-mp' | 'revive' | 'cure-status' | 'ward-fog';
   readonly amount?: number;
-  readonly skillId?: string;
 }
 
 export interface ItemDefinition {
