@@ -656,7 +656,12 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawForge(view: MenuView): void {
-    this.drawPortrait('kaijin', 842, 148, 44);
+    if (this.textures.exists('sprite-forge-kurobe')) {
+      this.layer.add(this.add.image(818, 164, 'sprite-forge-kurobe').setDisplaySize(64, 64));
+    }
+    if (this.textures.exists('sprite-forge-kaijin')) {
+      this.layer.add(this.add.image(870, 164, 'sprite-forge-kaijin').setDisplaySize(64, 64));
+    }
     // Phase 159/160 — Umschalter zwischen Rezepten und der Loot-Werkbank (Zerlegen/Umschmieden).
     this.button(620, 124, 150, this.forgeBench ? '◂ Rezepte' : 'Werkbank ▸', () => {
       this.forgeBench = !this.forgeBench;

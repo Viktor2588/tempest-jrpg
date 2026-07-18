@@ -162,6 +162,8 @@ import benimaruBattleUrl from '../assets/sprites/party-benimaru.webp';
 import shionBattleUrl from '../assets/sprites/party-shion.webp';
 import hakurouBattleUrl from '../assets/sprites/party-hakurou.webp';
 import soueiBattleUrl from '../assets/sprites/party-souei.webp';
+import kurobeForgeUrl from '../assets/sprites/party-kurobe.webp';
+import kaijinForgeUrl from '../assets/sprites/party-kaijin.webp';
 import rimuruPortraitUrl from '../assets/sprites/portrait-rimuru.webp';
 import gobtaPortraitUrl from '../assets/sprites/portrait-gobta.webp';
 import shunaPortraitUrl from '../assets/sprites/portrait-shuna.webp';
@@ -352,6 +354,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(PARTY_BATTLE_ART.shion, shionBattleUrl);
     this.load.image(PARTY_BATTLE_ART.hakurou, hakurouBattleUrl);
     this.load.image(PARTY_BATTLE_ART.souei, soueiBattleUrl);
+    this.load.image('sprite-forge-kurobe', kurobeForgeUrl);
+    this.load.image('sprite-forge-kaijin', kaijinForgeUrl);
     this.load.image(portraitKey('rimuru'), rimuruPortraitUrl);
     this.load.image(portraitKey('gobta'), gobtaPortraitUrl);
     this.load.image(portraitKey('shuna'), shunaPortraitUrl);

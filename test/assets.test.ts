@@ -27,7 +27,10 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
   });
 
   it('zeigt Kaijins vorhandenes Portrait in der Schmiede', () => {
-    expect(menuSource).toContain("this.drawPortrait('kaijin', 842, 148, 44)");
+    expect(preloadSource).toContain("this.load.image('sprite-forge-kurobe', kurobeForgeUrl)");
+    expect(preloadSource).toContain("this.load.image('sprite-forge-kaijin', kaijinForgeUrl)");
+    expect(menuSource).toContain("this.add.image(818, 164, 'sprite-forge-kurobe')");
+    expect(menuSource).toContain("this.add.image(870, 164, 'sprite-forge-kaijin')");
   });
 
   it('lädt und zeigt die projektgenerierte Codex-Archivvignette in Wissen und Handbuch', () => {

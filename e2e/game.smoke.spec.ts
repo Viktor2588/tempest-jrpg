@@ -822,7 +822,7 @@ test('Kijin-Kampfparty und Schmiede-NPCs laden ihre vorgesehenen Assets', async 
     expect(loadedAssets.some((name) => name.includes(`portrait-${hero}`))).toBe(true);
   }
   for (const smith of ['kurobe', 'kaijin']) {
-    expect(loadedAssets.some((name) => name.includes(`party-${smith}`))).toBe(false);
+    expect(loadedAssets.some((name) => name.includes(`party-${smith}`))).toBe(true);
     expect(loadedAssets.some((name) => name.includes(`portrait-${smith}`))).toBe(true);
   }
   await expectCanvasContent(page);
@@ -848,6 +848,9 @@ test('Dwargon-Schmiede zeigt Kaijin und schmiedet ein Rezept', async ({ page }) 
   await page.keyboard.press('3');
   await clickGamePoint(page, 539, 124);
   await expectCanvasContent(page);
+  const loadedAssets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(loadedAssets.some((name) => name.includes('party-kurobe'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('party-kaijin'))).toBe(true);
   await clickGamePoint(page, 735, 188);
   const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
   expect(save.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'magisteel')?.quantity).toBe(1);
