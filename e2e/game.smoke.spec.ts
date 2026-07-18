@@ -207,6 +207,25 @@ test('Direwolf-Sieg zeigt das vorhandene Boss-Cutout im Meilenstein', async ({ p
   expect(browserErrors).toEqual([]);
 });
 
+test('Band-1-Abschluss zeigt das vorhandene Tempest-Banner im Meilenstein', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: { 'milestone.band-one-complete.shown': false }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 500);
+  await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('region-tempest-village'))).toBe(true);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['milestone.band-one-complete.shown']).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Weltmarker und Shopkopf zeigen die projektgenerierte Händler-Vignette', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

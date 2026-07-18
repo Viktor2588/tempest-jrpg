@@ -4,6 +4,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../main';
 import { configureHiDpiScene } from '../render/hiDpi';
 import { PARTY_BATTLE_ART } from '../render/battleArt';
 import { DIREWOLF_ALPHA_TEXTURE_KEY, NAMELESS_ECHO_TEXTURE_KEY } from '../render/enemyArt';
+import { addRegionBannerImage, TEMPEST_GROWTH_BANNER_TEXTURES } from '../render/regionBannerArt';
 import { getMilestoneById, type MilestoneTone } from '../systems/milestones';
 import { addUiPanel, addUiTextButton } from '../render/uiSkin';
 import { fadeIn } from './transition';
@@ -42,6 +43,14 @@ export class MilestoneScene extends Phaser.Scene {
             : null;
     if (artKey && this.textures.exists(artKey)) {
       this.add.image(742, 338, artKey).setDisplaySize(150, 150);
+    }
+    const chapterBannerKey = milestone.id === 'band-two-complete'
+      ? TEMPEST_GROWTH_BANNER_TEXTURES.city
+      : milestone.id === 'band-one-complete' || milestone.id === 'first-council'
+        ? TEMPEST_GROWTH_BANNER_TEXTURES.village
+        : null;
+    if (chapterBannerKey && this.textures.exists(chapterBannerKey)) {
+      addRegionBannerImage(this, 742, 338, chapterBannerKey, 150, 76);
     }
 
     this.add.text(GAME_WIDTH / 2, 142, milestone.kicker.toUpperCase(), {

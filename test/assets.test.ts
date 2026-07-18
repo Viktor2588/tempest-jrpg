@@ -52,6 +52,13 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(milestoneSource).toContain('NAMELESS_ECHO_TEXTURE_KEY');
   });
 
+  it('zeigt vorhandene Tempest-Banner bei Kapitel-Meilensteinen', () => {
+    expect(milestoneSource).toContain("milestone.id === 'band-one-complete'");
+    expect(milestoneSource).toContain("milestone.id === 'first-council'");
+    expect(milestoneSource).toContain("milestone.id === 'band-two-complete'");
+    expect(milestoneSource).toContain('addRegionBannerImage(this, 742, 338, chapterBannerKey, 150, 76)');
+  });
+
   it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {
     expect(endingSource).toContain('const key = `bg-ending-${entry.kind}`');
     expect(endingSource).toContain('this.add.image(x, 362, key)');

@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 253 – Regionsart in Kapitel-Meilensteinen**
+  - Worktree: `/worktree/tempest-phase-253-chapter-milestone-art`
+  - Die drei Kapitel-Meilensteine zeigen vorhandene Tempest-Dorf-/Stadtbanner im freien Bildbereich.
+  - Abnahme: Asset-/Meilenstein-Tests (22), Typecheck, vollständige Tests (858), Build und fokussierter Kapitel-Meilenstein-Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 
