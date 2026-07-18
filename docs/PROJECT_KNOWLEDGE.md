@@ -2343,6 +2343,18 @@ test/release.test.ts
 - Validiert mit `git diff --check`, parallelem Asset-Chromium-Smoke (2/2),
   Typecheck, 865 Unit-Tests inklusive Balance-Harness und Build.
 
+### Phase 124 - Sammel-Meisterschaft
+
+- Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
+  `PROGRESSION_REGIONS`-Ansatz wurde beim Merge nicht parallel aktiviert: Er
+  haette zusammen mit dem heutigen Jagdgrund-System denselben Analyseabschluss
+  doppelt belohnt.
+- Kanonisch bleibt `bestiaryMastery.ts`: kuratierte Jagdgruende zahlen ihren
+  Magicule-Fund einmalig aus und persistieren ihn ueber
+  `bestiary.mastery.<groundId>`-Flags.
+- Ein fokussierter Merge-Test belegte die Doppelzahlung; nach der Aufloesung
+  blieben Bestiarium-, Kampfergebnis- und Save-Tests unveraendert gruen.
+
 ## 14. Change Checklist
 
 Before editing:
