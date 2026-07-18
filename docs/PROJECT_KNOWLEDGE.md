@@ -2319,6 +2319,18 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Kampfitem-Chromium-Smoke (1/1).
 
+### Phase 259 - Items ohne Wirkung nicht verbrauchen
+
+- Branch/Worktree: `phase-259-no-effect-items` in
+  `/worktree/tempest-phase-259-no-effect-items`.
+- Heil- und MP-Items werden bei bereits vollen Ressourcen in Menue und Kampf
+  abgelehnt und nicht verbraucht.
+- Der Kampf protokolliert bei teilweiser Auffuellung nun den tatsaechlich
+  wiederhergestellten Wert statt des nominellen Itemwerts.
+- Validiert mit `git diff --check`, Menue-/Kampftests (77/77), Typecheck, 865
+  Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Inventar-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
