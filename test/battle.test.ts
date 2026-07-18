@@ -398,6 +398,23 @@ describe('battle engine', () => {
     expect(getItemCount(afterView.inventory, 'healing-herb')).toBe(before - 1);
   });
 
+  it('verbraucht Heil- und MP-Items bei vollen Ressourcen nicht', () => {
+    for (const itemId of ['healing-herb', 'mana-drop']) {
+      const state = startBattle({
+        party: fastTank(),
+        enemyIds: ['forest-slime'],
+        inventory: [{ itemId, quantity: 1 }],
+        seed: 11
+      });
+      const hero = currentActor(state)!;
+
+      const result = act(state, { type: 'item', itemId, targetId: hero.id });
+
+      expect(result.ok).toBe(false);
+      expect(getItemCount(renderView(state).inventory, itemId)).toBe(1);
+    }
+  });
+
   it('verbraucht reine Menü-Items im Kampf nicht', () => {
     const state = startBattle({
       party: fastTank(),

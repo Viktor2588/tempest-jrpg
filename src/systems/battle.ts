@@ -1142,16 +1142,24 @@ function resolveItem(
       if (target.dead) {
         return { ok: false, reason: 'Ziel ist kampfunfähig.' };
       }
+      if (target.hp >= target.maxHp) {
+        return { ok: false, reason: 'LP sind bereits voll.' };
+      }
+      const hpBefore = target.hp;
       target.hp = Math.min(target.maxHp, target.hp + amount);
-      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} erhält ${amount} LP.`);
+      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} erhält ${target.hp - hpBefore} LP.`);
       break;
 
     case 'restore-mp':
       if (target.dead) {
         return { ok: false, reason: 'Ziel ist kampfunfähig.' };
       }
+      if (target.mp >= target.maxMp) {
+        return { ok: false, reason: 'MP sind bereits voll.' };
+      }
+      const mpBefore = target.mp;
       target.mp = Math.min(target.maxMp, target.mp + amount);
-      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} erhält ${amount} MP.`);
+      pushLog(state, `${actor.name} nutzt ${item.name}: ${target.name} erhält ${target.mp - mpBefore} MP.`);
       break;
 
     case 'revive':

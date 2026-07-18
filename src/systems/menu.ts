@@ -319,23 +319,29 @@ export function useItem(
     };
   }
 
+  let found = false;
   let changed = false;
   const updatedParty = state.party.map((member) => {
     if (member.characterId !== characterId) return member;
+    found = true;
     const stats = calculateMemberStats(member);
-    changed = true;
     if (item.effect?.kind === 'heal-hp') {
-      return { ...member, currentHp: Math.min(stats.maxHp, member.currentHp + (item.effect.amount ?? 0)) };
+      const currentHp = Math.min(stats.maxHp, member.currentHp + (item.effect.amount ?? 0));
+      changed = currentHp > member.currentHp;
+      return { ...member, currentHp };
     }
     if (item.effect?.kind === 'restore-mp') {
-      return { ...member, currentMp: Math.min(stats.maxMp, member.currentMp + (item.effect.amount ?? 0)) };
+      const currentMp = Math.min(stats.maxMp, member.currentMp + (item.effect.amount ?? 0));
+      changed = currentMp > member.currentMp;
+      return { ...member, currentMp };
     }
     return member;
   });
 
-  if (!changed) {
+  if (!found) {
     return { ok: false, state, message: 'Charakter nicht gefunden.' };
   }
+  if (!changed) return { ok: false, state, message: 'Item hätte keine Wirkung.' };
   return {
     ok: true,
     state: {

@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 259 – Items ohne Wirkung nicht verbrauchen**
+  - Worktree: `/worktree/tempest-phase-259-no-effect-items`
+  - Heil- und MP-Items bei bereits vollen Ressourcen in Menü und Kampf ablehnen.
+  - Abnahme: Menü-/Kampftests (77), Typecheck, Tests (865), Build und fokussierter Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 
