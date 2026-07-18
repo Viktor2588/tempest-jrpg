@@ -58,6 +58,21 @@ describe('menu system', () => {
     expect(getItemCount(result.state.inventory, 'healing-herb')).toBe(4);
   });
 
+  it.each(['healing-herb', 'mana-drop'])('verbraucht %s bei voller Ressource nicht', (itemId) => {
+    const [rimuru, ...rest] = createInitialParty();
+    const stats = calculateMemberStats(rimuru!);
+    const state: MenuGameState = {
+      party: [{ ...rimuru!, currentHp: stats.maxHp, currentMp: stats.maxMp }, ...rest],
+      inventory: [{ itemId, quantity: 1 }],
+      gold: 0
+    };
+
+    const result = useItem(state, itemId, 'rimuru');
+
+    expect(result.ok).toBe(false);
+    expect(getItemCount(result.state.inventory, itemId)).toBe(1);
+  });
+
   it('Phase 178: Klarsichttropfen laden den Nebel-Ward und verbrauchen sich einmal', () => {
     const state: MenuGameState = {
       party: createInitialParty(),

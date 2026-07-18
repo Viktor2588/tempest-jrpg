@@ -93,6 +93,27 @@ test('Kampfitems bleiben beim Antippen im Inventarmenü unverbraucht', async ({ 
   expect(browserErrors).toEqual([]);
 });
 
+test('Volle LP verbrauchen im Inventarmenü kein Heilitem', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    inventory: { stacks: [{ itemId: 'healing-herb', quantity: 1 }] }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('2');
+  await settle(page, 150);
+  await clickGamePoint(page, 420, 184);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'healing-herb')?.quantity).toBe(1);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Menü-Wards erscheinen nicht in der Kampfitem-Liste', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
