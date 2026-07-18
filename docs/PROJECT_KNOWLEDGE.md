@@ -2244,6 +2244,18 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und fokussierten
   Forge-/Asset-Chromium-Smokes (2/2).
 
+### Phase 253 - Regionsart in Kapitel-Meilensteinen
+
+- Branch/Worktree: `phase-253-chapter-milestone-art` in
+  `/worktree/tempest-phase-253-chapter-milestone-art`.
+- Band 1 und der erste Rat zeigen das vorhandene Tempest-Dorfbanner; der
+  Band-2-Abschluss zeigt das vorhandene Stadtbanner im freien Bildbereich.
+- Die gemeinsame Crop-Hilfe aus `regionBannerArt.ts` wird wiederverwendet;
+  es entstanden keine neuen Bilddateien oder Asset-Mappings.
+- Validiert mit `git diff --check`, Asset-/Meilenstein-Tests (22/22),
+  Typecheck, 858 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Band-1-Meilenstein-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
