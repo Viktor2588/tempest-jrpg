@@ -2232,6 +2232,18 @@ test/release.test.ts
   Typecheck, 857 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Direwolf-Meilenstein-Chromium-Smoke (1/1).
 
+### Phase 252 - Schmied-Cutouts im Forge-Menue
+
+- Branch/Worktree: `phase-252-forge-smith-art` in
+  `/worktree/tempest-phase-252-forge-smith-art`.
+- Das Forge-Menue zeigt Kurobe und Kaijin nun mit ihren bereits vorhandenen,
+  bislang nicht geladenen transparenten Cutouts im freien Kopfbereich.
+- Die Cutouts bleiben reine Schmiede-NPC-Art und erweitern bewusst nicht die
+  spielbare `PARTY_BATTLE_ART`-Zuordnung.
+- Validiert mit `git diff --check`, Asset-Test (18/18), Typecheck, 857
+  Unit-Tests inklusive Balance-Harness, Build und fokussierten
+  Forge-/Asset-Chromium-Smokes (2/2).
+
 ## 14. Change Checklist
 
 Before editing:
