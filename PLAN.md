@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 248 – Regionsasset in Questdetails**
+  - Worktree: `/worktree/tempest-phase-248-quest-detail-art`
+  - Die Quest-Detailansicht behält das Banner des aktuellen beziehungsweise letzten verorteten Schritts bei.
+  - Abnahme: `git diff --check`, Asset-Test (10/10), Typecheck, 855 Unit-Tests, Build und fokussierter Liste-zu-Details-Browser-Smoke (1/1).
 
 ## Integrationswarteschlange
 

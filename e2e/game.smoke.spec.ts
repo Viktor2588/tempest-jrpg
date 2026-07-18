@@ -138,6 +138,9 @@ test('Questlog zeigt das Regionsasset des aktuellen Ziels', async ({ page }) => 
   await page.keyboard.press('6');
   await settle(page, 150);
   await expectCanvasContent(page);
+  await clickGamePoint(page, 850, 366); // erste aktive Quest: „Details ›"
+  await settle(page, 150);
+  await expectCanvasContent(page);
 
   const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
   expect(assets.some((name) => name.includes('region-jura-forest'))).toBe(true);
