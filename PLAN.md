@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 251 – Boss-Art in Meilensteinen**
+  - Worktree: `/worktree/tempest-phase-251-boss-milestone-art`
+  - Direwolf- und Echo-Sieg zeigen ihre bereits vorhandenen Gegner-Cutouts wie die Beitritts-Meilensteine ihre Party-Art.
+  - Abnahme: Asset-/Meilenstein-Tests (21), Typecheck, vollständige Tests (857), Build und fokussierter Direwolf-Meilenstein-Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 

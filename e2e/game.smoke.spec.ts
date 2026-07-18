@@ -188,6 +188,25 @@ test('Gobtas Beitritts-Meilenstein zeigt seine Party-Art', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Direwolf-Sieg zeigt das vorhandene Boss-Cutout im Meilenstein', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    flags: { 'milestone.direwolf-victory.shown': false }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 500);
+  await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('enemy-direwolf-alpha'))).toBe(true);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.flags['milestone.direwolf-victory.shown']).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Weltmarker und Shopkopf zeigen die projektgenerierte Händler-Vignette', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
