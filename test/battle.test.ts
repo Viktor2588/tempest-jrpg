@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HEROES } from '../src/data';
+import { HEROES, ITEMS } from '../src/data';
 import { createInitialInventory, getItemCount } from '../src/systems/inventory';
 import {
   BATTLE_BALANCE,
@@ -10,6 +10,7 @@ import {
   currentActor,
   enemyTurn,
   escalationBonus,
+  isBattleUsableItem,
   isPlayerTurn,
   queueReaction,
   renderView,
@@ -395,6 +396,22 @@ describe('battle engine', () => {
 
     expect(afterView.party[0]!.hp).toBeGreaterThan(30);
     expect(getItemCount(afterView.inventory, 'healing-herb')).toBe(before - 1);
+  });
+
+  it('verbraucht reine Menü-Items im Kampf nicht', () => {
+    const state = startBattle({
+      party: fastTank(),
+      enemyIds: ['forest-slime'],
+      inventory: [{ itemId: 'clearsight-drops', quantity: 1 }],
+      seed: 11
+    });
+    const hero = currentActor(state)!;
+
+    const result = act(state, { type: 'item', itemId: 'clearsight-drops', targetId: hero.id });
+
+    expect(isBattleUsableItem(ITEMS.find((item) => item.id === 'clearsight-drops'))).toBe(false);
+    expect(result).toEqual({ ok: false, reason: 'Item nicht im Kampf nutzbar.' });
+    expect(getItemCount(renderView(state).inventory, 'clearsight-drops')).toBe(1);
   });
 
   it('Phase 128 — Wiederbelebungselixier weckt einen kampfunfähigen Verbündeten', () => {

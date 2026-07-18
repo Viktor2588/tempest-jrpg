@@ -93,6 +93,26 @@ test('Kampfitems bleiben beim Antippen im Inventarmenü unverbraucht', async ({ 
   expect(browserErrors).toEqual([]);
 });
 
+test('Menü-Wards erscheinen nicht in der Kampfitem-Liste', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    inventory: { stacks: [{ itemId: 'clearsight-drops', quantity: 1 }] }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('Enter');
+  await settle(page, 500);
+  await clickGamePoint(page, 480, 469);
+  await settle(page, 150);
+  await expectCanvasContent(page);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Ausrüstungskarten bleiben bedienbar und legen ein Teil ab', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
