@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 252 – Schmied-Cutouts im Forge-Menü**
+  - Worktree: `/worktree/tempest-phase-252-forge-smith-art`
+  - Die vorhandenen, bisher ungenutzten Kurobe-/Kaijin-Cutouts kennzeichnen Rezepte und Loot-Werkbank sichtbar als Schmiedebereich.
+  - Abnahme: Asset-Wiring-Test (18), Typecheck, vollständige Tests (857), Build und fokussierte Forge-Browser-Smokes (2/2) bestanden.
 
 ## Integrationswarteschlange
 
