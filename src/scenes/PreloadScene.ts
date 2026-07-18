@@ -247,6 +247,7 @@ import predatorStealUrl from '../assets/ui/predator-perversion-skillsteal.webp';
 import milimFightBannerUrl from '../assets/ui/milim-fight-banner.webp';
 import shopMerchantVignetteUrl from '../assets/ui/shop-merchant-vignette.webp';
 import codexArchiveVignetteUrl from '../assets/ui/codex-archive-vignette.webp';
+import veldoraCaveRevisitUrl from '../assets/ui/veldora-cave-revisit.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -435,6 +436,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('ui-milim-fight-banner', milimFightBannerUrl);
     this.load.image('ui-shop-merchant-vignette', shopMerchantVignetteUrl);
     this.load.image('ui-codex-archive-vignette', codexArchiveVignetteUrl);
+    this.load.image('ui-veldora-cave-revisit', veldoraCaveRevisitUrl);
   }
 
   create(): void {
@@ -565,6 +567,7 @@ export class PreloadScene extends Phaser.Scene {
       ...Object.values(REGION_BANNER_TEXTURES),
       ...Object.values(TEMPEST_GROWTH_BANNER_TEXTURES),
       'ui-milim-fight-banner',
+      'ui-veldora-cave-revisit',
       ...VFX_KINDS.map(vfxKey)
     ];
 

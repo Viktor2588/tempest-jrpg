@@ -291,6 +291,26 @@ test('Fundstelle zeigt das Motiv ihrer Region', async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test('Veldoras Nachhall zeigt die Höhlenillustration', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    location: { mapId: 'sealed-cave', x: 7, y: 5, facing: 'down' }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await tapMovementKey(page, 'ArrowDown');
+  await settle(page, 200);
+  await expectCanvasContent(page);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('veldora-cave-revisit'))).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Ende-Galerie zeigt erreichte Key-Art und unbekannte Karten', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

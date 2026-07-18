@@ -85,6 +85,12 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(discoverySource).toContain('addRegionBannerImage(this, cx, 166, bannerKey, 536, 128)');
   });
 
+  it('zeigt bei Veldoras Nachhall die vorhandene Höhlenillustration', () => {
+    expect(preloadSource).toContain("this.load.image('ui-veldora-cave-revisit'");
+    expect(discoverySource).toContain("discovery.flag === 'discovery.sealed-cave.veldora-echo'");
+    expect(discoverySource).toContain("? 'ui-veldora-cave-revisit'");
+  });
+
   it('dokumentiert jede eingecheckte Asset-Datei in ASSETS.md', () => {
     for (const file of assetFiles) {
       expect(assetsDoc).toContain(`\`${file}\``);
