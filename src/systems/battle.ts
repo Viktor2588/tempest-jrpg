@@ -382,6 +382,13 @@ const DEBUFF_STATUSES: readonly StatusEffectId[] = [
 
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
+const BATTLE_ITEM_EFFECTS = new Set(['heal-hp', 'restore-mp', 'revive', 'cure-status']);
+
+export function isBattleUsableItem(
+  item: ItemDefinition | undefined
+): item is ItemDefinition & { readonly effect: NonNullable<ItemDefinition['effect']> } {
+  return !!item?.effect && item.category === 'consumable' && BATTLE_ITEM_EFFECTS.has(item.effect.kind);
+}
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const enemyById = new Map<string, EnemyDefinition>(ENEMIES.map((enemy) => [enemy.id, enemy]));
 const signatureByCharacterId = new Map<string, SignatureDefinition>(
@@ -1117,7 +1124,7 @@ function resolveItem(
   targetId: string | undefined
 ): ActionResult {
   const item = itemById.get(itemId);
-  if (!item || item.category !== 'consumable' || !item.effect) {
+  if (!isBattleUsableItem(item)) {
     return { ok: false, reason: 'Item nicht im Kampf nutzbar.' };
   }
   if (getItemCount(state.inventory, itemId) <= 0) {

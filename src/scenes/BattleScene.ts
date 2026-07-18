@@ -10,6 +10,7 @@ import {
   availableMimicElements,
   currentActor,
   enemyTurn,
+  isBattleUsableItem,
   isPlayerTurn,
   renderView,
   startBattle,
@@ -1060,7 +1061,7 @@ export class BattleScene extends Phaser.Scene {
     const inventory = renderView(this.state).inventory;
     const choices = inventory.flatMap((stack): Array<[string, () => void]> => {
       const item = itemById.get(stack.itemId);
-      if (!item) return [];
+      if (!isBattleUsableItem(item)) return [];
       return [[`${item.name} ×${stack.quantity}`, () => {
         this.pendingItemId = item.id;
         this.pendingSkillId = null;
