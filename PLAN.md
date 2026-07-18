@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 250 – Archivvignette im Mechanik-Handbuch**
-  - Worktree: `/worktree/tempest-phase-250-handbook-vignette`
-  - Wissen und Handbuch teilen das vorhandene projektgenerierte Codex-Archivmotiv im freien linken Kopfbereich.
-  - Abnahme: Asset-/Handbuch-Tests (21), Typecheck, vollständige Tests (856), Build und fokussierter Handbuch-Browser-Smoke bestanden; visuell auf Screenshot geprüft.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

@@ -2207,6 +2207,18 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Codex-Wissen-Chromium-Smoke (1/1).
 
+### Phase 250 - Archivvignette im Mechanik-Handbuch
+
+- Branch/Worktree: `phase-250-handbook-vignette` in
+  `/worktree/tempest-phase-250-handbook-vignette`.
+- Wissen und Mechanik-Handbuch zeichnen das vorhandene Codex-Archivmotiv nun
+  zentral im freien linken Kopfbereich; andere Codex-Modi bleiben unveraendert.
+- Es entstand keine neue Bilddatei: Das in Phase 249 erzeugte und bereits in
+  `ASSETS.md` dokumentierte WebP deckt beide Archivansichten ab.
+- Validiert mit `git diff --check`, Asset-/Handbuch-Tests (21/21), Typecheck,
+  856 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Handbuch-Chromium-Smoke (1/1); Screenshot visuell geprueft.
+
 ## 14. Change Checklist
 
 Before editing:
