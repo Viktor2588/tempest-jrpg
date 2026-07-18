@@ -212,6 +212,7 @@ Lizenzzeile.
 | `ui/shop-merchant-vignette.webp` | Neutrale Händler-Vignette fuer alle Shoptypen, 512x256 (WebP) | OpenAI Built-in Imagegen, 2026-07-15; Prompt-Zweck: handgemaltes JRPG-Stillleben aus Ledertasche, Heiltrank, Kraeutern, Gold und Magieerz auf dunklem Tempest-UI-Grund | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (OpenAI Built-in Imagegen) |
 | `ui/codex-archive-vignette.webp` | Codex-Archivvignette, 1774x887 (WebP) | OpenAI Built-in Imagegen, 2026-07-18; Prompt-Zweck: textfreies handgemaltes JRPG-Stillleben aus offenem Chronikband, Feder, Slime-Praegung und cyanfarbenen Magicule-Kristallen fuer den Wissens-Codex | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (OpenAI Built-in Imagegen) |
 | `ui/veldora-cave-revisit.webp` | Textfreie Veldora-Höhlenillustration, 1280x720 (WebP) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG cave revisit banner with lab/sidequest elements for Phase 114 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
+| `ui/boss-add-spawn.webp` | UI HUD: Skript-Boss Adds / Spawn-Indikator (mid-fight), 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG boss summon/adds spawn HUD element for Phase 109 script bosses | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
 ## Phase 146 — neue Gegner-Archetypen (Textur-Wiederverwendung)
 
