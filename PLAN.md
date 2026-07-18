@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 260 – E2E-Timeout unter Parallel-Last stabilisieren**
+  - Worktree: `/worktree/tempest-phase-260-e2e-timeout`
+  - Das zentrale Playwright-Testlimit auf die belegte Laufzeit unter zwei Workern kalibrieren.
+  - Abnahme: paralleler Asset-Smoke (2/2), Typecheck, Tests (865) und Build bestanden.
 
 ## Integrationswarteschlange
 
