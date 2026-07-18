@@ -72,6 +72,27 @@ test('Charakter-Seitenleiste rendert vorhandene Gruppenportraits', async ({ page
   expect(browserErrors).toEqual([]);
 });
 
+test('Kampfitems bleiben beim Antippen im Inventarmenü unverbraucht', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave({
+    inventory: { stacks: [{ itemId: 'purifying-water', quantity: 1 }] }
+  }));
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await page.keyboard.press('2');
+  await settle(page, 150);
+  await clickGamePoint(page, 420, 184);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.inventory.stacks.find((stack: { itemId: string }) => stack.itemId === 'purifying-water')?.quantity).toBe(1);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Ausrüstungskarten bleiben bedienbar und legen ein Teil ab', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

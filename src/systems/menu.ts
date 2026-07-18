@@ -73,6 +73,7 @@ export interface MenuView {
 const heroById = new Map<string, CharacterDefinition>(HEROES.map((hero) => [hero.id, hero]));
 const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, item]));
 const skillById = new Map<string, SkillDefinition>(SKILLS.map((skill) => [skill.id, skill]));
+const MENU_ITEM_EFFECTS = new Set(['heal-hp', 'restore-mp', 'ward-fog']);
 
 // Phase 151 — Item-Resolver: statisches Item ODER (bei einer kodierten Loot-Instanz-Id)
 // die synthetisierte Instanz-Definition (Basis + Affixe). Fuer alle bestehenden Ids
@@ -215,7 +216,7 @@ export function getSortedInventory(inventory: readonly InventoryStack[]): Invent
       return [{
         item,
         quantity: stack.quantity,
-        usable: item.category === 'consumable' && !!item.effect,
+        usable: isMenuUsableItem(item),
         equipSlot: item.equipmentSlot ?? null,
         rarity: rarityOf(item),
         affixLabels: instanceAffixLabels(stack.itemId)
@@ -294,7 +295,7 @@ export function useItem(
   characterId: string
 ): MenuResult {
   const item = resolveItem(itemId);
-  if (!item?.effect || item.category !== 'consumable') {
+  if (!item || !isMenuUsableItem(item)) {
     return { ok: false, state, message: 'Item ist nicht nutzbar.' };
   }
   if (getItemCount(state.inventory, itemId) <= 0) {
@@ -335,10 +336,6 @@ export function useItem(
   if (!changed) {
     return { ok: false, state, message: 'Charakter nicht gefunden.' };
   }
-  if (item.effect.kind === 'revive' || item.effect.kind === 'grant-skill') {
-    return { ok: false, state, message: 'Item-Effekt wird im Menü noch nicht unterstützt.' };
-  }
-
   return {
     ok: true,
     state: {
@@ -348,6 +345,12 @@ export function useItem(
     },
     message: `${item.name} benutzt.`
   };
+}
+
+function isMenuUsableItem(
+  item: ItemDefinition
+): item is ItemDefinition & { readonly effect: NonNullable<ItemDefinition['effect']> } {
+  return item.category === 'consumable' && !!item.effect && MENU_ITEM_EFFECTS.has(item.effect.kind);
 }
 
 function normalizePartyResources(state: MenuGameState): MenuGameState {
