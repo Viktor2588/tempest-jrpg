@@ -18,6 +18,12 @@ const assetFiles = Object.keys(import.meta.glob('../src/assets/**/*', { eager: t
   .map((path) => path.replace('../src/assets/', ''));
 
 describe('Asset-Herkunft und Audio-Wiring', () => {
+  it('lädt Gegner-Cutouts nicht zusätzlich unter redundanten Legacy-Keys', () => {
+    for (const key of ['slime', 'wolf', 'imp', 'ogre']) {
+      expect(preloadSource).not.toContain(`this.load.image('sprite-enemy-${key}'`);
+    }
+  });
+
   it('lädt und zeigt die projektgenerierte Händler-Vignette', () => {
     expect(preloadSource).toContain("this.load.image('ui-shop-merchant-vignette'");
     expect(shopSource).toContain("this.add.image(700, 116, 'ui-shop-merchant-vignette')");

@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 254 – Redundante Gegner-Texturaliase entfernen**
+  - Worktree: `/worktree/tempest-phase-254-legacy-enemy-aliases`
+  - Vier doppelt geladene Legacy-Aliasse entfallen; dedizierte Gegner-, Kingdom- und Placeholder-Fallbacks bleiben erhalten.
+  - Abnahme: Asset-/Battle-Art-Tests (38), Typecheck, vollständige Tests (859), Build und vollständiger Battle-Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 

@@ -305,10 +305,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TEMPEST_VILLAGE_WALL_TILE_TEXTURE_KEY, tempestVillageWallTileUrl);
     this.load.image(TEMPEST_CITY_FLOOR_TILE_TEXTURE_KEY, tempestCityFloorTileUrl);
     this.load.image(TEMPEST_CITY_WALL_TILE_TEXTURE_KEY, tempestCityWallTileUrl);
-    // Hochaufgeloeste Projekt-Sprites; die Legacy-Keys bleiben als robuste Aliasse.
+    // Hochaufgeloeste Projekt-Sprites; der Hero-Key bleibt als Party-Fallback.
     this.load.image('sprite-hero', overworldRimuruSlimeUrl);
     this.load.image(OVERWORLD_RIMURU_TEXTURE_KEY, overworldRimuruSlimeUrl);
-    this.load.image('sprite-enemy-slime', enemyForestSlimeUrl);
     this.load.image(FOREST_SLIME_TEXTURE_KEY, enemyForestSlimeUrl);
     this.load.image(DIREWOLF_PUP_TEXTURE_KEY, enemyDirewolfPupUrl);
     this.load.image(SPORE_MOTH_TEXTURE_KEY, enemySporeMothUrl);
@@ -325,9 +324,6 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(DIREWOLF_ALPHA_TEXTURE_KEY, enemyDirewolfAlphaUrl);
     this.load.image(NAMELESS_ECHO_TEXTURE_KEY, enemyNamelessEchoUrl);
     this.load.image(MAGIC_COLOSSUS_TEXTURE_KEY, enemyMagicColossusUrl);
-    this.load.image('sprite-enemy-wolf', enemyDirewolfPupUrl);
-    this.load.image('sprite-enemy-imp', enemyNamelessEchoUrl);
-    this.load.image('sprite-enemy-ogre', enemyOgreWarriorUrl);
     this.load.image(OGRE_WARRIOR_TEXTURE_KEY, enemyOgreWarriorUrl);
     this.load.image(KINGDOM_UNIT_TEXTURE_KEY, kingdomUnitsUrl);
     this.load.image(ACADEMY_WISP_TEXTURE_KEY, academyWispUrl);
@@ -525,10 +521,6 @@ export class PreloadScene extends Phaser.Scene {
       NAMELESS_ECHO_TEXTURE_KEY,
       OGRE_WARRIOR_TEXTURE_KEY,
       'sprite-hero',
-      'sprite-enemy-slime',
-      'sprite-enemy-wolf',
-      'sprite-enemy-imp',
-      'sprite-enemy-ogre',
       portraitKey('rimuru'),
       portraitKey('gobta'),
       portraitKey('shuna'),
