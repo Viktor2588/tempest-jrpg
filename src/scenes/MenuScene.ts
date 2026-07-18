@@ -1102,11 +1102,22 @@ export class MenuScene extends Phaser.Scene {
     page.forEach((quest) => {
       const y = cursorY;
       this.panel(24, y, 900, 92);
+      const locationStep = quest.steps.find((step) => step.current)
+        ?? quest.steps.filter((step) => step.mapId).at(-1);
+      const bannerKey = locationStep?.mapId
+        ? regionBannerTextureForMap(
+          locationStep.mapId,
+          (textureKey) => this.textures.exists(textureKey),
+          this.save.flags
+        )
+        : null;
+      if (bannerKey) this.layer.add(addRegionBannerImage(this, 70, y, bannerKey, 54, 54));
+      const textX = bannerKey ? 110 : 42;
       const completed = quest.status === 'completed';
       // Hauptpfad-Quests markieren + farblich abheben (Sortierung stellt sie schon nach
       // oben), damit der rote Faden der Story sichtbar von den Nebenquests absticht.
       const mainTag = quest.main ? '★ HAUPTPFAD · ' : '';
-      this.layer.add(this.add.text(42, y - 30, `${mainTag}${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
+      this.layer.add(this.add.text(textX, y - 30, `${mainTag}${quest.title} · ${completed ? 'Abgeschlossen' : 'Aktiv'}`, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: completed ? '#8dffc2' : (quest.main ? '#8dd0ff' : '#e9c56c')
       }));
@@ -1114,9 +1125,9 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#e9c56c'
       }).setOrigin(1, 0));
       const currentStep = quest.steps.find((step) => step.current);
-      this.layer.add(this.add.text(42, y - 4, currentStep ? `→ ${currentStep.description}` : quest.description, {
+      this.layer.add(this.add.text(textX, y - 4, currentStep ? `→ ${currentStep.description}` : quest.description, {
         fontFamily: 'sans-serif', fontSize: '12px',
-        color: currentStep ? '#e9c56c' : '#9fb2cc', wordWrap: { width: 700 }
+        color: currentStep ? '#e9c56c' : '#9fb2cc', wordWrap: { width: bannerKey ? 632 : 700 }
       }));
       this.button(800, y + 16, 110, 'Details ›', () => { this.selectedQuestId = quest.id; this.refresh(); });
       cursorY += 106;

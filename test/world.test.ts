@@ -508,6 +508,7 @@ describe('world/dialog/shop/encounter system', () => {
     };
 
     const objective = getTrackedQuestObjective(state);
+    expect(buildQuestLog(state)[0]!.steps.find((step) => step.current)?.mapId).toBe('tempest-start');
     expect(objective).toMatchObject({
       questId: 'binding-of-ancestors',
       stepId: 'clear-grove',
