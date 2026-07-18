@@ -215,6 +215,7 @@ Lizenzzeile.
 | `ui/boss-add-spawn.webp` | UI HUD: Skript-Boss Adds / Spawn-Indikator (mid-fight), 1280x720 (WebP alpha-optimized) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG boss summon/adds spawn HUD element for Phase 109 script bosses | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/story-event-order.webp` | UI HUD: Story Event Order / Timeline Banner (WebP alpha) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG story sequence correction banner for Phase 115 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/charibdis-arc-banner.webp` | UI HUD / Boss: Charibdis Arc Banner (WebP alpha) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG sea monster / arc arrival banner for Phase 116 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
+| `ui/area-transition-marker.webp` | UI HUD: Gebietsübergangsmarker mit Beschreibung, wide banner (WebP) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG area transition banner with description field for Phase 117 | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 
 ## Phase 146 — neue Gegner-Archetypen (Textur-Wiederverwendung)
 
