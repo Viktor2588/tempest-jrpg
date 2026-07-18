@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 257 – Veldora-Höhlenbild bei der Rückkehr zeigen**
+  - Worktree: `/worktree/tempest-phase-257-veldora-discovery-art`
+  - Das vorhandene textfreie Revisit-Asset beim „Nachhall des Sturmdrachen“ statt des generischen Regionsbanners zeigen.
+  - Abnahme: Asset-/Discovery-Tests (32), Typecheck, Tests (861), Build und fokussierter Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 

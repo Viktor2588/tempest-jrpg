@@ -48,11 +48,10 @@ export class DiscoveryScene extends Phaser.Scene {
     this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070d, 0.62);
     addUiPanel(this, cx - 280, GAME_HEIGHT / 2, 560, 340, { originY: 0.5 });
 
-    const bannerKey = regionBannerTextureForMap(
-      mapId,
-      (key) => this.textures.exists(key),
-      save.flags
-    );
+    const bannerKey = discovery.flag === 'discovery.sealed-cave.veldora-echo'
+      && this.textures.exists('ui-veldora-cave-revisit')
+      ? 'ui-veldora-cave-revisit'
+      : regionBannerTextureForMap(mapId, (key) => this.textures.exists(key), save.flags);
     if (bannerKey) {
       addRegionBannerImage(this, cx, 166, bannerKey, 536, 128);
       this.add.rectangle(cx, 166, 536, 128, 0x05070d, 0.48);
