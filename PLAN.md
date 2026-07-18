@@ -10,7 +10,10 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 249 – Codex-Archivvignette**
+  - Worktree: `/worktree/tempest-phase-249-codex-vignette`
+  - Der textbasierte Wissens-Codex erhält ein einzelnes projektgeneriertes Archivmotiv im Kopfbereich.
+  - Abnahme: Asset-Provenienz/-Wiring-Test (17 Tests), Typecheck, vollständige Tests (856), Build und fokussierter Codex-Browser-Smoke bestanden.
 
 ## Integrationswarteschlange
 

@@ -147,6 +147,26 @@ test('Questlog zeigt das Regionsasset des aktuellen Ziels', async ({ page }) => 
   expect(browserErrors).toEqual([]);
 });
 
+test('Codex-Wissen zeigt die projektgenerierte Archivvignette', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  await installBrowserSave(page, bandTwoBrowserSave());
+  await page.goto('./');
+  await expect(page.locator('canvas')).toBeVisible();
+  await clickGamePoint(page, 480, 280);
+  await settle(page, 400);
+  await focusGame(page);
+  await page.keyboard.press('m');
+  await clickGamePoint(page, 760, 94);
+  await settle(page, 150);
+  await expectCanvasContent(page);
+
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
+  expect(assets.some((name) => name.includes('codex-archive-vignette'))).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 test('Gobtas Beitritts-Meilenstein zeigt seine Party-Art', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));

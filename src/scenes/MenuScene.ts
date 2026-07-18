@@ -1280,6 +1280,9 @@ export class MenuScene extends Phaser.Scene {
   private drawLoreEntries(): void {
     const codexV = this.tabViews.get('codex') as any;
     const all = buildCodexView(createWorldState(this.save));
+    if (this.textures.exists('ui-codex-archive-vignette')) {
+      this.layer.add(this.add.image(150, 245, 'ui-codex-archive-vignette').setDisplaySize(240, 120));
+    }
     // Unentdeckte Einträge ausblenden (Filter) — sie fluteten die Liste mit „Noch nicht
     // entdeckt". Entdeckte werden seitenweise gezeigt, statt über den Rand hinauszulaufen.
     let unlocked = all.filter((entry) => entry.unlocked);
