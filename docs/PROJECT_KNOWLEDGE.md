@@ -2331,6 +2331,18 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Inventar-Chromium-Smoke (1/1).
 
+### Phase 260 - E2E-Timeout unter Parallel-Last stabilisieren
+
+- Branch/Worktree: `phase-260-e2e-timeout` in
+  `/worktree/tempest-phase-260-e2e-timeout`.
+- Zwei korrekt gerenderte Asset-Smokes benoetigten unter den CI-konformen zwei
+  Workern 33,7 beziehungsweise 35,4 Sekunden und ueberschritten dadurch das
+  Playwright-Standardlimit von 30 Sekunden.
+- Das zentrale Testlimit betraegt nun 45 Sekunden; Testlogik und Produktcode
+  bleiben unveraendert.
+- Validiert mit `git diff --check`, parallelem Asset-Chromium-Smoke (2/2),
+  Typecheck, 865 Unit-Tests inklusive Balance-Harness und Build.
+
 ## 14. Change Checklist
 
 Before editing:
