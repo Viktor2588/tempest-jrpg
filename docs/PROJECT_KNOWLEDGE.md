@@ -2150,6 +2150,19 @@ test/release.test.ts
   Balance-Harness, Build, visueller Desktop-/Mobile-Worst-Case-Abnahme und
   erweitertem Handbuch-Pager-Chromium-Smoke.
 
+### Phase 246 - Einrichtungen-Kartenlayout
+
+- Branch/Worktree: `phase-246-facility-card-layout` in
+  `/worktree/tempest-phase-246-facility-card-layout`.
+- Die vier Einrichtungskarten, der Forschungsblock und die Rast-Aktion nutzen
+  eine gemeinsame, getestete Geometrie statt verteilter Positionswerte.
+- Die etwas hoeheren Karten halten auch umbrechende Beschreibungen innerhalb
+  ihrer Panels; Forschung und Aktion bleiben getrennt im 960-x-540-Canvas.
+- Das vorhandene Tempest-Wachstumsbanner blieb unveraendert; ein neues Asset
+  haette fuer diesen Layoutfehler keinen sichtbaren Mehrwert geliefert.
+- Validiert mit `git diff --check`, Typecheck, 854 Unit-Tests inklusive
+  Balance-Harness, Build und fokussiertem Einrichtungen-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:

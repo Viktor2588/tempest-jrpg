@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 246 – Einrichtungen-Kartenlayout**
-  - Worktree: `/worktree/tempest-phase-246-facility-card-layout`
-  - Die vier Einrichtungskarten teilen sich ein geprüftes Layout und bleiben mit Texten vollständig innerhalb des 960×540-Menüs.
-  - Abnahme: `git diff --check`, Typecheck, 854 Unit-Tests, Build und fokussierter Einrichtungen-Browser-Smoke (1/1).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 
