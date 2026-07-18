@@ -59,6 +59,21 @@ export const MENU_EQUIPMENT_LAYOUT = {
   actionOffsetY: 15
 } as const;
 
+export const MENU_FACILITIES_LAYOUT = {
+  left: 300,
+  width: 590,
+  firstY: 208,
+  rowHeight: 62,
+  cardHeight: 60,
+  headingOffsetY: -20,
+  bodyOffsetY: 2,
+  textLeft: 318,
+  textWidth: 552,
+  researchY: 448,
+  researchHeight: 44,
+  actionY: 508
+} as const;
+
 function centeredRowLeft(count: number, width: number, gap: number): number {
   return (MENU_VIEWPORT.width - (count * width + Math.max(0, count - 1) * gap)) / 2;
 }
