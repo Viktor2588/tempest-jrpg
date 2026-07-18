@@ -2305,6 +2305,20 @@ test/release.test.ts
   861 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Veldora-Discovery-Chromium-Smoke (1/1).
 
+### Phase 258 - Menue-Ward im Kampf nicht verbrauchen
+
+- Branch/Worktree: `phase-258-battle-item-guard` in
+  `/worktree/tempest-phase-258-battle-item-guard`.
+- Ein gemeinsamer Kampfitem-Guard erlaubt nur Heilung, MP-Regeneration,
+  Wiederbelebung und Statusreinigung; die UI-Liste und der Resolver nutzen
+  dieselbe Regel.
+- `clearsight-drops` bleibt damit ein reines Vorbereitungsitem, erscheint nicht
+  in der Kampfliste und kann dort auch ueber direkte Actions nicht verbraucht
+  werden.
+- Validiert mit `git diff --check`, Kampftests (64/64), Typecheck, 862
+  Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Kampfitem-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:

@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 258 – Menü-Ward im Kampf nicht verbrauchen**
-  - Worktree: `/worktree/tempest-phase-258-battle-item-guard`
-  - `clearsight-drops` aus der Kampfliste ausblenden und im zentralen Kampfresolver ablehnen.
-  - Abnahme: Kampftests (64), Typecheck, Tests (862), Build und fokussierter Browser-Smoke bestanden.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 
