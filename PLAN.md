@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 247 – Regionsassets im Questlog**
-  - Worktree: `/worktree/tempest-phase-247-quest-region-art`
-  - Aktuelle Questziele zeigen das bereits vorhandene Banner ihrer Karte; abgeschlossene Quests verwenden ihren letzten verorteten Schritt.
-  - Abnahme: `git diff --check`, Daten-/Asset-Tests (56/56), Typecheck, 855 Unit-Tests, Build und fokussierter Questlog-Browser-Smoke (1/1).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

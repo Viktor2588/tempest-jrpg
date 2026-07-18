@@ -2163,6 +2163,21 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 854 Unit-Tests inklusive
   Balance-Harness, Build und fokussiertem Einrichtungen-Chromium-Smoke (1/1).
 
+### Phase 247 - Regionsassets im Questlog
+
+- Branch/Worktree: `phase-247-quest-region-art` in
+  `/worktree/tempest-phase-247-quest-region-art`.
+- Questschritte tragen neben der Orts-ID nun auch die zugehoerige Karten-ID in
+  die bestehende Questansicht. Aktive Quests verwenden den aktuellen,
+  abgeschlossene Quests ihren letzten verorteten Schritt.
+- Das Questlog zeigt links in jeder verorteten Karte das bereits vorhandene
+  Regionsbanner. Text-Quests ohne Kartenanker behalten das bisherige Layout.
+- Es wurden keine neuen Bilddateien erzeugt: Der vollstaendige, bereits in
+  `ASSETS.md` dokumentierte Regionsbestand deckt alle Overworld-Karten ab.
+- Validiert mit `git diff --check`, fokussierten Daten-/Asset-Tests (56/56),
+  Typecheck, 855 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Questlog-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
