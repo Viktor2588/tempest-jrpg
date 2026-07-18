@@ -2268,6 +2268,18 @@ test/release.test.ts
   Typecheck, 859 Unit-Tests inklusive Balance-Harness, Build und vollstaendigem
   Title-zu-Battle-Chromium-Smoke (1/1).
 
+### Phase 255 - Kampfitems im Menue nicht verbrauchen
+
+- Branch/Worktree: `phase-255-menu-item-guard` in
+  `/worktree/tempest-phase-255-menu-item-guard`.
+- Ein zentraler Menue-Guard erlaubt dort nur Heilung, MP-Regeneration und
+  Nebel-Ward; Kampf-only-Effekte werden als unbenutzbar angezeigt.
+- `cure-status`, `revive` und `grant-skill` bleiben Kampfmechaniken und koennen
+  im Menue nicht mehr wirkungslos verbraucht werden.
+- Validiert mit `git diff --check`, Menue-Tests (10/10), Typecheck, 860
+  Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Inventar-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:

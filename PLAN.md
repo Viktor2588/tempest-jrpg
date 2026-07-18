@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 255 – Kampfitems im Menü nicht verbrauchen**
-  - Worktree: `/worktree/tempest-phase-255-menu-item-guard`
-  - Nur Heilung, MP und Nebel-Ward gelten im Menü als nutzbar; Kampf-only-Effekte bleiben erhalten und unverbraucht.
-  - Abnahme: Menü-Tests (10), Typecheck, Tests (860), Build und Inventar-Browser-Smoke bestanden.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 
