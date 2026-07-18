@@ -64,6 +64,7 @@ import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSki
 import { playSfxProcedural } from '../audio/sfxProcedural';
 import {
   MENU_EQUIPMENT_LAYOUT,
+  MENU_FACILITIES_LAYOUT,
   MENU_LIST_BOTTOM,
   MENU_LIST_COLUMNS,
   MENU_PAGER_HEIGHT,
@@ -1530,6 +1531,7 @@ export class MenuScene extends Phaser.Scene {
   // Phase 93 — Einrichtungen: nach Rolle besetzte Werke, ihre erwartete Ausbeute pro
   // Rast und die „Tempest-Rast halten"-Aktion, die einen Produktions-Zyklus abrechnet.
   private drawFacilities(): void {
+    const layout = MENU_FACILITIES_LAYOUT;
     const overview = buildFacilityOverview(
       this.save.progression.residentIds,
       this.save.flags,
@@ -1552,50 +1554,50 @@ export class MenuScene extends Phaser.Scene {
     if (bannerKey) this.layer.add(addRegionBannerImage(this, 836, 172, bannerKey, 104, 40));
 
     overview.facilities.forEach((view, index) => {
-      const y = 204 + index * 60;
-      this.panel(300, y, 590, 56);
+      const y = layout.firstY + index * layout.rowHeight;
+      this.panel(layout.left, y, layout.width, layout.cardHeight);
       const heading = view.unlocked
         ? `${view.facility.name} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
         : `${view.facility.name} (verschlossen)`;
-      this.layer.add(this.add.text(318, y - 18, heading, {
+      this.layer.add(this.add.text(layout.textLeft, y + layout.headingOffsetY, heading, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: view.amountPerCycle > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const staffText = view.staff.length > 0 ? view.staff.join(', ') : 'unbesetzt';
-      this.layer.add(this.add.text(318, y + 4, `${view.facility.description}  ·  ${staffText}`, {
-        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: 552 }
+      this.layer.add(this.add.text(layout.textLeft, y + layout.bodyOffsetY, `${view.facility.description}  ·  ${staffText}`, {
+        fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: layout.textWidth }
       }));
     });
 
     const research = buildResearchView(this.researchContext())[0];
-    this.panel(300, 446, 590, 44);
+    this.panel(layout.left, layout.researchY, layout.width, layout.researchHeight);
     if (research) {
       const inputs = research.inputs
         .map((input) => `${input.name} ${input.owned}/${input.required}`)
         .join(' · ');
-      this.layer.add(this.add.text(318, 432, `Forschung: ${research.project.name}`, {
+      this.layer.add(this.add.text(layout.textLeft, layout.researchY - 14, `Forschung: ${research.project.name}`, {
         fontFamily: 'sans-serif',
         fontSize: '14px',
         color: research.completable ? '#e9eef7' : '#7d8aa0'
       }));
-      this.layer.add(this.add.text(318, 452, `${inputs} · ${research.project.magiculeCost} Magicules`, {
+      this.layer.add(this.add.text(layout.textLeft, layout.researchY + 6, `${inputs} · ${research.project.magiculeCost} Magicules`, {
         fontFamily: 'sans-serif',
         fontSize: '11px',
         color: research.affordable ? '#9fb2cc' : '#c98a8a'
       }));
-      this.button(748, 448, 126, research.completable ? 'Forschen' : 'Fehlt',
+      this.button(748, layout.researchY, 126, research.completable ? 'Forschen' : 'Fehlt',
         () => this.completeResearch(research.project.id),
         research.completable ? 0x2f6f55 : 0x242b38);
     } else {
-      this.layer.add(this.add.text(318, 442, 'Forschung: keine offenen Projekte.', {
+      this.layer.add(this.add.text(layout.textLeft, layout.researchY - 4, 'Forschung: keine offenen Projekte.', {
         fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
       }));
     }
 
     const canProduce = overview.totalPerCycle > 0;
-    this.button(300, 508, 300, canProduce ? '🏕️ Tempest-Rast halten' : 'Rast (nichts zu produzieren)',
+    this.button(layout.left, layout.actionY, 300, canProduce ? '🏕️ Tempest-Rast halten' : 'Rast (nichts zu produzieren)',
       () => this.produceOneCycle(), canProduce ? 0x2f6f55 : 0x242b38);
-    this.layer.add(this.add.text(888, 520, `≈ ${overview.totalPerCycle} Ausbeute/Rast`, {
+    this.layer.add(this.add.text(888, layout.actionY + 12, `≈ ${overview.totalPerCycle} Ausbeute/Rast`, {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#6f83a5'
     }).setOrigin(1, 0));
   }

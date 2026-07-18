@@ -3,6 +3,7 @@ import { analyzeRects } from '../src/systems/mobileLayout';
 import {
   analyzeMenuColumns,
   MENU_EQUIPMENT_LAYOUT,
+  MENU_FACILITIES_LAYOUT,
   MENU_LIST_COLUMNS,
   MENU_PARTY_LAYOUT,
   MENU_TAB_ROW,
@@ -108,6 +109,35 @@ describe('Phase 59 — Menü-Layout-Validierung (HudLayoutIssue-Muster auf Menü
       expect(card.y + layout.actionOffsetY + MENU_TOUCH_TARGET_HEIGHT / 2)
         .toBeLessThanOrEqual(card.y + layout.cardHeight / 2);
     }
+  });
+
+  it('hält Einrichtungskarten, Forschung und Rast-Aktion getrennt im Canvas', () => {
+    const layout = MENU_FACILITIES_LAYOUT;
+    const cards = Array.from({ length: 4 }, (_, index) => ({
+      id: `facilities.${index}`,
+      x: layout.left + layout.width / 2,
+      y: layout.firstY + index * layout.rowHeight,
+      width: layout.width,
+      height: layout.cardHeight
+    }));
+
+    expect(analyzeRects([
+      ...cards,
+      {
+        id: 'facilities.research',
+        x: layout.left + layout.width / 2,
+        y: layout.researchY,
+        width: layout.width,
+        height: layout.researchHeight
+      },
+      {
+        id: 'facilities.action',
+        x: layout.left + 150,
+        y: layout.actionY,
+        width: 300,
+        height: MENU_TOUCH_TARGET_HEIGHT
+      }
+    ], MENU_VIEWPORT, 0)).toEqual([]);
   });
 });
 
