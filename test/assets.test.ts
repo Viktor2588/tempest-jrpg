@@ -39,7 +39,14 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
   it('zeigt Gobtas und Rangas Party-Art bei ihrem Gruppenbeitritt', () => {
     expect(milestoneSource).toContain("milestone.id === 'gobta-joins'");
     expect(milestoneSource).toContain("milestone.id === 'ranga-joins'");
-    expect(milestoneSource).toContain('this.add.image(742, 338, joinArtKey)');
+    expect(milestoneSource).toContain('this.add.image(742, 338, artKey)');
+  });
+
+  it('zeigt vorhandene Gegner-Cutouts bei Boss-Meilensteinen', () => {
+    expect(milestoneSource).toContain("milestone.id === 'direwolf-victory'");
+    expect(milestoneSource).toContain('DIREWOLF_ALPHA_TEXTURE_KEY');
+    expect(milestoneSource).toContain("milestone.id === 'nameless-echo-defeated'");
+    expect(milestoneSource).toContain('NAMELESS_ECHO_TEXTURE_KEY');
   });
 
   it('verwendet die drei Ende-Key-Arts auch als Galerie-Karten', () => {
