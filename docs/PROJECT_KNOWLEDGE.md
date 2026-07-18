@@ -2292,6 +2292,19 @@ test/release.test.ts
   Datenintegritaet (7/7), Typecheck, 860 Unit-Tests inklusive Balance-Harness
   und Build.
 
+### Phase 257 - Veldora-Hoehlenbild bei der Rueckkehr
+
+- Branch/Worktree: `phase-257-veldora-discovery-art` in
+  `/worktree/tempest-phase-257-veldora-discovery-art`.
+- Das bereits projektgenerierte, textfreie `veldora-cave-revisit.webp` wurde
+  aus dem alten Phase-114-Assetstand ins Repo uebernommen und in `ASSETS.md`
+  mit seiner vorhandenen xAI-Imagine-Provenienz dokumentiert.
+- Die bestehende Fundstelle `Nachhall des Sturmdrachen` zeigt nun diese
+  Hoehlenillustration; alle anderen Fundstellen behalten ihre Regionsbanner.
+- Validiert mit `git diff --check`, Asset-/Discovery-Tests (32/32), Typecheck,
+  861 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Veldora-Discovery-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
