@@ -147,7 +147,7 @@ test('Questlog zeigt das Regionsasset des aktuellen Ziels', async ({ page }) => 
   expect(browserErrors).toEqual([]);
 });
 
-test('Codex-Wissen zeigt die projektgenerierte Archivvignette', async ({ page }) => {
+test('Codex-Wissen und Handbuch zeigen die projektgenerierte Archivvignette', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
@@ -160,10 +160,12 @@ test('Codex-Wissen zeigt die projektgenerierte Archivvignette', async ({ page })
   await page.keyboard.press('m');
   await clickGamePoint(page, 760, 94);
   await settle(page, 150);
-  await expectCanvasContent(page);
 
   const assets = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
   expect(assets.some((name) => name.includes('codex-archive-vignette'))).toBe(true);
+  await clickGamePoint(page, 713, 155);
+  await settle(page, 150);
+  await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
 

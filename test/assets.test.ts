@@ -30,8 +30,9 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(menuSource).toContain("this.drawPortrait('kaijin', 842, 148, 44)");
   });
 
-  it('lädt und zeigt die projektgenerierte Codex-Archivvignette', () => {
+  it('lädt und zeigt die projektgenerierte Codex-Archivvignette in Wissen und Handbuch', () => {
     expect(preloadSource).toContain("this.load.image('ui-codex-archive-vignette'");
+    expect(menuSource).toContain("this.codexMode === 'lore' || this.codexMode === 'handbook'");
     expect(menuSource).toContain("this.add.image(150, 245, 'ui-codex-archive-vignette')");
   });
 
