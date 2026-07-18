@@ -2193,6 +2193,20 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Liste-zu-Details-Chromium-Smoke (1/1).
 
+### Phase 249 - Codex-Archivvignette
+
+- Branch/Worktree: `phase-249-codex-vignette` in
+  `/worktree/tempest-phase-249-codex-vignette`.
+- Der bisher rein textbasierte Wissens-Codex zeigt links im freien Kopfbereich
+  ein projektgeneriertes, textfreies Archivstillleben aus Chronikband, Feder,
+  Slime-Praegung und cyanfarbenen Magicule-Kristallen.
+- Das WebP liegt projektgebunden unter
+  `src/assets/ui/codex-archive-vignette.webp`; Generierung und Provenienz sind
+  in `ASSETS.md` dokumentiert.
+- Validiert mit `git diff --check`, Asset-Test (17/17), Typecheck, 856
+  Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Codex-Wissen-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
