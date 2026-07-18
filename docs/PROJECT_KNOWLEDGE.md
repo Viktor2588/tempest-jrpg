@@ -2178,6 +2178,21 @@ test/release.test.ts
   Typecheck, 855 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Questlog-Chromium-Smoke (1/1).
 
+### Phase 248 - Regionsasset in Questdetails
+
+- Branch/Worktree: `phase-248-quest-detail-art` in
+  `/worktree/tempest-phase-248-quest-detail-art`.
+- Die Quest-Detailansicht zeigt nun dasselbe vorhandene Regionsbanner wie die
+  zugehoerige Listenkarte: bei aktiven Quests fuer den aktuellen, im Archiv
+  fuer den letzten verorteten Schritt.
+- Der Beschreibungstext nutzt bei sichtbarem Banner die verbleibende Breite;
+  Quests ohne Kartenanker behalten unveraendert die volle Textbreite.
+- Es wurden keine neuen Bilddateien erzeugt; die bereits dokumentierten
+  Regionsassets decken den Zielort ab.
+- Validiert mit `git diff --check`, Asset-Test (10/10), Typecheck, 855
+  Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Liste-zu-Details-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
