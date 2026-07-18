@@ -10,10 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 256 – Toten Skill-Item-Effekt entfernen**
-  - Worktree: `/worktree/tempest-phase-256-dead-skill-item`
-  - Den unbelegten `grant-skill`-Typzweig samt unerreichbarer Kampfablehnung löschen.
-  - Abnahme: Quellreferenz-Audit, Datenintegrität (7), Typecheck, Tests (860) und Build bestanden.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 

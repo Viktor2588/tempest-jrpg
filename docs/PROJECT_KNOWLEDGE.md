@@ -2274,11 +2274,23 @@ test/release.test.ts
   `/worktree/tempest-phase-255-menu-item-guard`.
 - Ein zentraler Menue-Guard erlaubt dort nur Heilung, MP-Regeneration und
   Nebel-Ward; Kampf-only-Effekte werden als unbenutzbar angezeigt.
-- `cure-status`, `revive` und `grant-skill` bleiben Kampfmechaniken und koennen
-  im Menue nicht mehr wirkungslos verbraucht werden.
+- `cure-status` und `revive` bleiben Kampfmechaniken und koennen im Menue nicht
+  mehr wirkungslos verbraucht werden.
 - Validiert mit `git diff --check`, Menue-Tests (10/10), Typecheck, 860
   Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Inventar-Chromium-Smoke (1/1).
+
+### Phase 256 - Toten Skill-Item-Effekt entfernt
+
+- Branch/Worktree: `phase-256-dead-skill-item` in
+  `/worktree/tempest-phase-256-dead-skill-item`.
+- Der unbelegte `grant-skill`-Effekt, sein ungenutztes `skillId`-Feld, die
+  unerreichbare Kampfablehnung und der tote Datenvalidator wurden entfernt.
+- Es gab weder eine Item-Definition noch einen Erzeuger fuer diesen Effekt;
+  bestehende Item-Mechaniken bleiben unveraendert.
+- Validiert mit `git diff --check`, vollstaendigem Quellreferenz-Audit,
+  Datenintegritaet (7/7), Typecheck, 860 Unit-Tests inklusive Balance-Harness
+  und Build.
 
 ## 14. Change Checklist
 
