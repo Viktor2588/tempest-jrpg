@@ -2256,6 +2256,18 @@ test/release.test.ts
   Typecheck, 858 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Band-1-Meilenstein-Chromium-Smoke (1/1).
 
+### Phase 254 - Redundante Gegner-Texturaliase entfernt
+
+- Branch/Worktree: `phase-254-legacy-enemy-aliases` in
+  `/worktree/tempest-phase-254-legacy-enemy-aliases`.
+- Vier Legacy-Keys luden vorhandene Gegner-WebPs ein zweites Mal in Phaser;
+  sie entfielen aus Loader und Readiness-Liste.
+- Dedizierte Gegnertexturen, Kingdom-Atlas, prozedurale Placeholder und der
+  weiterhin benoetigte Party-Hero-Fallback bleiben unveraendert.
+- Validiert mit `git diff --check`, Asset-/Battle-Art-Tests (38/38),
+  Typecheck, 859 Unit-Tests inklusive Balance-Harness, Build und vollstaendigem
+  Title-zu-Battle-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
