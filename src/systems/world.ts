@@ -53,6 +53,7 @@ export interface QuestStepView {
   readonly title: string;
   readonly description: string;
   readonly locationId: string | null;
+  readonly mapId: string | null;
   readonly completed: boolean;
   readonly current: boolean;
 }
@@ -340,6 +341,9 @@ export function buildQuestLog(state: WorldState): QuestLogEntryView[] {
         title: step.title,
         description: step.description,
         locationId: step.locationId ?? null,
+        mapId: step.locationId
+          ? allLocations.find((location) => location.id === step.locationId)?.mapId ?? null
+          : null,
         completed: completedStepIds.has(step.id),
         current: currentStepId === step.id
       })),
