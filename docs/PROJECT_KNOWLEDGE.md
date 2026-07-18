@@ -2219,6 +2219,19 @@ test/release.test.ts
   856 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
   Handbuch-Chromium-Smoke (1/1); Screenshot visuell geprueft.
 
+### Phase 251 - Boss-Art in Meilensteinen
+
+- Branch/Worktree: `phase-251-boss-milestone-art` in
+  `/worktree/tempest-phase-251-boss-milestone-art`.
+- Die Sieg-Meilensteine fuer Direwolf-Anfuehrer und namenloses Echo zeigen nun
+  deren bereits vorhandene Gegner-Cutouts; Beitritts-Meilensteine behalten
+  unveraendert ihre Gobta-/Ranga-Art.
+- Es entstanden keine neuen Bilddateien oder Asset-Mappings: Die kanonischen
+  Texturschluessel aus `enemyArt.ts` werden direkt wiederverwendet.
+- Validiert mit `git diff --check`, Asset-/Meilenstein-Tests (21/21),
+  Typecheck, 857 Unit-Tests inklusive Balance-Harness, Build und fokussiertem
+  Direwolf-Meilenstein-Chromium-Smoke (1/1).
+
 ## 14. Change Checklist
 
 Before editing:
