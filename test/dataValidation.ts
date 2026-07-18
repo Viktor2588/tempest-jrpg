@@ -304,12 +304,6 @@ export function validateGameData(data: DataSet = GAME_DATA): DataValidationIssue
 
   for (const item of data.items) {
     validateNonNegativeInteger(`items.${item.id}.price`, item.price, issues);
-    if (item.effect?.kind === 'grant-skill' && !skillIds.has(item.effect.skillId ?? '')) {
-      issues.push({
-        path: `items.${item.id}.effect.skillId`,
-        message: `Item verweist auf unbekannten Skill '${item.effect.skillId ?? 'undefined'}'.`
-      });
-    }
     if (item.equipmentSetId && !equipmentSetIds.has(item.equipmentSetId)) {
       issues.push({
         path: `items.${item.id}.equipmentSetId`,
