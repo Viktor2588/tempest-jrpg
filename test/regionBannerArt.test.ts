@@ -30,6 +30,7 @@ describe('Gebietsindikator-Banner', () => {
   it('zeigt vorhandene Gebiets-Banner auch bei Questzielen', () => {
     expect(menuSource).toContain('quest.steps.find((step) => step.current)');
     expect(menuSource).toContain('addRegionBannerImage(this, 70, y, bannerKey, 54, 54)');
+    expect(menuSource).toContain('addRegionBannerImage(this, 842, 210, bannerKey, 128, 64)');
   });
 
   it('deckt jede vorhandene Overworld-Karte ab', () => {

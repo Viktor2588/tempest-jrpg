@@ -1185,13 +1185,23 @@ export class MenuScene extends Phaser.Scene {
     this.button(744, 150, 180, '‹ Zurück zur Liste', () => { this.selectedQuestId = null; this.refresh(); });
 
     this.layer.add(this.add.text(42, 158, quest.title, { fontFamily: 'sans-serif', fontSize: '20px', color: '#e9c56c' }));
+    const locationStep = quest.steps.find((step) => step.current)
+      ?? quest.steps.filter((step) => step.mapId).at(-1);
+    const bannerKey = locationStep?.mapId
+      ? regionBannerTextureForMap(
+        locationStep.mapId,
+        (textureKey) => this.textures.exists(textureKey),
+        this.save.flags
+      )
+      : null;
+    if (bannerKey) this.layer.add(addRegionBannerImage(this, 842, 210, bannerKey, 128, 64));
     const statusLabel = quest.status === 'active' ? 'Aktiv' : 'Abgeschlossen';
     const rewardItems = quest.rewardItemIds.length > 0 ? ` · Items: ${quest.rewardItemIds.join(', ')}` : '';
     this.layer.add(this.add.text(42, 188, `Status: ${statusLabel} · Belohnung: ${quest.rewardGold} Gold${rewardItems}`, {
       fontFamily: 'sans-serif', fontSize: '13px', color: '#9fb2cc'
     }));
     this.layer.add(this.add.text(42, 212, quest.description, {
-      fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', wordWrap: { width: 880 }
+      fontFamily: 'sans-serif', fontSize: '12px', color: '#cbd6e8', wordWrap: { width: bannerKey ? 710 : 880 }
     }));
 
     this.layer.add(this.add.text(42, 254, 'Schritte', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e9c56c' }));
