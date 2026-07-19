@@ -2380,6 +2380,19 @@ test/release.test.ts
   Balance-Harness, Build und Desktop-Chromium-Smoke fuer Titel, Oberwelt,
   Menue und Kampf (1/1).
 
+### Phase 264 - GitHub Actions auf Node 24 aktualisieren
+
+- Branch/Worktree: `phase-264-node24-actions` in
+  `/worktree/tempest-phase-264-node24-actions`.
+- Deploy, CI und Motivationsworkflow verwenden nun die offiziellen
+  Node-24-Majors: `checkout@v7`, `cache@v6`, `configure-pages@v6`,
+  `upload-pages-artifact@v5` und `deploy-pages@v5`; `setup-bun@v2` war bereits
+  Node-24-faehig.
+- Der Release-Test prueft die gemeinsamen und Pages-spezifischen Referenzen.
+- Validiert mit `git diff --check`, Release-Test (5/5), Typecheck, 868
+  Unit-Tests inklusive Balance-Harness, Build und warning-freiem Branch-CI:
+  Typecheck, vier Unit-Shards und 126 Browser-Smokes.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
