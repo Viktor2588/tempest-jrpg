@@ -2343,6 +2343,16 @@ test/release.test.ts
 - Validiert mit `git diff --check`, parallelem Asset-Chromium-Smoke (2/2),
   Typecheck, 865 Unit-Tests inklusive Balance-Harness und Build.
 
+### Phase 261 - Boss-Add-Banner im Kampf
+
+- Branch/Worktree: `phase-261-boss-add-banner` in
+  `/worktree/tempest-phase-261-boss-add-banner`.
+- Das bereits projektgenerierte `boss-add-spawn.webp` wird global geladen und
+  beim Hinzukommen der einmaligen Boss-Verstaerkung kurz ueber der Arena
+  eingeblendet; Spieler- und Gegneraktionen laufen ueber denselben Feedbackpfad.
+- Validiert mit `git diff --check`, Typecheck, 865 Unit-Tests inklusive
+  Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke (1/1).
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
