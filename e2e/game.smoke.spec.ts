@@ -1552,6 +1552,7 @@ test('Skill-HUD-Banner werden vom Browser geladen', async ({ page }) => {
   ));
   expect(loadedAssets.some((name) => name.includes('predator-perversion-skillsteal'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('mimic-form-indicator'))).toBe(true);
+  expect(loadedAssets.some((name) => name.includes('boss-add-spawn'))).toBe(true);
   expect(browserErrors).toEqual([]);
 });
 

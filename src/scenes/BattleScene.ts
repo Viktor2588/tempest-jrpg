@@ -276,6 +276,23 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
+  private playStateFeedback(before: ReturnType<typeof snapshot>): void {
+    const after = snapshot(this.allViews());
+    this.playFeedback(diffFeedback(before, after));
+    if (after.length > before.length && this.textures.exists('ui-boss-add-spawn')) {
+      const banner = this.add.image(GAME_WIDTH / 2, 170, 'ui-boss-add-spawn')
+        .setDisplaySize(320, 180).setDepth(70);
+      this.fxLayer.add(banner);
+      this.tweens.add({
+        targets: banner,
+        alpha: 0,
+        duration: 1400,
+        hold: 500,
+        onComplete: () => banner.destroy()
+      });
+    }
+  }
+
   private floatNumber(pos: { x: number; y: number }, text: string, color: string): void {
     const label = this.add.text(pos.x, pos.y - 12, text, {
       fontFamily: 'sans-serif', fontSize: '18px', fontStyle: 'bold', color, stroke: '#05070c', strokeThickness: 3
@@ -368,7 +385,7 @@ export class BattleScene extends Phaser.Scene {
       if (this.auto) prepareAutoReaction(this.state);
       const before = snapshot(this.allViews());
       enemyTurn(this.state);
-      this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
+      this.playStateFeedback(before);
       this.afterAction();
     });
   }
@@ -389,7 +406,7 @@ export class BattleScene extends Phaser.Scene {
     this.pendingVerb = null;
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
-    this.playFeedback(diffFeedback(before, snapshot(this.allViews())));
+    this.playStateFeedback(before);
     this.afterAction();
   }
 
