@@ -2366,6 +2366,20 @@ test/release.test.ts
   Balance-Harness, Build sowie Desktop-Chromium-Smokes fuer Asset-Laden und
   Milim-Bosskampf (2/2).
 
+### Phase 263 - Unverdrahtete UI-Mockups entfernen
+
+- Branch/Worktree: `phase-263-dead-ui-assets` in
+  `/worktree/tempest-phase-263-dead-ui-assets`.
+- Die nie geladene Charibdis-, Story-Reihenfolge- und Gebietswechsel-Grafik
+  samt ihren Ledgerzeilen wurde entfernt. Charibdis hat keinen Spielcontent;
+  Gebietswechsel nutzen bereits Regionsbanner, und ein eigener Story-Timeline-
+  Screen existiert nicht.
+- Dadurch entfallen 581.004 Byte spekulative Binärassets; ein Asset-Test
+  verhindert ihre versehentliche Rueckkehr ohne Laufzeit-Wiring.
+- Validiert mit `git diff --check`, Typecheck, 867 Unit-Tests inklusive
+  Balance-Harness, Build und Desktop-Chromium-Smoke fuer Titel, Oberwelt,
+  Menue und Kampf (1/1).
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
