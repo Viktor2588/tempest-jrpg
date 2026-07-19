@@ -766,6 +766,10 @@ export class BattleScene extends Phaser.Scene {
         color: unit.formationRow === 'front' ? '#ffd27a' : '#8fe7ff'
       }).setOrigin(1, 0.5).setAlpha(alpha));
     }
+    if (unit.boss && this.textures.exists('ui-boss-emblem')) {
+      this.layer.add(this.add.image(x - width / 2 + 14, y - height / 2 + 14, 'ui-boss-emblem')
+        .setDisplaySize(28, 28).setAlpha(alpha));
+    }
 
     this.layer.add(this.add.rectangle(x, y + 38, width - 14, 9, 0x0a0f18, 0.96).setOrigin(0.5));
     this.layer.add(this.add.rectangle(

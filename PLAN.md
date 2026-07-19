@@ -10,7 +10,15 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] Phase 262 - Textfreies Boss-Emblem im Kampf
+  - Worktree: `/worktree/tempest-phase-262-boss-emblem`
+  - Das unverdrahtete Phase-118-Mockup durch ein sauberes projektgeneriertes
+    Emblem ersetzen und Boss-Einheiten sichtbar markieren.
+  - Abnahme: Boss-Einheiten tragen das textfreie Emblem; das alte Mockup ist
+    entfernt und die Bildquelle samt Freistellung ist in `ASSETS.md` belegt.
+  - Checks: `git diff --check`; `bun run typecheck`; `bun run test`
+    (101 Dateien, 866 Tests); `bun run build`; 2 fokussierte Desktop-Chromium-
+    Smokes fuer Asset-Laden und Milim-Bosskampf.
 
 ## Integrationswarteschlange
 
