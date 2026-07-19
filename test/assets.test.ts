@@ -4,6 +4,10 @@ import labyrinthBanner from '../src/assets/ui/region-ramiris-labyrinth.webp?inli
 import academyBanner from '../src/assets/ui/region-freedom-academy.webp?inline';
 import colosseumBackground from '../src/assets/backgrounds/battle-tempest-colosseum.webp?inline';
 import invasionBackground from '../src/assets/backgrounds/battle-tempest-invasion.webp?inline';
+import kingdomUnits from '../src/assets/sprites/kingdom-board-units.webp?inline';
+import shizuChildren from '../src/assets/sprites/portrait-shizu-children.webp?inline';
+import magicColossus from '../src/assets/sprites/enemy-magic-colossus.webp?inline';
+import mordrahn from '../src/assets/sprites/enemy-mordrahn.webp?inline';
 import assetsDoc from '../ASSETS.md?raw';
 import musicSource from '../src/audio/music.ts?raw';
 import sfxSource from '../src/audio/sfx.ts?raw';
@@ -157,6 +161,11 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
 
   it('haelt die zwei grossen Tempest-Kampfhintergruende gemeinsam unter 420 kB', () => {
     expect(colosseumBackground.length + invasionBackground.length).toBeLessThan(560_000);
+  });
+
+  it('haelt die vier grossen Sprite-Quellen gemeinsam unter 780 kB', () => {
+    expect(kingdomUnits.length + shizuChildren.length + magicColossus.length + mordrahn.length)
+      .toBeLessThan(1_040_000);
   });
 
   it('liefert die zehn generierten Gegner-Cutouts als WebP mit Alpha aus', () => {
