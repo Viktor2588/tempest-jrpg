@@ -2393,6 +2393,21 @@ test/release.test.ts
   Unit-Tests inklusive Balance-Harness, Build und warning-freiem Branch-CI:
   Typecheck, vier Unit-Shards und 126 Browser-Smokes.
 
+### Phase 265 - Regionsbanner-Ladegewicht reduzieren
+
+- Branch/Worktree: `phase-265-region-banners` in
+  `/worktree/tempest-phase-265-region-banners`.
+- Die drei uebergrossen Regionsbanner fuer Tempest-Kolosseum,
+  Freiheitsakademie und Ramiris-Labyrinth wurden seitenverhaeltnistreu auf
+  maximal 1024 px Breite verkleinert. Ihr Gesamtgewicht sank von 1.076.116 auf
+  374.510 Bytes (-65,2 %), ohne bestehende quadratische, 2:1- oder
+  4:1-Laufzeit-Crops zu veraendern.
+- Ein Asset-Budget sichert die drei WebPs gemeinsam unter 400 kB ab;
+  `ASSETS.md` dokumentiert die neuen Abmessungen.
+- Validiert mit Sichtpruefung aller drei Assets, `git diff --check`, Typecheck,
+  869 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
+  Desktop-Chromium-Smoke (3/3) und vollstaendig gruenem Branch-CI.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
