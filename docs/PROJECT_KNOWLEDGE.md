@@ -2408,6 +2408,20 @@ test/release.test.ts
   869 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
   Desktop-Chromium-Smoke (3/3) und vollstaendig gruenem Branch-CI.
 
+### Phase 266 - Uebergrosse Kampf-Hintergruende normalisieren
+
+- Branch/Worktree: `phase-266-battle-backgrounds` in
+  `/worktree/tempest-phase-266-battle-backgrounds`.
+- Die beiden 1672×941-Ausreisser fuer Tempest-Kolosseum und Tempest-Invasion
+  wurden auf das bestehende 1280×720-Format aller anderen Kampf-Hintergruende
+  verkleinert. Ihr Gesamtgewicht sank von 692.966 auf 411.896 Bytes (-40,6 %),
+  Komposition und freie Kampfmitte blieben erhalten.
+- Ein Asset-Budget sichert beide WebPs gemeinsam unter 420 kB ab;
+  `ASSETS.md` dokumentiert Standardformat und Optimierungsphase.
+- Validiert mit Sichtpruefung beider Assets, `git diff --check`, Typecheck,
+  870 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
+  Desktop-Chromium-Smoke (2/2) und vollstaendig gruenem Branch-CI.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
