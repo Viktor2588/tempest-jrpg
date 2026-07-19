@@ -10,7 +10,12 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] Phase 261 - Boss-Add-Banner im Kampf
+  - Worktree: `/worktree/tempest-phase-261-boss-add-banner`
+  - Das vorhandene projektgenerierte `boss-add-spawn.webp` beim einmaligen
+    Beschwoeren von Boss-Verstaerkung sichtbar einblenden.
+  - Abnahme: `git diff --check`, Typecheck, 865 Unit-Tests, Build und
+    fokussierter Desktop-Chromium-Smoke (1/1) erfolgreich.
 
 ## Integrationswarteschlange
 
