@@ -2466,6 +2466,21 @@ test/release.test.ts
   fokussiertem Desktop-Chromium-Smoke (2/2) und vollstaendig gruener
   Branch-CI inklusive 126 Browser-Smokes.
 
+### Phase 270 - Dialog-Hinweis zuschneiden
+
+- Branch/Worktree: `phase-270-dialog-hint-crop` in
+  `/worktree/tempest-phase-270-dialog-hint-crop`.
+- Vom 1280x720-Dialog-Hinweis wurde nur der tatsaechlich verwendete
+  500x500-Frame uebernommen und auf die doppelte Rendergroesse 300x300
+  verkleinert. Das Asset sank von 97.816 auf 16.664 Bytes (-83,0 %).
+- `DialogueScene` nutzt die Quelle direkt; die nur fuer den alten Ausschnitt
+  benoetigte Frame-Registrierung in `PreloadScene` entfaellt. `ASSETS.md` und
+  der bestehende Asset-Test dokumentieren und sichern Quelle sowie Wiring.
+- Validiert mit Sichtpruefung, `git diff --check`, Asset-Test (28/28),
+  Typecheck, 873 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
+  Desktop-Chromium-Smoke (1/1) und vollstaendig gruener Branch-CI inklusive
+  126 Browser-Smokes.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
