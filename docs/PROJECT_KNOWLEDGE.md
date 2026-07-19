@@ -2422,6 +2422,20 @@ test/release.test.ts
   870 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
   Desktop-Chromium-Smoke (2/2) und vollstaendig gruenem Branch-CI.
 
+### Phase 267 - Uebergrosse Sprite-Quellen verkleinern
+
+- Branch/Worktree: `phase-267-large-sprites` in
+  `/worktree/tempest-phase-267-large-sprites`.
+- Kingdom-Kampfatlas, Shizu-Schuelerportrait, Magiekoloss und Mordrahn wurden
+  seitenverhaeltnistreu auf maximal 1024 px verkleinert. Ihr Gesamtgewicht
+  sank von 1.177.454 auf 759.012 Bytes (-35,5 %); Alpha-Kanten, Atlas-Zellen
+  und Bildkomposition blieben erhalten.
+- Ein gemeinsames Asset-Budget sichert die vier WebPs unter 780 kB ab;
+  `ASSETS.md` dokumentiert die neuen Abmessungen.
+- Validiert mit Sichtpruefung aller vier Assets, `git diff --check`, Typecheck,
+  871 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
+  Desktop-Chromium-Smoke (3/3) und vollstaendig gruenem Branch-CI.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
