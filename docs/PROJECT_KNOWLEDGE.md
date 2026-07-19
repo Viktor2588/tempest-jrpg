@@ -2436,6 +2436,21 @@ test/release.test.ts
   871 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
   Desktop-Chromium-Smoke (3/3) und vollstaendig gruenem Branch-CI.
 
+### Phase 268 - UI-Quellenbudget
+
+- Branch/Worktree: `phase-268-ui-source-budget` in
+  `/worktree/tempest-phase-268-ui-source-budget`.
+- Codex-Archivvignette und Mimik-Form-Banner wurden von 1774x887 bzw.
+  1408x704 auf 512x256 verkleinert. Bei Rendergroessen von 240x120 bzw.
+  224x112 bleibt mehr als die doppelte Quelldichte erhalten; das gemeinsame
+  Gewicht sank von 204.514 auf 35.812 Bytes (-82,5 %).
+- Ein gemeinsames Asset-Budget sichert die klein gerenderten UI-Quellen unter
+  50 kB ab; `ASSETS.md` dokumentiert die neuen Abmessungen und Verarbeitung.
+- Validiert mit Sichtpruefung beider Assets, `git diff --check`, Asset-Test
+  (27/27), Typecheck, 872 Unit-Tests inklusive Balance-Harness, Build,
+  fokussiertem Desktop-Chromium-Smoke (2/2) und vollstaendig gruener
+  Branch-CI inklusive 126 Browser-Smokes.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
