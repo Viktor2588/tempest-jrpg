@@ -8,6 +8,8 @@ import kingdomUnits from '../src/assets/sprites/kingdom-board-units.webp?inline'
 import shizuChildren from '../src/assets/sprites/portrait-shizu-children.webp?inline';
 import magicColossus from '../src/assets/sprites/enemy-magic-colossus.webp?inline';
 import mordrahn from '../src/assets/sprites/enemy-mordrahn.webp?inline';
+import codexArchiveVignette from '../src/assets/ui/codex-archive-vignette.webp?inline';
+import mimicFormIndicator from '../src/assets/ui/mimic-form-indicator.webp?inline';
 import assetsDoc from '../ASSETS.md?raw';
 import musicSource from '../src/audio/music.ts?raw';
 import sfxSource from '../src/audio/sfx.ts?raw';
@@ -166,6 +168,10 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
   it('haelt die vier grossen Sprite-Quellen gemeinsam unter 780 kB', () => {
     expect(kingdomUnits.length + shizuChildren.length + magicColossus.length + mordrahn.length)
       .toBeLessThan(1_040_000);
+  });
+
+  it('haelt klein gerenderte UI-Quellen gemeinsam unter 50 kB', () => {
+    expect(codexArchiveVignette.length + mimicFormIndicator.length).toBeLessThan(60_000);
   });
 
   it('liefert die zehn generierten Gegner-Cutouts als WebP mit Alpha aus', () => {
