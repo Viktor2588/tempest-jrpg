@@ -13,6 +13,7 @@ import mimicFormIndicator from '../src/assets/ui/mimic-form-indicator.webp?inlin
 import formationRows from '../src/assets/ui/formation-rows.webp?inline';
 import predatorSteal from '../src/assets/ui/predator-perversion-skillsteal.webp?inline';
 import bossAddSpawn from '../src/assets/ui/boss-add-spawn.webp?inline';
+import dialogKeyboardHint from '../src/assets/ui/dialog-keyboard-hint.webp?inline';
 import assetsDoc from '../ASSETS.md?raw';
 import musicSource from '../src/audio/music.ts?raw';
 import sfxSource from '../src/audio/sfx.ts?raw';
@@ -212,10 +213,11 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
   });
 
   it('lädt und zeigt den vorhandenen Dialog-Tastaturhinweis als zugeschnittenen Frame', () => {
+    expect(dialogKeyboardHint.length).toBeLessThan(30_000);
     expect(preloadSource).toContain("../assets/ui/dialog-keyboard-hint.webp");
     expect(preloadSource).toContain("this.load.image('ui-dialog-keyboard-hint'");
-    expect(preloadSource).toContain("dialogHint.add('controls', 0, 80, 120, 500, 500)");
-    expect(dialogueSource).toContain("'ui-dialog-keyboard-hint', 'controls'");
+    expect(preloadSource).not.toContain("dialogHint.add('controls'");
+    expect(dialogueSource).toContain("'ui-dialog-keyboard-hint')");
   });
 
   it('nutzt in sfx.ts echte CC0-SFX-Dateien; die prozedurale Schicht liegt separat', () => {

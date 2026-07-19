@@ -445,8 +445,6 @@ export class PreloadScene extends Phaser.Scene {
 
   create(): void {
     this.registerKingdomUnitFrames();
-    const dialogHint = this.textures.get('ui-dialog-keyboard-hint');
-    if (!dialogHint.has('controls')) dialogHint.add('controls', 0, 80, 120, 500, 500);
     // Prozedurale Platzhalter-Texturen (ph-<kind>) erzeugen — global verfügbar,
     // bis echte CC0-Assets eingepflegt sind. Szenen nutzen sie mit Rechteck-Fallback.
     generatePlaceholderTextures(this);

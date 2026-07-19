@@ -96,7 +96,7 @@ export class DialogueScene extends Phaser.Scene {
     const settings = loadSettings(window.localStorage);
     const hc = settings.highContrast;
     if (this.textures.exists('ui-dialog-keyboard-hint')) {
-      this.layer.add(this.add.image(GAME_WIDTH - 120, 130, 'ui-dialog-keyboard-hint', 'controls')
+      this.layer.add(this.add.image(GAME_WIDTH - 120, 130, 'ui-dialog-keyboard-hint')
         .setDisplaySize(150, 150)
         .setAlpha(0.9));
     }
