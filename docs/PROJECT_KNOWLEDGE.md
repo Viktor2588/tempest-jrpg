@@ -2451,6 +2451,21 @@ test/release.test.ts
   fokussiertem Desktop-Chromium-Smoke (2/2) und vollstaendig gruener
   Branch-CI inklusive 126 Browser-Smokes.
 
+### Phase 269 - HUD-Quellenbudget
+
+- Branch/Worktree: `phase-269-hud-source-budget` in
+  `/worktree/tempest-phase-269-hud-source-budget`.
+- Formation, Praedator-Skill-Raub und Boss-Verstaerkungsbanner wurden von
+  1280x720 auf 640x360 verkleinert. Bei maximalen Rendergroessen von 132x74,
+  224x126 und 320x180 bleibt mindestens die doppelte Quelldichte erhalten;
+  das gemeinsame Gewicht sank von 366.432 auf 130.014 Bytes (-64,5 %).
+- Ein gemeinsames Asset-Budget sichert die kompakten HUD-Banner unter 140 kB
+  ab; `ASSETS.md` dokumentiert die neuen Abmessungen und Verarbeitung.
+- Validiert mit Sichtpruefung aller drei Assets, `git diff --check`, Asset-Test
+  (28/28), Typecheck, 873 Unit-Tests inklusive Balance-Harness, Build,
+  fokussiertem Desktop-Chromium-Smoke (2/2) und vollstaendig gruener
+  Branch-CI inklusive 126 Browser-Smokes.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere

@@ -10,13 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] **Phase 269 – HUD-Quellenbudget**
-  - Worktree: `/worktree/tempest-phase-269-hud-source-budget`
-  - Drei höchstens 320×180 gerenderte HUD-WebPs auf passende 640×360-Quellen
-    verkleinern und das Budget per Asset-Test absichern.
-  - Abnahme: zusammen 366.432 → 130.014 Bytes (-64,5 %), `git diff --check`,
-    Asset-Test (28/28), Typecheck, 873 Unit-Tests, Build und fokussierter
-    Desktop-Chromium-Smoke (2/2).
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 
