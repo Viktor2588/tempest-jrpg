@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import colosseumBanner from '../src/assets/ui/region-tempest-colosseum.webp?inline';
+import labyrinthBanner from '../src/assets/ui/region-ramiris-labyrinth.webp?inline';
+import academyBanner from '../src/assets/ui/region-freedom-academy.webp?inline';
 import assetsDoc from '../ASSETS.md?raw';
 import musicSource from '../src/audio/music.ts?raw';
 import sfxSource from '../src/audio/sfx.ts?raw';
@@ -142,6 +145,12 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
       expect(assetFiles).toContain(`${path}.webp`);
       expect(assetFiles).not.toContain(`${path}.png`);
     }
+  });
+
+  it('haelt die drei grossen Regionsbanner gemeinsam unter 400 kB', () => {
+    const totalBase64Length = [colosseumBanner, labyrinthBanner, academyBanner]
+      .reduce((sum, banner) => sum + banner.length, 0);
+    expect(totalBase64Length).toBeLessThan(534_000);
   });
 
   it('liefert die zehn generierten Gegner-Cutouts als WebP mit Alpha aus', () => {
