@@ -58,6 +58,12 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(milestoneSource).toContain('NAMELESS_ECHO_TEXTURE_KEY');
   });
 
+  it('markiert Bosse im Kampf mit dem textfreien Emblem', () => {
+    expect(preloadSource).toContain("this.load.image('ui-boss-emblem'");
+    expect(battleSource).toContain("unit.boss && this.textures.exists('ui-boss-emblem')");
+    expect(battleSource).toContain('.setDisplaySize(28, 28).setAlpha(alpha)');
+  });
+
   it('zeigt vorhandene Tempest-Banner bei Kapitel-Meilensteinen', () => {
     expect(milestoneSource).toContain("milestone.id === 'band-one-complete'");
     expect(milestoneSource).toContain("milestone.id === 'first-council'");

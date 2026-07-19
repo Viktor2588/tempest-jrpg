@@ -249,6 +249,7 @@ import shopMerchantVignetteUrl from '../assets/ui/shop-merchant-vignette.webp';
 import codexArchiveVignetteUrl from '../assets/ui/codex-archive-vignette.webp';
 import veldoraCaveRevisitUrl from '../assets/ui/veldora-cave-revisit.webp';
 import bossAddSpawnUrl from '../assets/ui/boss-add-spawn.webp';
+import bossEmblemUrl from '../assets/ui/boss-emblem.webp';
 
 // Lädt globale Assets mit Fortschrittsbalken.
 export class PreloadScene extends Phaser.Scene {
@@ -439,6 +440,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('ui-codex-archive-vignette', codexArchiveVignetteUrl);
     this.load.image('ui-veldora-cave-revisit', veldoraCaveRevisitUrl);
     this.load.image('ui-boss-add-spawn', bossAddSpawnUrl);
+    this.load.image('ui-boss-emblem', bossEmblemUrl);
   }
 
   create(): void {
@@ -571,6 +573,7 @@ export class PreloadScene extends Phaser.Scene {
       'ui-milim-fight-banner',
       'ui-veldora-cave-revisit',
       'ui-boss-add-spawn',
+      'ui-boss-emblem',
       ...VFX_KINDS.map(vfxKey)
     ];
 
