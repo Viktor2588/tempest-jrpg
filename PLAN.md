@@ -10,7 +10,13 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] **Phase 270 – Dialog-Hinweis zuschneiden**
+  - Worktree: `/worktree/tempest-phase-270-dialog-hint-crop`
+  - Nur den tatsächlich gerenderten Tastatur-Hinweis als 300×300-WebP behalten
+    und den dadurch überflüssigen Phaser-Frame entfernen.
+  - Abnahme: 97.816 → 16.664 Bytes (-83,0 %), `git diff --check`, Asset-Test
+    (28/28), Typecheck, 873 Unit-Tests, Build und fokussierter
+    Desktop-Chromium-Smoke (1/1).
 
 ## Integrationswarteschlange
 
