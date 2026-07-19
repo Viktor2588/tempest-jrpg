@@ -2353,6 +2353,19 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 865 Unit-Tests inklusive
   Balance-Harness, Build und fokussiertem Desktop-Chromium-Smoke (1/1).
 
+### Phase 262 - Textfreies Boss-Emblem im Kampf
+
+- Branch/Worktree: `phase-262-boss-emblem` in
+  `/worktree/tempest-phase-262-boss-emblem`.
+- Ein neues projektgeneriertes, transparentes Emblem markiert Boss-Einheiten
+  direkt auf ihrer Kampfkarte; das unverdrahtete beschriftete Phase-118-Mockup
+  wurde entfernt und seine 197 KB durch das 56-KB-Laufzeitasset ersetzt.
+- Die OpenAI-Bildgenerierung und lokale Chroma-Key-Freistellung sind in
+  `ASSETS.md` dokumentiert.
+- Validiert mit `git diff --check`, Typecheck, 866 Unit-Tests inklusive
+  Balance-Harness, Build sowie Desktop-Chromium-Smokes fuer Asset-Laden und
+  Milim-Bosskampf (2/2).
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
