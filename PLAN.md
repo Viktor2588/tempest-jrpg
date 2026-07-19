@@ -10,7 +10,14 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] Phase 264 - GitHub Actions auf Node 24 aktualisieren
+  - Worktree: `/worktree/tempest-phase-264-node24-actions`
+  - Die offiziellen Action-Majors in Deploy, CI und Motivationsworkflow auf
+    ihre Node-24-Versionen heben und den Deprecation-Hinweis beseitigen.
+  - Abnahme: Alle drei Workflows verwenden die aktuellen Node-24-Majors; der
+    Release-Test deckt die gemeinsamen und Pages-spezifischen Referenzen ab.
+  - Checks: `git diff --check`; Release-Test (5/5); `bun run typecheck`;
+    `bun run test` (101 Dateien, 868 Tests); `bun run build`.
 
 ## Integrationswarteschlange
 
