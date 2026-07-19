@@ -103,6 +103,14 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     }
   });
 
+  it('enthaelt keine unverdrahteten UI-Mockups', () => {
+    expect(assetFiles).not.toEqual(expect.arrayContaining([
+      'ui/area-transition-marker.webp',
+      'ui/charibdis-arc-banner.webp',
+      'ui/story-event-order.webp'
+    ]));
+  });
+
   it('ersetzt die 16x16-Kenney-Sprites durch hochaufgeloeste Projektassets', () => {
     expect(assetFiles).toEqual(expect.arrayContaining([
       'sprites/overworld-rimuru-slime.webp',
