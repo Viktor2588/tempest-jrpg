@@ -43,7 +43,7 @@ import { elementLabel } from '../systems/battlePresentation';
 import { battleTurnDelayMs, enemyDamageMultiplier, loadSettings, playerDamageMultiplier, type BattleSpeed } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playSfxProcedural } from '../audio/sfxProcedural';
-import { playMusic, resumeMusic } from '../audio/music';
+import { battleMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiTextButton } from '../render/uiSkin';
@@ -155,7 +155,7 @@ export class BattleScene extends Phaser.Scene {
     this.layer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0).setDepth(50); // Effekte überleben refresh()
     fadeIn(this);
-    playMusic('battle');
+    playMusic(battleMusicTrack(this.state.combatants.some((unit) => unit.side === 'enemy' && unit.boss)));
     // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
     const unlockAudio = () => { resumeAudio(); resumeMusic(); };
     this.input.once('pointerdown', unlockAudio);

@@ -10,7 +10,18 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- `[x]` **Phase 276 — Audio-Erweiterung (Musik & SFX)**
+  - Worktree: `/worktree/tempest-phase-276-audio`
+  - Problem: Nur wenige Kenney-Motive (Title/Field/Battle); Szenen und UI
+    wirken klanglich dünn.
+  - Ziel: mehr stimmungsvolle Loops pro Region/Boss/Menü plus knappe UI-/
+    Combat-SFX, ohne die Settings-Pipeline zu brechen.
+  - Scope: OGG-Assets, `src/audio/`-Mapping, Options-Lautstärke und
+    Mute-Pfade prüfen.
+  - Abnahme: vier neue CC0-Motive für Siedlung, Wildnis, Menü und Boss;
+    bestehende UI-/Combat-SFX und die Master×Musik-Lautstärke werden weiterverwendet.
+    `bun run typecheck`, 875 Unit-Tests, Build und Desktop-Chromium-Smoke
+    (Title → Overworld → Menü → Battle) grün.
 
 ## Integrationswarteschlange
 

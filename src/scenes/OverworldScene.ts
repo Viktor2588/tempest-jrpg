@@ -44,7 +44,7 @@ import {
   resolveEncounter
 } from '../systems/world';
 import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
-import { playMusic, resumeMusic } from '../audio/music';
+import { overworldMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
 
@@ -100,7 +100,7 @@ export class OverworldScene extends Phaser.Scene {
     this.mapId = this.save.location.mapId;
     const map = this.map = getMap(this.mapId, this.save.flags);
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
-    playMusic('overworld');
+    playMusic(overworldMusicTrack(this.mapId));
     // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
     // laufen bei scene.start NICHT erneut. Daher transiente Zustände hier zurücksetzen,
     // sonst bleibt nach einem Kampf `moving=true` hängen → Bewegung blockiert.
