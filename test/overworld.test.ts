@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMap, isWalkable, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
+import { parseMap, isWalkable, overworldActorDepth, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
 import {
   JURA_FIELD,
   TEMPEST_CAMP,
@@ -51,6 +51,14 @@ describe('overworld grid', () => {
     expect(tryStep(MAP, { x: 1, y: 1 }, 'down', blocked)).toEqual({ x: 1, y: 2 });
     // Ohne Blockierset verhält sich tryStep wie zuvor.
     expect(tryStep(MAP, { x: 1, y: 1 }, 'right')).toEqual({ x: 2, y: 1 });
+  });
+
+  it('ordnet Oberwelt-Akteure über dem Terrain und nach ihrer Kartenzeile', () => {
+    const near = overworldActorDepth(0, 10);
+    const far = overworldActorDepth(9, 10);
+    expect(near).toBeGreaterThan(1);
+    expect(far).toBeGreaterThan(near);
+    expect(far).toBeLessThan(2);
   });
 
   it('das Spielfeld JURA_FIELD ist umrandet und hat einen begehbaren Spawn', () => {

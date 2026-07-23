@@ -10,8 +10,22 @@ import {
   shouldShowOverworldTutorial,
   type OverworldOnboardingStep
 } from '../systems/tutorial';
-import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
-import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
+import {
+  isWalkable,
+  markerLabelVisible,
+  overworldActorDepth,
+  tileKey,
+  tryStep,
+  WALL,
+  type Dir,
+  type TileMap,
+  type Vec2
+} from '../systems/overworld';
+import {
+  firstAvailableOverworldPlayerTexture,
+  OVERWORLD_WALK_BOB_PX,
+  overworldPlayerFlipX
+} from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
@@ -58,7 +72,9 @@ export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
   private mapId = 'tempest-start';
   private map!: TileMap;
-  private player!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  private player!: Phaser.GameObjects.Container;
+  private playerVisual!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  private playerShadow!: Phaser.GameObjects.Ellipse;
   private worldLayer?: Phaser.GameObjects.Container;
   private moving = false;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -142,9 +158,15 @@ export class OverworldScene extends Phaser.Scene {
     const saved = { x: this.save.location.x, y: this.save.location.y };
     this.pos = isWalkable(map, saved.x, saved.y) ? saved : { ...map.spawn };
     const heroKey = firstAvailableOverworldPlayerTexture((textureKey) => this.textures.exists(textureKey));
-    this.player = heroKey
-      ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
-      : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
+    this.playerShadow = this.add.ellipse(0, 1, TILE * 0.56, TILE * 0.16, 0x06111f, 0.3);
+    this.playerVisual = heroKey
+      ? this.add.image(0, 0, heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
+      : this.add.rectangle(0, 0, TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
+    this.playerVisual.setOrigin(0.5, 1);
+    this.player = this.add.container(this.cx(this.pos.x), this.cy(this.pos.y), [this.playerShadow, this.playerVisual])
+      .setSize(TILE, TILE)
+      .setDepth(overworldActorDepth(this.pos.y, this.map.height));
+    this.setPlayerFacing(this.save.location.facing);
 
     this.drawWorldObjects();
     this.minimapLayer = undefined; // wiederverwendete Instanz: alter Container ist zerstört.
@@ -342,6 +364,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private step(dir: Dir): void {
+    this.setPlayerFacing(dir);
     // Sichtbare NPCs blockieren ihre Kachel (Kollision) — man bleibt davor stehen
     // und kann sie von dort ansprechen, statt durch sie hindurchzulaufen.
     const blocked = new Set(
@@ -351,9 +374,11 @@ export class OverworldScene extends Phaser.Scene {
     if (next.x === this.pos.x && next.y === this.pos.y) return; // blockiert
     this.pos = next;
     this.moving = true;
+    this.player.setDepth(overworldActorDepth(next.y, this.map.height));
     this.updateMinimapPlayer();
     this.persistPosition(dir);
     this.completeOnboardingStep('move');
+    this.playWalkBob();
     this.tweens.add({
       targets: this.player,
       x: this.cx(next.x),
@@ -954,6 +979,30 @@ export class OverworldScene extends Phaser.Scene {
 
   private cx(tileX: number): number { return tileX * TILE + TILE / 2; }
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
+
+  private setPlayerFacing(facing: Dir): void {
+    if (this.playerVisual instanceof Phaser.GameObjects.Image) {
+      this.playerVisual.setFlipX(overworldPlayerFlipX(facing));
+    }
+  }
+
+  private playWalkBob(): void {
+    this.tweens.add({
+      targets: this.playerVisual,
+      y: -OVERWORLD_WALK_BOB_PX,
+      duration: MOVE_MS / 2,
+      ease: 'Sine.easeOut',
+      yoyo: true
+    });
+    this.tweens.add({
+      targets: this.playerShadow,
+      scaleX: 0.76,
+      scaleY: 0.72,
+      duration: MOVE_MS / 2,
+      ease: 'Sine.easeOut',
+      yoyo: true
+    });
+  }
 
   private buildDpad(): void {
     const releaseTouchDirection = () => { this.touchDir = null; };

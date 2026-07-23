@@ -33,6 +33,7 @@ Status:
 - `[~]` **Phase 272 — Visuelle Bugs beim Laufen (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-272-walk-bugs`
   - Branch: `phase-272-walk-bugs`
+  - Status: Von Copilot in diesem Worktree fortgesetzt.
   - Ziel: saubere Walk-Darstellung (Facing, Bob, Depth).
 
 - `[~]` **Phase 276 — Audio-Erweiterung (Musik & SFX) (in Bearbeitung)**
