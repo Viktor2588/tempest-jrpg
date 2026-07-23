@@ -1146,6 +1146,21 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 281 - Siedlungs-/Facility-Wachstum sichtbar
+
+- Facility-Ausbaustufen und begehbare Distrikt-Silhouetten für Lager/Dorf/Stadt; `tempestFacilityArt` rendert Wachstumsstufen, Menü- und Overworld-Szene spiegeln den Fortschritt.
+- Validierung: `bun run typecheck`, `bun run test` (882 Unit-Tests nach Merge), `bun run build`; Desktop-Chromium-Tempest-Smoke.
+
+### Phase 280 - Kampf-Präsentation & Feedback
+
+- Treffer zeigen signierte Schadens- und Treffer-/K.-o.-Labels; Großtreffer warnen mit sichtbarer Block-Aufforderung ohne unbekannte Skillnamen zu spoilern; benannte Signaturen erhalten beim Auslösen Banner, Flash und VFX.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`; Chromium-Kampf-Smoke (Titel → Overworld → Kampf).
+
+### Phase 273 - Mehr Story-Content
+
+- 5 neue Zwischenbeats im Hauptpfad (Rat, Hain, Ahnensiegel, Grenze, Vorhutspur) plus 5 Abschlussmomente auf Nebenpfaden; getrennte Szenen-Tracks verhindern, dass ein Nebenauftrag ungespielte Beats verwirft.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`.
+
 ### Phase 177 - Arena-Vorstand-Porträt
 
 - Branch/Worktree wurde vor den parallelen Welt-Uhr-Phasen als `phase-172-arena-vorstand` in `/worktree/tempest-phase-172-arena-vorstand` angelegt; die Archivnummer wurde nach deren Push kollisionsfrei auf 177 gesetzt.
