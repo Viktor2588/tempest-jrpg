@@ -20,11 +20,6 @@ Status:
   - Branch: `phase-271-menu-declutter`
   - Ziel: klarere Tab-Hierarchie, weniger gleichzeitige Dichte.
 
-- `[~]` **Phase 274 — Kampf-Balance-Pass (in Bearbeitung)**
-  - Worktree: `/worktree/tempest-phase-274-balance-pass`
-  - Branch: `phase-274-balance-pass`
-  - Ziel: Story-Kämpfe fordernder; Benchmark-Guardrails wo sinnvoll.
-
 - `[~]` **Phase 272 — Visuelle Bugs beim Laufen (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-272-walk-bugs`
   - Branch: `phase-272-walk-bugs`
