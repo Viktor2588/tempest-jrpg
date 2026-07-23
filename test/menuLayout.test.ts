@@ -7,14 +7,17 @@ import {
   MENU_LIST_COLUMNS,
   MENU_PARTY_LAYOUT,
   MENU_TAB_ROW,
+  MENU_TAB_GROUP_ROW,
   MENU_VIEWPORT,
   menuPartyBounds,
   menuListCapacity,
   menuListRects,
   menuTabButtonX,
+  menuTabGroupButtonX,
   menuTabRowBounds,
   paginateMenuList
 } from '../src/systems/menuLayout';
+import { tabGroupFor, tabsForGroup } from '../src/ui/menu/MenuTypes';
 
 const COLUMNS = Object.values(MENU_LIST_COLUMNS);
 
@@ -62,16 +65,26 @@ describe('Phase 59 — Menü-Layout-Validierung (HudLayoutIssue-Muster auf Menü
     ).toEqual([]);
   });
 
-  it('verankert Tab-Leiste und Party-Ansicht auf der Canvas-Mitte', () => {
-    const tabCount = 8;
-    const tabs = menuTabRowBounds(tabCount);
+  it('ordnet Tabs in Bereiche und zeigt nur die Untertabs des aktiven Bereichs', () => {
+    const partyTabs = tabsForGroup('party');
+    const adventureTabs = tabsForGroup('adventure');
+    const partyRow = menuTabRowBounds(partyTabs.length);
+    const adventureRow = menuTabRowBounds(adventureTabs.length);
     const party = menuPartyBounds();
     const active = MENU_PARTY_LAYOUT.active;
     const reserve = MENU_PARTY_LAYOUT.reserve;
 
-    expect(tabs.centerX).toBe(MENU_VIEWPORT.width / 2);
-    expect(menuTabButtonX(0, tabCount)).toBe(tabs.left);
-    expect(menuTabButtonX(tabCount - 1, tabCount) + MENU_TAB_ROW.buttonWidth).toBe(tabs.right);
+    expect(partyTabs.map((tab) => tab.id)).toEqual(['party', 'inventory', 'equipment', 'status', 'growth']);
+    expect(adventureTabs.map((tab) => tab.id)).toEqual(['quests', 'codex', 'travel']);
+    expect(tabGroupFor('growth')).toBe('party');
+    expect(tabGroupFor('quests')).toBe('adventure');
+    expect(menuTabGroupButtonX(0)).toBe(MENU_TAB_GROUP_ROW.left);
+    expect(menuTabGroupButtonX(1)).toBe(MENU_TAB_GROUP_ROW.left + MENU_TAB_GROUP_ROW.buttonWidth + MENU_TAB_GROUP_ROW.buttonGap);
+    expect(menuTabButtonX(0, partyTabs.length)).toBe(partyRow.left);
+    expect(menuTabButtonX(partyTabs.length - 1, partyTabs.length) + MENU_TAB_ROW.buttonWidth).toBe(partyRow.right);
+    expect(menuTabButtonX(0, adventureTabs.length)).toBe(adventureRow.left);
+    expect(adventureRow.left).toBeGreaterThan(partyRow.left);
+    expect(partyRow.left).toBeGreaterThan(menuTabGroupButtonX(1) + MENU_TAB_GROUP_ROW.buttonWidth);
     expect(party.centerX).toBe(MENU_VIEWPORT.width / 2);
     expect(active.left + active.width).toBeLessThanOrEqual(reserve.left);
     expect(analyzeRects([

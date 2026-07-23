@@ -15,10 +15,11 @@ Status:
   - Branch: `phase-278-quest-tracker`
   - Ziel: dediziertes Overworld-HUD „aktuelles Ziel“ + Nebenquest-Liste.
 
-- `[~]` **Phase 271 — Menü entschlacken / UX-Überarbeitung (in Bearbeitung)** ⭐ HUD/UX
+- `[x]` **Phase 271 — Menü entschlacken / UX-Überarbeitung (abgeschlossen)** ⭐ HUD/UX
   - Worktree: `/worktree/tempest-phase-271-menu-declutter`
   - Branch: `phase-271-menu-declutter`
-  - Ziel: klarere Tab-Hierarchie, weniger gleichzeitige Dichte.
+  - Abnahme: „Gruppe“ und „Abenteuer“ zeigen kontextuell nur 5 bzw. 3 Untertabs; Nummern-Shortcuts 1–8 bleiben erhalten.
+  - Checks: `bun run typecheck`, `bun run test:unit` (873), `bun run build` sowie isolierter Desktop-Chromium-Menüsmoke bestanden.
 
 - `[~]` **Phase 280 — Kampf-Präsentation & Feedback (in Bearbeitung)** ⭐ HUD
   - Worktree: `/worktree/tempest-phase-280-battle-feedback`

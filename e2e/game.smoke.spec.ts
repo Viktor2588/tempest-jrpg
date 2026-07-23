@@ -44,6 +44,7 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   // Menü-Overlay samt Resume-Pfad prüfen.
   await clickOverworldMenuButton(page);
   await settle(page, 120);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 636, 94); // Quest-/Story-Tab mit Kapitel-Summary
   await expectCanvasContent(page);
   await page.keyboard.press('Escape');
@@ -220,6 +221,7 @@ test('Codex-Wissen und Handbuch zeigen die projektgenerierte Archivvignette', as
   await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94);
   await settle(page, 150);
 
@@ -772,6 +774,7 @@ test('Ranga-Schnellreise zeigt Reisebild und optionalen Fund', async ({ page }) 
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 840, 94); // Ranga-Tab
   await clickGamePoint(page, 410, 322); // Goblindorf
   await settle(page, 400);
@@ -1578,6 +1581,7 @@ test('Bestiarium zeigt analysierte Cutouts und unbekannte Silhouetten', async ({
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex
   await clickGamePoint(page, 616, 155); // Bestiarium
   await settle(page, 150);
@@ -1602,6 +1606,7 @@ test('Kopfgeldbrett zeigt die vorhandenen Ziel-Cutouts', async ({ page }) => {
   await settle(page, 400);
   await focusGame(page);
   await page.keyboard.press('m');
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex
   await clickGamePoint(page, 448, 140); // Kopfgeld
   await settle(page, 150);
@@ -1629,6 +1634,7 @@ test('Bewohner-Roster zeigt benannte Cutouts und unbekannte Silhouetten', async 
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex
   await clickGamePoint(page, 244, 140); // Bewohner
   await settle(page, 150);
@@ -1679,6 +1685,7 @@ test('Einrichtungen-Menü schließt Geistkern-Forschung im Browser ab', async ({
 
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex
   await clickGamePoint(page, 347, 155); // Einrichtungen (Codex-Modusleiste, Phase 171 startet bei x=24)
   await settle(page, 100);
@@ -2040,6 +2047,7 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await expectCanvasContent(page);
@@ -2075,6 +2083,7 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await clickGamePoint(page, 244, 140); // Umschalter „🏛️ Bewohner" (Leiste ab x=24, Phase 171)
@@ -2124,6 +2133,7 @@ test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', a
   await focusGame(page);
   await page.keyboard.press('m');
   await settle(page, 100);
+  await clickMenuAdventureGroup(page);
   await clickGamePoint(page, 760, 94); // Codex-Tab
   await page.waitForTimeout(200);
   await clickGamePoint(page, 528, 140); // Umschalter „🤝 Politik" (Leiste ab x=24, Phase 171)
@@ -2155,6 +2165,10 @@ async function focusGame(page: Page): Promise<void> {
 
 async function clickOverworldMenuButton(page: Page): Promise<void> {
   await clickGamePoint(page, 880, 242);
+}
+
+async function clickMenuAdventureGroup(page: Page): Promise<void> {
+  await clickGamePoint(page, 182, 94);
 }
 
 async function clickOverworldInteractButton(page: Page): Promise<void> {

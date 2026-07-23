@@ -18,6 +18,13 @@ export const MENU_PAGER_HEIGHT = 44;
 export const MENU_TAB_ROW = {
   y: 94,
   buttonWidth: 104,
+  buttonGap: 8,
+  contextRight: MENU_VIEWPORT.width - 36
+} as const;
+
+export const MENU_TAB_GROUP_ROW = {
+  left: 24,
+  buttonWidth: 100,
   buttonGap: 8
 } as const;
 
@@ -74,19 +81,20 @@ export const MENU_FACILITIES_LAYOUT = {
   actionY: 508
 } as const;
 
-function centeredRowLeft(count: number, width: number, gap: number): number {
-  return (MENU_VIEWPORT.width - (count * width + Math.max(0, count - 1) * gap)) / 2;
-}
-
 export function menuTabButtonX(index: number, count: number): number {
-  return centeredRowLeft(count, MENU_TAB_ROW.buttonWidth, MENU_TAB_ROW.buttonGap)
+  return MENU_TAB_ROW.contextRight
+    - (count * MENU_TAB_ROW.buttonWidth + Math.max(0, count - 1) * MENU_TAB_ROW.buttonGap)
     + index * (MENU_TAB_ROW.buttonWidth + MENU_TAB_ROW.buttonGap);
 }
 
 export function menuTabRowBounds(count: number): { left: number; right: number; centerX: number } {
-  const left = centeredRowLeft(count, MENU_TAB_ROW.buttonWidth, MENU_TAB_ROW.buttonGap);
+  const left = menuTabButtonX(0, count);
   const width = count * MENU_TAB_ROW.buttonWidth + Math.max(0, count - 1) * MENU_TAB_ROW.buttonGap;
   return { left, right: left + width, centerX: left + width / 2 };
+}
+
+export function menuTabGroupButtonX(index: number): number {
+  return MENU_TAB_GROUP_ROW.left + index * (MENU_TAB_GROUP_ROW.buttonWidth + MENU_TAB_GROUP_ROW.buttonGap);
 }
 
 export function menuPartyBounds(): { left: number; right: number; centerX: number } {

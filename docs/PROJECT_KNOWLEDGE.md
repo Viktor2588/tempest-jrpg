@@ -2481,6 +2481,25 @@ test/release.test.ts
   Desktop-Chromium-Smoke (1/1) und vollstaendig gruener Branch-CI inklusive
   126 Browser-Smokes.
 
+### Phase 271 - Menue entschlacken / UX-Ueberarbeitung
+
+- Branch/Worktree: `phase-271-menu-declutter` in
+  `/worktree/tempest-phase-271-menu-declutter`.
+- Die acht gleichrangigen Menuepunkte sind jetzt in die klaren Bereiche
+  **Gruppe** (Party, Inventar, Ausruestung, Status, Talente) und
+  **Abenteuer** (Quests, Codex, Ranga) gegliedert. Es sind damit hoechstens
+  fuenf kontextuelle Untertabs gleichzeitig sichtbar.
+- Der Kopf zeigt den kurzen Breadcrumb des aktiven Bereichs statt einer
+  langen Standardbeschreibung; kontextuelle Statusmeldungen bleiben
+  unveraendert. Die direkten Tastaturkuerzel `1` bis `8` bleiben erhalten.
+- Die pure Layout-Regression prueft Bereichszuordnung, Untertab-Reihenfolge
+  und die kollisionsfreie Geometrie; Browser-Smokes waehlen den
+  Abenteuerbereich explizit, bevor sie Quest-, Codex- oder Ranga-Untertabs
+  verwenden.
+- Validiert mit `git diff --check`, Typecheck, 873 Unit-Tests, Production
+  Build und isoliertem Desktop-Chromium-Smoke fuer den Wechsel
+  Gruppe → Abenteuer → Quests.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere
