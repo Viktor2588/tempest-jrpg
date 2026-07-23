@@ -15,10 +15,16 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[~]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern (in Bearbeitung)**
+- `[x]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern**
   - Worktree: `/worktree/tempest-phase-275-bond-expansion`
   - Branch: `phase-275-bond-expansion`
   - Ziel: mehr Bond-Szenen pro Kern-Paar, Unlock-Signale.
+  - Umgesetzt: 12 neue Bindungs-Szenen (jede Kernstufe hat nun genau eine Szene),
+    datengetriebene Dialogzeilen (`RelationshipSceneLine`) plus sichtbarer
+    `unlockText` als Freischalt-Signal; Fallback bleibt für Altszenen. Keine
+    Save-Migration nötig (nur bestehender `bond.scene.*.played`-Flag-Namensraum).
+  - Abnahme: `bun run typecheck` sauber, `bun run test` 901/901 grün
+    (inkl. Szenen-Stufen-Abdeckung + Unlock-Text-Tests), `bun run build` ok.
 
 - `[~]` **Phase 277 — Mobile- & Touch-UX-Polish (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-277-mobile-touch`
