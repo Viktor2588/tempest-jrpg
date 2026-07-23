@@ -15,16 +15,24 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[ ]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern**
+- `[~]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-275-bond-expansion`
+  - Branch: `phase-275-bond-expansion`
   - Ziel: mehr Bond-Szenen pro Kern-Paar, Unlock-Signale.
 
-- `[ ]` **Phase 277 — Mobile- & Touch-UX-Polish**
+- `[~]` **Phase 277 — Mobile- & Touch-UX-Polish (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-277-mobile-touch`
+  - Branch: `phase-277-mobile-touch`
   - Ziel: 44px-Targets, lesbare Dichte auf 390×844 (nach 271 mergen).
 
-- `[ ]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions)**
+- `[~]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions) (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-279-followers`
+  - Branch: `phase-279-followers`
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
 
-- `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
+- `[~]` **Phase 284 — Performance & Asset-Budget-Nachzug (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-284-performance-budget`
+  - Branch: `phase-284-performance-budget`
   - Ziel: stabile 960×540 auf Desktop/Mobile.
 
 ## Integrationswarteschlange
