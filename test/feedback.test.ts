@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { snapshot, diffFeedback, totalDamage } from '../src/systems/feedback';
+import battleSceneSource from '../src/scenes/BattleScene.ts?raw';
 
 const A = { id: 'a', hp: 100, mp: 10, dead: false };
 const B = { id: 'b', hp: 50, mp: 5, dead: false };
@@ -25,10 +26,21 @@ describe('feedback diff', () => {
     expect(diffFeedback(snapshot([{ ...A, hp: 0, dead: true }]), snapshot([{ ...A, hp: 0, dead: true }]))).toEqual([]);
   });
 
-  it('ignoriert unveränderte Einheiten und erfasst MP-Verbrauch nur mit LP-Änderung', () => {
+  it('ignoriert unveränderte Einheiten und erfasst MP-Verbrauch auch ohne LP-Änderung', () => {
     expect(diffFeedback(snapshot([A]), snapshot([A]))).toEqual([]);
     const ev = diffFeedback(snapshot([A]), snapshot([{ ...A, hp: 90, mp: 6 }]));
     expect(ev[0]).toMatchObject({ hpDelta: -10, mpDelta: -4 });
+    expect(diffFeedback(snapshot([A]), snapshot([{ ...A, mp: 6 }]))).toEqual([
+      { id: 'a', hpDelta: 0, mpDelta: -4, died: false }
+    ]);
+  });
+
+  it('erfasst MP-Regeneration und reicht MP-Feedback an die Battle-Szene weiter', () => {
+    expect(diffFeedback(snapshot([A]), snapshot([{ ...A, mp: 14 }]))).toEqual([
+      { id: 'a', hpDelta: 0, mpDelta: 4, died: false }
+    ]);
+    expect(battleSceneSource).toContain('if (event.mpDelta !== 0)');
+    expect(battleSceneSource).toContain("this.floatNumber({ x: pos.x + 26, y: pos.y + 22 }, label, '#78c7ff')");
   });
 
   it('totalDamage summiert nur negative LP-Deltas', () => {

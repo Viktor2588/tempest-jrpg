@@ -10,7 +10,12 @@ Status:
 
 ## Laufende Arbeit
 
-- Keine offene oder laufende Phase.
+- [x] Phase 282: Kampf-Feedback fuer MP-Aenderungen
+  - Worktree: `/worktree/tempest-phase-282-feedback-mp`
+  - Reine MP-Aenderungen erzeugen nun Feedback-Events; Verbrauch und
+    Regeneration erscheinen als versetzte blaue MP-Anzeige im Kampf.
+  - Abnahme: `bun run typecheck`, `bun run test` (874 Tests), `bun run build`
+    und mobiler Orientierungssmoke erfolgreich.
 
 ## Integrationswarteschlange
 
