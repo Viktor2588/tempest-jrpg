@@ -10,10 +10,14 @@ Status:
 
 ## Laufende Arbeit
 
-- `[~]` **Phase 278 — Quest-Tracker & Zielklarheit (in Bearbeitung)** ⭐ HUD-Priorität
+- `[x]` **Phase 278 — Quest-Tracker & Zielklarheit** ⭐ HUD-Priorität
   - Worktree: `/worktree/tempest-phase-278-quest-tracker`
   - Branch: `phase-278-quest-tracker`
   - Ziel: dediziertes Overworld-HUD „aktuelles Ziel“ + Nebenquest-Liste.
+  - Abnahme: `src/systems/questTracker.ts` (`buildQuestTracker`) trennt priorisiertes
+    Hauptziel von aktiver Nebenquest-Liste (Limit + „+N im Questlog“-Hinweis);
+    eigenständiges Overworld-HUD `drawQuestTracker` oben-links, Onboarding-Panel
+    nach rechts verschoben. Checks: typecheck ✓, test ✓, build ✓.
 
 - `[~]` **Phase 271 — Menü entschlacken / UX-Überarbeitung (in Bearbeitung)** ⭐ HUD/UX
   - Worktree: `/worktree/tempest-phase-271-menu-declutter`
