@@ -1151,6 +1151,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 272 - Visuelle Bugs beim Laufen
+
+- Spieler wird jetzt als `Container` (Schatten + Sprite) gezeichnet und via `overworldActorDepth(tileY, mapHeight)` (~1–2) über `worldLayer` (Depth 0, inkl. Phase-281-Facility-Districts) und unter Tint (5)/HUD (10+) einsortiert, nach Kartenzeile; Depth wird bei Spawn und jedem Schritt neu gesetzt.
+- Facing spiegelt das rechts-orientierte Slime-Sprite nur bei Linkslauf (`overworldPlayerFlipX`); Walk-Bob (`OVERWORLD_WALK_BOB_PX`) hebt Sprite pro Schritt und staucht den Bodenschatten (Yoyo-Tween über halbe Move-Dauer).
+- Validierung: `bun run typecheck`, `bun run test` (898 nach Merge), `bun run build`; Facing/Bob/Depth-Assertions in `test/overworld.test.ts` + `test/overworldArt.test.ts`.
+
 ### Phase 278 - Quest-Tracker & Zielklarheit (HUD)
 
 - Dediziertes, immer sichtbares Overworld-HUD oben-links: **AKTUELLES ZIEL** (priorisiertes Hauptziel mit Quest-/Schritt-Titel und Routen-Marker `◆` on-map / `→` andere Karte / `⌁` locked-hint) plus **NEBENQUESTS** (gekappte Liste aktiver Nebenquests, `+N im Questlog`-Overflow-Hinweis).
