@@ -1151,6 +1151,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 278 - Quest-Tracker & Zielklarheit (HUD)
+
+- Dediziertes, immer sichtbares Overworld-HUD oben-links: **AKTUELLES ZIEL** (priorisiertes Hauptziel mit Quest-/Schritt-Titel und Routen-Marker `◆` on-map / `→` andere Karte / `⌁` locked-hint) plus **NEBENQUESTS** (gekappte Liste aktiver Nebenquests, `+N im Questlog`-Overflow-Hinweis).
+- Reine Logik in `src/systems/questTracker.ts` (`buildQuestTracker`) reused `buildQuestLog` + `getTrackedQuestObjective` statt Quest-State neu abzuleiten. `OverworldScene` bekommt `questTrackerLayer`/`drawQuestTracker`, Onboarding-Panel nach rechts verschoben, alte inline „Ziel:"-Minimap-Zeile entfernt.
+- Validierung: `bun run typecheck`, `bun run test` (896 nach Merge), `bun run build`; neue `test/questTracker.test.ts` (Ziel/Neben-Split, Empty-State, Cap + Overflow).
+
 ### Phase 282 - Nebeninhalte & optionale Regionen
 
 - 3 optionale off-route Loot-Quests (Phase-154-Muster: Annahme-Dialog → Jagd-Encounter → Report-Dialog mit Gear-Belohnung), je in eine bestehende Nebenregion gelegt statt neuer Karte (vermeidet den von `regionBannerArt.test.ts` erzwungenen Banner-WebP + Preload). Rein datengetrieben in `src/data/world.ts`.
