@@ -26,6 +26,10 @@ export const ENEMY_SCALING = {
   random: { partyLevelRelief: 1, maxLevelRise: 8 },
   // Story-/Boss-Trigger ziehen leicht über die Party.
   trigger: { partyLevelLead: 1, maxLevelRise: 6 },
+  // Phase 283 — New Game+: je abgeschlossenem NG+-Zyklus steigen Ziel UND Deckel der
+  // Gegner-Skalierung um diesen Betrag. So bleibt der Replay mit hochstufigem Team
+  // fordernd (Gegner klettern über ihr Basislevel hinaus), ohne Erstdurchgänge (0) zu berühren.
+  newGamePlusLevelBonusPerCycle: 5,
   // XP-Abschwächung nach Basislevel-Abstand (absteigend nach Gap geordnet).
   experienceFalloff: [
     { minLevelGap: 8, multiplier: 0.25 },
@@ -53,14 +57,17 @@ export function scalingKindForEncounter(encounterId: string | null | undefined):
 export function effectiveEnemyLevel(
   baseLevel: number,
   partyLevel: number,
-  kind: EncounterScalingKind
+  kind: EncounterScalingKind,
+  newGamePlusCycle = 0
 ): number {
   const base = clampLevel(baseLevel);
   const party = clampLevel(partyLevel);
-  const desired = kind === 'trigger'
+  const cycleBonus = Math.max(0, Math.trunc(newGamePlusCycle))
+    * ENEMY_SCALING.newGamePlusLevelBonusPerCycle;
+  const desired = (kind === 'trigger'
     ? party + ENEMY_SCALING.trigger.partyLevelLead
-    : party - ENEMY_SCALING.random.partyLevelRelief;
-  const cap = base + (kind === 'trigger'
+    : party - ENEMY_SCALING.random.partyLevelRelief) + cycleBonus;
+  const cap = base + cycleBonus + (kind === 'trigger'
     ? ENEMY_SCALING.trigger.maxLevelRise
     : ENEMY_SCALING.random.maxLevelRise);
   return clampLevel(Math.max(base, Math.min(desired, cap)));
@@ -102,9 +109,10 @@ export function experienceFalloffMultiplier(baseLevel: number, partyLevel: numbe
 export function createScaledEnemyBattleUnit(
   enemy: EnemyDefinition,
   partyLevel: number,
-  kind: EncounterScalingKind
+  kind: EncounterScalingKind,
+  newGamePlusCycle = 0
 ): BattleUnitInput {
-  const level = effectiveEnemyLevel(enemy.level, partyLevel, kind);
+  const level = effectiveEnemyLevel(enemy.level, partyLevel, kind, newGamePlusCycle);
   return {
     ...createEnemyBattleUnit(enemy),
     level,
@@ -118,10 +126,11 @@ export function createScaledEnemyBattleUnit(
 export function createScaledEnemyBattleUnits(
   enemyIds: readonly string[],
   partyLevel: number,
-  kind: EncounterScalingKind
+  kind: EncounterScalingKind,
+  newGamePlusCycle = 0
 ): BattleUnitInput[] {
   return enemyIds.flatMap((enemyId): BattleUnitInput[] => {
     const enemy = enemyById.get(enemyId);
-    return enemy ? [createScaledEnemyBattleUnit(enemy, partyLevel, kind)] : [];
+    return enemy ? [createScaledEnemyBattleUnit(enemy, partyLevel, kind, newGamePlusCycle)] : [];
   });
 }
