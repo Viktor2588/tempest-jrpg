@@ -589,6 +589,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_274:
+    - Battle-balance pass for the three marquee story bosses: Mordrahn receives +40 HP/+4 attack/+6 magic, Geld +60 HP/+6 attack/+2 defense/+6 magic/+2 spirit, and Ifrit +60 HP/+5 attack/+2 defense/+6 magic/+2 spirit. The grind-free, carryover story route remains winnable for predator, sage, and mimic Rimuru branches, but leaves materially less party HP.
+    - The formerly report-only boss benchmark is now enforced for Mordrahn, Geld, and Ifrit. Target-level and +8-level-overgrind scenarios require minimum average turn counts, keeping these centerpiece fights from becoming click-through encounters without imposing an artificial benchmark HP/loss target.
+    - `test/balanceHarness.test.ts` adds deterministic marquee-boss carryover guardrails for all three Rimuru branches: minimum turns and maximum remaining party HP while retaining the existing all-story corridor and win checks.
+    - Worktree: `/worktree/tempest-phase-274-balance-pass` (branch `phase-274-balance-pass`).
   phase_140:
     - Test infrastructure overhaul for faster feedback: Vitest Thread-Pool with CI limits + 4-way sharding on GitHub Actions; Playwright workers=2 + only desktop+mobile for smoke; full Bun + Playwright browser caching in CI.
     - Path-based skipping (docs/md changes skip E2E).
@@ -1145,6 +1150,33 @@ test/release.test.ts
 ```
 
 ## 13. Phase Notes
+
+### Phase 282 - Nebeninhalte & optionale Regionen
+
+- 3 optionale off-route Loot-Quests (Phase-154-Muster: Annahme-Dialog → Jagd-Encounter → Report-Dialog mit Gear-Belohnung), je in eine bestehende Nebenregion gelegt statt neuer Karte (vermeidet den von `regionBannerArt.test.ts` erzwungenen Banner-WebP + Preload). Rein datengetrieben in `src/data/world.ts`.
+- `stormpeak-hunt` (Geisterschrein-Hochland, Gate `story.act1.completed`), `blumund-raiders-hunt` (Blumund, Gate `faction.orcs.joined`), `academy-cleansing-hunt` (Freiheitsakademie, Gate `story.shizu.vow`). Jagd-Encounter reuse bestehende Regionsgegner, off-route (kein `region.encounterIds`) → Balance-Harness unberührt.
+- Validierung: `bun run typecheck`, `bun run test` (893 nach Merge), `bun run build`; neue `test/sideContent282.test.ts` (Datenintegrität, Gear-Reward, begehbare Jagd-Kachel, Flag/Quest-Wiring, Off-route-Garantie).
+
+### Phase 283 - Post-Game / New-Game+ Zyklus
+
+- NG+-Kern (EndingScene + Profil `endingsSeen`/`newGamePlusCount` + `startNewGamePlus`) existierte bereits; diese Phase macht den Zyklus im Save persistent und wirksam. Neues Feld `progression.newGamePlusCycle` (0 = Erstdurchgang), von `startNewGamePlus` je Durchgang +1 hochgezählt und über den mitgetragenen Progression-Zustand akkumuliert.
+- `enemyScaling` nimmt optional `newGamePlusCycle` (Default 0 → Erstdurchgang und Alt-Saves unverändert) und eskaliert Ziellevel + Deckel um 5 je Zyklus; BattleScene reicht `save.progression.newGamePlusCycle` durch. Rückwärtskompatible Add-Feld-Migration. Deckt Feedback „overgrind darf nicht trivialisieren" auf der Post-Game-Schleife ab.
+- Validierung: `bun run typecheck`, `bun run test` (888 Tests nach Merge), `bun run build`; neue `test/newGamePlus.test.ts` (Migration/Roundtrip, Increment, Eskalation + Zyklus-0-Regression).
+
+### Phase 281 - Siedlungs-/Facility-Wachstum sichtbar
+
+- Facility-Ausbaustufen und begehbare Distrikt-Silhouetten für Lager/Dorf/Stadt; `tempestFacilityArt` rendert Wachstumsstufen, Menü- und Overworld-Szene spiegeln den Fortschritt.
+- Validierung: `bun run typecheck`, `bun run test` (882 Unit-Tests nach Merge), `bun run build`; Desktop-Chromium-Tempest-Smoke.
+
+### Phase 280 - Kampf-Präsentation & Feedback
+
+- Treffer zeigen signierte Schadens- und Treffer-/K.-o.-Labels; Großtreffer warnen mit sichtbarer Block-Aufforderung ohne unbekannte Skillnamen zu spoilern; benannte Signaturen erhalten beim Auslösen Banner, Flash und VFX.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`; Chromium-Kampf-Smoke (Titel → Overworld → Kampf).
+
+### Phase 273 - Mehr Story-Content
+
+- 5 neue Zwischenbeats im Hauptpfad (Rat, Hain, Ahnensiegel, Grenze, Vorhutspur) plus 5 Abschlussmomente auf Nebenpfaden; getrennte Szenen-Tracks verhindern, dass ein Nebenauftrag ungespielte Beats verwirft.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`.
 
 ### Phase 177 - Arena-Vorstand-Porträt
 

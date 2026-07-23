@@ -1,5 +1,11 @@
 import { FACILITIES, ITEMS, RESIDENTS } from '../data';
-import type { FacilityDefinition, ItemDefinition, ResidentDefinition, ResidentRole } from '../data';
+import type {
+  FacilityDefinition,
+  FacilityGrowthDetail,
+  ItemDefinition,
+  ResidentDefinition,
+  ResidentRole
+} from '../data';
 import { addInventoryItem } from './inventory';
 import type { InventoryStack } from './inventory';
 import { resolveTempestGrowthStage, type StoryFlags, type TempestGrowthStage } from './tempestGrowth';
@@ -114,6 +120,7 @@ export interface FacilityView {
   readonly facility: FacilityDefinition;
   readonly unlocked: boolean;
   readonly level: number;
+  readonly growth: FacilityGrowthDetail | null;
   readonly staff: readonly string[];
   readonly outputLabel: string;
   readonly amountPerCycle: number;
@@ -166,6 +173,7 @@ export function buildFacilityOverview(
       facility,
       unlocked: level > 0,
       level,
+      growth: level > 0 ? facility.growth[level - 1] ?? facility.growth[0] : null,
       staff,
       outputLabel: outputLabel(facility),
       amountPerCycle: baseAmount + defendedRouteBonus + supplyBonus
