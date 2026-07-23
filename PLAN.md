@@ -49,10 +49,20 @@ Status:
   - Branch: `phase-282-side-content`
   - Ziel: 2–4 lohnende Nebenpfade.
 
-- `[~]` **Phase 283 — Post-Game / New-Game+-Grundlage (in Bearbeitung)**
+- `[x]` **Phase 283 — Post-Game / New-Game+-Grundlage**
   - Worktree: `/worktree/tempest-phase-283-postgame`
   - Branch: `phase-283-postgame`
   - Ziel: leichte Post-Game-Schleife / NG+-Gerüst.
+  - Umsetzung: NG+-Kern (EndingScene + Profil + `startNewGamePlus`) existierte bereits;
+    diese Phase macht den Zyklus im Save persistent und wirksam. Neues Feld
+    `progression.newGamePlusCycle` (0 = Erstdurchgang), von `startNewGamePlus` je
+    Durchgang +1 hochgezählt und über den mitgetragenen Progression-Zustand akkumuliert.
+    `enemyScaling` eskaliert Ziel + Deckel der Gegner-Skalierung um 5 Level je Zyklus
+    (Post-Game-Schleife: Replay bleibt fordernd, hochstufiges Team trivialisiert nicht;
+    Erstdurchgang unverändert). Reines Add-Feld → rückwärtskompatible Save-Migration.
+  - Abnahme: `bun run typecheck` grün, `bun run test` grün, `bun run build` grün.
+    Neue Tests `test/newGamePlus.test.ts` (Save-Feld/Migration/Roundtrip, NG+-Increment,
+    Gegner-Eskalation inkl. Zyklus-0-Regression).
 
 - `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
   - Ziel: stabile 960×540 auf Desktop/Mobile.

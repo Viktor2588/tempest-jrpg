@@ -188,7 +188,12 @@ export class BattleScene extends Phaser.Scene {
       }
       return floor;
     }
-    return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
+    return createScaledEnemyBattleUnits(
+      ids,
+      partyLevel,
+      scalingKindForEncounter(this.encounterId),
+      this.save.progression.newGamePlusCycle
+    );
   }
 
   private showEncounterTutorial(): void {
