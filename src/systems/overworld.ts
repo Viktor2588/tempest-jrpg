@@ -49,6 +49,11 @@ export function tryStep(map: TileMap, pos: Vec2, dir: Dir, blocked?: ReadonlySet
   return { x: nx, y: ny };
 }
 
+/** Keeps actors over terrain and below fixed screen overlays, sorted by map row. */
+export function overworldActorDepth(tileY: number, mapHeight: number): number {
+  return 1 + (tileY + 1) / (Math.max(1, mapHeight) + 1);
+}
+
 /** Baut eine TileMap aus ASCII-Zeilen: '#' = Wand, alles andere = Boden. */
 export function parseMap(rows: readonly string[], spawn: Vec2): TileMap {
   const tiles = rows.map((row) => Array.from(row, (c) => (c === '#' ? WALL : FLOOR)));

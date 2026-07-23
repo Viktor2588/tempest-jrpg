@@ -82,9 +82,19 @@ describe('SCENE_SCRIPTS (die grossen Beats)', () => {
       'cave-awakening',
       'direwolf-pact',
       'tempest-naming',
+      'first-council',
+      'grove-afterglow',
+      'ancestor-seal-liberated',
+      'border-mercy',
+      'vanguard-trace',
       'geld-victory',
       'tempest-invasion-repelled',
-      'harvest-festival'
+      'harvest-festival',
+      'bog-hunt-aftermath',
+      'echo-banishment',
+      'deserter-standstill',
+      'marsh-cleansed',
+      'shrine-vigil-kept'
     ]) {
       const script = getSceneScript(id);
       expect(script, id).toBeDefined();
@@ -116,5 +126,23 @@ describe('Szenen-Ausloeser (Flag-gegatet, einmalig, Story-Reihenfolge)', () => {
     expect(getPendingScene(next)).toBeNull();
     // acknowledge ist idempotent.
     expect(acknowledgeScene(next, 'tempest-naming')).toBe(next);
+  });
+
+  it('priorisiert einen ausstehenden Hauptbeat und bewahrt unabhängige Nebenpfade', () => {
+    const flags = {
+      'story.council.ready': true,
+      'sidequest.bog.cleared': true,
+      'sidequest.echo.cleared': true
+    };
+    // Der Haupthandlungsbeat wird zuerst gezeigt.
+    expect(getPendingScene(flags)?.id).toBe('first-council');
+
+    const afterCouncil = acknowledgeScene(flags, 'first-council');
+    expect(getPendingScene(afterCouncil)?.id).toBe('bog-hunt-aftermath');
+
+    const afterBog = acknowledgeScene(afterCouncil, 'bog-hunt-aftermath');
+    // Das Kopfgeld darf den Echo-Nebenpfad nicht als erledigt markieren.
+    expect(getPendingScene(afterBog)?.id).toBe('echo-banishment');
+    expect(afterBog[scenePlayedFlag('echo-banishment')]).toBeUndefined();
   });
 });

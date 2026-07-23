@@ -93,6 +93,12 @@ export interface ProgressionState {
   // bereits geerntet wurden. „Besiegt, aber nicht verschlungen" = defeated-Zaehler > 0
   // UND nicht in dieser Menge → Grundlage für die Labyrinth-Echo-Auswahl.
   readonly devouredSourceIds: readonly string[];
+  // Phase 283 — Post-Game / New Game+: abgeschlossene NG+-Zyklen dieses Standes.
+  // 0 = Erstdurchgang; jeder NG+-Start erhoeht den Zaehler (Progression wird beim
+  // NG+ mitgetragen, daher waechst der Zaehler ueber Zyklen). Speist die
+  // Gegner-Eskalation (enemyScaling), damit ein hochstufiges Team im Replay nicht
+  // trivialisiert. Rein additiv → klare Save-Migration, Altstaende starten bei 0.
+  readonly newGamePlusCycle: number;
 }
 
 export interface CreateProgressionStateOptions {
@@ -115,6 +121,7 @@ export interface CreateProgressionStateOptions {
   readonly factionReputationByFactionId?: Readonly<Record<string, number>>;
   readonly analyzedEnemyIds?: readonly string[];
   readonly devouredSourceIds?: readonly string[];
+  readonly newGamePlusCycle?: number;
 }
 
 export interface MemberActionResult {
@@ -226,7 +233,8 @@ export function createProgressionState(options: CreateProgressionStateOptions = 
     claimedBountyCountsByBountyId: normalizePointRecord(options.claimedBountyCountsByBountyId ?? {}),
     factionReputationByFactionId: normalizePointRecord(options.factionReputationByFactionId ?? {}),
     analyzedEnemyIds: uniqueStrings(options.analyzedEnemyIds ?? []),
-    devouredSourceIds: uniqueStrings(options.devouredSourceIds ?? [])
+    devouredSourceIds: uniqueStrings(options.devouredSourceIds ?? []),
+    newGamePlusCycle: clampNonNegativeInteger(options.newGamePlusCycle ?? 0)
   };
 }
 

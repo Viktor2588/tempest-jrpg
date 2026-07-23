@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMap, isWalkable, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
+import { parseMap, isWalkable, overworldActorDepth, tileKey, tryStep, WALL, FLOOR } from '../src/systems/overworld';
 import {
   JURA_FIELD,
   TEMPEST_CAMP,
@@ -8,6 +8,10 @@ import {
   getMap,
   getMapName
 } from '../src/data/maps';
+import {
+  TEMPEST_FACILITY_DISTRICTS,
+  tempestFacilityDistrictScale
+} from '../src/render/tempestFacilityArt';
 import overworldSceneSource from '../src/scenes/OverworldScene.ts?raw';
 
 const MAP = parseMap([
@@ -53,6 +57,14 @@ describe('overworld grid', () => {
     expect(tryStep(MAP, { x: 1, y: 1 }, 'right')).toEqual({ x: 2, y: 1 });
   });
 
+  it('ordnet Oberwelt-Akteure über dem Terrain und nach ihrer Kartenzeile', () => {
+    const near = overworldActorDepth(0, 10);
+    const far = overworldActorDepth(9, 10);
+    expect(near).toBeGreaterThan(1);
+    expect(far).toBeGreaterThan(near);
+    expect(far).toBeLessThan(2);
+  });
+
   it('das Spielfeld JURA_FIELD ist umrandet und hat einen begehbaren Spawn', () => {
     expect(JURA_FIELD.tiles[0]!.every((t) => t === WALL)).toBe(true); // obere Randwand
     expect(isWalkable(JURA_FIELD, JURA_FIELD.spawn.x, JURA_FIELD.spawn.y)).toBe(true);
@@ -86,6 +98,17 @@ describe('overworld grid', () => {
         .filter((tile) => tile === WALL);
       expect(interiorWalls).toHaveLength(0);
     }
+  });
+
+  it('zeichnet alle Facility-Distrikte größer mit jeder Tempest-Ausbaustufe', () => {
+    const districts = Object.values(TEMPEST_FACILITY_DISTRICTS);
+    expect(districts).toHaveLength(4);
+    expect(new Set(districts.map((district) => `${district.x},${district.y}`)).size).toBe(districts.length);
+    expect(tempestFacilityDistrictScale('wilderness').level).toBe(0);
+    expect(tempestFacilityDistrictScale('village').width).toBeGreaterThan(tempestFacilityDistrictScale('camp').width);
+    expect(tempestFacilityDistrictScale('city').width).toBeGreaterThan(tempestFacilityDistrictScale('village').width);
+    expect(overworldSceneSource).toContain('this.drawTempestFacilityDistricts()');
+    expect(overworldSceneSource).toContain('detail.title');
   });
 
   it('setzt eine gehaltene Touch-Richtung auch beim Loslassen neben dem Steuerkreuz zurück', () => {

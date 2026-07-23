@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { getMap, getMapName } from '../data/maps';
+import { FACILITIES } from '../data/facilities';
 import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud, layoutOverworldTouchControls } from '../systems/mobileLayout';
@@ -10,9 +11,24 @@ import {
   shouldShowOverworldTutorial,
   type OverworldOnboardingStep
 } from '../systems/tutorial';
-import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
-import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
+import {
+  isWalkable,
+  markerLabelVisible,
+  overworldActorDepth,
+  tileKey,
+  tryStep,
+  WALL,
+  type Dir,
+  type TileMap,
+  type Vec2
+} from '../systems/overworld';
+import {
+  firstAvailableOverworldPlayerTexture,
+  OVERWORLD_WALK_BOB_PX,
+  overworldPlayerFlipX
+} from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
+import { TEMPEST_FACILITY_DISTRICTS, tempestFacilityDistrictScale } from '../render/tempestFacilityArt';
 import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
 import { addUiPortraitFrame } from '../render/uiSkin';
@@ -25,6 +41,7 @@ import {
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { getMapDiscoveries, getMapDiscoveryAt } from '../systems/mapDiscovery';
+import { buildQuestTracker } from '../systems/questTracker';
 import { createSceneRunner, type SceneScript, type SceneStep } from '../systems/sceneScript';
 import { acknowledgeScene, getPendingScene } from '../data/scenes';
 import { acknowledgeBondScene, bondSceneToScript, getPendingBondScene } from '../systems/bondScenes';
@@ -46,6 +63,7 @@ import {
 import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
 import { overworldMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
+import { resolveTempestGrowthStage } from '../systems/tempestGrowth';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
 
 const TILE = 48;
@@ -58,7 +76,9 @@ export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
   private mapId = 'tempest-start';
   private map!: TileMap;
-  private player!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  private player!: Phaser.GameObjects.Container;
+  private playerVisual!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  private playerShadow!: Phaser.GameObjects.Ellipse;
   private worldLayer?: Phaser.GameObjects.Container;
   private moving = false;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -68,6 +88,7 @@ export class OverworldScene extends Phaser.Scene {
   private stepCount = 0;
   private minimapLayer?: Phaser.GameObjects.Container;
   private minimapPlayerDot?: Phaser.GameObjects.Arc;
+  private questTrackerLayer?: Phaser.GameObjects.Container;
   private minimapOriginX = 0;
   private minimapOriginY = 0;
   private minimapCell = 4;
@@ -136,19 +157,28 @@ export class OverworldScene extends Phaser.Scene {
         }
       }
     }
+    this.drawTempestFacilityDistricts();
 
     // Spieler — Rimuru-Schleim-Asset → Legacy-CC0-Sprite → Platzhalter → Rechteck.
     // Gespeicherte Position nur übernehmen, wenn sie auf der aktuellen Karte begehbar ist.
     const saved = { x: this.save.location.x, y: this.save.location.y };
     this.pos = isWalkable(map, saved.x, saved.y) ? saved : { ...map.spawn };
     const heroKey = firstAvailableOverworldPlayerTexture((textureKey) => this.textures.exists(textureKey));
-    this.player = heroKey
-      ? this.add.image(this.cx(this.pos.x), this.cy(this.pos.y), heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
-      : this.add.rectangle(this.cx(this.pos.x), this.cy(this.pos.y), TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
+    this.playerShadow = this.add.ellipse(0, 1, TILE * 0.56, TILE * 0.16, 0x06111f, 0.3);
+    this.playerVisual = heroKey
+      ? this.add.image(0, 0, heroKey).setDisplaySize(TILE * 0.82, TILE * 0.82)
+      : this.add.rectangle(0, 0, TILE * 0.62, TILE * 0.62, 0x68d7ff).setStrokeStyle(2, 0xcdeaff);
+    this.playerVisual.setOrigin(0.5, 1);
+    this.player = this.add.container(this.cx(this.pos.x), this.cy(this.pos.y), [this.playerShadow, this.playerVisual])
+      .setSize(TILE, TILE)
+      .setDepth(overworldActorDepth(this.pos.y, this.map.height));
+    this.setPlayerFacing(this.save.location.facing);
 
     this.drawWorldObjects();
     this.minimapLayer = undefined; // wiederverwendete Instanz: alter Container ist zerstört.
     this.drawMinimap();
+    this.questTrackerLayer = undefined;
+    this.drawQuestTracker();
 
     // Nach Rückkehr aus Dialog/Shop/Menü (scene.resume) den Save neu laden und die
     // Story-Marker neu zeichnen, damit freigeschaltete Encounter sofort sichtbar sind.
@@ -252,12 +282,11 @@ export class OverworldScene extends Phaser.Scene {
 
     const hud = layoutOverworldHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
-    const panelX = 16;
+    const panelX = 360;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
-    // Oben-links verankern: die Touch-Controls (Steuerkreuz unten links,
-    // Interaktions-Button unten rechts) bleiben frei statt vom Panel verdeckt.
-    const panelY = 112;
+    // Zwischen Ziel-HUD und Minimap: die Touch-Controls unten bleiben frei.
+    const panelY = 14;
     layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
       .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
     layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
@@ -342,6 +371,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private step(dir: Dir): void {
+    this.setPlayerFacing(dir);
     // Sichtbare NPCs blockieren ihre Kachel (Kollision) — man bleibt davor stehen
     // und kann sie von dort ansprechen, statt durch sie hindurchzulaufen.
     const blocked = new Set(
@@ -351,9 +381,11 @@ export class OverworldScene extends Phaser.Scene {
     if (next.x === this.pos.x && next.y === this.pos.y) return; // blockiert
     this.pos = next;
     this.moving = true;
+    this.player.setDepth(overworldActorDepth(next.y, this.map.height));
     this.updateMinimapPlayer();
     this.persistPosition(dir);
     this.completeOnboardingStep('move');
+    this.playWalkBob();
     this.tweens.add({
       targets: this.player,
       x: this.cx(next.x),
@@ -371,6 +403,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
+    this.drawQuestTracker();
     this.drawOnboardingHints();
     if (this.maybePlayScene()) return;
     if (this.maybeShowMilestone()) return;
@@ -633,23 +666,84 @@ export class OverworldScene extends Phaser.Scene {
         color: '#f5fbff'
       }
     ).setOrigin(0.5).setStroke('#04111d', 3));
+  }
+
+  // Eigenständiger, stets sichtbarer Quest-Tracker: Das Ziel bleibt lesbar, statt
+  // als kleine Zusatzzeile unter der Minimap mit Regionsinfos zu konkurrieren.
+  private drawQuestTracker(): void {
+    if (this.questTrackerLayer) this.questTrackerLayer.removeAll(true);
+    else this.questTrackerLayer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(21);
+    const layer = this.questTrackerLayer;
+    const tracker = buildQuestTracker(createWorldState(this.save));
+    const panelX = 16;
+    const panelY = 14;
+    const panelW = 328;
+    const objectiveH = 104;
+    const sideRowH = 38;
+    const sideH = 34 + Math.max(1, tracker.sideQuests.length) * sideRowH
+      + (tracker.hiddenSideQuestCount > 0 ? 18 : 0);
+    const panelH = objectiveH + 8 + sideH;
+
+    layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x09121f, 0.91)
+      .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.78));
+    layer.add(this.add.text(panelX + 14, panelY + 10, 'AKTUELLES ZIEL', {
+      fontFamily: 'sans-serif', fontSize: '11px', color: '#8fdcff', fontStyle: 'bold'
+    }));
+
+    const objective = tracker.objective;
     if (objective) {
-      const objectiveMap = objective.mapId ? getMapName(objective.mapId, this.save.flags) : 'unbekannt';
-      const location = objective.locationName ?? objective.stepTitle;
-      const suffix = objective.status === 'visible'
-        ? objective.mapId === this.mapId ? '◆' : objectiveMap
-        : 'noch gesperrt';
-      layer.add(this.add.text(
-        this.minimapOriginX + model.width / 2,
-        bannerY + bannerH + 5,
-        `Ziel: ${location} · ${suffix}`,
-        {
-          fontFamily: 'sans-serif',
-          fontSize: '10px',
-          color: objective.status === 'visible' ? '#ffd6ff' : '#9fb2cc',
-          wordWrap: { width: Math.max(144, model.width + 28) }
-        }
-      ).setOrigin(0.5, 0));
+      const location = objective.locationName ?? 'Kartenanker fehlt';
+      const route = objective.status === 'visible'
+        ? objective.mapId === this.mapId ? `◆ ${location}` : `→ ${location}`
+        : `⌁ ${objective.hint}`;
+      layer.add(this.add.text(panelX + 14, panelY + 29, objective.questTitle, {
+        fontFamily: 'serif', fontSize: '18px', color: '#f4d782',
+        wordWrap: { width: panelW - 28 }
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 53, objective.stepTitle, {
+        fontFamily: 'sans-serif', fontSize: '14px', color: '#f4f8ff',
+        wordWrap: { width: panelW - 28 }
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 77, route, {
+        fontFamily: 'sans-serif', fontSize: '12px',
+        color: objective.status === 'visible' ? '#ffd6ff' : '#b4c2d7',
+        wordWrap: { width: panelW - 28 }
+      }));
+    } else {
+      layer.add(this.add.text(panelX + 14, panelY + 38, 'Kein aktives Hauptziel', {
+        fontFamily: 'serif', fontSize: '18px', color: '#f4d782'
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 66, 'Erkunde die Welt oder sprich mit einem Quest-Marker.', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#b4c2d7', wordWrap: { width: panelW - 28 }
+      }));
+    }
+
+    const sideY = panelY + objectiveH + 8;
+    layer.add(this.add.rectangle(panelX + 1, sideY, panelW - 2, sideH, 0x142238, 0.88).setOrigin(0, 0));
+    layer.add(this.add.text(panelX + 14, sideY + 8, 'NEBENQUESTS', {
+      fontFamily: 'sans-serif', fontSize: '11px', color: '#9ff0d0', fontStyle: 'bold'
+    }));
+    if (tracker.sideQuests.length === 0) {
+      layer.add(this.add.text(panelX + 14, sideY + 27, 'Keine aktiven Nebenquests', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#b4c2d7'
+      }));
+    } else {
+      tracker.sideQuests.forEach((quest, index) => {
+        const rowY = sideY + 27 + index * sideRowH;
+        layer.add(this.add.text(panelX + 14, rowY, `• ${quest.title}`, {
+          fontFamily: 'sans-serif', fontSize: '13px', color: '#e9f8ef',
+          wordWrap: { width: panelW - 28 }
+        }));
+        layer.add(this.add.text(panelX + 25, rowY + 17, quest.stepTitle, {
+          fontFamily: 'sans-serif', fontSize: '11px', color: '#a9cbbd',
+          wordWrap: { width: panelW - 39 }
+        }));
+      });
+    }
+    if (tracker.hiddenSideQuestCount > 0) {
+      layer.add(this.add.text(panelX + panelW - 14, sideY + sideH - 14, `+${tracker.hiddenSideQuestCount} im Questlog`, {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#a9cbbd'
+      }).setOrigin(1, 0));
     }
   }
 
@@ -667,6 +761,47 @@ export class OverworldScene extends Phaser.Scene {
     autoSave(window.localStorage, this.save);
     this.scene.launch('Ending');
     this.scene.pause();
+  }
+
+  private drawTempestFacilityDistricts(): void {
+    if (this.mapId !== 'tempest-start') return;
+    const stage = resolveTempestGrowthStage(this.save.flags);
+    const scale = tempestFacilityDistrictScale(stage);
+    if (scale.level === 0) return;
+
+    const art = this.add.graphics();
+    for (const facility of FACILITIES) {
+      const district = TEMPEST_FACILITY_DISTRICTS[facility.id];
+      if (!district) continue;
+      const x = this.cx(district.x);
+      const y = this.cy(district.y);
+      const left = x - scale.width / 2;
+      const top = y - scale.height / 2;
+      const roofTop = top - scale.roofHeight;
+      const detail = facility.growth[scale.level - 1];
+
+      art.fillStyle(0x101b28, 0.48);
+      art.fillEllipse(x, y + scale.height / 2 + 5, scale.width + 12, 10);
+      art.fillStyle(stage === 'city' ? 0x71839a : stage === 'village' ? 0x806147 : 0x5e4937, 0.96);
+      art.fillRoundedRect(left, top, scale.width, scale.height, 3);
+      art.fillStyle(district.accent, 0.94);
+      art.fillTriangle(left - 4, top, x, roofTop, left + scale.width + 4, top);
+      art.lineStyle(2, 0xd8e8f4, stage === 'city' ? 0.62 : 0.28);
+      art.strokeRoundedRect(left, top, scale.width, scale.height, 3);
+      art.lineStyle(2, district.accent, 0.76);
+      art.strokeTriangle(left - 4, top, x, roofTop, left + scale.width + 4, top);
+
+      this.add.text(x, y + 1, district.icon, {
+        fontFamily: 'sans-serif',
+        fontSize: `${Math.max(12, scale.height - 7)}px`,
+        color: '#f4f7eb'
+      }).setOrigin(0.5).setStroke('#17202c', 3);
+      this.add.text(x, y + scale.height / 2 + 8, detail.title, {
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        color: '#e9eef7'
+      }).setOrigin(0.5).setStroke('#0a0f1a', 3);
+    }
   }
 
   private drawWorldObjects(): void {
@@ -954,6 +1089,30 @@ export class OverworldScene extends Phaser.Scene {
 
   private cx(tileX: number): number { return tileX * TILE + TILE / 2; }
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
+
+  private setPlayerFacing(facing: Dir): void {
+    if (this.playerVisual instanceof Phaser.GameObjects.Image) {
+      this.playerVisual.setFlipX(overworldPlayerFlipX(facing));
+    }
+  }
+
+  private playWalkBob(): void {
+    this.tweens.add({
+      targets: this.playerVisual,
+      y: -OVERWORLD_WALK_BOB_PX,
+      duration: MOVE_MS / 2,
+      ease: 'Sine.easeOut',
+      yoyo: true
+    });
+    this.tweens.add({
+      targets: this.playerShadow,
+      scaleX: 0.76,
+      scaleY: 0.72,
+      duration: MOVE_MS / 2,
+      ease: 'Sine.easeOut',
+      yoyo: true
+    });
+  }
 
   private buildDpad(): void {
     const releaseTouchDirection = () => { this.touchDir = null; };

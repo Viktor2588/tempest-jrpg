@@ -88,5 +88,19 @@ export function buildEnemyIntel(unit: CombatantView): EnemyIntelPresentation {
   };
 }
 
-// Phase 137: if caster, could append to intel, but for now bestiary covers the "Aufdeckung"
+/** Beschriftung für den stets sichtbaren Gegen-Spieler-Hinweis eines Großangriffs. */
+export function telegraphWarningText(unit: CombatantView): string | null {
+  if (!unit.telegraphHeavy) return null;
+  return unit.analysisLevel >= 1 && unit.telegraphSkillName
+    ? `⚡ ${unit.telegraphSkillName}: BLOCKEN!`
+    : '⚡ GROSSER TREFFER: BLOCKEN!';
+}
 
+/** Kompakte Signatur-Zeile für die Charakterkarte. */
+export function signatureStatusText(unit: CombatantView): string | null {
+  if (!unit.signatureId || !unit.signatureName || unit.signatureChargeMax <= 0) return null;
+  if (unit.signatureCharge >= unit.signatureChargeMax) {
+    return `★ ${unit.signatureName}: BEREIT`;
+  }
+  return `★ ${unit.signatureName} ${unit.signatureCharge}%`;
+}
