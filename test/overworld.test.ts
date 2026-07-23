@@ -8,6 +8,7 @@ import {
   getMap,
   getMapName
 } from '../src/data/maps';
+import overworldSceneSource from '../src/scenes/OverworldScene.ts?raw';
 
 const MAP = parseMap([
   '#####',
@@ -85,5 +86,10 @@ describe('overworld grid', () => {
         .filter((tile) => tile === WALL);
       expect(interiorWalls).toHaveLength(0);
     }
+  });
+
+  it('setzt eine gehaltene Touch-Richtung auch beim Loslassen neben dem Steuerkreuz zurück', () => {
+    expect(overworldSceneSource).toContain("this.input.on('pointerup', releaseTouchDirection)");
+    expect(overworldSceneSource).toContain("this.input.off('pointerup', releaseTouchDirection)");
   });
 });
