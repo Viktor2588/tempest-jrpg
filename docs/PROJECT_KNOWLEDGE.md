@@ -589,6 +589,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_274:
+    - Battle-balance pass for the three marquee story bosses: Mordrahn receives +40 HP/+4 attack/+6 magic, Geld +60 HP/+6 attack/+2 defense/+6 magic/+2 spirit, and Ifrit +60 HP/+5 attack/+2 defense/+6 magic/+2 spirit. The grind-free, carryover story route remains winnable for predator, sage, and mimic Rimuru branches, but leaves materially less party HP.
+    - The formerly report-only boss benchmark is now enforced for Mordrahn, Geld, and Ifrit. Target-level and +8-level-overgrind scenarios require minimum average turn counts, keeping these centerpiece fights from becoming click-through encounters without imposing an artificial benchmark HP/loss target.
+    - `test/balanceHarness.test.ts` adds deterministic marquee-boss carryover guardrails for all three Rimuru branches: minimum turns and maximum remaining party HP while retaining the existing all-story corridor and win checks.
+    - Worktree: `/worktree/tempest-phase-274-balance-pass` (branch `phase-274-balance-pass`).
   phase_140:
     - Test infrastructure overhaul for faster feedback: Vitest Thread-Pool with CI limits + 4-way sharding on GitHub Actions; Playwright workers=2 + only desktop+mobile for smoke; full Bun + Playwright browser caching in CI.
     - Path-based skipping (docs/md changes skip E2E).

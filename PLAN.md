@@ -10,6 +10,13 @@ Status:
 
 ## Laufende Arbeit
 
+- `[x]` **Phase 274 — Kampf-Balance-Pass (abgeschlossen)**
+  - Worktree: `/worktree/tempest-phase-274-balance-pass`
+  - Branch: `phase-274-balance-pass`
+  - Ziel: Story-Kämpfe fordernder; Benchmark-Guardrails wo sinnvoll.
+  - Abnahme: deterministic Carryover-Harness für Predator/Sage/Mimic grün; Ziellevel- und +8-Overgrind-Guardrails für Mordrahn, Geld und Ifrit aktiv.
+  - Checks: `bun run typecheck`, `bun run test` (873), `bun run build`; kein E2E nötig (nur Kampf-Daten und Headless-Harness).
+
 - Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
