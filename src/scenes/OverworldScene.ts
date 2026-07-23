@@ -956,6 +956,12 @@ export class OverworldScene extends Phaser.Scene {
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
 
   private buildDpad(): void {
+    const releaseTouchDirection = () => { this.touchDir = null; };
+    this.input.on('pointerup', releaseTouchDirection);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off('pointerup', releaseTouchDirection);
+    });
+
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     for (const b of touchControls.dpad) {
       const bx = b.x + this.hudOffset.x;
@@ -965,8 +971,8 @@ export class OverworldScene extends Phaser.Scene {
       this.add.text(bx, by, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
         .setOrigin(0.5).setScrollFactor(0).setDepth(11);
       btn.on('pointerdown', () => { this.touchDir = b.dir; });
-      btn.on('pointerup', () => { if (this.touchDir === b.dir) this.touchDir = null; });
-      btn.on('pointerout', () => { if (this.touchDir === b.dir) this.touchDir = null; });
+      btn.on('pointerup', releaseTouchDirection);
+      btn.on('pointerout', releaseTouchDirection);
     }
   }
 }
