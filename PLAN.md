@@ -15,11 +15,6 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[~]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions) (in Bearbeitung)**
-  - Worktree: `/worktree/tempest-phase-279-followers`
-  - Branch: `phase-279-followers`
-  - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
-
 - `[~]` **Phase 284 — Performance & Asset-Budget-Nachzug (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-284-performance-budget`
   - Branch: `phase-284-performance-budget`

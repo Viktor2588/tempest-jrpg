@@ -1151,6 +1151,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 279 - Overworld-Party-Präsenz (Follower/Companions)
+
+- Bis zu 2 Begleiter (aktive Party ohne Anführer Rimuru) folgen dem Spieler entlang der zuletzt betretenen Kacheln. Kernlogik `src/systems/followers.ts` ist ein reiner Breadcrumb-Trail (`initFollowerTrail`, `stepFollowerTrail` prepend + Cap, `followerTiles` mit `FOLLOWER_SPACING`), ohne Pfadsuche → kein Wand-Clipping (Begleiter besetzen nur bereits begangene Kacheln).
+- Rendering reused das Phase-272-Muster: jeder Begleiter ist ein Container (Schatten + `portraitKey(characterId)`-Textur, Rechteck-Fallback), Flip-Facing via `overworldPlayerFlipX`, Walk-Bob via extrahiertem `walkBobActor`, Tiefe via `overworldActorDepth` minus Index-Epsilon. `buildFollowers()` in `create()`, Rebuild bei `RESUME` wenn sich die Party-Signatur ändert; `stepFollowers()` nach jedem Schritt. Reuse Porträt-Busts statt eigener Overworld-Sprites.
+- Validierung: `bun run typecheck`, `bun run test` (903 im Branch / grün nach Merge), `bun run build`; neue `test/followers.test.ts` (5 Tests: Stacking, L-Pfad-Treue, History-Truncation, Spacing).
+
 ### Phase 277 - Mobile- & Touch-UX-Polish
 
 - Das 960×540-Logikcanvas skaliert per `Phaser.Scale.FIT` höhenbegrenzt aufs Referenz-Handy (844×390, Faktor ≈0.722), sodass logisch bemessene Touchflächen physisch kleiner rendern. Overworld-Touchcontrols (D-Pad/Interakt) waren 52 logische px → nur ~37.6 CSS-px, unter der 44px-Marke.
