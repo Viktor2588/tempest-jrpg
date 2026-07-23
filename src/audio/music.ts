@@ -5,14 +5,35 @@ import { effectiveMusicVolume, loadSettings } from '../systems/settings';
 import titleThemeUrl from '../assets/music/title-theme.ogg';
 import fieldThemeUrl from '../assets/music/field-theme.ogg';
 import battleThemeUrl from '../assets/music/battle-theme.ogg';
+import menuThemeUrl from '../assets/music/menu-theme.ogg';
+import settlementThemeUrl from '../assets/music/settlement-theme.ogg';
+import wildsThemeUrl from '../assets/music/wilds-theme.ogg';
+import bossThemeUrl from '../assets/music/boss-theme.ogg';
 
 export const MUSIC_ASSETS = {
   title: titleThemeUrl,
   overworld: fieldThemeUrl,
-  battle: battleThemeUrl
+  battle: battleThemeUrl,
+  menu: menuThemeUrl,
+  settlement: settlementThemeUrl,
+  wilds: wildsThemeUrl,
+  boss: bossThemeUrl
 } as const;
 
 export type MusicTrack = keyof typeof MUSIC_ASSETS;
+
+const SETTLEMENT_MAPS = new Set(['tempest-start', 'goblin-village', 'dwargon', 'blumund', 'freedom-academy']);
+const WILDS_MAPS = new Set(['sealed-cave', 'direwolf-den', 'ember-hollow', 'ramiris-labyrinth']);
+
+export function overworldMusicTrack(mapId: string): MusicTrack {
+  if (SETTLEMENT_MAPS.has(mapId)) return 'settlement';
+  if (WILDS_MAPS.has(mapId)) return 'wilds';
+  return 'overworld';
+}
+
+export function battleMusicTrack(hasBoss: boolean): MusicTrack {
+  return hasBoss ? 'boss' : 'battle';
+}
 
 let currentTrack: MusicTrack | null = null;
 let currentAudio: HTMLAudioElement | null = null;

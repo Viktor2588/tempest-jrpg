@@ -145,7 +145,12 @@ export function startNewGamePlus(save: SaveGameV3, now = new Date().toISOString(
         gold: save.party.gold
       },
       inventory: save.inventory,
-      progression: save.progression
+      // Progression wird mitgetragen; der NG+-Zyklus zählt eins hoch und speist die
+      // eskalierende Gegner-Skalierung (enemyScaling) für den nächsten Durchgang.
+      progression: {
+        ...save.progression,
+        newGamePlusCycle: save.progression.newGamePlusCycle + 1
+      }
     },
     now
   );
@@ -527,7 +532,9 @@ function readProgressionState(raw: unknown): ProgressionState {
     analyzedEnemyIds: readStringArray(raw.analyzedEnemyIds),
     // Phase 148 — Boss-Echos: alte Stände ohne dieses Feld starten mit leerer
     // Verschlingungs-Historie (nichts verschlungen → alle besiegten Bosse echo-fähig).
-    devouredSourceIds: readStringArray(raw.devouredSourceIds)
+    devouredSourceIds: readStringArray(raw.devouredSourceIds),
+    // Phase 283 — Post-Game/NG+: alte Stände ohne dieses Feld sind Erstdurchgänge (0).
+    newGamePlusCycle: readNonNegativeInteger(raw.newGamePlusCycle)
   });
 }
 

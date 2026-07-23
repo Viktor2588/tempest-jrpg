@@ -26,7 +26,7 @@ describe('Balance-Harness Report', () => {
     const report = runBalanceHarnessReport(SEEDS);
 
     expect(report.hardAssertionsEnabled).toBe(true);
-    expect(report.benchmarkAssertionsEnabled).toBe(false);
+    expect(report.benchmarkAssertionsEnabled).toBe(true);
     expect(report.seeds).toEqual([...SEEDS]);
     expect(report.rimuruSpecBranch).toBe('predator');
     expect(report.storyEncounterIds).toEqual([...STORY_ENCOUNTER_IDS]);
@@ -54,6 +54,13 @@ describe('Balance-Harness Report', () => {
     ));
     expect(report.bossBenchmarks).toHaveLength(bossIds.length * 4);
     expect(report.bossBenchmarks.every((benchmark) => benchmark.runs.length === SEEDS.length)).toBe(true);
+    expect(report.benchmarkGuards).toHaveLength(6);
+    for (const guard of report.benchmarkGuards) {
+      const benchmark = report.bossBenchmarks.find((candidate) =>
+        candidate.encounterId === guard.encounterId && candidate.mode === guard.mode
+      );
+      expect(benchmark?.averageTurns).toBeGreaterThanOrEqual(guard.minimumAverageTurns);
+    }
 
     // Phase 67 — Overgrind-Szenarien: Party 4/8 Level über Ziel, Gegner wachsen mit.
     const overleveled = report.bossBenchmarks.filter((benchmark) =>
@@ -95,6 +102,21 @@ describe('Balance-Harness Report', () => {
       expect(report.storyRoute.at(-1)!.runs.every((run) =>
         run.unlockedRimuruNodeIdsAfter.includes(entryNode[report.rimuruSpecBranch])
       )).toBe(true);
+    }
+
+    // Phase 274 — Die drei tragenden Story-Bosse müssen mit realem Carryover spürbar
+    // bleiben, ohne den grindfreien Pfad aus seinem Gewinn-Korridor zu drücken.
+    const marqueeGuardrails = {
+      'mordrahn-confrontation': { minimumTurns: 10, maximumRemainingHp: 0.5 },
+      'geld-disaster-boss': { minimumTurns: 16, maximumRemainingHp: 0.7 },
+      'ifrit-boss': { minimumTurns: 8, maximumRemainingHp: 0.4 }
+    } as const;
+    for (const report of reports) {
+      for (const [encounterId, guardrail] of Object.entries(marqueeGuardrails)) {
+        const encounter = report.storyRoute.find((candidate) => candidate.encounterId === encounterId);
+        expect(encounter?.averageTurns).toBeGreaterThanOrEqual(guardrail.minimumTurns);
+        expect(encounter?.averageRemainingPartyHpFraction).toBeLessThanOrEqual(guardrail.maximumRemainingHp);
+      }
     }
 
     const profiles = reports.map((report) => report.storyRoute.slice(-5).map((encounter) => [

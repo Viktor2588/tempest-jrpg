@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { getMap, getMapName } from '../data/maps';
+import { FACILITIES } from '../data/facilities';
 import { SHOPS, type EncounterDefinition } from '../data/world';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { layoutOverworldHud, layoutOverworldTouchControls } from '../systems/mobileLayout';
@@ -13,6 +14,7 @@ import {
 import { isWalkable, markerLabelVisible, tileKey, tryStep, WALL, type Dir, type TileMap, type Vec2 } from '../systems/overworld';
 import { firstAvailableOverworldPlayerTexture } from '../render/overworldArt';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
+import { TEMPEST_FACILITY_DISTRICTS, tempestFacilityDistrictScale } from '../render/tempestFacilityArt';
 import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
 import { portraitKindForSpeaker, portraitKey } from '../render/portraitAtlas';
 import { addUiPortraitFrame } from '../render/uiSkin';
@@ -44,8 +46,9 @@ import {
   resolveEncounter
 } from '../systems/world';
 import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
-import { playMusic, resumeMusic } from '../audio/music';
+import { overworldMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
+import { resolveTempestGrowthStage } from '../systems/tempestGrowth';
 import { battleWipe, fadeIn, fadeToScene } from './transition';
 
 const TILE = 48;
@@ -100,7 +103,7 @@ export class OverworldScene extends Phaser.Scene {
     this.mapId = this.save.location.mapId;
     const map = this.map = getMap(this.mapId, this.save.flags);
     fadeIn(this); // sanftes Einblenden (auch beim Rückkehren aus dem Kampf)
-    playMusic('overworld');
+    playMusic(overworldMusicTrack(this.mapId));
     // WICHTIG: Phaser nutzt dieselbe Szenen-Instanz wieder; Klassenfeld-Initialwerte
     // laufen bei scene.start NICHT erneut. Daher transiente Zustände hier zurücksetzen,
     // sonst bleibt nach einem Kampf `moving=true` hängen → Bewegung blockiert.
@@ -136,6 +139,7 @@ export class OverworldScene extends Phaser.Scene {
         }
       }
     }
+    this.drawTempestFacilityDistricts();
 
     // Spieler — Rimuru-Schleim-Asset → Legacy-CC0-Sprite → Platzhalter → Rechteck.
     // Gespeicherte Position nur übernehmen, wenn sie auf der aktuellen Karte begehbar ist.
@@ -669,6 +673,47 @@ export class OverworldScene extends Phaser.Scene {
     this.scene.pause();
   }
 
+  private drawTempestFacilityDistricts(): void {
+    if (this.mapId !== 'tempest-start') return;
+    const stage = resolveTempestGrowthStage(this.save.flags);
+    const scale = tempestFacilityDistrictScale(stage);
+    if (scale.level === 0) return;
+
+    const art = this.add.graphics();
+    for (const facility of FACILITIES) {
+      const district = TEMPEST_FACILITY_DISTRICTS[facility.id];
+      if (!district) continue;
+      const x = this.cx(district.x);
+      const y = this.cy(district.y);
+      const left = x - scale.width / 2;
+      const top = y - scale.height / 2;
+      const roofTop = top - scale.roofHeight;
+      const detail = facility.growth[scale.level - 1];
+
+      art.fillStyle(0x101b28, 0.48);
+      art.fillEllipse(x, y + scale.height / 2 + 5, scale.width + 12, 10);
+      art.fillStyle(stage === 'city' ? 0x71839a : stage === 'village' ? 0x806147 : 0x5e4937, 0.96);
+      art.fillRoundedRect(left, top, scale.width, scale.height, 3);
+      art.fillStyle(district.accent, 0.94);
+      art.fillTriangle(left - 4, top, x, roofTop, left + scale.width + 4, top);
+      art.lineStyle(2, 0xd8e8f4, stage === 'city' ? 0.62 : 0.28);
+      art.strokeRoundedRect(left, top, scale.width, scale.height, 3);
+      art.lineStyle(2, district.accent, 0.76);
+      art.strokeTriangle(left - 4, top, x, roofTop, left + scale.width + 4, top);
+
+      this.add.text(x, y + 1, district.icon, {
+        fontFamily: 'sans-serif',
+        fontSize: `${Math.max(12, scale.height - 7)}px`,
+        color: '#f4f7eb'
+      }).setOrigin(0.5).setStroke('#17202c', 3);
+      this.add.text(x, y + scale.height / 2 + 8, detail.title, {
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        color: '#e9eef7'
+      }).setOrigin(0.5).setStroke('#0a0f1a', 3);
+    }
+  }
+
   private drawWorldObjects(): void {
     // In einen Layer zeichnen, damit gated Story-Marker beim Resume (nach Dialog/
     // Shop/Menü) mit frischem Save neu gezeichnet werden können — sonst erscheinen
@@ -956,6 +1001,12 @@ export class OverworldScene extends Phaser.Scene {
   private cy(tileY: number): number { return tileY * TILE + TILE / 2; }
 
   private buildDpad(): void {
+    const releaseTouchDirection = () => { this.touchDir = null; };
+    this.input.on('pointerup', releaseTouchDirection);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off('pointerup', releaseTouchDirection);
+    });
+
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
     for (const b of touchControls.dpad) {
       const bx = b.x + this.hudOffset.x;
@@ -965,8 +1016,8 @@ export class OverworldScene extends Phaser.Scene {
       this.add.text(bx, by, b.label, { fontFamily: 'sans-serif', fontSize: '20px', color: '#cdeaff' })
         .setOrigin(0.5).setScrollFactor(0).setDepth(11);
       btn.on('pointerdown', () => { this.touchDir = b.dir; });
-      btn.on('pointerup', () => { if (this.touchDir === b.dir) this.touchDir = null; });
-      btn.on('pointerout', () => { if (this.touchDir === b.dir) this.touchDir = null; });
+      btn.on('pointerup', releaseTouchDirection);
+      btn.on('pointerout', releaseTouchDirection);
     }
   }
 }

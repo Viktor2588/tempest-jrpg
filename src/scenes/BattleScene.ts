@@ -39,11 +39,10 @@ import { applyBattleResultToSave, newlyRewardedWeatherConditions, rollBossLoot, 
 import { newlyMasteredHuntingGrounds } from '../systems/bestiaryMastery';
 import { autoSave, createNewSave, loadSave, type SaveGameV2 } from '../systems/save';
 import { snapshot, diffFeedback, totalDamage } from '../systems/feedback';
-import { elementLabel } from '../systems/battlePresentation';
 import { battleTurnDelayMs, enemyDamageMultiplier, loadSettings, playerDamageMultiplier, type BattleSpeed } from '../systems/settings';
 import { playSfx, resumeAudio } from '../audio/sfx';
 import { playSfxProcedural } from '../audio/sfxProcedural';
-import { playMusic, resumeMusic } from '../audio/music';
+import { battleMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { idleBobSpec, type VfxKind } from '../render/artSpec';
 import { vfxKey } from '../render/vfxAtlas';
 import { addUiTextButton } from '../render/uiSkin';
@@ -54,7 +53,13 @@ import { fadeIn, fadeToScene } from './transition';
 import { chooseAutoAction, prepareAutoReaction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
 import { resolveElementFusion } from '../systems/fusion';
-import { buildEnemyIntel, formatStatusSummary } from '../systems/battlePresentation';
+import {
+  buildEnemyIntel,
+  elementLabel,
+  formatStatusSummary,
+  signatureStatusText,
+  telegraphWarningText
+} from '../systems/battlePresentation';
 
 type Mode = 'busy' | 'menu' | 'skills' | 'items' | 'team-partners' | 'mimic-forms' | 'target-enemy' | 'target-ally';
 
@@ -155,7 +160,7 @@ export class BattleScene extends Phaser.Scene {
     this.layer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0).setDepth(50); // Effekte überleben refresh()
     fadeIn(this);
-    playMusic('battle');
+    playMusic(battleMusicTrack(this.state.combatants.some((unit) => unit.side === 'enemy' && unit.boss)));
     // Audio braucht eine Nutzergeste — bei erster Eingabe freischalten.
     const unlockAudio = () => { resumeAudio(); resumeMusic(); };
     this.input.once('pointerdown', unlockAudio);
@@ -183,7 +188,12 @@ export class BattleScene extends Phaser.Scene {
       }
       return floor;
     }
-    return createScaledEnemyBattleUnits(ids, partyLevel, scalingKindForEncounter(this.encounterId));
+    return createScaledEnemyBattleUnits(
+      ids,
+      partyLevel,
+      scalingKindForEncounter(this.encounterId),
+      this.save.progression.newGamePlusCycle
+    );
   }
 
   private showEncounterTutorial(): void {
@@ -259,12 +269,16 @@ export class BattleScene extends Phaser.Scene {
       const pos = this.unitPos.get(event.id);
       if (!pos) continue;
       if (event.hpDelta < 0) {
-        this.floatNumber(pos, String(-event.hpDelta), '#ff6f83');
+        this.floatHitNumber(pos, -event.hpDelta, event.died);
         if (!reduced) this.flashBox(pos, 0xff5a5a);
       } else if (event.hpDelta > 0) {
         healed = true;
         this.floatNumber(pos, '+' + event.hpDelta, '#8dffc2');
         if (!reduced) this.healSpark(pos);
+      }
+      if (event.mpDelta !== 0) {
+        const label = event.mpDelta > 0 ? `MP +${event.mpDelta}` : `MP ${event.mpDelta}`;
+        this.floatNumber({ x: pos.x + 26, y: pos.y + 22 }, label, '#78c7ff');
       }
       if (event.died && !reduced) this.poof(pos);
     }
@@ -299,6 +313,27 @@ export class BattleScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(60);
     this.fxLayer.add(label);
     this.tweens.add({ targets: label, y: pos.y - 52, alpha: 0, duration: 850, ease: 'Cubic.Out', onComplete: () => label.destroy() });
+  }
+
+  private floatHitNumber(pos: { x: number; y: number }, damage: number, defeated: boolean): void {
+    this.floatNumber(pos, `-${damage}`, '#ff6f83');
+    const tag = this.add.text(pos.x, pos.y + 9, defeated ? 'K.O.' : 'TREFFER', {
+      fontFamily: 'sans-serif',
+      fontSize: '8px',
+      fontStyle: 'bold',
+      color: defeated ? '#ffd27a' : '#ffd2d9',
+      stroke: '#05070c',
+      strokeThickness: 2
+    }).setOrigin(0.5).setDepth(60);
+    this.fxLayer.add(tag);
+    this.tweens.add({
+      targets: tag,
+      y: pos.y - 16,
+      alpha: 0,
+      duration: 620,
+      ease: 'Cubic.Out',
+      onComplete: () => tag.destroy()
+    });
   }
 
   private flashBox(pos: { x: number; y: number }, color: number): void {
@@ -393,6 +428,9 @@ export class BattleScene extends Phaser.Scene {
   private doAct(action: Parameters<typeof act>[1]): void {
     const before = snapshot(this.allViews());
     const actor = currentActor(this.state); // Angreifer für die Angriffsbewegung
+    const signatureName = action.type === 'signature'
+      ? renderView(this.state).party.find((unit) => unit.id === actor?.id)?.signatureName ?? null
+      : null;
     const result = act(this.state, action);
     if (!result.ok) {
       this.flash(result.reason ?? 'Geht nicht.');
@@ -407,7 +445,42 @@ export class BattleScene extends Phaser.Scene {
     this.attackStreak(actor?.id, action);
     this.pendingTeamPartnerId = null;
     this.playStateFeedback(before);
+    if (signatureName) this.playSignatureFeedback(actor?.name ?? 'Die Gruppe', signatureName);
     this.afterAction();
+  }
+
+  private playSignatureFeedback(actorName: string, signatureName: string): void {
+    const y = 250;
+    const banner = this.add.container(GAME_WIDTH / 2, y).setDepth(72);
+    const panel = this.add.rectangle(0, 0, 390, 46, 0x281955, 0.94)
+      .setStrokeStyle(2, 0xffdc78, 1);
+    const label = this.add.text(0, -7, `★ ${signatureName}`, {
+      fontFamily: 'serif',
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#fff0b5',
+      stroke: '#160d31',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+    const source = this.add.text(0, 14, `${actorName} entfesselt die Signatur`, {
+      fontFamily: 'sans-serif',
+      fontSize: '10px',
+      color: '#dacfff'
+    }).setOrigin(0.5);
+    banner.add([panel, label, source]);
+    this.fxLayer.add(banner);
+    this.cameras.main.flash(120, 235, 206, 104);
+    this.tweens.add({
+      targets: banner,
+      scaleX: 1.06,
+      scaleY: 1.06,
+      duration: 130,
+      yoyo: true,
+      hold: 620,
+      alpha: 0,
+      ease: 'Quad.Out',
+      onComplete: () => banner.destroy()
+    });
   }
 
   // Phase 85 — Reaktion als Könnens-Moment: das erste Mal erklärt ein kurzer
@@ -523,11 +596,12 @@ export class BattleScene extends Phaser.Scene {
     const from = this.unitPos.get(actorId);
     const to = this.unitPos.get(action.targetId);
     if (!from || !to) return;
-    const magic = action.type === 'skill';
-    const color = magic ? 0x9fe8ff : 0xfff0b0;
+    const magic = action.type === 'skill' || action.type === 'signature';
+    const color = action.type === 'signature' ? 0xffdc78 : magic ? 0x9fe8ff : 0xfff0b0;
     const key: VfxKind = magic ? 'magic-bolt' : 'physical-bolt';
-    const sprite = this.vfxSprite(key, from.x, from.y, magic ? 26 : 22);
+    const sprite = this.vfxSprite(key, from.x, from.y, action.type === 'signature' ? 42 : magic ? 26 : 22);
     if (sprite) {
+      if (action.type === 'signature') sprite.setTint(color);
       sprite.setDepth(58);
       sprite.rotation = Phaser.Math.Angle.Between(from.x, from.y, to.x, to.y);
       this.tweens.add({
@@ -706,8 +780,13 @@ export class BattleScene extends Phaser.Scene {
     const height = 156;
     const alpha = unit.dead ? 0.35 : 1;
     this.unitPos.set(unit.id, { x, y }); // Position für Trefferzahlen/-effekte
+    const telegraphWarning = side === 'enemy' ? telegraphWarningText(unit) : null;
     const box = this.add.rectangle(x, y + 8, width, height, side === 'enemy' ? 0x281520 : 0x122338, 0.58 * alpha)
-      .setStrokeStyle(unit.active ? 3 : 1, unit.active ? 0xffdc78 : 0x6a7891, unit.active ? 1 : 0.72);
+      .setStrokeStyle(
+        unit.active || Boolean(telegraphWarning) ? 3 : 1,
+        telegraphWarning ? 0xff6971 : unit.active ? 0xffdc78 : 0x6a7891,
+        unit.active || telegraphWarning ? 1 : 0.72
+      );
     this.layer.add(box);
     // Proportional skalierte Illustration → Legacy-Sprite → Platzhalter.
     const texture = this.textureFor(unit, side);
@@ -769,6 +848,18 @@ export class BattleScene extends Phaser.Scene {
     if (unit.boss && this.textures.exists('ui-boss-emblem')) {
       this.layer.add(this.add.image(x - width / 2 + 14, y - height / 2 + 14, 'ui-boss-emblem')
         .setDisplaySize(28, 28).setAlpha(alpha));
+    }
+    if (telegraphWarning) {
+      this.layer.add(this.add.rectangle(x, y - 67, width + 8, 19, 0x54121a, 0.95 * alpha)
+        .setStrokeStyle(1, 0xff7c78, alpha));
+      this.layer.add(this.add.text(x, y - 67, telegraphWarning, {
+        fontFamily: 'sans-serif',
+        fontSize: '8px',
+        fontStyle: 'bold',
+        color: '#fff0d0',
+        align: 'center',
+        wordWrap: { width: width, useAdvancedWrap: true }
+      }).setOrigin(0.5).setAlpha(alpha));
     }
 
     this.layer.add(this.add.rectangle(x, y + 38, width - 14, 9, 0x0a0f18, 0.96).setOrigin(0.5));
@@ -839,6 +930,11 @@ export class BattleScene extends Phaser.Scene {
     if (side === 'party' && unit.signatureId) {
       const barWidth = width - 22;
       const ready = unit.signatureCharge >= unit.signatureChargeMax;
+      const signatureText = signatureStatusText(unit);
+      if (ready) {
+        this.layer.add(this.add.rectangle(x, y + 60, barWidth + 8, 13, 0xffda68, 0.14)
+          .setStrokeStyle(1, 0xffda68, 0.8));
+      }
       this.layer.add(this.add.rectangle(x, y + 60, barWidth, 5, 0x0a0f18, 0.96).setOrigin(0.5));
       this.layer.add(this.add.rectangle(
         x - barWidth / 2,
@@ -847,9 +943,9 @@ export class BattleScene extends Phaser.Scene {
         5,
         ready ? 0xffda68 : 0x9f6bff
       ).setOrigin(0, 0.5));
-      this.layer.add(this.add.text(x, y + 63, ready ? 'SIGNATUR BEREIT' : `${unit.signatureCharge}%`, {
+      this.layer.add(this.add.text(x, y + 63, signatureText ?? `${unit.signatureCharge}%`, {
         fontFamily: 'sans-serif',
-        fontSize: '8px',
+        fontSize: '7px',
         fontStyle: 'bold',
         color: ready ? '#ffe9a8' : '#cbb9ff'
       }).setOrigin(0.5, 0));
