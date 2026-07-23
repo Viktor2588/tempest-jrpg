@@ -25,6 +25,7 @@ import {
 import { discoverRangaTravelFlags } from '../systems/rangaTravel';
 import { acknowledgeMilestone, getPendingMilestone } from '../systems/milestones';
 import { getMapDiscoveries, getMapDiscoveryAt } from '../systems/mapDiscovery';
+import { buildQuestTracker } from '../systems/questTracker';
 import { createSceneRunner, type SceneScript, type SceneStep } from '../systems/sceneScript';
 import { acknowledgeScene, getPendingScene } from '../data/scenes';
 import { acknowledgeBondScene, bondSceneToScript, getPendingBondScene } from '../systems/bondScenes';
@@ -68,6 +69,7 @@ export class OverworldScene extends Phaser.Scene {
   private stepCount = 0;
   private minimapLayer?: Phaser.GameObjects.Container;
   private minimapPlayerDot?: Phaser.GameObjects.Arc;
+  private questTrackerLayer?: Phaser.GameObjects.Container;
   private minimapOriginX = 0;
   private minimapOriginY = 0;
   private minimapCell = 4;
@@ -149,6 +151,8 @@ export class OverworldScene extends Phaser.Scene {
     this.drawWorldObjects();
     this.minimapLayer = undefined; // wiederverwendete Instanz: alter Container ist zerstört.
     this.drawMinimap();
+    this.questTrackerLayer = undefined;
+    this.drawQuestTracker();
 
     // Nach Rückkehr aus Dialog/Shop/Menü (scene.resume) den Save neu laden und die
     // Story-Marker neu zeichnen, damit freigeschaltete Encounter sofort sichtbar sind.
@@ -252,12 +256,11 @@ export class OverworldScene extends Phaser.Scene {
 
     const hud = layoutOverworldHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
     const touchControls = layoutOverworldTouchControls({ width: GAME_WIDTH, height: GAME_HEIGHT });
-    const panelX = 16;
+    const panelX = 360;
     const panelW = 330;
     const panelH = 44 + hints.length * 44;
-    // Oben-links verankern: die Touch-Controls (Steuerkreuz unten links,
-    // Interaktions-Button unten rechts) bleiben frei statt vom Panel verdeckt.
-    const panelY = 112;
+    // Zwischen Ziel-HUD und Minimap: die Touch-Controls unten bleiben frei.
+    const panelY = 14;
     layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x0b1220, 0.88)
       .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.7));
     layer.add(this.add.text(panelX + 14, panelY + 10, 'Onboarding', {
@@ -371,6 +374,7 @@ export class OverworldScene extends Phaser.Scene {
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
+    this.drawQuestTracker();
     this.drawOnboardingHints();
     if (this.maybePlayScene()) return;
     if (this.maybeShowMilestone()) return;
@@ -633,23 +637,84 @@ export class OverworldScene extends Phaser.Scene {
         color: '#f5fbff'
       }
     ).setOrigin(0.5).setStroke('#04111d', 3));
+  }
+
+  // Eigenständiger, stets sichtbarer Quest-Tracker: Das Ziel bleibt lesbar, statt
+  // als kleine Zusatzzeile unter der Minimap mit Regionsinfos zu konkurrieren.
+  private drawQuestTracker(): void {
+    if (this.questTrackerLayer) this.questTrackerLayer.removeAll(true);
+    else this.questTrackerLayer = this.add.container(this.hudOffset.x, this.hudOffset.y).setScrollFactor(0).setDepth(21);
+    const layer = this.questTrackerLayer;
+    const tracker = buildQuestTracker(createWorldState(this.save));
+    const panelX = 16;
+    const panelY = 14;
+    const panelW = 328;
+    const objectiveH = 104;
+    const sideRowH = 38;
+    const sideH = 34 + Math.max(1, tracker.sideQuests.length) * sideRowH
+      + (tracker.hiddenSideQuestCount > 0 ? 18 : 0);
+    const panelH = objectiveH + 8 + sideH;
+
+    layer.add(this.add.rectangle(panelX, panelY, panelW, panelH, 0x09121f, 0.91)
+      .setOrigin(0, 0).setStrokeStyle(2, 0x68d7ff, 0.78));
+    layer.add(this.add.text(panelX + 14, panelY + 10, 'AKTUELLES ZIEL', {
+      fontFamily: 'sans-serif', fontSize: '11px', color: '#8fdcff', fontStyle: 'bold'
+    }));
+
+    const objective = tracker.objective;
     if (objective) {
-      const objectiveMap = objective.mapId ? getMapName(objective.mapId, this.save.flags) : 'unbekannt';
-      const location = objective.locationName ?? objective.stepTitle;
-      const suffix = objective.status === 'visible'
-        ? objective.mapId === this.mapId ? '◆' : objectiveMap
-        : 'noch gesperrt';
-      layer.add(this.add.text(
-        this.minimapOriginX + model.width / 2,
-        bannerY + bannerH + 5,
-        `Ziel: ${location} · ${suffix}`,
-        {
-          fontFamily: 'sans-serif',
-          fontSize: '10px',
-          color: objective.status === 'visible' ? '#ffd6ff' : '#9fb2cc',
-          wordWrap: { width: Math.max(144, model.width + 28) }
-        }
-      ).setOrigin(0.5, 0));
+      const location = objective.locationName ?? 'Kartenanker fehlt';
+      const route = objective.status === 'visible'
+        ? objective.mapId === this.mapId ? `◆ ${location}` : `→ ${location}`
+        : `⌁ ${objective.hint}`;
+      layer.add(this.add.text(panelX + 14, panelY + 29, objective.questTitle, {
+        fontFamily: 'serif', fontSize: '18px', color: '#f4d782',
+        wordWrap: { width: panelW - 28 }
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 53, objective.stepTitle, {
+        fontFamily: 'sans-serif', fontSize: '14px', color: '#f4f8ff',
+        wordWrap: { width: panelW - 28 }
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 77, route, {
+        fontFamily: 'sans-serif', fontSize: '12px',
+        color: objective.status === 'visible' ? '#ffd6ff' : '#b4c2d7',
+        wordWrap: { width: panelW - 28 }
+      }));
+    } else {
+      layer.add(this.add.text(panelX + 14, panelY + 38, 'Kein aktives Hauptziel', {
+        fontFamily: 'serif', fontSize: '18px', color: '#f4d782'
+      }));
+      layer.add(this.add.text(panelX + 14, panelY + 66, 'Erkunde die Welt oder sprich mit einem Quest-Marker.', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#b4c2d7', wordWrap: { width: panelW - 28 }
+      }));
+    }
+
+    const sideY = panelY + objectiveH + 8;
+    layer.add(this.add.rectangle(panelX + 1, sideY, panelW - 2, sideH, 0x142238, 0.88).setOrigin(0, 0));
+    layer.add(this.add.text(panelX + 14, sideY + 8, 'NEBENQUESTS', {
+      fontFamily: 'sans-serif', fontSize: '11px', color: '#9ff0d0', fontStyle: 'bold'
+    }));
+    if (tracker.sideQuests.length === 0) {
+      layer.add(this.add.text(panelX + 14, sideY + 27, 'Keine aktiven Nebenquests', {
+        fontFamily: 'sans-serif', fontSize: '12px', color: '#b4c2d7'
+      }));
+    } else {
+      tracker.sideQuests.forEach((quest, index) => {
+        const rowY = sideY + 27 + index * sideRowH;
+        layer.add(this.add.text(panelX + 14, rowY, `• ${quest.title}`, {
+          fontFamily: 'sans-serif', fontSize: '13px', color: '#e9f8ef',
+          wordWrap: { width: panelW - 28 }
+        }));
+        layer.add(this.add.text(panelX + 25, rowY + 17, quest.stepTitle, {
+          fontFamily: 'sans-serif', fontSize: '11px', color: '#a9cbbd',
+          wordWrap: { width: panelW - 39 }
+        }));
+      });
+    }
+    if (tracker.hiddenSideQuestCount > 0) {
+      layer.add(this.add.text(panelX + panelW - 14, sideY + sideH - 14, `+${tracker.hiddenSideQuestCount} im Questlog`, {
+        fontFamily: 'sans-serif', fontSize: '10px', color: '#a9cbbd'
+      }).setOrigin(1, 0));
     }
   }
 
