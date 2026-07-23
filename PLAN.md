@@ -40,9 +40,18 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[ ]` **Phase 273 — Mehr Story-Content**
+- `[x]` **Phase 273 — Mehr Story-Content**
+  - Worktree: `/worktree/tempest-phase-273-story-content`
+  - Branch: `phase-273-story-content`
   - Problem: Story-Dichte und Zwischenbeats sind dünn.
   - Ziel: mehr Dialoge/Szenen auf Haupt- und Nebenpfaden.
+  - Abnahme: 5 neue Zwischenbeats im Hauptpfad (Rat, Hain, Ahnensiegel, Grenze,
+    Vorhutspur) sowie 5 Abschlussmomente auf Nebenpfaden; getrennte Szenen-Tracks
+    verhindern, dass ein Nebenauftrag ungespielte Haupt- oder andere Nebenbeats verwirft.
+  - Checks: `bun run typecheck`, `bun run test` (102 Dateien, 878 Tests) und
+    `bun run build` erfolgreich. Browser-Smoke (`game.smoke.spec.ts`, Desktop,
+    1 Worker) lief bis zum 45-s-Timeout beim Phaser-Interaktionsklick
+    und war daher nicht erfolgreich.
 
 - `[ ]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern**
   - Ziel: mehr Bond-Szenen pro Kern-Paar, Unlock-Signale.
