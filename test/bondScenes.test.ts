@@ -7,6 +7,7 @@ import {
 } from '../src/systems/progression';
 import {
   acknowledgeBondScene,
+  bondSceneUnlockText,
   bondSceneToScript,
   bondScenePlayedFlag,
   getPendingBondScene
@@ -24,6 +25,18 @@ function maxPointsFor(relationshipId: string): number {
 }
 
 describe('Bindungs-Szenen (Phase 98)', () => {
+  it('deckt für jedes Kernpaar jede Bindungsstufe mit genau einer Szene ab', () => {
+    for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
+      const sceneLevels = relationship.scenes
+        .map((scene) => scene.requiredLevel)
+        .sort((left, right) => left - right);
+      const relationshipLevels = relationship.levels
+        .map((level) => level.level)
+        .sort((left, right) => left - right);
+      expect(sceneLevels).toEqual(relationshipLevels);
+    }
+  });
+
   it('liefert keine Szene, solange die Bindungsstufe nicht erreicht ist', () => {
     const state = createProgressionState();
     // Frisch: alle Beziehungen auf Stufe 0 → keine Szene faellig.
@@ -74,6 +87,43 @@ describe('Bindungs-Szenen (Phase 98)', () => {
         // Erzaehler-/Sprecher-Beats brauchen keine bekannten Akteure → keine Fehler.
         expect(validateSceneScript(script, context)).toEqual([]);
       }
+    }
+  });
+
+  it('zeigt nach jeder Szene die erreichte Stufe und ihren Freischaltvorteil', () => {
+    for (const relationship of RELATIONSHIPS as readonly RelationshipDefinition[]) {
+      for (const scene of relationship.scenes) {
+        const level = relationship.levels.find((candidate) => candidate.level === scene.requiredLevel)!;
+        const script = bondSceneToScript(relationship, scene);
+        expect(bondSceneUnlockText(relationship, scene)).toContain(`Bindungsstufe ${level.level} erreicht`);
+        expect(script.summary?.body).toContain(`Freigeschaltet:`);
+        expect(script.summary?.body).toContain(level.title);
+      }
+    }
+  });
+
+  it('spielt die neuen Mittelstufen als eigene Dialogmomente aus', () => {
+    const expandedSceneIds = [
+      'rimuru-gobta-vanguard',
+      'rigurd-ledger-circle',
+      'rigurd-tempest-voice',
+      'gobta-ranga-moon-sprint',
+      'shuna-tempest-market-thread',
+      'shuna-tempest-shrine-vow',
+      'veldora-storm-echo',
+      'benimaru-command-fire',
+      'shion-shield-promise',
+      'milim-honey-trail',
+      'hakurou-benimaru-rain-form',
+      'souei-shion-crossing'
+    ];
+    const scenes = (RELATIONSHIPS as readonly RelationshipDefinition[])
+      .flatMap((relationship) => relationship.scenes);
+
+    for (const id of expandedSceneIds) {
+      const scene = scenes.find((candidate) => candidate.id === id);
+      expect(scene?.dialogue?.length).toBeGreaterThanOrEqual(3);
+      expect(scene?.unlockText?.trim()).not.toBe('');
     }
   });
 });

@@ -66,6 +66,7 @@ export type {
   RelationshipDefinition,
   RelationshipLevelDefinition,
   RelationshipSceneDefinition,
+  RelationshipSceneLine,
   SkillTreeDefinition,
   SkillTreeNodeDefinition
 } from './progression';
