@@ -1,4 +1,5 @@
 export type MenuTab = 'party' | 'inventory' | 'equipment' | 'status' | 'growth' | 'quests' | 'codex' | 'travel';
+export type MenuTabGroup = 'party' | 'adventure';
 
 export type QuestStatusFilter = 'active' | 'completed';
 
@@ -16,18 +17,31 @@ export const CODEX_MODES: ReadonlyArray<{ id: CodexMode; label: string; width: n
   { id: 'handbook', label: '📖 Handbuch', width: 92 }
 ];
 
-export const TABS: ReadonlyArray<{ id: MenuTab; label: string }> = [
-  { id: 'party', label: '1 Party' },
-  { id: 'inventory', label: '2 Inventar' },
-  { id: 'equipment', label: '3 Ausrüstung' },
-  { id: 'status', label: '4 Status' },
-  { id: 'growth', label: '5 Talente' },
-  { id: 'quests', label: '6 Quests' },
-  { id: 'codex', label: '7 Codex' },
-  { id: 'travel', label: '8 Ranga' }
+export const TAB_GROUPS: ReadonlyArray<{ id: MenuTabGroup; label: string }> = [
+  { id: 'party', label: 'Gruppe' },
+  { id: 'adventure', label: 'Abenteuer' }
+];
+
+export const TABS: ReadonlyArray<{ id: MenuTab; label: string; group: MenuTabGroup }> = [
+  { id: 'party', label: '1 Party', group: 'party' },
+  { id: 'inventory', label: '2 Inventar', group: 'party' },
+  { id: 'equipment', label: '3 Ausrüstung', group: 'party' },
+  { id: 'status', label: '4 Status', group: 'party' },
+  { id: 'growth', label: '5 Talente', group: 'party' },
+  { id: 'quests', label: '6 Quests', group: 'adventure' },
+  { id: 'codex', label: '7 Codex', group: 'adventure' },
+  { id: 'travel', label: '8 Ranga', group: 'adventure' }
 ];
 
 export const CHARACTER_TABS: ReadonlySet<MenuTab> = new Set<MenuTab>(['inventory', 'equipment', 'status', 'growth']);
+
+export function tabGroupFor(tab: MenuTab): MenuTabGroup {
+  return TABS.find((candidate) => candidate.id === tab)?.group ?? 'party';
+}
+
+export function tabsForGroup(group: MenuTabGroup): ReadonlyArray<typeof TABS[number]> {
+  return TABS.filter((tab) => tab.group === group);
+}
 
 export const TAB_DESCRIPTIONS: Readonly<Record<MenuTab, string>> = {
   party: 'Überblick über deine aktive Gruppe.',

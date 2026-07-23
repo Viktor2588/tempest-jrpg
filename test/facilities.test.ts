@@ -31,6 +31,9 @@ describe('Einrichtungs-Daten', () => {
         expect(VALID_ROLES).toContain(role);
       }
       expect(facility.output.perStaffPerLevel).toBeGreaterThan(0);
+      expect(facility.growth.map((detail) => detail.level)).toEqual([1, 2, 3]);
+      expect(new Set(facility.growth.map((detail) => detail.title)).size).toBe(3);
+      expect(facility.growth.every((detail) => detail.description.length > 20)).toBe(true);
       if (facility.output.kind === 'item') {
         expect(itemIds.has(facility.output.itemId), `Ausgabe-Item '${facility.output.itemId}' unbekannt`).toBe(true);
       }
@@ -83,6 +86,22 @@ describe('buildFacilityOverview', () => {
     const awakenedForge = awakened.facilities.find((view) => view.facility.id === forge.id)!;
     expect(awakenedForge.staff[0]).toContain('✦');
     expect(awakenedForge.amountPerCycle).toBe((handwerker.length + 2) * 1 * forge.output.perStaffPerLevel);
+  });
+
+  it('zeigt für jede Wachstumsstufe eine eigene Facility-Ausbaustufe', () => {
+    const forge = FACILITIES.find((facility) => facility.id === 'forge')!;
+    const handwerker = residentIdsForRole('Handwerk');
+    const camp = buildFacilityOverview(handwerker, CAMP_FLAGS).facilities.find((view) => view.facility.id === 'forge')!;
+    const village = buildFacilityOverview(handwerker, { 'story.council.ready': true })
+      .facilities.find((view) => view.facility.id === 'forge')!;
+    const city = buildFacilityOverview(handwerker, {
+      'story.kijin.named': true,
+      'faction.dwargon.allied': true
+    }).facilities.find((view) => view.facility.id === 'forge')!;
+
+    expect(camp.growth).toEqual(forge.growth[0]);
+    expect(village.growth).toEqual(forge.growth[1]);
+    expect(city.growth).toEqual(forge.growth[2]);
   });
 
   // Phase 179 — Diplomatie speist die Produktion: `trusted`-Handelsrouten heben den Ausstoß.

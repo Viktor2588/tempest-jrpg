@@ -589,6 +589,11 @@ table because worktree state changes faster than the knowledge document.
 
 ```yaml
 completed_milestones:
+  phase_274:
+    - Battle-balance pass for the three marquee story bosses: Mordrahn receives +40 HP/+4 attack/+6 magic, Geld +60 HP/+6 attack/+2 defense/+6 magic/+2 spirit, and Ifrit +60 HP/+5 attack/+2 defense/+6 magic/+2 spirit. The grind-free, carryover story route remains winnable for predator, sage, and mimic Rimuru branches, but leaves materially less party HP.
+    - The formerly report-only boss benchmark is now enforced for Mordrahn, Geld, and Ifrit. Target-level and +8-level-overgrind scenarios require minimum average turn counts, keeping these centerpiece fights from becoming click-through encounters without imposing an artificial benchmark HP/loss target.
+    - `test/balanceHarness.test.ts` adds deterministic marquee-boss carryover guardrails for all three Rimuru branches: minimum turns and maximum remaining party HP while retaining the existing all-story corridor and win checks.
+    - Worktree: `/worktree/tempest-phase-274-balance-pass` (branch `phase-274-balance-pass`).
   phase_140:
     - Test infrastructure overhaul for faster feedback: Vitest Thread-Pool with CI limits + 4-way sharding on GitHub Actions; Playwright workers=2 + only desktop+mobile for smoke; full Bun + Playwright browser caching in CI.
     - Path-based skipping (docs/md changes skip E2E).
@@ -1145,6 +1150,45 @@ test/release.test.ts
 ```
 
 ## 13. Phase Notes
+
+### Phase 272 - Visuelle Bugs beim Laufen
+
+- Spieler wird jetzt als `Container` (Schatten + Sprite) gezeichnet und via `overworldActorDepth(tileY, mapHeight)` (~1–2) über `worldLayer` (Depth 0, inkl. Phase-281-Facility-Districts) und unter Tint (5)/HUD (10+) einsortiert, nach Kartenzeile; Depth wird bei Spawn und jedem Schritt neu gesetzt.
+- Facing spiegelt das rechts-orientierte Slime-Sprite nur bei Linkslauf (`overworldPlayerFlipX`); Walk-Bob (`OVERWORLD_WALK_BOB_PX`) hebt Sprite pro Schritt und staucht den Bodenschatten (Yoyo-Tween über halbe Move-Dauer).
+- Validierung: `bun run typecheck`, `bun run test` (898 nach Merge), `bun run build`; Facing/Bob/Depth-Assertions in `test/overworld.test.ts` + `test/overworldArt.test.ts`.
+
+### Phase 278 - Quest-Tracker & Zielklarheit (HUD)
+
+- Dediziertes, immer sichtbares Overworld-HUD oben-links: **AKTUELLES ZIEL** (priorisiertes Hauptziel mit Quest-/Schritt-Titel und Routen-Marker `◆` on-map / `→` andere Karte / `⌁` locked-hint) plus **NEBENQUESTS** (gekappte Liste aktiver Nebenquests, `+N im Questlog`-Overflow-Hinweis).
+- Reine Logik in `src/systems/questTracker.ts` (`buildQuestTracker`) reused `buildQuestLog` + `getTrackedQuestObjective` statt Quest-State neu abzuleiten. `OverworldScene` bekommt `questTrackerLayer`/`drawQuestTracker`, Onboarding-Panel nach rechts verschoben, alte inline „Ziel:"-Minimap-Zeile entfernt.
+- Validierung: `bun run typecheck`, `bun run test` (896 nach Merge), `bun run build`; neue `test/questTracker.test.ts` (Ziel/Neben-Split, Empty-State, Cap + Overflow).
+
+### Phase 282 - Nebeninhalte & optionale Regionen
+
+- 3 optionale off-route Loot-Quests (Phase-154-Muster: Annahme-Dialog → Jagd-Encounter → Report-Dialog mit Gear-Belohnung), je in eine bestehende Nebenregion gelegt statt neuer Karte (vermeidet den von `regionBannerArt.test.ts` erzwungenen Banner-WebP + Preload). Rein datengetrieben in `src/data/world.ts`.
+- `stormpeak-hunt` (Geisterschrein-Hochland, Gate `story.act1.completed`), `blumund-raiders-hunt` (Blumund, Gate `faction.orcs.joined`), `academy-cleansing-hunt` (Freiheitsakademie, Gate `story.shizu.vow`). Jagd-Encounter reuse bestehende Regionsgegner, off-route (kein `region.encounterIds`) → Balance-Harness unberührt.
+- Validierung: `bun run typecheck`, `bun run test` (893 nach Merge), `bun run build`; neue `test/sideContent282.test.ts` (Datenintegrität, Gear-Reward, begehbare Jagd-Kachel, Flag/Quest-Wiring, Off-route-Garantie).
+
+### Phase 283 - Post-Game / New-Game+ Zyklus
+
+- NG+-Kern (EndingScene + Profil `endingsSeen`/`newGamePlusCount` + `startNewGamePlus`) existierte bereits; diese Phase macht den Zyklus im Save persistent und wirksam. Neues Feld `progression.newGamePlusCycle` (0 = Erstdurchgang), von `startNewGamePlus` je Durchgang +1 hochgezählt und über den mitgetragenen Progression-Zustand akkumuliert.
+- `enemyScaling` nimmt optional `newGamePlusCycle` (Default 0 → Erstdurchgang und Alt-Saves unverändert) und eskaliert Ziellevel + Deckel um 5 je Zyklus; BattleScene reicht `save.progression.newGamePlusCycle` durch. Rückwärtskompatible Add-Feld-Migration. Deckt Feedback „overgrind darf nicht trivialisieren" auf der Post-Game-Schleife ab.
+- Validierung: `bun run typecheck`, `bun run test` (888 Tests nach Merge), `bun run build`; neue `test/newGamePlus.test.ts` (Migration/Roundtrip, Increment, Eskalation + Zyklus-0-Regression).
+
+### Phase 281 - Siedlungs-/Facility-Wachstum sichtbar
+
+- Facility-Ausbaustufen und begehbare Distrikt-Silhouetten für Lager/Dorf/Stadt; `tempestFacilityArt` rendert Wachstumsstufen, Menü- und Overworld-Szene spiegeln den Fortschritt.
+- Validierung: `bun run typecheck`, `bun run test` (882 Unit-Tests nach Merge), `bun run build`; Desktop-Chromium-Tempest-Smoke.
+
+### Phase 280 - Kampf-Präsentation & Feedback
+
+- Treffer zeigen signierte Schadens- und Treffer-/K.-o.-Labels; Großtreffer warnen mit sichtbarer Block-Aufforderung ohne unbekannte Skillnamen zu spoilern; benannte Signaturen erhalten beim Auslösen Banner, Flash und VFX.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`; Chromium-Kampf-Smoke (Titel → Overworld → Kampf).
+
+### Phase 273 - Mehr Story-Content
+
+- 5 neue Zwischenbeats im Hauptpfad (Rat, Hain, Ahnensiegel, Grenze, Vorhutspur) plus 5 Abschlussmomente auf Nebenpfaden; getrennte Szenen-Tracks verhindern, dass ein Nebenauftrag ungespielte Beats verwirft.
+- Validierung: `bun run typecheck`, `bun run test`, `bun run build`.
 
 ### Phase 177 - Arena-Vorstand-Porträt
 
@@ -2480,6 +2524,25 @@ test/release.test.ts
   Typecheck, 873 Unit-Tests inklusive Balance-Harness, Build, fokussiertem
   Desktop-Chromium-Smoke (1/1) und vollstaendig gruener Branch-CI inklusive
   126 Browser-Smokes.
+
+### Phase 271 - Menue entschlacken / UX-Ueberarbeitung
+
+- Branch/Worktree: `phase-271-menu-declutter` in
+  `/worktree/tempest-phase-271-menu-declutter`.
+- Die acht gleichrangigen Menuepunkte sind jetzt in die klaren Bereiche
+  **Gruppe** (Party, Inventar, Ausruestung, Status, Talente) und
+  **Abenteuer** (Quests, Codex, Ranga) gegliedert. Es sind damit hoechstens
+  fuenf kontextuelle Untertabs gleichzeitig sichtbar.
+- Der Kopf zeigt den kurzen Breadcrumb des aktiven Bereichs statt einer
+  langen Standardbeschreibung; kontextuelle Statusmeldungen bleiben
+  unveraendert. Die direkten Tastaturkuerzel `1` bis `8` bleiben erhalten.
+- Die pure Layout-Regression prueft Bereichszuordnung, Untertab-Reihenfolge
+  und die kollisionsfreie Geometrie; Browser-Smokes waehlen den
+  Abenteuerbereich explizit, bevor sie Quest-, Codex- oder Ranga-Untertabs
+  verwenden.
+- Validiert mit `git diff --check`, Typecheck, 873 Unit-Tests, Production
+  Build und isoliertem Desktop-Chromium-Smoke fuer den Wechsel
+  Gruppe → Abenteuer → Quests.
 
 ### Phase 276 - Audio-Erweiterung
 

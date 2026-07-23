@@ -72,6 +72,7 @@ import {
   MENU_PARTY_LAYOUT,
   MENU_TAB_ROW,
   menuTabButtonX,
+  menuTabGroupButtonX,
   paginateMenuList,
   type MenuListColumn,
   type MenuListPage
@@ -86,8 +87,11 @@ import type { MenuTab, CodexMode, QuestStatusFilter } from '../ui/menu/MenuTypes
 import {
   CODEX_MODES,
   TABS,
+  TAB_GROUPS,
   CHARACTER_TABS,
-  TAB_DESCRIPTIONS
+  TAB_DESCRIPTIONS,
+  tabGroupFor,
+  tabsForGroup
 } from '../ui/menu/MenuTypes';
 import type { IMenuTabView } from '../ui/menu/IMenuTabView';
 import { QuestsTabView } from '../ui/menu/QuestsTabView';
@@ -179,23 +183,7 @@ export class MenuScene extends Phaser.Scene {
     const digitKeys = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
     digitKeys.forEach((key, idx) => {
       if (idx < TABS.length) {
-        this.input.keyboard?.on(`keydown-${key}`, () => {
-          const prev = this.tabViews.get(this.selectedTab);
-          if (prev?.onActivated) prev.onActivated();
-          this.selectedTab = TABS[idx].id;
-          this.message = TAB_DESCRIPTIONS[this.selectedTab];
-          this.codexPage = 0;
-          this.listPages = {};
-          this.questPage = 0;
-          this.questStatus = 'active';
-          this.selectedQuestId = null;
-          this.selectedTalentNodeId = null;
-          this.showForge = false;
-          this.initTabViewsIfNeeded();
-          const next = this.tabViews.get(this.selectedTab);
-          if (next?.onActivated) next.onActivated();
-          this.refresh();
-        });
+        this.input.keyboard?.on(`keydown-${key}`, () => this.selectTab(TABS[idx].id));
       }
     });
     this.refresh();
@@ -231,38 +219,35 @@ export class MenuScene extends Phaser.Scene {
       color: '#e9c56c'
     }));
     const resources = `${view.gold} Gold · ${this.save.progression.magicules} Magicules · ${this.save.progression.souls} Seelen`;
-    this.layer.add(this.add.text(24, 52, `${resources} · ${this.message}`, {
+    const selectedGroup = tabGroupFor(this.selectedTab);
+    const groupLabel = TAB_GROUPS.find((group) => group.id === selectedGroup)?.label ?? '';
+    const tabLabel = TABS.find((tab) => tab.id === this.selectedTab)?.label.replace(/^\d+\s/, '') ?? '';
+    const context = this.message === TAB_DESCRIPTIONS[this.selectedTab]
+      ? `${groupLabel} › ${tabLabel}`
+      : this.message;
+    this.layer.add(this.add.text(24, 52, `${resources} · ${context}`, {
       fontFamily: 'sans-serif',
       fontSize: '13px',
       color: '#9fb2cc'
     }));
     this.button(GAME_WIDTH - 126, 34, 104, 'Schließen', () => this.close(), 0x3a2230);
 
-    TABS.forEach((tab, index) => {
+    TAB_GROUPS.forEach((group, index) => {
+      const isActive = selectedGroup === group.id;
+      this.button(menuTabGroupButtonX(index), MENU_TAB_ROW.y, 100, group.label, () => {
+        const firstTab = tabsForGroup(group.id)[0];
+        if (firstTab) this.selectTab(firstTab.id);
+      }, isActive ? 0x30506f : 0x152238, `Menübereich: ${group.label}`);
+    });
+
+    const visibleTabs = tabsForGroup(selectedGroup);
+    visibleTabs.forEach((tab, index) => {
       const isActive = this.selectedTab === tab.id;
       const fill = isActive ? 0x30506f : 0x1b2940;
-      this.button(menuTabButtonX(index, TABS.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => {
-        playSfxProcedural('menu');
-        const prev = this.tabViews.get(this.selectedTab);
-        if (prev?.onActivated) prev.onActivated();
-        this.selectedTab = tab.id;
-        this.message = TAB_DESCRIPTIONS[tab.id];
-        this.codexPage = 0;
-        this.listPages = {};
-        this.questPage = 0;
-        this.questStatus = 'active';
-        this.selectedQuestId = null;
-        this.selectedTalentNodeId = null;
-        this.showForge = false;
-        this.initTabViewsIfNeeded();
-        const next = this.tabViews.get(this.selectedTab);
-        if (next?.onActivated) next.onActivated();
-        this.refresh();
-      }, fill, TAB_DESCRIPTIONS[tab.id]);
+      this.button(menuTabButtonX(index, visibleTabs.length), MENU_TAB_ROW.y, MENU_TAB_ROW.buttonWidth, tab.label, () => this.selectTab(tab.id), fill, TAB_DESCRIPTIONS[tab.id]);
 
-      // Bessere aktive Tab-Hervorhebung: kleiner Unterstrich für visuelle Klarheit
       if (isActive) {
-        const x = menuTabButtonX(index, TABS.length);
+        const x = menuTabButtonX(index, visibleTabs.length);
         const w = MENU_TAB_ROW.buttonWidth;
         const underline = this.add.rectangle(x + w/2, MENU_TAB_ROW.y + 24, w - 8, 3, 0xe9c56c)
           .setOrigin(0.5, 0.5);
@@ -296,6 +281,24 @@ export class MenuScene extends Phaser.Scene {
     // Phase 145 delegation: keep direct references so TS sees the methods as used
     // (actual calls happen via (scene as any) from the TabView classes)
     if (false) { void this.drawQuestLog; void this.drawCodex; void this.drawRangaTravel; void this.drawInventory; void this.drawEquipment; void this.drawStatus; void this.drawGrowth; }
+  }
+
+  private selectTab(tab: MenuTab): void {
+    playSfxProcedural('menu');
+    const previous = this.tabViews.get(this.selectedTab);
+    previous?.onActivated();
+    this.selectedTab = tab;
+    this.message = TAB_DESCRIPTIONS[tab];
+    this.codexPage = 0;
+    this.listPages = {};
+    this.questPage = 0;
+    this.questStatus = 'active';
+    this.selectedQuestId = null;
+    this.selectedTalentNodeId = null;
+    this.showForge = false;
+    this.initTabViewsIfNeeded();
+    this.tabViews.get(tab)?.onActivated();
+    this.refresh();
   }
 
   private drawMemberList(view: MenuView): void {
@@ -1584,19 +1587,25 @@ export class MenuScene extends Phaser.Scene {
       this.save.flags
     );
     if (bannerKey) this.layer.add(addRegionBannerImage(this, 836, 172, bannerKey, 104, 40));
+    [1, 2, 3].forEach((level) => {
+      const active = overview.level >= level;
+      this.layer.add(this.add.circle(700 + level * 20, 172, 6, active ? 0x8dffc2 : 0x34445c, 1)
+        .setStrokeStyle(1, active ? 0xd7ffe6 : 0x7185a1, 0.9));
+    });
 
     overview.facilities.forEach((view, index) => {
       const y = layout.firstY + index * layout.rowHeight;
       this.panel(layout.left, y, layout.width, layout.cardHeight);
       const heading = view.unlocked
-        ? `${view.facility.name} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
+        ? `${view.facility.name} · ${view.growth?.title} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
         : `${view.facility.name} (verschlossen)`;
       this.layer.add(this.add.text(layout.textLeft, y + layout.headingOffsetY, heading, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: view.amountPerCycle > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const staffText = view.staff.length > 0 ? view.staff.join(', ') : 'unbesetzt';
-      this.layer.add(this.add.text(layout.textLeft, y + layout.bodyOffsetY, `${view.facility.description}  ·  ${staffText}`, {
+      const facilityText = view.growth?.description ?? 'Die Baustelle erwacht mit der Gründung von Tempest.';
+      this.layer.add(this.add.text(layout.textLeft, y + layout.bodyOffsetY, `${facilityText}  ·  ${staffText}`, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: layout.textWidth }
       }));
     });

@@ -274,6 +274,12 @@ export type FacilityOutput =
   | { readonly kind: 'item'; readonly itemId: string; readonly perStaffPerLevel: number }
   | { readonly kind: 'gold'; readonly perStaffPerLevel: number };
 
+export interface FacilityGrowthDetail {
+  readonly level: 1 | 2 | 3;
+  readonly title: string;
+  readonly description: string;
+}
+
 export interface FacilityDefinition {
   readonly id: string;
   readonly name: string;
@@ -281,6 +287,9 @@ export interface FacilityDefinition {
   // Welche Bewohner-Rollen diese Einrichtung besetzen (automatische Zuweisung).
   readonly staffRoles: readonly ResidentRole[];
   readonly output: FacilityOutput;
+  // Sichtbarer Ausbau pro Tempest-Stufe. Die Produktionsregel bleibt separat,
+  // damit Darstellung und Balance beide dieselben drei Stufen abbilden.
+  readonly growth: readonly [FacilityGrowthDetail, FacilityGrowthDetail, FacilityGrowthDetail];
 }
 
 export interface CharacterDefinition {

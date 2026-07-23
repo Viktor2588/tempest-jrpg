@@ -31,7 +31,7 @@ test('Tempests Jungstadt lädt Kijin-/Dwargon-Banner und Stadtboden', async ({ p
   await expect(canvas).toBeVisible();
   const box = await canvas.boundingBox();
   if (!box) throw new Error('Game canvas not found');
-  await canvas.click({ position: { x: box.width / 2, y: box.height * 280 / 540 } });
+  await canvas.click({ position: { x: box.width / 2, y: box.height * 400 / 540 } });
   await page.waitForTimeout(350); // reduced; stabilization via canvas checks elsewhere
 
   const loadedAssets = await page.evaluate(() => (
