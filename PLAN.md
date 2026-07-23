@@ -44,10 +44,14 @@ Status:
 - `[ ]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions)**
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
 
-- `[ ]` **Phase 282 — Nebeninhalte & optionale Regionen**
+- `[~]` **Phase 282 — Nebeninhalte & optionale Regionen (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-282-side-content`
+  - Branch: `phase-282-side-content`
   - Ziel: 2–4 lohnende Nebenpfade.
 
-- `[ ]` **Phase 283 — Post-Game / New-Game+-Grundlage**
+- `[~]` **Phase 283 — Post-Game / New-Game+-Grundlage (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-283-postgame`
+  - Branch: `phase-283-postgame`
   - Ziel: leichte Post-Game-Schleife / NG+-Gerüst.
 
 - `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
