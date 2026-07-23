@@ -96,6 +96,7 @@ export type {
   EnemyDrop,
   EquipmentSlot,
   FacilityDefinition,
+  FacilityGrowthDetail,
   FacilityOutput,
   FactionDefinition,
   FactionThreshold,

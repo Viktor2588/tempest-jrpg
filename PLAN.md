@@ -66,7 +66,7 @@ Status:
 - `[ ]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions)**
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
 
-- `[ ]` **Phase 281 — Siedlungs-/Facility-Wachstum spürbar machen**
+- `[x]` **Phase 281 — Siedlungs-/Facility-Wachstum spürbar machen** *(abgenommen in `/worktree/tempest-phase-281-facility-growth`, Branch `phase-281-facility-growth`: Facility-Ausbaustufen und begehbare Distrikt-Silhouetten für Lager/Dorf/Stadt; Typecheck, 879 Unit-Tests, Build und Desktop-Chromium-Tempest-Smoke bestanden)*
   - Ziel: sichtbare Fortschrittsstufen für Tempest-Wachstum.
 
 - `[ ]` **Phase 282 — Nebeninhalte & optionale Regionen**
