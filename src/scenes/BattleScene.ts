@@ -266,6 +266,10 @@ export class BattleScene extends Phaser.Scene {
         this.floatNumber(pos, '+' + event.hpDelta, '#8dffc2');
         if (!reduced) this.healSpark(pos);
       }
+      if (event.mpDelta !== 0) {
+        const label = event.mpDelta > 0 ? `MP +${event.mpDelta}` : `MP ${event.mpDelta}`;
+        this.floatNumber({ x: pos.x + 26, y: pos.y + 22 }, label, '#78c7ff');
+      }
       if (event.died && !reduced) this.poof(pos);
     }
     const dmg = totalDamage(events);

@@ -2493,6 +2493,25 @@ test/release.test.ts
 - Validiert mit `git diff --check`, Typecheck, 875 Unit-Tests, Build und
   fokussiertem Desktop-Chromium-Smoke (Title → Overworld → Menü → Battle).
 
+### Phase 281 - Eingabe-Resilienz
+
+- Branch/Worktree: `phase-281-input-resilience` in
+  `/worktree/tempest-phase-281-input-resilience`.
+- Das Touch-Steuerkreuz setzt eine gehaltene Bewegungsrichtung jetzt bei jedem
+  globalen `pointerup` zurück und entfernt seinen Listener beim Szenenende.
+- Validiert mit Typecheck, 874 Unit-Tests, Build und mobilem
+  Orientierungs-Browser-Smoke. Der umfassende mobile Game-Smoke erreichte sein
+  bestehendes 45-Sekunden-Limit ohne fachliche Fehlermeldung.
+
+### Phase 282 - Kampf-Feedback fuer MP-Aenderungen
+
+- Branch/Worktree: `phase-282-feedback-mp` in
+  `/worktree/tempest-phase-282-feedback-mp`.
+- Reine MP-Aenderungen erzeugen jetzt Feedback-Events. Verbrauch und
+  Regeneration erhalten im Kampf eine versetzte blaue MP-Anzeige.
+- Validiert mit Typecheck, 874 Unit-Tests, Build und mobilem
+  Orientierungs-Browser-Smoke.
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere

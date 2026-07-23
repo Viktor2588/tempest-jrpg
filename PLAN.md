@@ -10,14 +10,7 @@ Status:
 
 ## Laufende Arbeit
 
-- [x] Phase 281: Eingabe-Resilienz und Smoke-Abdeckung
-  - Worktree: `/worktree/tempest-phase-281-input-resilience`
-  - Touch-Steuerkreuz setzt eine gehaltene Richtung jetzt bei jedem Loslassen
-    innerhalb der Spielflaeche zurueck und entfernt den Listener beim
-    Szenenende.
-  - Abnahme: `bun run typecheck`, `bun run test` (874 Tests) und `bun run build`
-    erfolgreich; mobiler Orientierungssmoke erfolgreich. Der bestehende
-    umfassende mobile Game-Smoke erreichte ohne Fachfehler sein 45-Sekunden-Limit.
+- Keine offene oder laufende Phase.
 
 ## Integrationswarteschlange
 
