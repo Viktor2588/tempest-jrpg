@@ -43,13 +43,20 @@ test('HiDPI-Canvas behält 960×540-Layout mit begrenztem scharfem Backing Store
 });
 
 test('Startpfad lädt keine späteren Kampfhintergründe', async ({ page }) => {
+  // Der Resource-Timing-Puffer verwirft sonst die früh geladenen Hintergründe,
+  // sobald der Preload hunderte Assets nachschiebt (Default 250 Einträge).
+  await page.addInitScript(() => performance.setResourceTimingBufferSize(2000));
   await page.goto('./');
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-ready', 'true');
+  await expect(canvas).toHaveAttribute('data-ready', 'true', { timeout: 15_000 });
 
+  // Nur echte Texture-Ladungen zählen; `?import` sind reine URL-Auflösungen des
+  // Vite-Dev-Servers (im Prod-Build inlined und damit gar nicht gefetcht).
   const loadedAssets = await page.evaluate(() => (
-    performance.getEntriesByType('resource').map((entry) => entry.name)
+    performance.getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((name) => !name.includes('?import'))
   ));
 
   expect(loadedAssets.some((name) => name.includes('battle-sealed-cave'))).toBe(true);

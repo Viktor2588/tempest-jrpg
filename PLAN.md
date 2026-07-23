@@ -30,10 +30,19 @@ Status:
   - Branch: `phase-279-followers`
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
 
-- `[~]` **Phase 284 — Performance & Asset-Budget-Nachzug (in Bearbeitung)**
+- `[x]` **Phase 284 — Performance & Asset-Budget-Nachzug**
   - Worktree: `/worktree/tempest-phase-284-performance-budget`
   - Branch: `phase-284-performance-budget`
   - Ziel: stabile 960×540 auf Desktop/Mobile.
+  - Umsetzung: Kampfhintergründe aus dem eager Preload gelöst; nur die zwei
+    Einstiegs-Arenen (`sealed-cave`, `tempest-grove`) im Startpfad, alle übrigen
+    19 laden bedarfsgerecht in `BattleScene` (`src/render/battleBackgroundAssets.ts`,
+    `loadArenaBackground`). Die zwei größten Hintergründe (`tempest-city` 308 KB,
+    `ramiris-labyrinth` 305 KB) fallen damit vom kritischen Startpfad.
+  - Abnahme: `bun run typecheck` grün · `bun run test` 900/900 grün (inkl. neuer
+    `test/performanceBudget.test.ts`, angepasste `battleArt`/`invasion`-Tests) ·
+    `bun run build` grün (Hintergründe als separate Lazy-Chunks) ·
+    hidpi-Smoke (Desktop + Mobile) grün: Startpfad lädt keine späteren Arenen.
 
 ## Integrationswarteschlange
 
