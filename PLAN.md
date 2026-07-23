@@ -10,11 +10,6 @@ Status:
 
 ## Laufende Arbeit
 
-- `[~]` **Phase 271 — Menü entschlacken / UX-Überarbeitung (in Bearbeitung)** ⭐ HUD/UX
-  - Worktree: `/worktree/tempest-phase-271-menu-declutter`
-  - Branch: `phase-271-menu-declutter`
-  - Ziel: klarere Tab-Hierarchie, weniger gleichzeitige Dichte.
-
 - `[~]` **Phase 276 — Audio-Erweiterung (Musik & SFX) (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-276-audio`
   - Branch: `phase-276-audio`
