@@ -27,6 +27,8 @@ import {
   OVERWORLD_WALK_BOB_PX,
   overworldPlayerFlipX
 } from '../render/overworldArt';
+import { followerTiles, initFollowerTrail, stepFollowerTrail } from '../systems/followers';
+import type { PortraitKind } from '../render/artSpec';
 import { firstAvailableOverworldTileTexture } from '../render/overworldTileArt';
 import { TEMPEST_FACILITY_DISTRICTS, tempestFacilityDistrictScale } from '../render/tempestFacilityArt';
 import { addRegionBannerImage, regionBannerTextureForMap } from '../render/regionBannerArt';
@@ -79,6 +81,15 @@ export class OverworldScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container;
   private playerVisual!: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
   private playerShadow!: Phaser.GameObjects.Ellipse;
+  // Phase 279 — Overworld-Party-Präsenz: 1–2 sichtbare Begleiter, die dem Spieler
+  // entlang seiner zuletzt betretenen Kacheln folgen (systems/followers-Trail).
+  private followers: Array<{
+    container: Phaser.GameObjects.Container;
+    visual: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+    shadow: Phaser.GameObjects.Ellipse;
+  }> = [];
+  private followerTrail: Vec2[] = [];
+  private followerSig = '';
   private worldLayer?: Phaser.GameObjects.Container;
   private moving = false;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -132,6 +143,7 @@ export class OverworldScene extends Phaser.Scene {
     // drawWorldObjects in einen toten Container und die Story-Marker (z. B. der
     // Schrein nach dem Hain-Sieg) verschwinden → Spieler bleibt stecken.
     this.worldLayer = undefined;
+    this.followers = []; // Container der vorigen Sitzung sind mit der Szene zerstört.
 
     // Kacheln: regionale Imagegen-Tiles → echte CC0-Kenney-Kacheln → Platzhalter → Rechteck-Fallback.
     const tileKey = (wall: boolean): string | null => {
@@ -173,6 +185,7 @@ export class OverworldScene extends Phaser.Scene {
       .setSize(TILE, TILE)
       .setDepth(overworldActorDepth(this.pos.y, this.map.height));
     this.setPlayerFacing(this.save.location.facing);
+    this.buildFollowers();
 
     this.drawWorldObjects();
     this.minimapLayer = undefined; // wiederverwendete Instanz: alter Container ist zerstört.
@@ -386,6 +399,7 @@ export class OverworldScene extends Phaser.Scene {
     this.persistPosition(dir);
     this.completeOnboardingStep('move');
     this.playWalkBob();
+    this.stepFollowers();
     this.tweens.add({
       targets: this.player,
       x: this.cx(next.x),
@@ -401,6 +415,7 @@ export class OverworldScene extends Phaser.Scene {
   private onResume(): void {
     this.save = loadSave(window.localStorage) ?? this.save;
     this.save = this.withCurrentRangaTravelDiscovery(this.save);
+    if (this.companionIds().join(',') !== this.followerSig) this.buildFollowers();
     this.drawWorldObjects();
     this.drawMinimap(); // freigeschaltete Gateways/Marker auf der Minimap aktualisieren
     this.drawQuestTracker();
@@ -1097,20 +1112,72 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private playWalkBob(): void {
+    this.walkBobActor(this.playerVisual, this.playerShadow);
+  }
+
+  private walkBobActor(
+    visual: Phaser.GameObjects.GameObject,
+    shadow: Phaser.GameObjects.GameObject
+  ): void {
     this.tweens.add({
-      targets: this.playerVisual,
+      targets: visual,
       y: -OVERWORLD_WALK_BOB_PX,
       duration: MOVE_MS / 2,
       ease: 'Sine.easeOut',
       yoyo: true
     });
     this.tweens.add({
-      targets: this.playerShadow,
+      targets: shadow,
       scaleX: 0.76,
       scaleY: 0.72,
       duration: MOVE_MS / 2,
       ease: 'Sine.easeOut',
       yoyo: true
+    });
+  }
+
+  // Begleiter = aktive Party ohne den Anführer (Rimuru), max. 2 sichtbar.
+  private companionIds(): string[] {
+    return this.save.party.active.slice(1, 3).map((member) => member.characterId);
+  }
+
+  private buildFollowers(): void {
+    for (const f of this.followers) f.container.destroy();
+    this.followers = [];
+    const ids = this.companionIds();
+    this.followerSig = ids.join(',');
+    this.followerTrail = initFollowerTrail(this.pos);
+    ids.forEach((characterId, i) => {
+      const texKey = portraitKey(characterId as PortraitKind);
+      const shadow = this.add.ellipse(0, 1, TILE * 0.5, TILE * 0.14, 0x06111f, 0.28);
+      const visual = this.textures.exists(texKey)
+        ? this.add.image(0, 0, texKey).setDisplaySize(TILE * 0.66, TILE * 0.66)
+        : this.add.rectangle(0, 0, TILE * 0.5, TILE * 0.5, 0x8fb4d9).setStrokeStyle(2, 0xcdeaff);
+      visual.setOrigin(0.5, 1);
+      const container = this.add
+        .container(this.cx(this.pos.x), this.cy(this.pos.y), [shadow, visual])
+        .setSize(TILE, TILE)
+        .setDepth(overworldActorDepth(this.pos.y, this.map.height) - 0.001 * (i + 1));
+      this.followers.push({ container, visual, shadow });
+    });
+  }
+
+  private stepFollowers(): void {
+    if (this.followers.length === 0) return;
+    this.followerTrail = stepFollowerTrail(this.followerTrail, this.pos, this.followers.length);
+    const tiles = followerTiles(this.followerTrail, this.followers.length);
+    this.followers.forEach((f, i) => {
+      const tile = tiles[i]!;
+      const tx = this.cx(tile.x);
+      const ty = this.cy(tile.y);
+      if (f.container.x === tx && f.container.y === ty) return; // steht still
+      if (f.visual instanceof Phaser.GameObjects.Image) {
+        if (tx < f.container.x) f.visual.setFlipX(overworldPlayerFlipX('left'));
+        else if (tx > f.container.x) f.visual.setFlipX(overworldPlayerFlipX('right'));
+      }
+      f.container.setDepth(overworldActorDepth(tile.y, this.map.height) - 0.001 * (i + 1));
+      this.tweens.add({ targets: f.container, x: tx, y: ty, duration: MOVE_MS });
+      this.walkBobActor(f.visual, f.shadow);
     });
   }
 
