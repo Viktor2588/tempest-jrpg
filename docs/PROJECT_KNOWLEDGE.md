@@ -1146,6 +1146,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 282 - Nebeninhalte & optionale Regionen
+
+- 3 optionale off-route Loot-Quests (Phase-154-Muster: Annahme-Dialog → Jagd-Encounter → Report-Dialog mit Gear-Belohnung), je in eine bestehende Nebenregion gelegt statt neuer Karte (vermeidet den von `regionBannerArt.test.ts` erzwungenen Banner-WebP + Preload). Rein datengetrieben in `src/data/world.ts`.
+- `stormpeak-hunt` (Geisterschrein-Hochland, Gate `story.act1.completed`), `blumund-raiders-hunt` (Blumund, Gate `faction.orcs.joined`), `academy-cleansing-hunt` (Freiheitsakademie, Gate `story.shizu.vow`). Jagd-Encounter reuse bestehende Regionsgegner, off-route (kein `region.encounterIds`) → Balance-Harness unberührt.
+- Validierung: `bun run typecheck`, `bun run test` (893 nach Merge), `bun run build`; neue `test/sideContent282.test.ts` (Datenintegrität, Gear-Reward, begehbare Jagd-Kachel, Flag/Quest-Wiring, Off-route-Garantie).
+
 ### Phase 283 - Post-Game / New-Game+ Zyklus
 
 - NG+-Kern (EndingScene + Profil `endingsSeen`/`newGamePlusCount` + `startNewGamePlus`) existierte bereits; diese Phase macht den Zyklus im Save persistent und wirksam. Neues Feld `progression.newGamePlusCycle` (0 = Erstdurchgang), von `startNewGamePlus` je Durchgang +1 hochgezählt und über den mitgetragenen Progression-Zustand akkumuliert.

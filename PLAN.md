@@ -44,20 +44,6 @@ Status:
 - `[ ]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions)**
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
 
-- `[x]` **Phase 282 — Nebeninhalte & optionale Regionen**
-  - Worktree: `/worktree/tempest-phase-282-side-content`
-  - Branch: `phase-282-side-content`
-  - Ziel: 2–4 lohnende Nebenpfade.
-  - Umsetzung: 3 optionale Nebenpfade als off-route Loot-Quests (Phase-154-Muster),
-    je in eine bestehende Nebenregion — `stormpeak-hunt` (Geisterschrein-Hochland,
-    Belohnung Zephyr-Reif + Windläufer-Stiefel), `blumund-raiders-hunt` (Blumund,
-    Gebannte Brigantine), `academy-cleansing-hunt` (Freiheitsakademie, Resonanz-Kern
-    + Geisteichen-Stab). Rein datengetrieben (world.ts QUESTS/DIALOGS/ENCOUNTERS),
-    keine neuen Karten oder Bildassets; Jagd-Encounter reuse bestehende Regionsgegner
-    und stehen off-route (kein `region.encounterIds`-Eintrag) → Balance-Harness unberührt.
-  - Abnahme: `bun run typecheck` grün; `bun run test` 887 Tests / 103 Dateien grün
-    (inkl. neuem `test/sideContent282.test.ts`); `bun run build` grün.
-
 - `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
   - Ziel: stabile 960×540 auf Desktop/Mobile.
 
