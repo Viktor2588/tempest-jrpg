@@ -1146,6 +1146,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 283 - Post-Game / New-Game+ Zyklus
+
+- NG+-Kern (EndingScene + Profil `endingsSeen`/`newGamePlusCount` + `startNewGamePlus`) existierte bereits; diese Phase macht den Zyklus im Save persistent und wirksam. Neues Feld `progression.newGamePlusCycle` (0 = Erstdurchgang), von `startNewGamePlus` je Durchgang +1 hochgezählt und über den mitgetragenen Progression-Zustand akkumuliert.
+- `enemyScaling` nimmt optional `newGamePlusCycle` (Default 0 → Erstdurchgang und Alt-Saves unverändert) und eskaliert Ziellevel + Deckel um 5 je Zyklus; BattleScene reicht `save.progression.newGamePlusCycle` durch. Rückwärtskompatible Add-Feld-Migration. Deckt Feedback „overgrind darf nicht trivialisieren" auf der Post-Game-Schleife ab.
+- Validierung: `bun run typecheck`, `bun run test` (888 Tests nach Merge), `bun run build`; neue `test/newGamePlus.test.ts` (Migration/Roundtrip, Increment, Eskalation + Zyklus-0-Regression).
+
 ### Phase 281 - Siedlungs-/Facility-Wachstum sichtbar
 
 - Facility-Ausbaustufen und begehbare Distrikt-Silhouetten für Lager/Dorf/Stadt; `tempestFacilityArt` rendert Wachstumsstufen, Menü- und Overworld-Szene spiegeln den Fortschritt.
