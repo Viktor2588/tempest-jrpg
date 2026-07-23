@@ -1151,6 +1151,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 275 - Bond-Szenen & Beziehungspfade erweitert
+
+- Zwei neue datengetriebene Felder auf `RelationshipSceneDefinition` (`src/data/progression.ts`): `dialogue` (`RelationshipSceneLine[]`, treibt die Overworld-Cutscene mit paar-spezifischem deutschem Dialog) und `unlockText` (sichtbares Freischalt-Signal nach der Szene). 12 neue Bindungs-Szenen → jede Beziehungsstufe hat genau eine Szene.
+- `bondScenes.ts`: `bondSceneToScript` bevorzugt `dialogue` mit Narrativ-Fallback für Altszenen; `bondSceneUnlockText` komponiert den Unlock-Toast (Stufe + Nutzen). Keine Save-Migration — reused `bond.scene.<id>.played`-Flag-Namensraum.
+- Validierung: `bun run typecheck`, `bun run test` (901 nach Merge), `bun run build`; `test/bondScenes.test.ts` (genau eine Szene je Stufe, Unlock-Text, Dialog auf den 12 neuen Szenen) + e2e-Persistenz.
+
 ### Phase 272 - Visuelle Bugs beim Laufen
 
 - Spieler wird jetzt als `Container` (Schatten + Sprite) gezeichnet und via `overworldActorDepth(tileY, mapHeight)` (~1–2) über `worldLayer` (Depth 0, inkl. Phase-281-Facility-Districts) und unter Tint (5)/HUD (10+) einsortiert, nach Kartenzeile; Depth wird bei Spawn und jedem Schritt neu gesetzt.
