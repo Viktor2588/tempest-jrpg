@@ -15,11 +15,6 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[~]` **Phase 277 — Mobile- & Touch-UX-Polish (in Bearbeitung)**
-  - Worktree: `/worktree/tempest-phase-277-mobile-touch`
-  - Branch: `phase-277-mobile-touch`
-  - Ziel: 44px-Targets, lesbare Dichte auf 390×844 (nach 271 mergen).
-
 - `[~]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions) (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-279-followers`
   - Branch: `phase-279-followers`

@@ -1151,6 +1151,12 @@ test/release.test.ts
 
 ## 13. Phase Notes
 
+### Phase 277 - Mobile- & Touch-UX-Polish
+
+- Das 960×540-Logikcanvas skaliert per `Phaser.Scale.FIT` höhenbegrenzt aufs Referenz-Handy (844×390, Faktor ≈0.722), sodass logisch bemessene Touchflächen physisch kleiner rendern. Overworld-Touchcontrols (D-Pad/Interakt) waren 52 logische px → nur ~37.6 CSS-px, unter der 44px-Marke.
+- Fix in `src/systems/mobileLayout.ts`: `DPAD_BUTTON_SIZE` 52→62 (×0.722 ≈ 44.8 CSS-px), `DPAD_OFFSET` 56→64; neue Helfer `mobileFitScale()`/`logicalToScreenPx()` + `MOBILE_REFERENCE_VIEWPORT` machen die physische Größe testbar. Konstanten sind Single-Source für Zeichnung UND Hit-Area (OverworldScene liest `b.width`/`b.height`). Menü-Buttons bleiben bei 44 logisch (Konvention; Dichte via `analyzeMenuColumns` abgesichert).
+- Validierung: `bun run typecheck`, `bun run test` (901 / 106 Files, inkl. neuer `test/mobileTouch.test.ts`), `bun run build`; e2e `orientation.smoke.spec.ts` 2/2 (desktop + mobile-chromium).
+
 ### Phase 275 - Bond-Szenen & Beziehungspfade erweitert
 
 - Zwei neue datengetriebene Felder auf `RelationshipSceneDefinition` (`src/data/progression.ts`): `dialogue` (`RelationshipSceneLine[]`, treibt die Overworld-Cutscene mit paar-spezifischem deutschem Dialog) und `unlockText` (sichtbares Freischalt-Signal nach der Szene). 12 neue Bindungs-Szenen → jede Beziehungsstufe hat genau eine Szene.

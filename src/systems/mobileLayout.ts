@@ -35,6 +35,14 @@ export interface ViewportSize {
 export const MIN_TOUCH_TARGET_PX = 44;
 export const HUD_SAFE_MARGIN_PX = 8;
 
+// Referenz-Handy im Querformat (iPhone-Klasse, deckt sich mit
+// orientation.smoke.spec.ts). Das logische 960×540-Canvas wird per Scale.FIT
+// darauf skaliert, hier ist der Faktor höhenbegrenzt (390/540 ≈ 0.722). Ein
+// logisches Touch-Ziel erscheint also kleiner als sein Nennmaß — Steuerflächen
+// müssen entsprechend größer geplant werden, um 44 CSS-px zu treffen.
+export const MOBILE_REFERENCE_VIEWPORT = { width: 844, height: 390 } as const;
+const LOGICAL_VIEWPORT = { width: 960, height: 540 } as const;
+
 const MENU_BUTTON_WIDTH = 132;
 const MENU_BUTTON_HEIGHT = 44;
 const MINIMAP_RIGHT_INSET = 14;
@@ -42,8 +50,26 @@ const MINIMAP_TOP = 14;
 const MINIMAP_MAX_SIZE = 132;
 const REGION_BANNER_HEIGHT = 34;
 const MENU_GAP = 40;
-const DPAD_BUTTON_SIZE = 52;
-const DPAD_OFFSET = 56;
+// 62 logisch × 0.722 (FIT) ≈ 44.8 CSS-px am Referenz-Handy → über der 44px-Marke.
+const DPAD_BUTTON_SIZE = 62;
+const DPAD_OFFSET = 64;
+
+// Scale.FIT-Faktor vom logischen Canvas auf einen echten Viewport.
+export function mobileFitScale(
+  viewport: ViewportSize = MOBILE_REFERENCE_VIEWPORT,
+  logical: ViewportSize = LOGICAL_VIEWPORT
+): number {
+  return Math.min(viewport.width / logical.width, viewport.height / logical.height);
+}
+
+// Physische (CSS-px) Kantenlänge eines logisch bemessenen Touch-Ziels nach FIT.
+export function logicalToScreenPx(
+  logicalPx: number,
+  viewport: ViewportSize = MOBILE_REFERENCE_VIEWPORT,
+  logical: ViewportSize = LOGICAL_VIEWPORT
+): number {
+  return logicalPx * mobileFitScale(viewport, logical);
+}
 
 export function layoutOverworldHud(viewport: ViewportSize): OverworldHudLayout {
   const minimapCenterX = viewport.width - MINIMAP_RIGHT_INSET - MINIMAP_MAX_SIZE / 2;
