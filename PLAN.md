@@ -20,10 +20,14 @@ Status:
   - Branch: `phase-271-menu-declutter`
   - Ziel: klarere Tab-Hierarchie, weniger gleichzeitige Dichte.
 
-- `[~]` **Phase 280 — Kampf-Präsentation & Feedback (in Bearbeitung)** ⭐ HUD
+- `[x]` **Phase 280 — Kampf-Präsentation & Feedback (abgeschlossen)** ⭐ HUD
   - Worktree: `/worktree/tempest-phase-280-battle-feedback`
   - Branch: `phase-280-battle-feedback`
-  - Ziel: schärfere Treffer-/Telegraph-/Signature-Feedbacks im Kampf-HUD.
+  - Abnahme: Treffer zeigen signierte Schadens- und Treffer-/K.-o.-Labels; Großtreffer
+    warnen mit einer sichtbaren Block-Aufforderung ohne unbekannte Skillnamen zu spoilern;
+    Signaturen sind auf der Karte benannt und erhalten beim Auslösen Banner, Flash und VFX.
+  - Checks: `npm run typecheck`, `npm run test` (102 Dateien / 879 Tests),
+    `npm run build`; manueller Chromium-Kampf-Smoke (Titel → Overworld → Kampf) erfolgreich.
 
 - `[~]` **Phase 274 — Kampf-Balance-Pass (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-274-balance-pass`
