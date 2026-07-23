@@ -61,7 +61,18 @@ export interface RelationshipSceneDefinition {
   readonly requiredLevel: number;
   readonly title: string;
   readonly summary: string;
+  // Kurze, voll datengetriebene Dialogzeilen für die Oberwelt-Cutscene. So bleibt
+  // die Erzählung je Paar eigenständig, ohne Szenenlogik in Phaser zu verteilen.
+  readonly dialogue?: readonly RelationshipSceneLine[];
+  // Sichtbarer Payoff direkt nach der Szene; ergänzt den mechanisch abgeleiteten
+  // Stufenhinweis um die erzählerische Bedeutung des Freischaltens.
+  readonly unlockText?: string;
   readonly flagId?: string;
+}
+
+export interface RelationshipSceneLine {
+  readonly speaker?: string;
+  readonly line: string;
 }
 
 export interface RelationshipDefinition {
@@ -293,6 +304,18 @@ export const RELATIONSHIPS = [
         requiredLevel: 2,
         title: 'Sturmtraining',
         summary: 'Ein gemeinsames Manöver wird zum verlässlichen Team-Angriff.'
+      },
+      {
+        id: 'rimuru-gobta-vanguard',
+        requiredLevel: 3,
+        title: 'Vorhut im Regen',
+        summary: 'Im strömenden Regen hält Gobta die Linie, bis Rimuru die Lücke im Rudel erkennt.',
+        dialogue: [
+          { speaker: 'Gobta', line: 'Wenn ich vorn bleibe, siehst du die Öffnung. Das reicht mir.' },
+          { speaker: 'Rimuru', line: 'Dann machen wir aus deiner Ausdauer unsere Vorhut.' },
+          { speaker: 'Gobta', line: 'Hehe. Tempest stürmt nicht allein.' }
+        ],
+        unlockText: 'Euer abgestimmter Gegenstoß steht nun als Sturmvorhut bereit.'
       }
     ]
   },
@@ -333,6 +356,30 @@ export const RELATIONSHIPS = [
         title: 'Nach der ersten Patrouille',
         summary: 'Rigurd erklärt, warum Tempest seine Patrouillen dokumentiert.',
         flagId: 'bond.rigurd.trust-1'
+      },
+      {
+        id: 'rigurd-ledger-circle',
+        requiredLevel: 2,
+        title: 'Der Kreis der Stimmen',
+        summary: 'Rimuru und Rigurd hören den Wachen zu und machen aus ihren Berichten einen gemeinsamen Plan.',
+        dialogue: [
+          { speaker: 'Rigurd', line: 'Ein Dorf wächst, wenn jede Wache sagen darf, was sie gesehen hat.' },
+          { speaker: 'Rimuru', line: 'Dann soll kein Bericht in einer Schublade verschwinden.' },
+          { speaker: 'Rigurd', line: 'So wird aus Ordnung Vertrauen.' }
+        ],
+        unlockText: 'Tempests Stimmen tragen euch nun auch im gemeinsamen Angriff.'
+      },
+      {
+        id: 'rigurd-tempest-voice',
+        requiredLevel: 3,
+        title: 'Die Stimme von Tempest',
+        summary: 'Vor dem Versammlungsfeuer übergibt Rigurd Rimuru den ersten vollständigen Dorfbericht.',
+        dialogue: [
+          { speaker: 'Rigurd', line: 'Dies sind keine Zahlen mehr. Es sind Namen, Wege und Hoffnungen.' },
+          { speaker: 'Rimuru', line: 'Dann beschütze ich sie alle, so gut ich kann.' },
+          { speaker: 'Rigurd', line: 'Und Tempest wird dir die Kraft dazu geben.' }
+        ],
+        unlockText: 'Tempests Stimme stärkt eure Abwehr vom ersten Schritt eines Kampfes an.'
       }
     ]
   },
@@ -380,6 +427,18 @@ export const RELATIONSHIPS = [
         title: 'Erster Ritt am Dorfrand',
         summary: 'Das Wolfsfang-Abzeichen macht Gobtas Reiterpfad greifbar: kein Mount-System im Prolog, aber ein klarer Pakt für später.',
         flagId: 'progression.gobta.wolf-fang-token'
+      },
+      {
+        id: 'gobta-ranga-moon-sprint',
+        requiredLevel: 3,
+        title: 'Mondlauf des Rudels',
+        summary: 'Bei Nacht folgen Gobta und Ranga nur einem Atemzug und finden den schnellsten Weg durch den Hain.',
+        dialogue: [
+          { speaker: 'Gobta', line: 'Ranga, diesmal gebe ich das Zeichen erst, wenn du es schon riechst.' },
+          { speaker: 'Ranga', line: 'Der Rudelgefährte hat gelernt, dem Wind zuzuhören.' },
+          { speaker: 'Gobta', line: 'Dann holen wir jeden ein, der Tempest bedroht.' }
+        ],
+        unlockText: 'Der Mondlauf verleiht euch den Direwolf-Sprint und einen hastigen Kampfbeginn.'
       }
     ]
   },
@@ -417,6 +476,30 @@ export const RELATIONSHIPS = [
         requiredLevel: 1,
         title: 'Abend am Webkreis',
         summary: 'Shuna nutzt ruhige Stadtmomente, um Barrierefäden für das Team vorzubereiten.'
+      },
+      {
+        id: 'shuna-tempest-market-thread',
+        requiredLevel: 2,
+        title: 'Fäden des Marktes',
+        summary: 'Shuna verbindet die Wünsche der Bewohner zu einem schützenden Muster für Tempest.',
+        dialogue: [
+          { speaker: 'Shuna', line: 'Jeder Faden beginnt klein. Gemeinsam hält er eine ganze Halle.' },
+          { speaker: 'Rimuru', line: 'Du hörst sogar in einem Markttag, was Tempest braucht.' },
+          { speaker: 'Shuna', line: 'Weil Tempest uns alle trägt.' }
+        ],
+        unlockText: 'Der Webkreis stärkt eure Magie und erweitert Shunas schützende Rolle.'
+      },
+      {
+        id: 'shuna-tempest-shrine-vow',
+        requiredLevel: 3,
+        title: 'Gelöbnis am Schrein',
+        summary: 'Am stillen Schrein legt Shuna die letzte Barrierefaser um die Gemeinschaft.',
+        dialogue: [
+          { speaker: 'Shuna', line: 'Möge dieses Gewebe alle erreichen, die bei uns Zuflucht suchen.' },
+          { speaker: 'Rimuru', line: 'Mit dir wird aus einem Lager wirklich ein Zuhause.' },
+          { speaker: 'Shuna', line: 'Dann weben wir weiter, bis niemand mehr allein ist.' }
+        ],
+        unlockText: 'Die Schreinbindung vollendet Shunas Geistgewebe und verstärkt alle Stärkungen.'
       }
     ]
   },
@@ -433,6 +516,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'veldora-manga-night', requiredLevel: 1, title: 'Manga im Magenraum', summary: 'Rimuru teilt Geschichten mit dem versiegelten Sturmdrachen und festigt ihre Freundschaft.', flagId: 'bond-veldora-1' },
+      {
+        id: 'veldora-storm-echo',
+        requiredLevel: 2,
+        title: 'Echo im Sturm',
+        summary: 'Rimuru beantwortet Veldoras dröhnendes Lachen mit einem ruhigen Zauberimpuls aus dem Magenraum.',
+        dialogue: [
+          { speaker: 'Veldora', line: 'Hörst du das, Rimuru? Selbst mein Siegel kann den Sturm nicht zum Schweigen bringen!' },
+          { speaker: 'Rimuru', line: 'Dann stimmen wir ihn so ab, dass er uns nicht zerreißt.' },
+          { speaker: 'Veldora', line: 'Ausgezeichnet! Ein Sturm mit Takt ist noch viel großartiger.' }
+        ],
+        unlockText: 'Eure Sturmresonanz vergrößert Rimurus magische Reserven.'
+      },
       { id: 'veldora-name-bond', requiredLevel: 3, title: 'Bund der Namensgebung', summary: 'Die geteilte Magie zwischen Rimuru und Veldora verstärkt beider Sturmkraft.' }
     ]
   },
@@ -449,6 +544,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'benimaru-oath', requiredLevel: 1, title: 'Schwur des Generals', summary: 'Benimaru gelobt Rimuru als erster der Oger ewige Gefolgschaft.', flagId: 'bond-benimaru-1' },
+      {
+        id: 'benimaru-command-fire',
+        requiredLevel: 2,
+        title: 'Befehl im Funkenregen',
+        summary: 'Benimaru und Rimuru üben, einen Rückzug in einen gemeinsamen Gegenangriff zu wenden.',
+        dialogue: [
+          { speaker: 'Benimaru', line: 'Ein Befehl muss kurz sein, damit alle ihn im Feuer hören.' },
+          { speaker: 'Rimuru', line: 'Dann vertraue ich dir die vorderste Reihe an.' },
+          { speaker: 'Benimaru', line: 'Und ich verlasse mich auf deinen nächsten Zug.' }
+        ],
+        unlockText: 'Der Generalsband bereitet euren gemeinsamen Team-Angriff vor.'
+      },
       { id: 'benimaru-blackflame', requiredLevel: 3, title: 'Vereinte Schwarzflamme', summary: 'Rimurus Vertrauen entfacht Benimarus Schwarzflamme zu voller Stärke.' }
     ]
   },
@@ -465,6 +572,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'shion-devotion', requiredLevel: 1, title: 'Grenzenlose Hingabe', summary: 'Shion stellt sich kompromisslos vor Rimuru und stählt ihren Körper.', flagId: 'bond-shion-1' },
+      {
+        id: 'shion-shield-promise',
+        requiredLevel: 2,
+        title: 'Versprechen aus Stahl',
+        summary: 'Shion lässt sich von Rimuru zeigen, wann Schutz bedeutet, Raum für andere zu schaffen.',
+        dialogue: [
+          { speaker: 'Shion', line: 'Ich kann jeden Schlag nehmen, Großmeister Rimuru.' },
+          { speaker: 'Rimuru', line: 'Und ich will, dass du danach noch neben uns stehst.' },
+          { speaker: 'Shion', line: 'Dann wird mein Schild breit genug für ganz Tempest.' }
+        ],
+        unlockText: 'Shions Schutzversprechen festigt eure Front und euren Team-Angriff.'
+      },
       { id: 'shion-guardian', requiredLevel: 3, title: 'Wächterin des Sturms', summary: 'Shions Wille macht sie zur unzerstörbaren Mauer an Rimurus Seite.' }
     ]
   },
@@ -481,6 +600,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'milim-honey', requiredLevel: 1, title: 'Honig besiegt den Demonlord', summary: 'Rimuru gewinnt Milims Freundschaft mit einem Glas Honig statt einer Schlacht.', flagId: 'bond-milim-1' },
+      {
+        id: 'milim-honey-trail',
+        requiredLevel: 2,
+        title: 'Spur aus Honig',
+        summary: 'Milim folgt einer Honigspur durch den Hain und lernt, ihre Kraft auf Rimurus Zeichen zu bremsen.',
+        dialogue: [
+          { speaker: 'Milim Nava', line: 'Noch ein Glas am Ende? Dann renne ich wirklich langsam!' },
+          { speaker: 'Rimuru', line: 'Langsam genug, dass wir zusammen ankommen.' },
+          { speaker: 'Milim Nava', line: 'Zusammen gewinnen ist also auch ein Spiel. Das gefällt mir!' }
+        ],
+        unlockText: 'Eure Honigfreundschaft stärkt Rimurus Angriff und Tempo.'
+      },
       { id: 'milim-dragon-fist', requiredLevel: 3, title: 'Bund der Drachenfaust', summary: 'Milims Vertrauen verleiht Rimurus Sturm einen Hauch von Drachenzerstörung.' }
     ]
   },
@@ -501,6 +632,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'hakurou-benimaru-drill', requiredLevel: 1, title: 'Der harte Drill', summary: 'Der alte Schwertmeister schleift Benimarus Grundformen, bis der General strauchelt und doch nicht aufgibt.', flagId: 'bond-hakurou-1' },
+      {
+        id: 'hakurou-benimaru-rain-form',
+        requiredLevel: 2,
+        title: 'Form im Regen',
+        summary: 'Hakurou lässt Benimaru die gleiche Form wiederholen, bis selbst Regen die Klinge nicht mehr stört.',
+        dialogue: [
+          { speaker: 'Hakurou', line: 'Die Klinge kennt keine Abkürzung, Benimaru.' },
+          { speaker: 'Benimaru', line: 'Dann gehe ich den Weg, bis mein Atem ihn kennt.' },
+          { speaker: 'Hakurou', line: 'Gut. Jetzt beginnt deine eigene Form.' }
+        ],
+        unlockText: 'Die vollendete Schwertform bereitet euren gemeinsamen Angriff sicherer vor.'
+      },
       { id: 'hakurou-benimaru-heir', requiredLevel: 3, title: 'Das anvertraute Erbe', summary: 'Hakurou erkennt in Benimaru den würdigen Erben seiner Schwertkunst — beide Klingen führen wie eine.' }
     ]
   },
@@ -517,6 +660,18 @@ export const RELATIONSHIPS = [
     ],
     scenes: [
       { id: 'souei-shion-watch', requiredLevel: 1, title: 'Geteilte Wacht', summary: 'Der lautlose Späher und die unbeugsame Leibwache stimmen ihre Wachen ab — keine Bedrohung erreicht Rimuru unbemerkt.', flagId: 'bond-souei-1' },
+      {
+        id: 'souei-shion-crossing',
+        requiredLevel: 2,
+        title: 'Kreuzende Schatten',
+        summary: 'Souei markiert die blinden Winkel, während Shion den Weg zwischen den Wachen offen hält.',
+        dialogue: [
+          { speaker: 'Souei', line: 'Drei Schritte links bleibt ein Schatten, den du nicht sehen kannst.' },
+          { speaker: 'Shion', line: 'Dann stelle ich mich genau davor. Niemand kommt durch.' },
+          { speaker: 'Souei', line: 'Präzise. So bleibt der Rückweg frei.' }
+        ],
+        unlockText: 'Schatten und Schild eröffnen den nächsten Kampf als abgestimmtes Team.'
+      },
       { id: 'souei-shion-silent', requiredLevel: 3, title: 'Schatten deckt Schild', summary: 'Soueis Fäden und Shions Wille verweben sich zu einem Schutz, den kein Feind durchbricht.' }
     ]
   }

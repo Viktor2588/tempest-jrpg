@@ -1822,6 +1822,46 @@ test('Milim-Duell vergibt im Browser EP, Beute und Drago Nova', async ({ page })
   expect(browserErrors).toEqual([]);
 });
 
+test('Phase 275 — freigeschaltete Bindungs-Szene wird im Browser gespielt und gespeichert', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  const save = bandTwoBrowserSave({
+    flags: {
+      'bond.scene.rimuru-gobta-patrol.played': true,
+      'bond.scene.rimuru-gobta-storm-drill.played': true
+    }
+  });
+  (save.progression as Record<string, unknown>).relationshipPoints = { 'rimuru-gobta': 120 };
+  await installBrowserSave(page, save);
+
+  await page.goto('./');
+  const canvas = page.locator('canvas');
+  await expect(canvas).toBeVisible();
+  await settle(page, 1_000);
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Game canvas not found');
+  await page.mouse.click(
+    box.x + (480 / GAME_WIDTH) * box.width,
+    box.y + (280 / GAME_HEIGHT) * box.height
+  );
+  await settle(page, 400);
+  await page.keyboard.press('Space');
+  await settle(page, 120);
+  await page.keyboard.press('Space');
+  await settle(page, 120);
+  await page.keyboard.press('Space');
+
+  await expect.poll(async () => page.evaluate(() => {
+    const stored = JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}');
+    return stored.flags?.['bond.scene.rimuru-gobta-vanguard.played'] === true;
+  }), { timeout: 10_000 }).toBe(true);
+  expect(browserErrors).toEqual([]);
+});
+
 for (const ending of [
   { label: 'Freiheit', flag: 'ending.freedom', choiceX: 180, choiceY: 398 },
   { label: 'Ordnung', flag: 'ending.order', choiceX: 800, choiceY: 398 },

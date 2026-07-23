@@ -44,7 +44,9 @@ Status:
   - Problem: Story-Dichte und Zwischenbeats sind dünn.
   - Ziel: mehr Dialoge/Szenen auf Haupt- und Nebenpfaden.
 
-- `[ ]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern**
+- `[~]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern (in Bearbeitung)**
+  - Worktree: `/worktree/tempest-phase-275-bond-expansion`
+  - Branch: `phase-275-bond-expansion`
   - Ziel: mehr Bond-Szenen pro Kern-Paar, Unlock-Signale.
 
 - `[ ]` **Phase 277 — Mobile- & Touch-UX-Polish**

@@ -1,4 +1,9 @@
-import { RELATIONSHIPS, type RelationshipDefinition, type RelationshipSceneDefinition } from '../data';
+import {
+  RELATIONSHIPS,
+  type RelationshipDefinition,
+  type RelationshipLevelDefinition,
+  type RelationshipSceneDefinition
+} from '../data';
 import type { SceneScript } from './sceneScript';
 import { getRelationshipLevelNumber, type ProgressionState } from './progression';
 
@@ -54,22 +59,64 @@ export function acknowledgeBondScene(
   return { ...flags, [flag]: true };
 }
 
+function levelForScene(
+  relationship: RelationshipDefinition,
+  scene: RelationshipSceneDefinition
+): RelationshipLevelDefinition {
+  const level = relationship.levels.find((candidate) => candidate.level === scene.requiredLevel);
+  if (!level) {
+    throw new Error(`Bindungs-Szene ${scene.id} verweist auf eine unbekannte Stufe.`);
+  }
+  return level;
+}
+
+function mechanicalUnlockText(level: RelationshipLevelDefinition): string {
+  const unlocks: string[] = [];
+  if (level.combatBonus?.startingTeamMeter) {
+    unlocks.push(`+${level.combatBonus.startingTeamMeter} Teamleiste zum Kampfbeginn`);
+  }
+  if (level.combatBonus?.teamAttack) unlocks.push('Team-Angriff bereit');
+  if (level.combatBonus?.openingStatusId) unlocks.push('Kampfvorteil beim ersten Zug');
+  if (level.skillIds && level.skillIds.length > 0) unlocks.push('neue Fähigkeit verfügbar');
+  if (level.perk) unlocks.push('Bindungsperk aktiv');
+  return unlocks.length > 0 ? unlocks.join(' · ') : 'passive Werte gestärkt';
+}
+
+// Der Toast bestätigt nachvollziehbar sowohl die erreichte Stufe als auch ihren
+// konkreten spielerischen Nutzen. Das Feld ist aus den bestehenden Beziehungsdaten
+// ableitbar und erweitert keinen Save-Zustand.
+export function bondSceneUnlockText(
+  relationship: RelationshipDefinition,
+  scene: RelationshipSceneDefinition
+): string {
+  const level = levelForScene(relationship, scene);
+  const detail = scene.unlockText ?? mechanicalUnlockText(level);
+  return `Bindungsstufe ${level.level} erreicht: ${level.title}. Freigeschaltet: ${detail}.`;
+}
+
 // Erzeugt aus einer Bindungs-Szene ein abspielbares SceneScript. Bewusst schlank:
-// ein Erzaehler-Beat plus ein herzlicher Emote-Schlusspunkt; die Zusammenfassung
-// erscheint danach als Toast (wie bei den Story-Beats).
+// dialogische Daten haben Vorrang; ältere Szenen behalten ihren erzählerischen
+// Fallback. Die Zusammenfassung erscheint danach als klarer Freischalt-Toast.
 export function bondSceneToScript(
   relationship: RelationshipDefinition,
   scene: RelationshipSceneDefinition
 ): SceneScript {
+  const dialogue = scene.dialogue?.map((step) => ({
+    kind: 'text' as const,
+    speaker: step.speaker,
+    line: step.line
+  }));
   return {
     id: `bond-${scene.id}`,
-    steps: [
-      { kind: 'text', line: scene.summary },
-      { kind: 'text', speaker: relationship.partnerName, line: 'Unser Band wird staerker.' }
-    ],
+    steps: dialogue && dialogue.length > 0
+      ? dialogue
+      : [
+          { kind: 'text', line: scene.summary },
+          { kind: 'text', speaker: relationship.partnerName, line: 'Unser Band wird staerker.' }
+        ],
     summary: {
       title: scene.title,
-      body: `Bindung mit ${relationship.partnerName} vertieft.`
+      body: bondSceneUnlockText(relationship, scene)
     }
   };
 }
