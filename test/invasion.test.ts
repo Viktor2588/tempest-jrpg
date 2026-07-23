@@ -20,7 +20,8 @@ import {
   resolveEncounter,
   type WorldState
 } from '../src/systems/world';
-import preloadSource from '../src/scenes/PreloadScene.ts?raw';
+import battleSource from '../src/scenes/BattleScene.ts?raw';
+import backgroundAssetsSource from '../src/render/battleBackgroundAssets.ts?raw';
 
 const CAMP_FLAGS = { 'story.tempest.named': true } as const;
 
@@ -89,9 +90,10 @@ describe('Phase 110 — Tempest-Invasion', () => {
     expect(afterWatch.amountPerCycle).toBe(beforeWatch.amountPerCycle + watch.output.perStaffPerLevel);
   });
 
-  it('verwendet den Invasions-Kampfhintergrund und lädt das Asset vor', () => {
+  it('verwendet den Invasions-Kampfhintergrund und lädt das Asset bei Bedarf', () => {
     expect(battleArenaForMap('jura-battlefield', 'tempest-invasion-command').textureKey)
       .toBe(BATTLE_ARENA_TEXTURES['tempest-invasion']);
-    expect(preloadSource).toContain('../assets/backgrounds/battle-tempest-invasion.webp');
+    expect(backgroundAssetsSource).toContain('../assets/backgrounds/battle-tempest-invasion.webp');
+    expect(battleSource).toContain('queueBattleBackground(this, kind)');
   });
 });

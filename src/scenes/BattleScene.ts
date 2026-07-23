@@ -50,6 +50,7 @@ import { addUiTextButton } from '../render/uiSkin';
 import { addUiPanel } from '../render/uiSkin';
 import { enemyArtFor, type EnemyArtSpec } from '../render/enemyArt';
 import { battleArenaForMap, partyBattleTextureFor } from '../render/battleArt';
+import { queueBattleBackground } from '../render/battleBackgroundAssets';
 import { fadeIn, fadeToScene } from './transition';
 import { chooseAutoAction, prepareAutoReaction } from '../systems/autoBattle';
 import { getBattleTutorial } from '../systems/battleTutorial';
@@ -233,15 +234,38 @@ export class BattleScene extends Phaser.Scene {
     const arena = battleArenaForMap(this.save.location.mapId, this.encounterId, this.save.flags);
     if (this.textures.exists(arena.textureKey)) {
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, arena.textureKey)
-        .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+        .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
+        .setDepth(-10);
     } else {
-      this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018);
+      const placeholder = this.add.rectangle(
+        GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0c1018
+      ).setDepth(-10);
+      this.loadArenaBackground(arena.kind, arena.textureKey, placeholder);
     }
 
     // Ruhige Kontrastflächen lassen Log, Werte und Befehle auf allen Arenen lesbar.
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x081019, 0.18);
     this.add.rectangle(GAME_WIDTH / 2, 30, GAME_WIDTH, 60, 0x071019, 0.78);
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 58, GAME_WIDTH, 116, 0x071019, 0.88);
+  }
+
+  private loadArenaBackground(
+    kind: Parameters<typeof queueBattleBackground>[1],
+    textureKey: string,
+    placeholder: Phaser.GameObjects.Rectangle
+  ): void {
+    if (!queueBattleBackground(this, kind)) return;
+
+    this.load.once(`filecomplete-image-${textureKey}`, () => {
+      if (!this.scene.isActive('Battle') || !this.textures.exists(textureKey)) return;
+      placeholder.destroy();
+      const background = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, textureKey)
+        .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
+        .setDepth(-10)
+        .setAlpha(0);
+      this.tweens.add({ targets: background, alpha: 1, duration: 180 });
+    });
+    this.load.start();
   }
 
   private allViews(): CombatantView[] {

@@ -62,7 +62,7 @@ Status:
 - `[ ]` **Phase 283 — Post-Game / New-Game+-Grundlage**
   - Ziel: leichte Post-Game-Schleife / NG+-Gerüst.
 
-- `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
+- `[~]` **Phase 284 — Performance & Asset-Budget-Nachzug** *(in Bearbeitung; Worktree: `/worktree/tempest-phase-284-performance-budget`)*
   - Ziel: stabile 960×540 auf Desktop/Mobile.
 
 ## Integrationswarteschlange
