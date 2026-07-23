@@ -204,6 +204,10 @@ Lizenzzeile.
 | `music/title-theme.ogg` | Titel-Motiv (Music Jingles `jingles_PIZZI07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/field-theme.ogg` | Oberwelt-Motiv (Music Jingles `jingles_NES00.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `music/battle-theme.ogg` | Kampf-Motiv (Music Jingles `jingles_STEEL07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/menu-theme.ogg` | Menü-Motiv (Music Jingles `jingles_PIZZI05.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/settlement-theme.ogg` | Siedlungs-Motiv (Music Jingles `jingles_SAX07.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/wilds-theme.ogg` | Wildnis-Motiv (Music Jingles `jingles_NES12.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
+| `music/boss-theme.ogg` | Boss-Motiv (Music Jingles `jingles_STEEL11.ogg`) | https://kenney.nl/assets/music-jingles | Kenney | CC0 |
 | `ui/milim-fight-banner.webp` | UI HUD: Milim Kampf & Reward Banner, 1280x720 (WebP) | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG Milim battle victory/reward indicator for Phase 113 fix | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/formation-rows.webp` | UI HUD: Formation/Reihen-Positionierungs-Indikator, 640×360; passend zur Rendergroesse verkleinert in Phase 269 | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG party formation rows diagram for Phase 97 front/back row HUD | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |
 | `ui/dialog-keyboard-hint.webp` | UI HUD: Dialog-Tastaturnavigation, verwendeter Hinweisframe als 300×300-WebP zugeschnitten in Phase 270 | xAI Imagine, 2026-07-09; Prompt-Zweck: hand-painted fantasy JRPG dialog keyboard navigation hint for Phase 119 accessibility | Projektgeneriert | Generierungsbedingungen des verwendeten Dienstes (xAI Imagine) |

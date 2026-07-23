@@ -62,6 +62,7 @@ import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { playSfxProcedural } from '../audio/sfxProcedural';
+import { overworldMusicTrack, playMusic } from '../audio/music';
 import {
   MENU_EQUIPMENT_LAYOUT,
   MENU_FACILITIES_LAYOUT,
@@ -140,6 +141,7 @@ export class MenuScene extends Phaser.Scene {
   create(): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    playMusic('menu');
     this.state = {
       party: this.save.party.active,
       reserve: this.save.party.reserve,
@@ -1582,19 +1584,25 @@ export class MenuScene extends Phaser.Scene {
       this.save.flags
     );
     if (bannerKey) this.layer.add(addRegionBannerImage(this, 836, 172, bannerKey, 104, 40));
+    [1, 2, 3].forEach((level) => {
+      const active = overview.level >= level;
+      this.layer.add(this.add.circle(700 + level * 20, 172, 6, active ? 0x8dffc2 : 0x34445c, 1)
+        .setStrokeStyle(1, active ? 0xd7ffe6 : 0x7185a1, 0.9));
+    });
 
     overview.facilities.forEach((view, index) => {
       const y = layout.firstY + index * layout.rowHeight;
       this.panel(layout.left, y, layout.width, layout.cardHeight);
       const heading = view.unlocked
-        ? `${view.facility.name} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
+        ? `${view.facility.name} · ${view.growth?.title} — ${view.outputLabel} +${view.amountPerCycle}/Rast`
         : `${view.facility.name} (verschlossen)`;
       this.layer.add(this.add.text(layout.textLeft, y + layout.headingOffsetY, heading, {
         fontFamily: 'sans-serif', fontSize: '15px',
         color: view.amountPerCycle > 0 ? '#8dffc2' : '#6f83a5'
       }));
       const staffText = view.staff.length > 0 ? view.staff.join(', ') : 'unbesetzt';
-      this.layer.add(this.add.text(layout.textLeft, y + layout.bodyOffsetY, `${view.facility.description}  ·  ${staffText}`, {
+      const facilityText = view.growth?.description ?? 'Die Baustelle erwacht mit der Gründung von Tempest.';
+      this.layer.add(this.add.text(layout.textLeft, y + layout.bodyOffsetY, `${facilityText}  ·  ${staffText}`, {
         fontFamily: 'sans-serif', fontSize: '11px', color: '#cbd6e8', wordWrap: { width: layout.textWidth }
       }));
     });
@@ -1980,6 +1988,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private close(): void {
+    playMusic(overworldMusicTrack(this.save.location.mapId));
     this.scene.resume('Overworld');
     this.scene.stop();
   }

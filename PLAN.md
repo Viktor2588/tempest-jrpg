@@ -10,26 +10,19 @@ Status:
 
 ## Laufende Arbeit
 
-- `[~]` **Phase 278 — Quest-Tracker & Zielklarheit (von Copilot fortgesetzt, in Bearbeitung)** ⭐ HUD-Priorität
+- `[x]` **Phase 278 — Quest-Tracker & Zielklarheit** ⭐ HUD-Priorität
   - Worktree: `/worktree/tempest-phase-278-quest-tracker`
   - Branch: `phase-278-quest-tracker`
-  - Status: Unterbrochene Phase wird von Copilot in diesem Worktree fortgesetzt.
   - Ziel: dediziertes Overworld-HUD „aktuelles Ziel“ + Nebenquest-Liste.
+  - Abnahme: `src/systems/questTracker.ts` (`buildQuestTracker`) trennt priorisiertes
+    Hauptziel von aktiver Nebenquest-Liste (Limit + „+N im Questlog“-Hinweis);
+    eigenständiges Overworld-HUD `drawQuestTracker` oben-links, Onboarding-Panel
+    nach rechts verschoben. Checks: typecheck ✓, test ✓, build ✓.
 
 - `[~]` **Phase 271 — Menü entschlacken / UX-Überarbeitung (in Bearbeitung)** ⭐ HUD/UX
   - Worktree: `/worktree/tempest-phase-271-menu-declutter`
   - Branch: `phase-271-menu-declutter`
   - Ziel: klarere Tab-Hierarchie, weniger gleichzeitige Dichte.
-
-- `[~]` **Phase 280 — Kampf-Präsentation & Feedback (in Bearbeitung)** ⭐ HUD
-  - Worktree: `/worktree/tempest-phase-280-battle-feedback`
-  - Branch: `phase-280-battle-feedback`
-  - Ziel: schärfere Treffer-/Telegraph-/Signature-Feedbacks im Kampf-HUD.
-
-- `[~]` **Phase 274 — Kampf-Balance-Pass (in Bearbeitung)**
-  - Worktree: `/worktree/tempest-phase-274-balance-pass`
-  - Branch: `phase-274-balance-pass`
-  - Ziel: Story-Kämpfe fordernder; Benchmark-Guardrails wo sinnvoll.
 
 - `[~]` **Phase 272 — Visuelle Bugs beim Laufen (in Bearbeitung)**
   - Worktree: `/worktree/tempest-phase-272-walk-bugs`
@@ -41,10 +34,6 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[ ]` **Phase 273 — Mehr Story-Content**
-  - Problem: Story-Dichte und Zwischenbeats sind dünn.
-  - Ziel: mehr Dialoge/Szenen auf Haupt- und Nebenpfaden.
-
 - `[ ]` **Phase 275 — Bond-Szenen & Beziehungspfade erweitern**
   - Ziel: mehr Bond-Szenen pro Kern-Paar, Unlock-Signale.
 
@@ -53,15 +42,6 @@ Status:
 
 - `[ ]` **Phase 279 — Overworld-Party-Präsenz (Follower/Companions)**
   - Ziel: 1–2 sichtbare Begleiter (nach 272 mergen).
-
-- `[ ]` **Phase 281 — Siedlungs-/Facility-Wachstum spürbar machen**
-  - Ziel: sichtbare Fortschrittsstufen für Tempest-Wachstum.
-
-- `[ ]` **Phase 282 — Nebeninhalte & optionale Regionen**
-  - Ziel: 2–4 lohnende Nebenpfade.
-
-- `[ ]` **Phase 283 — Post-Game / New-Game+-Grundlage**
-  - Ziel: leichte Post-Game-Schleife / NG+-Gerüst.
 
 - `[ ]` **Phase 284 — Performance & Asset-Budget-Nachzug**
   - Ziel: stabile 960×540 auf Desktop/Mobile.

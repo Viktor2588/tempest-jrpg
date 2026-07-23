@@ -842,6 +842,43 @@ export const QUESTS = [
       }
     ],
     reward: { gold: 260, itemIds: ['ward-talisman', 'spirit-ember'] }
+  },
+  // Phase 282 — Nebeninhalte in optionalen Regionen: drei lohnende Nebenpfade, je in eine
+  // bestehende Nebenregion (Hochland/Blumund/Akademie). Selbe Struktur wie die Phase-154-
+  // Loot-Quests (annehmen → Jagd-Encounter → abliefern), Reue-Gear als Belohnung. Off-route:
+  // die Jagd-Encounter stehen in keiner Region-`encounterIds`-Liste → Balance-Harness unberührt.
+  {
+    id: 'stormpeak-hunt',
+    title: 'Auftrag: Sturmgeist-Beute vom Schreingipfel',
+    description: 'Gobta meldet, dass ein Sturmrufer-Paar den Aufstieg zum Schreingipfel verweht. Ranga will ihre Windgeist-Fäden für einen Zephyr-Reif bergen.',
+    steps: [
+      { id: 'accept-stormpeak', title: 'Rigurds Auftrag annehmen', description: 'Nimm den Auftrag an, die Sturmrufer am Schreingipfel zu vertreiben.', locationId: 'tempest-hollow' },
+      { id: 'hunt-stormpeak', title: 'Die Sturmrufer vertreiben', description: 'Stell das Sturmrufer-Paar am Geisterschrein-Gipfel.', locationId: 'shrine-summit' },
+      { id: 'report-stormpeak', title: 'Rigurd berichten', description: 'Bring die Windgeist-Fäden zurück; Ranga fasst sie zu einem Zephyr-Reif.', locationId: 'tempest-hollow' }
+    ],
+    reward: { gold: 220, itemIds: ['zephyr-band', 'swiftwind-boots'] }
+  },
+  {
+    id: 'blumund-raiders-hunt',
+    title: 'Auftrag: Räuberbande von Blumund',
+    description: 'Gildenmeister Fuze setzt ein Kopfgeld aus: Eine Schnapphahn-Bande plündert die Handelsstraße vor Blumund. Für das Bündnis lohnt es sich, sie zu zerschlagen.',
+    steps: [
+      { id: 'accept-raiders', title: 'Rigurds Auftrag annehmen', description: 'Nimm das Gildenkopfgeld gegen die Räuberbande von Blumund an.', locationId: 'tempest-hollow' },
+      { id: 'hunt-raiders', title: 'Die Räuberbande zerschlagen', description: 'Stell die Schnapphahn-Bande am Markt von Blumund.', locationId: 'blumund-market' },
+      { id: 'report-raiders', title: 'Rigurd berichten', description: 'Melde die zerschlagene Bande; die Gilde teilt Kopfgeld und Beutepanzer.', locationId: 'tempest-hollow' }
+    ],
+    reward: { gold: 200, itemIds: ['warded-brigandine', 'hipokte-herb'] }
+  },
+  {
+    id: 'academy-cleansing-hunt',
+    title: 'Auftrag: Bannung an der Freiheitsakademie',
+    description: 'Aus dem Krankenflügel der Akademie steigen Wiedergänger und Irrlichter. Shuna bittet, den Nachhall zu bannen, bevor er Shizus Schüler erreicht.',
+    steps: [
+      { id: 'accept-cleansing', title: 'Rigurds Auftrag annehmen', description: 'Nimm den Auftrag an, den Nachhall an der Freiheitsakademie zu bannen.', locationId: 'tempest-hollow' },
+      { id: 'hunt-cleansing', title: 'Den Nachhall bannen', description: 'Stell Wiedergänger und Irrlicht im Hof der Freiheitsakademie.', locationId: 'freedom-academy-yard' },
+      { id: 'report-cleansing', title: 'Rigurd berichten', description: 'Bring den geläuterten Resonanzkern zurück; Shuna stimmt ihn auf dich ab.', locationId: 'tempest-hollow' }
+    ],
+    reward: { gold: 260, itemIds: ['resonant-core', 'spirit-oak-staff'] }
   }
 ] as const satisfies readonly QuestDefinition[];
 
@@ -2642,6 +2679,98 @@ export const DIALOGS = [
               { type: 'add-item', itemId: 'ward-talisman', quantity: 1 },
               { type: 'add-item', itemId: 'spirit-ember', quantity: 1 }
             ]
+          },
+          // Phase 282 — Nebeninhalte in optionalen Regionen: drei lohnende Nebenpfade, je
+          // hinter dem Freischalt-Flag ihrer Zielregion (Hochland/Blumund/Akademie).
+          {
+            id: 'accept-stormpeak-order',
+            label: 'Auftrag: Sturmgeist-Beute vom Schreingipfel',
+            nextNodeId: 'stormpeak-order-accepted',
+            requirements: [
+              { flag: 'story.act1.completed' },
+              { questStatus: { questId: 'stormpeak-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'stormpeak-hunt' },
+              { type: 'complete-quest-step', questId: 'stormpeak-hunt', stepId: 'accept-stormpeak' },
+              { type: 'set-flag', flag: 'sidequest.stormpeak.started', value: true }
+            ]
+          },
+          {
+            id: 'report-stormpeak-order',
+            label: 'Windgeist-Fäden abliefern',
+            nextNodeId: 'stormpeak-order-paid',
+            requirements: [
+              { questStatus: { questId: 'stormpeak-hunt', status: 'active' } },
+              { flag: 'sidequest.stormpeak.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'stormpeak-hunt', stepId: 'report-stormpeak' },
+              { type: 'complete-quest', questId: 'stormpeak-hunt' },
+              { type: 'add-gold', amount: 220 },
+              { type: 'add-item', itemId: 'zephyr-band', quantity: 1 },
+              { type: 'add-item', itemId: 'swiftwind-boots', quantity: 1 }
+            ]
+          },
+          {
+            id: 'accept-raiders-order',
+            label: 'Auftrag: Räuberbande von Blumund',
+            nextNodeId: 'raiders-order-accepted',
+            requirements: [
+              { flag: 'faction.orcs.joined' },
+              { questStatus: { questId: 'blumund-raiders-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'blumund-raiders-hunt' },
+              { type: 'complete-quest-step', questId: 'blumund-raiders-hunt', stepId: 'accept-raiders' },
+              { type: 'set-flag', flag: 'sidequest.blumund-raiders.started', value: true }
+            ]
+          },
+          {
+            id: 'report-raiders-order',
+            label: 'Zerschlagene Bande melden',
+            nextNodeId: 'raiders-order-paid',
+            requirements: [
+              { questStatus: { questId: 'blumund-raiders-hunt', status: 'active' } },
+              { flag: 'sidequest.blumund-raiders.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'blumund-raiders-hunt', stepId: 'report-raiders' },
+              { type: 'complete-quest', questId: 'blumund-raiders-hunt' },
+              { type: 'add-gold', amount: 200 },
+              { type: 'add-item', itemId: 'warded-brigandine', quantity: 1 },
+              { type: 'add-item', itemId: 'hipokte-herb', quantity: 2 }
+            ]
+          },
+          {
+            id: 'accept-cleansing-order',
+            label: 'Auftrag: Bannung an der Freiheitsakademie',
+            nextNodeId: 'cleansing-order-accepted',
+            requirements: [
+              { flag: 'story.shizu.vow' },
+              { questStatus: { questId: 'academy-cleansing-hunt', status: 'inactive' } }
+            ],
+            effects: [
+              { type: 'start-quest', questId: 'academy-cleansing-hunt' },
+              { type: 'complete-quest-step', questId: 'academy-cleansing-hunt', stepId: 'accept-cleansing' },
+              { type: 'set-flag', flag: 'sidequest.academy-cleansing.started', value: true }
+            ]
+          },
+          {
+            id: 'report-cleansing-order',
+            label: 'Geläuterten Kern abliefern',
+            nextNodeId: 'cleansing-order-paid',
+            requirements: [
+              { questStatus: { questId: 'academy-cleansing-hunt', status: 'active' } },
+              { flag: 'sidequest.academy-cleansing.cleared' }
+            ],
+            effects: [
+              { type: 'complete-quest-step', questId: 'academy-cleansing-hunt', stepId: 'report-cleansing' },
+              { type: 'complete-quest', questId: 'academy-cleansing-hunt' },
+              { type: 'add-gold', amount: 260 },
+              { type: 'add-item', itemId: 'resonant-core', quantity: 1 },
+              { type: 'add-item', itemId: 'spirit-oak-staff', quantity: 1 }
+            ]
           }
         ]
       },
@@ -2758,6 +2887,43 @@ export const DIALOGS = [
         id: 'highland-ward-paid',
         speaker: 'Rigurd',
         text: 'Der Nachhall ist rein. Shuna hat den Schutztalisman geweiht — trag ihn, und Fäulnis wie Zwang greifen seltener. Ein Funke Geistglut liegt bei.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      // Phase 282 — Zielknoten der optionalen Nebenpfade.
+      {
+        id: 'stormpeak-order-accepted',
+        speaker: 'Rigurd',
+        text: 'Der Aufstieg ist verweht — zwei Sturmrufer halten den Gipfel. Brich ihr Paar, und Ranga fasst die Windgeist-Fäden zu einem Reif, der den Schritt trägt.',
+        choices: [{ id: 'end', label: 'Zum Schreingipfel' }]
+      },
+      {
+        id: 'stormpeak-order-paid',
+        speaker: 'Rigurd',
+        text: 'Reine Fäden, noch sturmwarm. Der Zephyr-Reif gehört dir — und ein Paar Windläufer-Stiefel obendrauf. Der Gipfel steht dir wieder offen.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'raiders-order-accepted',
+        speaker: 'Rigurd',
+        text: 'Fuze setzt ein Kopfgeld aus: Eine Schnapphahn-Bande plündert die Handelsstraße vor Blumund. Zerschlag sie am Markt — für das Bündnis und die Beute.',
+        choices: [{ id: 'end', label: 'Nach Blumund' }]
+      },
+      {
+        id: 'raiders-order-paid',
+        speaker: 'Rigurd',
+        text: 'Die Straße ist wieder sicher. Die Gilde teilt das Kopfgeld — und du behältst die gebannte Brigantine, die der Anführer trug.',
+        choices: [{ id: 'end', label: 'Gern geschehen' }]
+      },
+      {
+        id: 'cleansing-order-accepted',
+        speaker: 'Rigurd',
+        text: 'Aus dem Krankenflügel der Akademie steigt ein Nachhall — Wiedergänger und Irrlichter. Bann sie im Hof, bevor er Shizus Schüler erreicht.',
+        choices: [{ id: 'end', label: 'Zur Freiheitsakademie' }]
+      },
+      {
+        id: 'cleansing-order-paid',
+        speaker: 'Rigurd',
+        text: 'Der Hof ist rein. Shuna hat den Resonanzkern aus dem Nachhall geläutert und auf dich abgestimmt — dazu ein geistgetränkter Stab. Gut gemacht.',
         choices: [{ id: 'end', label: 'Gern geschehen' }]
       }
     ]
@@ -5455,6 +5621,57 @@ export const ENCOUNTERS = [
     victoryEffects: [
       { type: 'set-flag', flag: 'sidequest.highland-ward.cleared', value: true },
       { type: 'complete-quest-step', questId: 'highland-ward-hunt', stepId: 'hunt-ward' }
+    ]
+  },
+  // Phase 282 — Jagd-Encounter der optionalen Nebenpfade. Gegated hinter dem jeweiligen
+  // `sidequest.<x>.started`-Flag + `notFlag: cleared`; reuse bestehender Regionsgegner.
+  // In KEINER Region-`encounterIds`-Liste → off-route, Balance-Harness unberührt.
+  {
+    id: 'stormpeak-hunt-battle',
+    mapId: 'spirit-highlands',
+    kind: 'trigger',
+    position: { x: 4, y: 10 },
+    enemyIds: ['highland-galecaller', 'highland-galecaller'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.stormpeak.started' },
+      { notFlag: 'sidequest.stormpeak.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.stormpeak.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'stormpeak-hunt', stepId: 'hunt-stormpeak' }
+    ]
+  },
+  {
+    id: 'blumund-raiders-hunt-battle',
+    mapId: 'blumund',
+    kind: 'trigger',
+    position: { x: 8, y: 6 },
+    enemyIds: ['blumund-brigand', 'blumund-bandit'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.blumund-raiders.started' },
+      { notFlag: 'sidequest.blumund-raiders.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.blumund-raiders.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'blumund-raiders-hunt', stepId: 'hunt-raiders' }
+    ]
+  },
+  {
+    id: 'academy-cleansing-hunt-battle',
+    mapId: 'freedom-academy',
+    kind: 'trigger',
+    position: { x: 8, y: 6 },
+    enemyIds: ['academy-revenant', 'academy-wisp'],
+    chance: 1,
+    requirements: [
+      { flag: 'sidequest.academy-cleansing.started' },
+      { notFlag: 'sidequest.academy-cleansing.cleared' }
+    ],
+    victoryEffects: [
+      { type: 'set-flag', flag: 'sidequest.academy-cleansing.cleared', value: true },
+      { type: 'complete-quest-step', questId: 'academy-cleansing-hunt', stepId: 'hunt-cleansing' }
     ]
   }
 ] as const satisfies readonly EncounterDefinition[];

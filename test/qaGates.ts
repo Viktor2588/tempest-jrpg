@@ -135,15 +135,22 @@ export interface BalanceBossBenchmark {
   readonly currentlyInsideTargetCorridor: boolean;
 }
 
+export interface BalanceBenchmarkGuard {
+  readonly encounterId: string;
+  readonly mode: Extract<BalanceBossBenchmarkMode, 'target-level' | 'overleveled-8'>;
+  readonly minimumAverageTurns: number;
+}
+
 export interface BalanceHarnessReport {
   readonly hardAssertionsEnabled: true;
-  readonly benchmarkAssertionsEnabled: false;
+  readonly benchmarkAssertionsEnabled: true;
   readonly seeds: readonly number[];
   readonly rimuruSpecBranch: RimuruSpecBranch;
   readonly corridors: BalanceHarnessCorridors;
   readonly storyEncounterIds: readonly string[];
   readonly storyRoute: readonly BalanceEncounterAggregate[];
   readonly bossBenchmarks: readonly BalanceBossBenchmark[];
+  readonly benchmarkGuards: readonly BalanceBenchmarkGuard[];
   readonly issues: readonly QaIssue[];
 }
 
@@ -204,6 +211,19 @@ const STORY_BOSS_CORRIDOR_OVERRIDES: Readonly<Record<string, BalanceCorridor>> =
     remainingPartyHpFraction: { min: 0.15, max: 0.9 }
   }
 };
+
+// Phase 274 — Der reine Ziellevel-Check ist bewusst schlank: volle Gruppen ohne
+// Story-Attrition sollen die drei Schlüsselkämpfe trotzdem nicht wegklicken können.
+// Die +8-Level-Prüfung schützt zusätzlich gegen ein erneutes Trivialisieren durch Grind,
+// ohne künstlich eine Niederlage oder einen HP-Korridor in dieses Labor-Szenario zu pressen.
+const ACTIVE_BOSS_BENCHMARK_GUARDS: readonly BalanceBenchmarkGuard[] = [
+  { encounterId: 'mordrahn-confrontation', mode: 'target-level', minimumAverageTurns: 10 },
+  { encounterId: 'mordrahn-confrontation', mode: 'overleveled-8', minimumAverageTurns: 10 },
+  { encounterId: 'geld-disaster-boss', mode: 'target-level', minimumAverageTurns: 16 },
+  { encounterId: 'geld-disaster-boss', mode: 'overleveled-8', minimumAverageTurns: 16 },
+  { encounterId: 'ifrit-boss', mode: 'target-level', minimumAverageTurns: 10 },
+  { encounterId: 'ifrit-boss', mode: 'overleveled-8', minimumAverageTurns: 10 }
+];
 
 const STORY_ENCOUNTERS: ReadonlyArray<{
   readonly id: string;
@@ -483,15 +503,19 @@ export function runBalanceHarnessReport(
   });
   issues.push(...activeStoryCorridorIssues(storyRoute));
 
+  const bossBenchmarks = runBossBenchmarks(seeds);
+  issues.push(...activeBossBenchmarkIssues(bossBenchmarks));
+
   return {
     hardAssertionsEnabled: true,
-    benchmarkAssertionsEnabled: false,
+    benchmarkAssertionsEnabled: true,
     seeds: [...seeds],
     rimuruSpecBranch,
     corridors: BALANCE_CORRIDORS,
     storyEncounterIds: BALANCE_STORY_ROUTE.map((spec) => spec.id),
     storyRoute,
-    bossBenchmarks: runBossBenchmarks(seeds),
+    bossBenchmarks,
+    benchmarkGuards: ACTIVE_BOSS_BENCHMARK_GUARDS,
     issues
   };
 }
@@ -881,6 +905,21 @@ function activeStoryCorridorIssues(storyRoute: readonly BalanceEncounterAggregat
       path: `qa.balanceHarness.story.${encounter.encounterId}`,
       message: `${encounter.category === 'boss' ? 'Boss' : 'Normaler Encounter'} liegt außerhalb des aktiven Story-Korridors.`
     }];
+  });
+}
+
+function activeBossBenchmarkIssues(benchmarks: readonly BalanceBossBenchmark[]): QaIssue[] {
+  return ACTIVE_BOSS_BENCHMARK_GUARDS.flatMap((guard): QaIssue[] => {
+    const benchmark = benchmarks.find((candidate) =>
+      candidate.encounterId === guard.encounterId && candidate.mode === guard.mode
+    );
+    if (!benchmark || benchmark.averageTurns < guard.minimumAverageTurns) {
+      return [{
+        path: `qa.balanceHarness.benchmark.${guard.encounterId}.${guard.mode}`,
+        message: `Boss-Benchmark unterschreitet ${guard.minimumAverageTurns} durchschnittliche Züge.`
+      }];
+    }
+    return [];
   });
 }
 

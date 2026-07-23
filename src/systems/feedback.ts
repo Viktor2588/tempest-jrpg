@@ -22,7 +22,7 @@ export function snapshot(units: readonly { id: string; hp: number; mp: number; d
   return units.map((u) => ({ id: u.id, hp: u.hp, mp: u.mp, dead: u.dead }));
 }
 
-/** Differenz zweier Schnappschüsse → nur Einheiten mit LP-Änderung oder Tod. */
+/** Differenz zweier Schnappschüsse → Einheiten mit LP-/MP-Änderung oder Tod. */
 export function diffFeedback(before: readonly UnitSnap[], after: readonly UnitSnap[]): FeedbackEvent[] {
   const prev = new Map(before.map((u) => [u.id, u]));
   const events: FeedbackEvent[] = [];
@@ -32,7 +32,7 @@ export function diffFeedback(before: readonly UnitSnap[], after: readonly UnitSn
     const hpDelta = now.hp - was.hp;
     const mpDelta = now.mp - was.mp;
     const died = !was.dead && now.dead;
-    if (hpDelta !== 0 || died) events.push({ id: now.id, hpDelta, mpDelta, died });
+    if (hpDelta !== 0 || mpDelta !== 0 || died) events.push({ id: now.id, hpDelta, mpDelta, died });
   }
   return events;
 }

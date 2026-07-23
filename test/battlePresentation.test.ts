@@ -6,7 +6,12 @@ import {
   renderView,
   startBattle
 } from '../src/systems/battle';
-import { buildEnemyIntel, formatStatusSummary } from '../src/systems/battlePresentation';
+import {
+  buildEnemyIntel,
+  formatStatusSummary,
+  signatureStatusText,
+  telegraphWarningText
+} from '../src/systems/battlePresentation';
 
 describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
   it('hält die abgestimmten Schwellen und Erfolgsraten explizit prüfbar', () => {
@@ -63,6 +68,29 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
     const revealed = buildEnemyIntel(renderView(state).enemies[0]!);
     expect(revealed.weaknessText).toContain('Wasser');
     expect(revealed.telegraphText).toBe('NÄCHSTES: Ifrits Inferno');
+  });
+
+  it('schärft Großtreffer-Warnungen ohne unbekannte Skillnamen zu verraten', () => {
+    const state = startBattle({ enemyIds: ['ifrit'], seed: 280 });
+    const enemy = state.combatants.find((unit) => unit.side === 'enemy')!;
+    enemy.telegraphSkillId = 'ifrit-inferno';
+
+    const hidden = renderView(state).enemies[0]!;
+    expect(telegraphWarningText(hidden)).toBe('⚡ GROSSER TREFFER: BLOCKEN!');
+
+    enemy.analysisLevel = 1;
+    const revealed = renderView(state).enemies[0]!;
+    expect(telegraphWarningText(revealed)).toBe('⚡ Ifrits Inferno: BLOCKEN!');
+  });
+
+  it('benennt die aufladende und bereite Signatur direkt auf der Charakterkarte', () => {
+    const state = startBattle({ enemyIds: ['forest-slime'], seed: 280 });
+    const rimuru = state.combatants.find((unit) => unit.side === 'party')!;
+
+    expect(signatureStatusText(renderView(state).party[0]!)).toBe('★ Weiser Horizont 0%');
+
+    rimuru.signatureCharge = rimuru.signatureChargeMax;
+    expect(signatureStatusText(renderView(state).party[0]!)).toBe('★ Weiser Horizont: BEREIT');
   });
 
   it('hat für alle Gegner Schwächen, Telegraph-Aktionen und explizite Devour-Daten', () => {
