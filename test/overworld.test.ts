@@ -8,6 +8,10 @@ import {
   getMap,
   getMapName
 } from '../src/data/maps';
+import {
+  TEMPEST_FACILITY_DISTRICTS,
+  tempestFacilityDistrictScale
+} from '../src/render/tempestFacilityArt';
 import overworldSceneSource from '../src/scenes/OverworldScene.ts?raw';
 
 const MAP = parseMap([
@@ -86,6 +90,17 @@ describe('overworld grid', () => {
         .filter((tile) => tile === WALL);
       expect(interiorWalls).toHaveLength(0);
     }
+  });
+
+  it('zeichnet alle Facility-Distrikte größer mit jeder Tempest-Ausbaustufe', () => {
+    const districts = Object.values(TEMPEST_FACILITY_DISTRICTS);
+    expect(districts).toHaveLength(4);
+    expect(new Set(districts.map((district) => `${district.x},${district.y}`)).size).toBe(districts.length);
+    expect(tempestFacilityDistrictScale('wilderness').level).toBe(0);
+    expect(tempestFacilityDistrictScale('village').width).toBeGreaterThan(tempestFacilityDistrictScale('camp').width);
+    expect(tempestFacilityDistrictScale('city').width).toBeGreaterThan(tempestFacilityDistrictScale('village').width);
+    expect(overworldSceneSource).toContain('this.drawTempestFacilityDistricts()');
+    expect(overworldSceneSource).toContain('detail.title');
   });
 
   it('setzt eine gehaltene Touch-Richtung auch beim Loslassen neben dem Steuerkreuz zurück', () => {
