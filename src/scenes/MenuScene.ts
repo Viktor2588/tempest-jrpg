@@ -62,6 +62,7 @@ import { tempestGrowthLabel } from '../systems/tempestGrowth';
 import { buildCodexView, buildDevourCompendium, buildQuestLog, canEnchantEquipment, createWorldState, type QuestLogEntryView } from '../systems/world';
 import { addUiPanel, addUiPortraitFrame, addUiTextButton } from '../render/uiSkin';
 import { playSfxProcedural } from '../audio/sfxProcedural';
+import { overworldMusicTrack, playMusic } from '../audio/music';
 import {
   MENU_EQUIPMENT_LAYOUT,
   MENU_FACILITIES_LAYOUT,
@@ -140,6 +141,7 @@ export class MenuScene extends Phaser.Scene {
   create(): void {
     configureHiDpiScene(this);
     this.save = loadSave(window.localStorage) ?? createNewSave();
+    playMusic('menu');
     this.state = {
       party: this.save.party.active,
       reserve: this.save.party.reserve,
@@ -1980,6 +1982,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private close(): void {
+    playMusic(overworldMusicTrack(this.save.location.mapId));
     this.scene.resume('Overworld');
     this.scene.stop();
   }

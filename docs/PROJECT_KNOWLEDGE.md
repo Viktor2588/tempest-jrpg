@@ -2481,6 +2481,18 @@ test/release.test.ts
   Desktop-Chromium-Smoke (1/1) und vollstaendig gruener Branch-CI inklusive
   126 Browser-Smokes.
 
+### Phase 276 - Audio-Erweiterung
+
+- Branch/Worktree: `phase-276-audio` in
+  `/worktree/tempest-phase-276-audio`.
+- Vier CC0-Motive aus Kenney Music Jingles ergänzen Siedlung, Wildnis, Menü
+  und Boss. Die bestehende Audio-Pipeline behält Master×Musik-Lautstärke,
+  Mute-Verhalten und UI-/Kampf-SFX bei.
+- Die Track-Auswahl bleibt bewusst klein: Karte und Boss-Status wählen direkt
+  den passenden Eintrag aus der vorhandenen Map, ohne eine zweite Audio-Schicht.
+- Validiert mit `git diff --check`, Typecheck, 875 Unit-Tests, Build und
+  fokussiertem Desktop-Chromium-Smoke (Title → Overworld → Menü → Battle).
+
 ### Phase 124 - Sammel-Meisterschaft
 
 - Der aus `backup/diverged-main-commits` wiederhergestellte, aeltere

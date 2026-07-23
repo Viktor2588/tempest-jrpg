@@ -230,10 +230,14 @@ describe('Asset-Herkunft und Audio-Wiring', () => {
     expect(sfxSource).not.toContain('createOscillator');
   });
 
-  it('bindet echte CC0-Musik-Motive für Titel, Oberwelt und Kampf ein', () => {
+  it('bindet echte CC0-Musik-Motive für Titel, Regionen, Menü und Kampf ein', () => {
     expect(musicSource).toContain('../assets/music/title-theme.ogg');
     expect(musicSource).toContain('../assets/music/field-theme.ogg');
     expect(musicSource).toContain('../assets/music/battle-theme.ogg');
+    expect(musicSource).toContain('../assets/music/menu-theme.ogg');
+    expect(musicSource).toContain('../assets/music/settlement-theme.ogg');
+    expect(musicSource).toContain('../assets/music/wilds-theme.ogg');
+    expect(musicSource).toContain('../assets/music/boss-theme.ogg');
     expect(musicSource).toContain('effectiveMusicVolume');
   });
 });
