@@ -4,7 +4,12 @@ const port = Number(process.env.PLAYWRIGHT_PORT ?? 4173);
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 45_000,
+  // 45s is the strict CI budget. Local dev boxes run every worker on shared
+  // cores, so the boot-heavy smoke flows contend and can take ~50s wall-time
+  // for the same ~25s of work; with retries:0 locally that briefly-slow run
+  // would false-fail. Give non-CI runs headroom so `test:e2e` stays usable for
+  // pre-push verification without weakening the CI gate.
+  timeout: process.env.CI ? 45_000 : 60_000,
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

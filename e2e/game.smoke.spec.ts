@@ -18,7 +18,6 @@ async function settle(page: Page, ms = 150): Promise<void> {
 }
 
 test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -159,7 +158,6 @@ test('Ausrüstungskarten bleiben bedienbar und legen ein Teil ab', async ({ page
 });
 
 test('Talentbaum-Maske beschneidet den spaeteren Ranga-Tab nicht', async ({ page }) => {
-  test.setTimeout(45_000);
   await installBrowserSave(page, bandTwoBrowserSave());
   await page.goto('./');
   await expect(page.locator('canvas')).toBeVisible();
@@ -836,7 +834,6 @@ test('Party-Menü tauscht aktive Figur mit der Reserve', async ({ page }) => {
 });
 
 test('Spec-Baum bestätigt die Strangwahl und sperrt andere Richtungen', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -1490,7 +1487,6 @@ test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ 
 });
 
 test('Ramiris-Labyrinth-Save lädt Banner und Magiekoloss-Assets', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -1767,7 +1763,6 @@ test('Band 3 → Nachkampf an der Sumpfgrenze deeskaliert im Browser', async ({ 
 });
 
 test('Milim-Duell vergibt im Browser EP, Beute und Drago Nova', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -2094,7 +2089,6 @@ test('Phase 84 — Verschlingen-Kompendium rendert im Codex ohne Browserfehler',
 });
 
 test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -2148,7 +2142,6 @@ test('Phase 93 — Einrichtungen produzieren bei der Tempest-Rast im Browser', a
 });
 
 test('Phase 100 — Diplomatie-Tab rendert die Reputationsstände im Browser', async ({ page }) => {
-  test.setTimeout(45_000);
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
