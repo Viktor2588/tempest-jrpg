@@ -131,6 +131,40 @@ describe('buildFacilityOverview', () => {
     expect(bothForge.amountPerCycle).toBe(baseForge.amountPerCycle + 2 * 1 * forge.output.perStaffPerLevel);
   });
 
+  // Phase 289 — das Verbündeten-Kapstein stapelt eine zweite Route (Schwellen kumulativ).
+  it('Echsenmenschen-Bündnis (allied) stapelt auf trusted → doppelter Küchen-Nachschub', () => {
+    const kitchen = FACILITIES.find((f) => f.id === 'kitchen')!;
+    const heiler = residentIdsForRole('Heilung');
+    const base = buildFacilityOverview(heiler, CAMP_FLAGS);
+    // Verbündet bedeutet: sowohl trusted als auch allied sind gesetzt (kumulativ).
+    const allied = buildFacilityOverview(heiler, {
+      ...CAMP_FLAGS,
+      'reputation.lizardmen.trusted': true,
+      'reputation.lizardmen.allied': true
+    });
+    const baseKitchen = base.facilities.find((v) => v.facility.id === kitchen.id)!;
+    const alliedKitchen = allied.facilities.find((v) => v.facility.id === kitchen.id)!;
+    expect(alliedKitchen.amountPerCycle).toBe(
+      baseKitchen.amountPerCycle + 2 * 1 * kitchen.output.perStaffPerLevel
+    );
+  });
+
+  it('Dwargon-Bündnis (allied) an der Schmiede liegt genau eine Route über trusted', () => {
+    const forge = FACILITIES.find((f) => f.id === 'forge')!;
+    const handwerker = residentIdsForRole('Handwerk');
+    const trusted = buildFacilityOverview(handwerker, { ...CAMP_FLAGS, 'reputation.dwargon.trusted': true });
+    const allied = buildFacilityOverview(handwerker, {
+      ...CAMP_FLAGS,
+      'reputation.dwargon.trusted': true,
+      'reputation.dwargon.allied': true
+    });
+    const trustedForge = trusted.facilities.find((v) => v.facility.id === forge.id)!;
+    const alliedForge = allied.facilities.find((v) => v.facility.id === forge.id)!;
+    expect(alliedForge.amountPerCycle).toBe(
+      trustedForge.amountPerCycle + 1 * forge.output.perStaffPerLevel
+    );
+  });
+
   it('kein Nachschub-Bonus ohne Besetzung (baseAmount 0) und an falscher Einrichtung', () => {
     // Küche ohne Heiler produziert nichts — der Echsen-Bonus greift nicht.
     const empty = buildFacilityOverview([], { ...CAMP_FLAGS, 'reputation.lizardmen.trusted': true });

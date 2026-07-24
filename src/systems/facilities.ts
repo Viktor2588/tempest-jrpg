@@ -28,10 +28,16 @@ export const KITCHEN_REST_BUFF_FLAG = 'facility.kitchen.rest-buff.ready';
 // einen Nachschub-Bonus. Genau die in `data/factions.ts` versprochenen Handelsrouten:
 // Echsenmenschen→Küche (Heilkräuter), Dwargon+Orks→Schmiede (Erz/Ork-Hauer). Mehrere Routen
 // an derselben Einrichtung kumulieren. Rein datengetrieben, analog `defendedRouteBonus`.
+// Phase 289 — das `allied`-Kapstein löst die bislang tote Verbündeten-Belohnung ein:
+// Schwellen sind kumulativ (Bündnis setzt auch `trusted`), also stapelt jede allierte
+// Fraktion eine ZWEITE Route auf ihre Einrichtung — maxed Ruf = stärkste Handelsroute.
 const REPUTATION_SUPPLY_ROUTES: readonly { readonly facilityId: string; readonly flag: string }[] = [
   { facilityId: 'kitchen', flag: 'reputation.lizardmen.trusted' },
   { facilityId: 'forge', flag: 'reputation.dwargon.trusted' },
-  { facilityId: 'forge', flag: 'reputation.orcs.trusted' }
+  { facilityId: 'forge', flag: 'reputation.orcs.trusted' },
+  { facilityId: 'kitchen', flag: 'reputation.lizardmen.allied' },
+  { facilityId: 'forge', flag: 'reputation.dwargon.allied' },
+  { facilityId: 'forge', flag: 'reputation.orcs.allied' }
 ];
 
 function reputationSupplyBonus(
