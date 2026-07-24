@@ -7,6 +7,8 @@ import {
 } from '../src/render/battleArt';
 import { HEROES } from '../src/data/characters';
 import preloadSource from '../src/scenes/PreloadScene.ts?raw';
+import battleSource from '../src/scenes/BattleScene.ts?raw';
+import backgroundAssetsSource from '../src/render/battleBackgroundAssets.ts?raw';
 
 describe('Battle-Art-Zuordnung', () => {
   it('liefert für alle spielbaren Figuren eigene Kampfillustrationen', () => {
@@ -86,7 +88,7 @@ describe('Battle-Art-Zuordnung', () => {
     expect(battleArenaForMap('legacy-map').kind).toBe('tempest-grove');
   });
 
-  it('lädt die kommenden Canon-Arenen in der Preload-Szene', () => {
+  it('registriert spätere Canon-Arenen für bedarfsgerechtes Nachladen', () => {
     for (const file of [
       'battle-whispering-grove.webp',
       'battle-tempest-camp.webp',
@@ -104,7 +106,9 @@ describe('Battle-Art-Zuordnung', () => {
       'battle-tempest-colosseum.webp',
       'battle-tempest-invasion.webp'
     ]) {
-      expect(preloadSource).toContain(`../assets/backgrounds/${file}`);
+      expect(backgroundAssetsSource).toContain(`../assets/backgrounds/${file}`);
     }
+    expect(preloadSource).toContain('INITIAL_BATTLE_BACKGROUND_KINDS.forEach');
+    expect(battleSource).toContain('queueBattleBackground(this, kind)');
   });
 });

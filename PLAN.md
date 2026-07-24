@@ -15,11 +15,6 @@ Status:
   - Branch: `phase-276-audio`
   - Hinweis: parallel von anderem Agenten (Codex) übernommen.
 
-- `[~]` **Phase 284 — Performance & Asset-Budget-Nachzug (in Bearbeitung)**
-  - Worktree: `/worktree/tempest-phase-284-performance-budget`
-  - Branch: `phase-284-performance-budget`
-  - Ziel: stabile 960×540 auf Desktop/Mobile.
-
 ## Integrationswarteschlange
 
 - Keine offenen Integrationen.

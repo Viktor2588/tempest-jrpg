@@ -986,10 +986,7 @@ test('Canon- und Regions-NPCs laden dedizierte Storyportraits', async ({ page })
     'portrait-treyni',
     'portrait-milim',
     'portrait-souka',
-    'portrait-mordrahn',
-    'battle-tempest-camp',
-    'battle-tempest-village',
-    'battle-tempest-city'
+    'portrait-mordrahn'
   ]) {
     expect(loadedAssets.some((name) => name.includes(file))).toBe(true);
   }
@@ -1133,7 +1130,6 @@ test('Canon-Hauptpfad lädt dedizierte Boss-Cutouts und Arenen', async ({ page }
     'battle-ember-hollow',
     'enemy-direwolf-alpha',
     'enemy-nameless-echo',
-    'battle-whispering-grove',
     'enemy-orc-soldier',
     'enemy-orc-general',
     'enemy-orc-disaster',
