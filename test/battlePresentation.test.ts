@@ -49,7 +49,7 @@ describe('Phase 46 – Kampfbalance und HUD-Informationen', () => {
     expect(enemy.boss).toBe(true);
     expect(calculateDevourSuccessChance(enemy)).toBe(0);
     expect(buildEnemyIntel(renderView(state).enemies[0]!).devourText)
-      .toBe('DEVOUR: Phase 2 + Break');
+      .toBe('Verschlingen: Phase 2 + Bruch');
 
     enemy.phaseIndex = 1;
     expect(calculateDevourSuccessChance(enemy)).toBeGreaterThan(0);
