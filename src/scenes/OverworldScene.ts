@@ -74,6 +74,9 @@ const MOVE_MS = 130;
 // Oberwelt: rendert das Kachelraster, bewegt den Spieler rasterweise (Tastatur +
 // Touch-Steuerkreuz) und folgt mit der Kamera. Bewegung/Kollision kommt aus
 // der reinen systems/overworld-Logik.
+// Abstand der Welt-Uhr unter dem Menueknopf; der Onboarding-Hinweis setzt darunter auf.
+const CLOCK_HUD_GAP = 12;
+
 export class OverworldScene extends Phaser.Scene {
   private pos: Vec2 = { x: 0, y: 0 };
   private mapId = 'tempest-start';
@@ -269,7 +272,7 @@ export class OverworldScene extends Phaser.Scene {
     this.clockTint.disableInteractive();
 
     // Phase 101 — Welt-Uhr: Tageszeit/Wetter-Anzeige unter dem Menüknopf.
-    this.clockHud = this.add.text(menuX, menuY + menuRect.height / 2 + 12, '', {
+    this.clockHud = this.add.text(menuX, menuY + menuRect.height / 2 + CLOCK_HUD_GAP, '', {
       fontFamily: 'sans-serif', fontSize: '12px', color: '#bfe0ff'
     }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(11);
     this.refreshClockHud();
@@ -340,7 +343,8 @@ export class OverworldScene extends Phaser.Scene {
     }
     if (hints.some((hint) => hint.step === 'menu')) {
       const rect = hud.menu;
-      layer.add(this.add.text(rect.x, rect.y + rect.height / 2 + 18, '↗ Menü öffnen', {
+      // Unter der Welt-Uhr absetzen — beide haengen am selben Anker unter dem Menueknopf.
+      layer.add(this.add.text(rect.x, rect.y + rect.height / 2 + CLOCK_HUD_GAP + 26, '↗ Menü öffnen', {
         fontFamily: 'sans-serif',
         fontSize: '12px',
         color: '#d8ecff'
