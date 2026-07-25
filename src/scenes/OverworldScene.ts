@@ -62,6 +62,7 @@ import {
   npcHasQuestMarker,
   resolveEncounter
 } from '../systems/world';
+import { getChapterSummary } from '../systems/chapterBanner';
 import { clockAt, clockHudLabel, openingFieldElement, openingStatusesWarded, overworldTint, FOG_WARD_FLAG } from '../systems/worldClock';
 import { overworldMusicTrack, playMusic, resumeMusic } from '../audio/music';
 import { resumeAudio } from '../audio/sfx';
@@ -729,12 +730,19 @@ export class OverworldScene extends Phaser.Scene {
         wordWrap: { width: panelW - 28 }
       }));
     } else {
-      layer.add(this.add.text(panelX + 14, panelY + 38, 'Kein aktives Hauptziel', {
-        fontFamily: 'serif', fontSize: '18px', color: '#f4d782'
+      // Ohne aktive Quest (Prolog!) zeigt das HUD dasselbe Kapitelziel wie der
+      // Quest-Tab im Menue, statt den Spieler mit "kein Ziel" loszuschicken.
+      const summary = getChapterSummary(this.save);
+      layer.add(this.add.text(panelX + 14, panelY + 29, summary.banner.kicker, {
+        fontFamily: 'serif', fontSize: '18px', color: '#f4d782',
+        wordWrap: { width: panelW - 28 }
       }));
-      layer.add(this.add.text(panelX + 14, panelY + 66, 'Erkunde die Welt oder sprich mit einem Quest-Marker.', {
-        fontFamily: 'sans-serif', fontSize: '12px', color: '#b4c2d7', wordWrap: { width: panelW - 28 }
+      layer.add(this.add.text(panelX + 14, panelY + 53, summary.nextObjective, {
+        fontFamily: 'sans-serif', fontSize: '14px', color: '#f4f8ff',
+        wordWrap: { width: panelW - 28 }
       }));
+      // Bewusst nur zwei Zeilen: das Kapitelziel bricht regelmaessig um und
+      // liefe sonst in eine dritte Zeile hinein.
     }
 
     const sideY = panelY + objectiveH + 8;
