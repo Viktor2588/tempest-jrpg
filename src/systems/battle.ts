@@ -939,7 +939,14 @@ function resolveFlee(state: BattleState, actor: Combatant): ActionResult {
     return { ok: true };
   }
 
-  const averageEnemyAgility = average(livingCombatants(state, 'enemy').map((enemy) => enemy.agility));
+  const livingEnemies = livingCombatants(state, 'enemy');
+  if (livingEnemies.some((enemy) => enemy.boss)) {
+    pushLog(state, `${actor.name} findet keinen Fluchtweg — der Boss laesst niemanden gehen.`);
+    endTurn(state, actor);
+    return { ok: true };
+  }
+
+  const averageEnemyAgility = average(livingEnemies.map((enemy) => enemy.agility));
   const chance = clamp(0.35 + (actor.agility - averageEnemyAgility) * 0.025, 0.15, 0.85);
   if (state.rng() < chance) {
     state.status = 'fled';

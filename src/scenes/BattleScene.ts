@@ -1037,9 +1037,12 @@ export class BattleScene extends Phaser.Scene {
         this.mode = 'items';
         this.refresh();
       }],
-      ['🛡 Verteidigen', () => this.doAct({ type: 'guard' })],
-      ['🏃 Fliehen', () => this.doAct({ type: 'flee' })]
+      ['🛡 Verteidigen', () => this.doAct({ type: 'guard' })]
     ];
+    // Bosse sperren die Flucht (systems/battle); der Knopf erscheint dann gar nicht erst.
+    if (!renderView(this.state).enemies.some((foe) => !foe.dead && foe.boss)) {
+      items.push(['🏃 Fliehen', () => this.doAct({ type: 'flee' })]);
+    }
     const partners = renderView(this.state).party.filter((candidate) =>
       !candidate.dead
       && candidate.id !== actor.id
