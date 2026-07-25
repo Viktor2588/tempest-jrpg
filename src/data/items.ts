@@ -73,15 +73,6 @@ export const ITEMS = [
     statBonus: { maxMp: 5, spirit: 2 }
   },
   {
-    id: 'guild-letter',
-    name: 'Gildenbrief',
-    description: 'Ein versiegelter Brief für den ersten Quest-Knoten.',
-    category: 'key',
-    price: 0,
-    stackable: false,
-    startingQuantity: 1
-  },
-  {
     id: 'sealed-cave-crystal',
     name: 'Höhlenkristall',
     description: 'Ein stumm schwingender Kristall aus der versiegelten Höhle. Er markiert Rimurus ersten Schwur.',
