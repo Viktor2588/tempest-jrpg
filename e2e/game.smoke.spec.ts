@@ -30,7 +30,7 @@ test('Title → Overworld → Menü → Battle rendert ohne Browserfehler', asyn
   await expectCanvasContent(page);
 
   // Frisches Browserprofil: Tutorial schließen, dann das Spiel starten.
-  await clickGamePoint(page, 480, 370);
+  await clickGamePoint(page, 480, 388); // Tutorial-Knopf 'Los geht's' (unter der letzten Merkzeile)
   await clickGamePoint(page, 480, 280);
   await settle(page, 400);  // allow initial scene + tutorial
   await dismissOverworldTutorial(page);
