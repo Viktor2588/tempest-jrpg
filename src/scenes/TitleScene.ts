@@ -63,6 +63,10 @@ export class TitleScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2, cy = GAME_HEIGHT / 2;
     const overlay = this.add.container(0, 0).setDepth(100);
     overlay.add(this.add.rectangle(cx, cy, GAME_WIDTH, GAME_HEIGHT, 0x05070c, 0.82));
+    // Eigene Tafel hinter dem Text: der Titelbildschirm schlug sonst durch den
+    // Schleier und kollidierte mit Ueberschrift, Merksaetzen und Knopf.
+    overlay.add(this.add.rectangle(cx, cy + 4, 700, 320, 0x0b1220, 0.97)
+      .setStrokeStyle(2, 0x68d7ff, 0.7));
     overlay.add(this.add.text(cx, cy - 110, 'Willkommen!', { fontFamily: 'serif', fontSize: '30px', color: '#e9c56c' }).setOrigin(0.5));
     const lines = [
       '🕳 Start: Du erwachst in der versiegelten Höhle',
@@ -72,9 +76,10 @@ export class TitleScene extends Phaser.Scene {
       '⚔ Rimuru: Analysieren/Verschlingen erbeutet Skills; Wasserstrahl ist angeboren'
     ];
     lines.forEach((l, i) => overlay.add(this.add.text(cx, cy - 50 + i * 30, l, { fontFamily: 'sans-serif', fontSize: '16px', color: '#cdd8ea' }).setOrigin(0.5)));
-    const bg = this.add.rectangle(cx, cy + 100, 200, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
+    // Unter der letzten Merkzeile (cy + 70) absetzen, sonst schneidet der Knopfrand hinein.
+    const bg = this.add.rectangle(cx, cy + 118, 200, 44, 0x1b2940, 1).setStrokeStyle(1, 0x68d7ff, 0.7).setInteractive();
     overlay.add(bg);
-    overlay.add(this.add.text(cx, cy + 100, 'Los geht’s', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5));
+    overlay.add(this.add.text(cx, cy + 118, 'Los geht’s', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e9eef7' }).setOrigin(0.5));
     bg.on('pointerdown', () => { resumeAudio(); resumeMusic(); playSfx('confirm'); overlay.destroy(); });
   }
 }
