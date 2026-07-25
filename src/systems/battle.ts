@@ -2617,6 +2617,43 @@ function variance(rng: Rng): number {
   return 0.9 + rng() * 0.2;
 }
 
+// Vorschau der Zeitleiste: rechnet die Regel aus advanceToNextActor (CT-Aufbau je
+// Runde, handeln ab CT_THRESHOLD, danach 100 abziehen) auf Kopien weiter. Reine
+// Funktion — sie fasst den Kampfzustand nicht an. Status-Aussetzer bleiben bewusst
+// unberuecksichtigt; die Zeile zeigt die Zeitleiste, nicht den Ausgang.
+export interface TurnForecastEntry {
+  readonly id: string;
+  readonly name: string;
+  readonly side: Side;
+}
+
+export function turnForecast(state: BattleState, count = 5): TurnForecastEntry[] {
+  const pending = livingCombatants(state).map((combatant) => ({
+    id: combatant.id,
+    name: combatant.name,
+    side: combatant.side,
+    ct: combatant.ct,
+    agility: Math.max(1, effectiveStat(combatant, 'agility'))
+  }));
+  const forecast: TurnForecastEntry[] = [];
+  let guard = 0;
+
+  while (forecast.length < count && guard++ < MAX_ADVANCE_STEPS) {
+    const ready = pending
+      .filter((entry) => entry.ct >= CT_THRESHOLD)
+      .sort((a, b) => b.ct - a.ct || sideTieBreaker(a.side, b.side));
+    const next = ready[0];
+    if (!next) {
+      for (const entry of pending) entry.ct += entry.agility;
+      continue;
+    }
+    forecast.push({ id: next.id, name: next.name, side: next.side });
+    next.ct -= CT_THRESHOLD;
+  }
+
+  return forecast;
+}
+
 function sideTieBreaker(a: Side, b: Side): number {
   if (a === b) {
     return 0;
