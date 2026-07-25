@@ -69,6 +69,11 @@ const itemById = new Map<string, ItemDefinition>(ITEMS.map((item) => [item.id, i
 
 // Darstellung des Rundenkampfs. Die Szene treibt nur die reine Battle-Engine an
 // und rendert deren View-Modell; Zuglogik, Schaden und Beute bleiben headless.
+// Namen in der Zeitleisten-Zeile kurz halten, damit sechs Eintraege nebeneinander passen.
+function shortName(name: string): string {
+  return name.length > 11 ? `${name.slice(0, 10)}…` : name;
+}
+
 export class BattleScene extends Phaser.Scene {
   private state!: BattleState;
   private mode: Mode = 'busy';
@@ -661,6 +666,18 @@ export class BattleScene extends Phaser.Scene {
 
     view.enemies.forEach((enemy, index) => this.drawUnit(enemy, this.colX(index, view.enemies.length), 137, 'enemy'));
     view.party.forEach((member, index) => this.drawUnit(member, this.colX(index, view.party.length), this.partyRowY(member), 'party'));
+
+    // Zeitleisten-Vorschau ueber dem Gegnerfeld: wer als naechstes handelt.
+    if (view.turnForecast.length > 0) {
+      const order = view.turnForecast
+        .map((entry, index) => (index === 0 ? `▶ ${shortName(entry.name)}` : shortName(entry.name)))
+        .join('  ›  ');
+      this.layer.add(this.add.text(GAME_WIDTH / 2, 12, order, {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#cbd6e8'
+      }).setOrigin(0.5, 0));
+    }
 
     view.log.slice(0, 2).forEach((line, index) => {
       this.layer.add(this.add.text(16, 11 + index * 19, line, {

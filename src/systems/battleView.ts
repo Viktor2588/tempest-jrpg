@@ -7,9 +7,10 @@ import type {
   BattleStatus,
   Combatant,
   QueuedReaction,
-  Side
+  Side,
+  TurnForecastEntry
 } from './battle';
-import { calculateDevourSuccessChance, escalationBonus } from './battle';
+import { calculateDevourSuccessChance, escalationBonus, turnForecast } from './battle';
 import { resolveElementFusion } from './fusion';
 import type { InventoryStack } from './inventory';
 import type { FormationRow } from './party';
@@ -103,6 +104,8 @@ export interface BattleView {
   // Phase 182 — Feld-Reaktion lesbar: Fremd-Elemente, die auf dem aktiven Feld eine
   // Fusions-Reaktion entladen (leer, wenn kein Feld geladen ist).
   readonly fieldReactions: readonly ElementType[];
+  // Vorschau der Zeitleiste: die naechsten Handelnden in Reihenfolge.
+  readonly turnForecast: readonly TurnForecastEntry[];
 }
 
 export function renderView(state: BattleState): BattleView {
@@ -131,7 +134,8 @@ export function renderView(state: BattleState): BattleView {
     round: state.round,
     devouredSourceIds: [...state.devouredSourceIds],
     field: state.field ? { element: state.field.element, turns: state.field.turns } : null,
-    fieldReactions: state.field ? fieldReactionElements(state.field.element) : []
+    fieldReactions: state.field ? fieldReactionElements(state.field.element) : [],
+    turnForecast: turnForecast(state)
   };
 }
 
