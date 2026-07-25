@@ -302,7 +302,9 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private drawMemberList(view: MenuView): void {
-    this.layer.add(this.add.text(24, 136, 'Party', {
+    // y 118: die Knopfreihe darueber endet bei 115, der erste Eintrag beginnt
+    // (mittig auf 170, 44 hoch) bei 148 — dazwischen passt genau diese Zeile.
+    this.layer.add(this.add.text(24, 118, 'Party', {
       fontFamily: 'sans-serif',
       fontSize: '16px',
       color: '#cdeaff'
