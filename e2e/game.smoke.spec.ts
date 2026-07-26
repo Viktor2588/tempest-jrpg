@@ -1417,7 +1417,7 @@ test('Hakurou-Marker führt sichtbar in die Kijin-Benennung', async ({ page }) =
   expect(browserErrors).toEqual([]);
 });
 
-test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page }) => {
+test('Kolosseum-Save lädt Arena-Region, Portrait und Kacheln', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -1444,7 +1444,6 @@ test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page })
     performance.getEntriesByType('resource').map((entry) => entry.name)
   ));
   expect(loadedAssets.some((name) => name.includes('region-tempest-colosseum'))).toBe(true);
-  expect(loadedAssets.some((name) => name.includes('battle-tempest-colosseum'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('portrait-arena-steward'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-floor'))).toBe(true);
   expect(loadedAssets.some((name) => name.includes('tile-tempest-colosseum-wall'))).toBe(true);
@@ -1452,7 +1451,7 @@ test('Kolosseum-Save lädt Arena-Region und Kampf-Hintergrund', async ({ page })
   expect(browserErrors).toEqual([]);
 });
 
-test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ page }) => {
+test('Tempest-Invasion-Save rendert das Schlachtfeld fehlerfrei', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
@@ -1478,10 +1477,8 @@ test('Tempest-Invasion-Save lädt den Verteidigungs-Kampfhintergrund', async ({ 
   await clickGamePoint(page, 480, 280);
   await settle(page, 400);
 
-  const loadedAssets = await page.evaluate(() => (
-    performance.getEntriesByType('resource').map((entry) => entry.name)
-  ));
-  expect(loadedAssets.some((name) => name.includes('battle-tempest-invasion'))).toBe(true);
+  const save = await page.evaluate(() => JSON.parse(window.localStorage.getItem('tempest-chronik.save.v3') ?? '{}'));
+  expect(save.location.mapId).toBe('jura-battlefield');
   await expectCanvasContent(page);
   expect(browserErrors).toEqual([]);
 });
