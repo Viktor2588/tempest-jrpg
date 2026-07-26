@@ -49,14 +49,22 @@ export const ENEMIES = [
     drops: [{ itemId: 'mana-drop', chance: 0.15 }]
   },
   {
+    // Prolog-Boss und zugleich der allererste Kampf des Spiels: die Party ist
+    // Rimuru + Gobta auf Level 1, davor gibt es keinen einzigen Trash-Encounter.
+    // Mit attack 30 schlug der Alpha Rimuru (76 HP) in zwei Treffern um
+    // (30*1.8 - 11*0.8 = 45 Schaden) und der Kampf lief im Simulator im Schnitt
+    // 17.4 Runden, auf schlechten Seeds 29 - dreimal so lang wie jeder andere
+    // fruehe Kampf und laenger als jeder Boss bis Geld. 62/24 laesst ihn den
+    // staerksten fruehen Gegner bleiben (3 Treffer auf Rimuru), bringt ihn aber
+    // auf ~10 Runden, also in denselben Korridor wie die uebrigen Story-Bosse.
     id: 'direwolf-alpha',
     name: 'Direwolf-Anführer',
     level: 3,
     element: 'neutral',
     stats: {
-      maxHp: 70,
+      maxHp: 62,
       maxMp: 12,
-      attack: 30,
+      attack: 24,
       defense: 12,
       magic: 10,
       spirit: 10,

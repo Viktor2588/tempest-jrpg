@@ -106,10 +106,17 @@ describe('Balance-Harness Report', () => {
 
     // Phase 274 — Die drei tragenden Story-Bosse müssen mit realem Carryover spürbar
     // bleiben, ohne den grindfreien Pfad aus seinem Gewinn-Korridor zu drücken.
+    //
+    // Die HP-Decken sind gegenüber Phase 274 angehoben (0.5/0.7/0.4 → 0.55/0.8/0.46),
+    // weil die Route nie rastet: der Schaden des Prolog-Bosses war eine Dauersteuer bis
+    // ins Endspiel. Mit einem fairen ersten Kampf endet die Party hier 3–6 Prozentpunkte
+    // gesünder (mordrahn ≤0.511, geld ≤0.774, ifrit ≤0.438 über alle Spec-Pfade). Die
+    // Rundenzahlen bleiben unverändert — die Kämpfe sind gleich lang, nur die
+    // mitgeschleppte Vorschädigung fehlt. minimumTurns bleibt deshalb strikt.
     const marqueeGuardrails = {
-      'mordrahn-confrontation': { minimumTurns: 10, maximumRemainingHp: 0.5 },
-      'geld-disaster-boss': { minimumTurns: 16, maximumRemainingHp: 0.7 },
-      'ifrit-boss': { minimumTurns: 8, maximumRemainingHp: 0.4 }
+      'mordrahn-confrontation': { minimumTurns: 10, maximumRemainingHp: 0.55 },
+      'geld-disaster-boss': { minimumTurns: 16, maximumRemainingHp: 0.8 },
+      'ifrit-boss': { minimumTurns: 8, maximumRemainingHp: 0.46 }
     } as const;
     for (const report of reports) {
       for (const [encounterId, guardrail] of Object.entries(marqueeGuardrails)) {

@@ -212,6 +212,25 @@ const STORY_BOSS_CORRIDOR_OVERRIDES: Readonly<Record<string, BalanceCorridor>> =
   }
 };
 
+// Ausnahmen zur Normal-Decke (0.90). Beide Kaempfe haben ihre Attrition nie selbst
+// erzeugt, sondern aus dem Prolog geerbt: der Direwolf-Alpha war so hart, dass die
+// Party noch Kaempfe spaeter angeschlagen antrat. Vor der Entschaerfung lagen sie mit
+// 0.88 bzw. 0.89 haarscharf unter der Decke — der Korridor war also schon vorher nur
+// durch Fremdschaden erfuellt. Mit einem fairen ersten Kampf zeigt sich, was sie aus
+// eigener Kraft kosten: training-clearing praktisch nichts (0.99), border-rift-vanguard
+// wenig (0.95). Die Decke wird NUR hier angehoben, damit das Gate den Rest der Route
+// weiter strikt prueft; wer diese beiden Beats schaerfen will, senkt sie wieder.
+const STORY_NORMAL_CORRIDOR_OVERRIDES: Readonly<Record<string, BalanceCorridor>> = {
+  'training-clearing': {
+    turns: { min: 2, max: 15 },
+    remainingPartyHpFraction: { min: 0.3, max: 1 }
+  },
+  'border-rift-vanguard': {
+    turns: { min: 2, max: 15 },
+    remainingPartyHpFraction: { min: 0.3, max: 0.96 }
+  }
+};
+
 // Phase 274 — Der reine Ziellevel-Check ist bewusst schlank: volle Gruppen ohne
 // Story-Attrition sollen die drei Schlüsselkämpfe trotzdem nicht wegklicken können.
 // Die +8-Level-Prüfung schützt zusätzlich gegen ein erneutes Trivialisieren durch Grind,
@@ -484,7 +503,7 @@ export function runBalanceHarnessReport(
     const encounterRuns = runs.filter((run) => run.encounterId === spec.id);
     const targetCorridor = spec.category === 'boss'
       ? (STORY_BOSS_CORRIDOR_OVERRIDES[spec.id] ?? BALANCE_CORRIDORS.storyBoss)
-      : BALANCE_CORRIDORS.normal;
+      : (STORY_NORMAL_CORRIDOR_OVERRIDES[spec.id] ?? BALANCE_CORRIDORS.normal);
     return {
       encounterId: spec.id,
       category: spec.category,
