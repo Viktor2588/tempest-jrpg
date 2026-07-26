@@ -17,7 +17,7 @@ interface MilestoneDefinition extends StoryMilestone {
   readonly eligible: (save: MilestoneSave) => boolean;
 }
 
-const MILESTONES: readonly MilestoneDefinition[] = [
+export const MILESTONES: readonly MilestoneDefinition[] = [
   {
     id: 'gobta-joins',
     kicker: 'Neue Bindung',
@@ -114,7 +114,7 @@ export function getMilestoneById(id: string): StoryMilestone | null {
   return milestone ? toView(milestone) : null;
 }
 
-function milestoneFlag(id: string): string {
+export function milestoneFlag(id: string): string {
   return `milestone.${id}.shown`;
 }
 

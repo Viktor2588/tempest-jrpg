@@ -59,6 +59,9 @@ const game = new Phaser.Game({
   ]
 });
 
+// Testhaken: E2E-Smoketests warten auf die aktive Szene statt auf feste Timeouts.
+(window as unknown as { __game: Phaser.Game }).__game = game;
+
 game.canvas.dataset.logicalWidth = String(GAME_WIDTH);
 game.canvas.dataset.logicalHeight = String(GAME_HEIGHT);
 game.canvas.dataset.renderScale = String(GAME_RENDER_SCALE);

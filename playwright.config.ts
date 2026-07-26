@@ -55,9 +55,14 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: `node_modules/.bin/vite --host 127.0.0.1 --port ${port} --strictPort`,
+    // Prod-Build statt Dev-Server: der Dev-Server liefert jedes Modul einzeln aus
+    // (~450 Requests) und braucht bis zum spielbaren Titelbild ~15 s, der Build
+    // ~6 s. Bei ~130 boot-schweren Smoke-Tests entscheidet das darueber, ob ein
+    // Lauf ins 45-s-Budget passt. `reuseExistingServer` ist aus, weil ein
+    // weiterlaufender Preview-Server sonst einen veralteten Build ausliefert.
+    command: `bun run build && node_modules/.bin/vite preview --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}/tempest-jrpg/`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 45_000
+    reuseExistingServer: false,
+    timeout: 120_000
   }
 });

@@ -13,6 +13,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'es2020',
+    // Kein Inlining: Spiel-Assets bleiben eigene Dateien statt als data:-URI im
+    // JS-Bundle zu landen. Sie behalten damit ihren Cache ueber JS-Aenderungen
+    // hinweg und tauchen im Browser als echte Requests auf, worauf sich die
+    // E2E-Asset-Checks stuetzen.
+    assetsInlineLimit: 0,
     // Phaser bleibt die zentrale Runtime-Abhängigkeit, wird aber als stabiler
     // Vendor-Chunk ausgeliefert. Dadurch wächst der eigentliche Spielcode mit
     // neuen Bänden weiter, ohne das mobile Chunkbudget zu überschreiten.
